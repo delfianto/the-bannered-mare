@@ -19,8 +19,6 @@ const form = reactive({
   model_identifier: "",
   provider_id: "",
   enabled: true,
-  use_openrouter: false,
-  openrouter_identifier: "",
   parameters: {} as Record<string, unknown>,
 });
 
@@ -39,8 +37,6 @@ watch(model, (m) => {
     form.model_identifier = m.model_identifier;
     form.provider_id = m.provider_id;
     form.enabled = m.enabled;
-    form.use_openrouter = m.use_openrouter;
-    form.openrouter_identifier = m.openrouter_identifier || "";
     form.parameters = m.parameters ? { ...m.parameters } : {};
   }
 });
@@ -54,13 +50,16 @@ function toggleEnabled() {
   form.enabled = !form.enabled;
 }
 
-function toggleOpenRouter() {
-  form.use_openrouter = !form.use_openrouter;
-}
-
 function onUpdateParameters(params: Record<string, unknown>) {
   form.parameters = params;
 }
+
+// Filter providers by the model family's supported provider_types
+const allowedProviders = computed(() => {
+  const familyTypes = (model.value?.model_family as any)?.provider_types as string[] | undefined;
+  if (!familyTypes || familyTypes.length === 0) return settingsStore.providers;
+  return settingsStore.providers.filter((p: any) => familyTypes.includes(p.provider_type));
+});
 
 const providerName = computed(() => {
   const provider = settingsStore.providers.find((p: any) => p.id === form.provider_id);
@@ -74,10 +73,6 @@ async function handleSave() {
   if (form.model_identifier !== model.value.model_identifier) updates.model_identifier = form.model_identifier;
   if (form.provider_id !== model.value.provider_id) updates.provider_id = form.provider_id;
   if (form.enabled !== model.value.enabled) updates.enabled = form.enabled;
-  if (form.use_openrouter !== model.value.use_openrouter) updates.use_openrouter = form.use_openrouter;
-  if (form.openrouter_identifier !== (model.value.openrouter_identifier || "")) {
-    updates.openrouter_identifier = form.openrouter_identifier || null;
-  }
   // Always include parameters (hard to diff deeply)
   updates.parameters = form.parameters;
 
@@ -240,23 +235,32 @@ function formatDate(iso: string): string {
                     Provider
                   </label>
                   <USelectMenu
+                    v-if="allowedProviders.length > 1"
                     v-model="form.provider_id"
-                    :items="settingsStore.providers.map((p: any) => ({ label: `${p.name} (${p.provider_type})`, value: p.id }))"
+                    :items="allowedProviders.map((p: any) => ({ label: p.name, value: p.id }))"
                     value-key="value"
                     :search-input="false"
+                    class="w-full"
                     :ui="{
-                      base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-                      content: 'border border-[var(--border)] bg-[var(--card)] ring-0 outline-none shadow-lg',
+                      base: 'w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent',
+                      content: 'w-[var(--reka-popper-anchor-width)] border border-[var(--border)] bg-[var(--card)] ring-0 outline-none shadow-lg',
                       item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-[var(--accent)]',
                     }"
                   >
                     <button
-                      class="flex h-11 w-full items-center justify-between rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+                      class="flex h-11 w-full items-center rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
                     >
-                      <span>{{ providerName }}</span>
-                      <UIcon name="i-lucide-chevron-down" class="h-4 w-4 text-muted-foreground" />
+                      {{ providerName }}
                     </button>
                   </USelectMenu>
+                  <!-- Single provider — show as read-only -->
+                  <div
+                    v-else
+                    class="flex h-11 w-full items-center rounded-lg border border-[var(--border)] bg-muted/20 px-4 text-sm text-muted-foreground"
+                  >
+                    {{ providerName }}
+                    <span class="ml-auto text-[10px] text-muted-foreground/60">Only compatible provider</span>
+                  </div>
                 </div>
 
                 <!-- Enabled toggle -->
@@ -277,38 +281,6 @@ function formatDate(iso: string): string {
                   </button>
                 </div>
 
-                <!-- OpenRouter section -->
-                <template v-if="model.can_use_openrouter">
-                  <div class="border-t border-border/50 pt-4">
-                    <div class="flex items-center justify-between">
-                      <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                        Use OpenRouter
-                      </label>
-                      <button @click="toggleOpenRouter" class="cursor-pointer">
-                        <div
-                          class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
-                          :class="form.use_openrouter ? 'bg-primary' : 'bg-muted-foreground/40'"
-                        >
-                          <span
-                            class="h-4 w-4 rounded-full shadow-sm transition-transform"
-                            :class="form.use_openrouter ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
-                          />
-                        </div>
-                      </button>
-                    </div>
-                    <div v-if="form.use_openrouter" class="mt-3">
-                      <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                        OpenRouter Identifier
-                      </label>
-                      <input
-                        v-model="form.openrouter_identifier"
-                        type="text"
-                        placeholder="e.g. openai/gpt-4o"
-                        class="h-11 w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-                      />
-                    </div>
-                  </div>
-                </template>
               </div>
             </div>
 
