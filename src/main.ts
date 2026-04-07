@@ -17,27 +17,15 @@ async function prepareApp() {
     const { worker } = await import("./mocks/browser");
 
     if (debugRequest) {
-      worker.events.on("response:mocked", async ({ request, response }) => {
-        const url = new URL(request.url);
-        const method = request.method;
-        const status = response.status;
-
-        console.log(`\n[MSW] ${method} ${url.pathname}${url.search} [${status}]`);
-
+      worker.events.on("*", (event: any) => {
+        const { request, response } = event;
+        if (!response || !request) return;
         try {
-          const contentType = response.headers.get("content-type");
-          if (contentType?.includes("application/json")) {
-            const data = await response.clone().json();
-            const json = JSON.stringify(data, null, 2);
-
-            if (json.length > 2000) {
-              console.log(json.slice(0, 2000) + "\n... [truncated due to size]");
-            } else {
-              console.log(json);
-            }
-          }
+          const url = new URL(request.url);
+          if (!url.pathname.startsWith("/api")) return;
+          console.log(`[MSW] ${request.method} ${url.pathname}${url.search} [${response.status}]`);
         } catch {
-          // Silent catch for parsing errors
+          // Silent catch
         }
       });
     }
