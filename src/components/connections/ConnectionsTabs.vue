@@ -11,6 +11,9 @@ const tabs = [
   { id: "providers", label: "Providers", icon: "i-lucide-server" },
   { id: "models", label: "Models", icon: "i-lucide-cpu" },
   { id: "model-families", label: "Model Families", icon: "i-lucide-layers" },
+  { id: "presets", label: "Presets", icon: "i-lucide-sliders-horizontal" },
+  { id: "templates", label: "Templates", icon: "i-lucide-file-text" },
+  { id: "fragments", label: "Fragments", icon: "i-lucide-puzzle" },
 ];
 </script>
 

@@ -6,12 +6,17 @@ import { allModelsMock } from "@/mocks/data/models-data";
 import { personas } from "@/mocks/data/personas";
 import { allModelFamiliesMock } from "@/mocks/data/model-families-data";
 import { modelFamiliesParameterDocs } from "@/mocks/data/model-parameters";
+import { dataBankEntries } from "@/mocks/data/data-bank";
+import { presets } from "@/mocks/data/presets";
+import { promptTemplates } from "@/mocks/data/prompt-templates";
+import { promptFragments } from "@/mocks/data/prompt-fragments";
 import { conversationCache } from "@/mocks/loader";
 import "@/mocks/data/messages"; // Initialize registrations
 import type { components } from "@/api/schema";
 
 type Chat = components["schemas"]["ChatResponse"];
 type Character = components["schemas"]["CharacterResponse"];
+type DataBankEntry = components["schemas"]["DataBankResponse"];
 
 const db = {
   characters,
@@ -20,6 +25,10 @@ const db = {
   allModelsMock,
   personas,
   allModelFamiliesMock,
+  dataBankEntries,
+  presets,
+  promptTemplates,
+  promptFragments,
 };
 
 export const handlers = [
@@ -697,5 +706,152 @@ export const handlers = [
     db.allModelFamiliesMock.splice(idx, 1);
     await delay(100);
     return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── Data Bank ──────────────────────────────────────────────
+
+  http.get("/api/data-bank/", async ({ request }) => {
+    const url = new URL(request.url);
+    const scope = url.searchParams.get("scope");
+
+    await delay(150);
+
+    let items = [...db.dataBankEntries];
+    if (scope) {
+      items = items.filter((e) => e.scope === scope);
+    }
+
+    return HttpResponse.json(items);
+  }),
+
+  http.post("/api/data-bank/", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["DataBankCreate"];
+    await delay(200);
+
+    const newEntry: DataBankEntry = {
+      id: `db-entry-${Date.now()}`,
+      name: body.name,
+      content: body.content,
+      scope: body.scope || "global",
+      character_id: body.character_id ?? null,
+      chat_id: body.chat_id ?? null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.dataBankEntries.unshift(newEntry);
+    return HttpResponse.json(newEntry, { status: 201 });
+  }),
+
+  http.get("/api/data-bank/:entryId", async ({ params }) => {
+    const entry = db.dataBankEntries.find((e) => e.id === params.entryId);
+    if (!entry) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(entry);
+  }),
+
+  http.put("/api/data-bank/:entryId", async ({ params, request }) => {
+    const entry = db.dataBankEntries.find((e) => e.id === params.entryId);
+    if (!entry) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["DataBankUpdate"];
+
+    if (body.name !== undefined && body.name !== null) entry.name = body.name;
+    if (body.content !== undefined && body.content !== null) entry.content = body.content;
+    if (body.scope !== undefined && body.scope !== null) entry.scope = body.scope;
+    entry.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(entry);
+  }),
+
+  http.delete("/api/data-bank/:entryId", async ({ params }) => {
+    const idx = db.dataBankEntries.findIndex((e) => e.id === params.entryId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.dataBankEntries.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── Presets ────────────────────────────────────────────────
+
+  http.get("/api/presets/", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    await delay(150);
+
+    const items = [...db.presets];
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  http.get("/api/presets/:presetId", async ({ params }) => {
+    const preset = db.presets.find((p) => p.id === params.presetId);
+    if (!preset) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(preset);
+  }),
+
+  // ── Prompt Templates ───────────────────────────────────────
+
+  http.get("/api/prompt-templates/", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    await delay(150);
+
+    const items = [...db.promptTemplates];
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  http.get("/api/prompt-templates/:templateId", async ({ params }) => {
+    const tpl = db.promptTemplates.find((t) => t.id === params.templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(tpl);
+  }),
+
+  // ── Prompt Fragments ───────────────────────────────────────
+
+  http.get("/api/prompt-fragments/", async ({ request }) => {
+    const url = new URL(request.url);
+    const fragmentType = url.searchParams.get("fragment_type");
+    const isGlobal = url.searchParams.get("is_global");
+
+    await delay(150);
+
+    let items = [...db.promptFragments];
+    if (fragmentType) {
+      items = items.filter((f) => f.fragment_type === fragmentType);
+    }
+    if (isGlobal !== null && isGlobal !== undefined && isGlobal !== "") {
+      items = items.filter((f) => f.is_global === (isGlobal === "true"));
+    }
+
+    return HttpResponse.json(items);
+  }),
+
+  http.get("/api/prompt-fragments/:fragmentId", async ({ params }) => {
+    const fragment = db.promptFragments.find((f) => f.id === params.fragmentId);
+    if (!fragment) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(fragment);
   }),
 ];
