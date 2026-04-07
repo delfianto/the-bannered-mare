@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import ConnectionsTabs from "@/components/connections/ConnectionsTabs.vue";
 import ProvidersTab from "@/components/connections/ProvidersTab.vue";
 import ModelsTab from "@/components/connections/ModelsTab.vue";
 import ModelFamiliesTab from "@/components/connections/ModelFamiliesTab.vue";
 
-const activeTab = ref("providers");
+const route = useRoute();
+const router = useRouter();
+
+const validTabs = ["providers", "models", "model-families"];
+
+const activeTab = computed({
+  get: () => {
+    const tab = route.query.tab as string;
+    return validTabs.includes(tab) ? tab : "providers";
+  },
+  set: (tab: string) => {
+    router.replace({ query: { tab } });
+  },
+});
 </script>
 
 <template>

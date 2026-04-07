@@ -96,7 +96,7 @@ async function handleDelete() {
   try {
     await deleteModel(model.value.id);
     toast.success("Model deleted");
-    router.push("/connections");
+    router.push({ path: "/connections", query: { tab: "models" } });
   } catch (e) {
     toast.error("Failed to delete model");
     confirmDelete.value = false;
@@ -142,7 +142,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            @click="router.push('/connections')"
+            @click="router.push({ path: '/connections', query: { tab: 'models' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
           </button>
