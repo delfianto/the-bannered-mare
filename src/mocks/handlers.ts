@@ -2,10 +2,8 @@ import { http, HttpResponse, delay } from "msw";
 import { characters } from "@/mocks/data/characters";
 import { chats } from "@/mocks/data/chats";
 import { providers } from "@/mocks/data/providers";
-import { modelsPages, modelsFilteredByName } from "@/mocks/data/models";
 import { allModelsMock } from "@/mocks/data/models-data";
 import { personas } from "@/mocks/data/personas";
-import { modelFamiliesPages, modelFamiliesFilteredByName } from "@/mocks/data/model-families";
 import { allModelFamiliesMock } from "@/mocks/data/model-families-data";
 import { modelFamiliesParameterDocs } from "@/mocks/data/model-parameters";
 import { conversationCache } from "@/mocks/loader";
@@ -19,10 +17,8 @@ const db = {
   characters,
   chats,
   providers,
-  modelsPages,
   allModelsMock,
   personas,
-  modelFamiliesPages,
   allModelFamiliesMock,
 };
 
@@ -516,16 +512,24 @@ export const handlers = [
     await delay(100);
     const url = new URL(request.url);
     const nameParam = url.searchParams.get("name");
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
 
-    if (nameParam && nameParam.toLowerCase().includes("claude")) {
-      return HttpResponse.json(modelsFilteredByName);
+    let items = [...db.allModelsMock];
+    if (nameParam) {
+      const q = nameParam.toLowerCase();
+      items = items.filter((m) => m.name.toLowerCase().includes(q));
     }
 
-    const pageParam = url.searchParams.get("page");
-    const page = pageParam ? parseInt(pageParam, 10) : 1;
-    const pageData = db.modelsPages.find((p) => p.meta.page === page);
-    if (!pageData) return HttpResponse.json(db.modelsPages[0]);
-    return HttpResponse.json(pageData);
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
   }),
 
   // Models Detail (Joined with Model Family)
@@ -623,21 +627,24 @@ export const handlers = [
     await delay(100);
     const url = new URL(request.url);
     const nameParam = url.searchParams.get("name");
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
 
-    if (nameParam && nameParam.toLowerCase().includes("claude")) {
-      return HttpResponse.json(modelFamiliesFilteredByName);
+    let items = [...db.allModelFamiliesMock];
+    if (nameParam) {
+      const q = nameParam.toLowerCase();
+      items = items.filter((f) => f.name.toLowerCase().includes(q));
     }
 
-    const pageParam = url.searchParams.get("page");
-    const page = pageParam ? parseInt(pageParam, 10) : 1;
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
 
-    const pageData = db.modelFamiliesPages.find((p) => p.meta.page === page);
-
-    if (!pageData) {
-      return HttpResponse.json(db.modelFamiliesPages[0]);
-    }
-
-    return HttpResponse.json(pageData);
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
   }),
 
   // Model Families Detail
