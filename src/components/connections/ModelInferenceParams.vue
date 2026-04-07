@@ -179,10 +179,10 @@ const sections = computed(() => {
         </div>
       </div>
 
-      <!-- Fine-Tuning: sliders -->
+      <!-- Fine-Tuning: sliders (2-col grid) -->
       <div
         v-else-if="section.key === 'fine-tuning'"
-        class="space-y-3"
+        class="grid grid-cols-1 gap-3 lg:grid-cols-2"
       >
         <div
           v-for="paramKey in section.params"

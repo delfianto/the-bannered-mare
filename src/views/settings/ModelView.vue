@@ -263,23 +263,7 @@ function formatDate(iso: string): string {
                   </div>
                 </div>
 
-                <!-- Enabled toggle -->
-                <div class="flex items-center justify-between">
-                  <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    Enabled
-                  </label>
-                  <button @click="toggleEnabled" class="cursor-pointer">
-                    <div
-                      class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
-                      :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
-                    >
-                      <span
-                        class="h-4 w-4 rounded-full shadow-sm transition-transform"
-                        :class="form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
-                      />
-                    </div>
-                  </button>
-                </div>
+
 
               </div>
             </div>
@@ -306,6 +290,24 @@ function formatDate(iso: string): string {
                 Metadata
               </h2>
               <div class="space-y-3">
+                <!-- Enabled toggle -->
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-muted-foreground">Enabled</span>
+                  <button @click="toggleEnabled" class="cursor-pointer">
+                    <div
+                      class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
+                      :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
+                    >
+                      <span
+                        class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+                        :class="form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                      />
+                    </div>
+                  </button>
+                </div>
+
+                <div class="h-px bg-border/50" />
+
                 <!-- Model Family -->
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">Model Family</span>
