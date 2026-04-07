@@ -6,7 +6,6 @@ import { useTheme } from "@/composables/useTheme";
 
 const settingsStore = useSettingsStore();
 
-// Initialize theme on app mount
 useTheme();
 
 onMounted(() => {
@@ -15,6 +14,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppShell />
-  <UNotifications />
+  <UApp>
+    <AppShell />
+  </UApp>
 </template>

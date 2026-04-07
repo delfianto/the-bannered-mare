@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import { useTheme } from "@/composables/useTheme";
+import { useSidebar } from "@/composables/useSidebar";
 import { APP_INFO } from "@/constants/appInfo";
 import { RECENT_SESSIONS } from "@/constants/homeData";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { isDark, toggleTheme } = useTheme();
+const { collapsed, toggle: toggleSidebar } = useSidebar();
 
 const navItems = [
   { id: "home", to: "/", label: "Home", icon: "i-lucide-home" },
-  { id: "chats", to: "/chats", label: "Chats", icon: "i-lucide-message-square" },
-  { id: "characters", to: "/characters", label: "Characters", icon: "i-lucide-users" },
+  { id: "characters", to: "/characters", label: "Discover", icon: "i-lucide-compass" },
   { id: "world", to: "/world", label: "World Lore", icon: "i-lucide-globe" },
-  { id: "memory", to: "/memory", label: "Memory", icon: "i-lucide-brain" },
+  { id: "memory", to: "/memory", label: "Data Bank", icon: "i-lucide-database" },
+  { id: "chats", to: "/chats", label: "Sessions", icon: "i-lucide-scroll-text" },
+  { id: "connections", to: "/connections", label: "Connections", icon: "i-lucide-cable" },
 ];
 
 function isActive(to: string) {
@@ -23,50 +26,85 @@ function isActive(to: string) {
 
 <template>
   <aside
-    class="hidden w-[320px] min-w-[320px] h-screen flex-col border-r border-border bg-secondary overflow-hidden lg:flex"
+    class="hidden h-screen flex-col border-r border-border bg-secondary overflow-hidden lg:flex transition-[width,min-width] duration-300 ease-in-out"
+    :class="collapsed ? 'w-[68px] min-w-[68px]' : 'w-[320px] min-w-[320px]'"
   >
     <!-- Brand Mark -->
-    <div class="px-6 pt-6 pb-4">
-      <div class="flex items-center gap-2.5">
-        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-          <span class="i-lucide-flame h-5 w-5 text-primary-foreground" />
-        </div>
-        <h1 class="font-cinzel text-xl font-semibold tracking-wider text-foreground">
+    <div class="pt-6 pb-4" :class="collapsed ? 'px-3' : 'px-6'">
+      <div class="flex items-center justify-center gap-2.5">
+        <button
+          class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
+          @click="toggleSidebar"
+          :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        >
+          <UIcon name="i-lucide-flame" class="h-5 w-5 text-primary-foreground" />
+        </button>
+        <h1
+          v-if="!collapsed"
+          class="font-cinzel text-xl font-semibold tracking-wider text-foreground whitespace-nowrap overflow-hidden"
+        >
           {{ APP_INFO.name }}
         </h1>
       </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="mt-2 px-3">
-      <div class="space-y-0.5">
+    <!-- Navigation: Grid (expanded) / Vertical icons (collapsed) -->
+    <nav class="px-3" :class="collapsed ? 'mt-2' : 'mt-1'">
+      <!-- Expanded: 2-column tile grid -->
+      <div v-if="!collapsed" class="grid grid-cols-2 gap-1.5">
         <RouterLink
-          v-for="item in navItems"
+          v-for="(item, i) in navItems"
           :key="item.id"
           :to="item.to"
-          class="relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200"
-          :class="
+          class="relative flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center transition-all duration-200"
+          :class="[
+            navItems.length % 2 !== 0 && i === navItems.length - 1 ? 'col-span-2' : '',
             isActive(item.to)
-              ? 'text-foreground bg-accent'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-          "
+              ? 'bg-accent text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+          ]"
         >
-          <!-- Active indicator bar -->
           <span
             v-if="isActive(item.to)"
-            class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary transition-all duration-300"
+            class="absolute left-1.5 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
           />
-          <span :class="[item.icon, 'h-[18px] w-[18px]']" />
-          <span style="letter-spacing: 0.04em">{{ item.label }}</span>
+          <UIcon :name="item.icon" class="h-5 w-5" />
+          <span class="text-[11px] font-medium tracking-wide">{{ item.label }}</span>
         </RouterLink>
+      </div>
+
+      <!-- Collapsed: vertical icon-only -->
+      <div v-else class="space-y-0.5">
+        <UTooltip
+          v-for="item in navItems"
+          :key="item.id"
+          :text="item.label"
+          :content="{ side: 'right', sideOffset: 8 }"
+        >
+          <RouterLink
+            :to="item.to"
+            class="relative flex w-full items-center justify-center rounded-lg py-2.5 transition-colors duration-200"
+            :class="
+              isActive(item.to)
+                ? 'text-foreground bg-accent'
+                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+            "
+          >
+            <span
+              v-if="isActive(item.to)"
+              class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+            />
+            <UIcon :name="item.icon" class="h-[18px] w-[18px]" />
+          </RouterLink>
+        </UTooltip>
       </div>
     </nav>
 
     <!-- Divider -->
-    <div class="mx-5 my-4 h-px bg-border" />
+    <div class="mx-3 my-4 h-px bg-border" />
 
-    <!-- Recent Sessions -->
-    <div class="flex-1 overflow-y-auto px-3">
+    <!-- Recent Sessions (hidden when collapsed) -->
+    <div v-if="!collapsed" class="flex-1 overflow-y-auto px-3">
       <p
         class="mb-2.5 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
       >
@@ -101,43 +139,62 @@ function isActive(to: string) {
       </div>
     </div>
 
-    <!-- Footer: Settings + Theme Toggle -->
-    <div class="border-t border-border px-3 py-3 space-y-0.5">
-      <RouterLink
-        to="/settings"
-        class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
-        :class="isActive('/settings') ? 'text-foreground bg-accent' : ''"
-      >
-        <span class="i-lucide-settings h-[18px] w-[18px]" />
-        <span style="letter-spacing: 0.04em">Settings</span>
-      </RouterLink>
+    <!-- Spacer when collapsed -->
+    <div v-else class="flex-1" />
 
-      <button
-        class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-accent/50"
-        @click="toggleTheme"
+    <!-- Footer: Settings + Theme Toggle -->
+    <div class="border-t border-border px-2 py-3 space-y-0.5">
+      <!-- Settings -->
+      <UTooltip
+        text="Settings"
+        :content="{ side: 'right', sideOffset: 8 }"
+        :disabled="!collapsed"
       >
-        <div class="flex items-center gap-2.5">
-          <span
-            :class="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-            class="h-[18px] w-[18px] text-primary transition-transform duration-400"
-          />
-          <span class="text-sm font-medium text-foreground">
-            {{ isDark ? "Dark Mode" : "Light Mode" }}
-          </span>
-        </div>
-        <!-- Toggle switch -->
-        <div
-          class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-          :class="isDark ? 'bg-primary' : 'bg-muted-foreground/40'"
+        <RouterLink
+          to="/settings"
+          class="flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+          :class="[
+            collapsed ? 'justify-center px-0' : 'gap-3 px-3',
+            isActive('/settings') ? 'text-foreground bg-accent' : '',
+          ]"
         >
-          <span
-            class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
-            :class="[
-              isDark ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white',
-            ]"
-          />
-        </div>
-      </button>
+          <UIcon name="i-lucide-settings" class="h-[18px] w-[18px] flex-shrink-0" />
+          <span v-if="!collapsed" style="letter-spacing: 0.04em">Settings</span>
+        </RouterLink>
+      </UTooltip>
+
+      <!-- Theme Toggle -->
+      <UTooltip
+        :text="isDark ? 'Dark Mode' : 'Light Mode'"
+        :content="{ side: 'right', sideOffset: 8 }"
+        :disabled="!collapsed"
+      >
+        <button
+          class="flex w-full items-center rounded-lg py-2.5 transition-colors hover:bg-accent/50"
+          :class="collapsed ? 'justify-center px-0' : 'justify-between px-3'"
+          @click="toggleTheme"
+        >
+          <div class="flex items-center" :class="collapsed ? '' : 'gap-2.5'">
+            <UIcon
+              :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+              class="h-[18px] w-[18px] flex-shrink-0 text-primary"
+            />
+            <span v-if="!collapsed" class="text-sm font-medium text-foreground">
+              {{ isDark ? "Dark Mode" : "Light Mode" }}
+            </span>
+          </div>
+          <div
+            v-if="!collapsed"
+            class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
+            :class="isDark ? 'bg-primary' : 'bg-muted-foreground/40'"
+          >
+            <span
+              class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+              :class="isDark ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+            />
+          </div>
+        </button>
+      </UTooltip>
     </div>
   </aside>
 </template>

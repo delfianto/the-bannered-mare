@@ -17,6 +17,11 @@ const routes = [
   { path: "/world", name: "world", component: () => import("@/views/WorldLoreView.vue") },
   { path: "/memory", name: "memory", component: () => import("@/views/MemoryView.vue") },
   {
+    path: "/connections",
+    name: "connections",
+    component: () => import("@/views/ConnectionsView.vue"),
+  },
+  {
     path: "/persona",
     name: "persona",
     component: () => import("@/views/settings/SettingsView.vue"),
