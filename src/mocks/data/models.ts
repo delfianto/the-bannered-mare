@@ -26,15 +26,15 @@ const createPage = (
 
 const PAGE_LIMIT = 10;
 const totalCount = allModelsMock.length;
+const totalPages = Math.ceil(totalCount / PAGE_LIMIT);
 
-export const modelsPages: ModelPage[] = [
-  // Page 1
-  createPage(allModelsMock.slice(0, PAGE_LIMIT), 1, totalCount, PAGE_LIMIT),
-  // Page 2
-  createPage(allModelsMock.slice(PAGE_LIMIT, PAGE_LIMIT * 2), 2, totalCount, PAGE_LIMIT),
-  // Page 3
-  createPage(allModelsMock.slice(PAGE_LIMIT * 2), 3, totalCount, PAGE_LIMIT),
-];
+// Generate pages dynamically (34 models = 4 pages: 10 + 10 + 10 + 4)
+export const modelsPages: ModelPage[] = Array.from({ length: totalPages }, (_, i) => {
+  const pageNum = i + 1;
+  const start = i * PAGE_LIMIT;
+  const end = start + PAGE_LIMIT;
+  return createPage(allModelsMock.slice(start, end), pageNum, totalCount, PAGE_LIMIT);
+});
 
 // Generate the filtered "Claude" result dynamically
 const claudeItems = allModelsMock.filter((item) => item.name.toLowerCase().includes("claude"));

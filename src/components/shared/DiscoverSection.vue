@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import type { components } from "@/api/schema";
-import CharacterCard from "./CharacterCard.vue";
+import CharacterCard from "./HomeCharacterCard.vue";
 
 type Character = components["schemas"]["CharacterResponse"];
 

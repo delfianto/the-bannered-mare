@@ -5,7 +5,7 @@ const NOW = new Date().toISOString();
 
 export const providers: Provider[] = [
   {
-    id: "openai",
+    id: "prov-openai",
     name: "OpenAI",
     provider_type: "openai",
     base_url: "https://api.openai.com/v1",
@@ -16,7 +16,7 @@ export const providers: Provider[] = [
     env_var_name: "OPENAI_API_KEY",
   },
   {
-    id: "anthropic",
+    id: "prov-anthropic",
     name: "Anthropic",
     provider_type: "anthropic",
     base_url: "https://api.anthropic.com/v1",
@@ -27,10 +27,10 @@ export const providers: Provider[] = [
     env_var_name: "ANTHROPIC_API_KEY",
   },
   {
-    id: "google-ai",
+    id: "prov-google",
     name: "Google AI",
     provider_type: "google",
-    base_url: "https://generativelanguage.googleapis.com/v1",
+    base_url: "https://generativelanguage.googleapis.com",
     enabled: true,
     created_at: NOW,
     updated_at: NOW,
@@ -38,7 +38,7 @@ export const providers: Provider[] = [
     env_var_name: "GOOGLE_API_KEY",
   },
   {
-    id: "openrouter",
+    id: "prov-openrouter",
     name: "OpenRouter",
     provider_type: "openrouter",
     base_url: "https://openrouter.ai/api/v1",
@@ -49,18 +49,18 @@ export const providers: Provider[] = [
     env_var_name: "OPENROUTER_API_KEY",
   },
   {
-    id: "xai",
+    id: "prov-xai",
     name: "xAI",
     provider_type: "xai",
     base_url: "https://api.x.ai/v1",
     enabled: true,
     created_at: NOW,
     updated_at: NOW,
-    api_key_configured: false,
+    api_key_configured: true,
     env_var_name: "XAI_API_KEY",
   },
   {
-    id: "ollama",
+    id: "prov-ollama",
     name: "Ollama",
     provider_type: "ollama",
     base_url: "http://localhost:11434",
