@@ -39,12 +39,12 @@ function goToPage(pageNum: number) {
         <div
           v-for="(family, index) in families"
           :key="family.id"
-          class="group relative animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+          class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
           :style="{ animationDelay: `${index * 30}ms` }"
           @click="router.push(`/settings/model-families/${family.id}`)"
         >
           <!-- Header: name + provider count -->
-          <div class="mb-2 flex items-start justify-between gap-2">
+          <div class="flex items-start justify-between gap-2">
             <div class="min-w-0 flex-1">
               <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
                 {{ family.name }}
@@ -61,13 +61,16 @@ function goToPage(pageNum: number) {
           <!-- Description -->
           <p
             v-if="family.description"
-            class="mb-2.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground"
+            class="mt-2 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground"
           >
             {{ family.description }}
           </p>
 
-          <!-- Provider type badges -->
-          <div class="flex flex-wrap gap-1.5">
+          <!-- Spacer -->
+          <div class="flex-1" />
+
+          <!-- Provider type badges (pinned to bottom) -->
+          <div class="flex flex-wrap gap-1.5 border-t border-border/30 pt-3">
             <span
               v-for="pt in family.provider_types"
               :key="pt"

@@ -153,12 +153,12 @@ const filteredModels = computed(() => models.value);
         <div
           v-for="(model, index) in filteredModels"
           :key="model.id"
-          class="group relative animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+          class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
           :style="{ animationDelay: `${index * 30}ms` }"
           @click="router.push(`/settings/models/${model.id}`)"
         >
           <!-- Header: name + status -->
-          <div class="mb-2 flex items-start justify-between gap-2">
+          <div class="flex items-start justify-between gap-2">
             <div class="min-w-0 flex-1">
               <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
                 {{ model.name }}
@@ -174,8 +174,11 @@ const filteredModels = computed(() => models.value);
             />
           </div>
 
-          <!-- Badges -->
-          <div class="flex flex-wrap items-center gap-1.5">
+          <!-- Spacer -->
+          <div class="flex-1" />
+
+          <!-- Badges (pinned to bottom) -->
+          <div class="flex flex-wrap items-center gap-1.5 border-t border-border/30 pt-3">
             <span class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground">
               {{ model.provider_id }}
             </span>
