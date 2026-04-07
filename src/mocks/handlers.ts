@@ -237,6 +237,30 @@ export const handlers = [
     return HttpResponse.json(chat);
   }),
 
+  // Update chat (title, model)
+  http.put("/api/chats/:chatId", async ({ params, request }) => {
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    if (!chat) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.title !== undefined) chat.title = body.title;
+    if (body.model_id !== undefined) {
+      const model = db.allModelsMock.find((m) => m.id === body.model_id);
+      if (model) chat.model = { id: model.id, name: model.name };
+    }
+    chat.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(chat);
+  }),
+
+  // Delete chat
+  http.delete("/api/chats/:chatId", async ({ params }) => {
+    const idx = db.chats.findIndex((c) => c.id === params.chatId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.chats.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   // Messages endpoint with lazy loading and cursor-based pagination
   http.get("/api/chats/:chatId/messages", async ({ params, request }) => {
     const chatId = params.chatId as string;
@@ -359,6 +383,59 @@ export const handlers = [
 
       return HttpResponse.json(aiMsg);
     }
+  }),
+
+  // Edit message content
+  http.put("/api/chats/:chatId/messages/:messageId", async ({ params, request }) => {
+    const body = (await request.json()) as any;
+    await delay(150);
+    return HttpResponse.json({
+      id: params.messageId as string,
+      chat_id: params.chatId as string,
+      role: "user" as const,
+      content: body.content || "",
+      active_index: 0,
+      created_at: new Date().toISOString(),
+    });
+  }),
+
+  // List message alternatives (swipes)
+  http.get("/api/chats/:chatId/messages/:messageId/alternatives", async ({ params }) => {
+    await delay(100);
+    // Return 2 mock alternatives for any message
+    return HttpResponse.json([
+      {
+        id: `alt-1-${params.messageId}`,
+        message_id: params.messageId as string,
+        content: "[Alternative 1] The ancient tome reveals a different path — one shrouded in mystery, where the shadows speak louder than the light.",
+        token_count: 42,
+        ordinal: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: `alt-2-${params.messageId}`,
+        message_id: params.messageId as string,
+        content: "[Alternative 2] She pauses, reconsidering her words. \"Perhaps there is another way to interpret the runes — one the scholars overlooked.\"",
+        token_count: 38,
+        ordinal: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ]);
+  }),
+
+  // Activate a message alternative
+  http.put("/api/chats/:chatId/messages/:messageId/alternatives/:alternativeId/activate", async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({
+      id: params.messageId as string,
+      chat_id: params.chatId as string,
+      role: "assistant" as const,
+      content: "[Swipe activated] The alternative response is now the active one.",
+      active_index: 1,
+      created_at: new Date().toISOString(),
+    });
   }),
 
   // Prefetch endpoint (optional)

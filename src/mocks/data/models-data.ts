@@ -13,7 +13,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-4o",
     model_family_id: "4821-openai-gpt-4",
-    system_prompt: null,
     parameters: {
       max_completion_tokens: 4096,
       temperature: 0.85,
@@ -36,7 +35,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-4o Mini",
     model_family_id: "4821-openai-gpt-4",
-    system_prompt: null,
     parameters: {
       max_completion_tokens: 16384,
       temperature: 0.85,
@@ -59,7 +57,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5",
     model_family_id: "9283-openai-gpt-5-thinking",
-    system_prompt: null,
     parameters: {
       reasoning_effort: "low",
       max_completion_tokens: 16384,
@@ -81,7 +78,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5 Mini",
     model_family_id: "9283-openai-gpt-5-thinking",
-    system_prompt: null,
     parameters: {
       reasoning_effort: "low",
       max_completion_tokens: 8192,
@@ -103,7 +99,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5 Nano",
     model_family_id: "9283-openai-gpt-5-thinking",
-    system_prompt: null,
     parameters: {
       reasoning_effort: "low",
       max_completion_tokens: 4096,
@@ -125,7 +120,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5 Chat",
     model_family_id: "3391-openai-gpt-5-chat",
-    system_prompt: null,
     parameters: {
       temperature: 0.85,
       top_p: 0.9,
@@ -148,7 +142,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5.1 Chat",
     model_family_id: "6612-openai-gpt-5-x-chat",
-    system_prompt: null,
     parameters: {
       temperature: 0.85,
       top_p: 0.9,
@@ -172,7 +165,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5.1",
     model_family_id: "1029-openai-gpt-5-1-thinking",
-    system_prompt: null,
     parameters: {
       reasoning_effort: "low",
       max_completion_tokens: 16384,
@@ -194,7 +186,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5.2",
     model_family_id: "7732-openai-gpt-5-2-thinking",
-    system_prompt: null,
     parameters: {
       reasoning_effort: "low",
       max_completion_tokens: 16384,
@@ -216,7 +207,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GPT-5.2 Chat",
     model_family_id: "6612-openai-gpt-5-x-chat",
-    system_prompt: null,
     parameters: {
       temperature: 0.85,
       top_p: 0.9,
@@ -242,7 +232,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: false,
     name: "Claude 4.5 Sonnet",
     model_family_id: "2281-anthropic-claude-4-5-standard",
-    system_prompt: null,
     parameters: {
       temperature: 0.8,
       max_tokens: 8192,
@@ -262,7 +251,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: false,
     name: "Claude 4.5 Opus",
     model_family_id: "1992-anthropic-claude-4-5-opus",
-    system_prompt: null,
     parameters: {
       temperature: 0.8,
       max_tokens: 8192,
@@ -282,7 +270,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: false,
     name: "Gemini 2.5 Pro",
     model_family_id: "8473-google-gemini-2-5-text",
-    system_prompt: null,
     parameters: {
       temperature: 0.9,
       max_output_tokens: 8192,
@@ -302,7 +289,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: false,
     name: "Grok 4",
     model_family_id: "3319-xai-grok-4",
-    system_prompt: null,
     parameters: {
       temperature: 0.8,
     },
@@ -321,7 +307,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: false,
     name: "Mistral (Local)",
     model_family_id: "6628-ollama-mistral",
-    system_prompt: null,
     parameters: {
       temperature: 0.7,
     },
@@ -342,7 +327,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "Sao10K L3 Euryale 70B v2.1",
     model_family_id: "7721-openrouter-llama-3-rp",
-    system_prompt: null,
     parameters: {
       temperature: 0.85,
       top_p: 0.9,
@@ -363,7 +347,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GLM 4.6",
     model_family_id: "4472-openrouter-glm-4",
-    system_prompt: null,
     parameters: {
       temperature: 0.8,
       top_p: 0.9,
@@ -384,7 +367,6 @@ export const allModelsMock: ModelItem[] = [
     use_openrouter: true,
     name: "GLM 4.7",
     model_family_id: "4472-openrouter-glm-4",
-    system_prompt: null,
     parameters: {
       temperature: 0.8,
       top_p: 0.9,

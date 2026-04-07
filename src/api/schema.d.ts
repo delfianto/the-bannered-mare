@@ -4,3490 +4,5807 @@
  */
 
 export interface paths {
-  "/admin/logs/http": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/logs/http": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Query Http Logs
+         * @description Query HTTP request logs
+         */
+        get: operations["query_http_logs_admin_logs_http_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Query Http Logs
-     * @description Query HTTP request logs
-     */
-    get: operations["query_http_logs_admin_logs_http_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/logs/llm": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/logs/llm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Query Llm Logs
+         * @description Query LLM API call logs
+         */
+        get: operations["query_llm_logs_admin_logs_llm_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Query Llm Logs
-     * @description Query LLM API call logs
-     */
-    get: operations["query_llm_logs_admin_logs_llm_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/logs/llm/stats": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/logs/llm/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Llm Stats
+         * @description Get aggregated LLM usage statistics
+         */
+        get: operations["get_llm_stats_admin_logs_llm_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Llm Stats
-     * @description Get aggregated LLM usage statistics
-     */
-    get: operations["get_llm_stats_admin_logs_llm_stats_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/admin/logs/errors": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/admin/logs/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Query Error Logs
+         * @description Query application error logs
+         */
+        get: operations["query_error_logs_admin_logs_errors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Query Error Logs
-     * @description Query application error logs
-     */
-    get: operations["query_error_logs_admin_logs_errors_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/providers": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Providers
+         * @description List configured model providers
+         */
+        get: operations["list_providers_api_providers_get"];
+        put?: never;
+        /**
+         * Create Provider
+         * @description Register a new model provider
+         */
+        post: operations["create_provider_api_providers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * List Providers
-     * @description List configured model providers
-     */
-    get: operations["list_providers_api_providers_get"];
-    put?: never;
-    /**
-     * Create Provider
-     * @description Register a new model provider
-     */
-    post: operations["create_provider_api_providers_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/providers/{provider_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/providers/{provider_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Provider
+         * @description Get provider details by ID
+         */
+        get: operations["get_provider_api_providers__provider_id__get"];
+        /**
+         * Update Provider
+         * @description Update provider configuration
+         */
+        put: operations["update_provider_api_providers__provider_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Provider
-     * @description Get provider details by ID
-     */
-    get: operations["get_provider_api_providers__provider_id__get"];
-    /**
-     * Update Provider
-     * @description Update provider configuration
-     */
-    put: operations["update_provider_api_providers__provider_id__put"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/providers/{provider_id}/flags": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/providers/{provider_id}/flags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Provider Flags
+         * @description Enable or disable a provider
+         */
+        patch: operations["update_provider_flags_api_providers__provider_id__flags_patch"];
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update Provider Flags
-     * @description Enable or disable a provider
-     */
-    patch: operations["update_provider_flags_api_providers__provider_id__flags_patch"];
-    trace?: never;
-  };
-  "/api/model-families/parameter-docs": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/model-families/parameter-docs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Parameter Definitions
+         * @description Returns documentation for all known model parameters.
+         */
+        get: operations["get_parameter_definitions_api_model_families_parameter_docs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Parameter Definitions
-     * @description Returns documentation for all known model parameters.
-     */
-    get: operations["get_parameter_definitions_api_model_families_parameter_docs_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/model-families": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/model-families": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Model Families
+         * @description List all model families with pagination and filtering
+         */
+        get: operations["list_model_families_api_model_families_get"];
+        put?: never;
+        /**
+         * Create Model Family
+         * @description Create a new model family
+         */
+        post: operations["create_model_family_api_model_families_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * List Model Families
-     * @description List all model families with pagination and filtering
-     */
-    get: operations["list_model_families_api_model_families_get"];
-    put?: never;
-    /**
-     * Create Model Family
-     * @description Create a new model family
-     */
-    post: operations["create_model_family_api_model_families_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/model-families/{family_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/model-families/{family_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Model Family
+         * @description Get model family details by ID
+         */
+        get: operations["get_model_family_api_model_families__family_id__get"];
+        /**
+         * Update Model Family
+         * @description Update model family
+         */
+        put: operations["update_model_family_api_model_families__family_id__put"];
+        post?: never;
+        /**
+         * Delete Model Family
+         * @description Delete model family
+         */
+        delete: operations["delete_model_family_api_model_families__family_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Model Family
-     * @description Get model family details by ID
-     */
-    get: operations["get_model_family_api_model_families__family_id__get"];
-    /**
-     * Update Model Family
-     * @description Update model family
-     */
-    put: operations["update_model_family_api_model_families__family_id__put"];
-    post?: never;
-    /**
-     * Delete Model Family
-     * @description Delete model family
-     */
-    delete: operations["delete_model_family_api_model_families__family_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/models": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Models
+         * @description List model definitions with pagination and filtering
+         */
+        get: operations["list_models_api_models_get"];
+        put?: never;
+        /**
+         * Create Model
+         * @description Create a new model definition
+         */
+        post: operations["create_model_api_models_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * List Models
-     * @description List model definitions with pagination and filtering
-     */
-    get: operations["list_models_api_models_get"];
-    put?: never;
-    /**
-     * Create Model
-     * @description Create a new model definition
-     */
-    post: operations["create_model_api_models_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/models/{model_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/models/{model_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Model
+         * @description Get model definition by ID.
+         *     Returns detailed information including the embedded Model Family.
+         */
+        get: operations["get_model_api_models__model_id__get"];
+        /**
+         * Update Model
+         * @description Update model definition
+         */
+        put: operations["update_model_api_models__model_id__put"];
+        post?: never;
+        /**
+         * Delete Model
+         * @description Delete model definition
+         */
+        delete: operations["delete_model_api_models__model_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Model
-     * @description Get model definition by ID.
-     *     Returns detailed information including the embedded Model Family.
-     */
-    get: operations["get_model_api_models__model_id__get"];
-    /**
-     * Update Model
-     * @description Update model definition
-     */
-    put: operations["update_model_api_models__model_id__put"];
-    post?: never;
-    /**
-     * Delete Model
-     * @description Delete model definition
-     */
-    delete: operations["delete_model_api_models__model_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/models/{model_id}/flags": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/models/{model_id}/flags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Model Flags
+         * @description Toggle model enabled and OpenRouter routing flags
+         */
+        patch: operations["update_model_flags_api_models__model_id__flags_patch"];
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Update Model Flags
-     * @description Toggle model enabled and OpenRouter routing flags
-     */
-    patch: operations["update_model_flags_api_models__model_id__flags_patch"];
-    trace?: never;
-  };
-  "/api/characters": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/characters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Characters
+         * @description List characters with pagination and filtering
+         */
+        get: operations["list_characters_api_characters_get"];
+        put?: never;
+        /**
+         * Create Character
+         * @description Create a new character with optional avatar upload
+         */
+        post: operations["create_character_api_characters_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * List Characters
-     * @description List characters with pagination and filtering
-     */
-    get: operations["list_characters_api_characters_get"];
-    put?: never;
-    /**
-     * Create Character
-     * @description Create a new character with optional avatar upload
-     */
-    post: operations["create_character_api_characters_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/characters/{character_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/characters/{character_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Character
+         * @description Get character details by ID
+         */
+        get: operations["get_character_api_characters__character_id__get"];
+        /**
+         * Update Character
+         * @description Update character
+         */
+        put: operations["update_character_api_characters__character_id__put"];
+        post?: never;
+        /**
+         * Delete Character
+         * @description Delete character
+         */
+        delete: operations["delete_character_api_characters__character_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Character
-     * @description Get character details by ID
-     */
-    get: operations["get_character_api_characters__character_id__get"];
-    /**
-     * Update Character
-     * @description Update character
-     */
-    put: operations["update_character_api_characters__character_id__put"];
-    post?: never;
-    /**
-     * Delete Character
-     * @description Delete character
-     */
-    delete: operations["delete_character_api_characters__character_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/characters/{character_id}/avatar": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/characters/{character_id}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Character Avatar
+         * @description Serve character avatar image
+         */
+        get: operations["get_character_avatar_api_characters__character_id__avatar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Character Avatar
-     * @description Serve character avatar image
-     */
-    get: operations["get_character_avatar_api_characters__character_id__avatar_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/characters/{character_id}/avatar_thumbnail": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/characters/{character_id}/avatar_thumbnail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Character Avatar Thumbnail
+         * @description Serve character avatar thumbnail image
+         */
+        get: operations["get_character_avatar_thumbnail_api_characters__character_id__avatar_thumbnail_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Character Avatar Thumbnail
-     * @description Serve character avatar thumbnail image
-     */
-    get: operations["get_character_avatar_thumbnail_api_characters__character_id__avatar_thumbnail_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/chats": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/characters/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Character
+         * @description Import a character from a TavernCard V1/V2 PNG or JSON file.
+         */
+        post: operations["import_character_api_characters_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * List Chats
-     * @description List chats with cursor-based pagination and filtering
-     */
-    get: operations["list_chats_api_chats_get"];
-    put?: never;
-    /**
-     * Create Chat
-     * @description Create a new chat
-     */
-    post: operations["create_chat_api_chats_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/chats/{chat_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/characters/{character_id}/export/json": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Character Json
+         * @description Export character as TavernCard V2 JSON.
+         */
+        get: operations["export_character_json_api_characters__character_id__export_json_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Chat
-     * @description Get chat details by ID
-     */
-    get: operations["get_chat_api_chats__chat_id__get"];
-    /**
-     * Update Chat
-     * @description Update chat (e.g., change title or model)
-     */
-    put: operations["update_chat_api_chats__chat_id__put"];
-    post?: never;
-    /**
-     * Delete Chat
-     * @description Delete chat
-     */
-    delete: operations["delete_chat_api_chats__chat_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/chats/{chat_id}/messages": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/characters/{character_id}/export/png": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Character Png
+         * @description Export character as PNG with embedded TavernCard V2 JSON.
+         */
+        get: operations["export_character_png_api_characters__character_id__export_png_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Chat Messages
-     * @description Get chat messages (Cursor Pagination).
-     *     Returns wrapped response: { items: [...], meta: { cursor: '...', has_more: true } }
-     */
-    get: operations["get_chat_messages_api_chats__chat_id__messages_get"];
-    put?: never;
-    /**
-     * Send Message
-     * @description Send a message or regenerate the last response.
-     *     Supports both blocking and streaming modes.
-     *     - **stream=False** (default): Returns JSON MessageResponse.
-     *     - **stream=True**: Returns Server-Sent Events (SSE).
-     */
-    post: operations["send_message_api_chats__chat_id__messages_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/personas/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Chats
+         * @description List chats with cursor-based pagination and filtering
+         */
+        get: operations["list_chats_api_chats_get"];
+        put?: never;
+        /**
+         * Create Chat
+         * @description Create a new chat
+         */
+        post: operations["create_chat_api_chats_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * List Personas
-     * @description List personas with pagination and filtering
-     */
-    get: operations["list_personas_api_personas__get"];
-    put?: never;
-    /**
-     * Create Persona
-     * @description Create new persona with optional avatar upload
-     */
-    post: operations["create_persona_api_personas__post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/personas/{persona_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chats/{chat_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Chat
+         * @description Get chat details by ID
+         */
+        get: operations["get_chat_api_chats__chat_id__get"];
+        /**
+         * Update Chat
+         * @description Update chat (e.g., change title or model)
+         */
+        put: operations["update_chat_api_chats__chat_id__put"];
+        post?: never;
+        /**
+         * Delete Chat
+         * @description Delete chat
+         */
+        delete: operations["delete_chat_api_chats__chat_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Persona
-     * @description Get persona by ID
-     */
-    get: operations["get_persona_api_personas__persona_id__get"];
-    /**
-     * Update Persona
-     * @description Update persona
-     */
-    put: operations["update_persona_api_personas__persona_id__put"];
-    post?: never;
-    /**
-     * Delete Persona
-     * @description Delete persona
-     */
-    delete: operations["delete_persona_api_personas__persona_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/personas/{persona_id}/avatar": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chats/{chat_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Chat Messages
+         * @description Get chat messages (Cursor Pagination).
+         *     Returns wrapped response: { items: [...], meta: { cursor: '...', has_more: true } }
+         */
+        get: operations["get_chat_messages_api_chats__chat_id__messages_get"];
+        put?: never;
+        /**
+         * Send Message
+         * @description Send a message or regenerate the last response.
+         *     Supports both blocking and streaming modes.
+         *     - **stream=False** (default): Returns JSON MessageResponse.
+         *     - **stream=True**: Returns Server-Sent Events (SSE) with typed events.
+         */
+        post: operations["send_message_api_chats__chat_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Persona Avatar
-     * @description Serve persona avatar image
-     */
-    get: operations["get_persona_avatar_api_personas__persona_id__avatar_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/personas/{persona_id}/avatar_thumbnail": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chats/{chat_id}/messages/{message_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Edit Message
+         * @description Edit a message's content. Recounts tokens.
+         */
+        put: operations["edit_message_api_chats__chat_id__messages__message_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Persona Avatar Thumbnail
-     * @description Serve persona avatar thumbnail image
-     */
-    get: operations["get_persona_avatar_thumbnail_api_personas__persona_id__avatar_thumbnail_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/personas/{persona_id}/set-default": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chats/{chat_id}/messages/{message_id}/alternatives": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Alternatives
+         * @description List all alternatives (swipes) for a message.
+         */
+        get: operations["list_alternatives_api_chats__chat_id__messages__message_id__alternatives_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Set Default Persona
-     * @description Set persona as default
-     */
-    post: operations["set_default_persona_api_personas__persona_id__set_default_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/prompt-templates/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/chats/{chat_id}/messages/{message_id}/alternatives/{alternative_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Activate Alternative
+         * @description Switch the active alternative (swipe) for a message.
+         */
+        put: operations["activate_alternative_api_chats__chat_id__messages__message_id__alternatives__alternative_id__activate_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * List Templates
-     * @description List prompt templates with pagination
-     */
-    get: operations["list_templates_api_prompt_templates__get"];
-    put?: never;
-    /**
-     * Create Template
-     * @description Create new prompt template
-     */
-    post: operations["create_template_api_prompt_templates__post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/prompt-templates/{template_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/personas/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Personas
+         * @description List personas with pagination and filtering
+         */
+        get: operations["list_personas_api_personas__get"];
+        put?: never;
+        /**
+         * Create Persona
+         * @description Create new persona with optional avatar upload
+         */
+        post: operations["create_persona_api_personas__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Template
-     * @description Get prompt template by ID
-     */
-    get: operations["get_template_api_prompt_templates__template_id__get"];
-    /**
-     * Update Template
-     * @description Update prompt template
-     */
-    put: operations["update_template_api_prompt_templates__template_id__put"];
-    post?: never;
-    /**
-     * Delete Template
-     * @description Delete prompt template
-     */
-    delete: operations["delete_template_api_prompt_templates__template_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/prompt-templates/{template_id}/set-default": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/personas/{persona_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Persona
+         * @description Get persona by ID
+         */
+        get: operations["get_persona_api_personas__persona_id__get"];
+        /**
+         * Update Persona
+         * @description Update persona
+         */
+        put: operations["update_persona_api_personas__persona_id__put"];
+        post?: never;
+        /**
+         * Delete Persona
+         * @description Delete persona
+         */
+        delete: operations["delete_persona_api_personas__persona_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Set Default Template
-     * @description Set prompt template as default
-     */
-    post: operations["set_default_template_api_prompt_templates__template_id__set_default_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/prompt-templates/{template_id}/preview": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/personas/{persona_id}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Persona Avatar
+         * @description Serve persona avatar image
+         */
+        get: operations["get_persona_avatar_api_personas__persona_id__avatar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Preview Template
-     * @description Preview template rendering with sample data
-     */
-    post: operations["preview_template_api_prompt_templates__template_id__preview_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/health": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/personas/{persona_id}/avatar_thumbnail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Persona Avatar Thumbnail
+         * @description Serve persona avatar thumbnail image
+         */
+        get: operations["get_persona_avatar_thumbnail_api_personas__persona_id__avatar_thumbnail_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Health Status
-     * @description Get application health status
-     */
-    get: operations["get_health_status_health_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/personas/{persona_id}/set-default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Default Persona
+         * @description Set persona as default
+         */
+        post: operations["set_default_persona_api_personas__persona_id__set_default_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Root
-     * @description Root endpoint
-     */
-    get: operations["root__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/api/presets/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Presets
+         * @description List presets with pagination
+         */
+        get: operations["list_presets_api_presets__get"];
+        put?: never;
+        /**
+         * Create Preset
+         * @description Create new preset
+         */
+        post: operations["create_preset_api_presets__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/presets/{preset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Preset
+         * @description Get preset by ID
+         */
+        get: operations["get_preset_api_presets__preset_id__get"];
+        /**
+         * Update Preset
+         * @description Update preset
+         */
+        put: operations["update_preset_api_presets__preset_id__put"];
+        post?: never;
+        /**
+         * Delete Preset
+         * @description Delete preset
+         */
+        delete: operations["delete_preset_api_presets__preset_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/presets/{preset_id}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Default Preset
+         * @description Set preset as default
+         */
+        post: operations["set_default_preset_api_presets__preset_id__default_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-templates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Templates
+         * @description List prompt templates with pagination
+         */
+        get: operations["list_templates_api_prompt_templates__get"];
+        put?: never;
+        /**
+         * Create Template
+         * @description Create new prompt template
+         */
+        post: operations["create_template_api_prompt_templates__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-templates/{template_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Template
+         * @description Get prompt template by ID
+         */
+        get: operations["get_template_api_prompt_templates__template_id__get"];
+        /**
+         * Update Template
+         * @description Update prompt template
+         */
+        put: operations["update_template_api_prompt_templates__template_id__put"];
+        post?: never;
+        /**
+         * Delete Template
+         * @description Delete prompt template
+         */
+        delete: operations["delete_template_api_prompt_templates__template_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-templates/{template_id}/set-default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Default Template
+         * @description Set prompt template as default
+         */
+        post: operations["set_default_template_api_prompt_templates__template_id__set_default_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-templates/{template_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Template
+         * @description Preview template rendering with sample data
+         */
+        post: operations["preview_template_api_prompt_templates__template_id__preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-fragments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Fragments
+         * @description List prompt fragments with optional filtering
+         */
+        get: operations["list_fragments_api_prompt_fragments__get"];
+        put?: never;
+        /**
+         * Create Fragment
+         * @description Create a new prompt fragment
+         */
+        post: operations["create_fragment_api_prompt_fragments__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-fragments/{fragment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fragment
+         * @description Get prompt fragment by ID
+         */
+        get: operations["get_fragment_api_prompt_fragments__fragment_id__get"];
+        /**
+         * Update Fragment
+         * @description Update prompt fragment
+         */
+        put: operations["update_fragment_api_prompt_fragments__fragment_id__put"];
+        post?: never;
+        /**
+         * Delete Fragment
+         * @description Delete prompt fragment
+         */
+        delete: operations["delete_fragment_api_prompt_fragments__fragment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-templates/{template_id}/fragments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Template Fragments
+         * @description List all prompt fragments attached to a template
+         */
+        get: operations["list_template_fragments_api_prompt_templates__template_id__fragments__get"];
+        put?: never;
+        /**
+         * Attach Fragment
+         * @description Attach a prompt fragment to a template
+         */
+        post: operations["attach_fragment_api_prompt_templates__template_id__fragments__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prompt-templates/{template_id}/fragments/{fragment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Detach Fragment
+         * @description Detach a prompt fragment from a template
+         */
+        delete: operations["detach_fragment_api_prompt_templates__template_id__fragments__fragment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lorebooks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Lorebooks
+         * @description List lorebooks with optional filters.
+         */
+        get: operations["list_lorebooks_api_lorebooks_get"];
+        put?: never;
+        /**
+         * Create Lorebook
+         * @description Create a new lorebook.
+         */
+        post: operations["create_lorebook_api_lorebooks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lorebooks/{lorebook_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Lorebook
+         * @description Get lorebook with all entries.
+         */
+        get: operations["get_lorebook_api_lorebooks__lorebook_id__get"];
+        /**
+         * Update Lorebook
+         * @description Update lorebook metadata.
+         */
+        put: operations["update_lorebook_api_lorebooks__lorebook_id__put"];
+        post?: never;
+        /**
+         * Delete Lorebook
+         * @description Delete lorebook and all its entries.
+         */
+        delete: operations["delete_lorebook_api_lorebooks__lorebook_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lorebooks/{lorebook_id}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Entry
+         * @description Add a lore entry to a lorebook.
+         */
+        post: operations["create_entry_api_lorebooks__lorebook_id__entries_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lorebooks/{lorebook_id}/entries/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Entry
+         * @description Update a lore entry.
+         */
+        put: operations["update_entry_api_lorebooks__lorebook_id__entries__entry_id__put"];
+        post?: never;
+        /**
+         * Delete Entry
+         * @description Delete a lore entry.
+         */
+        delete: operations["delete_entry_api_lorebooks__lorebook_id__entries__entry_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/data-bank/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Entries
+         * @description List data bank entries with optional filtering
+         */
+        get: operations["list_entries_api_data_bank__get"];
+        put?: never;
+        /**
+         * Create Entry
+         * @description Create a new data bank entry
+         */
+        post: operations["create_entry_api_data_bank__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/data-bank/{entry_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Entry
+         * @description Get data bank entry by ID
+         */
+        get: operations["get_entry_api_data_bank__entry_id__get"];
+        /**
+         * Update Entry
+         * @description Update data bank entry
+         */
+        put: operations["update_entry_api_data_bank__entry_id__put"];
+        post?: never;
+        /**
+         * Delete Entry
+         * @description Delete data bank entry
+         */
+        delete: operations["delete_entry_api_data_bank__entry_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rag/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Search
+         * @description Manual semantic search across embeddings
+         */
+        post: operations["search_api_rag_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rag/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rag Status
+         * @description Return RAG system status and embedding provider info
+         */
+        get: operations["rag_status_api_rag_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Health Status
+         * @description Get application health status
+         */
+        get: operations["get_health_status_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Root
+         * @description Root endpoint
+         */
+        get: operations["root__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Demo
+         * @description Minimal chat UI for developer testing
+         */
+        get: operations["demo_demo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** Body_create_character_api_characters_post */
-    Body_create_character_api_characters_post: {
-      /** Name */
-      name: string;
-      /** Description */
-      description?: string | null;
-      /** Personality */
-      personality?: string | null;
-      /** First Message */
-      first_message?: string | null;
-      /** Example Dialogues */
-      example_dialogues?: string | null;
-      /** Scenario */
-      scenario?: string | null;
-      /** Post History Instructions */
-      post_history_instructions?: string | null;
-      /** Alternate Greetings */
-      alternate_greetings?: string | null;
-      /** Tags */
-      tags?: string | null;
-      /** Gender */
-      gender?: string | null;
-      /** Custom Gender */
-      custom_gender?: string | null;
-      /** Creator */
-      creator?: string | null;
-      /**
-       * Version
-       * @default 1
-       */
-      version: number | null;
-      /** Avatar */
-      avatar?: string | null;
+    schemas: {
+        /**
+         * AlternativeResponse
+         * @description Schema for a message alternative (swipe)
+         */
+        AlternativeResponse: {
+            /** Id */
+            id: string;
+            /** Message Id */
+            message_id: string;
+            /** Content */
+            content: string;
+            /** Token Count */
+            token_count?: number | null;
+            /** Ordinal */
+            ordinal: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * AttachFragmentRequest
+         * @description Schema for attaching a fragment to a template
+         */
+        AttachFragmentRequest: {
+            /** Fragment Id */
+            fragment_id: string;
+            /**
+             * Position
+             * @default after_system
+             */
+            position: string;
+            /**
+             * Ordinal
+             * @default 0
+             */
+            ordinal: number;
+        };
+        /** Body_create_character_api_characters_post */
+        Body_create_character_api_characters_post: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** Personality */
+            personality?: string | null;
+            /** First Message */
+            first_message?: string | null;
+            /** Example Dialogues */
+            example_dialogues?: string | null;
+            /** Scenario */
+            scenario?: string | null;
+            /** Post History Instructions */
+            post_history_instructions?: string | null;
+            /** Alternate Greetings */
+            alternate_greetings?: string | null;
+            /** Tags */
+            tags?: string | null;
+            /** Gender */
+            gender?: string | null;
+            /** Custom Gender */
+            custom_gender?: string | null;
+            /** Creator */
+            creator?: string | null;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number | null;
+            /** Avatar */
+            avatar?: string | null;
+        };
+        /** Body_create_persona_api_personas__post */
+        Body_create_persona_api_personas__post: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+            /** Avatar */
+            avatar?: string | null;
+        };
+        /** Body_import_character_api_characters_import_post */
+        Body_import_character_api_characters_import_post: {
+            /**
+             * File
+             * Format: binary
+             * @description PNG or JSON character card file
+             */
+            file: string;
+        };
+        /** Body_update_character_api_characters__character_id__put */
+        Body_update_character_api_characters__character_id__put: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Personality */
+            personality?: string | null;
+            /** First Message */
+            first_message?: string | null;
+            /** Example Dialogues */
+            example_dialogues?: string | null;
+            /** Scenario */
+            scenario?: string | null;
+            /** Post History Instructions */
+            post_history_instructions?: string | null;
+            /** Alternate Greetings */
+            alternate_greetings?: string | null;
+            /** Tags */
+            tags?: string | null;
+            /** Gender */
+            gender?: string | null;
+            /** Custom Gender */
+            custom_gender?: string | null;
+            /** Creator */
+            creator?: string | null;
+            /** Version */
+            version?: number | null;
+            /** Avatar */
+            avatar?: string | null;
+        };
+        /** Body_update_persona_api_personas__persona_id__put */
+        Body_update_persona_api_personas__persona_id__put: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Default */
+            is_default?: boolean | null;
+            /** Avatar */
+            avatar?: string | null;
+        };
+        /**
+         * CharacterResponse
+         * @description Schema for character responses
+         */
+        CharacterResponse: {
+            /**
+             * Name
+             * @description Character name
+             */
+            name: string;
+            /**
+             * Description
+             * @description Character description
+             */
+            description?: string | null;
+            /**
+             * Personality
+             * @description Personality traits and behavior
+             */
+            personality?: string | null;
+            /**
+             * First Message
+             * @description Initial greeting message
+             */
+            first_message?: string | null;
+            /**
+             * Example Dialogues
+             * @description List of example dialogue strings
+             */
+            example_dialogues?: string[] | null;
+            /**
+             * Scenario
+             * @description Current scenario context
+             */
+            scenario?: string | null;
+            /**
+             * Post History Instructions
+             * @description Instructions after history
+             */
+            post_history_instructions?: string | null;
+            /**
+             * Alternate Greetings
+             * @description Alternative first messages
+             */
+            alternate_greetings?: string[] | null;
+            /**
+             * Tags
+             * @description Tags for categorization
+             */
+            tags?: string[] | null;
+            /** @description Character gender */
+            gender?: components["schemas"]["Gender"] | null;
+            /**
+             * Custom Gender
+             * @description Custom gender value when gender is 'others'
+             */
+            custom_gender?: string | null;
+            /**
+             * Creator
+             * @description Character creator/author
+             */
+            creator?: string | null;
+            /**
+             * System Prompt
+             * @description Per-character system prompt override
+             */
+            system_prompt?: string | null;
+            /**
+             * Creator Notes
+             * @description Creator's notes (not sent to LLM)
+             */
+            creator_notes?: string | null;
+            /**
+             * Character Version
+             * @description Semantic version from card spec
+             */
+            character_version?: string | null;
+            /**
+             * Version
+             * @description Character card version
+             * @default 1
+             */
+            version: number;
+            /** Id */
+            id: string;
+            /** Avatar */
+            avatar: string | null;
+            /** Avatar Thumbnail */
+            avatar_thumbnail: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ChatCharacterResponse
+         * @description Nested character info in chat response
+         */
+        ChatCharacterResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Avatar */
+            avatar?: string | null;
+            /** Avatar Thumbnail */
+            avatar_thumbnail?: string | null;
+        };
+        /**
+         * ChatCreate
+         * @description Schema for creating a new chat
+         */
+        ChatCreate: {
+            /**
+             * Character Id
+             * @description Character ID
+             */
+            character_id: string;
+            /**
+             * Model Id
+             * @description Model ID
+             */
+            model_id?: string | null;
+            /**
+             * Title
+             * @description Chat title
+             */
+            title?: string | null;
+        };
+        /**
+         * ChatModelResponse
+         * @description Nested model info in chat response
+         */
+        ChatModelResponse: {
+            /** Id */
+            id: string | null;
+            /** Name */
+            name: string | null;
+        };
+        /**
+         * ChatResponse
+         * @description Schema for chat responses
+         */
+        ChatResponse: {
+            /** Id */
+            id: string;
+            /** Title */
+            title?: string | null;
+            /** Preview */
+            preview?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            character: components["schemas"]["ChatCharacterResponse"];
+            model: components["schemas"]["ChatModelResponse"];
+        };
+        /**
+         * ChatUpdate
+         * @description Schema for updating a chat
+         */
+        ChatUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Model Id */
+            model_id?: string | null;
+            /** Preset Id */
+            preset_id?: string | null;
+        };
+        /**
+         * DataBankCreate
+         * @description Schema for creating a data bank entry
+         */
+        DataBankCreate: {
+            /** Name */
+            name: string;
+            /** Content */
+            content: string;
+            /**
+             * Scope
+             * @default global
+             */
+            scope: string;
+            /** Character Id */
+            character_id?: string | null;
+            /** Chat Id */
+            chat_id?: string | null;
+        };
+        /**
+         * DataBankResponse
+         * @description Schema for data bank entry response
+         */
+        DataBankResponse: {
+            /** Name */
+            name: string;
+            /** Content */
+            content: string;
+            /**
+             * Scope
+             * @default global
+             */
+            scope: string;
+            /** Character Id */
+            character_id?: string | null;
+            /** Chat Id */
+            chat_id?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * DataBankUpdate
+         * @description Schema for updating a data bank entry
+         */
+        DataBankUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Content */
+            content?: string | null;
+            /** Scope */
+            scope?: string | null;
+        };
+        /**
+         * FragmentCreate
+         * @description Schema for creating a prompt fragment
+         */
+        FragmentCreate: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Fragment Type
+             * @default instruction
+             */
+            fragment_type: string;
+            /**
+             * Content
+             * @description Jinja2 template content
+             */
+            content: string;
+            /**
+             * Is Global
+             * @default false
+             */
+            is_global: boolean;
+        };
+        /**
+         * FragmentResponse
+         * @description Schema for prompt fragment response
+         */
+        FragmentResponse: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Fragment Type
+             * @default instruction
+             */
+            fragment_type: string;
+            /**
+             * Content
+             * @description Jinja2 template content
+             */
+            content: string;
+            /**
+             * Is Global
+             * @default false
+             */
+            is_global: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * FragmentUpdate
+         * @description Schema for updating a prompt fragment — all fields optional
+         */
+        FragmentUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Fragment Type */
+            fragment_type?: string | null;
+            /** Content */
+            content?: string | null;
+            /** Is Global */
+            is_global?: boolean | null;
+        };
+        /**
+         * Gender
+         * @description Character gender options
+         * @enum {string}
+         */
+        Gender: "male" | "female" | "non-binary" | "others";
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * InsertionPosition
+         * @description Where activated lore entries are injected into the prompt
+         * @enum {string}
+         */
+        InsertionPosition: "before_character" | "after_character" | "at_depth" | "before_examples";
+        /**
+         * LoreEntryCreate
+         * @description Schema for creating a lore entry
+         */
+        LoreEntryCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Content
+             * @description Lore text injected into prompt
+             */
+            content: string;
+            /**
+             * Keys
+             * @description Primary trigger keywords
+             */
+            keys?: string[];
+            /** Secondary Keys */
+            secondary_keys?: string[];
+            /** @default and_any */
+            secondary_logic: components["schemas"]["SecondaryLogic"];
+            /**
+             * Case Sensitive
+             * @default false
+             */
+            case_sensitive: boolean;
+            /**
+             * Match Whole Words
+             * @default false
+             */
+            match_whole_words: boolean;
+            /**
+             * Use Regex
+             * @default false
+             */
+            use_regex: boolean;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Constant
+             * @default false
+             */
+            constant: boolean;
+            /** @default after_character */
+            position: components["schemas"]["InsertionPosition"];
+            /**
+             * Depth
+             * @description Message depth for AT_DEPTH
+             * @default 4
+             */
+            depth: number;
+            /** @default system */
+            role: components["schemas"]["MessageRole"];
+            /**
+             * Priority
+             * @default 100
+             */
+            priority: number;
+            /** Scan Depth */
+            scan_depth?: number | null;
+            /**
+             * Ignore Budget
+             * @default false
+             */
+            ignore_budget: boolean;
+            /**
+             * Order
+             * @default 0
+             */
+            order: number;
+        };
+        /**
+         * LoreEntryResponse
+         * @description Schema for lore entry responses
+         */
+        LoreEntryResponse: {
+            /** Name */
+            name: string;
+            /**
+             * Content
+             * @description Lore text injected into prompt
+             */
+            content: string;
+            /**
+             * Keys
+             * @description Primary trigger keywords
+             */
+            keys?: string[];
+            /** Secondary Keys */
+            secondary_keys?: string[];
+            /** @default and_any */
+            secondary_logic: components["schemas"]["SecondaryLogic"];
+            /**
+             * Case Sensitive
+             * @default false
+             */
+            case_sensitive: boolean;
+            /**
+             * Match Whole Words
+             * @default false
+             */
+            match_whole_words: boolean;
+            /**
+             * Use Regex
+             * @default false
+             */
+            use_regex: boolean;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Constant
+             * @default false
+             */
+            constant: boolean;
+            /** @default after_character */
+            position: components["schemas"]["InsertionPosition"];
+            /**
+             * Depth
+             * @description Message depth for AT_DEPTH
+             * @default 4
+             */
+            depth: number;
+            /** @default system */
+            role: components["schemas"]["MessageRole"];
+            /**
+             * Priority
+             * @default 100
+             */
+            priority: number;
+            /** Scan Depth */
+            scan_depth?: number | null;
+            /**
+             * Ignore Budget
+             * @default false
+             */
+            ignore_budget: boolean;
+            /**
+             * Order
+             * @default 0
+             */
+            order: number;
+            /** Id */
+            id: string;
+            /** Lorebook Id */
+            lorebook_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * LoreEntryUpdate
+         * @description Schema for updating a lore entry (all fields optional)
+         */
+        LoreEntryUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Content */
+            content?: string | null;
+            /** Keys */
+            keys?: string[] | null;
+            /** Secondary Keys */
+            secondary_keys?: string[] | null;
+            secondary_logic?: components["schemas"]["SecondaryLogic"] | null;
+            /** Case Sensitive */
+            case_sensitive?: boolean | null;
+            /** Match Whole Words */
+            match_whole_words?: boolean | null;
+            /** Use Regex */
+            use_regex?: boolean | null;
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Constant */
+            constant?: boolean | null;
+            position?: components["schemas"]["InsertionPosition"] | null;
+            /** Depth */
+            depth?: number | null;
+            role?: components["schemas"]["MessageRole"] | null;
+            /** Priority */
+            priority?: number | null;
+            /** Scan Depth */
+            scan_depth?: number | null;
+            /** Ignore Budget */
+            ignore_budget?: boolean | null;
+            /** Order */
+            order?: number | null;
+        };
+        /**
+         * LorebookCreate
+         * @description Schema for creating a lorebook
+         */
+        LorebookCreate: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Global
+             * @default false
+             */
+            is_global: boolean;
+            /** Character Id */
+            character_id?: string | null;
+        };
+        /**
+         * LorebookDetailResponse
+         * @description Schema for lorebook with entries
+         */
+        LorebookDetailResponse: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Global
+             * @default false
+             */
+            is_global: boolean;
+            /** Character Id */
+            character_id?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Entries
+             * @default []
+             */
+            entries: components["schemas"]["LoreEntryResponse"][];
+        };
+        /**
+         * LorebookResponse
+         * @description Schema for lorebook responses (without entries)
+         */
+        LorebookResponse: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Global
+             * @default false
+             */
+            is_global: boolean;
+            /** Character Id */
+            character_id?: string | null;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * LorebookUpdate
+         * @description Schema for updating a lorebook
+         */
+        LorebookUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Global */
+            is_global?: boolean | null;
+        };
+        /**
+         * MessageCreate
+         * @description Schema for creating a new message (user message)
+         */
+        MessageCreate: {
+            /**
+             * Content
+             * @description Message content
+             */
+            content: string;
+        };
+        /**
+         * MessageResponse
+         * @description Schema for message responses
+         */
+        MessageResponse: {
+            /** @description Message role (user/assistant/system) */
+            role: components["schemas"]["MessageRole"];
+            /**
+             * Content
+             * @description Message content
+             */
+            content: string;
+            /** Id */
+            id: string;
+            /** Chat Id */
+            chat_id: string;
+            /** Token Count */
+            token_count?: number | null;
+            /** Reasoning Content */
+            reasoning_content?: string | null;
+            /**
+             * Active Index
+             * @default 0
+             */
+            active_index: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * MessageRole
+         * @description Message role types
+         * @enum {string}
+         */
+        MessageRole: "user" | "assistant" | "system";
+        /**
+         * MessageUpdate
+         * @description Schema for editing a message
+         */
+        MessageUpdate: {
+            /**
+             * Content
+             * @description Updated message content
+             */
+            content: string;
+        };
+        /**
+         * ModelCreate
+         * @description Schema for creating a new model definition
+         */
+        ModelCreate: {
+            /**
+             * Provider Id
+             * @description Provider ID
+             */
+            provider_id: string;
+            /**
+             * Model Identifier
+             * @description Actual API model name
+             */
+            model_identifier: string;
+            /**
+             * Openrouter Identifier
+             * @description OpenRouter model name
+             */
+            openrouter_identifier?: string | null;
+            /**
+             * Use Openrouter
+             * @description Whether to route through OpenRouter
+             * @default false
+             */
+            use_openrouter: boolean;
+            /**
+             * Name
+             * @description User-friendly display name
+             */
+            name: string;
+            /**
+             * Model Family Id
+             * @description Link to model family
+             */
+            model_family_id: string;
+            /**
+             * Template Id
+             * @description Default prompt template
+             */
+            template_id?: string | null;
+            /**
+             * Parameters
+             * @description All model parameters (temperature, max_tokens, etc.)
+             */
+            parameters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Enabled
+             * @description Whether model is available
+             * @default true
+             */
+            enabled: boolean;
+        };
+        /**
+         * ModelDetailResponse
+         * @description Schema for detailed model responses (includes embedded relationships)
+         */
+        ModelDetailResponse: {
+            /**
+             * Provider Id
+             * @description Provider ID
+             */
+            provider_id: string;
+            /**
+             * Model Identifier
+             * @description Actual API model name
+             */
+            model_identifier: string;
+            /**
+             * Openrouter Identifier
+             * @description OpenRouter model name
+             */
+            openrouter_identifier?: string | null;
+            /**
+             * Use Openrouter
+             * @description Whether to route through OpenRouter
+             * @default false
+             */
+            use_openrouter: boolean;
+            /**
+             * Name
+             * @description User-friendly display name
+             */
+            name: string;
+            /**
+             * Model Family Id
+             * @description Link to model family
+             */
+            model_family_id: string;
+            /**
+             * Template Id
+             * @description Default prompt template
+             */
+            template_id?: string | null;
+            /**
+             * Parameters
+             * @description All model parameters (temperature, max_tokens, etc.)
+             */
+            parameters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Enabled
+             * @description Whether model is available
+             * @default true
+             */
+            enabled: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Can Use Openrouter */
+            can_use_openrouter: boolean;
+            /** Active Identifier */
+            active_identifier: string;
+            /** Provider Enabled */
+            provider_enabled: boolean;
+            model_family: components["schemas"]["ModelFamilyResponse"];
+        };
+        /**
+         * ModelFamilyCreate
+         * @description Schema for creating a new model family
+         */
+        ModelFamilyCreate: {
+            /**
+             * Name
+             * @description Unique model family name
+             */
+            name: string;
+            /**
+             * Family Identifier
+             * @description URL-safe identifier following provider/model-name pattern
+             */
+            family_identifier: string;
+            /**
+             * Description
+             * @description Description of the model family
+             */
+            description?: string | null;
+            /**
+             * Provider Types
+             * @description List of provider types this family belongs to
+             */
+            provider_types?: string[];
+            /**
+             * Parameters
+             * @description Per-parameter configuration: type, default, ranges, etc.
+             */
+            parameters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Unsupported Parameters
+             * @description List of parameters explicitly known to be unsupported
+             */
+            unsupported_parameters?: string[];
+            /**
+             * Extra Metadata
+             * @description Additional metadata about the model family
+             */
+            extra_metadata?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /**
+         * ModelFamilyListResponse
+         * @description Schema for model family list responses (excludes heavy fields)
+         */
+        ModelFamilyListResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Family Identifier */
+            family_identifier: string;
+            /** Description */
+            description: string | null;
+            /** Provider Types */
+            provider_types: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ModelFamilyResponse
+         * @description Schema for detailed model family responses
+         */
+        ModelFamilyResponse: {
+            /**
+             * Name
+             * @description Unique model family name
+             */
+            name: string;
+            /**
+             * Family Identifier
+             * @description URL-safe identifier following provider/model-name pattern
+             */
+            family_identifier: string;
+            /**
+             * Description
+             * @description Description of the model family
+             */
+            description?: string | null;
+            /**
+             * Provider Types
+             * @description List of provider types this family belongs to
+             */
+            provider_types?: string[];
+            /**
+             * Parameters
+             * @description Per-parameter configuration: type, default, ranges, etc.
+             */
+            parameters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Unsupported Parameters
+             * @description List of parameters explicitly known to be unsupported
+             */
+            unsupported_parameters?: string[];
+            /**
+             * Extra Metadata
+             * @description Additional metadata about the model family
+             */
+            extra_metadata?: {
+                [key: string]: unknown;
+            } | null;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ModelFamilyUpdate
+         * @description Schema for updating a model family
+         */
+        ModelFamilyUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Family Identifier */
+            family_identifier?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Provider Types */
+            provider_types?: string[] | null;
+            /** Parameters */
+            parameters?: {
+                [key: string]: unknown;
+            } | null;
+            /** Unsupported Parameters */
+            unsupported_parameters?: string[] | null;
+            /** Extra Metadata */
+            extra_metadata?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /**
+         * ModelFlagsUpdate
+         * @description Schema for updating model flags only
+         */
+        ModelFlagsUpdate: {
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Use Openrouter */
+            use_openrouter?: boolean | null;
+        };
+        /**
+         * ModelListResponse
+         * @description Schema for model list responses (excludes heavy fields)
+         */
+        ModelListResponse: {
+            /** Id */
+            id: string;
+            /** Provider Id */
+            provider_id: string;
+            /** Model Identifier */
+            model_identifier: string;
+            /** Openrouter Identifier */
+            openrouter_identifier: string | null;
+            /** Use Openrouter */
+            use_openrouter: boolean;
+            /** Name */
+            name: string;
+            /** Model Family Id */
+            model_family_id: string;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Can Use Openrouter */
+            can_use_openrouter: boolean;
+            /** Active Identifier */
+            active_identifier: string;
+            /** Provider Enabled */
+            provider_enabled: boolean;
+        };
+        /**
+         * ModelResponse
+         * @description Schema for detailed model responses
+         */
+        ModelResponse: {
+            /**
+             * Provider Id
+             * @description Provider ID
+             */
+            provider_id: string;
+            /**
+             * Model Identifier
+             * @description Actual API model name
+             */
+            model_identifier: string;
+            /**
+             * Openrouter Identifier
+             * @description OpenRouter model name
+             */
+            openrouter_identifier?: string | null;
+            /**
+             * Use Openrouter
+             * @description Whether to route through OpenRouter
+             * @default false
+             */
+            use_openrouter: boolean;
+            /**
+             * Name
+             * @description User-friendly display name
+             */
+            name: string;
+            /**
+             * Model Family Id
+             * @description Link to model family
+             */
+            model_family_id: string;
+            /**
+             * Template Id
+             * @description Default prompt template
+             */
+            template_id?: string | null;
+            /**
+             * Parameters
+             * @description All model parameters (temperature, max_tokens, etc.)
+             */
+            parameters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Enabled
+             * @description Whether model is available
+             * @default true
+             */
+            enabled: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Can Use Openrouter */
+            can_use_openrouter: boolean;
+            /** Active Identifier */
+            active_identifier: string;
+            /** Provider Enabled */
+            provider_enabled: boolean;
+        };
+        /**
+         * ModelUpdate
+         * @description Schema for updating a model definition
+         */
+        ModelUpdate: {
+            /** Provider Id */
+            provider_id?: string | null;
+            /** Model Identifier */
+            model_identifier?: string | null;
+            /** Openrouter Identifier */
+            openrouter_identifier?: string | null;
+            /** Use Openrouter */
+            use_openrouter?: boolean | null;
+            /** Name */
+            name?: string | null;
+            /** Model Family Id */
+            model_family_id?: string | null;
+            /** Template Id */
+            template_id?: string | null;
+            /** Parameters */
+            parameters?: {
+                [key: string]: unknown;
+            } | null;
+            /** Enabled */
+            enabled?: boolean | null;
+        };
+        /** PaginatedResponse[CharacterResponse] */
+        PaginatedResponse_CharacterResponse_: {
+            /** Items */
+            items: components["schemas"]["CharacterResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[ChatResponse] */
+        PaginatedResponse_ChatResponse_: {
+            /** Items */
+            items: components["schemas"]["ChatResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[MessageResponse] */
+        PaginatedResponse_MessageResponse_: {
+            /** Items */
+            items: components["schemas"]["MessageResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[ModelFamilyListResponse] */
+        PaginatedResponse_ModelFamilyListResponse_: {
+            /** Items */
+            items: components["schemas"]["ModelFamilyListResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[ModelListResponse] */
+        PaginatedResponse_ModelListResponse_: {
+            /** Items */
+            items: components["schemas"]["ModelListResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[PersonaResponse] */
+        PaginatedResponse_PersonaResponse_: {
+            /** Items */
+            items: components["schemas"]["PersonaResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[PresetResponse] */
+        PaginatedResponse_PresetResponse_: {
+            /** Items */
+            items: components["schemas"]["PresetResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[PromptTemplateResponse] */
+        PaginatedResponse_PromptTemplateResponse_: {
+            /** Items */
+            items: components["schemas"]["PromptTemplateResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /**
+         * PaginationMeta
+         * @description Standard metadata for all paginated responses.
+         *     Fields are optional to support both Cursor (infinite scroll) and Offset (page numbers) strategies.
+         */
+        PaginationMeta: {
+            /**
+             * Limit
+             * @description The limit applied to the query
+             */
+            limit: number;
+            /**
+             * Has More
+             * @description Whether there are more items available
+             */
+            has_more: boolean;
+            /**
+             * Cursor
+             * @description Cursor for the next page (for infinite scroll)
+             */
+            cursor?: string | null;
+            /**
+             * Total
+             * @description Total count of items (for page-based pagination)
+             */
+            total?: number | null;
+            /**
+             * Page
+             * @description Current page number (for page-based pagination)
+             */
+            page?: number | null;
+        };
+        /**
+         * PersonaResponse
+         * @description Schema for persona response
+         */
+        PersonaResponse: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @description Persona description for RP context
+             */
+            description?: string | null;
+            /** Avatar */
+            avatar?: string | null;
+            /** Avatar Thumbnail */
+            avatar_thumbnail?: string | null;
+            /**
+             * Is Default
+             * @description Set as default persona
+             * @default false
+             */
+            is_default: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * PresetCreate
+         * @description Schema for creating a preset
+         */
+        PresetCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @description Brief description of the preset's purpose
+             */
+            description?: string | null;
+            /**
+             * Parameters
+             * @description Sampling parameter overrides (temperature, top_p, etc.)
+             */
+            parameters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Is Default
+             * @description Set as default preset
+             * @default false
+             */
+            is_default: boolean;
+        };
+        /**
+         * PresetResponse
+         * @description Schema for preset response
+         */
+        PresetResponse: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @description Brief description of the preset's purpose
+             */
+            description?: string | null;
+            /**
+             * Parameters
+             * @description Sampling parameter overrides (temperature, top_p, etc.)
+             */
+            parameters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Is Default
+             * @description Set as default preset
+             * @default false
+             */
+            is_default: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * PresetUpdate
+         * @description Schema for updating a preset
+         */
+        PresetUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Parameters */
+            parameters?: {
+                [key: string]: unknown;
+            } | null;
+            /** Is Default */
+            is_default?: boolean | null;
+        };
+        /**
+         * PromptTemplateCreate
+         * @description Schema for creating a prompt template
+         */
+        PromptTemplateCreate: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+            /**
+             * System Template
+             * @description Jinja2 template for system prompt
+             */
+            system_template: string;
+            /** Component Order */
+            component_order?: string[];
+            /** Components Enabled */
+            components_enabled?: {
+                [key: string]: boolean;
+            };
+            /** Max History Tokens */
+            max_history_tokens?: number | null;
+        };
+        /**
+         * PromptTemplateResponse
+         * @description Schema for prompt template response
+         */
+        PromptTemplateResponse: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+            /**
+             * System Template
+             * @description Jinja2 template for system prompt
+             */
+            system_template: string;
+            /** Component Order */
+            component_order?: string[];
+            /** Components Enabled */
+            components_enabled?: {
+                [key: string]: boolean;
+            };
+            /** Max History Tokens */
+            max_history_tokens?: number | null;
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * PromptTemplateUpdate
+         * @description Schema for updating a prompt template
+         */
+        PromptTemplateUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Default */
+            is_default?: boolean | null;
+            /** System Template */
+            system_template?: string | null;
+            /** Component Order */
+            component_order?: string[] | null;
+            /** Components Enabled */
+            components_enabled?: {
+                [key: string]: boolean;
+            } | null;
+            /** Max History Tokens */
+            max_history_tokens?: number | null;
+        };
+        /**
+         * ProviderCreate
+         * @description Schema for creating a new provider
+         */
+        ProviderCreate: {
+            /**
+             * Name
+             * @description Unique provider name
+             */
+            name: string;
+            /** @description Type of provider */
+            provider_type: components["schemas"]["ProviderType"];
+            /**
+             * Base Url
+             * @description API endpoint URL (optional, uses default for known providers)
+             */
+            base_url?: string | null;
+            /**
+             * Api Key Env Var
+             * @description Environment variable name for API key (required for CUSTOM providers)
+             */
+            api_key_env_var?: string | null;
+        };
+        /**
+         * ProviderFlagsUpdate
+         * @description Schema for updating provider flags only
+         */
+        ProviderFlagsUpdate: {
+            /** Enabled */
+            enabled: boolean;
+        };
+        /**
+         * ProviderResponse
+         * @description Schema for provider responses
+         */
+        ProviderResponse: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Provider Type */
+            provider_type: string;
+            /** Base Url */
+            base_url: string | null;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Api Key Configured
+             * @description Whether API key is available in environment
+             */
+            api_key_configured: boolean;
+            /**
+             * Env Var Name
+             * @description Expected environment variable name for API key
+             */
+            env_var_name: string | null;
+        };
+        /**
+         * ProviderType
+         * @description Supported provider types
+         * @enum {string}
+         */
+        ProviderType: "xai" | "google" | "openai" | "anthropic" | "openrouter" | "ollama" | "custom";
+        /**
+         * ProviderUpdate
+         * @description Schema for updating a provider
+         */
+        ProviderUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Base Url */
+            base_url?: string | null;
+            /**
+             * Api Key Env Var
+             * @description Environment variable name for API key (CUSTOM providers only)
+             */
+            api_key_env_var?: string | null;
+            /** Enabled */
+            enabled?: boolean | null;
+        };
+        /**
+         * RAGSearchRequest
+         * @description Schema for manual RAG search
+         */
+        RAGSearchRequest: {
+            /** Query */
+            query: string;
+            /** Chat Id */
+            chat_id?: string | null;
+            /** Character Id */
+            character_id?: string | null;
+            /**
+             * Max Results
+             * @default 5
+             */
+            max_results: number;
+            /**
+             * Threshold
+             * @default 0.3
+             */
+            threshold: number;
+        };
+        /**
+         * RetrievedChunk
+         * @description Schema for a retrieved RAG chunk
+         */
+        RetrievedChunk: {
+            /** Content */
+            content: string;
+            /** Source Type */
+            source_type: string;
+            /** Source Id */
+            source_id: string;
+            /** Score */
+            score: number;
+            /** Chunk Index */
+            chunk_index: number;
+        };
+        /**
+         * SecondaryLogic
+         * @description Logic for combining primary and secondary keyword matches
+         * @enum {string}
+         */
+        SecondaryLogic: "and_any" | "and_all" | "not_any" | "not_all";
+        /**
+         * TemplateFragmentResponse
+         * @description Schema for template-fragment association response
+         */
+        TemplateFragmentResponse: {
+            /** Id */
+            id: string;
+            /** Template Id */
+            template_id: string;
+            /** Fragment Id */
+            fragment_id: string;
+            /** Position */
+            position: string;
+            /** Ordinal */
+            ordinal: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            fragment: components["schemas"]["FragmentResponse"];
+        };
+        /**
+         * TemplatePreviewRequest
+         * @description Schema for template preview request
+         */
+        TemplatePreviewRequest: {
+            /**
+             * Character Name
+             * @default Alice
+             */
+            character_name: string;
+            /**
+             * Character Description
+             * @default A helpful AI assistant
+             */
+            character_description: string;
+            /**
+             * Character Personality
+             * @default Friendly and knowledgeable
+             */
+            character_personality: string;
+            /**
+             * Character Scenario
+             * @default Casual conversation
+             */
+            character_scenario: string;
+            /**
+             * Persona Name
+             * @default User
+             */
+            persona_name: string;
+            /**
+             * Persona Description
+             * @default A curious person
+             */
+            persona_description: string;
+        };
+        /**
+         * TemplatePreviewResponse
+         * @description Schema for template preview response
+         */
+        TemplatePreviewResponse: {
+            /**
+             * Rendered
+             * @description Rendered template output
+             */
+            rendered: string;
+            /**
+             * Variables Used
+             * @description Template variables that were used
+             */
+            variables_used: {
+                [key: string]: string;
+            };
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
     };
-    /** Body_create_persona_api_personas__post */
-    Body_create_persona_api_personas__post: {
-      /** Name */
-      name: string;
-      /** Description */
-      description?: string | null;
-      /**
-       * Is Default
-       * @default false
-       */
-      is_default: boolean;
-      /** Avatar */
-      avatar?: string | null;
-    };
-    /** Body_update_character_api_characters__character_id__put */
-    Body_update_character_api_characters__character_id__put: {
-      /** Name */
-      name?: string | null;
-      /** Description */
-      description?: string | null;
-      /** Personality */
-      personality?: string | null;
-      /** First Message */
-      first_message?: string | null;
-      /** Example Dialogues */
-      example_dialogues?: string | null;
-      /** Scenario */
-      scenario?: string | null;
-      /** Post History Instructions */
-      post_history_instructions?: string | null;
-      /** Alternate Greetings */
-      alternate_greetings?: string | null;
-      /** Tags */
-      tags?: string | null;
-      /** Gender */
-      gender?: string | null;
-      /** Custom Gender */
-      custom_gender?: string | null;
-      /** Creator */
-      creator?: string | null;
-      /** Version */
-      version?: number | null;
-      /** Avatar */
-      avatar?: string | null;
-    };
-    /** Body_update_persona_api_personas__persona_id__put */
-    Body_update_persona_api_personas__persona_id__put: {
-      /** Name */
-      name?: string | null;
-      /** Description */
-      description?: string | null;
-      /** Is Default */
-      is_default?: boolean | null;
-      /** Avatar */
-      avatar?: string | null;
-    };
-    /**
-     * CharacterResponse
-     * @description Schema for character responses
-     */
-    CharacterResponse: {
-      /**
-       * Name
-       * @description Character name
-       */
-      name: string;
-      /**
-       * Description
-       * @description Character description
-       */
-      description?: string | null;
-      /**
-       * Personality
-       * @description Personality traits and behavior
-       */
-      personality?: string | null;
-      /**
-       * First Message
-       * @description Initial greeting message
-       */
-      first_message?: string | null;
-      /**
-       * Example Dialogues
-       * @description List of example dialogue strings
-       */
-      example_dialogues?: string[] | null;
-      /**
-       * Scenario
-       * @description Current scenario context
-       */
-      scenario?: string | null;
-      /**
-       * Post History Instructions
-       * @description Instructions after history
-       */
-      post_history_instructions?: string | null;
-      /**
-       * Alternate Greetings
-       * @description Alternative first messages
-       */
-      alternate_greetings?: string[] | null;
-      /**
-       * Tags
-       * @description Tags for categorization
-       */
-      tags?: string[] | null;
-      /** @description Character gender */
-      gender?: components["schemas"]["Gender"] | null;
-      /**
-       * Custom Gender
-       * @description Custom gender value when gender is 'others'
-       */
-      custom_gender?: string | null;
-      /**
-       * Creator
-       * @description Character creator/author
-       */
-      creator?: string | null;
-      /**
-       * Version
-       * @description Character card version
-       * @default 1
-       */
-      version: number;
-      /** Id */
-      id: string;
-      /** Avatar */
-      avatar: string | null;
-      /** Avatar Thumbnail */
-      avatar_thumbnail: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-    };
-    /**
-     * ChatCharacterResponse
-     * @description Nested character info in chat response
-     */
-    ChatCharacterResponse: {
-      /** Id */
-      id: string;
-      /** Name */
-      name: string;
-      /** Avatar */
-      avatar?: string | null;
-      /** Avatar Thumbnail */
-      avatar_thumbnail?: string | null;
-    };
-    /**
-     * ChatCreate
-     * @description Schema for creating a new chat
-     */
-    ChatCreate: {
-      /**
-       * Character Id
-       * @description Character ID
-       */
-      character_id: string;
-      /**
-       * Model Id
-       * @description Model ID
-       */
-      model_id?: string | null;
-      /**
-       * Title
-       * @description Chat title
-       */
-      title?: string | null;
-    };
-    /**
-     * ChatModelResponse
-     * @description Nested model info in chat response
-     */
-    ChatModelResponse: {
-      /** Id */
-      id: string | null;
-      /** Name */
-      name: string | null;
-    };
-    /**
-     * ChatResponse
-     * @description Schema for chat responses
-     */
-    ChatResponse: {
-      /** Id */
-      id: string;
-      /** Title */
-      title?: string | null;
-      /** Preview */
-      preview?: string | null;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-      character: components["schemas"]["ChatCharacterResponse"];
-      model: components["schemas"]["ChatModelResponse"];
-    };
-    /**
-     * ChatUpdate
-     * @description Schema for updating a chat
-     */
-    ChatUpdate: {
-      /** Title */
-      title?: string | null;
-      /** Model Id */
-      model_id?: string | null;
-    };
-    /**
-     * Gender
-     * @description Character gender options
-     * @enum {string}
-     */
-    Gender: "male" | "female" | "non-binary" | "others";
-    /** HTTPValidationError */
-    HTTPValidationError: {
-      /** Detail */
-      detail?: components["schemas"]["ValidationError"][];
-    };
-    /**
-     * MessageCreate
-     * @description Schema for creating a new message (user message)
-     */
-    MessageCreate: {
-      /**
-       * Content
-       * @description Message content
-       */
-      content: string;
-    };
-    /**
-     * MessageResponse
-     * @description Schema for message responses
-     */
-    MessageResponse: {
-      /** @description Message role (user/assistant/system) */
-      role: components["schemas"]["MessageRole"];
-      /**
-       * Content
-       * @description Message content
-       */
-      content: string;
-      /** Id */
-      id: string;
-      /** Chat Id */
-      chat_id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-    };
-    /**
-     * MessageRole
-     * @description Message role types
-     * @enum {string}
-     */
-    MessageRole: "user" | "assistant" | "system";
-    /**
-     * ModelCreate
-     * @description Schema for creating a new model definition
-     */
-    ModelCreate: {
-      /**
-       * Provider Id
-       * @description Provider ID
-       */
-      provider_id: string;
-      /**
-       * Model Identifier
-       * @description Actual API model name
-       */
-      model_identifier: string;
-      /**
-       * Openrouter Identifier
-       * @description OpenRouter model name
-       */
-      openrouter_identifier?: string | null;
-      /**
-       * Use Openrouter
-       * @description Whether to route through OpenRouter
-       * @default false
-       */
-      use_openrouter: boolean;
-      /**
-       * Name
-       * @description User-friendly display name
-       */
-      name: string;
-      /**
-       * Model Family Id
-       * @description Link to model family
-       */
-      model_family_id: string;
-      /**
-       * System Prompt
-       * @description Custom system prompt override
-       */
-      system_prompt?: string | null;
-      /**
-       * Parameters
-       * @description All model parameters (temperature, max_tokens, etc.)
-       */
-      parameters?: {
-        [key: string]: unknown;
-      };
-      /**
-       * Enabled
-       * @description Whether model is available
-       * @default true
-       */
-      enabled: boolean;
-    };
-    /**
-     * ModelDetailResponse
-     * @description Schema for detailed model responses (includes embedded relationships)
-     */
-    ModelDetailResponse: {
-      /**
-       * Provider Id
-       * @description Provider ID
-       */
-      provider_id: string;
-      /**
-       * Model Identifier
-       * @description Actual API model name
-       */
-      model_identifier: string;
-      /**
-       * Openrouter Identifier
-       * @description OpenRouter model name
-       */
-      openrouter_identifier?: string | null;
-      /**
-       * Use Openrouter
-       * @description Whether to route through OpenRouter
-       * @default false
-       */
-      use_openrouter: boolean;
-      /**
-       * Name
-       * @description User-friendly display name
-       */
-      name: string;
-      /**
-       * Model Family Id
-       * @description Link to model family
-       */
-      model_family_id: string;
-      /**
-       * System Prompt
-       * @description Custom system prompt override
-       */
-      system_prompt?: string | null;
-      /**
-       * Parameters
-       * @description All model parameters (temperature, max_tokens, etc.)
-       */
-      parameters?: {
-        [key: string]: unknown;
-      };
-      /**
-       * Enabled
-       * @description Whether model is available
-       * @default true
-       */
-      enabled: boolean;
-      /** Id */
-      id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-      /** Can Use Openrouter */
-      can_use_openrouter: boolean;
-      /** Active Identifier */
-      active_identifier: string;
-      /** Provider Enabled */
-      provider_enabled: boolean;
-      model_family: components["schemas"]["ModelFamilyResponse"];
-    };
-    /**
-     * ModelFamilyCreate
-     * @description Schema for creating a new model family
-     */
-    ModelFamilyCreate: {
-      /**
-       * Name
-       * @description Unique model family name
-       */
-      name: string;
-      /**
-       * Family Identifier
-       * @description URL-safe identifier following provider/model-name pattern
-       */
-      family_identifier: string;
-      /**
-       * Description
-       * @description Description of the model family
-       */
-      description?: string | null;
-      /**
-       * Provider Types
-       * @description List of provider types this family belongs to
-       */
-      provider_types?: string[];
-      /**
-       * Parameters
-       * @description Per-parameter configuration: type, default, ranges, etc.
-       */
-      parameters?: {
-        [key: string]: unknown;
-      };
-      /**
-       * Unsupported Parameters
-       * @description List of parameters explicitly known to be unsupported
-       */
-      unsupported_parameters?: string[];
-      /**
-       * Extra Metadata
-       * @description Additional metadata about the model family
-       */
-      extra_metadata?: {
-        [key: string]: unknown;
-      } | null;
-    };
-    /**
-     * ModelFamilyListResponse
-     * @description Schema for model family list responses (excludes heavy fields)
-     */
-    ModelFamilyListResponse: {
-      /** Id */
-      id: string;
-      /** Name */
-      name: string;
-      /** Family Identifier */
-      family_identifier: string;
-      /** Description */
-      description: string | null;
-      /** Provider Types */
-      provider_types: string[];
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-    };
-    /**
-     * ModelFamilyResponse
-     * @description Schema for detailed model family responses
-     */
-    ModelFamilyResponse: {
-      /**
-       * Name
-       * @description Unique model family name
-       */
-      name: string;
-      /**
-       * Family Identifier
-       * @description URL-safe identifier following provider/model-name pattern
-       */
-      family_identifier: string;
-      /**
-       * Description
-       * @description Description of the model family
-       */
-      description?: string | null;
-      /**
-       * Provider Types
-       * @description List of provider types this family belongs to
-       */
-      provider_types?: string[];
-      /**
-       * Parameters
-       * @description Per-parameter configuration: type, default, ranges, etc.
-       */
-      parameters?: {
-        [key: string]: unknown;
-      };
-      /**
-       * Unsupported Parameters
-       * @description List of parameters explicitly known to be unsupported
-       */
-      unsupported_parameters?: string[];
-      /**
-       * Extra Metadata
-       * @description Additional metadata about the model family
-       */
-      extra_metadata?: {
-        [key: string]: unknown;
-      } | null;
-      /** Id */
-      id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-    };
-    /**
-     * ModelFamilyUpdate
-     * @description Schema for updating a model family
-     */
-    ModelFamilyUpdate: {
-      /** Name */
-      name?: string | null;
-      /** Family Identifier */
-      family_identifier?: string | null;
-      /** Description */
-      description?: string | null;
-      /** Provider Types */
-      provider_types?: string[] | null;
-      /** Parameters */
-      parameters?: {
-        [key: string]: unknown;
-      } | null;
-      /** Unsupported Parameters */
-      unsupported_parameters?: string[] | null;
-      /** Extra Metadata */
-      extra_metadata?: {
-        [key: string]: unknown;
-      } | null;
-    };
-    /**
-     * ModelFlagsUpdate
-     * @description Schema for updating model flags only
-     */
-    ModelFlagsUpdate: {
-      /** Enabled */
-      enabled?: boolean | null;
-      /** Use Openrouter */
-      use_openrouter?: boolean | null;
-    };
-    /**
-     * ModelListResponse
-     * @description Schema for model list responses (excludes heavy fields)
-     */
-    ModelListResponse: {
-      /** Id */
-      id: string;
-      /** Provider Id */
-      provider_id: string;
-      /** Model Identifier */
-      model_identifier: string;
-      /** Openrouter Identifier */
-      openrouter_identifier: string | null;
-      /** Use Openrouter */
-      use_openrouter: boolean;
-      /** Name */
-      name: string;
-      /** Model Family Id */
-      model_family_id: string;
-      /** Enabled */
-      enabled: boolean;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-      /** Can Use Openrouter */
-      can_use_openrouter: boolean;
-      /** Active Identifier */
-      active_identifier: string;
-      /** Provider Enabled */
-      provider_enabled: boolean;
-    };
-    /**
-     * ModelResponse
-     * @description Schema for detailed model responses
-     */
-    ModelResponse: {
-      /**
-       * Provider Id
-       * @description Provider ID
-       */
-      provider_id: string;
-      /**
-       * Model Identifier
-       * @description Actual API model name
-       */
-      model_identifier: string;
-      /**
-       * Openrouter Identifier
-       * @description OpenRouter model name
-       */
-      openrouter_identifier?: string | null;
-      /**
-       * Use Openrouter
-       * @description Whether to route through OpenRouter
-       * @default false
-       */
-      use_openrouter: boolean;
-      /**
-       * Name
-       * @description User-friendly display name
-       */
-      name: string;
-      /**
-       * Model Family Id
-       * @description Link to model family
-       */
-      model_family_id: string;
-      /**
-       * System Prompt
-       * @description Custom system prompt override
-       */
-      system_prompt?: string | null;
-      /**
-       * Parameters
-       * @description All model parameters (temperature, max_tokens, etc.)
-       */
-      parameters?: {
-        [key: string]: unknown;
-      };
-      /**
-       * Enabled
-       * @description Whether model is available
-       * @default true
-       */
-      enabled: boolean;
-      /** Id */
-      id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-      /** Can Use Openrouter */
-      can_use_openrouter: boolean;
-      /** Active Identifier */
-      active_identifier: string;
-      /** Provider Enabled */
-      provider_enabled: boolean;
-    };
-    /**
-     * ModelUpdate
-     * @description Schema for updating a model definition
-     */
-    ModelUpdate: {
-      /** Provider Id */
-      provider_id?: string | null;
-      /** Model Identifier */
-      model_identifier?: string | null;
-      /** Openrouter Identifier */
-      openrouter_identifier?: string | null;
-      /** Use Openrouter */
-      use_openrouter?: boolean | null;
-      /** Name */
-      name?: string | null;
-      /** Model Family Id */
-      model_family_id?: string | null;
-      /** System Prompt */
-      system_prompt?: string | null;
-      /** Parameters */
-      parameters?: {
-        [key: string]: unknown;
-      } | null;
-      /** Enabled */
-      enabled?: boolean | null;
-    };
-    /** PaginatedResponse[CharacterResponse] */
-    PaginatedResponse_CharacterResponse_: {
-      /** Items */
-      items: components["schemas"]["CharacterResponse"][];
-      meta: components["schemas"]["PaginationMeta"];
-    };
-    /** PaginatedResponse[ChatResponse] */
-    PaginatedResponse_ChatResponse_: {
-      /** Items */
-      items: components["schemas"]["ChatResponse"][];
-      meta: components["schemas"]["PaginationMeta"];
-    };
-    /** PaginatedResponse[MessageResponse] */
-    PaginatedResponse_MessageResponse_: {
-      /** Items */
-      items: components["schemas"]["MessageResponse"][];
-      meta: components["schemas"]["PaginationMeta"];
-    };
-    /** PaginatedResponse[ModelFamilyListResponse] */
-    PaginatedResponse_ModelFamilyListResponse_: {
-      /** Items */
-      items: components["schemas"]["ModelFamilyListResponse"][];
-      meta: components["schemas"]["PaginationMeta"];
-    };
-    /** PaginatedResponse[ModelListResponse] */
-    PaginatedResponse_ModelListResponse_: {
-      /** Items */
-      items: components["schemas"]["ModelListResponse"][];
-      meta: components["schemas"]["PaginationMeta"];
-    };
-    /** PaginatedResponse[PersonaResponse] */
-    PaginatedResponse_PersonaResponse_: {
-      /** Items */
-      items: components["schemas"]["PersonaResponse"][];
-      meta: components["schemas"]["PaginationMeta"];
-    };
-    /** PaginatedResponse[PromptTemplateResponse] */
-    PaginatedResponse_PromptTemplateResponse_: {
-      /** Items */
-      items: components["schemas"]["PromptTemplateResponse"][];
-      meta: components["schemas"]["PaginationMeta"];
-    };
-    /**
-     * PaginationMeta
-     * @description Standard metadata for all paginated responses.
-     *     Fields are optional to support both Cursor (infinite scroll) and Offset (page numbers) strategies.
-     */
-    PaginationMeta: {
-      /**
-       * Limit
-       * @description The limit applied to the query
-       */
-      limit: number;
-      /**
-       * Has More
-       * @description Whether there are more items available
-       */
-      has_more: boolean;
-      /**
-       * Cursor
-       * @description Cursor for the next page (for infinite scroll)
-       */
-      cursor?: string | null;
-      /**
-       * Total
-       * @description Total count of items (for page-based pagination)
-       */
-      total?: number | null;
-      /**
-       * Page
-       * @description Current page number (for page-based pagination)
-       */
-      page?: number | null;
-    };
-    /**
-     * PersonaResponse
-     * @description Schema for persona response
-     */
-    PersonaResponse: {
-      /** Name */
-      name: string;
-      /**
-       * Description
-       * @description Persona description for RP context
-       */
-      description?: string | null;
-      /** Avatar */
-      avatar?: string | null;
-      /** Avatar Thumbnail */
-      avatar_thumbnail?: string | null;
-      /**
-       * Is Default
-       * @description Set as default persona
-       * @default false
-       */
-      is_default: boolean;
-      /** Id */
-      id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-    };
-    /**
-     * PromptTemplateCreate
-     * @description Schema for creating a prompt template
-     */
-    PromptTemplateCreate: {
-      /** Name */
-      name: string;
-      /** Description */
-      description?: string | null;
-      /**
-       * Is Default
-       * @default false
-       */
-      is_default: boolean;
-      /**
-       * System Template
-       * @description Jinja2 template for system prompt
-       */
-      system_template: string;
-      /** Component Order */
-      component_order?: string[];
-      /** Components Enabled */
-      components_enabled?: {
-        [key: string]: boolean;
-      };
-      /** Max History Tokens */
-      max_history_tokens?: number | null;
-    };
-    /**
-     * PromptTemplateResponse
-     * @description Schema for prompt template response
-     */
-    PromptTemplateResponse: {
-      /** Name */
-      name: string;
-      /** Description */
-      description?: string | null;
-      /**
-       * Is Default
-       * @default false
-       */
-      is_default: boolean;
-      /**
-       * System Template
-       * @description Jinja2 template for system prompt
-       */
-      system_template: string;
-      /** Component Order */
-      component_order?: string[];
-      /** Components Enabled */
-      components_enabled?: {
-        [key: string]: boolean;
-      };
-      /** Max History Tokens */
-      max_history_tokens?: number | null;
-      /** Id */
-      id: string;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-    };
-    /**
-     * PromptTemplateUpdate
-     * @description Schema for updating a prompt template
-     */
-    PromptTemplateUpdate: {
-      /** Name */
-      name?: string | null;
-      /** Description */
-      description?: string | null;
-      /** Is Default */
-      is_default?: boolean | null;
-      /** System Template */
-      system_template?: string | null;
-      /** Component Order */
-      component_order?: string[] | null;
-      /** Components Enabled */
-      components_enabled?: {
-        [key: string]: boolean;
-      } | null;
-      /** Max History Tokens */
-      max_history_tokens?: number | null;
-    };
-    /**
-     * ProviderCreate
-     * @description Schema for creating a new provider
-     */
-    ProviderCreate: {
-      /**
-       * Name
-       * @description Unique provider name
-       */
-      name: string;
-      /** @description Type of provider */
-      provider_type: components["schemas"]["ProviderType"];
-      /**
-       * Base Url
-       * @description API endpoint URL (optional, uses default for known providers)
-       */
-      base_url?: string | null;
-      /**
-       * Api Key Env Var
-       * @description Environment variable name for API key (required for CUSTOM providers)
-       */
-      api_key_env_var?: string | null;
-    };
-    /**
-     * ProviderFlagsUpdate
-     * @description Schema for updating provider flags only
-     */
-    ProviderFlagsUpdate: {
-      /** Enabled */
-      enabled: boolean;
-    };
-    /**
-     * ProviderResponse
-     * @description Schema for provider responses
-     */
-    ProviderResponse: {
-      /** Id */
-      id: string;
-      /** Name */
-      name: string;
-      /** Provider Type */
-      provider_type: string;
-      /** Base Url */
-      base_url: string | null;
-      /** Enabled */
-      enabled: boolean;
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /**
-       * Updated At
-       * Format: date-time
-       */
-      updated_at: string;
-      /**
-       * Api Key Configured
-       * @description Whether API key is available in environment
-       */
-      api_key_configured: boolean;
-      /**
-       * Env Var Name
-       * @description Expected environment variable name for API key
-       */
-      env_var_name: string | null;
-    };
-    /**
-     * ProviderType
-     * @description Supported provider types
-     * @enum {string}
-     */
-    ProviderType: "xai" | "google" | "openai" | "anthropic" | "openrouter" | "ollama" | "custom";
-    /**
-     * ProviderUpdate
-     * @description Schema for updating a provider
-     */
-    ProviderUpdate: {
-      /** Name */
-      name?: string | null;
-      /** Base Url */
-      base_url?: string | null;
-      /**
-       * Api Key Env Var
-       * @description Environment variable name for API key (CUSTOM providers only)
-       */
-      api_key_env_var?: string | null;
-      /** Enabled */
-      enabled?: boolean | null;
-    };
-    /**
-     * TemplatePreviewRequest
-     * @description Schema for template preview request
-     */
-    TemplatePreviewRequest: {
-      /**
-       * Character Name
-       * @default Alice
-       */
-      character_name: string;
-      /**
-       * Character Description
-       * @default A helpful AI assistant
-       */
-      character_description: string;
-      /**
-       * Character Personality
-       * @default Friendly and knowledgeable
-       */
-      character_personality: string;
-      /**
-       * Character Scenario
-       * @default Casual conversation
-       */
-      character_scenario: string;
-      /**
-       * Persona Name
-       * @default User
-       */
-      persona_name: string;
-      /**
-       * Persona Description
-       * @default A curious person
-       */
-      persona_description: string;
-    };
-    /**
-     * TemplatePreviewResponse
-     * @description Schema for template preview response
-     */
-    TemplatePreviewResponse: {
-      /**
-       * Rendered
-       * @description Rendered template output
-       */
-      rendered: string;
-      /**
-       * Variables Used
-       * @description Template variables that were used
-       */
-      variables_used: {
-        [key: string]: string;
-      };
-    };
-    /** ValidationError */
-    ValidationError: {
-      /** Location */
-      loc: (string | number)[];
-      /** Message */
-      msg: string;
-      /** Error Type */
-      type: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  query_http_logs_admin_logs_http_get: {
-    parameters: {
-      query?: {
-        limit?: number;
-        skip?: number;
-        method?: string | null;
-        path?: string | null;
-        status_code?: number | null;
-        request_id?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  query_llm_logs_admin_logs_llm_get: {
-    parameters: {
-      query?: {
-        limit?: number;
-        skip?: number;
-        chat_id?: string | null;
-        provider?: string | null;
-        model?: string | null;
-        status?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_llm_stats_admin_logs_llm_stats_get: {
-    parameters: {
-      query?: {
-        start_date?: string | null;
-        end_date?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  query_error_logs_admin_logs_errors_get: {
-    parameters: {
-      query?: {
-        limit?: number;
-        skip?: number;
-        error_type?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  list_providers_api_providers_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProviderResponse"][];
-        };
-      };
-    };
-  };
-  create_provider_api_providers_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ProviderCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProviderResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_provider_api_providers__provider_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        provider_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProviderResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_provider_api_providers__provider_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        provider_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ProviderUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProviderResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_provider_flags_api_providers__provider_id__flags_patch: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        provider_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ProviderFlagsUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProviderResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_parameter_definitions_api_model_families_parameter_docs_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  list_model_families_api_model_families_get: {
-    parameters: {
-      query?: {
-        /** @description Page number (1-based) */
-        page?: number;
-        /** @description Items per page */
-        limit?: number;
-        name__ilike?: string | null;
-        family_identifier?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_ModelFamilyListResponse_"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_model_family_api_model_families_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ModelFamilyCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ModelFamilyResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_model_family_api_model_families__family_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        family_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ModelFamilyResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_model_family_api_model_families__family_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        family_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ModelFamilyUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ModelFamilyResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_model_family_api_model_families__family_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        family_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  list_models_api_models_get: {
-    parameters: {
-      query?: {
-        /** @description Page number (1-based) */
-        page?: number;
-        /** @description Items per page */
-        limit?: number;
-        name__ilike?: string | null;
-        provider_id?: string | null;
-        enabled?: boolean | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_ModelListResponse_"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_model_api_models_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ModelCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ModelResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_model_api_models__model_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        model_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ModelDetailResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_model_api_models__model_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        model_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ModelUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ModelResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_model_api_models__model_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        model_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_model_flags_api_models__model_id__flags_patch: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        model_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ModelFlagsUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ModelResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  list_characters_api_characters_get: {
-    parameters: {
-      query?: {
-        /** @description Page number (1-based) */
-        page?: number;
-        /** @description Items per page */
-        limit?: number;
-        name__ilike?: string | null;
-        gender?: components["schemas"]["Gender"] | null;
-        tags__ilike?: string | null;
-        created_at__ge?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_CharacterResponse_"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_character_api_characters_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": components["schemas"]["Body_create_character_api_characters_post"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CharacterResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_character_api_characters__character_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        character_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CharacterResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_character_api_characters__character_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        character_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "multipart/form-data": components["schemas"]["Body_update_character_api_characters__character_id__put"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CharacterResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_character_api_characters__character_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        character_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_character_avatar_api_characters__character_id__avatar_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        character_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_character_avatar_thumbnail_api_characters__character_id__avatar_thumbnail_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        character_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  list_chats_api_chats_get: {
-    parameters: {
-      query?: {
-        /** @description ISO 8601 timestamp cursor for pagination */
-        cursor?: string | null;
-        /** @description Items per page */
-        limit?: number;
-        character_id?: string | null;
-        model_id?: string | null;
-        created_at__ge?: string | null;
-        created_at__le?: string | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_ChatResponse_"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_chat_api_chats_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ChatCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ChatResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_chat_api_chats__chat_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        chat_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ChatResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_chat_api_chats__chat_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        chat_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ChatUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ChatResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_chat_api_chats__chat_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        chat_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_chat_messages_api_chats__chat_id__messages_get: {
-    parameters: {
-      query?: {
-        /** @description Number of messages to load */
-        limit?: number;
-        /** @description ISO datetime of the oldest loaded message */
-        cursor?: string | null;
-      };
-      header?: never;
-      path: {
-        chat_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_MessageResponse_"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  send_message_api_chats__chat_id__messages_post: {
-    parameters: {
-      query?: {
-        /** @description Stream the response */
-        stream?: boolean;
-        /** @description Regenerate the last assistant message */
-        regenerate?: boolean;
-      };
-      header?: never;
-      path: {
-        chat_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["MessageCreate"] | null;
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MessageResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  list_personas_api_personas__get: {
-    parameters: {
-      query?: {
-        /** @description Page number (1-based) */
-        page?: number;
-        /** @description Items per page */
-        limit?: number;
-        name__ilike?: string | null;
-        is_default?: boolean | null;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_PersonaResponse_"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_persona_api_personas__post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": components["schemas"]["Body_create_persona_api_personas__post"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PersonaResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_persona_api_personas__persona_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        persona_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PersonaResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_persona_api_personas__persona_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        persona_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "multipart/form-data": components["schemas"]["Body_update_persona_api_personas__persona_id__put"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PersonaResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_persona_api_personas__persona_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        persona_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_persona_avatar_api_personas__persona_id__avatar_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        persona_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_persona_avatar_thumbnail_api_personas__persona_id__avatar_thumbnail_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        persona_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  set_default_persona_api_personas__persona_id__set_default_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        persona_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PersonaResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  list_templates_api_prompt_templates__get: {
-    parameters: {
-      query?: {
-        /** @description Page number (1-based) */
-        page?: number;
-        /** @description Items per page */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedResponse_PromptTemplateResponse_"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  create_template_api_prompt_templates__post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["PromptTemplateCreate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PromptTemplateResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_template_api_prompt_templates__template_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PromptTemplateResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_template_api_prompt_templates__template_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["PromptTemplateUpdate"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PromptTemplateResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_template_api_prompt_templates__template_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  set_default_template_api_prompt_templates__template_id__set_default_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PromptTemplateResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  preview_template_api_prompt_templates__template_id__preview_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        template_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TemplatePreviewRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TemplatePreviewResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_health_status_health_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  root__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
+    query_http_logs_admin_logs_http_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                skip?: number;
+                method?: string | null;
+                path?: string | null;
+                status_code?: number | null;
+                request_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    query_llm_logs_admin_logs_llm_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                skip?: number;
+                chat_id?: string | null;
+                provider?: string | null;
+                model?: string | null;
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_llm_stats_admin_logs_llm_stats_get: {
+        parameters: {
+            query?: {
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    query_error_logs_admin_logs_errors_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                skip?: number;
+                error_type?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_providers_api_providers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderResponse"][];
+                };
+            };
+        };
+    };
+    create_provider_api_providers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_provider_api_providers__provider_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_provider_api_providers__provider_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_provider_flags_api_providers__provider_id__flags_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProviderFlagsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_parameter_definitions_api_model_families_parameter_docs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_model_families_api_model_families_get: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
+                name__ilike?: string | null;
+                family_identifier?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_ModelFamilyListResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_model_family_api_model_families_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelFamilyCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelFamilyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_model_family_api_model_families__family_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                family_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelFamilyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_model_family_api_model_families__family_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                family_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelFamilyUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelFamilyResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_model_family_api_model_families__family_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                family_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_models_api_models_get: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
+                name__ilike?: string | null;
+                provider_id?: string | null;
+                enabled?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_ModelListResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_model_api_models_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_model_api_models__model_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                model_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_model_api_models__model_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                model_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_model_api_models__model_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                model_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_model_flags_api_models__model_id__flags_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                model_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelFlagsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_characters_api_characters_get: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
+                name__ilike?: string | null;
+                gender?: components["schemas"]["Gender"] | null;
+                tags__ilike?: string | null;
+                created_at__ge?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_CharacterResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_character_api_characters_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_character_api_characters_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CharacterResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_character_api_characters__character_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                character_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CharacterResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_character_api_characters__character_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                character_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_update_character_api_characters__character_id__put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CharacterResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_character_api_characters__character_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                character_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_character_avatar_api_characters__character_id__avatar_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                character_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_character_avatar_thumbnail_api_characters__character_id__avatar_thumbnail_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                character_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_character_api_characters_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_character_api_characters_import_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CharacterResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_character_json_api_characters__character_id__export_json_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                character_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_character_png_api_characters__character_id__export_png_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                character_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_chats_api_chats_get: {
+        parameters: {
+            query?: {
+                /** @description ISO 8601 timestamp cursor for pagination */
+                cursor?: string | null;
+                /** @description Items per page */
+                limit?: number;
+                character_id?: string | null;
+                model_id?: string | null;
+                created_at__ge?: string | null;
+                created_at__le?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_ChatResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_chat_api_chats_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_chat_api_chats__chat_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_chat_api_chats__chat_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_chat_api_chats__chat_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_chat_messages_api_chats__chat_id__messages_get: {
+        parameters: {
+            query?: {
+                /** @description Number of messages to load */
+                limit?: number;
+                /** @description ISO datetime of the oldest loaded message */
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                chat_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_MessageResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_message_api_chats__chat_id__messages_post: {
+        parameters: {
+            query?: {
+                /** @description Stream the response */
+                stream?: boolean;
+                /** @description Regenerate the last assistant message */
+                regenerate?: boolean;
+            };
+            header?: never;
+            path: {
+                chat_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MessageCreate"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_message_api_chats__chat_id__messages__message_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+                message_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_alternatives_api_chats__chat_id__messages__message_id__alternatives_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+                message_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlternativeResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    activate_alternative_api_chats__chat_id__messages__message_id__alternatives__alternative_id__activate_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+                message_id: string;
+                alternative_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_personas_api_personas__get: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
+                name__ilike?: string | null;
+                is_default?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_PersonaResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_persona_api_personas__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_persona_api_personas__post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_persona_api_personas__persona_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_persona_api_personas__persona_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_update_persona_api_personas__persona_id__put"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_persona_api_personas__persona_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_persona_avatar_api_personas__persona_id__avatar_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_persona_avatar_thumbnail_api_personas__persona_id__avatar_thumbnail_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_default_persona_api_personas__persona_id__set_default_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_presets_api_presets__get: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_PresetResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_preset_api_presets__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PresetCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_preset_api_presets__preset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_preset_api_presets__preset_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PresetUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_preset_api_presets__preset_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_default_preset_api_presets__preset_id__default_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_templates_api_prompt_templates__get: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_PromptTemplateResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_template_api_prompt_templates__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromptTemplateCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptTemplateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_template_api_prompt_templates__template_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptTemplateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_template_api_prompt_templates__template_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromptTemplateUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptTemplateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_template_api_prompt_templates__template_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_default_template_api_prompt_templates__template_id__set_default_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromptTemplateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_template_api_prompt_templates__template_id__preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemplatePreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplatePreviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_fragments_api_prompt_fragments__get: {
+        parameters: {
+            query?: {
+                /** @description Filter by fragment type */
+                fragment_type?: string | null;
+                /** @description Filter by global status */
+                is_global?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FragmentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_fragment_api_prompt_fragments__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FragmentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FragmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_fragment_api_prompt_fragments__fragment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fragment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FragmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_fragment_api_prompt_fragments__fragment_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fragment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FragmentUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FragmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_fragment_api_prompt_fragments__fragment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fragment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_template_fragments_api_prompt_templates__template_id__fragments__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateFragmentResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    attach_fragment_api_prompt_templates__template_id__fragments__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachFragmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemplateFragmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    detach_fragment_api_prompt_templates__template_id__fragments__fragment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                template_id: string;
+                fragment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_lorebooks_api_lorebooks_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by character */
+                character_id?: string | null;
+                /** @description Filter global lorebooks */
+                is_global?: boolean | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LorebookResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_lorebook_api_lorebooks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LorebookCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LorebookResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_lorebook_api_lorebooks__lorebook_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lorebook_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LorebookDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_lorebook_api_lorebooks__lorebook_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lorebook_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LorebookUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LorebookResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_lorebook_api_lorebooks__lorebook_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lorebook_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_entry_api_lorebooks__lorebook_id__entries_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lorebook_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoreEntryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoreEntryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_entry_api_lorebooks__lorebook_id__entries__entry_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lorebook_id: string;
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoreEntryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoreEntryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entry_api_lorebooks__lorebook_id__entries__entry_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lorebook_id: string;
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_entries_api_data_bank__get: {
+        parameters: {
+            query?: {
+                /** @description Filter by scope: global, character, chat */
+                scope?: string | null;
+                /** @description Filter by character ID */
+                character_id?: string | null;
+                /** @description Filter by chat ID */
+                chat_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataBankResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_entry_api_data_bank__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DataBankCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataBankResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_entry_api_data_bank__entry_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataBankResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_entry_api_data_bank__entry_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DataBankUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataBankResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entry_api_data_bank__entry_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_api_rag_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RAGSearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetrievedChunk"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rag_status_api_rag_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_health_status_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    root__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    demo_demo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+        };
+    };
 }

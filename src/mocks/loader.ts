@@ -146,6 +146,7 @@ class ConversationCache {
       chat_id: chatId,
       role: msg.role,
       content: msg.content.trim(),
+      active_index: 0,
       created_at: timestamps[index],
     }));
   }
@@ -168,6 +169,7 @@ export function loadConversation(
     chat_id: chatId,
     role: msg.role,
     content: msg.content.trim(),
+    active_index: 0,
     created_at: timestamps[index],
   }));
 }

@@ -103,6 +103,7 @@ export function useChatMessages(
       id: crypto.randomUUID(),
       role: "assistant",
       content: "",
+      active_index: 0,
       created_at: new Date().toISOString(),
       chat_id: getChatId()!,
     };
@@ -198,6 +199,7 @@ export function useChatMessages(
       id: crypto.randomUUID(),
       role: "user",
       content: content,
+      active_index: 0,
       created_at: new Date().toISOString(),
       chat_id: chatId,
     };
