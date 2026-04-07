@@ -2,7 +2,7 @@
 import { useTheme } from "@/composables/useTheme";
 import { useSidebar } from "@/composables/useSidebar";
 import { APP_INFO } from "@/constants/appInfo";
-import { RECENT_SESSIONS } from "@/constants/homeData";
+import { PINNED_CHARACTERS } from "@/constants/pinnedCharacters";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -27,15 +27,15 @@ function isActive(to: string) {
 <template>
   <aside
     class="hidden h-screen flex-col border-r border-border bg-secondary overflow-hidden lg:flex transition-[width,min-width] duration-300 ease-in-out"
-    :class="collapsed ? 'w-[68px] min-w-[68px]' : 'w-[320px] min-w-[320px]'"
+    :class="collapsed ? 'w-[68px] min-w-[68px]' : 'w-[260px] min-w-[260px]'"
   >
     <!-- Brand Mark -->
     <div class="pt-6 pb-4" :class="collapsed ? 'px-3' : 'px-6'">
       <div class="flex items-center justify-center gap-2.5">
         <button
           class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
-          @click="toggleSidebar"
           :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+          @click="toggleSidebar"
         >
           <UIcon name="i-lucide-flame" class="h-5 w-5 text-primary-foreground" />
         </button>
@@ -50,7 +50,6 @@ function isActive(to: string) {
 
     <!-- Navigation: Grid (expanded) / Vertical icons (collapsed) -->
     <nav class="px-3" :class="collapsed ? 'mt-2' : 'mt-1'">
-      <!-- Expanded: 2-column tile grid -->
       <div v-if="!collapsed" class="grid grid-cols-2 gap-1.5">
         <RouterLink
           v-for="(item, i) in navItems"
@@ -73,7 +72,6 @@ function isActive(to: string) {
         </RouterLink>
       </div>
 
-      <!-- Collapsed: vertical icon-only -->
       <div v-else class="space-y-0.5">
         <UTooltip
           v-for="item in navItems"
@@ -101,50 +99,72 @@ function isActive(to: string) {
     </nav>
 
     <!-- Divider -->
-    <div class="mx-3 my-4 h-px bg-border" />
+    <div class="mx-3 my-3 h-px bg-border" />
 
-    <!-- Recent Sessions (hidden when collapsed) -->
-    <div v-if="!collapsed" class="flex-1 overflow-y-auto px-3">
+    <!-- Favorites -->
+    <div class="flex-1 overflow-y-auto" :class="collapsed ? 'px-2' : 'px-3'">
       <p
+        v-if="!collapsed"
         class="mb-2.5 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
       >
-        Recent Tales
+        Favorites
       </p>
+
       <div class="space-y-0.5">
-        <button
-          v-for="(session, i) in RECENT_SESSIONS"
-          :key="session.id"
-          class="group flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
-          :style="{ animationDelay: `${i * 60}ms` }"
-        >
-          <img
-            :src="session.characterAvatar"
-            :alt="session.characterName"
-            class="h-8 w-8 flex-shrink-0 rounded-full object-cover ring-1 ring-border"
-          />
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-2">
-              <p class="truncate text-sm font-medium text-foreground">
-                {{ session.characterName }}
-              </p>
-              <span class="flex-shrink-0 text-[10px] text-muted-foreground">
-                {{ session.timestamp }}
-              </span>
+        <!-- Expanded: list style with avatar + name -->
+        <template v-if="!collapsed">
+          <RouterLink
+            v-for="char in PINNED_CHARACTERS"
+            :key="char.id"
+            :to="char.chatPath"
+            class="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
+            :class="route.path === char.chatPath ? 'bg-accent' : ''"
+          >
+            <div class="relative flex-shrink-0">
+              <img
+                :src="char.avatar"
+                :alt="char.name"
+                class="h-10 w-10 rounded-full object-cover ring-1 ring-border"
+              />
+              <span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-secondary bg-emerald-500" />
             </div>
-            <p class="mt-0.5 line-clamp-2 text-xs italic leading-relaxed text-muted-foreground">
-              {{ session.lastMessage }}
+            <p class="truncate text-sm font-medium text-foreground">
+              {{ char.name }}
             </p>
-          </div>
-        </button>
+          </RouterLink>
+        </template>
+
+        <!-- Collapsed: stacked avatars -->
+        <template v-else>
+          <UTooltip
+            v-for="char in PINNED_CHARACTERS"
+            :key="char.id"
+            :text="char.name"
+            :content="{ side: 'right', sideOffset: 8 }"
+          >
+            <RouterLink
+              :to="char.chatPath"
+              class="group relative flex w-full items-center justify-center py-1"
+            >
+              <img
+                :src="char.avatar"
+                :alt="char.name"
+                class="h-9 w-9 rounded-full object-cover ring-2 transition-all duration-200"
+                :class="
+                  route.path === char.chatPath
+                    ? 'ring-primary shadow-[0_0_8px_var(--color-primary)/0.3]'
+                    : 'ring-transparent hover:ring-primary/40'
+                "
+              />
+              <span class="absolute bottom-1 right-2.5 h-2 w-2 rounded-full border-[1.5px] border-secondary bg-emerald-500" />
+            </RouterLink>
+          </UTooltip>
+        </template>
       </div>
     </div>
 
-    <!-- Spacer when collapsed -->
-    <div v-else class="flex-1" />
-
     <!-- Footer: Settings + Theme Toggle -->
     <div class="border-t border-border px-2 py-3 space-y-0.5">
-      <!-- Settings -->
       <UTooltip
         text="Settings"
         :content="{ side: 'right', sideOffset: 8 }"
@@ -163,7 +183,6 @@ function isActive(to: string) {
         </RouterLink>
       </UTooltip>
 
-      <!-- Theme Toggle -->
       <UTooltip
         :text="isDark ? 'Dark Mode' : 'Light Mode'"
         :content="{ side: 'right', sideOffset: 8 }"
