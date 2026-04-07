@@ -11,7 +11,7 @@
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check .",
     "typecheck": "vue-tsc --noEmit",
-    "api:gen": "openapi-typescript openapi.json -o ./src/api/schema.d.ts"
+    "api:gen": "openapi-typescript ../candlekeep-core/openapi.json -o ./src/api/schema.d.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.45",
