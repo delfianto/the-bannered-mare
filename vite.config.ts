@@ -5,7 +5,11 @@ import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command }) => {
+  const useMocks = process.env.VITE_USE_MOCKS === "true";
+  console.log(`[vite config] VITE_USE_MOCKS=${process.env.VITE_USE_MOCKS}, proxy ${useMocks ? "DISABLED" : "ENABLED"}`);
+
+  return ({
   plugins: [
     vue(),
     ui({
@@ -31,11 +35,14 @@ export default defineConfig(({ command }) => ({
   server: {
     host: "0.0.0.0",
     port: 5173,
-    proxy: {
-      "/api": {
-        target: "http://localhost:8000",
-        changeOrigin: true,
-      },
-    },
+    // Disable proxy when using MSW mocks — let the service worker intercept instead
+    proxy: useMocks
+      ? undefined
+      : {
+          "/api": {
+            target: "http://localhost:8000",
+            changeOrigin: true,
+          },
+        },
   },
-}));
+})});

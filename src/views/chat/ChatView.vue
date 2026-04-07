@@ -1,36 +1,65 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useChatSessions } from "@/composables/useChatSessions";
+import { useChatMessages } from "@/composables/useChatMessages";
+import { getAvatarUrl } from "@/api/client";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
 import QuillTypingIndicator from "@/components/chat/QuillTypingIndicator.vue";
 import MoodChips from "@/components/chat/MoodChips.vue";
 import ParchmentInput from "@/components/chat/ParchmentInput.vue";
-import {
-  CHAT_SESSIONS,
-  MOCK_MESSAGES,
-  MOOD_CHIPS,
-  ACTIVE_CHARACTER,
-} from "@/constants/chatData";
-import type { ChatMessage, MoodChip } from "@/types/chat";
+import type { MoodChip } from "@/types/chat";
 
 const router = useRouter();
 const route = useRoute();
 
-const activeSessionId = ref((route.params.chatId as string) || "session-1");
-const messages = ref<ChatMessage[]>([...MOCK_MESSAGES]);
-const isTyping = ref(false);
-const messageListRef = ref<HTMLElement | null>(null);
+const activeSessionId = ref((route.params.chatId as string) || "");
+
+// Wire to API via composables
+const {
+  chatSessions,
+  loading: sessionsLoading,
+} = useChatSessions({ pageSize: 30 });
+
+const {
+  messages,
+  loading: messagesLoading,
+  isGenerating,
+  hasMore,
+  sendMessage,
+  loadMore,
+} = useChatMessages(
+  () => activeSessionId.value || null,
+  { pageSize: 30 },
+);
+
+// Auto-select first session if none specified
+watch(chatSessions, (sessions) => {
+  if (!activeSessionId.value && sessions.length > 0) {
+    activeSessionId.value = sessions[0].id;
+    router.replace({ name: "chat", params: { chatId: sessions[0].id } });
+  }
+}, { immediate: true });
 
 const activeSession = computed(
-  () => CHAT_SESSIONS.find((s) => s.id === activeSessionId.value) || CHAT_SESSIONS[0],
+  () => chatSessions.value.find((s) => s.id === activeSessionId.value),
 );
+
+const characterAvatar = computed(() => {
+  const char = activeSession.value?.character;
+  if (!char) return "";
+  if (char.avatar_thumbnail) return getAvatarUrl(char.id);
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(char.name)}&background=C9922E&color=fff&size=80`;
+});
 
 const showMoodChips = computed(() => {
   const last = messages.value[messages.value.length - 1];
-  return last?.sender === "character" && !isTyping.value;
+  return last?.role === "assistant" && !isGenerating.value;
 });
+
+const messageListRef = ref<HTMLElement | null>(null);
 
 function scrollToBottom() {
   nextTick(() => {
@@ -40,33 +69,20 @@ function scrollToBottom() {
   });
 }
 
+// Scroll on new messages
+watch(() => messages.value.length, () => scrollToBottom());
+
+const MOOD_CHIPS: MoodChip[] = [
+  { id: "mood-1", label: "Boldly" },
+  { id: "mood-2", label: "With caution" },
+  { id: "mood-3", label: "Whisper" },
+  { id: "mood-4", label: "Defiantly" },
+  { id: "mood-5", label: "Tenderly" },
+];
+
 function handleSend(text: string) {
-  const userMsg: ChatMessage = {
-    id: `msg-user-${Date.now()}`,
-    sender: "user",
-    content: text,
-    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-  };
-  messages.value.push(userMsg);
+  sendMessage(text);
   scrollToBottom();
-
-  isTyping.value = true;
-  scrollToBottom();
-
-  setTimeout(() => {
-    const aiMsg: ChatMessage = {
-      id: `msg-ai-${Date.now()}`,
-      sender: "character",
-      content:
-        "*Elara\u2019s eyes widen as she watches the luminescent ink swirl in response to your words. The ancient library seems to breathe around you \u2014 a low, resonant hum vibrating through the stone floors and towering shelves.* \"Remarkable. The wards recognize your sincerity.\" *She moves deeper into the chamber, her fingertips trailing along the spines of books that have waited centuries for this moment.* \"But be cautious. Knowledge preserved this long was guarded for a reason. Not everything within these pages was meant to be read aloud.\"",
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      characterName: ACTIVE_CHARACTER.name,
-      characterAvatar: ACTIVE_CHARACTER.avatar,
-    };
-    messages.value.push(aiMsg);
-    isTyping.value = false;
-    scrollToBottom();
-  }, 2800);
 }
 
 function handleMoodSelect(chip: MoodChip) {
@@ -88,38 +104,54 @@ watch(
 
 <template>
   <div class="flex h-full overflow-hidden">
-    <!-- Session List -->
+    <!-- Session List (from API) -->
     <ChatSessionList
-      :sessions="CHAT_SESSIONS"
+      :sessions="chatSessions"
       :active-session-id="activeSessionId"
+      :loading="sessionsLoading"
       @select="selectSession"
     />
 
     <!-- Main Chat Area -->
-    <div class="flex flex-1 flex-col overflow-hidden">
+    <div v-if="activeSession" class="flex flex-1 flex-col overflow-hidden">
       <ChatHeader
         :character="activeSession.character"
-        :session-title="activeSession.sessionTitle"
+        :session-title="activeSession.title || 'Untitled Tale'"
         @back="router.push({ name: 'chats' })"
       />
 
       <!-- Message List -->
       <div ref="messageListRef" class="flex-1 overflow-y-auto px-5 py-6" style="scroll-behavior: smooth">
         <div class="mx-auto max-w-[720px] space-y-5">
+          <!-- Load More -->
+          <div v-if="hasMore" class="flex justify-center py-2">
+            <button
+              class="text-xs text-muted-foreground hover:text-primary transition-colors"
+              @click="loadMore"
+            >
+              Load earlier messages...
+            </button>
+          </div>
+
           <!-- Session Start Marker -->
           <div class="flex items-center justify-center py-4">
             <div class="flex items-center gap-3">
               <div class="h-px w-12 bg-border" />
               <div class="text-center">
                 <p class="font-cinzel text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {{ activeSession.sessionTitle }}
+                  {{ activeSession.title || "Untitled Tale" }}
                 </p>
                 <p class="mt-0.5 text-[10px] text-muted-foreground/60">
-                  Session began · Today at 10:40 AM
+                  Session began · {{ new Date(activeSession.created_at).toLocaleDateString() }}
                 </p>
               </div>
               <div class="h-px w-12 bg-border" />
             </div>
+          </div>
+
+          <!-- Loading messages -->
+          <div v-if="messagesLoading && messages.length === 0" class="flex justify-center py-8">
+            <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
 
           <!-- Messages -->
@@ -128,6 +160,8 @@ watch(
             :key="msg.id"
             :message="msg"
             :index="i"
+            :character-name="msg.role === 'assistant' ? activeSession.character.name : undefined"
+            :character-avatar="msg.role === 'assistant' ? characterAvatar : undefined"
           />
 
           <!-- Mood Chips -->
@@ -139,15 +173,20 @@ watch(
 
           <!-- Typing Indicator -->
           <QuillTypingIndicator
-            v-if="isTyping"
+            v-if="isGenerating"
             :character-name="activeSession.character.name"
-            :character-avatar="activeSession.character.avatar"
+            :character-avatar="characterAvatar"
           />
         </div>
       </div>
 
       <!-- Input -->
-      <ParchmentInput :disabled="isTyping" @send="handleSend" />
+      <ParchmentInput :disabled="isGenerating" @send="handleSend" />
+    </div>
+
+    <!-- No session selected -->
+    <div v-else class="flex flex-1 items-center justify-center">
+      <p class="text-muted-foreground">Select a tale to continue...</p>
     </div>
   </div>
 </template>

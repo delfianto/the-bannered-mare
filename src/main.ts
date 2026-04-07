@@ -43,24 +43,36 @@ async function prepareApp() {
     }
 
     await worker.start({
-      onUnhandledRequest: "bypass",
+      onUnhandledRequest(request, print) {
+        const url = new URL(request.url);
+        if (url.pathname.startsWith("/api")) {
+          print.warning();
+        }
+      },
       quiet: true,
+      serviceWorker: {
+        options: {
+          // Force the service worker to activate immediately on every page load
+          updateViaCache: "none",
+        },
+      },
     });
 
-    if (navigator.serviceWorker && !navigator.serviceWorker.controller) {
-      console.log("[MSW] Waiting for controller...");
-      await new Promise<void>((resolve) => {
-        const handler = () => {
-          if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.removeEventListener("controllerchange", handler);
+    // Wait until service worker is actively controlling the page
+    if (navigator.serviceWorker) {
+      if (navigator.serviceWorker.controller) {
+        console.log("[MSW] Controller active.");
+      } else {
+        console.log("[MSW] Waiting for controller...");
+        await new Promise<void>((resolve) => {
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
             console.log("[MSW] Controller active.");
             resolve();
-          }
-        };
-        navigator.serviceWorker.addEventListener("controllerchange", handler);
-      });
+          }, { once: true });
+        });
+      }
     } else {
-      console.log("[MSW] Already controlling.");
+      console.log("[MSW] Service Worker API not available, proceeding without wait.");
     }
     return;
   }

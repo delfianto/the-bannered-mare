@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import type { ChatSession } from "@/types/chat";
+import { getAvatarUrl } from "@/api/client";
+import type { Chat } from "@/types/chat";
 
 const props = defineProps<{
-  sessions: ChatSession[];
+  sessions: Chat[];
   activeSessionId: string;
+  loading?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -19,9 +21,25 @@ const filtered = computed(() => {
   return props.sessions.filter(
     (s) =>
       s.character.name.toLowerCase().includes(q) ||
-      s.sessionTitle.toLowerCase().includes(q),
+      (s.title ?? "").toLowerCase().includes(q),
   );
 });
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+function avatarSrc(chat: Chat): string {
+  if (chat.character.avatar_thumbnail) return getAvatarUrl(chat.character.id);
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=80`;
+}
 </script>
 
 <template>
@@ -48,8 +66,13 @@ const filtered = computed(() => {
       Active Tales
     </p>
 
+    <!-- Loading -->
+    <div v-if="loading" class="flex-1 flex items-center justify-center">
+      <UIcon name="i-lucide-loader-circle" class="h-5 w-5 animate-spin text-muted-foreground" />
+    </div>
+
     <!-- Session List -->
-    <div class="flex-1 space-y-0.5 overflow-y-auto px-2">
+    <div v-else class="flex-1 space-y-0.5 overflow-y-auto px-2">
       <button
         v-for="session in filtered"
         :key="session.id"
@@ -66,13 +89,9 @@ const filtered = computed(() => {
         <!-- Avatar -->
         <div class="relative flex-shrink-0">
           <img
-            :src="session.character.avatar"
+            :src="avatarSrc(session)"
             :alt="session.character.name"
             class="h-10 w-10 rounded-full object-cover ring-1 ring-border"
-          />
-          <div
-            v-if="session.unread"
-            class="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-secondary bg-primary"
           />
         </div>
 
@@ -83,16 +102,17 @@ const filtered = computed(() => {
               {{ session.character.name }}
             </p>
             <span class="flex-shrink-0 text-[10px] text-muted-foreground">
-              {{ session.lastActivity }}
+              {{ timeAgo(session.updated_at) }}
             </span>
           </div>
-          <p
-            class="mt-0.5 truncate font-cinzel text-[11px] text-primary/80"
-          >
-            {{ session.sessionTitle }}
+          <p class="mt-0.5 truncate font-cinzel text-[11px] text-primary/80">
+            {{ session.title || "Untitled Tale" }}
           </p>
-          <p class="mt-0.5 line-clamp-1 text-[11px] italic leading-relaxed text-muted-foreground">
-            {{ session.lastMessage }}
+          <p
+            v-if="session.preview"
+            class="mt-0.5 line-clamp-1 text-[11px] italic leading-relaxed text-muted-foreground"
+          >
+            {{ session.preview }}
           </p>
         </div>
       </button>

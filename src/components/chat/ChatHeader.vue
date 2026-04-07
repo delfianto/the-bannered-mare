@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import type { ChatCharacter } from "@/types/chat";
+import { getAvatarUrl } from "@/api/client";
+import type { ChatCharacterInfo } from "@/types/chat";
 
-defineProps<{
-  character: ChatCharacter;
+const props = defineProps<{
+  character: ChatCharacterInfo;
   sessionTitle: string;
 }>();
 
 const emit = defineEmits<{
   back: [];
 }>();
+
+function avatarSrc(): string {
+  if (props.character.avatar_thumbnail) return getAvatarUrl(props.character.id);
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=80`;
+}
 </script>
 
 <template>
   <header
     class="z-10 flex h-[62px] flex-shrink-0 items-center justify-between border-b border-border bg-background/80 px-5 backdrop-blur-sm"
   >
-    <!-- Left: Back -->
     <button
       class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       @click="emit('back')"
@@ -23,11 +28,10 @@ const emit = defineEmits<{
       <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
     </button>
 
-    <!-- Center: Character Info -->
     <div class="flex items-center gap-3">
       <div class="relative">
         <img
-          :src="character.avatar"
+          :src="avatarSrc()"
           :alt="character.name"
           class="h-9 w-9 rounded-full object-cover ring-2 ring-primary/30"
         />
@@ -48,7 +52,6 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <!-- Right: Menu -->
     <button
       class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
     >

@@ -1,30 +1,11 @@
-export interface ChatCharacter {
-  id: string;
-  name: string;
-  avatar: string;
-  title: string;
-  tags: string[];
-}
+import type { components } from "@/api/schema";
 
-export interface ChatMessage {
-  id: string;
-  sender: "user" | "character";
-  content: string;
-  timestamp: string;
-  characterName?: string;
-  characterAvatar?: string;
-}
+/** API response types — use these throughout chat components */
+export type Chat = components["schemas"]["ChatResponse"];
+export type Message = components["schemas"]["MessageResponse"];
+export type ChatCharacterInfo = components["schemas"]["ChatCharacterResponse"];
 
-export interface ChatSession {
-  id: string;
-  character: ChatCharacter;
-  sessionTitle: string;
-  lastMessage: string;
-  lastActivity: string;
-  unread: boolean;
-  messageCount: number;
-}
-
+/** UI-only types (not from API) */
 export interface MoodChip {
   id: string;
   label: string;
