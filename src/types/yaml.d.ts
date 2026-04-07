@@ -1,9 +1,11 @@
 declare module "*.yaml" {
-  const data: any;
+  const data: Record<string, any>;
   export default data;
+  export const messages: Array<{ role: "user" | "assistant"; content: string }>;
 }
 
 declare module "*.yml" {
-  const data: any;
+  const data: Record<string, any>;
   export default data;
+  export const messages: Array<{ role: "user" | "assistant"; content: string }>;
 }
