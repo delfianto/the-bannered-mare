@@ -9,10 +9,10 @@
 
 ## Current State Summary
 
-All main pages are **built and wired to the API** via composables + MSW mocks. The schema has been regenerated from the latest backend `openapi.json` adding message alternatives, presets, templates, fragments, lorebooks, and data bank endpoints.
+All main pages are **built and wired to the API** via composables + MSW mocks. Mock data matches backend fixtures exactly (6 providers, 19 model families, 34 models). Connections page has full CRUD with detail/edit pages including a recursive inference parameter editor. Settings page has Interface, Persona, and About tabs.
 
-**Wired pages:** Home, Chat (SSE streaming), Discover (filters), Creator (create/edit/delete), Connections (providers/models/families)
-**Placeholder pages:** Settings, Data Bank, World Lore, Persona
+**Wired pages:** Home, Chat (SSE streaming), Discover (filters), Creator (create/edit/delete), Connections (providers/models/families with detail pages), Settings (interface/persona/about)
+**Placeholder pages:** Data Bank, World Lore
 
 ---
 
@@ -53,7 +53,6 @@ All main pages are **built and wired to the API** via composables + MSW mocks. T
 | Chat delete API mock | [x] | `DELETE /api/chats/:chatId` |
 | Messages list API mock | [x] | `GET /api/chats/:chatId/messages` — 19 YAML scenarios |
 | Message send (stream) mock | [x] | `POST ...?stream=true` — SSE |
-| Message send (block) mock | [x] | `POST ...` — JSON |
 | Message regenerate mock | [x] | `POST ...?stream=true&regenerate=true` |
 | Message edit API mock | [x] | `PUT .../messages/:id` |
 | Message alternatives mock | [x] | `GET .../messages/:id/alternatives` — returns 2 mock swipes |
@@ -70,30 +69,43 @@ All main pages are **built and wired to the API** via composables + MSW mocks. T
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Providers list API mock | [x] | `GET /api/providers` — 6 providers |
-| Provider CRUD mocks | [ ] | POST/PUT/PATCH not mocked |
-| Models list API mock | [x] | `GET /api/models` — 24 models, paginated |
+| Providers list API mock | [x] | `GET /api/providers` — 6 providers, SVG brand icons |
+| Provider detail API mock | [x] | `GET /api/providers/:id` |
+| Provider update API mock | [x] | `PUT /api/providers/:id` — merge fields |
+| Provider flags API mock | [x] | `PATCH /api/providers/:id/flags` — toggle enabled |
+| Models list API mock | [x] | `GET /api/models` — 34 models, paginated, provider_id filter |
 | Model detail API mock | [x] | `GET /api/models/:id` — joins ModelFamily |
-| Model CRUD mocks | [ ] | POST/PUT/DELETE/PATCH not mocked |
-| Model families list mock | [x] | `GET /api/model-families` — 20 families |
+| Model update API mock | [x] | `PUT /api/models/:id` — merge + join family |
+| Model flags API mock | [x] | `PATCH /api/models/:id/flags` — enabled, use_openrouter |
+| Model delete API mock | [x] | `DELETE /api/models/:id` |
+| Model families list mock | [x] | `GET /api/model-families` — 19 families, dynamic pagination |
 | Model family detail mock | [x] | `GET /api/model-families/:id` |
-| Model family CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
+| Model family update mock | [x] | `PUT /api/model-families/:id` — merge fields |
+| Model family delete mock | [x] | `DELETE /api/model-families/:id` |
 | Parameter docs mock | [x] | `GET /api/model-families/parameter-docs` |
 | `useProviders` composable | [x] | Fetches provider list |
-| `useModels` composable | [x] | Fetches with pagination + search |
-| `useModelFamilies` composable | [x] | Fetches with pagination |
-| Connections page UI | [x] | Built — 3 tabs: Providers (cards), Models (list+search+pagination), Model Families (cards+pagination) |
+| `useProvider` composable | [x] | Single provider fetch + save |
+| `useModels` composable | [x] | Pagination + search + provider_id filter |
+| `useModel` composable | [x] | Single model fetch + save + delete + flags |
+| `useModelFamilies` composable | [x] | Pagination |
+| `useModelFamily` composable | [x] | Single family fetch + save + delete |
+| Connections list tabs | [x] | 3 tabs: card grids with edit links, search, provider filter |
+| ProviderView (edit) | [x] | Name, base URL, enabled toggle, API key status |
+| ModelView (edit) | [x] | Identity, provider selector (filtered by family), inference params editor |
+| ModelFamilyView (edit) | [x] | Name, identifier, description, param schema display, delete |
+| **ParamInput** (recursive) | [x] | Handles boolean/enum/slider/number/string/list/object/json types |
+| **ModelInferenceParams** | [x] | 3 groups (general/fine-tuning/advanced), override detection, docs tooltips |
 
-### Personas
+### Settings
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Persona list API mock | [x] | `GET /api/personas/` — 3 personas |
-| Persona detail API mock | [x] | `GET /api/personas/:id` |
+| Settings page UI | [x] | 3 tabs: Interface, Persona, About |
+| Interface tab | [x] | Dark mode toggle, stream responses, typing indicator (localStorage) |
+| Persona tab | [x] | Fetches from API, displays cards with avatar/name/default badge |
+| About tab | [x] | App name, version, license, GitHub link from constants |
 | Persona CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
-| Persona avatar mock | [ ] | Not mocked |
-| Set default persona mock | [ ] | Not mocked |
-| Persona page UI | [~] | Placeholder only |
+| Persona create/edit UI | [ ] | Buttons present but disabled |
 
 ### Prompt Templates (no UI or mocks)
 
@@ -102,7 +114,6 @@ All main pages are **built and wired to the API** via composables + MSW mocks. T
 | Template list mock | [ ] | `GET /api/prompt-templates/` |
 | Template CRUD mocks | [ ] | POST/PUT/DELETE |
 | Template preview mock | [ ] | `POST .../preview` |
-| Template fragment attach | [ ] | POST/DELETE fragment associations |
 | Template management UI | [ ] | Could be a tab in Connections |
 
 ### Prompt Fragments (no UI or mocks)
@@ -119,7 +130,6 @@ All main pages are **built and wired to the API** via composables + MSW mocks. T
 |------|--------|-------|
 | Preset list mock | [ ] | `GET /api/presets/` |
 | Preset CRUD mocks | [ ] | POST/PUT/DELETE |
-| Set default preset mock | [ ] | POST |
 | Preset management UI | [ ] | Could be a tab in Connections |
 
 ### Lorebooks (no UI or mocks)
@@ -128,7 +138,6 @@ All main pages are **built and wired to the API** via composables + MSW mocks. T
 |------|--------|-------|
 | Lorebook list mock | [ ] | `GET /api/lorebooks` |
 | Lorebook CRUD mocks | [ ] | POST/PUT/DELETE |
-| Lore entry CRUD mocks | [ ] | Nested under lorebook |
 | Lorebook UI in Creator | [~] | Creator has lorebook editor but no API calls |
 
 ### Data Bank & RAG (no UI or mocks)
@@ -138,98 +147,80 @@ All main pages are **built and wired to the API** via composables + MSW mocks. T
 | Data Bank list mock | [ ] | `GET /api/data-bank/` |
 | Data Bank CRUD mocks | [ ] | POST/PUT/DELETE |
 | RAG search mock | [ ] | `POST /api/rag/search` |
-| RAG status mock | [ ] | `GET /api/rag/status` |
 | Data Bank page UI | [ ] | Route exists (`/memory`), placeholder only |
-
-### Admin & Logging (no UI or mocks)
-
-| Item | Status | Notes |
-|------|--------|-------|
-| Error logs mock | [ ] | `GET /admin/logs/errors` |
-| HTTP logs mock | [ ] | `GET /admin/logs/http` |
-| LLM logs mock | [ ] | `GET /admin/logs/llm` |
-| LLM stats mock | [ ] | `GET /admin/logs/llm/stats` |
-| Admin UI | [ ] | No page exists |
 
 ---
 
 ## Priority Tasks (Highest → Lowest)
 
 ### P0 — Critical Path — COMPLETE
-
-All done: unified types, wired Home/Chat/Discover to API, MSW proxy fix.
-
 ### P1 — High Priority — COMPLETE
+### P2 — Medium Priority — MOSTLY COMPLETE
 
-All done:
-6. ~~Wire Creator → API~~ — **DONE.** Create/edit/delete with FormData, field mapping, MSW handlers.
-7. ~~Build Connections page~~ — **DONE.** Providers/Models/ModelFamilies tabs with composables.
-8. ~~Chat CRUD mocks~~ — **DONE.** PUT/DELETE for chats.
-9. ~~Message edit mock~~ — **DONE.** PUT for message content.
-10. ~~Swipe/alternatives mock~~ — **DONE.** GET alternatives + PUT activate.
+Done:
+- ~~Build Settings page~~ — **DONE.** Interface/Persona/About tabs.
+- ~~Connections detail pages~~ — **DONE.** Provider/Model/ModelFamily edit with full inference param editor.
+- ~~Mock data alignment~~ — **DONE.** 6 providers, 19 families, 34 models matching backend fixtures.
 
-### P2 — Medium Priority — CURRENT
-
-11. **Build Data Bank page** — `/memory` route. CRUD UI for global, character-scoped, and chat-scoped knowledge entries. Add MSW mocks.
-
-12. **Build Settings page** — Interface preferences, persona management (CRUD + avatar + set default), about info. Add persona CRUD mocks.
-
-13. **Add preset mocks + UI** — New tab in Connections. Presets define parameter overrides.
-
-14. **Add prompt template mocks + UI** — New tab in Connections. Template CRUD with component ordering.
-
-15. **Add prompt fragment mocks + UI** — New tab in Connections. Reusable prompt blocks.
+Remaining P2:
+- **Build Data Bank page** — `/memory` route. CRUD UI + MSW mocks.
+- **Add preset mocks + UI** — Tab in Connections.
+- **Add prompt template mocks + UI** — Tab in Connections.
+- **Add prompt fragment mocks + UI** — Tab in Connections.
 
 ### P3 — Lower Priority (Polish & advanced)
 
-16. **Swipe/alternatives UI** — Mock handlers ready, need UI in chat message bubbles (left/right arrows to browse alternatives).
-17. **Message editing UI** — Mock handler ready, need inline edit mode in message bubbles.
-18. **Chat rename/delete UI** — Mock handlers ready, need context menu in chat session list.
-19. **Add lorebook API integration** — Wire Creator's lorebook editor to API. Add MSW mocks.
-20. **Add RAG integration** — Search UI in Data Bank page.
-21. **Character import flow** — TavernCard PNG/JSON import.
-22. **Character detail page** — Full character profile view at `/characters/:id`.
-23. **Admin logging UI** — Log queries, LLM usage stats dashboard.
-24. **Mobile responsive layout** — Mobile drawer/bottom nav.
+- **Swipe/alternatives UI** — Mock ready, need UI in chat bubbles.
+- **Message editing UI** — Mock ready, need inline edit mode.
+- **Chat rename/delete UI** — Mock ready, need context menu in session list.
+- **Lorebook API integration** — Wire Creator editor to API.
+- **Character import flow** — TavernCard PNG/JSON import.
+- **Character detail page** — Full profile view.
+- **Persona CRUD** — Create/edit/delete personas with avatar upload.
+- **Admin logging UI** — Log queries, LLM usage stats.
+- **Mobile responsive layout** — Drawer/bottom nav.
+
+### Backend TODOs (needed for UI features)
+
+- **`order_by` query param** — Models, Model Families, Characters list endpoints need server-side sorting. Currently no ordering in base repository.
+- **`model_family_id` filter** — Models list endpoint needs this query param for family-based filtering.
 
 ---
 
 ## Resolved Issues
 
 ### Type Alignment — RESOLVED
-All wired pages use API schema types directly. Creator has its own `CharacterData` type with bidirectional mapping to `CharacterResponse` via `buildFormData()` / `mapResponseToForm()`.
+All wired pages use API schema types directly.
 
 ### Schema Sync — RESOLVED
-`schema.d.ts` regenerated from `../candlekeep-core/openapi.json`. Script: `bun run api:gen`. Old local `openapi.json` removed. New schema includes `active_index`, `token_count`, `reasoning_content` on messages, plus alternatives/presets/templates/fragments/lorebooks/data-bank endpoints.
+`schema.d.ts` regenerated from backend. Script: `bun run api:gen`. Local `openapi.json` removed.
 
 ### Vite Proxy / MSW — RESOLVED
-`VITE_USE_MOCKS=true` disables Vite proxy. MSW service worker requires `localhost` (not network IP). SSH tunnel for remote debugging.
+`VITE_USE_MOCKS=true` disables Vite proxy. SSH tunnel for remote debugging.
 
 ### Avatar Strategy — RESOLVED
-Mock data uses Unsplash face-cropped portraits. Cards use `avatar` (full), lists use `avatar_thumbnail`, fallback to `ui-avatars.com`.
+Mock data uses Unsplash portraits. Cards use `avatar` (full), lists use `avatar_thumbnail`.
+
+### Theme State — RESOLVED
+`useTheme` uses singleton pattern — shared across all components.
 
 ---
 
-## Architecture Notes
+## Composables Summary
 
-### Streaming Protocol
-Backend SSE events: `start`, `text`, `reasoning`, `usage`, `done`, `error`.
-Composable currently parses simple `{"text":"..."}` chunks — needs update for full event schema.
-
-### Pagination
-- **Cursor-based:** Chats, messages
-- **Page-based:** Characters, models, model families, presets, templates, fragments
-
-### Composables Summary
 | Composable | API Endpoint | Used By |
 |-----------|-------------|---------|
 | `useChatSessions` | GET /api/chats | ChatView, HomeView |
 | `useChatMessages` | GET/POST /api/chats/:id/messages | ChatView |
 | `useCharacters` | GET /api/characters | CharactersView, HomeView |
 | `useCharacterForm` | GET/POST/PUT/DELETE /api/characters | CharacterCreateView |
-| `useProviders` | GET /api/providers | ProvidersTab |
-| `useModels` | GET /api/models | ModelsTab |
-| `useModelFamilies` | GET /api/model-families | ModelFamiliesTab |
+| `useProviders` | GET /api/providers | ProvidersTab, ModelsTab |
+| `useProvider` | GET/PUT /api/providers/:id | ProviderView |
+| `useModels` | GET /api/models (+ provider_id filter) | ModelsTab |
+| `useModel` | GET/PUT/DELETE/PATCH /api/models/:id | ModelView |
+| `useModelFamilies` | GET /api/model-families | ModelFamiliesTab, ModelsTab |
+| `useModelFamily` | GET/PUT/DELETE /api/model-families/:id | ModelFamilyView |
 | `useLibraryFilters` | (local filtering) | CharactersView |
 | `useSidebar` | (localStorage) | AppSidebar |
-| `useTheme` | (localStorage) | AppSidebar, App |
+| `useTheme` | (localStorage, singleton) | AppSidebar, InterfaceTab, App |
+| `useAppToast` | (Nuxt UI toast) | All edit pages |
