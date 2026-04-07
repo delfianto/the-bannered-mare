@@ -9,11 +9,6 @@ function goToPage(pageNum: number) {
   if (pageNum < 1 || pageNum > totalPages.value) return;
   loadPage(pageNum);
 }
-
-function parameterCount(family: (typeof families.value)[number]): string {
-  // ModelFamilyListResponse doesn't include parameters, so we show provider_types count
-  return `${family.provider_types.length} provider type${family.provider_types.length !== 1 ? "s" : ""}`;
-}
 </script>
 
 <template>
@@ -29,43 +24,42 @@ function parameterCount(family: (typeof families.value)[number]): string {
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
-    <!-- Grid -->
+    <!-- Cards -->
     <div v-else>
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <!-- Empty -->
+      <div v-if="families.length === 0" class="flex flex-col items-center justify-center gap-2 py-16">
+        <UIcon name="i-lucide-folder-open" class="h-8 w-8 text-muted-foreground/50" />
+        <p class="text-sm text-muted-foreground">No model families found</p>
+      </div>
+
+      <!-- Card Grid -->
+      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <div
           v-for="(family, index) in families"
           :key="family.id"
-          class="animate-fade-in-up rounded-xl border border-[var(--border)] bg-card/50 p-5 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
-          :style="{ animationDelay: `${index * 60}ms` }"
+          class="group animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+          :style="{ animationDelay: `${index * 30}ms` }"
+          @click="router.push(`/settings/model-families/${family.id}`)"
         >
-          <!-- Header -->
-          <div class="mb-2 flex items-start justify-between">
-            <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
-              {{ family.name }}
-            </h3>
-            <div class="flex items-center gap-2">
-              <button
-                class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                @click="router.push(`/settings/model-families/${family.id}`)"
-              >
-                <UIcon name="i-lucide-pencil" class="h-3.5 w-3.5" />
-              </button>
-              <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <UIcon name="i-lucide-layers" class="h-3.5 w-3.5" />
-                <span>{{ parameterCount(family) }}</span>
-              </div>
+          <!-- Header: name + provider count -->
+          <div class="mb-2 flex items-start justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+                {{ family.name }}
+              </h3>
+              <p class="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
+                {{ family.family_identifier }}
+              </p>
             </div>
+            <span class="mt-0.5 shrink-0 text-[10px] text-muted-foreground">
+              {{ family.provider_types.length }} provider{{ family.provider_types.length !== 1 ? "s" : "" }}
+            </span>
           </div>
-
-          <!-- Identifier -->
-          <code class="mb-2 block text-xs text-muted-foreground">
-            {{ family.family_identifier }}
-          </code>
 
           <!-- Description -->
           <p
             v-if="family.description"
-            class="mb-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground"
+            class="mb-2.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground"
           >
             {{ family.description }}
           </p>
@@ -75,22 +69,22 @@ function parameterCount(family: (typeof families.value)[number]): string {
             <span
               v-for="pt in family.provider_types"
               :key="pt"
-              class="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground"
             >
               {{ pt }}
             </span>
           </div>
+
+          <!-- Edit hint -->
+          <div class="mt-2.5 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
+            <UIcon name="i-lucide-pencil" class="h-3 w-3" />
+            Click to edit
+          </div>
         </div>
       </div>
 
-      <!-- Empty state -->
-      <div v-if="families.length === 0" class="flex flex-col items-center justify-center gap-2 py-12">
-        <UIcon name="i-lucide-folder-open" class="h-8 w-8 text-muted-foreground/50" />
-        <p class="text-sm text-muted-foreground">No model families found</p>
-      </div>
-
       <!-- Pagination -->
-      <div v-if="families.length > 0" class="mt-4 flex items-center justify-between">
+      <div v-if="totalPages > 1" class="mt-5 flex items-center justify-between">
         <span class="text-xs text-muted-foreground">
           Page {{ page }} of {{ totalPages }}
         </span>
