@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.45",
-    "@nuxt/ui": "^3.3.7",
+    "@nuxt/ui": "^4.6.1",
     "@vueuse/core": "^14.2.1",
     "dompurify": "^3.3.3",
     "markdown-it": "^14.1.1",
