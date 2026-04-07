@@ -3,7 +3,7 @@
   "info": {
     "title": "Candlekeep Core",
     "description": "FastAPI backend for RP platform with character cards and chat management",
-    "version": "0.1.0"
+    "version": "0.2.5"
   },
   "paths": {
     "/admin/logs/http": {
@@ -1600,6 +1600,130 @@
         }
       }
     },
+    "/api/characters/import": {
+      "post": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "Import Character",
+        "description": "Import a character from a TavernCard V1/V2 PNG or JSON file.",
+        "operationId": "import_character_api_characters_import_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_character_api_characters_import_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/characters/{character_id}/export/json": {
+      "get": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "Export Character Json",
+        "description": "Export character as TavernCard V2 JSON.",
+        "operationId": "export_character_json_api_characters__character_id__export_json_get",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Character Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/characters/{character_id}/export/png": {
+      "get": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "Export Character Png",
+        "description": "Export character as PNG with embedded TavernCard V2 JSON.",
+        "operationId": "export_character_png_api_characters__character_id__export_png_get",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Character Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/chats": {
       "get": {
         "tags": [
@@ -1979,7 +2103,7 @@
           "messages"
         ],
         "summary": "Send Message",
-        "description": "Send a message or regenerate the last response.\nSupports both blocking and streaming modes.\n- **stream=False** (default): Returns JSON MessageResponse.\n- **stream=True**: Returns Server-Sent Events (SSE).",
+        "description": "Send a message or regenerate the last response.\nSupports both blocking and streaming modes.\n- **stream=False** (default): Returns JSON MessageResponse.\n- **stream=True**: Returns Server-Sent Events (SSE) with typed events.",
         "operationId": "send_message_api_chats__chat_id__messages_post",
         "parameters": [
           {
@@ -2033,6 +2157,185 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{chat_id}/messages/{message_id}": {
+      "put": {
+        "tags": [
+          "messages"
+        ],
+        "summary": "Edit Message",
+        "description": "Edit a message's content. Recounts tokens.",
+        "operationId": "edit_message_api_chats__chat_id__messages__message_id__put",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Message Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{chat_id}/messages/{message_id}/alternatives": {
+      "get": {
+        "tags": [
+          "messages"
+        ],
+        "summary": "List Alternatives",
+        "description": "List all alternatives (swipes) for a message.",
+        "operationId": "list_alternatives_api_chats__chat_id__messages__message_id__alternatives_get",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Message Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AlternativeResponse"
+                  },
+                  "title": "Response List Alternatives Api Chats  Chat Id  Messages  Message Id  Alternatives Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{chat_id}/messages/{message_id}/alternatives/{alternative_id}/activate": {
+      "put": {
+        "tags": [
+          "messages"
+        ],
+        "summary": "Activate Alternative",
+        "description": "Switch the active alternative (swipe) for a message.",
+        "operationId": "activate_alternative_api_chats__chat_id__messages__message_id__alternatives__alternative_id__activate_put",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Message Id"
+            }
+          },
+          {
+            "name": "alternative_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Alternative Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2442,6 +2745,278 @@
         }
       }
     },
+    "/api/presets/": {
+      "get": {
+        "tags": [
+          "presets"
+        ],
+        "summary": "List Presets",
+        "description": "List presets with pagination",
+        "operationId": "list_presets_api_presets__get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number (1-based)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number (1-based)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Items per page",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_PresetResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "presets"
+        ],
+        "summary": "Create Preset",
+        "description": "Create new preset",
+        "operationId": "create_preset_api_presets__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/presets/{preset_id}": {
+      "get": {
+        "tags": [
+          "presets"
+        ],
+        "summary": "Get Preset",
+        "description": "Get preset by ID",
+        "operationId": "get_preset_api_presets__preset_id__get",
+        "parameters": [
+          {
+            "name": "preset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Preset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "presets"
+        ],
+        "summary": "Update Preset",
+        "description": "Update preset",
+        "operationId": "update_preset_api_presets__preset_id__put",
+        "parameters": [
+          {
+            "name": "preset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Preset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresetUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "presets"
+        ],
+        "summary": "Delete Preset",
+        "description": "Delete preset",
+        "operationId": "delete_preset_api_presets__preset_id__delete",
+        "parameters": [
+          {
+            "name": "preset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Preset Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/presets/{preset_id}/default": {
+      "post": {
+        "tags": [
+          "presets"
+        ],
+        "summary": "Set Default Preset",
+        "description": "Set preset as default",
+        "operationId": "set_default_preset_api_presets__preset_id__default_post",
+        "parameters": [
+          {
+            "name": "preset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Preset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/prompt-templates/": {
       "get": {
         "tags": [
@@ -2772,6 +3347,1117 @@
         }
       }
     },
+    "/api/prompt-fragments/": {
+      "get": {
+        "tags": [
+          "prompt-fragments"
+        ],
+        "summary": "List Fragments",
+        "description": "List prompt fragments with optional filtering",
+        "operationId": "list_fragments_api_prompt_fragments__get",
+        "parameters": [
+          {
+            "name": "fragment_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by fragment type",
+              "title": "Fragment Type"
+            },
+            "description": "Filter by fragment type"
+          },
+          {
+            "name": "is_global",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by global status",
+              "title": "Is Global"
+            },
+            "description": "Filter by global status"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FragmentResponse"
+                  },
+                  "title": "Response List Fragments Api Prompt Fragments  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "prompt-fragments"
+        ],
+        "summary": "Create Fragment",
+        "description": "Create a new prompt fragment",
+        "operationId": "create_fragment_api_prompt_fragments__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FragmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FragmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/prompt-fragments/{fragment_id}": {
+      "get": {
+        "tags": [
+          "prompt-fragments"
+        ],
+        "summary": "Get Fragment",
+        "description": "Get prompt fragment by ID",
+        "operationId": "get_fragment_api_prompt_fragments__fragment_id__get",
+        "parameters": [
+          {
+            "name": "fragment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Fragment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FragmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "prompt-fragments"
+        ],
+        "summary": "Update Fragment",
+        "description": "Update prompt fragment",
+        "operationId": "update_fragment_api_prompt_fragments__fragment_id__put",
+        "parameters": [
+          {
+            "name": "fragment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Fragment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FragmentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FragmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "prompt-fragments"
+        ],
+        "summary": "Delete Fragment",
+        "description": "Delete prompt fragment",
+        "operationId": "delete_fragment_api_prompt_fragments__fragment_id__delete",
+        "parameters": [
+          {
+            "name": "fragment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Fragment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/prompt-templates/{template_id}/fragments/": {
+      "post": {
+        "tags": [
+          "template-fragments"
+        ],
+        "summary": "Attach Fragment",
+        "description": "Attach a prompt fragment to a template",
+        "operationId": "attach_fragment_api_prompt_templates__template_id__fragments__post",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Template Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttachFragmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateFragmentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "template-fragments"
+        ],
+        "summary": "List Template Fragments",
+        "description": "List all prompt fragments attached to a template",
+        "operationId": "list_template_fragments_api_prompt_templates__template_id__fragments__get",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Template Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateFragmentResponse"
+                  },
+                  "title": "Response List Template Fragments Api Prompt Templates  Template Id  Fragments  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/prompt-templates/{template_id}/fragments/{fragment_id}": {
+      "delete": {
+        "tags": [
+          "template-fragments"
+        ],
+        "summary": "Detach Fragment",
+        "description": "Detach a prompt fragment from a template",
+        "operationId": "detach_fragment_api_prompt_templates__template_id__fragments__fragment_id__delete",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Template Id"
+            }
+          },
+          {
+            "name": "fragment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Fragment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lorebooks": {
+      "get": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "List Lorebooks",
+        "description": "List lorebooks with optional filters.",
+        "operationId": "list_lorebooks_api_lorebooks_get",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by character",
+              "title": "Character Id"
+            },
+            "description": "Filter by character"
+          },
+          {
+            "name": "is_global",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter global lorebooks",
+              "title": "Is Global"
+            },
+            "description": "Filter global lorebooks"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LorebookResponse"
+                  },
+                  "title": "Response List Lorebooks Api Lorebooks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "Create Lorebook",
+        "description": "Create a new lorebook.",
+        "operationId": "create_lorebook_api_lorebooks_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LorebookCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorebookResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lorebooks/{lorebook_id}": {
+      "get": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "Get Lorebook",
+        "description": "Get lorebook with all entries.",
+        "operationId": "get_lorebook_api_lorebooks__lorebook_id__get",
+        "parameters": [
+          {
+            "name": "lorebook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lorebook Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorebookDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "Update Lorebook",
+        "description": "Update lorebook metadata.",
+        "operationId": "update_lorebook_api_lorebooks__lorebook_id__put",
+        "parameters": [
+          {
+            "name": "lorebook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lorebook Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LorebookUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LorebookResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "Delete Lorebook",
+        "description": "Delete lorebook and all its entries.",
+        "operationId": "delete_lorebook_api_lorebooks__lorebook_id__delete",
+        "parameters": [
+          {
+            "name": "lorebook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lorebook Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lorebooks/{lorebook_id}/entries": {
+      "post": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "Create Entry",
+        "description": "Add a lore entry to a lorebook.",
+        "operationId": "create_entry_api_lorebooks__lorebook_id__entries_post",
+        "parameters": [
+          {
+            "name": "lorebook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lorebook Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoreEntryCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoreEntryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lorebooks/{lorebook_id}/entries/{entry_id}": {
+      "put": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "Update Entry",
+        "description": "Update a lore entry.",
+        "operationId": "update_entry_api_lorebooks__lorebook_id__entries__entry_id__put",
+        "parameters": [
+          {
+            "name": "lorebook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lorebook Id"
+            }
+          },
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoreEntryUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoreEntryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "lorebooks"
+        ],
+        "summary": "Delete Entry",
+        "description": "Delete a lore entry.",
+        "operationId": "delete_entry_api_lorebooks__lorebook_id__entries__entry_id__delete",
+        "parameters": [
+          {
+            "name": "lorebook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Lorebook Id"
+            }
+          },
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data-bank/": {
+      "get": {
+        "tags": [
+          "data-bank"
+        ],
+        "summary": "List Entries",
+        "description": "List data bank entries with optional filtering",
+        "operationId": "list_entries_api_data_bank__get",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by scope: global, character, chat",
+              "title": "Scope"
+            },
+            "description": "Filter by scope: global, character, chat"
+          },
+          {
+            "name": "character_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by character ID",
+              "title": "Character Id"
+            },
+            "description": "Filter by character ID"
+          },
+          {
+            "name": "chat_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by chat ID",
+              "title": "Chat Id"
+            },
+            "description": "Filter by chat ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DataBankResponse"
+                  },
+                  "title": "Response List Entries Api Data Bank  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "data-bank"
+        ],
+        "summary": "Create Entry",
+        "description": "Create a new data bank entry",
+        "operationId": "create_entry_api_data_bank__post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataBankCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataBankResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/data-bank/{entry_id}": {
+      "get": {
+        "tags": [
+          "data-bank"
+        ],
+        "summary": "Get Entry",
+        "description": "Get data bank entry by ID",
+        "operationId": "get_entry_api_data_bank__entry_id__get",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataBankResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "data-bank"
+        ],
+        "summary": "Update Entry",
+        "description": "Update data bank entry",
+        "operationId": "update_entry_api_data_bank__entry_id__put",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataBankUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataBankResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "data-bank"
+        ],
+        "summary": "Delete Entry",
+        "description": "Delete data bank entry",
+        "operationId": "delete_entry_api_data_bank__entry_id__delete",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rag/search": {
+      "post": {
+        "tags": [
+          "rag"
+        ],
+        "summary": "Search",
+        "description": "Manual semantic search across embeddings",
+        "operationId": "search_api_rag_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RAGSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetrievedChunk"
+                  },
+                  "type": "array",
+                  "title": "Response Search Api Rag Search Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rag/status": {
+      "get": {
+        "tags": [
+          "rag"
+        ],
+        "summary": "Rag Status",
+        "description": "Return RAG system status and embedding provider info",
+        "operationId": "rag_status_api_rag_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -2808,10 +4494,101 @@
           }
         }
       }
+    },
+    "/demo": {
+      "get": {
+        "summary": "Demo",
+        "description": "Minimal chat UI for developer testing",
+        "operationId": "demo_demo_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AlternativeResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "message_id": {
+            "type": "string",
+            "title": "Message Id"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "token_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Count"
+          },
+          "ordinal": {
+            "type": "integer",
+            "title": "Ordinal"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "message_id",
+          "content",
+          "ordinal",
+          "created_at"
+        ],
+        "title": "AlternativeResponse",
+        "description": "Schema for a message alternative (swipe)"
+      },
+      "AttachFragmentRequest": {
+        "properties": {
+          "fragment_id": {
+            "type": "string",
+            "title": "Fragment Id"
+          },
+          "position": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Position",
+            "default": "after_system"
+          },
+          "ordinal": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Ordinal",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "fragment_id"
+        ],
+        "title": "AttachFragmentRequest",
+        "description": "Schema for attaching a fragment to a template"
+      },
       "Body_create_character_api_characters_post": {
         "properties": {
           "name": {
@@ -3010,6 +4787,21 @@
           "name"
         ],
         "title": "Body_create_persona_api_personas__post"
+      },
+      "Body_import_character_api_characters_import_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "PNG or JSON character card file"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_character_api_characters_import_post"
       },
       "Body_update_character_api_characters__character_id__put": {
         "properties": {
@@ -3379,6 +5171,45 @@
             "title": "Creator",
             "description": "Character creator/author"
           },
+          "system_prompt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System Prompt",
+            "description": "Per-character system prompt override"
+          },
+          "creator_notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Notes",
+            "description": "Creator's notes (not sent to LLM)"
+          },
+          "character_version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Version",
+            "description": "Semantic version from card spec"
+          },
           "version": {
             "type": "integer",
             "title": "Version",
@@ -3631,11 +5462,363 @@
               }
             ],
             "title": "Model Id"
+          },
+          "preset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preset Id"
           }
         },
         "type": "object",
         "title": "ChatUpdate",
         "description": "Schema for updating a chat"
+      },
+      "DataBankCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Content"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Scope",
+            "default": "global"
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "content"
+        ],
+        "title": "DataBankCreate",
+        "description": "Schema for creating a data bank entry"
+      },
+      "DataBankResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Content"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Scope",
+            "default": "global"
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "content",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DataBankResponse",
+        "description": "Schema for data bank entry response"
+      },
+      "DataBankUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          }
+        },
+        "type": "object",
+        "title": "DataBankUpdate",
+        "description": "Schema for updating a data bank entry"
+      },
+      "FragmentCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "fragment_type": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Fragment Type",
+            "default": "instruction"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 50000,
+            "minLength": 1,
+            "title": "Content",
+            "description": "Jinja2 template content"
+          },
+          "is_global": {
+            "type": "boolean",
+            "title": "Is Global",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "content"
+        ],
+        "title": "FragmentCreate",
+        "description": "Schema for creating a prompt fragment"
+      },
+      "FragmentResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "fragment_type": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Fragment Type",
+            "default": "instruction"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 50000,
+            "minLength": 1,
+            "title": "Content",
+            "description": "Jinja2 template content"
+          },
+          "is_global": {
+            "type": "boolean",
+            "title": "Is Global",
+            "default": false
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "content",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "FragmentResponse",
+        "description": "Schema for prompt fragment response"
+      },
+      "FragmentUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "fragment_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fragment Type"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "is_global": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Global"
+          }
+        },
+        "type": "object",
+        "title": "FragmentUpdate",
+        "description": "Schema for updating a prompt fragment \u2014 all fields optional"
       },
       "Gender": {
         "type": "string",
@@ -3660,6 +5843,676 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "InsertionPosition": {
+        "type": "string",
+        "enum": [
+          "before_character",
+          "after_character",
+          "at_depth",
+          "before_examples"
+        ],
+        "title": "InsertionPosition",
+        "description": "Where activated lore entries are injected into the prompt"
+      },
+      "LoreEntryCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Content",
+            "description": "Lore text injected into prompt"
+          },
+          "keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keys",
+            "description": "Primary trigger keywords"
+          },
+          "secondary_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Secondary Keys"
+          },
+          "secondary_logic": {
+            "$ref": "#/components/schemas/SecondaryLogic",
+            "default": "and_any"
+          },
+          "case_sensitive": {
+            "type": "boolean",
+            "title": "Case Sensitive",
+            "default": false
+          },
+          "match_whole_words": {
+            "type": "boolean",
+            "title": "Match Whole Words",
+            "default": false
+          },
+          "use_regex": {
+            "type": "boolean",
+            "title": "Use Regex",
+            "default": false
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          },
+          "constant": {
+            "type": "boolean",
+            "title": "Constant",
+            "default": false
+          },
+          "position": {
+            "$ref": "#/components/schemas/InsertionPosition",
+            "default": "after_character"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Depth",
+            "description": "Message depth for AT_DEPTH",
+            "default": 4
+          },
+          "role": {
+            "$ref": "#/components/schemas/MessageRole",
+            "default": "system"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Priority",
+            "default": 100
+          },
+          "scan_depth": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Depth"
+          },
+          "ignore_budget": {
+            "type": "boolean",
+            "title": "Ignore Budget",
+            "default": false
+          },
+          "order": {
+            "type": "integer",
+            "title": "Order",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "content"
+        ],
+        "title": "LoreEntryCreate",
+        "description": "Schema for creating a lore entry"
+      },
+      "LoreEntryResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Content",
+            "description": "Lore text injected into prompt"
+          },
+          "keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Keys",
+            "description": "Primary trigger keywords"
+          },
+          "secondary_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Secondary Keys"
+          },
+          "secondary_logic": {
+            "$ref": "#/components/schemas/SecondaryLogic",
+            "default": "and_any"
+          },
+          "case_sensitive": {
+            "type": "boolean",
+            "title": "Case Sensitive",
+            "default": false
+          },
+          "match_whole_words": {
+            "type": "boolean",
+            "title": "Match Whole Words",
+            "default": false
+          },
+          "use_regex": {
+            "type": "boolean",
+            "title": "Use Regex",
+            "default": false
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          },
+          "constant": {
+            "type": "boolean",
+            "title": "Constant",
+            "default": false
+          },
+          "position": {
+            "$ref": "#/components/schemas/InsertionPosition",
+            "default": "after_character"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Depth",
+            "description": "Message depth for AT_DEPTH",
+            "default": 4
+          },
+          "role": {
+            "$ref": "#/components/schemas/MessageRole",
+            "default": "system"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Priority",
+            "default": 100
+          },
+          "scan_depth": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Depth"
+          },
+          "ignore_budget": {
+            "type": "boolean",
+            "title": "Ignore Budget",
+            "default": false
+          },
+          "order": {
+            "type": "integer",
+            "title": "Order",
+            "default": 0
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "lorebook_id": {
+            "type": "string",
+            "title": "Lorebook Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "content",
+          "id",
+          "lorebook_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "LoreEntryResponse",
+        "description": "Schema for lore entry responses"
+      },
+      "LoreEntryUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "keys": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keys"
+          },
+          "secondary_keys": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Secondary Keys"
+          },
+          "secondary_logic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SecondaryLogic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "case_sensitive": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Sensitive"
+          },
+          "match_whole_words": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Match Whole Words"
+          },
+          "use_regex": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Use Regex"
+          },
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled"
+          },
+          "constant": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Constant"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InsertionPosition"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "depth": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Depth"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MessageRole"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "scan_depth": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Depth"
+          },
+          "ignore_budget": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ignore Budget"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order"
+          }
+        },
+        "type": "object",
+        "title": "LoreEntryUpdate",
+        "description": "Schema for updating a lore entry (all fields optional)"
+      },
+      "LorebookCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_global": {
+            "type": "boolean",
+            "title": "Is Global",
+            "default": false
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "LorebookCreate",
+        "description": "Schema for creating a lorebook"
+      },
+      "LorebookDetailResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_global": {
+            "type": "boolean",
+            "title": "Is Global",
+            "default": false
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/LoreEntryResponse"
+            },
+            "type": "array",
+            "title": "Entries",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "LorebookDetailResponse",
+        "description": "Schema for lorebook with entries"
+      },
+      "LorebookResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_global": {
+            "type": "boolean",
+            "title": "Is Global",
+            "default": false
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "LorebookResponse",
+        "description": "Schema for lorebook responses (without entries)"
+      },
+      "LorebookUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_global": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Global"
+          }
+        },
+        "type": "object",
+        "title": "LorebookUpdate",
+        "description": "Schema for updating a lorebook"
       },
       "MessageCreate": {
         "properties": {
@@ -3696,6 +6549,33 @@
             "type": "string",
             "title": "Chat Id"
           },
+          "token_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Count"
+          },
+          "reasoning_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reasoning Content"
+          },
+          "active_index": {
+            "type": "integer",
+            "title": "Active Index",
+            "default": 0
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -3722,6 +6602,22 @@
         ],
         "title": "MessageRole",
         "description": "Message role types"
+      },
+      "MessageUpdate": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Content",
+            "description": "Updated message content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "title": "MessageUpdate",
+        "description": "Schema for editing a message"
       },
       "ModelCreate": {
         "properties": {
@@ -3772,18 +6668,18 @@
             "title": "Model Family Id",
             "description": "Link to model family"
           },
-          "system_prompt": {
+          "template_id": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 50000
+                "maxLength": 12
               },
               {
                 "type": "null"
               }
             ],
-            "title": "System Prompt",
-            "description": "Custom system prompt override"
+            "title": "Template Id",
+            "description": "Default prompt template"
           },
           "parameters": {
             "additionalProperties": true,
@@ -3857,18 +6753,18 @@
             "title": "Model Family Id",
             "description": "Link to model family"
           },
-          "system_prompt": {
+          "template_id": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 50000
+                "maxLength": 12
               },
               {
                 "type": "null"
               }
             ],
-            "title": "System Prompt",
-            "description": "Custom system prompt override"
+            "title": "Template Id",
+            "description": "Default prompt template"
           },
           "parameters": {
             "additionalProperties": true,
@@ -4397,18 +7293,18 @@
             "title": "Model Family Id",
             "description": "Link to model family"
           },
-          "system_prompt": {
+          "template_id": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 50000
+                "maxLength": 12
               },
               {
                 "type": "null"
               }
             ],
-            "title": "System Prompt",
-            "description": "Custom system prompt override"
+            "title": "Template Id",
+            "description": "Default prompt template"
           },
           "parameters": {
             "additionalProperties": true,
@@ -4542,17 +7438,17 @@
             ],
             "title": "Model Family Id"
           },
-          "system_prompt": {
+          "template_id": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 50000
+                "maxLength": 12
               },
               {
                 "type": "null"
               }
             ],
-            "title": "System Prompt"
+            "title": "Template Id"
           },
           "parameters": {
             "anyOf": [
@@ -4701,6 +7597,26 @@
           "meta"
         ],
         "title": "PaginatedResponse[PersonaResponse]"
+      },
+      "PaginatedResponse_PresetResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PresetResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[PresetResponse]"
       },
       "PaginatedResponse_PromptTemplateResponse_": {
         "properties": {
@@ -4854,6 +7770,160 @@
         ],
         "title": "PersonaResponse",
         "description": "Schema for persona response"
+      },
+      "PresetCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Brief description of the preset's purpose"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters",
+            "description": "Sampling parameter overrides (temperature, top_p, etc.)"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default",
+            "description": "Set as default preset",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "PresetCreate",
+        "description": "Schema for creating a preset"
+      },
+      "PresetResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Brief description of the preset's purpose"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters",
+            "description": "Sampling parameter overrides (temperature, top_p, etc.)"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default",
+            "description": "Set as default preset",
+            "default": false
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "PresetResponse",
+        "description": "Schema for preset response"
+      },
+      "PresetUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 5000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "parameters": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameters"
+          },
+          "is_default": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Default"
+          }
+        },
+        "type": "object",
+        "title": "PresetUpdate",
+        "description": "Schema for updating a preset"
       },
       "PromptTemplateCreate": {
         "properties": {
@@ -5306,6 +8376,146 @@
         "type": "object",
         "title": "ProviderUpdate",
         "description": "Schema for updating a provider"
+      },
+      "RAGSearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Query"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id"
+          },
+          "character_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Character Id"
+          },
+          "max_results": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Max Results",
+            "default": 5
+          },
+          "threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Threshold",
+            "default": 0.3
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "RAGSearchRequest",
+        "description": "Schema for manual RAG search"
+      },
+      "RetrievedChunk": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type"
+          },
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "chunk_index": {
+            "type": "integer",
+            "title": "Chunk Index"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content",
+          "source_type",
+          "source_id",
+          "score",
+          "chunk_index"
+        ],
+        "title": "RetrievedChunk",
+        "description": "Schema for a retrieved RAG chunk"
+      },
+      "SecondaryLogic": {
+        "type": "string",
+        "enum": [
+          "and_any",
+          "and_all",
+          "not_any",
+          "not_all"
+        ],
+        "title": "SecondaryLogic",
+        "description": "Logic for combining primary and secondary keyword matches"
+      },
+      "TemplateFragmentResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "template_id": {
+            "type": "string",
+            "title": "Template Id"
+          },
+          "fragment_id": {
+            "type": "string",
+            "title": "Fragment Id"
+          },
+          "position": {
+            "type": "string",
+            "title": "Position"
+          },
+          "ordinal": {
+            "type": "integer",
+            "title": "Ordinal"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "fragment": {
+            "$ref": "#/components/schemas/FragmentResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "template_id",
+          "fragment_id",
+          "position",
+          "ordinal",
+          "created_at",
+          "fragment"
+        ],
+        "title": "TemplateFragmentResponse",
+        "description": "Schema for template-fragment association response"
       },
       "TemplatePreviewRequest": {
         "properties": {
