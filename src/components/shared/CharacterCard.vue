@@ -30,7 +30,7 @@ function formatCount(count: number): string {
     <div
       class="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-[11px] text-white/80 backdrop-blur-sm"
     >
-      <span class="i-lucide-message-circle h-3 w-3" />
+      <UIcon name="i-lucide-message-circle" class="h-3 w-3" />
       {{ formatCount(character.chatCount) }}
     </div>
 

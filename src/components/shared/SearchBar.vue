@@ -15,8 +15,9 @@ const query = ref("");
           : 'border-border bg-muted/40 hover:border-muted-foreground/30'
       "
     >
-      <span
-        class="i-lucide-search h-[18px] w-[18px] flex-shrink-0 transition-colors duration-300"
+      <UIcon
+        name="i-lucide-search"
+        class="h-[18px] w-[18px] flex-shrink-0 transition-colors duration-300"
         :class="focused ? 'text-primary' : 'text-muted-foreground'"
       />
       <input

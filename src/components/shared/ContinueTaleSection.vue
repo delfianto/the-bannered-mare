@@ -64,11 +64,11 @@ function scroll(direction: "left" | "right") {
           <p class="mb-2 text-xs text-white/70">with {{ session.characterName }}</p>
           <div class="flex items-center gap-3 text-[11px] text-white/60">
             <span class="flex items-center gap-1">
-              <span class="i-lucide-clock h-3 w-3" />
+              <UIcon name="i-lucide-clock" class="h-3 w-3" />
               {{ session.lastActivity }}
             </span>
             <span class="flex items-center gap-1">
-              <span class="i-lucide-message-square h-3 w-3" />
+              <UIcon name="i-lucide-message-square" class="h-3 w-3" />
               {{ session.messageCount }}
             </span>
           </div>
