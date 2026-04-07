@@ -68,87 +68,60 @@ function goToPage(pageNum: number) {
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
-    <!-- Table -->
+    <!-- Cards -->
     <div v-else>
-      <div class="animate-fade-in-up overflow-hidden rounded-xl border border-[var(--border)]">
-        <!-- Header -->
-        <div class="grid grid-cols-[1fr_140px_160px_80px_44px] gap-4 border-b border-border bg-muted/30 px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          <span>Model</span>
-          <span>Provider</span>
-          <span>Family</span>
-          <span class="text-center">Status</span>
-          <span></span>
-        </div>
+      <!-- Empty -->
+      <div v-if="models.length === 0" class="flex flex-col items-center justify-center gap-2 py-16">
+        <UIcon name="i-lucide-search-x" class="h-8 w-8 text-muted-foreground/50" />
+        <p class="text-sm text-muted-foreground">No models found</p>
+      </div>
 
-        <!-- Empty state -->
-        <div v-if="models.length === 0" class="flex flex-col items-center justify-center gap-2 py-12">
-          <UIcon name="i-lucide-search-x" class="h-8 w-8 text-muted-foreground/50" />
-          <p class="text-sm text-muted-foreground">No models found</p>
-        </div>
-
-        <!-- Rows -->
+      <!-- Card Grid -->
+      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <div
           v-for="(model, index) in models"
           :key="model.id"
-          class="grid grid-cols-[1fr_140px_160px_80px_44px] items-center gap-4 border-b border-border/50 px-5 py-3 transition-colors last:border-b-0 hover:bg-accent/30"
-          :style="{ animationDelay: `${index * 40}ms` }"
+          class="group animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+          :style="{ animationDelay: `${index * 30}ms` }"
+          @click="router.push(`/settings/models/${model.id}`)"
         >
-          <!-- Model name -->
-          <div class="min-w-0">
-            <p class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
-              {{ model.name }}
-            </p>
-            <p class="truncate text-xs text-muted-foreground">
-              {{ model.model_identifier }}
-            </p>
+          <!-- Header: name + status -->
+          <div class="mb-2 flex items-start justify-between gap-2">
+            <div class="min-w-0 flex-1">
+              <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+                {{ model.name }}
+              </h3>
+              <p class="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
+                {{ model.model_identifier }}
+              </p>
+            </div>
+            <span
+              class="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full"
+              :class="model.enabled ? 'bg-emerald-500' : 'bg-red-400'"
+              :title="model.enabled ? 'Enabled' : 'Disabled'"
+            />
           </div>
 
-          <!-- Provider -->
-          <div>
-            <span class="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground">
+          <!-- Badges -->
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground">
               {{ model.provider_id }}
             </span>
-          </div>
-
-          <!-- Family -->
-          <div class="min-w-0">
-            <p class="truncate text-xs text-muted-foreground">
+            <span class="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
               {{ model.model_family_id }}
-            </p>
-          </div>
-
-          <!-- Enabled -->
-          <div class="flex justify-center">
-            <span
-              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
-              :class="
-                model.enabled
-                  ? 'bg-emerald-500/10 text-emerald-500'
-                  : 'bg-red-500/10 text-red-500'
-              "
-            >
-              <span
-                class="h-1.5 w-1.5 rounded-full"
-                :class="model.enabled ? 'bg-emerald-500' : 'bg-red-500'"
-              />
-              {{ model.enabled ? "On" : "Off" }}
             </span>
           </div>
 
-          <!-- Edit -->
-          <div class="flex justify-center">
-            <button
-              class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              @click="router.push(`/settings/models/${model.id}`)"
-            >
-              <UIcon name="i-lucide-pencil" class="h-3.5 w-3.5" />
-            </button>
+          <!-- Edit hint on hover -->
+          <div class="mt-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
+            <UIcon name="i-lucide-pencil" class="h-3 w-3" />
+            Click to edit
           </div>
         </div>
       </div>
 
       <!-- Pagination -->
-      <div class="mt-4 flex items-center justify-between" style="animation-delay: 200ms">
+      <div v-if="totalPages > 1" class="mt-5 flex items-center justify-between">
         <span class="text-xs text-muted-foreground">
           Page {{ page }} of {{ totalPages }}
         </span>
