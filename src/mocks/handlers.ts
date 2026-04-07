@@ -511,7 +511,8 @@ export const handlers = [
   http.get("/api/models", async ({ request }) => {
     await delay(100);
     const url = new URL(request.url);
-    const nameParam = url.searchParams.get("name");
+    const nameParam = url.searchParams.get("name") || url.searchParams.get("name__ilike");
+    const providerParam = url.searchParams.get("provider_id");
     const limit = parseInt(url.searchParams.get("limit") || "12", 10);
     const page = parseInt(url.searchParams.get("page") || "1", 10);
 
@@ -519,6 +520,9 @@ export const handlers = [
     if (nameParam) {
       const q = nameParam.toLowerCase();
       items = items.filter((m) => m.name.toLowerCase().includes(q));
+    }
+    if (providerParam) {
+      items = items.filter((m) => m.provider_id === providerParam);
     }
 
     const total = items.length;

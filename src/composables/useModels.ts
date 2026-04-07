@@ -8,6 +8,11 @@ interface UseModelsOptions {
   pageSize?: number;
 }
 
+interface ModelFilters {
+  name?: string;
+  provider_id?: string;
+}
+
 export function useModels(options: UseModelsOptions = {}) {
   const { pageSize = 12 } = options;
 
@@ -17,15 +22,22 @@ export function useModels(options: UseModelsOptions = {}) {
   const page = ref(1);
   const hasMore = ref(false);
   const total = ref(0);
+  const currentFilters = ref<ModelFilters>({});
 
   const totalPages = computed(() => {
     if (total.value === 0) return 1;
     return Math.ceil(total.value / pageSize);
   });
 
-  const loadPage = async (pageNum: number = 1, nameFilter?: string) => {
+  const loadPage = async (pageNum: number = 1, filters?: ModelFilters) => {
     loading.value = true;
     error.value = null;
+
+    if (filters !== undefined) {
+      currentFilters.value = filters;
+    }
+
+    const f = currentFilters.value;
 
     try {
       const query: Record<string, unknown> = {
@@ -33,12 +45,18 @@ export function useModels(options: UseModelsOptions = {}) {
         limit: pageSize,
       };
 
-      if (nameFilter) {
-        query.name__ilike = nameFilter;
-      }
+      if (f.name) query.name__ilike = f.name;
+      if (f.provider_id) query.provider_id = f.provider_id;
 
       const { data, error: apiError } = await client.GET("/api/models", {
-        params: { query: query as { page?: number; limit?: number; name__ilike?: string | null } },
+        params: {
+          query: query as {
+            page?: number;
+            limit?: number;
+            name__ilike?: string | null;
+            provider_id?: string | null;
+          },
+        },
       });
 
       if (apiError) {
@@ -60,7 +78,11 @@ export function useModels(options: UseModelsOptions = {}) {
   };
 
   const search = (name: string) => {
-    loadPage(1, name || undefined);
+    loadPage(1, { ...currentFilters.value, name: name || undefined });
+  };
+
+  const filterByProvider = (providerId: string | undefined) => {
+    loadPage(1, { ...currentFilters.value, provider_id: providerId });
   };
 
   onMounted(() => {
@@ -77,5 +99,6 @@ export function useModels(options: UseModelsOptions = {}) {
     totalPages,
     loadPage,
     search,
+    filterByProvider,
   };
 }
