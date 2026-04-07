@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import type { Character } from "@/types/home";
+import type { components } from "@/api/schema";
 import CharacterCard from "./CharacterCard.vue";
+
+type Character = components["schemas"]["CharacterResponse"];
 
 const props = defineProps<{
   characters: Character[];
   categories: string[];
+  loading?: boolean;
 }>();
 
 const activeCategory = ref("All");
@@ -13,7 +16,7 @@ const activeCategory = ref("All");
 const filtered = computed(() => {
   if (activeCategory.value === "All") return props.characters;
   return props.characters.filter((c) =>
-    c.tags.some((t) => t.toLowerCase().includes(activeCategory.value.toLowerCase())),
+    (c.tags ?? []).some((t) => t.toLowerCase().includes(activeCategory.value.toLowerCase())),
   );
 });
 </script>
@@ -43,8 +46,13 @@ const filtered = computed(() => {
       </button>
     </div>
 
+    <!-- Loading -->
+    <div v-if="loading" class="flex justify-center py-8">
+      <UIcon name="i-lucide-loader-circle" class="h-5 w-5 animate-spin text-muted-foreground" />
+    </div>
+
     <!-- Character Grid -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <CharacterCard
         v-for="(character, i) in filtered"
         :key="character.id"

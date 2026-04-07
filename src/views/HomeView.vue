@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { useChatSessions } from "@/composables/useChatSessions";
+import { useCharacters } from "@/composables/useCharacters";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import ContinueTaleSection from "@/components/shared/ContinueTaleSection.vue";
 import DiscoverSection from "@/components/shared/DiscoverSection.vue";
-import {
-  CONTINUE_SESSIONS,
-  DISCOVER_CHARACTERS,
-  CATEGORIES,
-} from "@/constants/homeData";
+import { CATEGORIES } from "@/constants/discoverData";
+
+const { chatSessions, loading: chatsLoading } = useChatSessions({ pageSize: 8 });
+const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
 </script>
 
 <template>
@@ -26,14 +27,14 @@ import {
       <SearchBar />
     </div>
 
-    <!-- Continue Your Tale -->
+    <!-- Continue Your Tale (from API chats) -->
     <div class="animate-fade-in-up" style="animation-delay: 160ms">
-      <ContinueTaleSection :sessions="CONTINUE_SESSIONS" />
+      <ContinueTaleSection :sessions="chatSessions" :loading="chatsLoading" />
     </div>
 
-    <!-- Discover Characters -->
+    <!-- Discover Characters (from API characters) -->
     <div class="animate-fade-in-up" style="animation-delay: 240ms">
-      <DiscoverSection :characters="DISCOVER_CHARACTERS" :categories="CATEGORIES" />
+      <DiscoverSection :characters="characters" :categories="CATEGORIES" :loading="charsLoading" />
     </div>
   </div>
 </template>
