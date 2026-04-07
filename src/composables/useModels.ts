@@ -9,7 +9,7 @@ interface UseModelsOptions {
 }
 
 export function useModels(options: UseModelsOptions = {}) {
-  const { pageSize = 10 } = options;
+  const { pageSize = 12 } = options;
 
   const models = ref<ModelListItem[]>([]);
   const loading = ref(false);

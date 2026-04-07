@@ -9,7 +9,7 @@ interface UseModelFamiliesOptions {
 }
 
 export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
-  const { pageSize = 10 } = options;
+  const { pageSize = 12 } = options;
 
   const families = ref<ModelFamilyListItem[]>([]);
   const loading = ref(false);
