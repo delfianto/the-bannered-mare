@@ -1,10 +1,5 @@
-<script setup lang="ts">
-import UnderConstruction from '@/components/shared/UnderConstruction.vue'
-</script>
-
 <template>
-  <UnderConstruction
-    title="Memory Bank"
-    message="The crystal spheres of memory are being attuned. Past conversations will be reflected here in due time."
-  />
+  <div class="flex flex-1 items-center justify-center">
+    <p class="text-(--ui-text-muted)">Memory — to be implemented</p>
+  </div>
 </template>

@@ -2,7 +2,6 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
-import "vue-sonner/style.css";
 import "./assets/main.css";
 
 const app = createApp(App);
@@ -31,7 +30,6 @@ async function prepareApp() {
             const data = await response.clone().json();
             const json = JSON.stringify(data, null, 2);
 
-            // Truncate to prevent 431 error (Request Header Fields Too Large)
             if (json.length > 2000) {
               console.log(json.slice(0, 2000) + "\n... [truncated due to size]");
             } else {
@@ -49,8 +47,6 @@ async function prepareApp() {
       quiet: true,
     });
 
-    // Ensure the service worker is controlling the page before we proceed
-    // This prevents early requests from bypassing the mock worker
     if (navigator.serviceWorker && !navigator.serviceWorker.controller) {
       console.log("[MSW] Waiting for controller...");
       await new Promise<void>((resolve) => {

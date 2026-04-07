@@ -1,29 +1,26 @@
-import { toast } from "vue-sonner";
-
 /**
- * A centralized toast composable to provide a consistent interface
- * for showing notifications across the application.
+ * Convenience wrapper around Nuxt UI's useToast.
+ * The base `useToast` is auto-imported by the Nuxt UI Vite plugin.
  */
-export function useToast() {
+export function useAppToast() {
+  const toast = useToast();
+
   return {
     toast,
     success: (message: string, description?: string) => {
-      toast.success(message, { description });
+      toast.add({ title: message, description, color: "success" });
     },
     error: (message: string, description?: string) => {
-      toast.error(message, { description });
+      toast.add({ title: message, description, color: "error" });
     },
     info: (message: string, description?: string) => {
-      toast.info(message, { description });
+      toast.add({ title: message, description, color: "info" });
     },
     warning: (message: string, description?: string) => {
-      toast.warning(message, { description });
+      toast.add({ title: message, description, color: "warning" });
     },
     loading: (message: string, description?: string) => {
-      return toast.loading(message, { description });
-    },
-    dismiss: (id?: string | number) => {
-      toast.dismiss(id);
+      toast.add({ title: message, description, icon: "i-lucide-loader-circle" });
     },
   };
 }

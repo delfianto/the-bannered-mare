@@ -1,74 +1,39 @@
 <script setup lang="ts">
-import libraryImage from '@/assets/candlekeep-library.png'
-import { APP_INFO } from '@/constants/appInfo'
-import { Button } from '@/components/ui/button'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
+import SearchBar from "@/components/shared/SearchBar.vue";
+import ContinueTaleSection from "@/components/shared/ContinueTaleSection.vue";
+import DiscoverSection from "@/components/shared/DiscoverSection.vue";
+import {
+  CONTINUE_SESSIONS,
+  DISCOVER_CHARACTERS,
+  CATEGORIES,
+} from "@/constants/homeData";
 </script>
 
 <template>
-  <div
-    class="relative h-full w-full flex flex-col items-center justify-center p-6 text-center overflow-hidden"
-  >
-    <!-- Background Image with Overlay -->
-    <div class="absolute inset-0 z-0">
-      <img
-        :src="libraryImage"
-        alt="Candlekeep Library"
-        class="w-full h-full object-cover opacity-60 dark:opacity-40 blur-[1px]"
-      />
-      <div
-        class="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent"
-      />
-      <div class="absolute inset-0 bg-radial-gradient from-transparent to-background/60" />
+  <div class="mx-auto max-w-[960px] space-y-8 px-8 py-8">
+    <!-- Greeting -->
+    <div class="animate-fade-in-up">
+      <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
+        Welcome back, Adventurer
+      </h1>
+      <p class="text-sm text-muted-foreground">
+        Every tale begins with a spark. What story will you tell today?
+      </p>
     </div>
 
-    <div
-      class="relative z-10 max-w-4xl space-y-12 animate-in fade-in duration-1000 slide-in-from-bottom-4"
-    >
-      <div class="space-y-6">
-        <h1
-          class="text-6xl md:text-8xl font-medieval text-primary drop-shadow-xl tracking-wide select-none"
-        >
-          Candlekeep
-        </h1>
-        <p
-          class="text-xl md:text-2xl text-muted-foreground font-serif italic max-w-2xl mx-auto leading-relaxed"
-        >
-          "Enter, traveler, and find sanctuary within the walls of knowledge.
-          <br class="hidden md:block" />
-          Here, every story finds a listener, and every legend finds a home."
-        </p>
-      </div>
+    <!-- Search -->
+    <div class="animate-fade-in-up" style="animation-delay: 80ms">
+      <SearchBar />
+    </div>
 
-      <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-        <Button
-          size="lg"
-          class="h-14 w-72 px-10 text-xl font-medieval tracking-wide shadow-lg transition-all hover:scale-105 hover:shadow-primary/20 border border-transparent dark:hover:bg-primary/80 dark:hover:backdrop-blur-sm"
-          @click="router.push('/chats')"
-        >
-          Enter the Archives
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          class="h-14 w-72 px-10 text-xl font-medieval tracking-wide shadow-lg transition-all hover:scale-105 hover:shadow-primary/20 dark:bg-background dark:border-primary dark:text-primary dark:hover:bg-primary/10"
-          @click="router.push('/characters')"
-        >
-          Visit the Roster
-        </Button>
-      </div>
+    <!-- Continue Your Tale -->
+    <div class="animate-fade-in-up" style="animation-delay: 160ms">
+      <ContinueTaleSection :sessions="CONTINUE_SESSIONS" />
+    </div>
 
-      <div class="pt-12 text-sm text-muted-foreground/60 font-serif">
-        <p>Version {{ APP_INFO.version }}</p>
-      </div>
+    <!-- Discover Characters -->
+    <div class="animate-fade-in-up" style="animation-delay: 240ms">
+      <DiscoverSection :characters="DISCOVER_CHARACTERS" :categories="CATEGORIES" />
     </div>
   </div>
 </template>
-
-<style scoped>
-.bg-radial-gradient {
-  background-image: radial-gradient(circle at center, transparent 0%, hsl(var(--background)) 100%);
-}
-</style>

@@ -1,10 +1,5 @@
-<script setup lang="ts">
-import UnderConstruction from '@/components/shared/UnderConstruction.vue'
-</script>
-
 <template>
-  <UnderConstruction
-    title="Characters"
-    message="The roster of heroes and villains is being compiled. Their deeds will be recorded here soon."
-  />
+  <div class="flex flex-1 items-center justify-center">
+    <p class="text-(--ui-text-muted)">Characters view — to be implemented</p>
+  </div>
 </template>

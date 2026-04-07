@@ -1,10 +1,5 @@
-<script setup lang="ts">
-import UnderConstruction from '@/components/shared/UnderConstruction.vue'
-</script>
-
 <template>
-  <UnderConstruction
-    title="World Lore"
-    message="The ancient maps and histories are currently being dusted off by our scribes. Check back later."
-  />
+  <div class="flex flex-1 items-center justify-center">
+    <p class="text-(--ui-text-muted)">World Lore — to be implemented</p>
+  </div>
 </template>

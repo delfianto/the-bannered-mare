@@ -32,3 +32,12 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# SuperDesign
+.superdesign
+
+# Nuxt UI auto-generated
+auto-imports.d.ts
+components.d.ts
+env.d.ts
+vite.config.d.ts
