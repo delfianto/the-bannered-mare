@@ -523,7 +523,15 @@ export const handlers = [
   // Personas
   http.get("/api/personas/", async () => {
     await delay(100);
-    return HttpResponse.json(db.personas);
+    return HttpResponse.json({
+      items: db.personas,
+      meta: {
+        limit: 50,
+        has_more: false,
+        total: db.personas.length,
+        page: 1,
+      },
+    });
   }),
 
   http.get("/api/personas/:personaId", async ({ params }) => {

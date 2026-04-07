@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { client, getPersonaAvatarUrl } from "@/api/client";
+import { client } from "@/api/client";
 import type { components } from "@/api/schema";
 
 type PersonaResponse = components["schemas"]["PersonaResponse"];
@@ -27,11 +27,9 @@ onMounted(async () => {
 });
 
 function getAvatarSrc(persona: PersonaResponse): string {
-  if (persona.avatar) {
-    return getPersonaAvatarUrl(persona.id);
-  }
-  const encoded = encodeURIComponent(persona.name);
-  return `https://ui-avatars.com/api/?name=${encoded}&background=b45309&color=fff&size=80`;
+  return persona.avatar_thumbnail
+    || persona.avatar
+    || `https://ui-avatars.com/api/?name=${encodeURIComponent(persona.name)}&background=C9922E&color=fff&size=80`;
 }
 </script>
 
