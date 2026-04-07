@@ -361,7 +361,7 @@ export const characters: Character[] = [
     gender: "female",
     creator: "Candlekeep",
     ...dateMock.datePair(7, 3),
-    avatar: "https://images.unsplash.com/photo-1507152927220-18c0e457add6?w=400&h=560&fit=crop&crop=face",
-    avatar_thumbnail: "https://images.unsplash.com/photo-1507152927220-18c0e457add6?w=200&h=200&fit=crop&crop=face",
+    avatar: "https://images.unsplash.com/photo-1557862921-37829c790f19?w=400&h=560&fit=crop&crop=face",
+    avatar_thumbnail: "https://images.unsplash.com/photo-1557862921-37829c790f19?w=200&h=200&fit=crop&crop=face",
   },
 ];
