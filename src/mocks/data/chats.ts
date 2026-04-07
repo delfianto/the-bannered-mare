@@ -10,8 +10,8 @@ export const chats: Chat[] = [
     character: {
       id: "7384-aranwen-the-banished",
       name: "Aranwen the Banished",
-      avatar: "https://images.unsplash.com/?w=400&h=560&fit=crop&crop=face",
-      avatar_thumbnail: "https://images.unsplash.com/?w=200&h=200&fit=crop&crop=face",
+      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
