@@ -49,10 +49,9 @@ const providerLabel = computed(() =>
 //   familyItems.value.find((i) => i.value === selectedFamily.value)?.label ?? "All Families",
 // );
 
-// TODO: Family filter — currently disabled, needs backend API enhancement
-const filteredModels = computed(() =>
-  [...models.value].sort((a, b) => a.name.localeCompare(b.name)),
-);
+// TODO: Family filter — needs model_family_id param added to backend API
+// TODO: Add order_by=name query param when backend supports it
+const filteredModels = computed(() => models.value);
 </script>
 
 <template>
