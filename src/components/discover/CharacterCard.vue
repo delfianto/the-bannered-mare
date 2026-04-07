@@ -15,8 +15,8 @@ defineEmits<{
 }>();
 
 function avatarSrc(): string {
-  return props.character.avatar_thumbnail
-    || props.character.avatar
+  return props.character.avatar
+    || props.character.avatar_thumbnail
     || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`;
 }
 </script>
