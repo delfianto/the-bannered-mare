@@ -66,7 +66,7 @@ function formatUrl(url: string | null): string {
       <div
         v-for="(provider, index) in sortedProviders"
         :key="provider.id"
-        class="group animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
         @click="router.push(`/settings/providers/${provider.id}`)"
       >
@@ -106,9 +106,9 @@ function formatUrl(url: string | null): string {
         </div>
 
         <!-- Edit hint -->
-        <div class="mt-2.5 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
+        <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-          Click to edit
+          Edit
         </div>
       </div>
     </div>
