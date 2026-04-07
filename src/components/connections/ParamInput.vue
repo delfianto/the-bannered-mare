@@ -219,7 +219,7 @@ function updateObjectProp(key: string, val: unknown) {
         :max="schema.max_value"
         :step="step"
         :value="numberValue"
-        class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-primary"
+        class="param-slider h-2 w-full cursor-pointer"
         @input="numberValue = parseFloat(($event.target as HTMLInputElement).value)"
       />
       <input
@@ -357,3 +357,52 @@ function updateObjectProp(key: string, val: unknown) {
     <span class="text-xs text-muted-foreground">Unsupported type: {{ schemaType }}</span>
   </template>
 </template>
+
+<style scoped>
+.param-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border-radius: 9999px;
+}
+
+/* Track */
+.param-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--border);
+}
+
+.param-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--border);
+}
+
+/* Thumb */
+.param-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-top: -5px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.param-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.param-slider:focus {
+  outline: none;
+}
+</style>
