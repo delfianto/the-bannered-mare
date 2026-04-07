@@ -3,7 +3,6 @@ import { ref, computed, nextTick, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useChatSessions } from "@/composables/useChatSessions";
 import { useChatMessages } from "@/composables/useChatMessages";
-import { getAvatarUrl } from "@/api/client";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
@@ -50,8 +49,9 @@ const activeSession = computed(
 const characterAvatar = computed(() => {
   const char = activeSession.value?.character;
   if (!char) return "";
-  if (char.avatar_thumbnail) return getAvatarUrl(char.id);
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(char.name)}&background=C9922E&color=fff&size=80`;
+  return char.avatar_thumbnail
+    || char.avatar
+    || `https://ui-avatars.com/api/?name=${encodeURIComponent(char.name)}&background=C9922E&color=fff&size=80`;
 });
 
 const showMoodChips = computed(() => {

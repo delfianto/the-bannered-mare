@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { getAvatarUrl } from "@/api/client";
 import type { Chat } from "@/types/chat";
 
 const props = defineProps<{
@@ -37,8 +36,9 @@ function timeAgo(dateStr: string): string {
 }
 
 function avatarSrc(chat: Chat): string {
-  if (chat.character.avatar_thumbnail) return getAvatarUrl(chat.character.id);
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=80`;
+  return chat.character.avatar_thumbnail
+    || chat.character.avatar
+    || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=80`;
 }
 </script>
 

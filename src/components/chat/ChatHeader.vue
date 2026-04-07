@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getAvatarUrl } from "@/api/client";
 import type { ChatCharacterInfo } from "@/types/chat";
 
 const props = defineProps<{
@@ -12,8 +11,9 @@ const emit = defineEmits<{
 }>();
 
 function avatarSrc(): string {
-  if (props.character.avatar_thumbnail) return getAvatarUrl(props.character.id);
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=80`;
+  return props.character.avatar_thumbnail
+    || props.character.avatar
+    || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=80`;
 }
 </script>
 
