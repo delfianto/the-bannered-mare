@@ -13,6 +13,7 @@ import "@/mocks/data/messages"; // Initialize registrations
 import type { components } from "@/api/schema";
 
 type Chat = components["schemas"]["ChatResponse"];
+type Character = components["schemas"]["CharacterResponse"];
 
 const db = {
   characters,
@@ -50,6 +51,117 @@ export const handlers = [
     if (!char) return new HttpResponse(null, { status: 404 });
     await delay(150);
     return HttpResponse.json(char);
+  }),
+
+  http.post("/api/characters", async ({ request }) => {
+    await delay(200);
+    const formData = await request.formData();
+
+    const name = formData.get("name") as string;
+    if (!name) {
+      return HttpResponse.json({ detail: "name is required" }, { status: 422 });
+    }
+
+    const slugName = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    const id = `${Date.now()}-${slugName}`;
+
+    const tagsRaw = formData.get("tags") as string | null;
+    const dialoguesRaw = formData.get("example_dialogues") as string | null;
+    const avatarValue = formData.get("avatar") as string | null;
+
+    const newChar: Character = {
+      id,
+      name,
+      description: (formData.get("description") as string) || null,
+      personality: (formData.get("personality") as string) || null,
+      first_message: (formData.get("first_message") as string) || null,
+      example_dialogues: dialoguesRaw ? JSON.parse(dialoguesRaw) : [],
+      scenario: (formData.get("scenario") as string) || null,
+      post_history_instructions: (formData.get("post_history_instructions") as string) || null,
+      alternate_greetings: null,
+      tags: tagsRaw ? JSON.parse(tagsRaw) : [],
+      gender: (formData.get("gender") as Character["gender"]) || null,
+      custom_gender: (formData.get("custom_gender") as string) || null,
+      creator: (formData.get("creator") as string) || null,
+      version: Number(formData.get("version")) || 1,
+      avatar: avatarValue || null,
+      avatar_thumbnail: avatarValue || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.characters.unshift(newChar);
+    return HttpResponse.json(newChar, { status: 201 });
+  }),
+
+  http.put("/api/characters/:id", async ({ params, request }) => {
+    await delay(200);
+    const charIndex = db.characters.findIndex((c) => c.id === params.id);
+    if (charIndex === -1) return new HttpResponse(null, { status: 404 });
+
+    const formData = await request.formData();
+    const existing = db.characters[charIndex];
+
+    const getString = (key: string) => {
+      const val = formData.get(key);
+      return val !== null ? (val as string) : undefined;
+    };
+
+    const nameVal = getString("name");
+    if (nameVal !== undefined) existing.name = nameVal;
+
+    const descVal = getString("description");
+    if (descVal !== undefined) existing.description = descVal || null;
+
+    const persVal = getString("personality");
+    if (persVal !== undefined) existing.personality = persVal || null;
+
+    const fmVal = getString("first_message");
+    if (fmVal !== undefined) existing.first_message = fmVal || null;
+
+    const scenVal = getString("scenario");
+    if (scenVal !== undefined) existing.scenario = scenVal || null;
+
+    const phiVal = getString("post_history_instructions");
+    if (phiVal !== undefined) existing.post_history_instructions = phiVal || null;
+
+    const genderVal = getString("gender");
+    if (genderVal !== undefined) existing.gender = (genderVal as any) || null;
+
+    const customGenderVal = getString("custom_gender");
+    if (customGenderVal !== undefined) existing.custom_gender = customGenderVal || null;
+
+    const creatorVal = getString("creator");
+    if (creatorVal !== undefined) existing.creator = creatorVal || null;
+
+    const tagsRaw = getString("tags");
+    if (tagsRaw !== undefined) existing.tags = tagsRaw ? JSON.parse(tagsRaw) : [];
+
+    const dialoguesRaw = getString("example_dialogues");
+    if (dialoguesRaw !== undefined)
+      existing.example_dialogues = dialoguesRaw ? JSON.parse(dialoguesRaw) : [];
+
+    const avatarValue = formData.get("avatar") as string | null;
+    if (avatarValue !== null) {
+      existing.avatar = avatarValue;
+      existing.avatar_thumbnail = avatarValue;
+    }
+
+    existing.updated_at = new Date().toISOString();
+    db.characters[charIndex] = existing;
+
+    return HttpResponse.json(existing);
+  }),
+
+  http.delete("/api/characters/:id", async ({ params }) => {
+    await delay(200);
+    const charIndex = db.characters.findIndex((c) => c.id === params.id);
+    if (charIndex === -1) return new HttpResponse(null, { status: 404 });
+    db.characters.splice(charIndex, 1);
+    return new HttpResponse(null, { status: 204 });
   }),
 
   // Chats

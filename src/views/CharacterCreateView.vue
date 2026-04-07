@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useCharacterForm } from "@/composables/useCharacterForm";
-import { SAMPLE_CHARACTER } from "@/constants/creatorData";
 import CharacterTab from "@/components/creator/CharacterTab.vue";
 import BehaviorTab from "@/components/creator/BehaviorTab.vue";
 import WorldTab from "@/components/creator/WorldTab.vue";
@@ -10,10 +9,16 @@ import CharacterPreview from "@/components/creator/CharacterPreview.vue";
 import type { CreatorTab, CharacterData } from "@/types/creator";
 
 const router = useRouter();
+const route = useRoute();
 const activeTab = ref<CreatorTab>("character");
 const saved = ref(false);
+const saveError = ref("");
 
-const form = useCharacterForm(SAMPLE_CHARACTER as Partial<CharacterData>);
+const form = useCharacterForm();
+
+const editId = computed(() => route.params.id as string | undefined);
+const isEditMode = computed(() => !!editId.value);
+const pageTitle = computed(() => (isEditMode.value ? "Edit Character" : "Create Character"));
 
 const tabs: { id: CreatorTab; label: string; icon: string }[] = [
   { id: "character", label: "Character", icon: "i-lucide-user" },
@@ -21,9 +26,38 @@ const tabs: { id: CreatorTab; label: string; icon: string }[] = [
   { id: "world", label: "World", icon: "i-lucide-globe" },
 ];
 
-function handleSave() {
-  saved.value = true;
-  setTimeout(() => (saved.value = false), 2000);
+onMounted(async () => {
+  if (editId.value) {
+    try {
+      await form.loadFromApi(editId.value);
+    } catch (e) {
+      saveError.value = "Failed to load character.";
+    }
+  }
+});
+
+async function handleSave() {
+  saveError.value = "";
+  try {
+    await form.saveCharacter();
+    saved.value = true;
+    setTimeout(() => {
+      router.push("/characters");
+    }, 500);
+  } catch (e) {
+    saveError.value = e instanceof Error ? e.message : "Failed to save character.";
+  }
+}
+
+async function handleDelete() {
+  if (!editId.value) return;
+  saveError.value = "";
+  try {
+    await form.deleteCharacter(editId.value);
+    router.push("/characters");
+  } catch (e) {
+    saveError.value = e instanceof Error ? e.message : "Failed to delete character.";
+  }
 }
 
 function handleExport() {
@@ -44,6 +78,17 @@ function handleImport(data: CharacterData) {
 
 <template>
   <div class="flex h-full flex-col overflow-hidden">
+    <!-- Loading overlay -->
+    <div
+      v-if="form.loading.value"
+      class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+    >
+      <div class="flex flex-col items-center gap-3">
+        <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+        <span class="text-sm text-muted-foreground">Loading character...</span>
+      </div>
+    </div>
+
     <!-- Header -->
     <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm">
       <div class="flex items-center gap-3">
@@ -58,12 +103,30 @@ function handleImport(data: CharacterData) {
             <UIcon name="i-lucide-flame" class="h-3.5 w-3.5 text-primary-foreground" />
           </div>
           <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
-            Create Character
+            {{ pageTitle }}
           </h1>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
+        <!-- Error message -->
+        <span v-if="saveError" class="text-xs text-destructive">{{ saveError }}</span>
+
+        <!-- Delete button (edit mode only) -->
+        <button
+          v-if="isEditMode"
+          class="flex h-9 items-center gap-2 rounded-lg border border-destructive/30 px-4 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+          :disabled="form.deleting.value"
+          @click="handleDelete"
+        >
+          <UIcon
+            :name="form.deleting.value ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
+            class="h-4 w-4"
+            :class="{ 'animate-spin': form.deleting.value }"
+          />
+          {{ form.deleting.value ? "Deleting..." : "Delete" }}
+        </button>
+
         <button
           class="flex h-9 items-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="handleExport"
@@ -73,11 +136,20 @@ function handleImport(data: CharacterData) {
         </button>
         <button
           class="flex h-9 items-center gap-2 rounded-lg px-5 text-sm font-medium transition-all active:scale-[0.96]"
-          :class="!saved ? 'bg-primary text-primary-foreground shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]' : 'bg-muted text-muted-foreground'"
+          :class="
+            !saved
+              ? 'bg-primary text-primary-foreground shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]'
+              : 'bg-muted text-muted-foreground'
+          "
+          :disabled="form.saving.value"
           @click="handleSave"
         >
-          <UIcon name="i-lucide-save" class="h-4 w-4" />
-          Save
+          <UIcon
+            :name="form.saving.value ? 'i-lucide-loader-2' : 'i-lucide-save'"
+            class="h-4 w-4"
+            :class="{ 'animate-spin': form.saving.value }"
+          />
+          {{ form.saving.value ? "Saving..." : saved ? "Saved" : "Save" }}
         </button>
       </div>
     </header>

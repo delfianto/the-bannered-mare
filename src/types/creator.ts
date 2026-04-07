@@ -14,6 +14,7 @@ export interface LorebookEntry {
 }
 
 export interface CharacterData {
+  id?: string;
   name: string;
   title: string;
   species: string;
