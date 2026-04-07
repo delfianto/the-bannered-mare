@@ -33,7 +33,7 @@ function handleProviderFilter(value: string) {
 
 const providerItems = computed(() => [
   { label: "All Providers", value: "all" },
-  ...providers.value.map((p: any) => ({ label: p.name, value: p.id })),
+  ...[...providers.value].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((p: any) => ({ label: p.name, value: p.id })),
 ]);
 
 const familyItems = computed(() => [
@@ -50,7 +50,9 @@ const providerLabel = computed(() =>
 // );
 
 // TODO: Family filter — currently disabled, needs backend API enhancement
-const filteredModels = computed(() => models.value);
+const filteredModels = computed(() =>
+  [...models.value].sort((a, b) => a.name.localeCompare(b.name)),
+);
 </script>
 
 <template>
