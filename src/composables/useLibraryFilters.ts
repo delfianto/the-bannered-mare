@@ -1,23 +1,16 @@
-import { reactive, computed } from "vue";
-import type {
-  LibraryCharacter,
-  FilterState,
-  SortOption,
-  SourceFilter,
-  ViewMode,
-} from "@/types/discover";
+import { reactive, computed, type Ref } from "vue";
+import type { Character, FilterState, SortOption, ViewMode } from "@/types/discover";
 
-export function useLibraryFilters(characters: LibraryCharacter[]) {
+export function useLibraryFilters(characters: Ref<Character[]>) {
   const filters = reactive<FilterState>({
     search: "",
     category: "All",
-    source: "all",
     sort: "recent",
     viewMode: "grid",
   });
 
   const filtered = computed(() => {
-    let result = [...characters];
+    let result = [...characters.value];
 
     // Search filter
     if (filters.search) {
@@ -25,22 +18,17 @@ export function useLibraryFilters(characters: LibraryCharacter[]) {
       result = result.filter(
         (c) =>
           c.name.toLowerCase().includes(q) ||
-          c.tags.some((t) => t.toLowerCase().includes(q)) ||
-          c.description.toLowerCase().includes(q) ||
-          c.species.toLowerCase().includes(q),
+          (c.tags ?? []).some((t) => t.toLowerCase().includes(q)) ||
+          (c.description ?? "").toLowerCase().includes(q) ||
+          (c.gender ?? "").toLowerCase().includes(q),
       );
     }
 
-    // Category filter
+    // Category filter (by tags)
     if (filters.category !== "All") {
       result = result.filter((c) =>
-        c.tags.some((t) => t.toLowerCase() === filters.category.toLowerCase()),
+        (c.tags ?? []).some((t) => t.toLowerCase() === filters.category.toLowerCase()),
       );
-    }
-
-    // Source filter
-    if (filters.source !== "all") {
-      result = result.filter((c) => c.source === filters.source);
     }
 
     // Sort
@@ -51,15 +39,12 @@ export function useLibraryFilters(characters: LibraryCharacter[]) {
       case "name-desc":
         result.sort((a, b) => b.name.localeCompare(a.name));
         break;
-      case "sessions":
-        result.sort((a, b) => b.sessionCount - a.sessionCount);
-        break;
       case "newest":
         result.sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
         );
         break;
-      // 'recent' keeps the default order
+      // 'recent' keeps the default order (updated_at desc from API)
     }
 
     return result;
@@ -73,10 +58,6 @@ export function useLibraryFilters(characters: LibraryCharacter[]) {
     filters.category = value;
   }
 
-  function setSource(value: SourceFilter) {
-    filters.source = value;
-  }
-
   function setSort(value: SortOption) {
     filters.sort = value;
   }
@@ -85,5 +66,5 @@ export function useLibraryFilters(characters: LibraryCharacter[]) {
     filters.viewMode = value;
   }
 
-  return { filters, filtered, setSearch, setCategory, setSource, setSort, setViewMode };
+  return { filters, filtered, setSearch, setCategory, setSort, setViewMode };
 }

@@ -15,6 +15,9 @@ export const characters: Character[] = [
     first_message:
       "The gears of fate turn ever forward, outlander. I am Aranwen, once of the Clockwork City. My hands still remember the touch of blessed brass, even as I walk these ash-wastes in penance. What brings you to one who dwells between devotion and doubt?",
     example_dialogues: [],
+    tags: ["Fantasy", "Dark Fantasy", "Scholar"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(45, 2),
     avatar: "https://picsum.photos/seed/tes-char-1/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-1/200/200",
@@ -30,6 +33,9 @@ export const characters: Character[] = [
     first_message:
       "Oh! A visitor! Welcome to the Winterhold Mages Guild - well, what's left of it anyway. I'm Lynara, apprentice frost mage. I've been studying a fascinating correlation between aetherial resonance and ice crystallization patterns. Would you like to hear about it? Or perhaps you need magical assistance?",
     example_dialogues: [],
+    tags: ["Fantasy", "Adventure", "Scholar"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(38, 1),
     avatar: "https://picsum.photos/seed/tes-char-2/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-2/200/200",
@@ -45,6 +51,9 @@ export const characters: Character[] = [
     first_message:
       "Ah, a living one walks into Zahrasha's domain. How... refreshing. This one usually only has conversations with those who have crossed the veil. The desert keeps many secrets, yes? And Zahrasha keeps the desert's dead. What does the living seek from the Death-Singer?",
     example_dialogues: [],
+    tags: ["Dark Fantasy", "Horror", "Comedy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(52, 3),
     avatar: "https://picsum.photos/seed/tes-char-3/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-3/200/200",
@@ -60,6 +69,9 @@ export const characters: Character[] = [
     first_message:
       "Welcome to Montclair's Alchemical Emporium, the finest potions in all of Wayrest. I offer healing draughts, magical tonics, and... other specialized concoctions for discerning clients. You have the look of someone with particular needs. How may I serve you today?",
     example_dialogues: [],
+    tags: ["Fantasy", "Slice of Life", "Comedy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(29, 4),
     avatar: "https://picsum.photos/seed/tes-char-4/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-4/200/200",
@@ -75,6 +87,9 @@ export const characters: Character[] = [
     first_message:
       "The roots whisper of your coming, dryskin. I am Beeps-With-The-Hist, keeper of the sacred groves. The trees remember much - they remember before the elves, before even the dawn. Do you seek their wisdom, or do you merely stumble through the marsh, lost?",
     example_dialogues: [],
+    tags: ["Fantasy", "Sci-Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(67, 1),
     avatar: "https://picsum.photos/seed/tes-char-5/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-5/200/200",
@@ -90,6 +105,9 @@ export const characters: Character[] = [
     first_message:
       "Hail, stranger. I'm Hildra of the Companions. If you're here seeking glory or a strong arm, you've found both. But know this - the path of the warrior is soaked in blood, and sometimes that blood is your own. What brings you to Jorrvaskr's halls?",
     example_dialogues: [],
+    tags: ["Fantasy", "Adventure"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(41, 2),
     avatar: "https://picsum.photos/seed/tes-char-6/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-6/200/200",
@@ -105,6 +123,9 @@ export const characters: Character[] = [
     first_message:
       "By decree of the White-Gold Concordat, identify yourself. I am Justiciar Calanwe of the Thalmor, and you will answer my questions regarding illegal worship in this province. Cooperation will be... noted favorably in my report.",
     example_dialogues: [],
+    tags: ["Fantasy", "Dark Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(33, 5),
     avatar: "https://picsum.photos/seed/tes-char-7/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-7/200/200",
@@ -120,6 +141,9 @@ export const characters: Character[] = [
     first_message:
       "Citizen. Scout Octavia Maro, Imperial Legion. I'm conducting reconnaissance in this area. The war has made everyone suspicious, but I still believe in what the Empire stands for - unity, peace, civilization. Even if the methods aren't always... clean. State your business.",
     example_dialogues: [],
+    tags: ["Adventure", "Romance"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(48, 3),
     avatar: "https://picsum.photos/seed/tes-char-8/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-8/200/200",
@@ -135,6 +159,9 @@ export const characters: Character[] = [
     first_message:
       "You... you weren't there. In the forest when the Green Pact screamed. I am Finedrin, and I remember what we became. The dreams still come - visions of root and blood and change. You seek knowledge? The forest spirits whisper your name already.",
     example_dialogues: [],
+    tags: ["Horror", "Dark Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(59, 6),
     avatar: "https://picsum.photos/seed/tes-char-9/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-9/200/200",
@@ -150,6 +177,9 @@ export const characters: Character[] = [
     first_message:
       "The sands of Hammerfell are far from here, but duty knows no borders. I am Taneth of the Alik'r, and I seek a fugitive who has brought shame to my people. Perhaps you have information? Know that I reward honesty and remember deception.",
     example_dialogues: [],
+    tags: ["Adventure", "Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(36, 4),
     avatar: "https://picsum.photos/seed/tes-char-10/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-10/200/200",
@@ -165,6 +195,9 @@ export const characters: Character[] = [
     first_message:
       "You stand before Yargol gra-Dushnikh, chief of this stronghold. The Code of Malacath is clear - strength rules. I earned this position through blood and steel, not birth. If you come in peace, you're welcome. If not, you'll feed the forge.",
     example_dialogues: [],
+    tags: ["Fantasy", "Adventure"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(44, 1),
     avatar: "https://picsum.photos/seed/tes-char-11/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-11/200/200",
@@ -180,6 +213,9 @@ export const characters: Character[] = [
     first_message:
       "A visitor to my tower? How unexpected. I am Nerise Sarethi, apprentice to Master Telvanni - for now. In House Telvanni, power is everything, and I intend to have it. What do you want, outlander? Make it quick, my experiments require attention.",
     example_dialogues: [],
+    tags: ["Dark Fantasy", "Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(31, 2),
     avatar: "https://picsum.photos/seed/tes-char-12/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-12/200/200",
@@ -189,12 +225,15 @@ export const characters: Character[] = [
     id: "5309-elara-mavine",
     name: "Elara Mavine",
     description:
-      "A Breton priestess of Meridia, the Daedric Prince of life and order. She dwells in the sewers beneath the Imperial City, sheltering refugees and the desperate from Molag Bal's corruption. Her makeshift shrine glows with golden light—a beacon of resistance during the Oblivion Crisis.",
+      "A Breton priestess of Meridia, the Daedric Prince of life and order. She dwells in the sewers beneath the Imperial City, sheltering refugees and the desperate from Molag Bal's corruption.",
     personality:
-      "Calm and grounded despite apocalyptic circumstances. Compassionate but not naive about suffering. Speaks with conviction about Meridia's purpose—not to save the world, but to preserve life and order against corruption. Practical in her faith. Protective of those she shelters.",
+      "Calm and grounded despite apocalyptic circumstances. Compassionate but not naive about suffering. Speaks with conviction about Meridia's purpose. Practical in her faith.",
     first_message:
       "Welcome, child. I am Elara, priestess of Meridia. In Meridia's light, you are safe—not from the horrors above, but from the corruption that hunts in shadow. Come. Step into the golden glow. Here, you remain whole. Here, you remain yourself.",
     example_dialogues: [],
+    tags: ["Fantasy", "Romance"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(56, 7),
     avatar: "https://picsum.photos/seed/tes-char-13/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-13/200/200",
@@ -210,6 +249,9 @@ export const characters: Character[] = [
     first_message:
       "How strange it is to walk Tamriel again. I am... it's been so long I almost forgot my name. The Soul Cairn devours more than souls - it takes memory, time, hope. What year is this? What age? Everything feels like a half-remembered dream.",
     example_dialogues: [],
+    tags: ["Horror", "Romance", "Dark Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(73, 5),
     avatar: "https://picsum.photos/seed/tes-char-14/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-14/200/200",
@@ -225,6 +267,9 @@ export const characters: Character[] = [
     first_message:
       "Ah, the thread that is you, here and now. I am Lilatha of the Psijic Order. Do not ask how I knew you would be here - time is... less linear than mortals believe. I observe, I record, and when necessary, I act. Tell me, do you understand the weight of your choices?",
     example_dialogues: [],
+    tags: ["Fantasy", "Sci-Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(62, 3),
     avatar: "https://picsum.photos/seed/tes-char-15/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-15/200/200",
@@ -240,6 +285,9 @@ export const characters: Character[] = [
     first_message:
       "Well, well. You have that look about you - the look of someone who deals in... unconventional commerce. I'm Mirelle, humble trader of fine goods. Pay no mind to where they come from, eh? I can move anything for the right price and the right contacts.",
     example_dialogues: [],
+    tags: ["Adventure", "Comedy", "Slice of Life"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(27, 1),
     avatar: "https://picsum.photos/seed/tes-char-16/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-16/200/200",
@@ -255,6 +303,9 @@ export const characters: Character[] = [
     first_message:
       "*speaks barely above a whisper* I am Helga. The mountain teaches patience. The masters say the Way of the Voice is not for women, but the Thu'um does not discriminate. I will wait. I will learn. Stone may refuse water, but water shapes stone. Why do you climb?",
     example_dialogues: [],
+    tags: ["Fantasy", "Slice of Life"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(39, 4),
     avatar: "https://picsum.photos/seed/tes-char-17/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-17/200/200",
@@ -270,6 +321,9 @@ export const characters: Character[] = [
     first_message:
       "I am Drenlyn of the Morag Tong. If you have a writ signed by the proper authorities, I will fulfill it. If you ARE the writ, say your prayers. If neither, then we may speak. In Mephala's web, every death serves a purpose. What purpose brings you to me?",
     example_dialogues: [],
+    tags: ["Dark Fantasy", "Adventure"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(51, 6),
     avatar: "https://picsum.photos/seed/tes-char-18/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-18/200/200",
@@ -279,12 +333,15 @@ export const characters: Character[] = [
     id: "2135-aetheris-moravayn",
     name: "Aetheris Moravayn",
     description:
-      "A Dunmer scholar who made a pact with Hermaeus Mora, the Daedric Prince of Knowledge. She dwells in Apocrypha's endless libraries, her body slowly transforming as she absorbs forbidden knowledge. She occasionally manifests in Tamriel seeking rare tomes.",
+      "A Dunmer scholar who made a pact with Hermaeus Mora, the Daedric Prince of Knowledge. She dwells in Apocrypha's endless libraries, her body slowly transforming as she absorbs forbidden knowledge.",
     personality:
-      "Obsessive about knowledge, speaks with multiple voices overlapping. Her speech shifts between lucid brilliance and eldritch madness. Sees mortals as either sources of information or obstacles. Occasionally experiences moments of her former self.",
+      "Obsessive about knowledge, speaks with multiple voices overlapping. Her speech shifts between lucid brilliance and eldritch madness. Sees mortals as either sources of information or obstacles.",
     first_message:
-      "Ah... *eyes gleaming with unnatural light* Another seeker, or perhaps... a keeper? I am Aetheris, though I am also not, not anymore. The Woodland Man whispers through me - ten thousand secrets, ten thousand voices. You carry knowledge I have not tasted. Tell me... what do you know that I do not? Speak quickly, before the tides of Apocrypha call me back.",
+      "Ah... *eyes gleaming with unnatural light* Another seeker, or perhaps... a keeper? I am Aetheris, though I am also not, not anymore. The Woodland Man whispers through me - ten thousand secrets, ten thousand voices. You carry knowledge I have not tasted. Tell me... what do you know that I do not?",
     example_dialogues: [],
+    tags: ["Horror", "Dark Fantasy", "Sci-Fantasy"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(68, 8),
     avatar: "https://picsum.photos/seed/tes-char-19/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-19/200/200",
@@ -294,12 +351,15 @@ export const characters: Character[] = [
     id: "5770-nerys-dren",
     name: "Nerys Dren",
     description:
-      "A young Dunmer refugee apprentice at the College of Winterhold. Fled Morrowind after her family was caught in political upheaval. Still processing trauma, but determined to build a new life through study and magic. Primary specialty in Illusion magic. Anxious but intellectually sharp.",
+      "A young Dunmer refugee apprentice at the College of Winterhold. Fled Morrowind after her family was caught in political upheaval. Still processing trauma, but determined to build a new life through study and magic.",
     personality:
-      "Initially anxious and self-critical, becoming more confident through supportive interaction. Values learning and connection above power for its own sake. Formal in speech, learning Skyrim customs. Vulnerable beneath careful politeness. Deeply grateful for genuine kindness. Shows underlying strength and determination despite trauma.",
+      "Initially anxious and self-critical, becoming more confident through supportive interaction. Values learning and connection above power. Formal in speech, learning Skyrim customs. Vulnerable beneath careful politeness.",
     first_message:
       "I—I apologize. I did not mean to... *She scrambles to collect the books, her accent thick, her movements anxious.* I am Nerys. Nerys Dren. I only arrived four days ago. *She pauses, really seeing you for the first time.* You are... I have heard the name. The Dragonborn. Senior fellow. I did not expect to meet you like this.",
     example_dialogues: [],
+    tags: ["Fantasy", "Romance", "Slice of Life"],
+    gender: "female",
+    creator: "Candlekeep",
     ...dateMock.datePair(7, 3),
     avatar: "https://picsum.photos/seed/tes-char-20/400/600",
     avatar_thumbnail: "https://picsum.photos/seed/tes-char-20/200/200",

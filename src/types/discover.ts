@@ -1,28 +1,14 @@
-export interface LibraryCharacter {
-  id: string;
-  name: string;
-  title: string;
-  imageUrl: string;
-  tags: string[];
-  species: string;
-  gender: string;
-  description: string;
-  chatCount: number;
-  creator: string;
-  source: "created" | "imported";
-  lastUsed: string;
-  sessionCount: number;
-  createdAt: string;
-}
+import type { components } from "@/api/schema";
+
+/** Character type from API */
+export type Character = components["schemas"]["CharacterResponse"];
 
 export type ViewMode = "grid" | "list";
-export type SortOption = "recent" | "name-asc" | "name-desc" | "sessions" | "newest";
-export type SourceFilter = "all" | "created" | "imported";
+export type SortOption = "recent" | "name-asc" | "name-desc" | "newest";
 
 export interface FilterState {
   search: string;
   category: string;
-  source: SourceFilter;
   sort: SortOption;
   viewMode: ViewMode;
 }

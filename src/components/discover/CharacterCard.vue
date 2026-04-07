@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { LibraryCharacter } from "@/types/discover";
+import type { Character } from "@/types/discover";
 import CharacterContextMenu from "./CharacterContextMenu.vue";
 
 const props = defineProps<{
-  character: LibraryCharacter;
+  character: Character;
   index: number;
   selectMode: boolean;
   selected: boolean;
@@ -14,8 +14,10 @@ defineEmits<{
   contextAction: [action: string, id: string];
 }>();
 
-function formatCount(count: number): string {
-  return count >= 1000 ? `${(count / 1000).toFixed(1)}k` : String(count);
+function avatarSrc(): string {
+  return props.character.avatar_thumbnail
+    || props.character.avatar
+    || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`;
 }
 </script>
 
@@ -27,7 +29,7 @@ function formatCount(count: number): string {
   >
     <!-- Character portrait -->
     <img
-      :src="character.imageUrl"
+      :src="avatarSrc()"
       :alt="character.name"
       class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
     />
@@ -36,53 +38,34 @@ function formatCount(count: number): string {
     <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
     <!-- Select checkbox (top-left) -->
-    <div
-      v-if="selectMode"
-      class="absolute left-3 top-3 z-10"
-    >
+    <div v-if="selectMode" class="absolute left-3 top-3 z-10">
       <div
         class="flex h-5 w-5 items-center justify-center rounded border-2 transition-colors"
-        :class="
-          selected
-            ? 'border-primary bg-primary'
-            : 'border-white/60 bg-black/30 backdrop-blur-sm'
-        "
+        :class="selected ? 'border-primary bg-primary' : 'border-white/60 bg-black/30 backdrop-blur-sm'"
       >
-        <UIcon
-          v-if="selected"
-          name="i-lucide-check"
-          class="h-3.5 w-3.5 text-primary-foreground"
-        />
+        <UIcon v-if="selected" name="i-lucide-check" class="h-3.5 w-3.5 text-primary-foreground" />
       </div>
-    </div>
-
-    <!-- Top badge -- chat count -->
-    <div
-      class="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-[11px] text-white/80 backdrop-blur-sm"
-    >
-      <UIcon name="i-lucide-message-circle" class="h-3 w-3" />
-      {{ formatCount(character.chatCount) }}
     </div>
 
     <!-- Context menu (bottom-right, on hover) -->
     <div
       class="absolute bottom-3 right-3 z-10 text-white/80 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
     >
-      <CharacterContextMenu
-        @action="$emit('contextAction', $event, character.id)"
-      />
+      <CharacterContextMenu @action="$emit('contextAction', $event, character.id)" />
     </div>
 
     <!-- Bottom info overlay -->
     <div class="absolute bottom-0 left-0 right-0 p-4">
       <h3
-        class="mb-0.5 text-base font-semibold text-white drop-shadow-lg font-cinzel"
+        class="mb-0.5 font-cinzel text-base font-semibold text-white drop-shadow-lg"
         style="letter-spacing: 0.02em"
       >
         {{ character.name }}
       </h3>
-      <p class="mb-2 text-[11px] text-white/60">{{ character.title }}</p>
-      <div class="flex flex-wrap gap-1.5">
+      <p v-if="character.description" class="mb-2 line-clamp-3 text-[11px] leading-relaxed text-white/60">
+        {{ character.description }}
+      </p>
+      <div v-if="character.tags?.length" class="flex flex-wrap gap-1.5">
         <span
           v-for="tag in character.tags.slice(0, 3)"
           :key="tag"

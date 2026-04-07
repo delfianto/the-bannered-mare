@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { LibraryCharacter } from "@/types/discover";
+import type { Character } from "@/types/discover";
 import CharacterContextMenu from "./CharacterContextMenu.vue";
 
 const props = defineProps<{
-  character: LibraryCharacter;
+  character: Character;
   index: number;
   selectMode: boolean;
   selected: boolean;
@@ -14,8 +14,21 @@ defineEmits<{
   contextAction: [action: string, id: string];
 }>();
 
-function formatCount(count: number): string {
-  return count >= 1000 ? `${(count / 1000).toFixed(1)}k` : String(count);
+function avatarSrc(): string {
+  return props.character.avatar_thumbnail
+    || props.character.avatar
+    || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=200`;
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }
 </script>
 
@@ -29,80 +42,47 @@ function formatCount(count: number): string {
     <div v-if="selectMode" class="shrink-0">
       <div
         class="flex h-5 w-5 items-center justify-center rounded border-2 transition-colors"
-        :class="
-          selected
-            ? 'border-primary bg-primary'
-            : 'border-border bg-muted/40'
-        "
+        :class="selected ? 'border-primary bg-primary' : 'border-border bg-muted/40'"
       >
-        <UIcon
-          v-if="selected"
-          name="i-lucide-check"
-          class="h-3.5 w-3.5 text-primary-foreground"
-        />
+        <UIcon v-if="selected" name="i-lucide-check" class="h-3.5 w-3.5 text-primary-foreground" />
       </div>
     </div>
 
     <!-- Thumbnail -->
     <div class="h-20 w-[60px] shrink-0 overflow-hidden rounded-lg">
-      <img
-        :src="character.imageUrl"
-        :alt="character.name"
-        class="h-full w-full object-cover"
-      />
+      <img :src="avatarSrc()" :alt="character.name" class="h-full w-full object-cover" />
     </div>
 
     <!-- Info -->
     <div class="min-w-0 flex-1">
-      <h3
-        class="truncate font-cinzel text-sm font-semibold text-foreground"
-        style="letter-spacing: 0.02em"
-      >
+      <h3 class="truncate font-cinzel text-sm font-semibold text-foreground" style="letter-spacing: 0.02em">
         {{ character.name }}
       </h3>
-      <p class="truncate text-xs text-muted-foreground">{{ character.title }}</p>
-      <p class="mt-1 line-clamp-1 text-xs text-muted-foreground/70">
+      <p v-if="character.description" class="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground/70">
         {{ character.description }}
       </p>
       <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
         <span
-          v-for="tag in character.tags.slice(0, 3)"
+          v-for="tag in (character.tags ?? []).slice(0, 3)"
           :key="tag"
           class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground"
         >
           {{ tag }}
         </span>
-        <span class="text-[10px] text-muted-foreground">
-          {{ character.species }} &middot; {{ formatCount(character.chatCount) }} chats
-          &middot; {{ character.sessionCount }} sessions
+        <span v-if="character.gender" class="text-[10px] text-muted-foreground">
+          {{ character.gender }}
         </span>
       </div>
     </div>
 
-    <!-- Source badge -->
-    <div class="hidden shrink-0 sm:block">
-      <span
-        class="rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide"
-        :class="
-          character.source === 'created'
-            ? 'bg-primary/15 text-primary'
-            : 'bg-accent text-muted-foreground'
-        "
-      >
-        {{ character.source === "created" ? "Created" : "Imported" }}
-      </span>
-    </div>
-
-    <!-- Last used -->
+    <!-- Last updated -->
     <div class="hidden shrink-0 text-right sm:block">
-      <p class="text-xs text-muted-foreground">{{ character.lastUsed }}</p>
+      <p class="text-xs text-muted-foreground">{{ timeAgo(character.updated_at) }}</p>
     </div>
 
     <!-- Context menu -->
     <div class="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-      <CharacterContextMenu
-        @action="$emit('contextAction', $event, character.id)"
-      />
+      <CharacterContextMenu @action="$emit('contextAction', $event, character.id)" />
     </div>
   </div>
 </template>
