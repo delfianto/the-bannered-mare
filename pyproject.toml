@@ -1,0 +1,123 @@
+[project]
+name = "candlekeep"
+version = "0.2.5"
+requires-python = ">=3.13"
+license = "AGPL-3.0-or-later"
+
+dependencies = [
+    # Web framework
+    "fastapi==0.127.0",
+    "uvicorn[standard]==0.40.0",
+
+    # Database
+    "sqlalchemy==2.0.45",
+    "psycopg2-binary==2.9.11",
+    "alembic==1.17.2",
+    "asyncpg==0.31.0",
+    "pgvector==0.3.6",
+
+    # Validation
+    "pydantic==2.12.5",
+    "pydantic-settings==2.12.0",
+
+    # File handling
+    "python-multipart==0.0.21",
+    "aiofiles==25.1.0",
+
+    # HTTP client for provider APIs
+    "httpx==0.28.1",
+
+    # ID generation
+    "nanoid==2.0.0",
+
+    # Utilities
+    "python-dotenv==1.2.1",
+
+    # Logging
+    "structlog==25.5.0",
+    "pymongo==4.15.5",
+
+    # Prompt templating
+    "Jinja2==3.1.6",
+
+    # Token counting
+    "tiktoken==0.12.0",
+
+    # Image processing
+    "Pillow==12.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest==9.0.2",
+    "pytest-asyncio==1.3.0",
+    "pytest-cov==7.0.0",
+    "pytest-mock==3.15.1",
+
+    # Async DB
+    "aiosqlite==0.22.0",
+    "greenlet>=3.0.0",
+
+    # Embedded PostgreSQL for integration tests
+    "pgembed>=0.2.0",
+
+    # Code quality
+    "ruff==0.14.10",
+    "basedpyright==1.36.1",
+
+    # Type stubs
+    "types-aiofiles==25.1.0.20251011",
+]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # import sorting
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "C4",    # flake8-comprehensions
+]
+
+# Rules to ignore
+ignore = [
+    # line too long
+    "E501",
+    # Do not perform function call `Depends` in argument defaults
+    "B008",
+]
+
+[tool.basedpyright]
+include = ["src", "tests"]
+exclude = [
+    "**/.venv/**",
+    "**/__init__.py",
+    "**/__pycache__/**",
+    "alembic/versions/**",
+    "tests/models_for_tests.py",
+]
+
+# Set a baseline mode
+typeCheckingMode = "standard"
+
+# Overrides (keep your sanity)
+reportAny = false
+reportExplicitAny = false
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
+
+# Prevents hard to debug crashes
+reportImportCycles = true
+
+# Python version settings
+pythonVersion = "3.13"
+pythonPlatform = "Linux"

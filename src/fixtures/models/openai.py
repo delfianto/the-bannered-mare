@@ -1,0 +1,97 @@
+"""OpenAI model seed data."""
+
+from src.fixtures.models._types import ModelSeedData
+
+OPENAI_MODELS: list[ModelSeedData] = [
+    {
+        "name": "GPT-4o",
+        "model_identifier": "gpt-4o",
+        "openrouter_identifier": "openai/gpt-4o",
+        "family_identifier": "openai/gpt-4o",
+        "provider_type": "openai",
+        "parameters": {
+            "max_completion_tokens": 4096,
+            "temperature": 0.85,
+            "top_p": 0.9,
+            "frequency_penalty": 0.3,
+            "presence_penalty": 0.2,
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
+    {
+        "name": "GPT-4o Mini",
+        "model_identifier": "gpt-4o-mini",
+        "openrouter_identifier": "openai/gpt-4o-mini",
+        "family_identifier": "openai/gpt-4o",
+        "provider_type": "openai",
+        "parameters": {
+            "max_completion_tokens": 16384,
+            "temperature": 0.85,
+            "top_p": 0.9,
+            "frequency_penalty": 0.3,
+            "presence_penalty": 0.2,
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
+    {
+        "name": "GPT-5.3 Chat",
+        "model_identifier": "gpt-5.3-instant-2026-03-03",
+        "openrouter_identifier": "openai/gpt-5.3-instant",
+        "family_identifier": "openai/gpt-5.3-chat",
+        "provider_type": "openai",
+        "parameters": {
+            "temperature": 0.85,
+            "top_p": 0.9,
+            "summary": "concise",
+            "max_completion_tokens": 8192,
+            "frequency_penalty": 0.3,
+            "presence_penalty": 0.2,
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
+    {
+        "name": "GPT-5.4",
+        "model_identifier": "gpt-5.4-2026-03-05",
+        "openrouter_identifier": "openai/gpt-5.4",
+        "family_identifier": "openai/gpt-5.4-thinking",
+        "provider_type": "openai",
+        "parameters": {
+            "reasoning_effort": "low",
+            "max_completion_tokens": 16384,
+            "summary": "concise",
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
+    {
+        "name": "GPT-5.4 Mini",
+        "model_identifier": "gpt-5.4-mini-2026-03-17",
+        "openrouter_identifier": "openai/gpt-5.4-mini",
+        "family_identifier": "openai/gpt-5.4-thinking",
+        "provider_type": "openai",
+        "parameters": {
+            "reasoning_effort": "low",
+            "max_completion_tokens": 8192,
+            "summary": "concise",
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
+    {
+        "name": "GPT-5.4 Nano",
+        "model_identifier": "gpt-5.4-nano-2026-03-17",
+        "openrouter_identifier": "openai/gpt-5.4-nano",
+        "family_identifier": "openai/gpt-5.4-thinking",
+        "provider_type": "openai",
+        "parameters": {
+            "reasoning_effort": "low",
+            "max_completion_tokens": 4096,
+            "summary": "concise",
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
+]
