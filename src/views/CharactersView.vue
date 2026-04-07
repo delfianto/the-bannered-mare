@@ -60,7 +60,7 @@ function navigateToCreate() {
 </script>
 
 <template>
-  <div class="mx-auto max-w-[960px] space-y-6 px-8 py-8">
+  <div class="space-y-8 px-8 py-8">
     <!-- Header -->
     <div class="animate-fade-in-up">
       <DiscoverHeader
