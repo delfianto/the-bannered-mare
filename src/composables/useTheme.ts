@@ -1,33 +1,40 @@
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
+
+// Singleton state — shared across all components
+const isDark = ref(false);
+let initialized = false;
+
+function init() {
+  if (initialized) return;
+  initialized = true;
+
+  const stored = localStorage.getItem("theme-mode");
+  if (
+    stored === "dark" ||
+    (!stored && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  ) {
+    isDark.value = true;
+  }
+
+  // Keep DOM in sync
+  syncDom(isDark.value);
+
+  watch(isDark, (val) => {
+    syncDom(val);
+    localStorage.setItem("theme-mode", val ? "dark" : "light");
+  });
+}
+
+function syncDom(dark: boolean) {
+  if (dark) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+}
 
 export function useTheme() {
-  const isDark = ref(false);
-
-  // Initialize theme from localStorage or system preference
-  onMounted(() => {
-    const stored = localStorage.getItem("theme-mode");
-    if (
-      stored === "dark" ||
-      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      isDark.value = true;
-    }
-  });
-
-  // Watch for changes and update DOM + LocalStorage
-  watch(
-    isDark,
-    (val) => {
-      if (val) {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme-mode", "dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme-mode", "light");
-      }
-    },
-    { immediate: true },
-  );
+  init();
 
   function toggleTheme() {
     isDark.value = !isDark.value;
