@@ -10,7 +10,7 @@ import {
 </script>
 
 <template>
-  <div class="space-y-8 px-8 py-8">
+  <div class="space-y-8 px-12 py-8">
     <!-- Greeting -->
     <div class="animate-fade-in-up">
       <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">

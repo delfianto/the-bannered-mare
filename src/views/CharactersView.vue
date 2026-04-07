@@ -60,7 +60,7 @@ function navigateToCreate() {
 </script>
 
 <template>
-  <div class="space-y-8 px-8 py-8">
+  <div class="space-y-8 px-12 py-8">
     <!-- Header -->
     <div class="animate-fade-in-up">
       <DiscoverHeader
