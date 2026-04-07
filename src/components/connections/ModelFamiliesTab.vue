@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 
 const router = useRouter();
 const { families, loading, error, page, totalPages, hasMore, loadPage } = useModelFamilies();
+
+// Sort alphabetically client-side (backend has no sort param)
+const sortedFamilies = computed(() =>
+  [...families.value].sort((a, b) => a.name.localeCompare(b.name)),
+);
 
 function goToPage(pageNum: number) {
   if (pageNum < 1 || pageNum > totalPages.value) return;
@@ -35,7 +41,7 @@ function goToPage(pageNum: number) {
       <!-- Card Grid -->
       <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <div
-          v-for="(family, index) in families"
+          v-for="(family, index) in sortedFamilies"
           :key="family.id"
           class="group animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
           :style="{ animationDelay: `${index * 30}ms` }"
