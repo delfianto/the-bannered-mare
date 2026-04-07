@@ -10,8 +10,8 @@ export const chats: Chat[] = [
     character: {
       id: "7384-aranwen-the-banished",
       name: "Aranwen the Banished",
-      avatar: "https://picsum.photos/seed/tes-char-1/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-1/200/200",
+      avatar: "https://images.unsplash.com/?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -29,8 +29,8 @@ export const chats: Chat[] = [
     character: {
       id: "2910-lynara-frost-scholar",
       name: "Lynara Frost-Scholar",
-      avatar: "https://picsum.photos/seed/tes-char-2/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-2/200/200",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "claude-3-5-sonnet",
@@ -47,8 +47,8 @@ export const chats: Chat[] = [
     character: {
       id: "5621-zahrasha-death-singer",
       name: "Zahrasha the Death-Singer",
-      avatar: "https://picsum.photos/seed/tes-char-3/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-3/200/200",
+      avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o-mini",
@@ -66,8 +66,8 @@ export const chats: Chat[] = [
     character: {
       id: "8492-eloise-montclair",
       name: "Eloise Montclair",
-      avatar: "https://picsum.photos/seed/tes-char-4/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-4/200/200",
+      avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -84,8 +84,8 @@ export const chats: Chat[] = [
     character: {
       id: "1847-beeps-with-the-hist",
       name: "Beeps-With-The-Hist",
-      avatar: "https://picsum.photos/seed/tes-char-5/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-5/200/200",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "claude-3-5-opus",
@@ -102,8 +102,8 @@ export const chats: Chat[] = [
     character: {
       id: "3956-hildra-stormcloak",
       name: "Hildra Stormcloak",
-      avatar: "https://picsum.photos/seed/tes-char-6/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-6/200/200",
+      avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -120,8 +120,8 @@ export const chats: Chat[] = [
     character: {
       id: "6273-calanwe-sun-blessed",
       name: "Calanwe Sun-Blessed",
-      avatar: "https://picsum.photos/seed/tes-char-7/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-7/200/200",
+      avatar: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -139,8 +139,8 @@ export const chats: Chat[] = [
     character: {
       id: "9104-octavia-maro",
       name: "Octavia Maro",
-      avatar: "https://picsum.photos/seed/tes-char-8/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-8/200/200",
+      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "claude-3-5-sonnet",
@@ -157,8 +157,8 @@ export const chats: Chat[] = [
     character: {
       id: "4738-finedrin-treemother",
       name: "Finedrin Treemother",
-      avatar: "https://picsum.photos/seed/tes-char-9/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-9/200/200",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -175,8 +175,8 @@ export const chats: Chat[] = [
     character: {
       id: "7825-taneth-at-sentinel",
       name: "Taneth at-Sentinel",
-      avatar: "https://picsum.photos/seed/tes-char-10/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-10/200/200",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o-mini",
@@ -193,8 +193,8 @@ export const chats: Chat[] = [
     character: {
       id: "2469-yargol-gra-dushnikh",
       name: "Yargol gra-Dushnikh",
-      avatar: "https://picsum.photos/seed/tes-char-11/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-11/200/200",
+      avatar: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -211,8 +211,8 @@ export const chats: Chat[] = [
     character: {
       id: "8156-nerise-sarethi",
       name: "Nerise Sarethi",
-      avatar: "https://picsum.photos/seed/tes-char-12/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-12/200/200",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "claude-3-5-opus",
@@ -229,8 +229,8 @@ export const chats: Chat[] = [
     character: {
       id: "5309-elara-mavine",
       name: "Elara Mavine",
-      avatar: "https://picsum.photos/seed/tes-char-13/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-13/200/200",
+      avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -248,8 +248,8 @@ export const chats: Chat[] = [
     character: {
       id: "6941-valerica-heir",
       name: "Valerica's Heir",
-      avatar: "https://picsum.photos/seed/tes-char-14/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-14/200/200",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -266,8 +266,8 @@ export const chats: Chat[] = [
     character: {
       id: "3582-lilatha-of-artaeum",
       name: "Lilatha of Artaeum",
-      avatar: "https://picsum.photos/seed/tes-char-15/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-15/200/200",
+      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "claude-3-5-sonnet",
@@ -284,8 +284,8 @@ export const chats: Chat[] = [
     character: {
       id: "9217-mirelle-shadowfoot",
       name: "Mirelle Shadowfoot",
-      avatar: "https://picsum.photos/seed/tes-char-16/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-16/200/200",
+      avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o-mini",
@@ -302,8 +302,8 @@ export const chats: Chat[] = [
     character: {
       id: "4893-helga-sky-voice",
       name: "Helga Sky-Voice",
-      avatar: "https://picsum.photos/seed/tes-char-17/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-17/200/200",
+      avatar: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -320,8 +320,8 @@ export const chats: Chat[] = [
     character: {
       id: "7604-drenlyn-uvirith",
       name: "Drenlyn Uvirith",
-      avatar: "https://picsum.photos/seed/tes-char-18/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-18/200/200",
+      avatar: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "claude-3-5-opus",
@@ -338,8 +338,8 @@ export const chats: Chat[] = [
     character: {
       id: "2135-aetheris-moravayn",
       name: "Aetheris Moravayn",
-      avatar: "https://picsum.photos/seed/tes-char-19/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-19/200/200",
+      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
@@ -356,8 +356,8 @@ export const chats: Chat[] = [
     character: {
       id: "5770-nerys-dren",
       name: "Nerys Dren",
-      avatar: "https://picsum.photos/seed/tes-char-20/400/600",
-      avatar_thumbnail: "https://picsum.photos/seed/tes-char-20/200/200",
+      avatar: "https://images.unsplash.com/photo-1507152927220-18c0e457add6?w=400&h=560&fit=crop&crop=face",
+      avatar_thumbnail: "https://images.unsplash.com/photo-1507152927220-18c0e457add6?w=200&h=200&fit=crop&crop=face",
     },
     model: {
       id: "gpt-4o",
