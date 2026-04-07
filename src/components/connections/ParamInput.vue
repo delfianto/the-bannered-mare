@@ -188,19 +188,26 @@ function updateObjectProp(key: string, val: unknown) {
 
   <!-- Enum select -->
   <template v-else-if="schemaType === 'enum'">
-    <select
+    <USelectMenu
       v-model="selectValue"
-      class="h-9 rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      :items="(schema.str_values || []).map((v: string) => ({ label: v, value: v }))"
+      value-key="value"
+      :search-input="false"
       :class="layout === 'horizontal' ? 'max-w-[180px]' : 'w-full'"
+      :ui="{
+        base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
+        content: 'border border-[var(--border)] bg-[var(--card)] ring-0 outline-none shadow-lg',
+        item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-[var(--accent)]',
+      }"
     >
-      <option
-        v-for="opt in schema.str_values"
-        :key="opt"
-        :value="opt"
+      <button
+        class="flex h-9 items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+        :class="layout === 'horizontal' ? 'w-[180px]' : 'w-full'"
       >
-        {{ opt }}
-      </option>
-    </select>
+        <span class="truncate">{{ selectValue || 'Select...' }}</span>
+        <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      </button>
+    </USelectMenu>
   </template>
 
   <!-- Number with range slider -->

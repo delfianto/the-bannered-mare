@@ -239,18 +239,24 @@ function formatDate(iso: string): string {
                   <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Provider
                   </label>
-                  <select
+                  <USelectMenu
                     v-model="form.provider_id"
-                    class="h-11 w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    :items="settingsStore.providers.map((p: any) => ({ label: `${p.name} (${p.provider_type})`, value: p.id }))"
+                    value-key="value"
+                    :search-input="false"
+                    :ui="{
+                      base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
+                      content: 'border border-[var(--border)] bg-[var(--card)] ring-0 outline-none shadow-lg',
+                      item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-[var(--accent)]',
+                    }"
                   >
-                    <option
-                      v-for="prov in settingsStore.providers"
-                      :key="prov.id"
-                      :value="prov.id"
+                    <button
+                      class="flex h-11 w-full items-center justify-between rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
                     >
-                      {{ prov.name }} ({{ prov.provider_type }})
-                    </option>
-                  </select>
+                      <span>{{ providerName }}</span>
+                      <UIcon name="i-lucide-chevron-down" class="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </USelectMenu>
                 </div>
 
                 <!-- Enabled toggle -->
