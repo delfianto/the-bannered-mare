@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 
+const router = useRouter();
 const { families, loading, error, page, totalPages, hasMore, loadPage } = useModelFamilies();
 
 function goToPage(pageNum: number) {
@@ -41,9 +43,17 @@ function parameterCount(family: (typeof families.value)[number]): string {
             <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
               {{ family.name }}
             </h3>
-            <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <UIcon name="i-lucide-layers" class="h-3.5 w-3.5" />
-              <span>{{ parameterCount(family) }}</span>
+            <div class="flex items-center gap-2">
+              <button
+                class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                @click="router.push(`/settings/model-families/${family.id}`)"
+              >
+                <UIcon name="i-lucide-pencil" class="h-3.5 w-3.5" />
+              </button>
+              <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <UIcon name="i-lucide-layers" class="h-3.5 w-3.5" />
+                <span>{{ parameterCount(family) }}</span>
+              </div>
             </div>
           </div>
 

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useModels } from "@/composables/useModels";
+
+const router = useRouter();
 
 const { models, loading, error, page, hasMore, totalPages, loadPage, search } = useModels();
 
@@ -69,11 +72,12 @@ function goToPage(pageNum: number) {
     <div v-else>
       <div class="animate-fade-in-up overflow-hidden rounded-xl border border-[var(--border)]">
         <!-- Header -->
-        <div class="grid grid-cols-[1fr_140px_160px_80px] gap-4 border-b border-border bg-muted/30 px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <div class="grid grid-cols-[1fr_140px_160px_80px_44px] gap-4 border-b border-border bg-muted/30 px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           <span>Model</span>
           <span>Provider</span>
           <span>Family</span>
           <span class="text-center">Status</span>
+          <span></span>
         </div>
 
         <!-- Empty state -->
@@ -86,7 +90,7 @@ function goToPage(pageNum: number) {
         <div
           v-for="(model, index) in models"
           :key="model.id"
-          class="grid grid-cols-[1fr_140px_160px_80px] items-center gap-4 border-b border-border/50 px-5 py-3 transition-colors last:border-b-0 hover:bg-accent/30"
+          class="grid grid-cols-[1fr_140px_160px_80px_44px] items-center gap-4 border-b border-border/50 px-5 py-3 transition-colors last:border-b-0 hover:bg-accent/30"
           :style="{ animationDelay: `${index * 40}ms` }"
         >
           <!-- Model name -->
@@ -129,6 +133,16 @@ function goToPage(pageNum: number) {
               />
               {{ model.enabled ? "On" : "Off" }}
             </span>
+          </div>
+
+          <!-- Edit -->
+          <div class="flex justify-center">
+            <button
+              class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              @click="router.push(`/settings/models/${model.id}`)"
+            >
+              <UIcon name="i-lucide-pencil" class="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
       </div>

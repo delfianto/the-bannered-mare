@@ -479,6 +479,38 @@ export const handlers = [
     return HttpResponse.json(db.providers);
   }),
 
+  // Provider detail
+  http.get("/api/providers/:providerId", async ({ params }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(provider);
+  }),
+
+  // Update provider
+  http.put("/api/providers/:providerId", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.name !== undefined) provider.name = body.name;
+    if (body.base_url !== undefined) provider.base_url = body.base_url;
+    if (body.enabled !== undefined) provider.enabled = body.enabled;
+    provider.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(provider);
+  }),
+
+  // Toggle provider enabled
+  http.patch("/api/providers/:providerId/flags", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.enabled !== undefined) provider.enabled = body.enabled;
+    provider.updated_at = new Date().toISOString();
+    await delay(100);
+    return HttpResponse.json(provider);
+  }),
+
   // Models List
   http.get("/api/models", async ({ request }) => {
     await delay(100);
@@ -518,6 +550,51 @@ export const handlers = [
 
     await delay(100);
     return HttpResponse.json(responseData);
+  }),
+
+  // Update model
+  http.put("/api/models/:modelId", async ({ params, request }) => {
+    const model = db.allModelsMock.find((m) => m.id === params.modelId);
+    if (!model) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of [
+      "name",
+      "model_identifier",
+      "provider_id",
+      "model_family_id",
+      "openrouter_identifier",
+      "use_openrouter",
+      "parameters",
+      "enabled",
+      "template_id",
+    ]) {
+      if (body[key] !== undefined) (model as any)[key] = body[key];
+    }
+    model.updated_at = new Date().toISOString();
+    const family = db.allModelFamiliesMock.find((f) => f.id === model.model_family_id);
+    await delay(200);
+    return HttpResponse.json({ ...model, model_family: family || null });
+  }),
+
+  // Toggle model flags
+  http.patch("/api/models/:modelId/flags", async ({ params, request }) => {
+    const model = db.allModelsMock.find((m) => m.id === params.modelId);
+    if (!model) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.enabled !== undefined) model.enabled = body.enabled;
+    if (body.use_openrouter !== undefined) model.use_openrouter = body.use_openrouter;
+    model.updated_at = new Date().toISOString();
+    await delay(100);
+    return HttpResponse.json(model);
+  }),
+
+  // Delete model
+  http.delete("/api/models/:modelId", async ({ params }) => {
+    const idx = db.allModelsMock.findIndex((m) => m.id === params.modelId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.allModelsMock.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
   }),
 
   // Personas
@@ -579,5 +656,35 @@ export const handlers = [
 
     await delay(100);
     return HttpResponse.json(family);
+  }),
+
+  // Update model family
+  http.put("/api/model-families/:id", async ({ params, request }) => {
+    const family = db.allModelFamiliesMock.find((f) => f.id === params.id);
+    if (!family) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of [
+      "name",
+      "family_identifier",
+      "description",
+      "provider_types",
+      "parameters",
+      "unsupported_parameters",
+      "extra_metadata",
+    ]) {
+      if (body[key] !== undefined) (family as any)[key] = body[key];
+    }
+    family.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(family);
+  }),
+
+  // Delete model family
+  http.delete("/api/model-families/:id", async ({ params }) => {
+    const idx = db.allModelFamiliesMock.findIndex((f) => f.id === params.id);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.allModelFamiliesMock.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
   }),
 ];

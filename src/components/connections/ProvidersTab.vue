@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { useProviders } from "@/composables/useProviders";
 
+const router = useRouter();
 const { providers, loading, error, refresh } = useProviders();
 
 const providerTypeIcons: Record<string, string> = {
@@ -71,14 +73,22 @@ function formatUrl(url: string | null): string {
               </span>
             </div>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span
-              class="h-2.5 w-2.5 rounded-full"
-              :class="provider.enabled ? 'bg-emerald-500' : 'bg-red-500'"
-            />
-            <span class="text-xs text-muted-foreground">
-              {{ provider.enabled ? "Enabled" : "Disabled" }}
-            </span>
+          <div class="flex items-center gap-2">
+            <button
+              class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              @click="router.push(`/settings/providers/${provider.id}`)"
+            >
+              <UIcon name="i-lucide-pencil" class="h-3.5 w-3.5" />
+            </button>
+            <div class="flex items-center gap-1.5">
+              <span
+                class="h-2.5 w-2.5 rounded-full"
+                :class="provider.enabled ? 'bg-emerald-500' : 'bg-red-500'"
+              />
+              <span class="text-xs text-muted-foreground">
+                {{ provider.enabled ? "Enabled" : "Disabled" }}
+              </span>
+            </div>
           </div>
         </div>
 
