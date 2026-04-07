@@ -66,12 +66,12 @@ function formatUrl(url: string | null): string {
       <div
         v-for="(provider, index) in sortedProviders"
         :key="provider.id"
-        class="group relative animate-fade-in-up cursor-pointer rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
         @click="router.push(`/settings/providers/${provider.id}`)"
       >
         <!-- Header: icon + name + status -->
-        <div class="mb-2 flex items-start justify-between gap-2">
+        <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2.5">
             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent p-1.5">
               <img :src="getIcon(provider.provider_type)" :alt="provider.provider_type" class="h-full w-full object-contain dark:invert" />
@@ -92,8 +92,11 @@ function formatUrl(url: string | null): string {
           />
         </div>
 
-        <!-- Details -->
-        <div class="space-y-1.5 text-[11px] text-muted-foreground">
+        <!-- Spacer -->
+        <div class="flex-1" />
+
+        <!-- Details (pinned to bottom area) -->
+        <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-link" class="h-3 w-3 shrink-0" />
             <span class="truncate">{{ formatUrl(provider.base_url) }}</span>
