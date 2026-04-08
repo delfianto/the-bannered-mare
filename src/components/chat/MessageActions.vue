@@ -22,7 +22,7 @@ const userActions = [
 
 <template>
   <div
-    class="absolute -top-3 z-20 flex items-center gap-0.5 rounded-lg border border-border bg-card px-1 py-0.5 shadow-md transition-all duration-150"
+    class="absolute -top-3 z-20 flex items-center gap-0.5 rounded-lg border bg-card px-1 py-0.5 shadow-md transition-all duration-150"
     :class="[
       type === 'user' ? 'right-0' : 'left-12',
       visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 pointer-events-none',

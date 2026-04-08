@@ -197,7 +197,7 @@ async function setDefault(personaId: string) {
     <!-- Inline Create/Edit Form -->
     <div
       v-if="showForm"
-      class="mb-4 animate-fade-in-up rounded-xl border border-border bg-card/50 p-5"
+      class="mb-4 animate-fade-in-up rounded-xl border bg-card/50 p-5"
     >
       <h4 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
         {{ editingId ? "Edit Persona" : "New Persona" }}
@@ -209,7 +209,7 @@ async function setDefault(personaId: string) {
             v-model="formName"
             type="text"
             placeholder="Persona name..."
-            class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
         <div>
@@ -218,7 +218,7 @@ async function setDefault(personaId: string) {
             v-model="formDescription"
             rows="3"
             placeholder="Describe this persona for RP context..."
-            class="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
         <div class="flex items-center gap-3">
@@ -226,7 +226,7 @@ async function setDefault(personaId: string) {
             <input
               v-model="formIsDefault"
               type="checkbox"
-              class="rounded border-border text-primary focus:ring-primary"
+              class="rounded text-primary focus:ring-primary"
             />
             Set as default
           </label>
@@ -255,7 +255,7 @@ async function setDefault(personaId: string) {
             </span>
           </button>
           <button
-            class="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             @click="cancelForm"
           >
             Cancel
@@ -272,7 +272,7 @@ async function setDefault(personaId: string) {
     <!-- Error State -->
     <div
       v-else-if="error"
-      class="rounded-xl border border-border bg-card/50 p-8 text-center"
+      class="rounded-xl border bg-card/50 p-8 text-center"
     >
       <UIcon name="i-lucide-alert-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ error }}</p>
@@ -281,7 +281,7 @@ async function setDefault(personaId: string) {
     <!-- Empty State -->
     <div
       v-else-if="personas.length === 0"
-      class="rounded-xl border border-border bg-card/50 p-8 text-center"
+      class="rounded-xl border bg-card/50 p-8 text-center"
     >
       <UIcon name="i-lucide-user-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">No personas found. Create one to get started.</p>
@@ -292,7 +292,7 @@ async function setDefault(personaId: string) {
       <div
         v-for="persona in personas"
         :key="persona.id"
-        class="group flex items-center gap-4 rounded-xl border border-border bg-card/50 p-4 transition-colors hover:bg-card/80"
+        class="group flex items-center gap-4 rounded-xl border bg-card/50 p-4 transition-colors hover:bg-card/80"
       >
         <!-- Avatar -->
         <img

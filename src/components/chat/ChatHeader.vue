@@ -91,7 +91,7 @@ onUnmounted(() => {
 
 <template>
   <header
-    class="z-10 flex h-[62px] flex-shrink-0 items-center justify-between border-b border-border bg-background/80 px-5 backdrop-blur-sm"
+    class="z-10 flex h-[62px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-5 backdrop-blur-sm"
   >
     <button
       class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -146,7 +146,7 @@ onUnmounted(() => {
       <!-- Dropdown Menu -->
       <div
         v-if="menuOpen"
-        class="absolute right-0 top-full mt-1 min-w-[160px] rounded-lg border border-border bg-card py-1 shadow-lg"
+        class="absolute right-0 top-full mt-1 min-w-[160px] rounded-lg border bg-card py-1 shadow-lg"
       >
         <button
           class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent/50"

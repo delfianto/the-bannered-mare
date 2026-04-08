@@ -18,7 +18,7 @@ defineEmits<{
       :class="
         active === cat
           ? 'bg-primary text-primary-foreground'
-          : 'border border-border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground'
+          : 'border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground'
       "
       @click="$emit('change', cat)"
     >

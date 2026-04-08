@@ -35,7 +35,7 @@ const actions = [
     >
       <div
         v-if="open"
-        class="absolute right-0 bottom-full z-50 mb-1 w-44 origin-bottom-right rounded-lg border border-border bg-popover py-1 shadow-lg"
+        class="absolute right-0 bottom-full z-50 mb-1 w-44 origin-bottom-right rounded-lg border bg-popover py-1 shadow-lg"
         @blur.capture="open = false"
         tabindex="-1"
         ref="menuRef"

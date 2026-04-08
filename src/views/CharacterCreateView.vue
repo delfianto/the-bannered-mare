@@ -154,7 +154,7 @@ function handleImport(data: CharacterData) {
     </div>
 
     <!-- Header -->
-    <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm">
+    <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm">
       <div class="flex items-center gap-3">
         <button
           class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -192,7 +192,7 @@ function handleImport(data: CharacterData) {
         </button>
 
         <button
-          class="flex h-9 items-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          class="flex h-9 items-center gap-2 rounded-lg border px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="handleExport"
         >
           <UIcon name="i-lucide-download" class="h-4 w-4" />
@@ -219,7 +219,7 @@ function handleImport(data: CharacterData) {
     </header>
 
     <!-- Tab Nav -->
-    <div class="flex-shrink-0 border-b border-border bg-background/60">
+    <div class="flex-shrink-0 border-b bg-background/60">
       <div class="flex items-center gap-1 px-8">
         <div class="mx-auto flex max-w-[580px] items-center gap-1">
         <button
@@ -274,7 +274,7 @@ function handleImport(data: CharacterData) {
       </div>
 
       <!-- Preview Panel -->
-      <div class="hidden w-[340px] min-w-[340px] overflow-y-auto border-l border-border bg-secondary/30 px-5 py-6 xl:block">
+      <div class="hidden w-[340px] min-w-[340px] overflow-y-auto border-l bg-secondary/30 px-5 py-6 xl:block">
         <div class="sticky top-0">
           <p class="mb-4 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
             Live Preview

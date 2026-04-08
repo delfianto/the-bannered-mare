@@ -22,14 +22,14 @@ defineEmits<{
   >
     <div
       v-if="visible && selectedCount > 0"
-      class="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-2.5 shadow-lg"
+      class="flex items-center justify-between rounded-xl border bg-card px-4 py-2.5 shadow-lg"
     >
       <p class="text-sm font-medium text-foreground">
         {{ selectedCount }} selected
       </p>
       <div class="flex items-center gap-2">
         <button
-          class="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+          class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
           @click="$emit('export')"
         >
           <UIcon name="i-lucide-download" class="h-3.5 w-3.5" />

@@ -129,7 +129,7 @@ function formatDate(iso: string): string {
       <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
         Go Back
@@ -138,7 +138,7 @@ function formatDate(iso: string): string {
 
     <template v-if="model && !loading">
       <!-- Header -->
-      <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm">
+      <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm">
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -198,7 +198,7 @@ function formatDate(iso: string): string {
           <!-- Left column (3 cols) -->
           <div class="space-y-6 lg:col-span-3">
             <!-- Identity card -->
-            <div class="rounded-xl border border-border bg-card/50 p-5">
+            <div class="rounded-xl border bg-card/50 p-5">
               <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                 Identity
               </h2>
@@ -212,7 +212,7 @@ function formatDate(iso: string): string {
                     v-model="form.name"
                     type="text"
                     placeholder="Model display name"
-                    class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </div>
 
@@ -225,7 +225,7 @@ function formatDate(iso: string): string {
                     v-model="form.model_identifier"
                     type="text"
                     placeholder="e.g. gpt-4o, claude-4.5-sonnet"
-                    class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </div>
 
@@ -243,12 +243,12 @@ function formatDate(iso: string): string {
                     class="w-full"
                     :ui="{
                       base: 'w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-                      content: 'w-[var(--reka-popper-anchor-width)] border border-border bg-card ring-0 outline-none shadow-lg',
+                      content: 'w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg',
                       item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
                     }"
                   >
                     <button
-                      class="flex h-11 w-full items-center rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+                      class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
                     >
                       {{ providerName }}
                     </button>
@@ -256,7 +256,7 @@ function formatDate(iso: string): string {
                   <!-- Single provider — show as read-only -->
                   <div
                     v-else
-                    class="flex h-11 w-full items-center rounded-lg border border-border bg-muted/20 px-4 text-sm text-muted-foreground"
+                    class="flex h-11 w-full items-center rounded-lg border bg-muted/20 px-4 text-sm text-muted-foreground"
                   >
                     {{ providerName }}
                     <span class="ml-auto text-[10px] text-muted-foreground/60">Only compatible provider</span>
@@ -269,7 +269,7 @@ function formatDate(iso: string): string {
             </div>
 
             <!-- Inference Parameters card -->
-            <div class="rounded-xl border border-border bg-card/50 p-5">
+            <div class="rounded-xl border bg-card/50 p-5">
               <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                 Inference Parameters
               </h2>
@@ -285,7 +285,7 @@ function formatDate(iso: string): string {
           <!-- Right column (2 cols) -->
           <div class="space-y-6 lg:col-span-2">
             <!-- Metadata card -->
-            <div class="rounded-xl border border-border bg-card/50 p-5">
+            <div class="rounded-xl border bg-card/50 p-5">
               <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                 Metadata
               </h2>

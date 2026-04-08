@@ -27,7 +27,7 @@ function onCardClick(preset: Preset) {
       <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh"
       >
         Retry
@@ -39,7 +39,7 @@ function onCardClick(preset: Preset) {
       <div
         v-for="(preset, index) in presets"
         :key="preset.id"
-        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
         @click="onCardClick(preset)"
       >

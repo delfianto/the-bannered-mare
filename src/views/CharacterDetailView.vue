@@ -79,7 +79,7 @@ function startTale() {
     <UIcon name="i-lucide-alert-circle" class="h-10 w-10 text-muted-foreground/40" />
     <p class="text-sm text-muted-foreground">{{ error || "Character not found" }}</p>
     <button
-      class="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+      class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
       @click="router.push('/characters')"
     >
       Back to Library
@@ -92,7 +92,7 @@ function startTale() {
     <div class="animate-fade-in-up flex items-center justify-between">
       <div class="flex items-center gap-4">
         <button
-          class="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="router.push('/characters')"
         >
           <UIcon name="i-lucide-arrow-left" class="h-4 w-4" />
@@ -103,7 +103,7 @@ function startTale() {
         </h1>
       </div>
       <button
-        class="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         @click="router.push(`/characters/${characterId}/edit`)"
       >
         <UIcon name="i-lucide-pencil" class="h-4 w-4" />
@@ -117,7 +117,7 @@ function startTale() {
       <div class="space-y-6 lg:col-span-2">
         <!-- Character Card with Avatar -->
         <div
-          class="animate-fade-in-up overflow-hidden rounded-xl border border-border bg-card/50"
+          class="animate-fade-in-up overflow-hidden rounded-xl border bg-card/50"
           style="animation-delay: 60ms"
         >
           <!-- Avatar (full-bleed with gradient) -->
@@ -209,7 +209,7 @@ function startTale() {
       <div class="space-y-6">
         <!-- Metadata Card -->
         <div
-          class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-4"
+          class="animate-fade-in-up rounded-xl border bg-card/50 p-4"
           style="animation-delay: 120ms"
         >
           <h3 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -260,7 +260,7 @@ function startTale() {
         <!-- Post History Instructions -->
         <div
           v-if="character.post_history_instructions"
-          class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-4"
+          class="animate-fade-in-up rounded-xl border bg-card/50 p-4"
           style="animation-delay: 240ms"
         >
           <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">

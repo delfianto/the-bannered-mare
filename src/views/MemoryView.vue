@@ -195,7 +195,7 @@ function scopeBadgeClass(scope: string): string {
           </p>
         </div>
         <button
-          class="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="openCreateForm"
         >
           <UIcon name="i-lucide-plus" class="h-4 w-4" />
@@ -205,7 +205,7 @@ function scopeBadgeClass(scope: string): string {
     </div>
 
     <!-- RAG Search Section -->
-    <div class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-5" style="animation-delay: 30ms">
+    <div class="animate-fade-in-up rounded-xl border bg-card/50 p-5" style="animation-delay: 30ms">
       <h2 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
         Semantic Search
       </h2>
@@ -219,7 +219,7 @@ function scopeBadgeClass(scope: string): string {
             v-model="searchQuery"
             type="text"
             placeholder="Search across all memory sources..."
-            class="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-shadow focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_12px_var(--color-primary)/0.15]"
+            class="w-full rounded-lg border bg-background py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-shadow focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_12px_var(--color-primary)/0.15]"
             @keydown.enter="onSearch"
           />
         </div>
@@ -295,7 +295,7 @@ function scopeBadgeClass(scope: string): string {
     <!-- Inline Create/Edit Form -->
     <div
       v-if="showForm"
-      class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-6"
+      class="animate-fade-in-up rounded-xl border bg-card/50 p-6"
     >
       <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
         {{ editingId ? "Edit Entry" : "New Entry" }}
@@ -307,14 +307,14 @@ function scopeBadgeClass(scope: string): string {
             v-model="formName"
             type="text"
             placeholder="Entry name..."
-            class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
         <div>
           <label class="mb-1 block text-xs font-medium text-muted-foreground">Scope</label>
           <select
             v-model="formScope"
-            class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="global">Global</option>
             <option value="character">Character</option>
@@ -327,7 +327,7 @@ function scopeBadgeClass(scope: string): string {
             v-model="formContent"
             rows="4"
             placeholder="Entry content..."
-            class="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
         <div class="flex items-center gap-3">
@@ -338,7 +338,7 @@ function scopeBadgeClass(scope: string): string {
             {{ editingId ? "Save Changes" : "Create Entry" }}
           </button>
           <button
-            class="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             @click="cancelForm"
           >
             Cancel
@@ -357,7 +357,7 @@ function scopeBadgeClass(scope: string): string {
       <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh()"
       >
         Retry
@@ -378,7 +378,7 @@ function scopeBadgeClass(scope: string): string {
       <div
         v-for="(entry, index) in filteredEntries"
         :key="entry.id"
-        class="group relative flex animate-fade-in-up flex-col rounded-xl border border-border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
       >
         <!-- Header -->

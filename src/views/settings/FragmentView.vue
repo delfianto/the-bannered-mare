@@ -116,7 +116,7 @@ function formatDate(iso: string): string {
       <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
         Go Back
@@ -126,7 +126,7 @@ function formatDate(iso: string): string {
     <template v-if="fragment && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
@@ -185,7 +185,7 @@ function formatDate(iso: string): string {
       <div class="flex-1 overflow-y-auto p-6">
         <div class="mx-auto max-w-3xl space-y-6">
           <!-- Basic Info card -->
-          <div class="rounded-xl border border-border bg-card/50 p-5">
+          <div class="rounded-xl border bg-card/50 p-5">
             <h2
               class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
             >
@@ -203,7 +203,7 @@ function formatDate(iso: string): string {
                   v-model="form.name"
                   type="text"
                   placeholder="Fragment name"
-                  class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </div>
 
@@ -218,7 +218,7 @@ function formatDate(iso: string): string {
                   v-model="form.description"
                   rows="3"
                   placeholder="Fragment description"
-                  class="w-full rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </div>
 
@@ -238,12 +238,12 @@ function formatDate(iso: string): string {
                   :ui="{
                     base: 'w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent',
                     content:
-                      'w-[var(--reka-popper-anchor-width)] border border-border bg-card ring-0 outline-none shadow-lg',
+                      'w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg',
                     item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
                   }"
                 >
                   <button
-                    class="flex h-11 w-full items-center rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+                    class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
                   >
                     {{
                       fragmentTypeOptions.find((o) => o.value === form.fragment_type)?.label ||
@@ -280,7 +280,7 @@ function formatDate(iso: string): string {
           </div>
 
           <!-- Content card -->
-          <div class="rounded-xl border border-border bg-card/50 p-5">
+          <div class="rounded-xl border bg-card/50 p-5">
             <h2
               class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
             >
@@ -290,7 +290,7 @@ function formatDate(iso: string): string {
               v-model="form.content"
               rows="8"
               placeholder="Jinja2 template content..."
-              class="min-h-[200px] w-full rounded-lg border border-border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+              class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
             <p class="mt-2 text-[11px] text-muted-foreground/60">
               Jinja2 template content injected into prompt templates

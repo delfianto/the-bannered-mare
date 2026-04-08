@@ -31,7 +31,7 @@ function handleKeyDown(e: KeyboardEvent) {
 <template>
   <div class="space-y-3">
     <div
-      class="flex min-h-[44px] flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 p-3 transition-all focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="flex min-h-[44px] flex-wrap items-center gap-2 rounded-lg border bg-muted/40 p-3 transition-all focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
     >
       <span
         v-for="tag in tags"
@@ -61,7 +61,7 @@ function handleKeyDown(e: KeyboardEvent) {
         v-for="s in availableSuggestions"
         :key="s"
         type="button"
-        class="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+        class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
         @click="emit('add', s)"
       >
         <UIcon name="i-lucide-plus" class="h-3 w-3" />

@@ -43,11 +43,11 @@ function avatarSrc(chat: Chat): string {
 </script>
 
 <template>
-  <div class="flex h-full w-[300px] min-w-[300px] flex-col border-r border-border bg-secondary">
+  <div class="flex h-full w-[300px] min-w-[300px] flex-col border-r bg-secondary">
     <!-- Search -->
     <div class="px-3 pb-3 pt-4">
       <div
-        class="flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2"
+        class="flex items-center gap-2 rounded-lg border bg-background/60 px-3 py-2"
       >
         <UIcon name="i-lucide-search" class="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
         <input

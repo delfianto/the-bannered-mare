@@ -137,7 +137,7 @@ const userActions = [
         :class="[
           isUser
             ? 'rounded-tr-md border border-primary/20 bg-primary/10'
-            : 'rounded-tl-md border border-border bg-muted',
+            : 'rounded-tl-md border bg-muted',
           hovered
             ? isUser
               ? 'shadow-[0_4px_20px_var(--color-primary)/0.12]'
@@ -149,7 +149,7 @@ const userActions = [
         <template v-if="isEditing">
           <textarea
             v-model="editContent"
-            class="w-full resize-none rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm leading-relaxed text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/30"
+            class="w-full resize-none rounded-lg border bg-muted/40 px-3 py-2 text-sm leading-relaxed text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/30"
             rows="4"
             autofocus
             @keydown="handleEditKeydown"

@@ -26,7 +26,7 @@ function isActive(to: string) {
 
 <template>
   <aside
-    class="hidden h-screen flex-col border-r border-border bg-secondary overflow-hidden lg:flex transition-[width,min-width] duration-300 ease-in-out"
+    class="hidden h-screen flex-col border-r bg-secondary overflow-hidden lg:flex transition-[width,min-width] duration-300 ease-in-out"
     :class="collapsed ? 'w-[68px] min-w-[68px]' : 'w-[260px] min-w-[260px]'"
   >
     <!-- Brand Mark -->
@@ -164,7 +164,7 @@ function isActive(to: string) {
     </div>
 
     <!-- Footer: Settings + Theme Toggle -->
-    <div class="border-t border-border px-2 py-3 space-y-0.5">
+    <div class="border-t px-2 py-3 space-y-0.5">
       <UTooltip
         text="Settings"
         :content="{ side: 'right', sideOffset: 8 }"

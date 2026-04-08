@@ -53,7 +53,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
     </div>
 
     <!-- Greeting Preview -->
-    <div class="space-y-2 rounded-xl border border-border bg-card p-4">
+    <div class="space-y-2 rounded-xl border bg-card p-4">
       <div class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
         <UIcon name="i-lucide-message-circle" class="h-3 w-3" />
         Greeting Preview
@@ -65,7 +65,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
     </div>
 
     <!-- Completeness -->
-    <div class="rounded-xl border border-border bg-card p-4">
+    <div class="rounded-xl border bg-card p-4">
       <div class="flex items-center gap-3">
         <svg width="44" height="44" class="-rotate-90 flex-shrink-0">
           <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3" />

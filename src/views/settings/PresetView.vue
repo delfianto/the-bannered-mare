@@ -143,7 +143,7 @@ function formatDate(iso: string): string {
       <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
         Go Back
@@ -153,7 +153,7 @@ function formatDate(iso: string): string {
     <template v-if="preset && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
@@ -214,7 +214,7 @@ function formatDate(iso: string): string {
           <!-- Left column (3 cols) -->
           <div class="space-y-6 lg:col-span-3">
             <!-- Basic Info card -->
-            <div class="rounded-xl border border-border bg-card/50 p-5">
+            <div class="rounded-xl border bg-card/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >
@@ -232,7 +232,7 @@ function formatDate(iso: string): string {
                     v-model="form.name"
                     type="text"
                     placeholder="Preset name"
-                    class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </div>
 
@@ -247,7 +247,7 @@ function formatDate(iso: string): string {
                     v-model="form.description"
                     rows="3"
                     placeholder="Preset description"
-                    class="w-full rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </div>
 
@@ -278,7 +278,7 @@ function formatDate(iso: string): string {
             </div>
 
             <!-- Parameters card -->
-            <div class="rounded-xl border border-border bg-card/50 p-5">
+            <div class="rounded-xl border bg-card/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >
@@ -295,7 +295,7 @@ function formatDate(iso: string): string {
                     v-model="param.key"
                     type="text"
                     placeholder="parameter_name"
-                    class="h-11 w-[200px] shrink-0 rounded-lg border border-border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-[200px] shrink-0 rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                   <!-- Parameter value -->
                   <input
@@ -303,7 +303,7 @@ function formatDate(iso: string): string {
                     :type="isNumericValue(param.value) ? 'number' : 'text'"
                     :step="isNumericValue(param.value) ? 'any' : undefined"
                     placeholder="value"
-                    class="h-11 flex-1 rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 flex-1 rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                   <!-- Remove button -->
                   <button
@@ -315,7 +315,7 @@ function formatDate(iso: string): string {
                 </div>
               </div>
               <button
-                class="mt-3 flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                class="mt-3 flex items-center gap-2 rounded-lg border border-dashed px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 @click="addParameter"
               >
                 <UIcon name="i-lucide-plus" class="h-4 w-4" />
@@ -327,7 +327,7 @@ function formatDate(iso: string): string {
           <!-- Right column (2 cols) -->
           <div class="space-y-6 lg:col-span-2">
             <!-- Metadata card -->
-            <div class="rounded-xl border border-border bg-card/50 p-5">
+            <div class="rounded-xl border bg-card/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >
@@ -356,7 +356,7 @@ function formatDate(iso: string): string {
                 <!-- Set as Default button -->
                 <button
                   v-if="!preset.is_default"
-                  class="flex w-full items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                  class="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
                   :disabled="saving"
                   @click="handleSetDefault"
                 >

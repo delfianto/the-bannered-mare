@@ -22,7 +22,7 @@ defineEmits<{
     </div>
     <div class="flex items-center gap-2">
       <button
-        class="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
         @click="$emit('import')"
       >
         <UIcon name="i-lucide-download" class="h-4 w-4" />

@@ -18,7 +18,7 @@ const tabs = [
 </script>
 
 <template>
-  <div class="flex-shrink-0 border-b border-border bg-background/60">
+  <div class="flex-shrink-0 border-b bg-background/60">
     <div class="flex items-center gap-1 px-8">
       <div class="flex items-center gap-1">
         <button

@@ -54,7 +54,7 @@ function formatUrl(url: string | null): string {
       <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh"
       >
         Retry
@@ -66,7 +66,7 @@ function formatUrl(url: string | null): string {
       <div
         v-for="(provider, index) in sortedProviders"
         :key="provider.id"
-        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
         @click="router.push(`/settings/providers/${provider.id}`)"
       >

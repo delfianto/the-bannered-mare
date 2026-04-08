@@ -32,7 +32,7 @@ const dialoguesOpen = ref(true);
         :value="data.description"
         placeholder="Elara Moonwhisper is a half-elf arcanist who has dedicated her considerable lifespan to preserving the knowledge of the Sunken Library..."
         rows="6"
-        class="w-full resize-y rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'description', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -42,7 +42,7 @@ const dialoguesOpen = ref(true);
         :value="data.personality"
         placeholder="Intellectual and warm, with a dry wit. Treats books like old friends and adventurers like puzzles."
         rows="3"
-        class="w-full resize-y rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'personality', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -52,7 +52,7 @@ const dialoguesOpen = ref(true);
         :value="data.greeting"
         :placeholder="'*The torchlight flickers against the damp stone walls.* &quot;These wards were placed here centuries ago...&quot;'"
         rows="4"
-        class="w-full resize-y rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'greeting', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -65,7 +65,7 @@ const dialoguesOpen = ref(true);
     <div>
       <button
         type="button"
-        class="flex w-full items-center gap-2 border-b border-border py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
+        class="flex w-full items-center gap-2 border-b py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
         @click="dialoguesOpen = !dialoguesOpen"
       >
         <UIcon name="i-lucide-chevron-right" class="h-4 w-4 transition-transform" :class="dialoguesOpen ? 'rotate-90' : ''" />
@@ -87,7 +87,7 @@ const dialoguesOpen = ref(true);
 
         <button
           type="button"
-          class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+          class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           @click="emit('addDialogue')"
         >
           <UIcon name="i-lucide-plus" class="h-4 w-4" />

@@ -77,7 +77,7 @@ function removeKeyword(kw: string) {
     <div v-if="expanded" class="space-y-3 px-4 pb-4">
       <div class="space-y-1.5">
         <label class="text-xs font-medium text-muted-foreground">Keywords</label>
-        <div class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border border-border bg-background p-2">
+        <div class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border bg-background p-2">
           <span
             v-for="kw in entry.keywords"
             :key="kw"
@@ -106,7 +106,7 @@ function removeKeyword(kw: string) {
           :value="entry.content"
           placeholder="The Sunken Library was once the greatest repository of arcane knowledge..."
           rows="3"
-          class="w-full resize-y rounded-lg border border-border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+          class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
           @input="emit('update', entry.id, { content: ($event.target as HTMLTextAreaElement).value })"
         />
       </div>

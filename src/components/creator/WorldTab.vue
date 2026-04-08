@@ -47,7 +47,7 @@ function handleImport(e: Event) {
         :value="data.scenario"
         placeholder="You have descended into the ruins beneath the coastal city of Thornhaven, following rumors of the legendary Sunken Library..."
         rows="4"
-        class="w-full resize-y rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'scenario', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -56,7 +56,7 @@ function handleImport(e: Event) {
     <div>
       <button
         type="button"
-        class="flex w-full items-center gap-2 border-b border-border py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
+        class="flex w-full items-center gap-2 border-b py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
         @click="lorebookOpen = !lorebookOpen"
       >
         <UIcon name="i-lucide-chevron-right" class="h-4 w-4 transition-transform" :class="lorebookOpen ? 'rotate-90' : ''" />
@@ -79,7 +79,7 @@ function handleImport(e: Event) {
 
         <button
           type="button"
-          class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+          class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           @click="emit('addLorebook')"
         >
           <UIcon name="i-lucide-plus" class="h-4 w-4" />
@@ -97,7 +97,7 @@ function handleImport(e: Event) {
     <div class="grid grid-cols-2 gap-3">
       <button
         type="button"
-        class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
+        class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
         @click="importRef?.click()"
       >
         <UIcon name="i-lucide-upload" class="h-5 w-5 text-muted-foreground" />
@@ -108,7 +108,7 @@ function handleImport(e: Event) {
 
       <button
         type="button"
-        class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
+        class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
         @click="emit('export')"
       >
         <UIcon name="i-lucide-download" class="h-5 w-5 text-muted-foreground" />

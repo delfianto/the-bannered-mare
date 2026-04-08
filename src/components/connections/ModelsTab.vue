@@ -94,12 +94,12 @@ const filteredModels = computed(() => models.value);
         :search-input="false"
         :ui="{
           base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-          content: 'border border-border bg-card ring-0 outline-none shadow-lg',
+          content: 'border bg-card ring-0 outline-none shadow-lg',
           item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
         }"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 text-sm text-muted-foreground outline-none transition-all hover:border-muted-foreground/30"
+          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground outline-none transition-all hover:border-muted-foreground/30"
         >
           <UIcon name="i-lucide-server" class="h-3.5 w-3.5" />
           {{ providerLabel }}
@@ -115,13 +115,13 @@ const filteredModels = computed(() => models.value);
         disabled
         :ui="{
           base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-          content: 'border border-border bg-card ring-0 outline-none shadow-lg',
+          content: 'border bg-card ring-0 outline-none shadow-lg',
           item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
         }"
       >
         <button
           disabled
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 text-sm text-muted-foreground/50 outline-none cursor-not-allowed"
+          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground/50 outline-none cursor-not-allowed"
         >
           <UIcon name="i-lucide-layers" class="h-3.5 w-3.5" />
           All Families
@@ -153,7 +153,7 @@ const filteredModels = computed(() => models.value);
         <div
           v-for="(model, index) in filteredModels"
           :key="model.id"
-          class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+          class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
           :style="{ animationDelay: `${index * 30}ms` }"
           @click="router.push(`/settings/models/${model.id}`)"
         >

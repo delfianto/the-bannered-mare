@@ -44,7 +44,7 @@ function handleBlur(e: FocusEvent) {
       <input
         :value="open ? filter : modelValue"
         :placeholder="placeholder"
-        class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 pr-10 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-11 w-full rounded-lg border bg-muted/40 px-4 pr-10 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="filter = ($event.target as HTMLInputElement).value; open = true"
         @focus="open = true"
       />
@@ -63,7 +63,7 @@ function handleBlur(e: FocusEvent) {
     </div>
     <div
       v-if="open && filtered.length > 0"
-      class="absolute z-30 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-lg border border-border bg-card shadow-lg"
+      class="absolute z-30 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg"
     >
       <button
         v-for="opt in filtered"

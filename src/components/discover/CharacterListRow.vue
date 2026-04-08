@@ -34,7 +34,7 @@ function timeAgo(dateStr: string): string {
 
 <template>
   <div
-    class="group flex items-center gap-4 rounded-xl border border-border bg-card/50 px-4 py-3 transition-all duration-200 animate-fade-in-up hover:bg-muted/40 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+    class="group flex items-center gap-4 rounded-xl border bg-card/50 px-4 py-3 transition-all duration-200 animate-fade-in-up hover:bg-muted/40 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
     :style="{ animationDelay: `${index * 40}ms` }"
     @click="selectMode ? $emit('select', character.id) : undefined"
   >

@@ -37,7 +37,7 @@ function toggleTyping() {
       <h3 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
         Theme
       </h3>
-      <div class="rounded-xl border border-border bg-card/50 p-5">
+      <div class="rounded-xl border bg-card/50 p-5">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <UIcon
@@ -68,7 +68,7 @@ function toggleTyping() {
       <h3 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
         Behavior
       </h3>
-      <div class="rounded-xl border border-border bg-card/50 p-5 space-y-5">
+      <div class="rounded-xl border bg-card/50 p-5 space-y-5">
         <!-- Stream Responses -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">

@@ -125,7 +125,7 @@ const sections = computed(() => {
       </div>
       <button
         v-if="overrideCount > 0"
-        class="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         @click="resetToDefaults"
       >
         <UIcon name="i-lucide-rotate-ccw" class="h-3 w-3" />
