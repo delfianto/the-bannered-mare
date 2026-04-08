@@ -70,21 +70,6 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Divider -->
         <div class="h-px bg-border" />
 
-        <!-- Language -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-languages" class="h-5 w-5 text-primary" />
-            <div>
-              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.language') }}</p>
-              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.languageDescription') }}</p>
-            </div>
-          </div>
-          <span class="text-sm text-muted-foreground">English</span>
-        </div>
-
-        <!-- Divider -->
-        <div class="h-px bg-border" />
-
         <!-- Show Typing Indicator -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -107,6 +92,21 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               :class="typingIndicator ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
             />
           </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="h-px bg-border" />
+
+        <!-- Language -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-languages" class="h-5 w-5 text-primary" />
+            <div>
+              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.language') }}</p>
+              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.languageDescription') }}</p>
+            </div>
+          </div>
+          <span class="text-sm text-muted-foreground">English</span>
         </div>
       </div>
     </section>
