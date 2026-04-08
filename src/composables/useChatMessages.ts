@@ -229,6 +229,59 @@ export function useChatMessages(
     }
   };
 
+  const editMessage = async (messageId: string, newContent: string) => {
+    const chatId = getChatId();
+    if (!chatId) return;
+    try {
+      const response = await fetch(`/api/chats/${chatId}/messages/${messageId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newContent }),
+      });
+      if (!response.ok) throw new Error("Failed to edit");
+      // Optimistic update
+      const idx = messages.value.findIndex((m) => m.id === messageId);
+      if (idx !== -1) {
+        messages.value[idx] = { ...messages.value[idx], content: newContent };
+      }
+    } catch (err) {
+      console.error("Error editing message:", err);
+      throw err;
+    }
+  };
+
+  const fetchAlternatives = async (messageId: string): Promise<any[]> => {
+    const chatId = getChatId();
+    if (!chatId) return [];
+    try {
+      const response = await fetch(`/api/chats/${chatId}/messages/${messageId}/alternatives`);
+      if (!response.ok) return [];
+      return await response.json();
+    } catch {
+      return [];
+    }
+  };
+
+  const activateAlternative = async (messageId: string, alternativeId: string) => {
+    const chatId = getChatId();
+    if (!chatId) return;
+    try {
+      const response = await fetch(
+        `/api/chats/${chatId}/messages/${messageId}/alternatives/${alternativeId}/activate`,
+        { method: "PUT" },
+      );
+      if (!response.ok) throw new Error("Failed to activate");
+      const updated = await response.json();
+      // Update message content locally
+      const idx = messages.value.findIndex((m) => m.id === messageId);
+      if (idx !== -1) {
+        messages.value[idx] = { ...messages.value[idx], content: updated.content, active_index: updated.active_index };
+      }
+    } catch (err) {
+      console.error("Error activating alternative:", err);
+    }
+  };
+
   watch(
     () => getChatId(),
     (newChatId) => {
@@ -256,5 +309,8 @@ export function useChatMessages(
     loadMore,
     refresh,
     sendMessage,
+    editMessage,
+    fetchAlternatives,
+    activateAlternative,
   };
 }

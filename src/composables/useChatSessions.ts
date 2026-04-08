@@ -74,6 +74,36 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
     loadSessions();
   };
 
+  const updateChat = async (chatId: string, title: string) => {
+    try {
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+      if (!response.ok) throw new Error("Failed to rename");
+      const updated = await response.json();
+      // Update in local list
+      const idx = chatSessions.value.findIndex((c) => c.id === chatId);
+      if (idx !== -1) chatSessions.value[idx] = updated;
+      return updated;
+    } catch (err) {
+      console.error("Error updating chat:", err);
+      throw err;
+    }
+  };
+
+  const deleteChat = async (chatId: string) => {
+    try {
+      const response = await fetch(`/api/chats/${chatId}`, { method: "DELETE" });
+      if (!response.ok && response.status !== 204) throw new Error("Failed to delete");
+      chatSessions.value = chatSessions.value.filter((c) => c.id !== chatId);
+    } catch (err) {
+      console.error("Error deleting chat:", err);
+      throw err;
+    }
+  };
+
   onMounted(() => {
     loadSessions();
   });
@@ -85,5 +115,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
     error,
     loadMore,
     refresh,
+    updateChat,
+    deleteChat,
   };
 }

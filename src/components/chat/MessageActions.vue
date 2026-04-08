@@ -4,6 +4,10 @@ defineProps<{
   visible: boolean;
 }>();
 
+const emit = defineEmits<{
+  action: [type: string];
+}>();
+
 const characterActions = [
   { icon: "i-lucide-rotate-ccw", label: "Regenerate", key: "regen" },
   { icon: "i-lucide-copy", label: "Copy", key: "copy" },
@@ -29,6 +33,7 @@ const userActions = [
       :key="action.key"
       :title="action.label"
       class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+      @click="emit('action', action.key)"
     >
       <UIcon :name="action.icon" class="h-3.5 w-3.5" />
     </button>

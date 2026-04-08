@@ -20,6 +20,8 @@ const activeSessionId = ref((route.params.chatId as string) || "");
 const {
   chatSessions,
   loading: sessionsLoading,
+  updateChat,
+  deleteChat,
 } = useChatSessions({ pageSize: 30 });
 
 const {
@@ -29,6 +31,9 @@ const {
   hasMore,
   sendMessage,
   loadMore,
+  editMessage,
+  fetchAlternatives,
+  activateAlternative,
 } = useChatMessages(
   () => activeSessionId.value || null,
   { pageSize: 30 },
@@ -100,6 +105,79 @@ watch(
     if (id && typeof id === "string") activeSessionId.value = id;
   },
 );
+
+// --- Chat Rename & Delete ---
+
+async function handleRename(newTitle: string) {
+  if (!activeSessionId.value) return;
+  await updateChat(activeSessionId.value, newTitle);
+}
+
+async function handleDeleteChat() {
+  if (!activeSessionId.value) return;
+  const deletedId = activeSessionId.value;
+  await deleteChat(deletedId);
+  // Navigate to first remaining session or empty state
+  const remaining = chatSessions.value;
+  if (remaining.length > 0) {
+    activeSessionId.value = remaining[0].id;
+    router.replace({ name: "chat", params: { chatId: remaining[0].id } });
+  } else {
+    activeSessionId.value = "";
+    router.replace({ name: "chats" });
+  }
+}
+
+// --- Message Editing ---
+
+async function handleEditMessage(messageId: string, content: string) {
+  await editMessage(messageId, content);
+}
+
+// --- Alternatives / Swipes ---
+
+const alternativesCache = ref(new Map<string, any[]>());
+
+function getAlternativeCount(messageId: string): number | undefined {
+  const alts = alternativesCache.value.get(messageId);
+  return alts ? alts.length : undefined;
+}
+
+function getCurrentAltIndex(messageId: string): number | undefined {
+  const msg = messages.value.find((m) => m.id === messageId);
+  if (!msg) return undefined;
+  return msg.active_index ?? 0;
+}
+
+async function handleSwipe(messageId: string, direction: "left" | "right") {
+  // Lazy-load alternatives if not cached
+  if (!alternativesCache.value.has(messageId)) {
+    const alts = await fetchAlternatives(messageId);
+    if (alts.length === 0) return;
+    alternativesCache.value.set(messageId, alts);
+    // Force reactivity by reassigning
+    alternativesCache.value = new Map(alternativesCache.value);
+  }
+
+  const alts = alternativesCache.value.get(messageId);
+  if (!alts || alts.length === 0) return;
+
+  const msg = messages.value.find((m) => m.id === messageId);
+  if (!msg) return;
+
+  const currentIdx = msg.active_index ?? 0;
+  let newIdx: number;
+
+  if (direction === "left") {
+    newIdx = currentIdx > 0 ? currentIdx - 1 : alts.length - 1;
+  } else {
+    newIdx = currentIdx < alts.length - 1 ? currentIdx + 1 : 0;
+  }
+
+  if (newIdx !== currentIdx && alts[newIdx]) {
+    await activateAlternative(messageId, alts[newIdx].id);
+  }
+}
 </script>
 
 <template>
@@ -118,6 +196,8 @@ watch(
         :character="activeSession.character"
         :session-title="activeSession.title || 'Untitled Tale'"
         @back="router.push({ name: 'chats' })"
+        @rename="handleRename"
+        @delete="handleDeleteChat"
       />
 
       <!-- Message List -->
@@ -162,6 +242,10 @@ watch(
             :index="i"
             :character-name="msg.role === 'assistant' ? activeSession.character.name : undefined"
             :character-avatar="msg.role === 'assistant' ? characterAvatar : undefined"
+            :alternative-count="getAlternativeCount(msg.id)"
+            :current-alt-index="getCurrentAltIndex(msg.id)"
+            @edit="handleEditMessage"
+            @swipe="handleSwipe"
           />
 
           <!-- Mood Chips -->
