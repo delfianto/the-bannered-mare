@@ -40,6 +40,7 @@
 
 /* ── Candlekeep Light Theme Tokens ── */
 :root {
+  color-scheme: light;
   --background: #FFFFFF;
   --foreground: #2C2418;
   --card: #FFFFFF;
@@ -68,6 +69,7 @@
 
 /* ── Candlekeep Dark Theme Tokens ── */
 .dark {
+  color-scheme: dark;
   --background: #0F0D0B;
   --foreground: #E8DFD0;
   --card: #1E1B17;
@@ -165,4 +167,25 @@
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ── Focus: visible keyboard focus ring on all buttons ── */
+@layer base {
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Accessibility: respect reduced motion preference ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

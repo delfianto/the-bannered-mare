@@ -94,6 +94,7 @@ onUnmounted(() => {
     class="z-10 flex h-[62px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-5 backdrop-blur-sm"
   >
     <button
+      aria-label="Go back"
       class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       @click="emit('back')"
     >
@@ -137,6 +138,7 @@ onUnmounted(() => {
 
     <div ref="menuRef" class="relative">
       <button
+        aria-label="Session menu"
         class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         @click="toggleMenu"
       >

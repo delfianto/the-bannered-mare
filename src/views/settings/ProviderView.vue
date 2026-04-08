@@ -101,6 +101,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Back to providers"
             @click="router.push({ path: '/connections', query: { tab: 'providers' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -152,37 +153,37 @@ function formatDate(iso: string): string {
 
             <div class="space-y-4">
               <!-- Name -->
-              <div>
-                <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              <label class="block">
+                <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                   Name
-                </label>
+                </span>
                 <input
                   v-model="form.name"
                   type="text"
                   placeholder="Provider name"
                   class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
-              </div>
+              </label>
 
               <!-- Base URL -->
-              <div>
-                <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              <label class="block">
+                <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                   Base URL
-                </label>
+                </span>
                 <input
                   v-model="form.base_url"
                   type="text"
                   placeholder="https://api.example.com/v1"
                   class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
-              </div>
+              </label>
 
               <!-- Enabled toggle -->
               <div class="flex items-center justify-between">
                 <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                   Enabled
                 </label>
-                <button @click="toggleEnabled" class="cursor-pointer">
+                <button @click="toggleEnabled" role="switch" :aria-checked="form.enabled" aria-label="Enabled" class="cursor-pointer">
                   <div
                     class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
                     :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"

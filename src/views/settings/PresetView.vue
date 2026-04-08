@@ -158,6 +158,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Back to presets"
             @click="router.push({ path: '/connections', query: { tab: 'presets' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -222,34 +223,34 @@ function formatDate(iso: string): string {
               </h2>
               <div class="space-y-4">
                 <!-- Name -->
-                <div>
-                  <label
+                <label class="block">
+                  <span
                     class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                   >
                     Name
-                  </label>
+                  </span>
                   <input
                     v-model="form.name"
                     type="text"
                     placeholder="Preset name"
                     class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
-                </div>
+                </label>
 
                 <!-- Description -->
-                <div>
-                  <label
+                <label class="block">
+                  <span
                     class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                   >
                     Description
-                  </label>
+                  </span>
                   <textarea
                     v-model="form.description"
                     rows="3"
                     placeholder="Preset description"
                     class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
-                </div>
+                </label>
 
                 <!-- Is Default toggle -->
                 <div class="flex items-center justify-between">
@@ -258,7 +259,7 @@ function formatDate(iso: string): string {
                   >
                     Default Preset
                   </label>
-                  <button @click="toggleDefault" class="cursor-pointer">
+                  <button @click="toggleDefault" role="switch" :aria-checked="form.is_default" aria-label="Default preset" class="cursor-pointer">
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                       :class="form.is_default ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -308,6 +309,7 @@ function formatDate(iso: string): string {
                   <!-- Remove button -->
                   <button
                     class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Remove parameter"
                     @click="removeParameter(index)"
                   >
                     <UIcon name="i-lucide-x" class="h-4 w-4" />

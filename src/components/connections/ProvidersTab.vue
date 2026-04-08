@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 import { useProviders } from "@/composables/useProviders";
 
 import anthropicIcon from "@/assets/icons/anthropic.svg";
@@ -11,7 +10,6 @@ import openrouterIcon from "@/assets/icons/openrouter.svg";
 import xaiIcon from "@/assets/icons/xai.svg";
 import otherIcon from "@/assets/icons/other.svg";
 
-const router = useRouter();
 const { providers, loading, error, refresh } = useProviders();
 
 const sortedProviders = computed(() =>
@@ -63,12 +61,12 @@ function formatUrl(url: string | null): string {
 
     <!-- Grid -->
     <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <div
+      <RouterLink
         v-for="(provider, index) in sortedProviders"
         :key="provider.id"
+        :to="`/settings/providers/${provider.id}`"
         class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
-        @click="router.push(`/settings/providers/${provider.id}`)"
       >
         <!-- Header: icon + name + status -->
         <div class="flex items-start justify-between gap-2">
@@ -113,7 +111,7 @@ function formatUrl(url: string | null): string {
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
           Edit
         </div>
-      </div>
+      </RouterLink>
     </div>
   </div>
 </template>

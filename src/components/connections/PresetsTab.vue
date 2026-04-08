@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
 import { usePresets } from "@/composables/usePresets";
 import type { Preset } from "@/composables/usePresets";
 
-const router = useRouter();
 const { presets, loading, error, refresh } = usePresets();
 
 function parameterCount(preset: Preset): number {
   return preset.parameters ? Object.keys(preset.parameters).length : 0;
-}
-
-function onCardClick(preset: Preset) {
-  router.push(`/settings/presets/${preset.id}`);
 }
 </script>
 
@@ -36,12 +30,12 @@ function onCardClick(preset: Preset) {
 
     <!-- Grid -->
     <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <div
+      <RouterLink
         v-for="(preset, index) in presets"
         :key="preset.id"
+        :to="`/settings/presets/${preset.id}`"
         class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
-        @click="onCardClick(preset)"
       >
         <!-- Header -->
         <div class="mb-2 flex items-start justify-between gap-2">
@@ -86,7 +80,7 @@ function onCardClick(preset: Preset) {
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
           Edit
         </div>
-      </div>
+      </RouterLink>
     </div>
   </div>
 </template>

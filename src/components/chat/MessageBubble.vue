@@ -107,6 +107,7 @@ const userActions = [
       <!-- Swipe Left Arrow (assistant only) -->
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
+        aria-label="Previous alternative"
         class="absolute -left-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'left')"
       >
@@ -116,6 +117,7 @@ const userActions = [
       <!-- Swipe Right Arrow (assistant only) -->
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
+        aria-label="Next alternative"
         class="absolute -right-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'right')"
       >

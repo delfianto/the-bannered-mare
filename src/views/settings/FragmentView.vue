@@ -131,6 +131,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Back to fragments"
             @click="router.push({ path: '/connections', query: { tab: 'fragments' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -193,34 +194,34 @@ function formatDate(iso: string): string {
             </h2>
             <div class="space-y-4">
               <!-- Name -->
-              <div>
-                <label
+              <label class="block">
+                <span
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
                   Name
-                </label>
+                </span>
                 <input
                   v-model="form.name"
                   type="text"
                   placeholder="Fragment name"
                   class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
-              </div>
+              </label>
 
               <!-- Description -->
-              <div>
-                <label
+              <label class="block">
+                <span
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
                   Description
-                </label>
+                </span>
                 <textarea
                   v-model="form.description"
                   rows="3"
                   placeholder="Fragment description"
                   class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
-              </div>
+              </label>
 
               <!-- Fragment Type -->
               <div>
@@ -260,7 +261,7 @@ function formatDate(iso: string): string {
                 >
                   Global
                 </label>
-                <button @click="toggleGlobal" class="cursor-pointer">
+                <button @click="toggleGlobal" role="switch" :aria-checked="form.is_global" aria-label="Global fragment" class="cursor-pointer">
                   <div
                     class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                     :class="form.is_global ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -289,7 +290,7 @@ function formatDate(iso: string): string {
             <textarea
               v-model="form.content"
               rows="8"
-              placeholder="Jinja2 template content..."
+              placeholder="Jinja2 template content\u2026"
               class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
             <p class="mt-2 text-[11px] text-muted-foreground/60">

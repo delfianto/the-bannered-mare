@@ -203,24 +203,24 @@ async function setDefault(personaId: string) {
         {{ editingId ? "Edit Persona" : "New Persona" }}
       </h4>
       <div class="space-y-4">
-        <div>
-          <label class="mb-1 block text-xs font-medium text-muted-foreground">Name</label>
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">Name</span>
           <input
             v-model="formName"
             type="text"
-            placeholder="Persona name..."
+            placeholder="Persona name\u2026"
             class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-medium text-muted-foreground">Description</label>
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">Description</span>
           <textarea
             v-model="formDescription"
             rows="3"
-            placeholder="Describe this persona for RP context..."
+            placeholder="Describe this persona for RP context\u2026"
             class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
-        </div>
+        </label>
         <div class="flex items-center gap-3">
           <label class="flex items-center gap-2 text-sm text-foreground">
             <input
@@ -358,6 +358,7 @@ async function setDefault(personaId: string) {
                 : 'text-muted-foreground hover:bg-accent hover:text-foreground'
             "
             :title="pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'"
+            :aria-label="pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'"
             @click.stop="onDeleteClick(persona.id)"
             @mouseleave="cancelDelete"
           >

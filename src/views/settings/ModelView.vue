@@ -142,6 +142,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Back to models"
             @click="router.push({ path: '/connections', query: { tab: 'models' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -204,36 +205,36 @@ function formatDate(iso: string): string {
               </h2>
               <div class="space-y-4">
                 <!-- Name -->
-                <div>
-                  <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                <label class="block">
+                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Name
-                  </label>
+                  </span>
                   <input
                     v-model="form.name"
                     type="text"
                     placeholder="Model display name"
                     class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
-                </div>
+                </label>
 
                 <!-- Model Identifier -->
-                <div>
-                  <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                <label class="block">
+                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Model Identifier
-                  </label>
+                  </span>
                   <input
                     v-model="form.model_identifier"
                     type="text"
                     placeholder="e.g. gpt-4o, claude-4.5-sonnet"
                     class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
-                </div>
+                </label>
 
                 <!-- Provider selector -->
-                <div>
-                  <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                <label class="block">
+                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Provider
-                  </label>
+                  </span>
                   <USelectMenu
                     v-if="allowedProviders.length > 1"
                     v-model="form.provider_id"
@@ -261,7 +262,7 @@ function formatDate(iso: string): string {
                     {{ providerName }}
                     <span class="ml-auto text-[10px] text-muted-foreground/60">Only compatible provider</span>
                   </div>
-                </div>
+                </label>
 
 
 
@@ -293,7 +294,7 @@ function formatDate(iso: string): string {
                 <!-- Enabled toggle -->
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">Enabled</span>
-                  <button @click="toggleEnabled" class="cursor-pointer">
+                  <button @click="toggleEnabled" role="switch" :aria-checked="form.enabled" aria-label="Enabled" class="cursor-pointer">
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                       :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"

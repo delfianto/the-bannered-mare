@@ -52,6 +52,9 @@ function toggleTyping() {
           <button
             class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
             :class="isDark ? 'bg-primary' : 'bg-muted-foreground/40'"
+            role="switch"
+            :aria-checked="isDark"
+            aria-label="Dark mode"
             @click="toggleTheme"
           >
             <span
@@ -81,6 +84,9 @@ function toggleTyping() {
           <button
             class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
             :class="streamResponses ? 'bg-primary' : 'bg-muted-foreground/40'"
+            role="switch"
+            :aria-checked="streamResponses"
+            aria-label="Stream responses"
             @click="toggleStream"
           >
             <span
@@ -105,6 +111,9 @@ function toggleTyping() {
           <button
             class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
             :class="typingIndicator ? 'bg-primary' : 'bg-muted-foreground/40'"
+            role="switch"
+            :aria-checked="typingIndicator"
+            aria-label="Typing indicator"
             @click="toggleTyping"
           >
             <span

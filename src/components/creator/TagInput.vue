@@ -42,6 +42,7 @@ function handleKeyDown(e: KeyboardEvent) {
         <button
           type="button"
           class="flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors hover:bg-primary/20"
+          :aria-label="'Remove tag ' + tag"
           @click="emit('remove', tag)"
         >
           <UIcon name="i-lucide-x" class="h-2.5 w-2.5" />
@@ -50,7 +51,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <input
         v-if="tags.length < maxTags"
         v-model="input"
-        :placeholder="tags.length === 0 ? 'Add tags...' : '+'"
+        :placeholder="tags.length === 0 ? 'Add tags\u2026' : '+'"
         class="min-w-[80px] flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
         @keydown="handleKeyDown"
       />

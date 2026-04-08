@@ -35,6 +35,7 @@ function isActive(to: string) {
         <button
           class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
           :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+          :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
           @click="toggleSidebar"
         >
           <UIcon name="i-lucide-flame" class="h-5 w-5 text-primary-foreground" />
@@ -191,6 +192,9 @@ function isActive(to: string) {
         <button
           class="flex w-full items-center rounded-lg py-2.5 transition-colors hover:bg-accent/50"
           :class="collapsed ? 'justify-center px-0' : 'justify-between px-3'"
+          role="switch"
+          :aria-checked="isDark"
+          aria-label="Toggle theme"
           @click="toggleTheme"
         >
           <div class="flex items-center" :class="collapsed ? '' : 'gap-2.5'">

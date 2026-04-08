@@ -53,7 +53,9 @@ function avatarSrc(chat: Chat): string {
         <input
           v-model="search"
           type="text"
-          placeholder="Search tales..."
+          placeholder="Search tales\u2026"
+          aria-label="Search tales"
+          autocomplete="off"
           class="flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
         />
       </div>

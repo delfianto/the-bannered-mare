@@ -45,7 +45,7 @@ function handleImport(e: Event) {
     <FormField label="Scenario" hint="Starting situation / context" :char-count="data.scenario.length" :char-max="2000">
       <textarea
         :value="data.scenario"
-        placeholder="You have descended into the ruins beneath the coastal city of Thornhaven, following rumors of the legendary Sunken Library..."
+        placeholder="You have descended into the ruins beneath the coastal city of Thornhaven, following rumors of the legendary Sunken Library\u2026"
         rows="4"
         class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'scenario', ($event.target as HTMLTextAreaElement).value)"

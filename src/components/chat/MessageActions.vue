@@ -32,6 +32,7 @@ const userActions = [
       v-for="action in type === 'character' ? characterActions : userActions"
       :key="action.key"
       :title="action.label"
+      :aria-label="action.label"
       class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       @click="emit('action', action.key)"
     >

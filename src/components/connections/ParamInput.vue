@@ -158,7 +158,7 @@ function updateObjectProp(key: string, val: unknown) {
 <template>
   <!-- Boolean toggle -->
   <template v-if="schemaType === 'boolean'">
-    <button @click="boolValue = !boolValue" class="cursor-pointer">
+    <button @click="boolValue = !boolValue" class="cursor-pointer" role="switch" :aria-checked="boolValue" :aria-label="paramKey">
       <div
         class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
         :class="boolValue ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -173,7 +173,7 @@ function updateObjectProp(key: string, val: unknown) {
 
   <!-- Enabled/Disabled enum as toggle -->
   <template v-else-if="isEnabledDisabledEnum">
-    <button @click="enabledDisabledValue = !enabledDisabledValue" class="cursor-pointer">
+    <button @click="enabledDisabledValue = !enabledDisabledValue" class="cursor-pointer" role="switch" :aria-checked="enabledDisabledValue" :aria-label="paramKey">
       <div
         class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
         :class="enabledDisabledValue ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -276,6 +276,7 @@ function updateObjectProp(key: string, val: unknown) {
           {{ tag }}
           <button
             class="ml-0.5 text-muted-foreground hover:text-foreground"
+            :aria-label="'Remove ' + tag"
             @click="removeTag(i)"
           >
             <UIcon name="i-lucide-x" class="h-3 w-3" />

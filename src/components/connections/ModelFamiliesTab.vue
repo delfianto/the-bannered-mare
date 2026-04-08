@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 
-const router = useRouter();
 const { families, loading, error, page, totalPages, hasMore, loadPage } = useModelFamilies();
 
 // TODO: Add order_by=name query param when backend supports it
@@ -36,12 +34,12 @@ function goToPage(pageNum: number) {
 
       <!-- Card Grid -->
       <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <div
+        <RouterLink
           v-for="(family, index) in families"
           :key="family.id"
+          :to="`/settings/model-families/${family.id}`"
           class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
           :style="{ animationDelay: `${index * 30}ms` }"
-          @click="router.push(`/settings/model-families/${family.id}`)"
         >
           <!-- Header: name + provider count -->
           <div class="flex items-start justify-between gap-2">
@@ -85,7 +83,7 @@ function goToPage(pageNum: number) {
             <UIcon name="i-lucide-pencil" class="h-3 w-3" />
             Edit
           </div>
-        </div>
+        </RouterLink>
       </div>
 
       <!-- Pagination -->

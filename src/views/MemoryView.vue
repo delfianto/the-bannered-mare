@@ -218,7 +218,9 @@ function scopeBadgeClass(scope: string): string {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search across all memory sources..."
+            placeholder="Search across all memory sources\u2026"
+            aria-label="Semantic search"
+            autocomplete="off"
             class="w-full rounded-lg border bg-background py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-shadow focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_12px_var(--color-primary)/0.15]"
             @keydown.enter="onSearch"
           />
@@ -301,17 +303,17 @@ function scopeBadgeClass(scope: string): string {
         {{ editingId ? "Edit Entry" : "New Entry" }}
       </h2>
       <div class="space-y-4">
-        <div>
-          <label class="mb-1 block text-xs font-medium text-muted-foreground">Name</label>
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">Name</span>
           <input
             v-model="formName"
             type="text"
-            placeholder="Entry name..."
+            placeholder="Entry name\u2026"
             class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-medium text-muted-foreground">Scope</label>
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">Scope</span>
           <select
             v-model="formScope"
             class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
@@ -320,16 +322,16 @@ function scopeBadgeClass(scope: string): string {
             <option value="character">Character</option>
             <option value="chat">Chat</option>
           </select>
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-medium text-muted-foreground">Content</label>
+        </label>
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">Content</span>
           <textarea
             v-model="formContent"
             rows="4"
-            placeholder="Entry content..."
+            placeholder="Entry content\u2026"
             class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
-        </div>
+        </label>
         <div class="flex items-center gap-3">
           <button
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"

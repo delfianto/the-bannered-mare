@@ -50,7 +50,9 @@ function sortLabel(value: SortOption): string {
         <input
           type="text"
           :value="search"
-          placeholder="Search characters..."
+          placeholder="Search characters\u2026"
+          aria-label="Search characters"
+          autocomplete="off"
           class="h-9 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           @input="emit('update:search', ($event.target as HTMLInputElement).value)"
           @focus="searchFocused = true"
@@ -83,6 +85,7 @@ function sortLabel(value: SortOption): string {
     <!-- View mode toggle -->
     <div class="flex h-9 items-center rounded-lg border bg-muted/40">
       <button
+        aria-label="Grid view"
         class="flex h-full items-center px-2.5 transition-colors"
         :class="viewMode === 'grid' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'"
         @click="emit('update:viewMode', 'grid')"
@@ -91,6 +94,7 @@ function sortLabel(value: SortOption): string {
       </button>
       <div class="h-4 w-px bg-border" />
       <button
+        aria-label="List view"
         class="flex h-full items-center px-2.5 transition-colors"
         :class="viewMode === 'list' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'"
         @click="emit('update:viewMode', 'list')"

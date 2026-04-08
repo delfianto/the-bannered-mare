@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
 import { usePromptFragments } from "@/composables/usePromptFragments";
-import type { PromptFragment } from "@/composables/usePromptFragments";
 
-const router = useRouter();
 const { fragments, loading, error, refresh } = usePromptFragments();
-
-function onCardClick(fragment: PromptFragment) {
-  router.push(`/settings/fragments/${fragment.id}`);
-}
 
 function typeBadgeClass(type: string): string {
   switch (type) {
@@ -45,12 +38,12 @@ function typeBadgeClass(type: string): string {
 
     <!-- Grid -->
     <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <div
+      <RouterLink
         v-for="(fragment, index) in fragments"
         :key="fragment.id"
+        :to="`/settings/fragments/${fragment.id}`"
         class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
-        @click="onCardClick(fragment)"
       >
         <!-- Header -->
         <div class="mb-2 flex items-start justify-between gap-2">
@@ -96,7 +89,7 @@ function typeBadgeClass(type: string): string {
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
           Edit
         </div>
-      </div>
+      </RouterLink>
     </div>
   </div>
 </template>

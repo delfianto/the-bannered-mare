@@ -43,6 +43,7 @@ defineEmits<{
           Delete
         </button>
         <button
+          aria-label="Cancel selection"
           class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
           @click="$emit('cancel')"
         >

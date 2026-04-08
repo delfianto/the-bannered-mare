@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
 import { useModels } from "@/composables/useModels";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
-
-const router = useRouter();
 
 const { models, loading, error, page, hasMore, totalPages, loadPage, search, filterByProvider } = useModels();
 const { providers } = useProviders();
@@ -76,7 +73,9 @@ const filteredModels = computed(() => models.value);
           <input
             type="text"
             :value="searchQuery"
-            placeholder="Search models..."
+            placeholder="Search models\u2026"
+            aria-label="Search models"
+            autocomplete="off"
             class="h-9 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
             @input="handleSearch(($event.target as HTMLInputElement).value)"
             @focus="searchFocused = true"
@@ -150,12 +149,12 @@ const filteredModels = computed(() => models.value);
 
       <!-- Card Grid -->
       <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <div
+        <RouterLink
           v-for="(model, index) in filteredModels"
           :key="model.id"
+          :to="`/settings/models/${model.id}`"
           class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
           :style="{ animationDelay: `${index * 30}ms` }"
-          @click="router.push(`/settings/models/${model.id}`)"
         >
           <!-- Header: name + status -->
           <div class="flex items-start justify-between gap-2">
@@ -192,7 +191,7 @@ const filteredModels = computed(() => models.value);
             <UIcon name="i-lucide-pencil" class="h-3 w-3" />
             Edit
           </div>
-        </div>
+        </RouterLink>
       </div>
 
       <!-- Pagination (only if no local filters active and multiple pages) -->

@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
 import { usePromptTemplates } from "@/composables/usePromptTemplates";
-import type { PromptTemplate } from "@/composables/usePromptTemplates";
 
-const router = useRouter();
 const { templates, loading, error, refresh } = usePromptTemplates();
-
-function onCardClick(template: PromptTemplate) {
-  router.push(`/settings/templates/${template.id}`);
-}
 </script>
 
 <template>
@@ -32,12 +25,12 @@ function onCardClick(template: PromptTemplate) {
 
     <!-- Grid -->
     <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <div
+      <RouterLink
         v-for="(template, index) in templates"
         :key="template.id"
+        :to="`/settings/templates/${template.id}`"
         class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
-        @click="onCardClick(template)"
       >
         <!-- Header -->
         <div class="mb-2 flex items-start justify-between gap-2">
@@ -82,7 +75,7 @@ function onCardClick(template: PromptTemplate) {
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
           Edit
         </div>
-      </div>
+      </RouterLink>
     </div>
   </div>
 </template>

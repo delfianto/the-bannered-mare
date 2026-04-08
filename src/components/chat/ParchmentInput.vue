@@ -74,6 +74,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
       <!-- Send button -->
       <button
+        aria-label="Send message"
         :disabled="!canSend || disabled"
         class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
         :class="

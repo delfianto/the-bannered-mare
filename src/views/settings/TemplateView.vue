@@ -203,6 +203,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Back to templates"
             @click="router.push({ path: '/connections', query: { tab: 'templates' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -265,37 +266,37 @@ function formatDate(iso: string): string {
               </h2>
               <div class="space-y-4">
                 <!-- Name -->
-                <div>
-                  <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                <label class="block">
+                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Name
-                  </label>
+                  </span>
                   <input
                     v-model="form.name"
                     type="text"
                     placeholder="Template name"
                     class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
-                </div>
+                </label>
 
                 <!-- Description -->
-                <div>
-                  <label class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                <label class="block">
+                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Description
-                  </label>
+                  </span>
                   <textarea
                     v-model="form.description"
                     rows="3"
                     placeholder="Template description"
                     class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
-                </div>
+                </label>
 
                 <!-- Is Default toggle -->
                 <div class="flex items-center justify-between">
                   <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
                     Default Template
                   </label>
-                  <button @click="toggleDefault" class="cursor-pointer">
+                  <button @click="toggleDefault" role="switch" :aria-checked="form.is_default" aria-label="Default template" class="cursor-pointer">
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                       :class="form.is_default ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -318,7 +319,7 @@ function formatDate(iso: string): string {
               <textarea
                 v-model="form.system_template"
                 rows="8"
-                placeholder="Jinja2 system template..."
+                placeholder="Jinja2 system template\u2026"
                 class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
               <p class="mt-2 text-[11px] text-muted-foreground/60">
@@ -341,7 +342,7 @@ function formatDate(iso: string): string {
                     <UIcon name="i-lucide-grip-vertical" class="h-4 w-4 text-muted-foreground/40" />
                     <span class="text-sm text-foreground">{{ humanize(component) }}</span>
                   </div>
-                  <button @click="toggleComponent(component)" class="cursor-pointer">
+                  <button @click="toggleComponent(component)" role="switch" :aria-checked="form.components_enabled[component]" :aria-label="component" class="cursor-pointer">
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                       :class="form.components_enabled[component] ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -392,6 +393,7 @@ function formatDate(iso: string): string {
                   </div>
                   <button
                     class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Detach fragment"
                     @click="handleDetachFragment(tf.fragment_id)"
                   >
                     <UIcon name="i-lucide-x" class="h-4 w-4" />
@@ -418,10 +420,10 @@ function formatDate(iso: string): string {
               </h2>
               <div class="space-y-3">
                 <!-- Max History Tokens -->
-                <div>
-                  <label class="mb-1.5 block text-sm text-muted-foreground">
+                <label class="block">
+                  <span class="mb-1.5 block text-sm text-muted-foreground">
                     Max History Tokens
-                  </label>
+                  </span>
                   <input
                     :value="form.max_history_tokens ?? ''"
                     type="number"
@@ -429,7 +431,7 @@ function formatDate(iso: string): string {
                     class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                     @input="(e) => { const v = (e.target as HTMLInputElement).value; form.max_history_tokens = v === '' ? null : Number(v); }"
                   />
-                </div>
+                </label>
 
                 <div class="h-px bg-border/50" />
 
