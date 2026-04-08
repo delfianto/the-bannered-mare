@@ -11,9 +11,9 @@
 
 **All pages built and functional with full CRUD.** Chat has rename/delete/edit/swipe. Character library has import flow and full detail page. Data Bank has RAG semantic search. Personas have full CRUD with avatar upload and set-default. Lorebook API composable ready. All dependencies at latest stable.
 
-**Pages:** Home, Chat (SSE + edit/swipe/rename/delete), Discover (filters + import), Character Detail (full profile), Creator (CRUD + lorebook), Connections (6 tabs + 3 detail pages), Settings (3 tabs + persona CRUD), Data Bank (CRUD + RAG search)
-**Composables:** 19 total
-**MSW handlers:** 55+ endpoints
+**Pages:** Home, Chat (SSE + edit/swipe/rename/delete), Discover (filters + import), Character Detail (full profile), Creator (CRUD + lorebook), Connections (6 tabs + 5 detail pages), Settings (3 tabs + persona CRUD), Data Bank (CRUD + RAG search)
+**Composables:** 21 total
+**MSW handlers:** 63+ endpoints
 
 ---
 
@@ -81,18 +81,21 @@
 | Item | Status | Notes |
 |------|--------|-------|
 | Template list/detail mock | [x] | GET paginated, 4 seeded templates |
-| Templates tab | [x] | Card grid with default badge |
-| Template detail/edit page | [ ] | Cards clickable but no detail page yet |
-| Template CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
+| Template CRUD mocks | [x] | PUT update, DELETE, POST preview |
+| Template-fragment mocks | [x] | GET list, POST attach, DELETE detach |
+| Templates tab | [x] | Card grid, clickable → detail page |
+| Template detail/edit page | [x] | System template editor (monospace), component ordering with toggles, attached fragments with position/type badges, preview |
+| `usePromptTemplate` composable | [x] | fetch/save/delete/preview/attachFragment/detachFragment |
 
 ### Prompt Fragments
 
 | Item | Status | Notes |
 |------|--------|-------|
 | Fragment list/detail mock | [x] | GET with filters, 3 seeded fragments |
-| Fragments tab | [x] | Card grid with type badge, global indicator |
-| Fragment detail/edit page | [ ] | Cards clickable but no detail page yet |
-| Fragment CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
+| Fragment CRUD mocks | [x] | PUT update, DELETE |
+| Fragments tab | [x] | Card grid, clickable → detail page |
+| Fragment detail/edit page | [x] | Name, description, type selector, is_global toggle, content editor (monospace) |
+| `usePromptFragment` composable | [x] | fetch/save/delete |
 
 ### Settings & Personas
 
@@ -131,10 +134,10 @@
 
 ## Remaining Work
 
-### Detail/Edit Pages (Low priority)
-- Preset detail/edit page + CRUD mocks
-- Template detail/edit page + CRUD mocks (component ordering, Jinja2 preview)
-- Fragment detail/edit page + CRUD mocks
+### Detail/Edit Pages
+- ~~Template detail/edit page~~ — **DONE.** System template editor, component ordering, fragment management, preview.
+- ~~Fragment detail/edit page~~ — **DONE.** Name, type selector, content editor, global toggle.
+- Preset detail/edit page + CRUD mocks — remaining
 
 ### Wiring
 - Wire Creator lorebook editor to `useLorebooks` composable (local state → API calls)
@@ -163,7 +166,7 @@
 
 ---
 
-## Composables Summary (19 total)
+## Composables Summary (21 total)
 
 | Composable | API Endpoint | Used By |
 |-----------|-------------|---------|
@@ -185,4 +188,6 @@
 | `useLibraryFilters` | (local filtering) | CharactersView |
 | `useSidebar` | (localStorage) | AppSidebar |
 | `useTheme` | (localStorage, singleton) | AppSidebar, InterfaceTab, App |
+| `usePromptTemplate` | GET/PUT/DELETE /api/prompt-templates/:id + preview + fragments | TemplateView |
+| `usePromptFragment` | GET/PUT/DELETE /api/prompt-fragments/:id | FragmentView |
 | `useAppToast` | (Nuxt UI toast) | All edit pages |
