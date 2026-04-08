@@ -125,7 +125,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
             }"
           >
-            <button class="flex h-9 items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30">
+            <button class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30">
               {{ SUPPORTED_LOCALES.find(l => l.code === currentLocale)?.name }}
               <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 text-muted-foreground" />
             </button>
