@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useCharacterForm } from "@/composables/useCharacterForm";
+import { useLorebooks } from "@/composables/useLorebooks";
 import CharacterTab from "@/components/creator/CharacterTab.vue";
 import BehaviorTab from "@/components/creator/BehaviorTab.vue";
 import WorldTab from "@/components/creator/WorldTab.vue";
@@ -15,6 +16,8 @@ const saved = ref(false);
 const saveError = ref("");
 
 const form = useCharacterForm();
+const loreApi = useLorebooks();
+const lorebookId = ref<string | null>(null);
 
 const editId = computed(() => route.params.id as string | undefined);
 const isEditMode = computed(() => !!editId.value);
@@ -30,6 +33,21 @@ onMounted(async () => {
   if (editId.value) {
     try {
       await form.loadFromApi(editId.value);
+      // Load lorebook entries for this character from the API
+      await loreApi.fetchLorebooks(editId.value);
+      if (loreApi.lorebooks.value.length > 0) {
+        const lb = loreApi.lorebooks.value[0];
+        lorebookId.value = lb.id;
+        await loreApi.fetchLorebook(lb.id);
+        if (loreApi.currentLorebook.value?.entries) {
+          form.data.lorebook = loreApi.currentLorebook.value.entries.map((e) => ({
+            id: e.id,
+            keywords: e.keys || [],
+            content: e.content || "",
+            enabled: e.enabled,
+          }));
+        }
+      }
     } catch (e) {
       saveError.value = "Failed to load character.";
     }
@@ -39,7 +57,53 @@ onMounted(async () => {
 async function handleSave() {
   saveError.value = "";
   try {
-    await form.saveCharacter();
+    const result = await form.saveCharacter();
+
+    // Sync lorebook entries to API
+    if (form.data.lorebook.length > 0) {
+      // Ensure a lorebook exists for this character
+      if (!lorebookId.value) {
+        const lb = await loreApi.createLorebook({
+          name: `${form.data.name} Lorebook`,
+          is_global: false,
+          character_id: result.id,
+        });
+        if (lb) lorebookId.value = lb.id;
+      }
+
+      if (lorebookId.value) {
+        // Sync each entry — create new ones, update existing
+        for (const entry of form.data.lorebook) {
+          const isExisting = loreApi.currentLorebook.value?.entries.some((e) => e.id === entry.id);
+          if (isExisting) {
+            await loreApi.updateEntry(lorebookId.value, entry.id, {
+              keys: entry.keywords,
+              content: entry.content,
+              enabled: entry.enabled,
+            });
+          } else {
+            await loreApi.createEntry(lorebookId.value, {
+              name: entry.keywords[0] || "Untitled",
+              content: entry.content,
+              keys: entry.keywords,
+              enabled: entry.enabled,
+              secondary_logic: "and_any",
+              case_sensitive: false,
+              match_whole_words: false,
+              use_regex: false,
+              constant: false,
+              position: "after_character",
+              depth: 4,
+              role: "system",
+              priority: 100,
+              ignore_budget: false,
+              order: 0,
+            });
+          }
+        }
+      }
+    }
+
     saved.value = true;
     setTimeout(() => {
       router.push("/characters");
