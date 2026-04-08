@@ -12,8 +12,8 @@
 **All pages built and functional with full CRUD.** Chat has rename/delete/edit/swipe. Character library has import flow and full detail page. Data Bank has RAG semantic search. Personas have full CRUD with avatar upload and set-default. Lorebook API composable ready. All dependencies at latest stable.
 
 **Pages:** Home, Chat (SSE + edit/swipe/rename/delete), Discover (filters + import), Character Detail (full profile), Creator (CRUD + lorebook), Connections (6 tabs + 5 detail pages), Settings (3 tabs + persona CRUD), Data Bank (CRUD + RAG search)
-**Composables:** 21 total
-**MSW handlers:** 63+ endpoints
+**Composables:** 23 total
+**MSW handlers:** 66+ endpoints
 
 ---
 
@@ -72,9 +72,10 @@
 | Item | Status | Notes |
 |------|--------|-------|
 | Preset list/detail mock | [x] | GET paginated, 3 seeded presets |
-| Presets tab | [x] | Card grid with parameter count, default badge |
-| Preset detail/edit page | [ ] | Cards clickable but no detail page yet |
-| Preset CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
+| Preset CRUD mocks | [x] | PUT update, DELETE, POST set-default |
+| `usePreset` composable | [x] | fetch/save/delete/setDefault |
+| Presets tab | [x] | Card grid, clickable → detail page |
+| Preset detail/edit page | [x] | Name, description, default toggle, editable parameter key-value rows, set-default button |
 
 ### Prompt Templates
 
@@ -121,7 +122,7 @@
 |------|--------|-------|
 | Lorebook mocks | [x] | 8 endpoints: CRUD for lorebooks + CRUD for entries, 2 seeded lorebooks |
 | `useLorebooks` composable | [x] | Full CRUD for lorebooks and entries |
-| Wire Creator editor to API | [ ] | Composable ready, Creator still uses local state |
+| Wire Creator editor to API | [x] | Loads entries on edit, syncs on save (create/update) |
 
 ### Admin & Logging
 
@@ -134,13 +135,13 @@
 
 ## Remaining Work
 
-### Detail/Edit Pages
-- ~~Template detail/edit page~~ — **DONE.** System template editor, component ordering, fragment management, preview.
-- ~~Fragment detail/edit page~~ — **DONE.** Name, type selector, content editor, global toggle.
-- Preset detail/edit page + CRUD mocks — remaining
+### Detail/Edit Pages — ALL COMPLETE
+- ~~Template detail/edit page~~ — **DONE.**
+- ~~Fragment detail/edit page~~ — **DONE.**
+- ~~Preset detail/edit page~~ — **DONE.** Parameter key-value editor, set-default.
 
-### Wiring
-- Wire Creator lorebook editor to `useLorebooks` composable (local state → API calls)
+### Wiring — COMPLETE
+- ~~Wire Creator lorebook editor~~ — **DONE.** Loads from API on edit, syncs on save.
 
 ### Infrastructure
 - Mobile responsive layout — drawer/bottom nav
@@ -166,7 +167,7 @@
 
 ---
 
-## Composables Summary (21 total)
+## Composables Summary (23 total)
 
 | Composable | API Endpoint | Used By |
 |-----------|-------------|---------|
@@ -190,4 +191,5 @@
 | `useTheme` | (localStorage, singleton) | AppSidebar, InterfaceTab, App |
 | `usePromptTemplate` | GET/PUT/DELETE /api/prompt-templates/:id + preview + fragments | TemplateView |
 | `usePromptFragment` | GET/PUT/DELETE /api/prompt-fragments/:id | FragmentView |
+| `usePreset` | GET/PUT/DELETE /api/presets/:id + POST set-default | PresetView |
 | `useAppToast` | (Nuxt UI toast) | All edit pages |
