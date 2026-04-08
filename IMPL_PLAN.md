@@ -1,6 +1,6 @@
 # Candlekeep UI — Implementation Plan
 
-> Last updated: 2026-04-07
+> Last updated: 2026-04-08
 > Backend: `candlekeep-core` (FastAPI, PostgreSQL, 88 API endpoints)
 > Frontend: `candlekeep-ui` (Vue 3.5, Nuxt UI v4, Vite 8, TypeScript 6)
 > Schema: `schema.d.ts` regenerated from `../candlekeep-core/openapi.json` via `bun run api:gen`
@@ -9,11 +9,11 @@
 
 ## Current State Summary
 
-**All pages are built and functional.** No more placeholders. Every route has working UI with MSW mock data and API composables. Mock data matches backend fixtures exactly. All dependencies at latest stable versions. Chat has full interaction: rename/delete sessions, edit messages, browse alternatives via swipe.
+**All pages built and functional with full CRUD.** Chat has rename/delete/edit/swipe. Character library has import flow and full detail page. Data Bank has RAG semantic search. Personas have full CRUD with avatar upload and set-default. Lorebook API composable ready. All dependencies at latest stable.
 
-**Pages:** Home, Chat (SSE + edit/swipe/rename/delete), Discover (filters), Creator (CRUD), Connections (6 tabs + 3 detail pages), Settings (3 tabs), Data Bank (CRUD)
-**Composables:** 18 total
-**MSW handlers:** 40+ endpoints
+**Pages:** Home, Chat (SSE + edit/swipe/rename/delete), Discover (filters + import), Character Detail (full profile), Creator (CRUD + lorebook), Connections (6 tabs + 3 detail pages), Settings (3 tabs + persona CRUD), Data Bank (CRUD + RAG search)
+**Composables:** 19 total
+**MSW handlers:** 55+ endpoints
 
 ---
 
@@ -21,7 +21,6 @@
 
 ### Legend
 - [x] Implemented & integrated
-- [~] Implemented but not wired to API
 - [ ] Not implemented
 
 ---
@@ -30,14 +29,14 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Character list API mock | [x] | 20 chars with tags, gender, creator, Unsplash avatars |
-| Character detail/create/update/delete mocks | [x] | Full CRUD via MSW |
+| Character CRUD mocks | [x] | Full CRUD via MSW |
+| Character import mock | [x] | POST /api/characters/import with FormData |
 | `useCharacters` + `useCharacterForm` | [x] | Page-based pagination, FormData mapping |
-| Discover page | [x] | Grid/list views, search, category/sort filters |
+| Discover page | [x] | Grid/list views, search, category/sort filters, import button |
 | Home character grid | [x] | Fetches 6 latest |
 | Creator page | [x] | Create/edit/delete with avatar upload |
-| Character import | [ ] | `POST /api/characters/import` — not mocked |
-| Character detail page | [ ] | Route exists, placeholder |
+| Character detail page | [x] | Full profile: avatar, description, personality, first_message (NarrativeText), metadata, "Start Tale" button |
+| Character import flow | [x] | File input → FormData upload → refresh list → toast |
 
 ### Chats & Messages
 
@@ -46,12 +45,11 @@
 | Chat CRUD mocks | [x] | GET/POST/PUT/DELETE for chats |
 | Message CRUD mocks | [x] | GET/POST/PUT + SSE streaming + regenerate |
 | Alternatives mocks | [x] | GET alternatives + PUT activate |
-| `useChatSessions` + `useChatMessages` | [x] | Cursor pagination, SSE streaming |
+| Composables | [x] | useChatSessions (+ updateChat/deleteChat), useChatMessages (+ editMessage/fetchAlts/activateAlt) |
 | Chat page | [x] | Session list, messages, send, typing indicator |
-| Home recent tales | [x] | Fetches 8 recent chats |
 | Swipe/alternatives UI | [x] | Left/right arrows on hover, lazy-load alts, counter badge |
 | Message editing UI | [x] | Inline textarea + Save/Cancel for user messages |
-| Chat rename/delete UI | [x] | 3-dot menu dropdown in header, inline rename, two-click delete |
+| Chat rename/delete | [x] | 3-dot menu dropdown, inline rename, two-click delete |
 | Message actions | [x] | Inline bottom-right icons (regen/copy/bookmark for AI, edit/delete for user) |
 
 ### Providers & Models
@@ -61,9 +59,8 @@
 | Provider mocks | [x] | GET list/detail, PUT update, PATCH flags |
 | Model mocks | [x] | GET (paginated + provider_id filter), PUT, PATCH flags, DELETE |
 | Model family mocks | [x] | GET (paginated), PUT, DELETE |
-| Parameter docs mock | [x] | GET /api/model-families/parameter-docs |
 | Composables | [x] | useProviders, useProvider, useModels, useModel, useModelFamilies, useModelFamily |
-| Connections list tabs | [x] | 3 card grids with SVG brand icons, search, provider filter |
+| Connections list tabs | [x] | 6 card grids with SVG brand icons, search, provider filter |
 | ProviderView (edit) | [x] | Name, base URL, enabled toggle, API key status |
 | ModelView (edit) | [x] | Identity, provider selector (filtered by family), inference params editor |
 | ModelFamilyView (edit) | [x] | Name, identifier, description, param schema display, delete |
@@ -74,10 +71,8 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Preset list mock | [x] | GET paginated, 3 seeded presets |
-| Preset detail mock | [x] | GET by ID |
-| `usePresets` composable | [x] | List fetch |
-| Presets tab in Connections | [x] | Card grid with parameter count, default badge |
+| Preset list/detail mock | [x] | GET paginated, 3 seeded presets |
+| Presets tab | [x] | Card grid with parameter count, default badge |
 | Preset detail/edit page | [ ] | Cards clickable but no detail page yet |
 | Preset CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
 
@@ -85,49 +80,45 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Template list mock | [x] | GET paginated, 4 seeded templates matching backend |
-| Template detail mock | [x] | GET by ID |
-| `usePromptTemplates` composable | [x] | List fetch |
-| Templates tab in Connections | [x] | Card grid with default badge, max_history_tokens |
+| Template list/detail mock | [x] | GET paginated, 4 seeded templates |
+| Templates tab | [x] | Card grid with default badge |
 | Template detail/edit page | [ ] | Cards clickable but no detail page yet |
 | Template CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
-| Template preview | [ ] | POST .../preview not mocked |
 
 ### Prompt Fragments
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Fragment list mock | [x] | GET with type/global filters, 3 seeded fragments |
-| Fragment detail mock | [x] | GET by ID |
-| `usePromptFragments` composable | [x] | List fetch |
-| Fragments tab in Connections | [x] | Card grid with type badge, global indicator |
+| Fragment list/detail mock | [x] | GET with filters, 3 seeded fragments |
+| Fragments tab | [x] | Card grid with type badge, global indicator |
 | Fragment detail/edit page | [ ] | Cards clickable but no detail page yet |
 | Fragment CRUD mocks | [ ] | POST/PUT/DELETE not mocked |
 
-### Settings
+### Settings & Personas
 
 | Item | Status | Notes |
 |------|--------|-------|
 | Interface tab | [x] | Dark mode, stream responses, typing indicator (localStorage) |
-| Persona tab | [x] | Fetches from API, avatar/name/default badge |
 | About tab | [x] | App info from constants |
-| Persona CRUD | [ ] | Create/edit/delete not implemented |
+| Persona list | [x] | Fetches from API, avatar/name/default badge |
+| Persona CRUD | [x] | Inline create/edit form, avatar upload, delete, set-default |
+| Persona mocks | [x] | GET list, POST create, PUT update, DELETE, POST set-default |
 
-### Data Bank
+### Data Bank & RAG
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Data Bank CRUD mocks | [x] | GET (scope filter), POST, PUT, DELETE, 5 seeded entries |
-| `useDataBank` composable | [x] | Fetch/create/update/delete with scope filter |
-| Data Bank page | [x] | Scope filter pills, inline create/edit form, two-click delete |
-| RAG search | [ ] | POST /api/rag/search not mocked |
+| Data Bank CRUD | [x] | GET (scope filter), POST, PUT, DELETE, 5 seeded entries |
+| RAG search mock | [x] | POST /api/rag/search (3 results with scores), GET /api/rag/status |
+| RAG search UI | [x] | Search input + results with relevance scores in MemoryView |
 
 ### Lorebooks
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Lorebook mocks | [ ] | Not mocked |
-| Lorebook UI in Creator | [~] | Editor exists but no API calls |
+| Lorebook mocks | [x] | 8 endpoints: CRUD for lorebooks + CRUD for entries, 2 seeded lorebooks |
+| `useLorebooks` composable | [x] | Full CRUD for lorebooks and entries |
+| Wire Creator editor to API | [ ] | Composable ready, Creator still uses local state |
 
 ### Admin & Logging
 
@@ -138,44 +129,26 @@
 
 ---
 
-## Priority Tasks
+## Remaining Work
 
-### P0 — COMPLETE
-### P1 — COMPLETE
-### P2 — COMPLETE
-
-### P3 — Partially Complete
-
-**Chat enhancements — DONE:**
-- ~~Swipe/alternatives UI~~ — left/right arrows, lazy-load, counter badge
-- ~~Message editing UI~~ — inline textarea with Save/Cancel
-- ~~Chat rename/delete~~ — 3-dot dropdown menu, inline rename, two-click delete
-- ~~Message actions~~ — inline bottom-right icons (always visible, not hover popup)
-
-**Detail/edit pages for new entities:**
+### Detail/Edit Pages (Low priority)
 - Preset detail/edit page + CRUD mocks
-- Template detail/edit page + CRUD mocks (with component ordering, Jinja2 preview)
+- Template detail/edit page + CRUD mocks (component ordering, Jinja2 preview)
 - Fragment detail/edit page + CRUD mocks
 
-**Advanced features:**
-- Lorebook API integration — wire Creator editor to API
-- RAG search UI in Data Bank
-- Character import flow — TavernCard PNG/JSON
-- Character detail page — full profile view
-- Persona CRUD — create/edit/delete with avatar upload
+### Wiring
+- Wire Creator lorebook editor to `useLorebooks` composable (local state → API calls)
 
-**Infrastructure:**
+### Infrastructure
 - Mobile responsive layout — drawer/bottom nav
 - Admin logging UI — log queries, LLM usage stats
 
 ### Backend TODOs
-
 - **`order_by` query param** — Models, Model Families, Characters list endpoints need server-side sorting
 - **`model_family_id` filter** — Models list endpoint needs this for family-based filtering
 
 ### Frontend TODOs
-
-- **Tailwind theme token cleanup** — `border-[var(--border)]`, `bg-[var(--card)]` etc. are arbitrary value workarounds. The `@theme inline` block in `main.css` should properly register tokens so `border-border`, `bg-card` work natively. Audit and fix so we don't need the CSS variable escape hatch.
+- **Tailwind theme token cleanup** — `border-[var(--border)]`, `bg-[var(--card)]` etc. are arbitrary value workarounds. Should register tokens properly so `border-border`, `bg-card` work natively.
 
 ---
 
@@ -186,16 +159,16 @@
 - **Vite proxy / MSW** — `VITE_USE_MOCKS=true` disables proxy
 - **Avatar strategy** — Unsplash portraits, direct URLs from API response
 - **Theme state** — Singleton `useTheme` composable
-- **Dependency versions** — All at latest stable (Vite 8.0.7, Vue 3.5.32, TS 6.0.2, Nuxt UI 4.6.1, vue-router 5.0.4)
+- **Dependencies** — All at latest stable (Vite 8.0.7, Vue 3.5.32, TS 6.0.2, Nuxt UI 4.6.1, vue-router 5.0.4)
 
 ---
 
-## Composables Summary (18 total)
+## Composables Summary (19 total)
 
 | Composable | API Endpoint | Used By |
 |-----------|-------------|---------|
-| `useChatSessions` | GET /api/chats | ChatView, HomeView |
-| `useChatMessages` | GET/POST /api/chats/:id/messages | ChatView |
+| `useChatSessions` | GET/PUT/DELETE /api/chats | ChatView, HomeView |
+| `useChatMessages` | GET/POST/PUT /api/chats/:id/messages + alternatives | ChatView |
 | `useCharacters` | GET /api/characters | CharactersView, HomeView |
 | `useCharacterForm` | GET/POST/PUT/DELETE /api/characters | CharacterCreateView |
 | `useProviders` | GET /api/providers | ProvidersTab, ModelsTab |
@@ -208,6 +181,7 @@
 | `usePromptTemplates` | GET /api/prompt-templates | TemplatesTab |
 | `usePromptFragments` | GET /api/prompt-fragments | FragmentsTab |
 | `useDataBank` | GET/POST/PUT/DELETE /api/data-bank | MemoryView |
+| `useLorebooks` | GET/POST/PUT/DELETE /api/lorebooks + entries | (ready, not wired to Creator yet) |
 | `useLibraryFilters` | (local filtering) | CharactersView |
 | `useSidebar` | (localStorage) | AppSidebar |
 | `useTheme` | (localStorage, singleton) | AppSidebar, InterfaceTab, App |
