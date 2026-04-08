@@ -24,7 +24,7 @@ const routes = [
     name: "character-detail",
     component: () => import("@/views/CharacterDetailView.vue"),
   },
-  { path: "/world", name: "world", component: () => import("@/views/WorldLoreView.vue") },
+  { path: "/bookmarks", name: "bookmarks", component: () => import("@/views/BookmarksView.vue") },
   { path: "/memory", name: "memory", component: () => import("@/views/MemoryView.vue") },
   {
     path: "/connections",

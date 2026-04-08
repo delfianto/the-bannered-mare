@@ -12,7 +12,7 @@ const { collapsed, toggle: toggleSidebar } = useSidebar();
 const navItems = [
   { id: "home", to: "/", label: "Home", icon: "i-lucide-home" },
   { id: "characters", to: "/characters", label: "Discover", icon: "i-lucide-compass" },
-  { id: "world", to: "/world", label: "World Lore", icon: "i-lucide-globe" },
+  { id: "bookmarks", to: "/bookmarks", label: "Bookmarks", icon: "i-lucide-bookmark" },
   { id: "memory", to: "/memory", label: "Data Bank", icon: "i-lucide-database" },
   { id: "chats", to: "/chats", label: "Sessions", icon: "i-lucide-scroll-text" },
   { id: "connections", to: "/connections", label: "Connections", icon: "i-lucide-cable" },
