@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useTheme } from "@/composables/useTheme";
 import { COLOR_PRESETS } from "@/constants/colorPresets";
+import { SUPPORTED_LOCALES, setLocale } from "@/i18n";
 
 const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
+const { locale } = useI18n();
+
+const currentLocale = computed({
+  get: () => locale.value,
+  set: (val: string) => setLocale(val),
+});
 
 const streamResponses = ref(true);
 const typingIndicator = ref(true);
@@ -106,7 +114,22 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               <p class="text-xs text-muted-foreground">{{ $t('settings.interface.languageDescription') }}</p>
             </div>
           </div>
-          <span class="text-sm text-muted-foreground">English</span>
+          <USelectMenu
+            v-model="currentLocale"
+            :items="SUPPORTED_LOCALES.map(l => ({ label: l.name, value: l.code }))"
+            value-key="value"
+            :search-input="false"
+            :ui="{
+              base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
+              content: 'border bg-card ring-0 outline-none shadow-lg',
+              item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
+            }"
+          >
+            <button class="flex h-9 items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30">
+              {{ SUPPORTED_LOCALES.find(l => l.code === currentLocale)?.name }}
+              <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          </USelectMenu>
         </div>
       </div>
     </section>
