@@ -40,7 +40,7 @@ import { APP_INFO } from "@/constants/appInfo";
           :to="APP_INFO.github"
           target="_blank"
           icon="i-lucide-github"
-          label="View on GitHub"
+          :label="$t('settings.about.viewGithub')"
           variant="outline"
           size="sm"
         />
@@ -48,7 +48,7 @@ import { APP_INFO } from "@/constants/appInfo";
 
       <!-- Author -->
       <p class="mt-5 text-xs text-muted-foreground">
-        Crafted with care by
+        {{ $t('settings.about.craftedBy') }}
         <span class="font-medium text-foreground">{{ APP_INFO.author }}</span>
       </p>
     </div>

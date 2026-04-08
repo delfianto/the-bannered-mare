@@ -107,7 +107,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">Loading fragment...</span>
+        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
       </div>
     </div>
 
@@ -119,7 +119,7 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        Go Back
+        {{ $t('common.goBack') }}
       </button>
     </div>
 
@@ -131,7 +131,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="Back to fragments"
+            :aria-label="$t('connections.fragment.backToFragments')"
             @click="router.push({ path: '/connections', query: { tab: 'fragments' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -163,7 +163,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': deleting }"
             />
-            {{ deleting ? "Deleting..." : confirmDelete ? "Confirm?" : "Delete" }}
+            {{ deleting ? $t('common.deleting') : confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
           </button>
 
           <!-- Save button -->
@@ -177,7 +177,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': saving }"
             />
-            {{ saving ? "Saving..." : "Save" }}
+            {{ saving ? $t('common.saving') : $t('common.save') }}
           </button>
         </div>
       </header>
@@ -198,7 +198,7 @@ function formatDate(iso: string): string {
                 <span
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  Name
+                  {{ $t('connections.fragment.name') }}
                 </span>
                 <input
                   v-model="form.name"
@@ -213,7 +213,7 @@ function formatDate(iso: string): string {
                 <span
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  Description
+                  {{ $t('connections.fragment.description') }}
                 </span>
                 <textarea
                   v-model="form.description"
@@ -228,7 +228,7 @@ function formatDate(iso: string): string {
                 <label
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  Fragment Type
+                  {{ $t('connections.fragment.type') }}
                 </label>
                 <USelectMenu
                   v-model="form.fragment_type"
@@ -259,7 +259,7 @@ function formatDate(iso: string): string {
                 <label
                   class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  Global
+                  {{ $t('connections.fragment.isGlobal') }}
                 </label>
                 <button @click="toggleGlobal" role="switch" :aria-checked="form.is_global" aria-label="Global fragment" class="cursor-pointer">
                   <div
@@ -285,16 +285,16 @@ function formatDate(iso: string): string {
             <h2
               class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
             >
-              Fragment Content
+              {{ $t('connections.fragment.content') }}
             </h2>
             <textarea
               v-model="form.content"
               rows="8"
-              placeholder="Jinja2 template content…"
+              :placeholder="$t('connections.fragment.contentPlaceholder')"
               class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
             <p class="mt-2 text-[11px] text-muted-foreground/60">
-              Jinja2 template content injected into prompt templates
+              {{ $t('connections.fragment.contentHint') }}
             </p>
           </div>
 

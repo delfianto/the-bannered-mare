@@ -15,10 +15,10 @@ const activeTab = ref("interface");
     <header class="flex-shrink-0 px-12 pt-8 pb-4">
       <div class="animate-fade-in-up">
         <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
-          Settings
+          {{ $t('settings.title') }}
         </h1>
         <p class="text-sm text-muted-foreground">
-          Customize your experience and manage your profile
+          {{ $t('settings.subtitle') }}
         </p>
       </div>
     </header>

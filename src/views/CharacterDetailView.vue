@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
 import type { components } from "@/api/schema";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
@@ -9,6 +10,7 @@ type CharacterResponse = components["schemas"]["CharacterResponse"];
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 
 const character = ref<CharacterResponse | null>(null);
 const loading = ref(true);
@@ -23,7 +25,7 @@ onMounted(async () => {
     });
 
     if (apiError) {
-      error.value = "Character not found";
+      error.value = t("characters.notFound");
       return;
     }
 
@@ -31,7 +33,7 @@ onMounted(async () => {
       character.value = data;
     }
   } catch {
-    error.value = "Failed to load character";
+    error.value = t("characters.failedLoad");
   } finally {
     loading.value = false;
   }
@@ -55,7 +57,7 @@ function formatDate(dateStr: string): string {
 }
 
 function genderLabel(gender: string | null | undefined, customGender: string | null | undefined): string {
-  if (!gender) return "Not specified";
+  if (!gender) return t("characters.detail.notSpecified");
   if (gender === "others" && customGender) return customGender;
   return gender.charAt(0).toUpperCase() + gender.slice(1);
 }
@@ -77,12 +79,12 @@ function startTale() {
   <!-- Error -->
   <div v-else-if="error || !character" class="flex flex-1 flex-col items-center justify-center gap-4 py-20">
     <UIcon name="i-lucide-alert-circle" class="h-10 w-10 text-muted-foreground/40" />
-    <p class="text-sm text-muted-foreground">{{ error || "Character not found" }}</p>
+    <p class="text-sm text-muted-foreground">{{ error || $t('characters.notFound') }}</p>
     <button
       class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
       @click="router.push('/characters')"
     >
-      Back to Library
+      {{ $t('characters.detail.backToLibrary') }}
     </button>
   </div>
 
@@ -96,7 +98,7 @@ function startTale() {
           @click="router.push('/characters')"
         >
           <UIcon name="i-lucide-arrow-left" class="h-4 w-4" />
-          Back
+          {{ $t('common.back') }}
         </button>
         <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
           {{ character.name }}
@@ -107,7 +109,7 @@ function startTale() {
         @click="router.push(`/characters/${characterId}/edit`)"
       >
         <UIcon name="i-lucide-pencil" class="h-4 w-4" />
-        Edit
+        {{ $t('common.edit') }}
       </button>
     </div>
 
@@ -149,7 +151,7 @@ function startTale() {
             <!-- Description -->
             <div v-if="character.description">
               <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Description
+                {{ $t('characters.detail.description') }}
               </h3>
               <p class="text-sm leading-relaxed text-foreground">
                 {{ character.description }}
@@ -159,7 +161,7 @@ function startTale() {
             <!-- Personality -->
             <div v-if="character.personality">
               <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Personality
+                {{ $t('characters.detail.personality') }}
               </h3>
               <p class="text-sm leading-relaxed text-foreground">
                 {{ character.personality }}
@@ -169,7 +171,7 @@ function startTale() {
             <!-- First Message -->
             <div v-if="character.first_message">
               <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                First Message
+                {{ $t('characters.detail.firstMessage') }}
               </h3>
               <div class="rounded-lg border border-border/50 bg-background/50 p-4">
                 <NarrativeText :content="character.first_message" />
@@ -179,7 +181,7 @@ function startTale() {
             <!-- Example Dialogues -->
             <div v-if="character.example_dialogues?.length">
               <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Example Dialogues
+                {{ $t('characters.detail.exampleDialogues') }}
               </h3>
               <div class="space-y-2">
                 <div
@@ -195,7 +197,7 @@ function startTale() {
             <!-- Scenario -->
             <div v-if="character.scenario">
               <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Scenario
+                {{ $t('characters.detail.scenario') }}
               </h3>
               <p class="text-sm leading-relaxed text-foreground">
                 {{ character.scenario }}
@@ -213,31 +215,31 @@ function startTale() {
           style="animation-delay: 120ms"
         >
           <h3 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Details
+            {{ $t('characters.detail.details') }}
           </h3>
           <div class="space-y-3 text-sm">
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Gender</span>
+              <span class="text-muted-foreground">{{ $t('characters.detail.gender') }}</span>
               <span class="text-foreground">{{ genderLabel(character.gender, character.custom_gender) }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Creator</span>
+              <span class="text-muted-foreground">{{ $t('characters.detail.creator') }}</span>
               <span class="text-foreground">{{ character.creator || "Unknown" }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Version</span>
+              <span class="text-muted-foreground">{{ $t('characters.detail.version') }}</span>
               <span class="text-foreground">v{{ character.version }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Created</span>
+              <span class="text-muted-foreground">{{ $t('characters.detail.created') }}</span>
               <span class="text-foreground">{{ formatDate(character.created_at) }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">Updated</span>
+              <span class="text-muted-foreground">{{ $t('characters.detail.updated') }}</span>
               <span class="text-foreground">{{ formatDate(character.updated_at) }}</span>
             </div>
           </div>
@@ -253,7 +255,7 @@ function startTale() {
             @click="startTale"
           >
             <UIcon name="i-lucide-message-square-plus" class="h-5 w-5" />
-            Start Tale
+            {{ $t('characters.detail.startTale') }}
           </button>
         </div>
 
@@ -264,7 +266,7 @@ function startTale() {
           style="animation-delay: 240ms"
         >
           <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Post-History Instructions
+            {{ $t('characters.detail.postHistory') }}
           </h3>
           <p class="text-xs leading-relaxed text-muted-foreground">
             {{ character.post_history_instructions }}

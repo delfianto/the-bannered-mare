@@ -25,7 +25,7 @@ const filtered = computed(() => {
   <section>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
-        Discover Characters
+        {{ $t('home.discoverCharacters') }}
       </h2>
     </div>
 

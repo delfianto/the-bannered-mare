@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { usePromptTemplate } from "@/composables/usePromptTemplate";
 import { useAppToast } from "@/composables/useToast";
+
+const { t } = useI18n();
 
 const router = useRouter();
 const route = useRoute();
@@ -181,7 +184,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">Loading template...</span>
+        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
       </div>
     </div>
 
@@ -193,7 +196,7 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        Go Back
+        {{ $t('common.goBack') }}
       </button>
     </div>
 
@@ -203,7 +206,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="Back to templates"
+            :aria-label="$t('connections.template.backToTemplates')"
             @click="router.push({ path: '/connections', query: { tab: 'templates' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -235,7 +238,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': deleting }"
             />
-            {{ deleting ? "Deleting..." : confirmDelete ? "Confirm?" : "Delete" }}
+            {{ deleting ? $t('common.deleting') : confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
           </button>
 
           <!-- Save button -->
@@ -249,7 +252,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': saving }"
             />
-            {{ saving ? "Saving..." : "Save" }}
+            {{ saving ? $t('common.saving') : $t('common.save') }}
           </button>
         </div>
       </header>
@@ -268,7 +271,7 @@ function formatDate(iso: string): string {
                 <!-- Name -->
                 <label class="block">
                   <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    Name
+                    {{ $t('connections.template.name') }}
                   </span>
                   <input
                     v-model="form.name"
@@ -281,7 +284,7 @@ function formatDate(iso: string): string {
                 <!-- Description -->
                 <label class="block">
                   <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    Description
+                    {{ $t('connections.template.description') }}
                   </span>
                   <textarea
                     v-model="form.description"
@@ -294,7 +297,7 @@ function formatDate(iso: string): string {
                 <!-- Is Default toggle -->
                 <div class="flex items-center justify-between">
                   <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    Default Template
+                    {{ $t('connections.template.isDefault') }}
                   </label>
                   <button @click="toggleDefault" role="switch" :aria-checked="form.is_default" aria-label="Default template" class="cursor-pointer">
                     <div
@@ -314,23 +317,23 @@ function formatDate(iso: string): string {
             <!-- System Template card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                System Template
+                {{ $t('connections.template.systemTemplate') }}
               </h2>
               <textarea
                 v-model="form.system_template"
                 rows="8"
-                placeholder="Jinja2 system template…"
+                :placeholder="t('connections.template.systemTemplatePlaceholder')"
                 class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
               <p class="mt-2 text-[11px] text-muted-foreground/60">
-                Jinja2 template. Variables: &#123;&#123;char&#125;&#125;, &#123;&#123;user&#125;&#125;, &#123;&#123;description&#125;&#125;, &#123;&#123;personality&#125;&#125;, &#123;&#123;scenario&#125;&#125;
+                {{ $t('connections.template.systemTemplateHint') }}
               </p>
             </div>
 
             <!-- Component Ordering card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                Prompt Components
+                {{ $t('connections.template.components') }}
               </h2>
               <div v-if="form.component_order.length > 0" class="space-y-2">
                 <div
@@ -355,13 +358,13 @@ function formatDate(iso: string): string {
                   </button>
                 </div>
               </div>
-              <p v-else class="text-sm text-muted-foreground">No components configured</p>
+              <p v-else class="text-sm text-muted-foreground">{{ $t('connections.template.noComponents') }}</p>
             </div>
 
             <!-- Attached Fragments card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                Attached Fragments
+                {{ $t('connections.template.fragments') }}
               </h2>
               <div v-if="attachedFragments.length > 0" class="space-y-2">
                 <div
@@ -393,20 +396,20 @@ function formatDate(iso: string): string {
                   </div>
                   <button
                     class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    aria-label="Detach fragment"
+                    :aria-label="$t('connections.template.detachFragment')"
                     @click="handleDetachFragment(tf.fragment_id)"
                   >
                     <UIcon name="i-lucide-x" class="h-4 w-4" />
                   </button>
                 </div>
               </div>
-              <p v-else class="mb-3 text-sm text-muted-foreground">No fragments attached</p>
+              <p v-else class="mb-3 text-sm text-muted-foreground">{{ $t('connections.template.noFragments') }}</p>
               <button
                 class="mt-3 flex items-center gap-2 rounded-lg border border-dashed px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 @click="handleAttachFragment"
               >
                 <UIcon name="i-lucide-plus" class="h-4 w-4" />
-                Attach Fragment
+                {{ $t('connections.template.attachFragment') }}
               </button>
             </div>
           </div>
@@ -422,7 +425,7 @@ function formatDate(iso: string): string {
                 <!-- Max History Tokens -->
                 <label class="block">
                   <span class="mb-1.5 block text-sm text-muted-foreground">
-                    Max History Tokens
+                    {{ $t('connections.template.maxHistoryTokens') }}
                   </span>
                   <input
                     :value="form.max_history_tokens ?? ''"
@@ -473,7 +476,7 @@ function formatDate(iso: string): string {
             <!-- Preview card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                Preview
+                {{ $t('connections.template.preview') }}
               </h2>
               <button
                 class="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
@@ -485,7 +488,7 @@ function formatDate(iso: string): string {
                   class="h-4 w-4"
                   :class="{ 'animate-spin': previewing }"
                 />
-                {{ previewing ? "Rendering..." : "Preview Template" }}
+                {{ previewing ? $t('common.loading') : $t('connections.template.previewTemplate') }}
               </button>
               <div
                 v-if="preview"

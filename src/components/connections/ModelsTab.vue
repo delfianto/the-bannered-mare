@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useModels } from "@/composables/useModels";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
+
+const { t } = useI18n();
 
 const { models, loading, error, page, hasMore, totalPages, loadPage, search, filterByProvider } = useModels();
 const { providers } = useProviders();
@@ -29,17 +32,17 @@ function handleProviderFilter(value: string) {
 }
 
 const providerItems = computed(() => [
-  { label: "All Providers", value: "all" },
+  { label: t("connections.allProviders"), value: "all" },
   ...[...providers.value].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((p: any) => ({ label: p.name, value: p.id })),
 ]);
 
 const familyItems = computed(() => [
-  { label: "All Families", value: "all" },
+  { label: t("connections.allFamilies"), value: "all" },
   ...families.value.map((f: any) => ({ label: f.name, value: f.id })),
 ]);
 
 const providerLabel = computed(() =>
-  providerItems.value.find((i) => i.value === selectedProvider.value)?.label ?? "All Providers",
+  providerItems.value.find((i) => i.value === selectedProvider.value)?.label ?? t("connections.allProviders"),
 );
 
 // const familyLabel = computed(() =>
@@ -73,7 +76,7 @@ const filteredModels = computed(() => models.value);
           <input
             type="text"
             :value="searchQuery"
-            placeholder="Search models…"
+            :placeholder="t('connections.searchModels')"
             aria-label="Search models"
             autocomplete="off"
             class="h-9 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
@@ -123,7 +126,7 @@ const filteredModels = computed(() => models.value);
           class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground/50 outline-none cursor-not-allowed"
         >
           <UIcon name="i-lucide-layers" class="h-3.5 w-3.5" />
-          All Families
+          {{ $t('connections.allFamilies') }}
         </button>
       </USelectMenu>
     </div>
@@ -144,7 +147,7 @@ const filteredModels = computed(() => models.value);
       <!-- Empty -->
       <div v-if="filteredModels.length === 0" class="flex flex-col items-center justify-center gap-2 py-16">
         <UIcon name="i-lucide-search-x" class="h-8 w-8 text-muted-foreground/50" />
-        <p class="text-sm text-muted-foreground">No models found</p>
+        <p class="text-sm text-muted-foreground">{{ $t('connections.noModels') }}</p>
       </div>
 
       <!-- Card Grid -->
@@ -189,7 +192,7 @@ const filteredModels = computed(() => models.value);
           <!-- Edit hint -->
           <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
             <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-            Edit
+            {{ $t('common.edit') }}
           </div>
         </RouterLink>
       </div>

@@ -23,8 +23,8 @@ const query = ref("");
       <input
         v-model="query"
         type="text"
-        placeholder="Search the library for tales, characters, worlds…"
-        aria-label="Search the library"
+        :placeholder="$t('home.searchPlaceholder')"
+        :aria-label="$t('common.search')"
         autocomplete="off"
         class="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
         @focus="focused = true"

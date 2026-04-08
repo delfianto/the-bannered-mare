@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
 import type { components } from "@/api/schema";
+
+const { t } = useI18n();
 
 type PersonaResponse = components["schemas"]["PersonaResponse"];
 
@@ -25,7 +28,7 @@ async function loadPersonas() {
   try {
     const { data, error: apiError } = await client.GET("/api/personas/");
     if (apiError) {
-      error.value = "Failed to load personas";
+      error.value = t('settings.persona.failedLoad');
       return;
     }
     if (data) {
@@ -183,11 +186,11 @@ async function setDefault(personaId: string) {
     <!-- Header Row -->
     <div class="mb-4 flex items-center justify-between">
       <h3 class="font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        Your Personas
+        {{ $t('settings.persona.title') }}
       </h3>
       <UButton
         icon="i-lucide-plus"
-        label="Create Persona"
+        :label="$t('settings.persona.createPersona')"
         size="sm"
         variant="outline"
         @click="openCreateForm"
@@ -200,24 +203,24 @@ async function setDefault(personaId: string) {
       class="mb-4 animate-fade-in-up rounded-xl border bg-card/50 p-5"
     >
       <h4 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-        {{ editingId ? "Edit Persona" : "New Persona" }}
+        {{ editingId ? $t('settings.persona.editPersona') : $t('settings.persona.newPersona') }}
       </h4>
       <div class="space-y-4">
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">Name</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('settings.persona.name') }}</span>
           <input
             v-model="formName"
             type="text"
-            placeholder="Persona name…"
+            :placeholder="$t('settings.persona.namePlaceholder')"
             class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </label>
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">Description</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('settings.persona.description') }}</span>
           <textarea
             v-model="formDescription"
             rows="3"
-            placeholder="Describe this persona for RP context…"
+            :placeholder="$t('settings.persona.descriptionPlaceholder')"
             class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </label>
@@ -228,11 +231,11 @@ async function setDefault(personaId: string) {
               type="checkbox"
               class="rounded text-primary focus:ring-primary"
             />
-            Set as default
+            {{ $t('settings.persona.setAsDefault') }}
           </label>
         </div>
         <div>
-          <label class="mb-1 block text-xs font-medium text-muted-foreground">Avatar</label>
+          <label class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('settings.persona.avatar') }}</label>
           <input
             type="file"
             accept="image/*"
@@ -248,17 +251,17 @@ async function setDefault(personaId: string) {
           >
             <span v-if="formSaving" class="flex items-center gap-2">
               <UIcon name="i-lucide-loader-2" class="h-3.5 w-3.5 animate-spin" />
-              Saving...
+              {{ $t('common.saving') }}
             </span>
             <span v-else>
-              {{ editingId ? "Save Changes" : "Create Persona" }}
+              {{ editingId ? $t('settings.persona.saveChanges') : $t('settings.persona.createPersona') }}
             </span>
           </button>
           <button
             class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             @click="cancelForm"
           >
-            Cancel
+            {{ $t('common.cancel') }}
           </button>
         </div>
       </div>
@@ -284,7 +287,7 @@ async function setDefault(personaId: string) {
       class="rounded-xl border bg-card/50 p-8 text-center"
     >
       <UIcon name="i-lucide-user-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-      <p class="text-sm text-muted-foreground">No personas found. Create one to get started.</p>
+      <p class="text-sm text-muted-foreground">{{ $t('settings.persona.noPersonas') }}</p>
     </div>
 
     <!-- Persona List -->
@@ -312,7 +315,7 @@ async function setDefault(personaId: string) {
               class="cursor-default"
             >
               <UBadge
-                label="Default"
+                :label="$t('settings.persona.default')"
                 size="sm"
                 variant="subtle"
                 color="primary"
@@ -325,7 +328,7 @@ async function setDefault(personaId: string) {
               @click="setDefault(persona.id)"
             >
               <UBadge
-                label="Set Default"
+                :label="$t('settings.persona.setDefault')"
                 size="sm"
                 variant="outline"
                 color="neutral"

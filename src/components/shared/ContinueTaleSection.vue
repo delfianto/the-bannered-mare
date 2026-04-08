@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import type { components } from "@/api/schema";
 
 type Chat = components["schemas"]["ChatResponse"];
+
+const { t } = useI18n();
 
 defineProps<{
   sessions: Chat[];
@@ -22,12 +25,12 @@ function scroll(direction: "left" | "right") {
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t('time.justNow');
+  if (mins < 60) return t('time.minutesAgo', { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return t('time.hoursAgo', { count: hours });
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return t('time.daysAgo', { count: days });
 }
 
 function avatarSrc(chat: Chat): string {
@@ -41,16 +44,18 @@ function avatarSrc(chat: Chat): string {
   <section>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
-        Continue Your Tale
+        {{ $t('home.continueTale') }}
       </h2>
       <div class="flex items-center gap-1.5">
         <button
+          :aria-label="$t('bookmarks.scrollLeft')"
           class="flex h-8 w-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="scroll('left')"
         >
           <UIcon name="i-lucide-chevron-left" class="h-4 w-4" />
         </button>
         <button
+          :aria-label="$t('bookmarks.scrollRight')"
           class="flex h-8 w-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="scroll('right')"
         >
@@ -75,7 +80,7 @@ function avatarSrc(chat: Chat): string {
         <!-- Background image -->
         <img
           :src="avatarSrc(session)"
-          :alt="session.title ?? 'Untitled'"
+          :alt="session.title ?? $t('chat.untitled')"
           class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -85,7 +90,7 @@ function avatarSrc(chat: Chat): string {
         <!-- Content -->
         <div class="absolute bottom-0 left-0 right-0 p-4">
           <h3 class="mb-1 text-sm font-semibold text-white drop-shadow-md">
-            {{ session.title || "Untitled Tale" }}
+            {{ session.title || $t('chat.untitled') }}
           </h3>
           <p class="mb-2 text-xs text-white/70">with {{ session.character.name }}</p>
           <div class="flex items-center gap-3 text-[11px] text-white/60">

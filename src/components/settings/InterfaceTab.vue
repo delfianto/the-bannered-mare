@@ -40,7 +40,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
     <!-- Behavior Section -->
     <section>
       <h3 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        Behavior
+        {{ $t('settings.interface.behavior') }}
       </h3>
       <div class="rounded-xl border bg-card/50 p-5 space-y-5">
         <!-- Stream Responses -->
@@ -48,8 +48,8 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           <div class="flex items-center gap-3">
             <UIcon name="i-lucide-radio" class="h-5 w-5 text-primary" />
             <div>
-              <p class="text-sm font-medium text-foreground">Stream Responses</p>
-              <p class="text-xs text-muted-foreground">Show AI responses as they're generated</p>
+              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.streamResponses') }}</p>
+              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.streamDescription') }}</p>
             </div>
           </div>
           <button
@@ -70,13 +70,28 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Divider -->
         <div class="h-px bg-border" />
 
+        <!-- Language -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <UIcon name="i-lucide-languages" class="h-5 w-5 text-primary" />
+            <div>
+              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.language') }}</p>
+              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.languageDescription') }}</p>
+            </div>
+          </div>
+          <span class="text-sm text-muted-foreground">English</span>
+        </div>
+
+        <!-- Divider -->
+        <div class="h-px bg-border" />
+
         <!-- Show Typing Indicator -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <UIcon name="i-lucide-pen-tool" class="h-5 w-5 text-primary" />
             <div>
-              <p class="text-sm font-medium text-foreground">Show Typing Indicator</p>
-              <p class="text-xs text-muted-foreground">Show quill animation while AI is composing</p>
+              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.typingIndicator') }}</p>
+              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.typingDescription') }}</p>
             </div>
           </div>
           <button
@@ -99,7 +114,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
     <!-- Color Scheme Section -->
     <section>
       <h3 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        Color Scheme
+        {{ $t('settings.interface.colorScheme') }}
       </h3>
       <div class="rounded-xl border bg-card/50 p-5 space-y-5">
         <!-- Dark mode toggle -->
@@ -110,8 +125,8 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               class="h-5 w-5 text-primary"
             />
             <div>
-              <p class="text-sm font-medium text-foreground">Dark Mode</p>
-              <p class="text-xs text-muted-foreground">Switch between light and dark appearance</p>
+              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.darkMode') }}</p>
+              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.darkModeDescription') }}</p>
             </div>
           </div>
           <button

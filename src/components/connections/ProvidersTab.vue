@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useProviders } from "@/composables/useProviders";
+
+const { t } = useI18n();
 
 import anthropicIcon from "@/assets/icons/anthropic.svg";
 import googleIcon from "@/assets/icons/google.svg";
@@ -31,7 +34,7 @@ function getIcon(providerType: string): string {
 }
 
 function formatUrl(url: string | null): string {
-  if (!url) return "No URL configured";
+  if (!url) return t("connections.noUrlConfigured");
   try {
     return new URL(url).host;
   } catch {
@@ -55,7 +58,7 @@ function formatUrl(url: string | null): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh"
       >
-        Retry
+        {{ $t('common.retry') }}
       </button>
     </div>
 
@@ -101,15 +104,15 @@ function formatUrl(url: string | null): string {
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-key" class="h-3 w-3 shrink-0" />
-            <span v-if="provider.api_key_configured" class="text-emerald-500">Configured</span>
-            <span v-else class="text-amber-500">Not configured</span>
+            <span v-if="provider.api_key_configured" class="text-emerald-500">{{ $t('connections.provider.keyConfigured') }}</span>
+            <span v-else class="text-amber-500">{{ $t('connections.provider.keyNotSet') }}</span>
           </div>
         </div>
 
         <!-- Edit hint -->
         <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-          Edit
+          {{ $t('common.edit') }}
         </div>
       </RouterLink>
     </div>

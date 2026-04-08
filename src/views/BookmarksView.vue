@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useBookmarks } from "@/composables/useBookmarks";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
 
+const { t } = useI18n();
 const { characters, sessions, messages, loading, totalCount } = useBookmarks();
 
 const scrollContainer = ref<HTMLElement | null>(null);
@@ -17,13 +19,13 @@ function scroll(direction: "left" | "right") {
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 60) return t('time.minutesAgo', { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return t('time.hoursAgo', { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 7) return t('time.daysAgo', { count: days });
   const weeks = Math.floor(days / 7);
-  return `${weeks}w ago`;
+  return t('time.weeksAgo', { count: weeks });
 }
 </script>
 
@@ -40,7 +42,7 @@ function timeAgo(dateStr: string): string {
       class="flex flex-col items-center justify-center gap-3 py-20"
     >
       <UIcon name="i-lucide-bookmark" class="h-10 w-10 text-muted-foreground/40" />
-      <p class="text-sm text-muted-foreground">No bookmarks yet</p>
+      <p class="text-sm text-muted-foreground">{{ $t('bookmarks.noBookmarks') }}</p>
     </div>
 
     <template v-else>
@@ -54,10 +56,10 @@ function timeAgo(dateStr: string): string {
           </div>
           <div>
             <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
-              Bookmarks
+              {{ $t('bookmarks.title') }}
             </h1>
             <p class="mt-0.5 text-sm text-muted-foreground">
-              Curated highlights from your tales across the realms
+              {{ $t('bookmarks.subtitle') }}
             </p>
           </div>
         </div>
@@ -74,7 +76,7 @@ function timeAgo(dateStr: string): string {
             <h2
               class="font-cinzel text-lg font-semibold tracking-wide text-foreground"
             >
-              Favorite Characters
+              {{ $t('bookmarks.favoriteCharacters') }}
             </h2>
             <span
               class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
@@ -85,14 +87,14 @@ function timeAgo(dateStr: string): string {
           <div class="flex items-center gap-1.5">
             <button
               class="flex h-8 w-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              aria-label="Scroll left"
+              :aria-label="$t('bookmarks.scrollLeft')"
               @click="scroll('left')"
             >
               <UIcon name="i-lucide-chevron-left" class="h-4 w-4" />
             </button>
             <button
               class="flex h-8 w-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              aria-label="Scroll right"
+              :aria-label="$t('bookmarks.scrollRight')"
               @click="scroll('right')"
             >
               <UIcon name="i-lucide-chevron-right" class="h-4 w-4" />
@@ -150,7 +152,7 @@ function timeAgo(dateStr: string): string {
             <h2
               class="font-cinzel text-lg font-semibold tracking-wide text-foreground"
             >
-              Saved Sessions
+              {{ $t('bookmarks.savedSessions') }}
             </h2>
             <span
               class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
@@ -182,7 +184,7 @@ function timeAgo(dateStr: string): string {
               <p
                 class="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-primary"
               >
-                with {{ session.character?.name }}
+                {{ $t('bookmarks.with', { name: session.character?.name }) }}
               </p>
             </div>
             <span class="whitespace-nowrap text-[10px] text-muted-foreground">
@@ -202,7 +204,7 @@ function timeAgo(dateStr: string): string {
           <h2
             class="font-cinzel text-lg font-semibold tracking-wide text-foreground"
           >
-            Pinned Fragments
+            {{ $t('bookmarks.pinnedFragments') }}
           </h2>
           <span
             class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
@@ -233,7 +235,7 @@ function timeAgo(dateStr: string): string {
                     {{ msg.character.name }}
                   </h4>
                   <p class="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    From:
+                    {{ $t('bookmarks.from') }}
                     <RouterLink
                       :to="`/chats/${msg.chat.id}`"
                       class="text-primary hover:underline"
@@ -257,7 +259,7 @@ function timeAgo(dateStr: string): string {
             >
               <button
                 class="text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
-                aria-label="Remove bookmark"
+                :aria-label="$t('bookmarks.removeBookmark')"
               >
                 <UIcon name="i-lucide-trash-2" class="h-4 w-4" />
               </button>

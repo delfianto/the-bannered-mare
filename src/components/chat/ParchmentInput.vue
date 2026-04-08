@@ -62,7 +62,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <textarea
         ref="textareaRef"
         v-model="value"
-        placeholder="Continue the tale..."
+        :placeholder="$t('chat.inputPlaceholder')"
         rows="1"
         class="max-h-[140px] flex-1 resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
         :disabled="disabled"
@@ -74,7 +74,7 @@ function handleKeyDown(e: KeyboardEvent) {
 
       <!-- Send button -->
       <button
-        aria-label="Send message"
+        :aria-label="$t('chat.sendMessage')"
         :disabled="!canSend || disabled"
         class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
         :class="
@@ -89,7 +89,7 @@ function handleKeyDown(e: KeyboardEvent) {
     </div>
 
     <p class="mt-2 text-center text-[10px] text-muted-foreground opacity-60">
-      Shift + Enter for new line · Your words shape the story
+      {{ $t('chat.inputHint') }}
     </p>
   </div>
 </template>

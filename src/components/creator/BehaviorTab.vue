@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import type { CharacterData } from "@/types/creator";
 import { RESPONSE_STYLE_OPTIONS } from "@/constants/creatorData";
 import FormField from "./FormField.vue";
 import Combobox from "./Combobox.vue";
 import DialoguePairEditor from "./DialoguePairEditor.vue";
+
+const { t } = useI18n();
 
 defineProps<{
   data: CharacterData;
@@ -23,11 +26,11 @@ const dialoguesOpen = ref(true);
 <template>
   <div class="animate-fade-in-up space-y-6">
     <div>
-      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">Persona</h2>
+      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">{{ $t('characters.form.persona') }}</h2>
       <div class="mt-2 h-px bg-border" />
     </div>
 
-    <FormField label="Description" hint="Backstory, traits, motivations" :char-count="data.description.length" :char-max="12000">
+    <FormField :label="t('characters.form.description')" :hint="t('characters.form.descriptionHint')" :char-count="data.description.length" :char-max="12000">
       <textarea
         :value="data.description"
         placeholder="Elara Moonwhisper is a half-elf arcanist who has dedicated her considerable lifespan to preserving the knowledge of the Sunken Library…"
@@ -37,7 +40,7 @@ const dialoguesOpen = ref(true);
       />
     </FormField>
 
-    <FormField label="Personality Summary" :char-count="data.personality.length" :char-max="1000">
+    <FormField :label="t('characters.form.personalitySummary')" :char-count="data.personality.length" :char-max="1000">
       <textarea
         :value="data.personality"
         placeholder="Intellectual and warm, with a dry wit. Treats books like old friends and adventurers like puzzles."
@@ -47,7 +50,7 @@ const dialoguesOpen = ref(true);
       />
     </FormField>
 
-    <FormField label="Greeting" hint="First message when a session begins" :char-count="data.greeting.length" :char-max="4000">
+    <FormField :label="t('characters.form.greeting')" :hint="t('characters.form.greetingHint')" :char-count="data.greeting.length" :char-max="4000">
       <textarea
         :value="data.greeting"
         :placeholder="'*The torchlight flickers against the damp stone walls.* &quot;These wards were placed here centuries ago…&quot;'"
@@ -57,7 +60,7 @@ const dialoguesOpen = ref(true);
       />
     </FormField>
 
-    <FormField label="Response Style">
+    <FormField :label="t('characters.form.responseStyle')">
       <Combobox :model-value="data.responseStyle" :options="RESPONSE_STYLE_OPTIONS" placeholder="Narrative" @update:model-value="emit('update:field', 'responseStyle', $event)" />
     </FormField>
 
@@ -69,9 +72,9 @@ const dialoguesOpen = ref(true);
         @click="dialoguesOpen = !dialoguesOpen"
       >
         <UIcon name="i-lucide-chevron-right" class="h-4 w-4 transition-transform" :class="dialoguesOpen ? 'rotate-90' : ''" />
-        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">Example Dialogues</span>
+        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">{{ $t('characters.form.exampleDialogues') }}</span>
         <span class="ml-auto text-xs text-muted-foreground">
-          {{ data.exampleDialogues.length }} {{ data.exampleDialogues.length === 1 ? 'exchange' : 'exchanges' }}
+          {{ data.exampleDialogues.length }} {{ data.exampleDialogues.length === 1 ? t('characters.form.exchange').split(' | ')[0] : t('characters.form.exchange').split(' | ')[1] }}
         </span>
       </button>
 
@@ -91,7 +94,7 @@ const dialoguesOpen = ref(true);
           @click="emit('addDialogue')"
         >
           <UIcon name="i-lucide-plus" class="h-4 w-4" />
-          Add Dialogue Exchange
+          {{ $t('characters.form.addDialogue') }}
         </button>
       </div>
     </div>

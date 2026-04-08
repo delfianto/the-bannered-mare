@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // ── Types ──────────────────────────────────────────────────
 interface HttpLog {
@@ -76,10 +79,10 @@ function formatTimestamp(iso: string): string {
   const diffHr = Math.floor(diffMs / 3_600_000);
   const diffDay = Math.floor(diffMs / 86_400_000);
 
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
+  if (diffMin < 1) return t('time.justNow');
+  if (diffMin < 60) return t('time.minutesAgo', { count: diffMin });
+  if (diffHr < 24) return t('time.hoursAgo', { count: diffHr });
+  if (diffDay < 7) return t('time.daysAgo', { count: diffDay });
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
@@ -106,10 +109,10 @@ const successRate = computed(() => {
 const statCards = computed(() => {
   if (!llmStats.value) return [];
   return [
-    { label: "Total Requests", value: String(llmStats.value.total_requests), icon: "i-lucide-activity" },
-    { label: "Total Tokens", value: formatTokens(llmStats.value.total_tokens), icon: "i-lucide-coins" },
-    { label: "Success Rate", value: `${successRate.value}%`, icon: "i-lucide-check-circle" },
-    { label: "Avg Latency", value: formatDuration(llmStats.value.avg_duration_ms), icon: "i-lucide-timer" },
+    { label: t('settings.logs.totalRequests'), value: String(llmStats.value.total_requests), icon: "i-lucide-activity" },
+    { label: t('settings.logs.totalTokens'), value: formatTokens(llmStats.value.total_tokens), icon: "i-lucide-coins" },
+    { label: t('settings.logs.successRate'), value: `${successRate.value}%`, icon: "i-lucide-check-circle" },
+    { label: t('settings.logs.avgLatency'), value: formatDuration(llmStats.value.avg_duration_ms), icon: "i-lucide-timer" },
   ];
 });
 
@@ -167,7 +170,7 @@ onMounted(fetchAll);
         <h3
           class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
         >
-          LLM Usage
+          {{ $t('settings.logs.llmUsage') }}
         </h3>
 
         <!-- Stat Cards -->
@@ -185,7 +188,7 @@ onMounted(fetchAll);
 
         <!-- Provider Breakdown -->
         <div v-if="providerEntries.length" class="mt-3 flex flex-wrap items-center gap-2">
-          <span class="text-xs text-muted-foreground">By provider:</span>
+          <span class="text-xs text-muted-foreground">{{ $t('settings.logs.byProvider') }}</span>
           <span
             v-for="prov in providerEntries"
             :key="prov.name"
@@ -201,9 +204,9 @@ onMounted(fetchAll);
       <div class="flex items-center gap-2">
         <button
           v-for="tab in [
-            { id: 'http' as const, label: 'HTTP Logs', icon: 'i-lucide-globe' },
-            { id: 'llm' as const, label: 'LLM Logs', icon: 'i-lucide-brain' },
-            { id: 'errors' as const, label: 'Error Logs', icon: 'i-lucide-alert-triangle' },
+            { id: 'http' as const, label: $t('settings.logs.httpLogs'), icon: 'i-lucide-globe' },
+            { id: 'llm' as const, label: $t('settings.logs.llmLogs'), icon: 'i-lucide-brain' },
+            { id: 'errors' as const, label: $t('settings.logs.errorLogs'), icon: 'i-lucide-alert-triangle' },
           ]"
           :key="tab.id"
           class="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-200"
@@ -222,7 +225,7 @@ onMounted(fetchAll);
       <!-- HTTP Logs -->
       <section v-if="activeSubTab === 'http'" class="space-y-2">
         <div v-if="!httpLogs.length" class="py-8 text-center text-sm text-muted-foreground">
-          No HTTP logs found.
+          {{ $t('settings.logs.noHttpLogs') }}
         </div>
         <div
           v-for="log in httpLogs"
@@ -271,7 +274,7 @@ onMounted(fetchAll);
       <!-- LLM Logs -->
       <section v-if="activeSubTab === 'llm'" class="space-y-2">
         <div v-if="!llmLogs.length" class="py-8 text-center text-sm text-muted-foreground">
-          No LLM logs found.
+          {{ $t('settings.logs.noLlmLogs') }}
         </div>
         <div
           v-for="log in llmLogs"
@@ -327,7 +330,7 @@ onMounted(fetchAll);
       <!-- Error Logs -->
       <section v-if="activeSubTab === 'errors'" class="space-y-2">
         <div v-if="!errorLogs.length" class="py-8 text-center text-sm text-muted-foreground">
-          No error logs found.
+          {{ $t('settings.logs.noErrorLogs') }}
         </div>
         <div
           v-for="err in errorLogs"

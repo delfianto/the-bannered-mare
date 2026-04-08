@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useCharacters } from "@/composables/useCharacters";
 import { useLibraryFilters } from "@/composables/useLibraryFilters";
 import { useAppToast } from "@/composables/useToast";
@@ -14,6 +15,7 @@ import CharacterListRow from "@/components/discover/CharacterListRow.vue";
 import EmptyState from "@/components/discover/EmptyState.vue";
 
 const router = useRouter();
+const { t } = useI18n();
 const { success, error: toastError } = useAppToast();
 
 // Fetch characters from API
@@ -87,10 +89,10 @@ async function onFileSelected(event: Event) {
       throw new Error(`Import failed: ${response.status}`);
     }
 
-    success("Character imported", `"${file.name}" was successfully imported to your library.`);
+    success(t("characters.imported"), t("characters.importSuccess", { name: file.name }));
     refresh();
   } catch {
-    toastError("Import failed", "Could not import the character file. Please try again.");
+    toastError(t("characters.importFailed"), t("characters.importError"));
   } finally {
     importing.value = false;
     // Reset file input so same file can be re-selected
@@ -157,7 +159,7 @@ async function onFileSelected(event: Event) {
       class="flex items-center justify-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-6 py-4"
     >
       <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-primary" />
-      <span class="text-sm text-foreground">Importing character...</span>
+      <span class="text-sm text-foreground">{{ $t('characters.importing') }}</span>
     </div>
 
     <!-- Loading -->

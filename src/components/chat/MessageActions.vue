@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+
 defineProps<{
   type: "user" | "character";
   visible: boolean;
@@ -9,14 +13,14 @@ const emit = defineEmits<{
 }>();
 
 const characterActions = [
-  { icon: "i-lucide-rotate-ccw", label: "Regenerate", key: "regen" },
-  { icon: "i-lucide-copy", label: "Copy", key: "copy" },
-  { icon: "i-lucide-bookmark", label: "Bookmark", key: "bookmark" },
+  { icon: "i-lucide-rotate-ccw", label: t('chat.actions.regenerate'), key: "regen" },
+  { icon: "i-lucide-copy", label: t('chat.actions.copy'), key: "copy" },
+  { icon: "i-lucide-bookmark", label: t('chat.actions.bookmark'), key: "bookmark" },
 ];
 
 const userActions = [
-  { icon: "i-lucide-pencil", label: "Edit", key: "edit" },
-  { icon: "i-lucide-trash-2", label: "Delete", key: "delete" },
+  { icon: "i-lucide-pencil", label: t('chat.actions.edit'), key: "edit" },
+  { icon: "i-lucide-trash-2", label: t('chat.actions.delete'), key: "delete" },
 ];
 </script>
 

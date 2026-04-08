@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import type { CharacterData } from "@/types/creator";
 import { SPECIES_OPTIONS, GENDER_OPTIONS, SUGGESTED_TAGS } from "@/constants/creatorData";
 import FormField from "./FormField.vue";
 import Combobox from "./Combobox.vue";
 import TagInput from "./TagInput.vue";
 import AvatarUpload from "./AvatarUpload.vue";
+
+const { t } = useI18n();
 
 defineProps<{
   data: CharacterData;
@@ -20,7 +23,7 @@ const emit = defineEmits<{
 <template>
   <div class="animate-fade-in-up space-y-6">
     <div>
-      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">Identity</h2>
+      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">{{ $t('characters.form.identity') }}</h2>
       <div class="mt-2 h-px bg-border" />
     </div>
 
@@ -28,7 +31,7 @@ const emit = defineEmits<{
       <AvatarUpload :avatar-url="data.avatarUrl" @change="emit('update:field', 'avatarUrl', $event)" />
 
       <div class="flex-1 space-y-4">
-        <FormField label="Name">
+        <FormField :label="t('characters.form.name')">
           <input
             :value="data.name"
             placeholder="Elara Moonwhisper"
@@ -37,7 +40,7 @@ const emit = defineEmits<{
           />
         </FormField>
 
-        <FormField label="Title / Subtitle" hint="How they're known">
+        <FormField :label="t('characters.form.title')" :hint="t('characters.form.titleHint')">
           <input
             :value="data.title"
             placeholder="Arcane Librarian of the Sunken Vaults"
@@ -47,13 +50,13 @@ const emit = defineEmits<{
         </FormField>
 
         <div class="grid grid-cols-3 gap-3">
-          <FormField label="Species">
+          <FormField :label="t('characters.form.species')">
             <Combobox :model-value="data.species" :options="SPECIES_OPTIONS" placeholder="Half-Elf" @update:model-value="emit('update:field', 'species', $event)" />
           </FormField>
-          <FormField label="Gender">
+          <FormField :label="t('characters.form.gender')">
             <Combobox :model-value="data.gender" :options="GENDER_OPTIONS" placeholder="Female" @update:model-value="emit('update:field', 'gender', $event)" />
           </FormField>
-          <FormField label="Age">
+          <FormField :label="t('characters.form.age')">
             <input
               :value="data.age"
               placeholder="127"
@@ -65,7 +68,7 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <FormField label="Tags" :hint="`${data.tags.length}/10`">
+    <FormField :label="t('characters.form.tags')" :hint="`${data.tags.length}/10`">
       <TagInput :tags="data.tags" :suggestions="SUGGESTED_TAGS" :max="10" @add="emit('add:tag', $event)" @remove="emit('remove:tag', $event)" />
     </FormField>
   </div>

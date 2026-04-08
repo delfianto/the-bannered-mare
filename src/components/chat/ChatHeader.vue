@@ -94,7 +94,7 @@ onUnmounted(() => {
     class="z-10 flex h-[62px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-5 backdrop-blur-sm"
   >
     <button
-      aria-label="Go back"
+      :aria-label="$t('common.goBack')"
       class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       @click="emit('back')"
     >
@@ -138,7 +138,7 @@ onUnmounted(() => {
 
     <div ref="menuRef" class="relative">
       <button
-        aria-label="Session menu"
+        :aria-label="$t('chat.sessionMenu')"
         class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         @click="toggleMenu"
       >
@@ -155,7 +155,7 @@ onUnmounted(() => {
           @click="startRename"
         >
           <UIcon name="i-lucide-pencil" class="h-4 w-4" />
-          Rename
+          {{ $t('chat.rename') }}
         </button>
         <button
           class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-accent/50"
@@ -163,7 +163,7 @@ onUnmounted(() => {
           @click="handleDelete"
         >
           <UIcon name="i-lucide-trash-2" class="h-4 w-4" />
-          {{ confirmDelete ? "Confirm Delete?" : "Delete" }}
+          {{ confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
         </button>
       </div>
     </div>

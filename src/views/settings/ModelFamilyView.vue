@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useModelFamily } from "@/composables/useModelFamily";
 import { useAppToast } from "@/composables/useToast";
+
+const { t } = useI18n();
 
 const router = useRouter();
 const route = useRoute();
@@ -105,7 +108,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">Loading model family...</span>
+        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
       </div>
     </div>
 
@@ -117,7 +120,7 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        Go Back
+        {{ $t('common.goBack') }}
       </button>
     </div>
 
@@ -127,7 +130,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="Back to model families"
+            :aria-label="$t('connections.family.backToFamilies')"
             @click="router.push({ path: '/connections', query: { tab: 'model-families' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -159,7 +162,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': deleting }"
             />
-            {{ deleting ? "Deleting..." : confirmDelete ? "Confirm?" : "Delete" }}
+            {{ deleting ? $t('common.deleting') : confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
           </button>
 
           <!-- Save button -->
@@ -173,7 +176,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': saving }"
             />
-            {{ saving ? "Saving..." : "Save" }}
+            {{ saving ? $t('common.saving') : $t('common.save') }}
           </button>
         </div>
       </header>
@@ -183,14 +186,11 @@ function formatDate(iso: string): string {
         <div class="mx-auto max-w-2xl space-y-6">
           <!-- Basic Info card -->
           <div class="rounded-xl border bg-card/50 p-5">
-            <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              Basic Info
-            </h2>
             <div class="space-y-4">
               <!-- Name -->
               <label class="block">
                 <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  Name
+                  {{ $t('connections.family.name') }}
                 </span>
                 <input
                   v-model="form.name"
@@ -203,7 +203,7 @@ function formatDate(iso: string): string {
               <!-- Family Identifier -->
               <label class="block">
                 <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  Family Identifier
+                  {{ $t('connections.family.identifier') }}
                 </span>
                 <input
                   v-model="form.family_identifier"
@@ -216,12 +216,12 @@ function formatDate(iso: string): string {
               <!-- Description -->
               <label class="block">
                 <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  Description
+                  {{ $t('connections.family.description') }}
                 </span>
                 <textarea
                   v-model="form.description"
                   rows="3"
-                  placeholder="Describe this model family…"
+                  :placeholder="t('connections.family.descriptionPlaceholder')"
                   class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
@@ -231,7 +231,7 @@ function formatDate(iso: string): string {
           <!-- Provider Types card -->
           <div class="rounded-xl border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              Provider Types
+              {{ $t('connections.family.providerTypes') }}
             </h2>
             <div class="flex flex-wrap gap-2">
               <span
@@ -242,7 +242,7 @@ function formatDate(iso: string): string {
                 {{ pt }}
               </span>
               <span v-if="!family.provider_types?.length" class="text-xs text-muted-foreground">
-                No provider types configured
+                {{ $t('connections.family.noProviderTypes') }}
               </span>
             </div>
           </div>
@@ -250,7 +250,7 @@ function formatDate(iso: string): string {
           <!-- Parameter Schema card -->
           <div v-if="family.parameters && Object.keys(family.parameters).length" class="rounded-xl border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              Parameter Schema
+              {{ $t('connections.family.parameterSchema') }}
             </h2>
             <div class="space-y-3">
               <div
@@ -282,7 +282,7 @@ function formatDate(iso: string): string {
           <!-- Unsupported Parameters card -->
           <div v-if="family.unsupported_parameters?.length" class="rounded-xl border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              Unsupported Parameters
+              {{ $t('connections.family.unsupportedParams') }}
             </h2>
             <div class="flex flex-wrap gap-2">
               <span

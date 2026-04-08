@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+
 defineProps<{
   activeTab: string;
 }>();
@@ -7,12 +12,12 @@ const emit = defineEmits<{
   change: [tab: string];
 }>();
 
-const tabs = [
-  { id: "interface", label: "Interface", icon: "i-lucide-palette" },
-  { id: "persona", label: "Persona", icon: "i-lucide-user-circle" },
-  { id: "logs", label: "Logs", icon: "i-lucide-scroll-text" },
-  { id: "about", label: "About", icon: "i-lucide-info" },
-];
+const tabs = computed(() => [
+  { id: "interface", label: t('settings.tabs.interface'), icon: "i-lucide-palette" },
+  { id: "persona", label: t('settings.tabs.persona'), icon: "i-lucide-user-circle" },
+  { id: "logs", label: t('settings.tabs.logs'), icon: "i-lucide-scroll-text" },
+  { id: "about", label: t('settings.tabs.about'), icon: "i-lucide-info" },
+]);
 </script>
 
 <template>

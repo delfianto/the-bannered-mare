@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { Message } from "@/types/chat";
 import NarrativeText from "./NarrativeText.vue";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   message: Message;
@@ -74,14 +77,14 @@ function handleEditKeydown(e: KeyboardEvent) {
 }
 
 const characterActions = [
-  { icon: "i-lucide-rotate-ccw", label: "Regenerate", key: "regen" },
-  { icon: "i-lucide-copy", label: "Copy", key: "copy" },
-  { icon: "i-lucide-bookmark", label: "Bookmark", key: "bookmark" },
+  { icon: "i-lucide-rotate-ccw", label: t('chat.actions.regenerate'), key: "regen" },
+  { icon: "i-lucide-copy", label: t('chat.actions.copy'), key: "copy" },
+  { icon: "i-lucide-bookmark", label: t('chat.actions.bookmark'), key: "bookmark" },
 ];
 
 const userActions = [
-  { icon: "i-lucide-pencil", label: "Edit", key: "edit" },
-  { icon: "i-lucide-trash-2", label: "Delete", key: "delete" },
+  { icon: "i-lucide-pencil", label: t('chat.actions.edit'), key: "edit" },
+  { icon: "i-lucide-trash-2", label: t('chat.actions.delete'), key: "delete" },
 ];
 </script>
 
@@ -107,7 +110,7 @@ const userActions = [
       <!-- Swipe Left Arrow (assistant only) -->
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
-        aria-label="Previous alternative"
+        :aria-label="$t('chat.swipe.previous')"
         class="absolute -left-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'left')"
       >
@@ -117,7 +120,7 @@ const userActions = [
       <!-- Swipe Right Arrow (assistant only) -->
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
-        aria-label="Next alternative"
+        :aria-label="$t('chat.swipe.next')"
         class="absolute -right-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'right')"
       >
@@ -161,13 +164,13 @@ const userActions = [
               class="rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               @click="cancelEdit"
             >
-              Cancel
+              {{ $t('common.cancel') }}
             </button>
             <button
               class="rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground transition-colors hover:bg-primary/90"
               @click="saveEdit"
             >
-              Save
+              {{ $t('common.save') }}
             </button>
           </div>
         </template>

@@ -56,7 +56,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
     <div class="space-y-2 rounded-xl border bg-card p-4">
       <div class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
         <UIcon name="i-lucide-message-circle" class="h-3 w-3" />
-        Greeting Preview
+        {{ $t('characters.form.greeting') }}
       </div>
       <div v-if="greetingPreview" class="text-xs leading-[1.7]">
         <NarrativeText :content="greetingPreview + (data.greeting.length > 300 ? '...' : '')" />
@@ -66,6 +66,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
 
     <!-- Completeness -->
     <div class="rounded-xl border bg-card p-4">
+      <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{{ $t('characters.form.completeness') }}</p>
       <div class="flex items-center gap-3">
         <svg width="44" height="44" class="-rotate-90 flex-shrink-0">
           <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3" />
@@ -81,7 +82,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         </svg>
         <div>
           <p class="text-sm font-medium text-foreground">
-            {{ completeness.filled }} of {{ completeness.total }} fields
+            {{ completeness.filled }} / {{ completeness.total }}
           </p>
           <p class="text-[11px] text-muted-foreground">
             <span v-if="pct >= 100" class="flex items-center gap-1 text-primary">

@@ -21,13 +21,13 @@ defineEmits<{
     </div>
 
     <h3 class="mb-2 font-cinzel text-lg font-semibold text-foreground">
-      {{ hasFilters ? "No Characters Found" : "Your Library Awaits" }}
+      {{ hasFilters ? $t('characters.noFound') : $t('characters.libraryAwaits') }}
     </h3>
     <p class="mb-6 max-w-sm text-sm text-muted-foreground">
       {{
         hasFilters
-          ? "Try adjusting your search or filters to find what you're looking for."
-          : "Create your first character to begin weaving tales of adventure and wonder."
+          ? $t('characters.tryFilters')
+          : $t('characters.createFirst')
       }}
     </p>
     <button
@@ -36,7 +36,7 @@ defineEmits<{
       @click="$emit('createNew')"
     >
       <UIcon name="i-lucide-plus" class="h-4 w-4" />
-      Create Character
+      {{ $t('characters.createNew') }}
     </button>
   </div>
 </template>

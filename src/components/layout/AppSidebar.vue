@@ -4,18 +4,20 @@ import { useSidebar } from "@/composables/useSidebar";
 import { APP_INFO } from "@/constants/appInfo";
 import { PINNED_CHARACTERS } from "@/constants/pinnedCharacters";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const route = useRoute();
 const { isDark, toggleTheme } = useTheme();
 const { collapsed, toggle: toggleSidebar } = useSidebar();
 
 const navItems = [
-  { id: "home", to: "/", label: "Home", icon: "i-lucide-home" },
-  { id: "characters", to: "/characters", label: "Discover", icon: "i-lucide-compass" },
-  { id: "bookmarks", to: "/bookmarks", label: "Bookmarks", icon: "i-lucide-bookmark" },
-  { id: "memory", to: "/memory", label: "Data Bank", icon: "i-lucide-database" },
-  { id: "chats", to: "/chats", label: "Sessions", icon: "i-lucide-scroll-text" },
-  { id: "connections", to: "/connections", label: "Connections", icon: "i-lucide-cable" },
+  { id: "home", to: "/", label: t('nav.home'), icon: "i-lucide-home" },
+  { id: "characters", to: "/characters", label: t('nav.discover'), icon: "i-lucide-compass" },
+  { id: "bookmarks", to: "/bookmarks", label: t('nav.bookmarks'), icon: "i-lucide-bookmark" },
+  { id: "memory", to: "/memory", label: t('nav.dataBank'), icon: "i-lucide-database" },
+  { id: "chats", to: "/chats", label: t('nav.sessions'), icon: "i-lucide-scroll-text" },
+  { id: "connections", to: "/connections", label: t('nav.connections'), icon: "i-lucide-cable" },
 ];
 
 function isActive(to: string) {
@@ -34,8 +36,8 @@ function isActive(to: string) {
       <div class="flex items-center justify-center gap-2.5">
         <button
           class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
-          :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-          :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+          :title="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
+          :aria-label="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           @click="toggleSidebar"
         >
           <UIcon name="i-lucide-flame" class="h-5 w-5 text-primary-foreground" />
@@ -108,7 +110,7 @@ function isActive(to: string) {
         v-if="!collapsed"
         class="mb-2.5 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
       >
-        Favorites
+        {{ $t('nav.favorites') }}
       </p>
 
       <div class="space-y-0.5">
@@ -167,7 +169,7 @@ function isActive(to: string) {
     <!-- Footer: Settings + Theme Toggle -->
     <div class="border-t px-2 py-3 space-y-0.5">
       <UTooltip
-        text="Settings"
+        :text="$t('nav.settings')"
         :content="{ side: 'right', sideOffset: 8 }"
         :disabled="!collapsed"
       >
@@ -180,12 +182,12 @@ function isActive(to: string) {
           ]"
         >
           <UIcon name="i-lucide-settings" class="h-[18px] w-[18px] flex-shrink-0" />
-          <span v-if="!collapsed" style="letter-spacing: 0.04em">Settings</span>
+          <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t('nav.settings') }}</span>
         </RouterLink>
       </UTooltip>
 
       <UTooltip
-        :text="isDark ? 'Dark Mode' : 'Light Mode'"
+        :text="$t('settings.interface.darkMode')"
         :content="{ side: 'right', sideOffset: 8 }"
         :disabled="!collapsed"
       >
@@ -203,7 +205,7 @@ function isActive(to: string) {
               class="h-[18px] w-[18px] flex-shrink-0 text-primary"
             />
             <span v-if="!collapsed" class="text-sm font-medium text-foreground">
-              {{ isDark ? "Dark Mode" : "Light Mode" }}
+              {{ $t('settings.interface.darkMode') }}
             </span>
           </div>
           <div

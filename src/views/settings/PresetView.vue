@@ -3,7 +3,6 @@ import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { usePreset } from "@/composables/usePreset";
 import { useAppToast } from "@/composables/useToast";
-
 const router = useRouter();
 const route = useRoute();
 const { preset, loading, saving, deleting, error, fetchPreset, savePreset, deletePreset, setDefault } =
@@ -134,7 +133,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">Loading preset...</span>
+        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
       </div>
     </div>
 
@@ -146,7 +145,7 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        Go Back
+        {{ $t('common.goBack') }}
       </button>
     </div>
 
@@ -158,7 +157,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="Back to presets"
+            :aria-label="$t('connections.preset.backToPresets')"
             @click="router.push({ path: '/connections', query: { tab: 'presets' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -190,7 +189,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': deleting }"
             />
-            {{ deleting ? "Deleting..." : confirmDelete ? "Confirm?" : "Delete" }}
+            {{ deleting ? $t('common.deleting') : confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
           </button>
 
           <!-- Save button -->
@@ -204,7 +203,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': saving }"
             />
-            {{ saving ? "Saving..." : "Save" }}
+            {{ saving ? $t('common.saving') : $t('common.save') }}
           </button>
         </div>
       </header>
@@ -227,7 +226,7 @@ function formatDate(iso: string): string {
                   <span
                     class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                   >
-                    Name
+                    {{ $t('connections.preset.name') }}
                   </span>
                   <input
                     v-model="form.name"
@@ -242,7 +241,7 @@ function formatDate(iso: string): string {
                   <span
                     class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                   >
-                    Description
+                    {{ $t('connections.preset.description') }}
                   </span>
                   <textarea
                     v-model="form.description"
@@ -257,7 +256,7 @@ function formatDate(iso: string): string {
                   <label
                     class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                   >
-                    Default Preset
+                    {{ $t('connections.preset.isDefault') }}
                   </label>
                   <button @click="toggleDefault" role="switch" :aria-checked="form.is_default" aria-label="Default preset" class="cursor-pointer">
                     <div
@@ -283,7 +282,7 @@ function formatDate(iso: string): string {
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >
-                Sampling Parameters
+                {{ $t('connections.preset.params') }}
               </h2>
               <div class="space-y-2">
                 <div
@@ -309,7 +308,7 @@ function formatDate(iso: string): string {
                   <!-- Remove button -->
                   <button
                     class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    aria-label="Remove parameter"
+                    :aria-label="$t('connections.preset.removeParam')"
                     @click="removeParameter(index)"
                   >
                     <UIcon name="i-lucide-x" class="h-4 w-4" />
@@ -321,7 +320,7 @@ function formatDate(iso: string): string {
                 @click="addParameter"
               >
                 <UIcon name="i-lucide-plus" class="h-4 w-4" />
-                Add Parameter
+                {{ $t('connections.preset.addParam') }}
               </button>
             </div>
           </div>
@@ -333,7 +332,7 @@ function formatDate(iso: string): string {
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >
-                Metadata
+                {{ $t('connections.preset.metadata') }}
               </h2>
               <div class="space-y-3">
                 <!-- Is Default status -->
@@ -367,7 +366,7 @@ function formatDate(iso: string): string {
                     class="h-4 w-4"
                     :class="{ 'animate-spin': saving }"
                   />
-                  {{ saving ? "Setting..." : "Set as Default" }}
+                  {{ saving ? $t('common.saving') : $t('connections.preset.setDefault') }}
                 </button>
 
                 <div class="h-px bg-border/50" />

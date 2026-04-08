@@ -19,7 +19,7 @@ const emit = defineEmits<{
       <button
         type="button"
         class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-        aria-label="Remove dialogue exchange"
+        :aria-label="$t('characters.form.removeDialogue')"
         @click="emit('remove', pair.id)"
       >
         <UIcon name="i-lucide-x" class="h-3.5 w-3.5" />

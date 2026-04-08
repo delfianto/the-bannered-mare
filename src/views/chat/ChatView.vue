@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useChatSessions } from "@/composables/useChatSessions";
 import { useChatMessages } from "@/composables/useChatMessages";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
@@ -11,6 +12,7 @@ import MoodChips from "@/components/chat/MoodChips.vue";
 import ParchmentInput from "@/components/chat/ParchmentInput.vue";
 import type { MoodChip } from "@/types/chat";
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
@@ -78,11 +80,11 @@ function scrollToBottom() {
 watch(() => messages.value.length, () => scrollToBottom());
 
 const MOOD_CHIPS: MoodChip[] = [
-  { id: "mood-1", label: "Boldly" },
-  { id: "mood-2", label: "With caution" },
-  { id: "mood-3", label: "Whisper" },
-  { id: "mood-4", label: "Defiantly" },
-  { id: "mood-5", label: "Tenderly" },
+  { id: "mood-1", label: t('chat.moods.boldly') },
+  { id: "mood-2", label: t('chat.moods.caution') },
+  { id: "mood-3", label: t('chat.moods.whisper') },
+  { id: "mood-4", label: t('chat.moods.defiantly') },
+  { id: "mood-5", label: t('chat.moods.tenderly') },
 ];
 
 function handleSend(text: string) {
@@ -194,7 +196,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
     <div v-if="activeSession" class="flex flex-1 flex-col overflow-hidden">
       <ChatHeader
         :character="activeSession.character"
-        :session-title="activeSession.title || 'Untitled Tale'"
+        :session-title="activeSession.title || $t('chat.untitled')"
         @back="router.push({ name: 'chats' })"
         @rename="handleRename"
         @delete="handleDeleteChat"
@@ -209,7 +211,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
               class="text-xs text-muted-foreground hover:text-primary transition-colors"
               @click="loadMore"
             >
-              Load earlier messages...
+              {{ $t('chat.loadEarlier') }}
             </button>
           </div>
 
@@ -219,10 +221,10 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
               <div class="h-px w-12 bg-border" />
               <div class="text-center">
                 <p class="font-cinzel text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {{ activeSession.title || "Untitled Tale" }}
+                  {{ activeSession.title || $t('chat.untitled') }}
                 </p>
                 <p class="mt-0.5 text-[10px] text-muted-foreground/60">
-                  Session began · {{ new Date(activeSession.created_at).toLocaleDateString() }}
+                  {{ $t('chat.sessionBegan') }} · {{ new Date(activeSession.created_at).toLocaleDateString() }}
                 </p>
               </div>
               <div class="h-px w-12 bg-border" />
@@ -270,7 +272,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
 
     <!-- No session selected -->
     <div v-else class="flex flex-1 items-center justify-center">
-      <p class="text-muted-foreground">Select a tale to continue...</p>
+      <p class="text-muted-foreground">{{ $t('chat.selectTale') }}</p>
     </div>
   </div>
 </template>

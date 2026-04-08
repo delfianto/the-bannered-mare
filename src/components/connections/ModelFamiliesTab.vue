@@ -29,7 +29,7 @@ function goToPage(pageNum: number) {
       <!-- Empty -->
       <div v-if="families.length === 0" class="flex flex-col items-center justify-center gap-2 py-16">
         <UIcon name="i-lucide-folder-open" class="h-8 w-8 text-muted-foreground/50" />
-        <p class="text-sm text-muted-foreground">No model families found</p>
+        <p class="text-sm text-muted-foreground">{{ $t('connections.noFamilies') }}</p>
       </div>
 
       <!-- Card Grid -->
@@ -81,7 +81,7 @@ function goToPage(pageNum: number) {
           <!-- Edit hint -->
           <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
             <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-            Edit
+            {{ $t('common.edit') }}
           </div>
         </RouterLink>
       </div>

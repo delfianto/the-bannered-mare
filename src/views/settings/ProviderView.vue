@@ -79,7 +79,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">Loading provider...</span>
+        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
       </div>
     </div>
 
@@ -91,7 +91,7 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        Go Back
+        {{ $t('common.goBack') }}
       </button>
     </div>
 
@@ -101,7 +101,7 @@ function formatDate(iso: string): string {
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="Back to providers"
+            :aria-label="$t('connections.provider.backToProviders')"
             @click="router.push({ path: '/connections', query: { tab: 'providers' } })"
           >
             <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
@@ -126,7 +126,7 @@ function formatDate(iso: string): string {
             class="h-4 w-4"
             :class="{ 'animate-spin': saving }"
           />
-          {{ saving ? "Saving..." : "Save" }}
+          {{ saving ? $t('common.saving') : $t('common.save') }}
         </button>
       </header>
 
@@ -155,7 +155,7 @@ function formatDate(iso: string): string {
               <!-- Name -->
               <label class="block">
                 <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  Name
+                  {{ $t('connections.provider.name') }}
                 </span>
                 <input
                   v-model="form.name"
@@ -168,7 +168,7 @@ function formatDate(iso: string): string {
               <!-- Base URL -->
               <label class="block">
                 <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  Base URL
+                  {{ $t('connections.provider.baseUrl') }}
                 </span>
                 <input
                   v-model="form.base_url"
@@ -181,7 +181,7 @@ function formatDate(iso: string): string {
               <!-- Enabled toggle -->
               <div class="flex items-center justify-between">
                 <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  Enabled
+                  {{ $t('connections.provider.enabled') }}
                 </label>
                 <button @click="toggleEnabled" role="switch" :aria-checked="form.enabled" aria-label="Enabled" class="cursor-pointer">
                   <div
@@ -201,11 +201,11 @@ function formatDate(iso: string): string {
           <!-- API Key section -->
           <div class="rounded-xl border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              API Key
+              {{ $t('connections.provider.apiKey') }}
             </h2>
             <div class="space-y-3">
               <div class="flex items-center justify-between">
-                <span class="text-sm text-muted-foreground">Environment Variable</span>
+                <span class="text-sm text-muted-foreground">{{ $t('connections.provider.envVar') }}</span>
                 <code class="rounded bg-accent px-2 py-0.5 text-xs text-foreground">
                   {{ provider.env_var_name || "N/A" }}
                 </code>
@@ -224,7 +224,7 @@ function formatDate(iso: string): string {
                     class="h-1.5 w-1.5 rounded-full"
                     :class="provider.api_key_configured ? 'bg-emerald-500' : 'bg-amber-500'"
                   />
-                  {{ provider.api_key_configured ? "Configured" : "Not Configured" }}
+                  {{ provider.api_key_configured ? $t('connections.provider.keyConfigured') : $t('connections.provider.keyNotSet') }}
                 </span>
               </div>
             </div>

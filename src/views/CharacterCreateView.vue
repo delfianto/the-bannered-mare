@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useCharacterForm } from "@/composables/useCharacterForm";
 import { useLorebooks } from "@/composables/useLorebooks";
 import CharacterTab from "@/components/creator/CharacterTab.vue";
@@ -11,6 +12,7 @@ import type { CreatorTab, CharacterData } from "@/types/creator";
 
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 const activeTab = ref<CreatorTab>("character");
 const saved = ref(false);
 const saveError = ref("");
@@ -21,13 +23,13 @@ const lorebookId = ref<string | null>(null);
 
 const editId = computed(() => route.params.id as string | undefined);
 const isEditMode = computed(() => !!editId.value);
-const pageTitle = computed(() => (isEditMode.value ? "Edit Character" : "Create Character"));
+const pageTitle = computed(() => (isEditMode.value ? t("characters.form.editCharacter") : t("characters.form.createCharacter")));
 
-const tabs: { id: CreatorTab; label: string; icon: string }[] = [
-  { id: "character", label: "Character", icon: "i-lucide-user" },
-  { id: "behavior", label: "Behavior", icon: "i-lucide-brain" },
-  { id: "world", label: "World", icon: "i-lucide-globe" },
-];
+const tabs = computed<{ id: CreatorTab; label: string; icon: string }[]>(() => [
+  { id: "character", label: t("characters.form.tabCharacter"), icon: "i-lucide-user" },
+  { id: "behavior", label: t("characters.form.tabBehavior"), icon: "i-lucide-brain" },
+  { id: "world", label: t("characters.form.tabWorld"), icon: "i-lucide-globe" },
+]);
 
 onMounted(async () => {
   if (editId.value) {
@@ -49,7 +51,7 @@ onMounted(async () => {
         }
       }
     } catch (e) {
-      saveError.value = "Failed to load character.";
+      saveError.value = t("characters.failedLoad");
     }
   }
 });
@@ -109,7 +111,7 @@ async function handleSave() {
       router.push("/characters");
     }, 500);
   } catch (e) {
-    saveError.value = e instanceof Error ? e.message : "Failed to save character.";
+    saveError.value = e instanceof Error ? e.message : t("characters.failedSave");
   }
 }
 
@@ -120,7 +122,7 @@ async function handleDelete() {
     await form.deleteCharacter(editId.value);
     router.push("/characters");
   } catch (e) {
-    saveError.value = e instanceof Error ? e.message : "Failed to delete character.";
+    saveError.value = e instanceof Error ? e.message : t("characters.failedDelete");
   }
 }
 
@@ -149,7 +151,7 @@ function handleImport(data: CharacterData) {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">Loading character...</span>
+        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
       </div>
     </div>
 
@@ -188,7 +190,7 @@ function handleImport(data: CharacterData) {
             class="h-4 w-4"
             :class="{ 'animate-spin': form.deleting.value }"
           />
-          {{ form.deleting.value ? "Deleting..." : "Delete" }}
+          {{ form.deleting.value ? $t('common.deleting') : $t('common.delete') }}
         </button>
 
         <button
@@ -196,7 +198,7 @@ function handleImport(data: CharacterData) {
           @click="handleExport"
         >
           <UIcon name="i-lucide-download" class="h-4 w-4" />
-          Export
+          {{ $t('common.export') }}
         </button>
         <button
           class="flex h-9 items-center gap-2 rounded-lg px-5 text-sm font-medium transition-all active:scale-[0.96]"
@@ -213,7 +215,7 @@ function handleImport(data: CharacterData) {
             class="h-4 w-4"
             :class="{ 'animate-spin': form.saving.value }"
           />
-          {{ form.saving.value ? "Saving..." : saved ? "Saved" : "Save" }}
+          {{ form.saving.value ? $t('common.saving') : saved ? $t('common.saved') : $t('common.save') }}
         </button>
       </div>
     </header>
@@ -277,7 +279,7 @@ function handleImport(data: CharacterData) {
       <div class="hidden w-[340px] min-w-[340px] overflow-y-auto border-l bg-secondary/30 px-5 py-6 xl:block">
         <div class="sticky top-0">
           <p class="mb-4 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-            Live Preview
+            {{ $t('characters.form.livePreview') }}
           </p>
           <CharacterPreview :data="form.data" :completeness="form.completeness.value" />
         </div>

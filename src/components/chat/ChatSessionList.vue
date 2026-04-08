@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { Chat } from "@/types/chat";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   sessions: Chat[];
@@ -27,12 +30,12 @@ const filtered = computed(() => {
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t('time.justNow');
+  if (mins < 60) return t('time.minutesAgo', { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return t('time.hoursAgo', { count: hours });
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return t('time.daysAgo', { count: days });
 }
 
 function avatarSrc(chat: Chat): string {
@@ -53,8 +56,8 @@ function avatarSrc(chat: Chat): string {
         <input
           v-model="search"
           type="text"
-          placeholder="Search tales…"
-          aria-label="Search tales"
+          :placeholder="$t('chat.searchPlaceholder')"
+          :aria-label="$t('chat.searchPlaceholder')"
           autocomplete="off"
           class="flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
         />
@@ -65,7 +68,7 @@ function avatarSrc(chat: Chat): string {
     <p
       class="mb-1.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
     >
-      Active Tales
+      {{ $t('chat.activeTales') }}
     </p>
 
     <!-- Loading -->
@@ -108,7 +111,7 @@ function avatarSrc(chat: Chat): string {
             </span>
           </div>
           <p class="mt-0.5 truncate font-cinzel text-[11px] text-primary/80">
-            {{ session.title || "Untitled Tale" }}
+            {{ session.title || $t('chat.untitled') }}
           </p>
           <p
             v-if="session.preview"

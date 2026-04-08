@@ -19,7 +19,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh"
       >
-        Retry
+        {{ $t('common.retry') }}
       </button>
     </div>
 
@@ -73,7 +73,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
         <!-- Edit hint -->
         <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-          Edit
+          {{ $t('common.edit') }}
         </div>
       </RouterLink>
     </div>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import type { LorebookEntry } from "@/types/creator";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   entry: LorebookEntry;
@@ -67,7 +70,7 @@ function removeKeyword(kw: string) {
         <button
           type="button"
           class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-          aria-label="Remove lorebook entry"
+          :aria-label="t('characters.form.removeLorebook')"
           @click="emit('remove', entry.id)"
         >
           <UIcon name="i-lucide-x" class="h-3.5 w-3.5" />
@@ -78,7 +81,7 @@ function removeKeyword(kw: string) {
     <!-- Content -->
     <div v-if="expanded" class="space-y-3 px-4 pb-4">
       <label class="block space-y-1.5">
-        <span class="text-xs font-medium text-muted-foreground">Keywords</span>
+        <span class="text-xs font-medium text-muted-foreground">{{ t('characters.form.keywords') }}</span>
         <div class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border bg-background p-2">
           <span
             v-for="kw in entry.keywords"
@@ -86,13 +89,13 @@ function removeKeyword(kw: string) {
             class="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary"
           >
             {{ kw }}
-            <button type="button" class="hover:text-destructive" :aria-label="'Remove keyword ' + kw" @click="removeKeyword(kw)">
+            <button type="button" class="hover:text-destructive" :aria-label="t('characters.form.removeKeyword', { keyword: kw })" @click="removeKeyword(kw)">
               <UIcon name="i-lucide-x" class="h-2.5 w-2.5" />
             </button>
           </span>
           <input
             v-model="keywordInput"
-            placeholder="Add keyword…"
+            :placeholder="t('characters.form.addKeywordPlaceholder')"
             class="min-w-[60px] flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
             @keydown.enter.prevent="addKeyword"
           />
@@ -101,7 +104,7 @@ function removeKeyword(kw: string) {
 
       <label class="block space-y-1.5">
         <div class="flex justify-between">
-          <span class="text-xs font-medium text-muted-foreground">Content</span>
+          <span class="text-xs font-medium text-muted-foreground">{{ t('characters.form.content') }}</span>
           <span class="text-[10px] text-muted-foreground">{{ entry.content.length }}/2000</span>
         </div>
         <textarea
