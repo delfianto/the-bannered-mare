@@ -9,9 +9,9 @@
 
 ## Current State Summary
 
-**All pages are built and functional.** No more placeholders. Every route has working UI with MSW mock data and API composables. Mock data matches backend fixtures exactly. All dependencies at latest stable versions.
+**All pages are built and functional.** No more placeholders. Every route has working UI with MSW mock data and API composables. Mock data matches backend fixtures exactly. All dependencies at latest stable versions. Chat has full interaction: rename/delete sessions, edit messages, browse alternatives via swipe.
 
-**Pages:** Home, Chat (SSE), Discover (filters), Creator (CRUD), Connections (6 tabs + 3 detail pages), Settings (3 tabs), Data Bank (CRUD)
+**Pages:** Home, Chat (SSE + edit/swipe/rename/delete), Discover (filters), Creator (CRUD), Connections (6 tabs + 3 detail pages), Settings (3 tabs), Data Bank (CRUD)
 **Composables:** 18 total
 **MSW handlers:** 40+ endpoints
 
@@ -49,9 +49,10 @@
 | `useChatSessions` + `useChatMessages` | [x] | Cursor pagination, SSE streaming |
 | Chat page | [x] | Session list, messages, send, typing indicator |
 | Home recent tales | [x] | Fetches 8 recent chats |
-| **Swipe/alternatives UI** | [ ] | Mock ready, no UI component yet |
-| **Message editing UI** | [ ] | Mock ready, no UI component yet |
-| **Chat rename/delete UI** | [ ] | Mock ready, no UI component yet |
+| Swipe/alternatives UI | [x] | Left/right arrows on hover, lazy-load alts, counter badge |
+| Message editing UI | [x] | Inline textarea + Save/Cancel for user messages |
+| Chat rename/delete UI | [x] | 3-dot menu dropdown in header, inline rename, two-click delete |
+| Message actions | [x] | Inline bottom-right icons (regen/copy/bookmark for AI, edit/delete for user) |
 
 ### Providers & Models
 
@@ -143,12 +144,13 @@
 ### P1 — COMPLETE
 ### P2 — COMPLETE
 
-### P3 — Remaining (Polish & Advanced)
+### P3 — Partially Complete
 
-**Chat enhancements:**
-- Swipe/alternatives UI — browse AI response variations in message bubbles
-- Message editing UI — inline edit mode
-- Chat rename/delete UI — context menu in session list
+**Chat enhancements — DONE:**
+- ~~Swipe/alternatives UI~~ — left/right arrows, lazy-load, counter badge
+- ~~Message editing UI~~ — inline textarea with Save/Cancel
+- ~~Chat rename/delete~~ — 3-dot dropdown menu, inline rename, two-click delete
+- ~~Message actions~~ — inline bottom-right icons (always visible, not hover popup)
 
 **Detail/edit pages for new entities:**
 - Preset detail/edit page + CRUD mocks
