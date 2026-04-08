@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { usePresets } from "@/composables/usePresets";
 import type { Preset } from "@/composables/usePresets";
 
+const router = useRouter();
 const { presets, loading, error, refresh } = usePresets();
 
 function parameterCount(preset: Preset): number {
@@ -9,7 +11,7 @@ function parameterCount(preset: Preset): number {
 }
 
 function onCardClick(preset: Preset) {
-  console.log("Preset clicked:", preset.id, preset.name);
+  router.push(`/settings/presets/${preset.id}`);
 }
 </script>
 

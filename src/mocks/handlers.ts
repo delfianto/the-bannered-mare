@@ -808,6 +808,41 @@ export const handlers = [
     return HttpResponse.json(preset);
   }),
 
+  http.put("/api/presets/:presetId", async ({ params, request }) => {
+    const idx = db.presets.findIndex((p) => p.id === params.presetId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as Record<string, unknown>;
+    const existing = db.presets[idx];
+    if (body.name !== undefined) existing.name = body.name as string;
+    if (body.description !== undefined) existing.description = body.description as string | null;
+    if (body.parameters !== undefined) existing.parameters = (body.parameters as Record<string, unknown> | null) ?? undefined;
+    if (body.is_default !== undefined) existing.is_default = body.is_default as boolean;
+    existing.updated_at = new Date().toISOString();
+    db.presets[idx] = existing;
+    await delay(200);
+    return HttpResponse.json(existing);
+  }),
+
+  http.delete("/api/presets/:presetId", async ({ params }) => {
+    const idx = db.presets.findIndex((p) => p.id === params.presetId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.presets.splice(idx, 1);
+    await delay(150);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/presets/:presetId/default", async ({ params }) => {
+    const target = db.presets.find((p) => p.id === params.presetId);
+    if (!target) return new HttpResponse(null, { status: 404 });
+    for (const p of db.presets) {
+      p.is_default = false;
+    }
+    target.is_default = true;
+    target.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(target);
+  }),
+
   // ── Prompt Templates ───────────────────────────────────────
 
   http.get("/api/prompt-templates/", async ({ request }) => {

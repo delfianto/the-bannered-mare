@@ -67,6 +67,11 @@ const routes = [
     name: "fragment-edit",
     component: () => import("@/views/settings/FragmentView.vue"),
   },
+  {
+    path: "/settings/presets/:id",
+    name: "preset-edit",
+    component: () => import("@/views/settings/PresetView.vue"),
+  },
 ];
 
 const router = createRouter({
