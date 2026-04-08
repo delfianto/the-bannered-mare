@@ -102,11 +102,11 @@ The project uses a consistent pattern for dropdowns with warm Candlekeep borders
   :search-input="false"
   :ui="{
     base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-    content: 'border border-[var(--border)] bg-[var(--card)] ring-0 outline-none shadow-lg',
-    item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-[var(--accent)]',
+    content: 'border border-border bg-card ring-0 outline-none shadow-lg',
+    item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
   }"
 >
-  <button class="flex h-9 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-sm text-muted-foreground outline-none">
+  <button class="flex h-9 items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 text-sm text-muted-foreground outline-none">
     {{ label }}
   </button>
 </USelectMenu>
@@ -127,8 +127,8 @@ Nuxt UI plugin configured with `primary: "amber"`, `neutral: "stone"`.
 
 ### Common Patterns
 
-**Card**: `rounded-xl border border-[var(--border)] bg-card/50 p-4`
-**Input**: `h-11 w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
+**Card**: `rounded-xl border border-border bg-card/50 p-4`
+**Input**: `h-11 w-full rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
 **Section heading**: `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
 **Toggle switch**: Custom div (not USwitch) — see `AppSidebar.vue` for pattern
 **Entry animation**: `animate-fade-in-up` with staggered `animation-delay`
@@ -194,6 +194,6 @@ Mock fixtures in `src/mocks/data/` match the backend's seed data:
 - Always `<script setup lang="ts">`
 - PascalCase for components, camelCase for composables
 - `UIcon` for ALL icons — never bare `<span class="i-lucide-*">`
-- `border-[var(--border)]` for card borders (not Nuxt UI default borders)
+- `border-border` for card borders (native Tailwind token, not arbitrary values)
 - `font-cinzel` for display headings
 - Verify build passes: `bun run build` (vue-tsc + vite build)

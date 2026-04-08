@@ -117,7 +117,7 @@ function startTale() {
       <div class="space-y-6 lg:col-span-2">
         <!-- Character Card with Avatar -->
         <div
-          class="animate-fade-in-up overflow-hidden rounded-xl border border-[var(--border)] bg-card/50"
+          class="animate-fade-in-up overflow-hidden rounded-xl border border-border bg-card/50"
           style="animation-delay: 60ms"
         >
           <!-- Avatar (full-bleed with gradient) -->
@@ -127,7 +127,7 @@ function startTale() {
               :alt="character.name"
               class="h-full w-full object-cover"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-[var(--color-card)]/95 via-transparent to-transparent" />
+            <div class="absolute inset-0 bg-gradient-to-t from-card/95 via-transparent to-transparent" />
             <div class="absolute bottom-0 left-0 right-0 p-6">
               <h2 class="font-cinzel text-xl font-bold text-foreground drop-shadow-lg">
                 {{ character.name }}
@@ -209,7 +209,7 @@ function startTale() {
       <div class="space-y-6">
         <!-- Metadata Card -->
         <div
-          class="animate-fade-in-up rounded-xl border border-[var(--border)] bg-card/50 p-4"
+          class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-4"
           style="animation-delay: 120ms"
         >
           <h3 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -260,7 +260,7 @@ function startTale() {
         <!-- Post History Instructions -->
         <div
           v-if="character.post_history_instructions"
-          class="animate-fade-in-up rounded-xl border border-[var(--border)] bg-card/50 p-4"
+          class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-4"
           style="animation-delay: 240ms"
         >
           <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">

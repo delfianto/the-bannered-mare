@@ -205,7 +205,7 @@ function scopeBadgeClass(scope: string): string {
     </div>
 
     <!-- RAG Search Section -->
-    <div class="animate-fade-in-up rounded-xl border border-[var(--border)] bg-card/50 p-5" style="animation-delay: 30ms">
+    <div class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-5" style="animation-delay: 30ms">
       <h2 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
         Semantic Search
       </h2>
@@ -295,7 +295,7 @@ function scopeBadgeClass(scope: string): string {
     <!-- Inline Create/Edit Form -->
     <div
       v-if="showForm"
-      class="animate-fade-in-up rounded-xl border border-[var(--border)] bg-card/50 p-6"
+      class="animate-fade-in-up rounded-xl border border-border bg-card/50 p-6"
     >
       <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
         {{ editingId ? "Edit Entry" : "New Entry" }}
@@ -378,7 +378,7 @@ function scopeBadgeClass(scope: string): string {
       <div
         v-for="(entry, index) in filteredEntries"
         :key="entry.id"
-        class="group relative flex animate-fade-in-up flex-col rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up flex-col rounded-xl border border-border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
       >
         <!-- Header -->

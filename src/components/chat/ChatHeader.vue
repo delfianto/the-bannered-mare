@@ -146,7 +146,7 @@ onUnmounted(() => {
       <!-- Dropdown Menu -->
       <div
         v-if="menuOpen"
-        class="absolute right-0 top-full mt-1 min-w-[160px] rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg"
+        class="absolute right-0 top-full mt-1 min-w-[160px] rounded-lg border border-border bg-card py-1 shadow-lg"
       >
         <button
           class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent/50"

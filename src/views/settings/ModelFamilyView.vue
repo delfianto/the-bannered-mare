@@ -181,7 +181,7 @@ function formatDate(iso: string): string {
       <div class="flex-1 overflow-y-auto p-6">
         <div class="mx-auto max-w-2xl space-y-6">
           <!-- Basic Info card -->
-          <div class="rounded-xl border border-[var(--border)] bg-card/50 p-5">
+          <div class="rounded-xl border border-border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               Basic Info
             </h2>
@@ -195,7 +195,7 @@ function formatDate(iso: string): string {
                   v-model="form.name"
                   type="text"
                   placeholder="Family name"
-                  class="h-11 w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </div>
 
@@ -208,7 +208,7 @@ function formatDate(iso: string): string {
                   v-model="form.family_identifier"
                   type="text"
                   placeholder="provider/model-family"
-                  class="h-11 w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </div>
 
@@ -221,14 +221,14 @@ function formatDate(iso: string): string {
                   v-model="form.description"
                   rows="3"
                   placeholder="Describe this model family..."
-                  class="w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="w-full rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </div>
             </div>
           </div>
 
           <!-- Provider Types card -->
-          <div class="rounded-xl border border-[var(--border)] bg-card/50 p-5">
+          <div class="rounded-xl border border-border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               Provider Types
             </h2>
@@ -247,7 +247,7 @@ function formatDate(iso: string): string {
           </div>
 
           <!-- Parameter Schema card -->
-          <div v-if="family.parameters && Object.keys(family.parameters).length" class="rounded-xl border border-[var(--border)] bg-card/50 p-5">
+          <div v-if="family.parameters && Object.keys(family.parameters).length" class="rounded-xl border border-border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               Parameter Schema
             </h2>
@@ -279,7 +279,7 @@ function formatDate(iso: string): string {
           </div>
 
           <!-- Unsupported Parameters card -->
-          <div v-if="family.unsupported_parameters?.length" class="rounded-xl border border-[var(--border)] bg-card/50 p-5">
+          <div v-if="family.unsupported_parameters?.length" class="rounded-xl border border-border bg-card/50 p-5">
             <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               Unsupported Parameters
             </h2>

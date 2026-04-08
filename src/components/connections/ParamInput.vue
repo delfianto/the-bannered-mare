@@ -196,12 +196,12 @@ function updateObjectProp(key: string, val: unknown) {
       :class="layout === 'horizontal' ? 'max-w-[180px]' : 'w-full'"
       :ui="{
         base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-        content: 'border border-[var(--border)] bg-[var(--card)] ring-0 outline-none shadow-lg',
-        item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-[var(--accent)]',
+        content: 'border border-border bg-card ring-0 outline-none shadow-lg',
+        item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
       }"
     >
       <button
-        class="flex h-9 items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+        class="flex h-9 items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
         :class="layout === 'horizontal' ? 'w-[180px]' : 'w-full'"
       >
         <span class="truncate">{{ selectValue || 'Select...' }}</span>
@@ -228,7 +228,7 @@ function updateObjectProp(key: string, val: unknown) {
         :max="schema.max_value"
         :step="step"
         :value="numberValue"
-        class="h-9 w-[90px] shrink-0 rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-center font-mono text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-9 w-[90px] shrink-0 rounded-lg border border-border bg-muted/40 px-3 text-center font-mono text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="numberValue = parseFloat(($event.target as HTMLInputElement).value)"
       />
     </div>
@@ -242,7 +242,7 @@ function updateObjectProp(key: string, val: unknown) {
       :min="schema.min_value"
       :max="schema.max_value"
       :value="numberValue"
-      class="h-9 rounded-lg border border-[var(--border)] bg-muted/40 px-3 font-mono text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="h-9 rounded-lg border border-border bg-muted/40 px-3 font-mono text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
       :class="layout === 'horizontal' ? 'w-[120px]' : 'w-full'"
       @input="numberValue = parseFloat(($event.target as HTMLInputElement).value)"
     />
@@ -254,13 +254,13 @@ function updateObjectProp(key: string, val: unknown) {
       v-if="layout === 'vertical'"
       v-model="stringValue"
       rows="3"
-      class="w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="w-full rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
     />
     <input
       v-else
       v-model="stringValue"
       type="text"
-      class="h-9 max-w-[280px] rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="h-9 max-w-[280px] rounded-lg border border-border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
     />
   </template>
 
@@ -285,7 +285,7 @@ function updateObjectProp(key: string, val: unknown) {
       <input
         type="text"
         placeholder="Type and press Enter"
-        class="h-9 w-full rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-9 w-full rounded-lg border border-border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @keydown="handleTagKeydown"
       />
     </div>
@@ -347,7 +347,7 @@ function updateObjectProp(key: string, val: unknown) {
     <textarea
       v-model="jsonValue"
       rows="4"
-      class="w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 py-3 font-mono text-xs text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="w-full rounded-lg border border-border bg-muted/40 px-4 py-3 font-mono text-xs text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
       :class="layout === 'horizontal' ? 'max-w-[300px]' : ''"
     />
   </template>

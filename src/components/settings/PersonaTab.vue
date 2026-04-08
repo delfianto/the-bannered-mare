@@ -197,7 +197,7 @@ async function setDefault(personaId: string) {
     <!-- Inline Create/Edit Form -->
     <div
       v-if="showForm"
-      class="mb-4 animate-fade-in-up rounded-xl border border-[var(--border)] bg-card/50 p-5"
+      class="mb-4 animate-fade-in-up rounded-xl border border-border bg-card/50 p-5"
     >
       <h4 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
         {{ editingId ? "Edit Persona" : "New Persona" }}
@@ -272,7 +272,7 @@ async function setDefault(personaId: string) {
     <!-- Error State -->
     <div
       v-else-if="error"
-      class="rounded-xl border border-[var(--border)] bg-card/50 p-8 text-center"
+      class="rounded-xl border border-border bg-card/50 p-8 text-center"
     >
       <UIcon name="i-lucide-alert-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ error }}</p>
@@ -281,7 +281,7 @@ async function setDefault(personaId: string) {
     <!-- Empty State -->
     <div
       v-else-if="personas.length === 0"
-      class="rounded-xl border border-[var(--border)] bg-card/50 p-8 text-center"
+      class="rounded-xl border border-border bg-card/50 p-8 text-center"
     >
       <UIcon name="i-lucide-user-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">No personas found. Create one to get started.</p>
@@ -292,7 +292,7 @@ async function setDefault(personaId: string) {
       <div
         v-for="persona in personas"
         :key="persona.id"
-        class="group flex items-center gap-4 rounded-xl border border-[var(--border)] bg-card/50 p-4 transition-colors hover:bg-card/80"
+        class="group flex items-center gap-4 rounded-xl border border-border bg-card/50 p-4 transition-colors hover:bg-card/80"
       >
         <!-- Avatar -->
         <img

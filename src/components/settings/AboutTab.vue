@@ -4,7 +4,7 @@ import { APP_INFO } from "@/constants/appInfo";
 
 <template>
   <div class="flex justify-center animate-fade-in-up">
-    <div class="w-full max-w-md rounded-xl border border-[var(--border)] bg-card/50 p-8 text-center">
+    <div class="w-full max-w-md rounded-xl border border-border bg-card/50 p-8 text-center">
       <!-- App Icon -->
       <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
         <UIcon name="i-lucide-flame" class="h-8 w-8 text-primary-foreground" />

@@ -214,7 +214,7 @@ function formatDate(iso: string): string {
           <!-- Left column (3 cols) -->
           <div class="space-y-6 lg:col-span-3">
             <!-- Basic Info card -->
-            <div class="rounded-xl border border-[var(--border)] bg-card/50 p-5">
+            <div class="rounded-xl border border-border bg-card/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >
@@ -232,7 +232,7 @@ function formatDate(iso: string): string {
                     v-model="form.name"
                     type="text"
                     placeholder="Preset name"
-                    class="h-11 w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </div>
 
@@ -247,7 +247,7 @@ function formatDate(iso: string): string {
                     v-model="form.description"
                     rows="3"
                     placeholder="Preset description"
-                    class="w-full rounded-lg border border-[var(--border)] bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="w-full rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </div>
 
@@ -278,7 +278,7 @@ function formatDate(iso: string): string {
             </div>
 
             <!-- Parameters card -->
-            <div class="rounded-xl border border-[var(--border)] bg-card/50 p-5">
+            <div class="rounded-xl border border-border bg-card/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >
@@ -295,7 +295,7 @@ function formatDate(iso: string): string {
                     v-model="param.key"
                     type="text"
                     placeholder="parameter_name"
-                    class="h-11 w-[200px] shrink-0 rounded-lg border border-[var(--border)] bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-[200px] shrink-0 rounded-lg border border-border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                   <!-- Parameter value -->
                   <input
@@ -303,7 +303,7 @@ function formatDate(iso: string): string {
                     :type="isNumericValue(param.value) ? 'number' : 'text'"
                     :step="isNumericValue(param.value) ? 'any' : undefined"
                     placeholder="value"
-                    class="h-11 flex-1 rounded-lg border border-[var(--border)] bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 flex-1 rounded-lg border border-border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                   <!-- Remove button -->
                   <button
@@ -327,7 +327,7 @@ function formatDate(iso: string): string {
           <!-- Right column (2 cols) -->
           <div class="space-y-6 lg:col-span-2">
             <!-- Metadata card -->
-            <div class="rounded-xl border border-[var(--border)] bg-card/50 p-5">
+            <div class="rounded-xl border border-border bg-card/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
               >

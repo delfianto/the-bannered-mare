@@ -175,7 +175,7 @@ onMounted(fetchAll);
           <div
             v-for="card in statCards"
             :key="card.label"
-            class="rounded-xl border border-[var(--border)] bg-card/50 p-4 text-center"
+            class="rounded-xl border border-border bg-card/50 p-4 text-center"
           >
             <UIcon :name="card.icon" class="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
             <p class="text-2xl font-bold text-foreground">{{ card.value }}</p>

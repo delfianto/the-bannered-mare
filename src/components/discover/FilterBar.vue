@@ -67,12 +67,12 @@ function sortLabel(value: SortOption): string {
       :search-input="false"
       :ui="{
         base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-        content: 'border border-[var(--border)] bg-[var(--card)] ring-0 outline-none shadow-lg',
-        item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-[var(--accent)]',
+        content: 'border border-border bg-card ring-0 outline-none shadow-lg',
+        item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
       }"
     >
       <button
-        class="flex h-9 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-muted/40 px-3 text-sm text-muted-foreground transition-all hover:border-muted-foreground/30 outline-none"
+        class="flex h-9 items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 text-sm text-muted-foreground transition-all hover:border-muted-foreground/30 outline-none"
       >
         <UIcon name="i-lucide-arrow-up-down" class="h-3.5 w-3.5" />
         {{ sortLabel(sort) }}

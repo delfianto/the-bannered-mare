@@ -66,7 +66,7 @@ function formatUrl(url: string | null): string {
       <div
         v-for="(provider, index) in sortedProviders"
         :key="provider.id"
-        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-[var(--border)] bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border border-border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
         @click="router.push(`/settings/providers/${provider.id}`)"
       >

@@ -152,7 +152,7 @@
 - **`model_family_id` filter** — Models list endpoint needs this for family-based filtering
 
 ### Frontend TODOs
-- **Tailwind theme token cleanup** — `border-[var(--border)]`, `bg-[var(--card)]` etc. are arbitrary value workarounds. Should register tokens properly so `border-border`, `bg-card` work natively.
+- ~~Tailwind theme token cleanup~~ — **DONE.** Replaced all arbitrary `border-[var(--border)]`, `bg-[var(--card)]`, `bg-[var(--accent)]` with native `border-border`, `bg-card`, `bg-accent` tokens.
 
 ---
 

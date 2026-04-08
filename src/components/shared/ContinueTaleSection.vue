@@ -45,13 +45,13 @@ function avatarSrc(chat: Chat): string {
       </h2>
       <div class="flex items-center gap-1.5">
         <button
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="scroll('left')"
         >
           <UIcon name="i-lucide-chevron-left" class="h-4 w-4" />
         </button>
         <button
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="scroll('right')"
         >
           <UIcon name="i-lucide-chevron-right" class="h-4 w-4" />
