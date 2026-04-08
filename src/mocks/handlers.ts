@@ -11,6 +11,7 @@ import { presets } from "@/mocks/data/presets";
 import { promptTemplates, templateFragments } from "@/mocks/data/prompt-templates";
 import { promptFragments } from "@/mocks/data/prompt-fragments";
 import { lorebooks } from "@/mocks/data/lorebooks";
+import { bookmarkedCharacters, bookmarkedSessions, bookmarkedMessages } from "@/mocks/data/bookmarks";
 import { conversationCache } from "@/mocks/loader";
 import "@/mocks/data/messages"; // Initialize registrations
 import type { components } from "@/api/schema";
@@ -1407,5 +1408,21 @@ export const handlers = [
 
     await delay(150);
     return HttpResponse.json(allErrors.slice(skip, skip + limit));
+  }),
+
+  // ── Bookmarks ────────────────────────────────────────────
+  http.get("/api/bookmarks/characters", async () => {
+    await delay(150);
+    return HttpResponse.json({ items: bookmarkedCharacters });
+  }),
+
+  http.get("/api/bookmarks/sessions", async () => {
+    await delay(150);
+    return HttpResponse.json({ items: bookmarkedSessions });
+  }),
+
+  http.get("/api/bookmarks/messages", async () => {
+    await delay(150);
+    return HttpResponse.json({ items: bookmarkedMessages });
   }),
 ];
