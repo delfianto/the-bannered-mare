@@ -57,6 +57,16 @@ const routes = [
     name: "model-family-edit",
     component: () => import("@/views/settings/ModelFamilyView.vue"),
   },
+  {
+    path: "/settings/templates/:id",
+    name: "template-edit",
+    component: () => import("@/views/settings/TemplateView.vue"),
+  },
+  {
+    path: "/settings/fragments/:id",
+    name: "fragment-edit",
+    component: () => import("@/views/settings/FragmentView.vue"),
+  },
 ];
 
 const router = createRouter({

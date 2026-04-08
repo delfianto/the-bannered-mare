@@ -8,7 +8,7 @@ import { allModelFamiliesMock } from "@/mocks/data/model-families-data";
 import { modelFamiliesParameterDocs } from "@/mocks/data/model-parameters";
 import { dataBankEntries } from "@/mocks/data/data-bank";
 import { presets } from "@/mocks/data/presets";
-import { promptTemplates } from "@/mocks/data/prompt-templates";
+import { promptTemplates, templateFragments } from "@/mocks/data/prompt-templates";
 import { promptFragments } from "@/mocks/data/prompt-fragments";
 import { lorebooks } from "@/mocks/data/lorebooks";
 import { conversationCache } from "@/mocks/loader";
@@ -22,6 +22,8 @@ type Persona = components["schemas"]["PersonaResponse"];
 type LorebookDetail = components["schemas"]["LorebookDetailResponse"];
 type LoreEntryResponse = components["schemas"]["LoreEntryResponse"];
 
+type TemplateFragmentResponse = components["schemas"]["TemplateFragmentResponse"];
+
 const db = {
   characters,
   chats,
@@ -33,6 +35,7 @@ const db = {
   presets,
   promptTemplates,
   promptFragments,
+  templateFragments,
   lorebooks,
 };
 
@@ -1170,5 +1173,129 @@ export const handlers = [
 
     await delay(150);
     return HttpResponse.json(persona);
+  }),
+
+  // ── Prompt Template CRUD (detail) ─────────────────────────
+
+  http.put("/api/prompt-templates/:templateId", async ({ params, request }) => {
+    const tpl = db.promptTemplates.find((t) => t.id === params.templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of [
+      "name",
+      "description",
+      "is_default",
+      "system_template",
+      "component_order",
+      "components_enabled",
+      "max_history_tokens",
+    ]) {
+      if (body[key] !== undefined) (tpl as any)[key] = body[key];
+    }
+    tpl.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(tpl);
+  }),
+
+  http.delete("/api/prompt-templates/:templateId", async ({ params }) => {
+    const idx = db.promptTemplates.findIndex((t) => t.id === params.templateId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.promptTemplates.splice(idx, 1);
+    db.templateFragments.delete(params.templateId as string);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/prompt-templates/:templateId/preview", async ({ params, request }) => {
+    const tpl = db.promptTemplates.find((t) => t.id === params.templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    await delay(300);
+
+    // Build a mock rendered string using the sample data
+    const rendered = `You are ${body.character_name || "Alice"}, a ${body.character_description || "helpful AI assistant"}. You are ${body.character_personality || "Friendly and knowledgeable"}. Scenario: ${body.character_scenario || "Casual conversation"}. [User: ${body.persona_name || "User"} - ${body.persona_description || "A curious person"}]`;
+
+    return HttpResponse.json({
+      rendered,
+      variables_used: {
+        character_name: body.character_name || "Alice",
+        character_description: body.character_description || "A helpful AI assistant",
+        character_personality: body.character_personality || "Friendly and knowledgeable",
+        character_scenario: body.character_scenario || "Casual conversation",
+        persona_name: body.persona_name || "User",
+        persona_description: body.persona_description || "A curious person",
+      },
+    });
+  }),
+
+  // ── Template Fragments (associations) ─────────────────────
+
+  http.get("/api/prompt-templates/:templateId/fragments/", async ({ params }) => {
+    const templateId = params.templateId as string;
+    const tpl = db.promptTemplates.find((t) => t.id === templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    const frags = db.templateFragments.get(templateId) || [];
+    return HttpResponse.json(frags);
+  }),
+
+  http.post("/api/prompt-templates/:templateId/fragments/", async ({ params, request }) => {
+    const templateId = params.templateId as string;
+    const tpl = db.promptTemplates.find((t) => t.id === templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const fragment = db.promptFragments.find((f) => f.id === body.fragment_id);
+    if (!fragment) return new HttpResponse(null, { status: 404 });
+
+    const newTf: TemplateFragmentResponse = {
+      id: `tf-${Date.now()}`,
+      template_id: templateId,
+      fragment_id: body.fragment_id,
+      position: body.position || "after_system",
+      ordinal: body.ordinal ?? 0,
+      created_at: new Date().toISOString(),
+      fragment,
+    };
+
+    if (!db.templateFragments.has(templateId)) {
+      db.templateFragments.set(templateId, []);
+    }
+    db.templateFragments.get(templateId)!.push(newTf);
+    await delay(200);
+    return HttpResponse.json(newTf, { status: 201 });
+  }),
+
+  http.delete("/api/prompt-templates/:templateId/fragments/:fragmentId", async ({ params }) => {
+    const templateId = params.templateId as string;
+    const fragmentId = params.fragmentId as string;
+    const frags = db.templateFragments.get(templateId);
+    if (!frags) return new HttpResponse(null, { status: 404 });
+    const idx = frags.findIndex((f) => f.fragment_id === fragmentId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    frags.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── Prompt Fragment CRUD (detail) ─────────────────────────
+
+  http.put("/api/prompt-fragments/:fragmentId", async ({ params, request }) => {
+    const fragment = db.promptFragments.find((f) => f.id === params.fragmentId);
+    if (!fragment) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of ["name", "description", "fragment_type", "content", "is_global"]) {
+      if (body[key] !== undefined) (fragment as any)[key] = body[key];
+    }
+    fragment.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(fragment);
+  }),
+
+  http.delete("/api/prompt-fragments/:fragmentId", async ({ params }) => {
+    const idx = db.promptFragments.findIndex((f) => f.id === params.fragmentId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.promptFragments.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
   }),
 ];

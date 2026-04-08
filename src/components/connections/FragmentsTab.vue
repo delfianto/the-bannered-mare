@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { usePromptFragments } from "@/composables/usePromptFragments";
 import type { PromptFragment } from "@/composables/usePromptFragments";
 
+const router = useRouter();
 const { fragments, loading, error, refresh } = usePromptFragments();
 
 function onCardClick(fragment: PromptFragment) {
-  console.log("Fragment clicked:", fragment.id, fragment.name);
+  router.push(`/settings/fragments/${fragment.id}`);
 }
 
 function typeBadgeClass(type: string): string {

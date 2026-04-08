@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { usePromptTemplates } from "@/composables/usePromptTemplates";
 import type { PromptTemplate } from "@/composables/usePromptTemplates";
 
+const router = useRouter();
 const { templates, loading, error, refresh } = usePromptTemplates();
 
 function onCardClick(template: PromptTemplate) {
-  console.log("Template clicked:", template.id, template.name);
+  router.push(`/settings/templates/${template.id}`);
 }
 </script>
 

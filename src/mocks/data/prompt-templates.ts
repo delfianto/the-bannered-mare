@@ -1,6 +1,7 @@
 import type { components } from "@/api/schema";
 
 type PromptTemplate = components["schemas"]["PromptTemplateResponse"];
+type TemplateFragment = components["schemas"]["TemplateFragmentResponse"];
 const NOW = new Date().toISOString();
 
 export const promptTemplates: PromptTemplate[] = [
@@ -78,3 +79,49 @@ export const promptTemplates: PromptTemplate[] = [
     updated_at: NOW,
   },
 ];
+
+// Seeded template-fragment associations (fragments attached to templates)
+// Import the fragment data inline to avoid circular deps — we reference by ID
+export const templateFragments: Map<string, TemplateFragment[]> = new Map([
+  [
+    "tpl-default",
+    [
+      {
+        id: "tf-1",
+        template_id: "tpl-default",
+        fragment_id: "frag-writing-style",
+        position: "after_system",
+        ordinal: 0,
+        created_at: NOW,
+        fragment: {
+          id: "frag-writing-style",
+          name: "Writing Style Guide",
+          description: "Enforces a literary prose style with vivid descriptions, sensory details, and varied sentence structure.",
+          fragment_type: "instruction",
+          content: "Write in a literary prose style. Use vivid sensory details, varied sentence lengths, and show rather than tell. Avoid cliches and purple prose.",
+          is_global: true,
+          created_at: NOW,
+          updated_at: NOW,
+        },
+      },
+      {
+        id: "tf-2",
+        template_id: "tpl-default",
+        fragment_id: "frag-character-depth",
+        position: "pre_history",
+        ordinal: 1,
+        created_at: NOW,
+        fragment: {
+          id: "frag-character-depth",
+          name: "Character Depth Enhancement",
+          description: "Adds psychological depth and consistency to character portrayals with internal monologue cues.",
+          fragment_type: "system",
+          content: "Portray characters with psychological depth. Include subtle body language, internal conflicts, and consistent personality traits. Characters should have believable motivations.",
+          is_global: true,
+          created_at: NOW,
+          updated_at: NOW,
+        },
+      },
+    ],
+  ],
+]);
