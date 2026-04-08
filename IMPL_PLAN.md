@@ -13,7 +13,7 @@
 
 **Pages:** Home, Chat (SSE + edit/swipe/rename/delete), Discover (filters + import), Character Detail (full profile), Creator (CRUD + lorebook), Connections (6 tabs + 5 detail pages), Settings (3 tabs + persona CRUD), Data Bank (CRUD + RAG search)
 **Composables:** 23 total
-**MSW handlers:** 66+ endpoints
+**MSW handlers:** 70+ endpoints
 
 ---
 
@@ -128,8 +128,8 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Admin mocks | [ ] | Not mocked |
-| Admin UI | [ ] | No page exists |
+| Admin mocks | [x] | GET /admin/logs/http, /llm, /llm/stats, /errors |
+| Admin Logs tab | [x] | Stats cards, HTTP/LLM/Error sub-tabs with log entries |
 
 ---
 
@@ -144,8 +144,8 @@
 - ~~Wire Creator lorebook editor~~ — **DONE.** Loads from API on edit, syncs on save.
 
 ### Infrastructure
-- Mobile responsive layout — drawer/bottom nav
-- Admin logging UI — log queries, LLM usage stats
+- ~~Admin logging UI~~ — **DONE.** Logs tab in Settings with HTTP/LLM/Error views + stats.
+- Mobile responsive layout — drawer/bottom nav (only remaining item)
 
 ### Backend TODOs
 - **`order_by` query param** — Models, Model Families, Characters list endpoints need server-side sorting
