@@ -2,7 +2,6 @@
 import { ref, computed } from "vue";
 import type { Message } from "@/types/chat";
 import NarrativeText from "./NarrativeText.vue";
-import MessageActions from "./MessageActions.vue";
 
 const props = defineProps<{
   message: Message;
@@ -16,6 +15,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   edit: [messageId: string, content: string];
   swipe: [messageId: string, direction: "left" | "right"];
+  action: [messageId: string, action: string];
 }>();
 
 const hovered = ref(false);
@@ -50,8 +50,9 @@ function handleAction(action: string) {
   if (action === "edit") {
     isEditing.value = true;
     editContent.value = props.message.content;
+  } else {
+    emit("action", props.message.id, action);
   }
-  // other actions (copy, regen, delete, bookmark) can be handled later
 }
 
 function saveEdit() {
@@ -72,13 +73,15 @@ function handleEditKeydown(e: KeyboardEvent) {
   }
 }
 
-function swipeLeft() {
-  emit("swipe", props.message.id, "left");
-}
+const characterActions = [
+  { icon: "i-lucide-rotate-ccw", label: "Regenerate", key: "regen" },
+  { icon: "i-lucide-copy", label: "Copy", key: "copy" },
+];
 
-function swipeRight() {
-  emit("swipe", props.message.id, "right");
-}
+const userActions = [
+  { icon: "i-lucide-pencil", label: "Edit", key: "edit" },
+  { icon: "i-lucide-trash-2", label: "Delete", key: "delete" },
+];
 </script>
 
 <template>
@@ -100,18 +103,11 @@ function swipeRight() {
 
     <!-- Message Card -->
     <div class="relative max-w-[75%]">
-      <MessageActions
-        :type="message.role === 'user' ? 'user' : 'character'"
-        :visible="hovered && !isEditing"
-        @action="handleAction"
-      />
-
       <!-- Swipe Left Arrow (assistant only) -->
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
         class="absolute -left-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
-        :class="showSwipeArrows || hasAlternatives ? 'opacity-100' : 'opacity-0 pointer-events-none'"
-        @click="swipeLeft"
+        @click="emit('swipe', message.id, 'left')"
       >
         <UIcon name="i-lucide-chevron-left" class="h-4 w-4" />
       </button>
@@ -120,8 +116,7 @@ function swipeRight() {
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
         class="absolute -right-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
-        :class="showSwipeArrows || hasAlternatives ? 'opacity-100' : 'opacity-0 pointer-events-none'"
-        @click="swipeRight"
+        @click="emit('swipe', message.id, 'right')"
       >
         <UIcon name="i-lucide-chevron-right" class="h-4 w-4" />
       </button>
@@ -178,11 +173,24 @@ function swipeRight() {
         <NarrativeText v-else :content="message.content" />
       </div>
 
-      <!-- Alternative Counter + Timestamp -->
+      <!-- Bottom row: actions + alt counter + timestamp -->
       <div
-        class="mt-1.5 flex items-center gap-2"
-        :class="isUser ? 'mr-1 justify-end' : 'ml-1 justify-start'"
+        class="mt-1.5 flex items-center gap-1"
+        :class="isUser ? 'mr-1 flex-row-reverse' : 'ml-1'"
       >
+        <!-- Inline action icons (always visible) -->
+        <div class="flex items-center gap-0.5" v-if="!isEditing">
+          <button
+            v-for="act in isUser ? userActions : characterActions"
+            :key="act.key"
+            :title="act.label"
+            class="flex h-6 w-6 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:text-muted-foreground"
+            @click="handleAction(act.key)"
+          >
+            <UIcon :name="act.icon" class="h-3 w-3" />
+          </button>
+        </div>
+
         <!-- Alternative counter badge (assistant only) -->
         <span
           v-if="hasAlternatives && !isUser"
@@ -191,6 +199,7 @@ function swipeRight() {
           {{ (currentAltIndex ?? 0) + 1 }} / {{ alternativeCount }}
         </span>
 
+        <!-- Timestamp -->
         <p class="text-[10px] text-muted-foreground">
           {{ formattedTime }}
         </p>
