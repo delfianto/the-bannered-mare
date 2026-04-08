@@ -1,0 +1,249 @@
+/* ── Emerald Glade ── */
+html.theme-emerald {
+  --background: #FAFAF8;
+  --foreground: #2A2A24;
+  --card: #FFFFFF;
+  --card-foreground: #2A2A24;
+  --popover: #FFFFFF;
+  --popover-foreground: #2A2A24;
+  --primary: #5C8A6C;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F2F2EE;
+  --secondary-foreground: #4A4A40;
+  --muted: #EAEAE4;
+  --muted-foreground: #7A7A70;
+  --accent: #DDDDD6;
+  --accent-foreground: #2A2A24;
+  --destructive: #B84233;
+  --border: #DDDDD6;
+  --input: #DDDDD6;
+  --ring: #5C8A6C;
+  --chat-user-bg: #5C8A6C;
+  --chat-user-fg: #FFFFFF;
+  --chat-assistant-bg: #EAEAE4;
+  --chat-assistant-fg: #2A2A24;
+}
+html.theme-emerald.dark {
+  --background: #0E0E0C;
+  --foreground: #D4D4CC;
+  --card: #1A1A17;
+  --card-foreground: #D4D4CC;
+  --popover: #1A1A17;
+  --popover-foreground: #D4D4CC;
+  --primary: #7AAE8A;
+  --primary-foreground: #0E0E0C;
+  --secondary: #181815;
+  --secondary-foreground: #B4B4AA;
+  --muted: #242420;
+  --muted-foreground: #8A8A80;
+  --accent: #242420;
+  --accent-foreground: #D4D4CC;
+  --destructive: #D45B4F;
+  --border: #242420;
+  --input: #242420;
+  --ring: #7AAE8A;
+  --chat-user-bg: #7AAE8A;
+  --chat-user-fg: #0E0E0C;
+  --chat-assistant-bg: #242420;
+  --chat-assistant-fg: #D4D4CC;
+}
+
+/* ── Sapphire Archive ── */
+html.theme-sapphire {
+  --background: #F9F9F8;
+  --foreground: #1E2430;
+  --card: #FFFFFF;
+  --card-foreground: #1E2430;
+  --popover: #FFFFFF;
+  --popover-foreground: #1E2430;
+  --primary: #4A7AAF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0F0EE;
+  --secondary-foreground: #3A4050;
+  --muted: #E6E6E2;
+  --muted-foreground: #6A7080;
+  --accent: #DADAD6;
+  --accent-foreground: #1E2430;
+  --destructive: #B84233;
+  --border: #DADAD6;
+  --input: #DADAD6;
+  --ring: #4A7AAF;
+  --chat-user-bg: #4A7AAF;
+  --chat-user-fg: #FFFFFF;
+  --chat-assistant-bg: #E6E6E2;
+  --chat-assistant-fg: #1E2430;
+}
+html.theme-sapphire.dark {
+  --background: #0C0D10;
+  --foreground: #CCD2DC;
+  --card: #14161C;
+  --card-foreground: #CCD2DC;
+  --popover: #14161C;
+  --popover-foreground: #CCD2DC;
+  --primary: #6A9AD0;
+  --primary-foreground: #0C0D10;
+  --secondary: #12141A;
+  --secondary-foreground: #A0A8B8;
+  --muted: #1C1E26;
+  --muted-foreground: #7A8090;
+  --accent: #1C1E26;
+  --accent-foreground: #CCD2DC;
+  --destructive: #D45B4F;
+  --border: #1C1E26;
+  --input: #1C1E26;
+  --ring: #6A9AD0;
+  --chat-user-bg: #6A9AD0;
+  --chat-user-fg: #0C0D10;
+  --chat-assistant-bg: #1C1E26;
+  --chat-assistant-fg: #CCD2DC;
+}
+
+/* ── Crimson Sanctum ── */
+html.theme-crimson {
+  --background: #FAF9F8;
+  --foreground: #2C2424;
+  --card: #FFFFFF;
+  --card-foreground: #2C2424;
+  --popover: #FFFFFF;
+  --popover-foreground: #2C2424;
+  --primary: #8B4D50;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3F0EF;
+  --secondary-foreground: #4C3C3C;
+  --muted: #EBE6E4;
+  --muted-foreground: #7A6E6E;
+  --accent: #DED7D4;
+  --accent-foreground: #2C2424;
+  --destructive: #B84233;
+  --border: #DED7D4;
+  --input: #DED7D4;
+  --ring: #8B4D50;
+  --chat-user-bg: #8B4D50;
+  --chat-user-fg: #FFFFFF;
+  --chat-assistant-bg: #EBE6E4;
+  --chat-assistant-fg: #2C2424;
+}
+html.theme-crimson.dark {
+  --background: #100C0C;
+  --foreground: #D8CCCC;
+  --card: #1C1616;
+  --card-foreground: #D8CCCC;
+  --popover: #1C1616;
+  --popover-foreground: #D8CCCC;
+  --primary: #B06B6E;
+  --primary-foreground: #100C0C;
+  --secondary: #181212;
+  --secondary-foreground: #B8A8A8;
+  --muted: #262020;
+  --muted-foreground: #8A7E7E;
+  --accent: #262020;
+  --accent-foreground: #D8CCCC;
+  --destructive: #D45B4F;
+  --border: #262020;
+  --input: #262020;
+  --ring: #B06B6E;
+  --chat-user-bg: #B06B6E;
+  --chat-user-fg: #100C0C;
+  --chat-assistant-bg: #262020;
+  --chat-assistant-fg: #D8CCCC;
+}
+
+/* ── Violet Arcane ── */
+html.theme-violet {
+  --background: #FAF9FB;
+  --foreground: #22202C;
+  --card: #FFFFFF;
+  --card-foreground: #22202C;
+  --popover: #FFFFFF;
+  --popover-foreground: #22202C;
+  --primary: #6E64A8;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F2F1F5;
+  --secondary-foreground: #42405C;
+  --muted: #EAEAF0;
+  --muted-foreground: #706E80;
+  --accent: #DDDCE6;
+  --accent-foreground: #22202C;
+  --destructive: #B84233;
+  --border: #DDDCE6;
+  --input: #DDDCE6;
+  --ring: #6E64A8;
+  --chat-user-bg: #6E64A8;
+  --chat-user-fg: #FFFFFF;
+  --chat-assistant-bg: #EAEAF0;
+  --chat-assistant-fg: #22202C;
+}
+html.theme-violet.dark {
+  --background: #0D0C10;
+  --foreground: #D2D0DA;
+  --card: #16151C;
+  --card-foreground: #D2D0DA;
+  --popover: #16151C;
+  --popover-foreground: #D2D0DA;
+  --primary: #8A82C4;
+  --primary-foreground: #0D0C10;
+  --secondary: #141318;
+  --secondary-foreground: #AAA8B8;
+  --muted: #201F28;
+  --muted-foreground: #807E90;
+  --accent: #201F28;
+  --accent-foreground: #D2D0DA;
+  --destructive: #D45B4F;
+  --border: #201F28;
+  --input: #201F28;
+  --ring: #8A82C4;
+  --chat-user-bg: #8A82C4;
+  --chat-user-fg: #0D0C10;
+  --chat-assistant-bg: #201F28;
+  --chat-assistant-fg: #D2D0DA;
+}
+
+/* ── Obsidian Night ── */
+html.theme-obsidian {
+  --background: #F5F5F0;
+  --foreground: #1C1C1C;
+  --card: #FFFFFF;
+  --card-foreground: #1C1C1C;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1C1C;
+  --primary: #A0926B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EDECE8;
+  --secondary-foreground: #4C4C44;
+  --muted: #E5E3DE;
+  --muted-foreground: #7A7A70;
+  --accent: #D8D5CD;
+  --accent-foreground: #1C1C1C;
+  --destructive: #B84233;
+  --border: #D8D5CD;
+  --input: #D8D5CD;
+  --ring: #A0926B;
+  --chat-user-bg: #A0926B;
+  --chat-user-fg: #FFFFFF;
+  --chat-assistant-bg: #E5E3DE;
+  --chat-assistant-fg: #1C1C1C;
+}
+html.theme-obsidian.dark {
+  --background: #0C0C0C;
+  --foreground: #D4D0C8;
+  --card: #161614;
+  --card-foreground: #D4D0C8;
+  --popover: #161614;
+  --popover-foreground: #D4D0C8;
+  --primary: #C4B68A;
+  --primary-foreground: #0C0C0C;
+  --secondary: #141412;
+  --secondary-foreground: #B0ACA0;
+  --muted: #1E1E1C;
+  --muted-foreground: #8A8880;
+  --accent: #1E1E1C;
+  --accent-foreground: #D4D0C8;
+  --destructive: #D45B4F;
+  --border: #1E1E1C;
+  --input: #1E1E1C;
+  --ring: #C4B68A;
+  --chat-user-bg: #C4B68A;
+  --chat-user-fg: #0C0C0C;
+  --chat-assistant-bg: #1E1E1C;
+  --chat-assistant-fg: #D4D0C8;
+}
