@@ -171,6 +171,10 @@
 - **`order_by` query param** — Models, Model Families, Characters list endpoints need server-side sorting
 - **`model_family_id` filter** — Models list endpoint needs this for family-based filtering
 
+### Frontend TODOs
+
+- **Tailwind theme token cleanup** — `border-[var(--border)]`, `bg-[var(--card)]` etc. are arbitrary value workarounds. The `@theme inline` block in `main.css` should properly register tokens so `border-border`, `bg-card` work natively. Audit and fix so we don't need the CSS variable escape hatch.
+
 ---
 
 ## Resolved Issues
