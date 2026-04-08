@@ -10,6 +10,7 @@ import { dataBankEntries } from "@/mocks/data/data-bank";
 import { presets } from "@/mocks/data/presets";
 import { promptTemplates } from "@/mocks/data/prompt-templates";
 import { promptFragments } from "@/mocks/data/prompt-fragments";
+import { lorebooks } from "@/mocks/data/lorebooks";
 import { conversationCache } from "@/mocks/loader";
 import "@/mocks/data/messages"; // Initialize registrations
 import type { components } from "@/api/schema";
@@ -17,6 +18,9 @@ import type { components } from "@/api/schema";
 type Chat = components["schemas"]["ChatResponse"];
 type Character = components["schemas"]["CharacterResponse"];
 type DataBankEntry = components["schemas"]["DataBankResponse"];
+type Persona = components["schemas"]["PersonaResponse"];
+type LorebookDetail = components["schemas"]["LorebookDetailResponse"];
+type LoreEntryResponse = components["schemas"]["LoreEntryResponse"];
 
 const db = {
   characters,
@@ -29,6 +33,7 @@ const db = {
   presets,
   promptTemplates,
   promptFragments,
+  lorebooks,
 };
 
 export const handlers = [
@@ -853,5 +858,317 @@ export const handlers = [
     if (!fragment) return new HttpResponse(null, { status: 404 });
     await delay(100);
     return HttpResponse.json(fragment);
+  }),
+
+  // ── Lorebooks ─────────────────────────────────────────────
+
+  http.get("/api/lorebooks", async ({ request }) => {
+    const url = new URL(request.url);
+    const characterId = url.searchParams.get("character_id");
+    const isGlobal = url.searchParams.get("is_global");
+
+    await delay(150);
+
+    let items = [...db.lorebooks];
+    if (characterId) {
+      items = items.filter((l) => l.character_id === characterId);
+    }
+    if (isGlobal !== null && isGlobal !== undefined && isGlobal !== "") {
+      items = items.filter((l) => l.is_global === (isGlobal === "true"));
+    }
+
+    // Return without entries for list endpoint
+    const stripped = items.map(({ entries: _entries, ...rest }) => rest);
+    return HttpResponse.json(stripped);
+  }),
+
+  http.post("/api/lorebooks", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["LorebookCreate"];
+    await delay(200);
+
+    const newLorebook: LorebookDetail = {
+      id: `lorebook-${Date.now()}`,
+      name: body.name,
+      description: body.description ?? null,
+      is_global: body.is_global ?? false,
+      character_id: body.character_id ?? null,
+      entries: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.lorebooks.unshift(newLorebook);
+    const { entries: _entries, ...response } = newLorebook;
+    return HttpResponse.json(response, { status: 201 });
+  }),
+
+  http.get("/api/lorebooks/:lorebookId", async ({ params }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    await delay(150);
+    return HttpResponse.json(lorebook);
+  }),
+
+  http.put("/api/lorebooks/:lorebookId", async ({ params, request }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["LorebookUpdate"];
+
+    if (body.name !== undefined && body.name !== null) lorebook.name = body.name;
+    if (body.description !== undefined) lorebook.description = body.description ?? null;
+    if (body.is_global !== undefined && body.is_global !== null) lorebook.is_global = body.is_global;
+    lorebook.updated_at = new Date().toISOString();
+
+    await delay(200);
+    const { entries: _entries, ...response } = lorebook;
+    return HttpResponse.json(response);
+  }),
+
+  http.delete("/api/lorebooks/:lorebookId", async ({ params }) => {
+    const idx = db.lorebooks.findIndex((l) => l.id === params.lorebookId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.lorebooks.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/lorebooks/:lorebookId/entries", async ({ params, request }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["LoreEntryCreate"];
+    await delay(200);
+
+    const newEntry: LoreEntryResponse = {
+      id: `lore-entry-${Date.now()}`,
+      lorebook_id: params.lorebookId as string,
+      name: body.name,
+      content: body.content,
+      keys: body.keys ?? [],
+      secondary_keys: body.secondary_keys ?? [],
+      secondary_logic: body.secondary_logic ?? "and_any",
+      case_sensitive: body.case_sensitive ?? false,
+      match_whole_words: body.match_whole_words ?? false,
+      use_regex: body.use_regex ?? false,
+      enabled: body.enabled ?? true,
+      constant: body.constant ?? false,
+      position: body.position ?? "after_character",
+      depth: body.depth ?? 4,
+      role: body.role ?? "system",
+      priority: body.priority ?? 100,
+      scan_depth: body.scan_depth ?? null,
+      ignore_budget: body.ignore_budget ?? false,
+      order: body.order ?? 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    lorebook.entries.push(newEntry);
+    return HttpResponse.json(newEntry, { status: 201 });
+  }),
+
+  http.put("/api/lorebooks/:lorebookId/entries/:entryId", async ({ params, request }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const entry = lorebook.entries.find((e) => e.id === params.entryId);
+    if (!entry) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["LoreEntryUpdate"];
+
+    if (body.name !== undefined && body.name !== null) entry.name = body.name;
+    if (body.content !== undefined && body.content !== null) entry.content = body.content;
+    if (body.keys !== undefined && body.keys !== null) entry.keys = body.keys;
+    if (body.secondary_keys !== undefined && body.secondary_keys !== null) entry.secondary_keys = body.secondary_keys;
+    if (body.secondary_logic !== undefined && body.secondary_logic !== null) entry.secondary_logic = body.secondary_logic;
+    if (body.case_sensitive !== undefined && body.case_sensitive !== null) entry.case_sensitive = body.case_sensitive;
+    if (body.match_whole_words !== undefined && body.match_whole_words !== null) entry.match_whole_words = body.match_whole_words;
+    if (body.use_regex !== undefined && body.use_regex !== null) entry.use_regex = body.use_regex;
+    if (body.enabled !== undefined && body.enabled !== null) entry.enabled = body.enabled;
+    if (body.constant !== undefined && body.constant !== null) entry.constant = body.constant;
+    if (body.position !== undefined && body.position !== null) entry.position = body.position;
+    if (body.depth !== undefined && body.depth !== null) entry.depth = body.depth;
+    if (body.role !== undefined && body.role !== null) entry.role = body.role;
+    if (body.priority !== undefined && body.priority !== null) entry.priority = body.priority;
+    if (body.scan_depth !== undefined) entry.scan_depth = body.scan_depth ?? null;
+    if (body.ignore_budget !== undefined && body.ignore_budget !== null) entry.ignore_budget = body.ignore_budget;
+    if (body.order !== undefined && body.order !== null) entry.order = body.order;
+    entry.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(entry);
+  }),
+
+  http.delete("/api/lorebooks/:lorebookId/entries/:entryId", async ({ params }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const idx = lorebook.entries.findIndex((e) => e.id === params.entryId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    lorebook.entries.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── RAG Search ────────────────────────────────────────────
+
+  http.post("/api/rag/search", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["RAGSearchRequest"];
+    await delay(300);
+
+    const mockResults: components["schemas"]["RetrievedChunk"][] = [
+      {
+        content: `The Tribunal, also known as ALMSIVI, achieved divinity through the Heart of Lorkhan. This knowledge is central to understanding Morrowind's political and religious landscape. Query matched: "${body.query}"`,
+        score: 0.92,
+        source_type: "data_bank",
+        source_id: "db-entry-1",
+        chunk_index: 0,
+      },
+      {
+        content: `Red Mountain eruptions have shaped the geography and culture of Vvardenfell for millennia. The Blight emanating from its depths is a constant threat to all inhabitants. Related to: "${body.query}"`,
+        score: 0.78,
+        source_type: "lorebook",
+        source_id: "lorebook-1",
+        chunk_index: 1,
+      },
+      {
+        content: `Aranwen's banishment from the Clockwork City was precipitated by her questioning of the Tribunal's manufactured divinity, a heresy within the Dunmer faith. Context: "${body.query}"`,
+        score: 0.65,
+        source_type: "character",
+        source_id: "7384-aranwen-the-banished",
+        chunk_index: 0,
+      },
+    ];
+
+    const maxResults = body.max_results ?? 5;
+    return HttpResponse.json(mockResults.slice(0, maxResults));
+  }),
+
+  http.get("/api/rag/status", async () => {
+    await delay(100);
+    return HttpResponse.json({
+      status: "active",
+      indexed_count: 150,
+      last_indexed: new Date().toISOString(),
+      embedding_provider: "mock-embeddings",
+    });
+  }),
+
+  // ── Character Import ──────────────────────────────────────
+
+  http.post("/api/characters/import", async ({ request }) => {
+    await delay(400);
+    const formData = await request.formData();
+    const file = formData.get("file");
+
+    const fileName = file instanceof File ? file.name : "imported-character";
+    const baseName = fileName.replace(/\.(json|png)$/i, "");
+    const slugName = baseName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    const newChar: Character = {
+      id: `${Date.now()}-${slugName}`,
+      name: baseName.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      description: `An imported character from ${fileName}. This character was brought into the library via file import.`,
+      personality: "Mysterious and intriguing, with a backstory yet to be fully explored.",
+      first_message: `*looks up from an ancient tome* Greetings, traveler. I am newly arrived in this realm, imported from distant lands. What would you know of me?`,
+      example_dialogues: [],
+      scenario: null,
+      post_history_instructions: null,
+      alternate_greetings: null,
+      tags: ["Imported"],
+      gender: null,
+      custom_gender: null,
+      creator: "Import",
+      version: 1,
+      avatar: null,
+      avatar_thumbnail: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.characters.unshift(newChar);
+    return HttpResponse.json(newChar, { status: 201 });
+  }),
+
+  // ── Persona CRUD ──────────────────────────────────────────
+
+  http.post("/api/personas/", async ({ request }) => {
+    await delay(200);
+    const formData = await request.formData();
+
+    const name = formData.get("name") as string;
+    if (!name) {
+      return HttpResponse.json({ detail: "name is required" }, { status: 422 });
+    }
+
+    const newPersona: Persona = {
+      id: `persona-${Date.now()}`,
+      name,
+      description: (formData.get("description") as string) || null,
+      is_default: formData.get("is_default") === "true",
+      avatar: (formData.get("avatar") as string) || null,
+      avatar_thumbnail: (formData.get("avatar") as string) || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // If setting as default, unset others
+    if (newPersona.is_default) {
+      db.personas.forEach((p) => (p.is_default = false));
+    }
+
+    db.personas.unshift(newPersona);
+    return HttpResponse.json(newPersona, { status: 201 });
+  }),
+
+  http.put("/api/personas/:personaId", async ({ params, request }) => {
+    const persona = db.personas.find((p) => p.id === params.personaId);
+    if (!persona) return new HttpResponse(null, { status: 404 });
+
+    await delay(200);
+    const formData = await request.formData();
+
+    const name = formData.get("name") as string | null;
+    if (name !== null) persona.name = name;
+
+    const desc = formData.get("description") as string | null;
+    if (desc !== null) persona.description = desc || null;
+
+    const isDefault = formData.get("is_default");
+    if (isDefault !== null) {
+      const newDefault = isDefault === "true";
+      if (newDefault && !persona.is_default) {
+        db.personas.forEach((p) => (p.is_default = false));
+      }
+      persona.is_default = newDefault;
+    }
+
+    const avatar = formData.get("avatar") as string | null;
+    if (avatar !== null) {
+      persona.avatar = avatar || null;
+      persona.avatar_thumbnail = avatar || null;
+    }
+
+    persona.updated_at = new Date().toISOString();
+    return HttpResponse.json(persona);
+  }),
+
+  http.delete("/api/personas/:personaId", async ({ params }) => {
+    const idx = db.personas.findIndex((p) => p.id === params.personaId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.personas.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/personas/:personaId/set-default", async ({ params }) => {
+    const persona = db.personas.find((p) => p.id === params.personaId);
+    if (!persona) return new HttpResponse(null, { status: 404 });
+
+    db.personas.forEach((p) => (p.is_default = false));
+    persona.is_default = true;
+    persona.updated_at = new Date().toISOString();
+
+    await delay(150);
+    return HttpResponse.json(persona);
   }),
 ];

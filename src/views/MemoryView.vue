@@ -1,11 +1,75 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useDataBank } from "@/composables/useDataBank";
+import { client } from "@/api/client";
 import type { DataBankCreate, DataBankUpdate, DataBankEntry } from "@/composables/useDataBank";
+import type { components } from "@/api/schema";
+
+type RetrievedChunk = components["schemas"]["RetrievedChunk"];
 
 const { entries, loading, error, fetchEntries, createEntry, updateEntry, deleteEntry, refresh } =
   useDataBank();
 
+// ── RAG Search ──────────────────────────────────────────
+const searchQuery = ref("");
+const searchLoading = ref(false);
+const searchResults = ref<RetrievedChunk[]>([]);
+const hasSearched = ref(false);
+const ragIndexedCount = ref<number | null>(null);
+
+onMounted(async () => {
+  try {
+    const { data } = await client.GET("/api/rag/status");
+    if (data && typeof data === "object" && "indexed_count" in data) {
+      ragIndexedCount.value = (data as { indexed_count: number }).indexed_count;
+    }
+  } catch {
+    // RAG status is non-critical
+  }
+});
+
+async function onSearch() {
+  if (!searchQuery.value.trim()) return;
+  searchLoading.value = true;
+  hasSearched.value = true;
+
+  try {
+    const { data } = await client.POST("/api/rag/search", {
+      body: {
+        query: searchQuery.value,
+        max_results: 5,
+        threshold: 0.3,
+      },
+    });
+    searchResults.value = data ?? [];
+  } catch {
+    searchResults.value = [];
+  } finally {
+    searchLoading.value = false;
+  }
+}
+
+function scoreColor(score: number): string {
+  if (score >= 0.85) return "bg-emerald-500/15 text-emerald-400";
+  if (score >= 0.7) return "bg-blue-500/15 text-blue-400";
+  if (score >= 0.5) return "bg-amber-500/15 text-amber-400";
+  return "bg-zinc-500/15 text-zinc-400";
+}
+
+function sourceTypeBadge(type: string): string {
+  switch (type) {
+    case "data_bank":
+      return "bg-blue-500/15 text-blue-400";
+    case "lorebook":
+      return "bg-purple-500/15 text-purple-400";
+    case "character":
+      return "bg-amber-500/15 text-amber-400";
+    default:
+      return "bg-accent text-foreground";
+  }
+}
+
+// ── Data Bank ───────────────────────────────────────────
 const scopeFilter = ref<string>("all");
 const scopes = [
   { id: "all", label: "All" },
@@ -115,9 +179,17 @@ function scopeBadgeClass(scope: string): string {
     <div class="animate-fade-in-up">
       <div class="flex items-start justify-between">
         <div>
-          <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
-            Data Bank
-          </h1>
+          <div class="flex items-center gap-3">
+            <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
+              Data Bank
+            </h1>
+            <span
+              v-if="ragIndexedCount !== null"
+              class="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-medium text-emerald-400"
+            >
+              {{ ragIndexedCount }} indexed
+            </span>
+          </div>
           <p class="text-sm text-muted-foreground">
             Persistent memory entries injected into conversations by scope
           </p>
@@ -129,6 +201,77 @@ function scopeBadgeClass(scope: string): string {
           <UIcon name="i-lucide-plus" class="h-4 w-4" />
           Add Entry
         </button>
+      </div>
+    </div>
+
+    <!-- RAG Search Section -->
+    <div class="animate-fade-in-up rounded-xl border border-[var(--border)] bg-card/50 p-5" style="animation-delay: 30ms">
+      <h2 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+        Semantic Search
+      </h2>
+      <div class="flex items-center gap-3">
+        <div class="relative flex-1">
+          <UIcon
+            name="i-lucide-search"
+            class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50"
+          />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search across all memory sources..."
+            class="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-shadow focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_12px_var(--color-primary)/0.15]"
+            @keydown.enter="onSearch"
+          />
+        </div>
+        <button
+          class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          :disabled="searchLoading || !searchQuery.trim()"
+          @click="onSearch"
+        >
+          <UIcon
+            v-if="searchLoading"
+            name="i-lucide-loader-2"
+            class="h-4 w-4 animate-spin"
+          />
+          <UIcon v-else name="i-lucide-search" class="h-4 w-4" />
+          Search
+        </button>
+      </div>
+
+      <!-- Search Results -->
+      <div v-if="searchLoading" class="mt-4 flex items-center justify-center py-6">
+        <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-primary" />
+      </div>
+
+      <div v-else-if="hasSearched && searchResults.length === 0" class="mt-4 text-center py-6">
+        <UIcon name="i-lucide-search-x" class="mx-auto mb-2 h-6 w-6 text-muted-foreground/40" />
+        <p class="text-sm text-muted-foreground">No results found for "{{ searchQuery }}"</p>
+      </div>
+
+      <div v-else-if="searchResults.length > 0" class="mt-4 space-y-3">
+        <div
+          v-for="(result, i) in searchResults"
+          :key="i"
+          class="rounded-lg border border-border/50 bg-background/50 p-4 transition-colors hover:bg-background/80"
+        >
+          <div class="mb-2 flex items-center gap-2">
+            <span
+              class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+              :class="sourceTypeBadge(result.source_type)"
+            >
+              {{ result.source_type.replace("_", " ") }}
+            </span>
+            <span
+              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
+              :class="scoreColor(result.score)"
+            >
+              {{ (result.score * 100).toFixed(0) }}% match
+            </span>
+          </div>
+          <p class="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+            {{ result.content }}
+          </p>
+        </div>
       </div>
     </div>
 
