@@ -42,7 +42,7 @@ function handleKeyDown(e: KeyboardEvent) {
 <template>
   <div class="px-4 pb-4 pt-2">
     <div
-      class="relative flex items-end gap-3 rounded-xl border bg-card px-4 py-3 transition-all duration-300"
+      class="relative flex items-center gap-3 rounded-xl border bg-card px-4 py-3 transition-all duration-300"
       :class="
         focused
           ? 'border-primary/40 shadow-[0_0_0_3px_var(--color-primary)/0.1,0_2px_16px_var(--color-primary)/0.08]'
@@ -50,7 +50,7 @@ function handleKeyDown(e: KeyboardEvent) {
       "
     >
       <!-- Quill icon -->
-      <div class="flex-shrink-0 pb-0.5">
+      <div class="flex-shrink-0">
         <UIcon
           name="i-lucide-pen-tool"
           class="h-[18px] w-[18px] transition-colors duration-300"
