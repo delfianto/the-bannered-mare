@@ -10,6 +10,7 @@ const emit = defineEmits<{
 const tabs = [
   { id: "interface", label: "Interface", icon: "i-lucide-palette" },
   { id: "persona", label: "Persona", icon: "i-lucide-user-circle" },
+  { id: "logs", label: "Logs", icon: "i-lucide-scroll-text" },
   { id: "about", label: "About", icon: "i-lucide-info" },
 ];
 </script>
