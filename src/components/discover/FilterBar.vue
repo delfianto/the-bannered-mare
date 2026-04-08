@@ -50,7 +50,7 @@ function sortLabel(value: SortOption): string {
         <input
           type="text"
           :value="search"
-          placeholder="Search characters\u2026"
+          placeholder="Search characters…"
           aria-label="Search characters"
           autocomplete="off"
           class="h-9 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"

@@ -290,7 +290,7 @@ function formatDate(iso: string): string {
             <textarea
               v-model="form.content"
               rows="8"
-              placeholder="Jinja2 template content\u2026"
+              placeholder="Jinja2 template content…"
               class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
             <p class="mt-2 text-[11px] text-muted-foreground/60">

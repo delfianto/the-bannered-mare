@@ -51,7 +51,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <input
         v-if="tags.length < maxTags"
         v-model="input"
-        :placeholder="tags.length === 0 ? 'Add tags\u2026' : '+'"
+        :placeholder="tags.length === 0 ? 'Add tags…' : '+'"
         class="min-w-[80px] flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
         @keydown="handleKeyDown"
       />

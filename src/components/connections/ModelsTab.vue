@@ -73,7 +73,7 @@ const filteredModels = computed(() => models.value);
           <input
             type="text"
             :value="searchQuery"
-            placeholder="Search models\u2026"
+            placeholder="Search models…"
             aria-label="Search models"
             autocomplete="off"
             class="h-9 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"

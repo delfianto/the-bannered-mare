@@ -221,7 +221,7 @@ function formatDate(iso: string): string {
                 <textarea
                   v-model="form.description"
                   rows="3"
-                  placeholder="Describe this model family\u2026"
+                  placeholder="Describe this model family…"
                   class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>

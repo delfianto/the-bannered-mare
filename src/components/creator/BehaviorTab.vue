@@ -30,7 +30,7 @@ const dialoguesOpen = ref(true);
     <FormField label="Description" hint="Backstory, traits, motivations" :char-count="data.description.length" :char-max="12000">
       <textarea
         :value="data.description"
-        placeholder="Elara Moonwhisper is a half-elf arcanist who has dedicated her considerable lifespan to preserving the knowledge of the Sunken Library\u2026"
+        placeholder="Elara Moonwhisper is a half-elf arcanist who has dedicated her considerable lifespan to preserving the knowledge of the Sunken Library…"
         rows="6"
         class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'description', ($event.target as HTMLTextAreaElement).value)"
@@ -50,7 +50,7 @@ const dialoguesOpen = ref(true);
     <FormField label="Greeting" hint="First message when a session begins" :char-count="data.greeting.length" :char-max="4000">
       <textarea
         :value="data.greeting"
-        :placeholder="'*The torchlight flickers against the damp stone walls.* &quot;These wards were placed here centuries ago\u2026&quot;'"
+        :placeholder="'*The torchlight flickers against the damp stone walls.* &quot;These wards were placed here centuries ago…&quot;'"
         rows="4"
         class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'greeting', ($event.target as HTMLTextAreaElement).value)"

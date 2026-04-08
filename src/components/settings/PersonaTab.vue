@@ -208,7 +208,7 @@ async function setDefault(personaId: string) {
           <input
             v-model="formName"
             type="text"
-            placeholder="Persona name\u2026"
+            placeholder="Persona name…"
             class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </label>
@@ -217,7 +217,7 @@ async function setDefault(personaId: string) {
           <textarea
             v-model="formDescription"
             rows="3"
-            placeholder="Describe this persona for RP context\u2026"
+            placeholder="Describe this persona for RP context…"
             class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </label>

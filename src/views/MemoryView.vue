@@ -218,7 +218,7 @@ function scopeBadgeClass(scope: string): string {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search across all memory sources\u2026"
+            placeholder="Search across all memory sources…"
             aria-label="Semantic search"
             autocomplete="off"
             class="w-full rounded-lg border bg-background py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-shadow focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_12px_var(--color-primary)/0.15]"
@@ -308,7 +308,7 @@ function scopeBadgeClass(scope: string): string {
           <input
             v-model="formName"
             type="text"
-            placeholder="Entry name\u2026"
+            placeholder="Entry name…"
             class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </label>
@@ -328,7 +328,7 @@ function scopeBadgeClass(scope: string): string {
           <textarea
             v-model="formContent"
             rows="4"
-            placeholder="Entry content\u2026"
+            placeholder="Entry content…"
             class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </label>
