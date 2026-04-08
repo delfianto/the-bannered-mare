@@ -76,6 +76,7 @@ function handleEditKeydown(e: KeyboardEvent) {
 const characterActions = [
   { icon: "i-lucide-rotate-ccw", label: "Regenerate", key: "regen" },
   { icon: "i-lucide-copy", label: "Copy", key: "copy" },
+  { icon: "i-lucide-bookmark", label: "Bookmark", key: "bookmark" },
 ];
 
 const userActions = [
