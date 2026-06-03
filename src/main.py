@@ -6,7 +6,6 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 
 from src.admin.router import router as admin_router
 from src.character import router as characters_router

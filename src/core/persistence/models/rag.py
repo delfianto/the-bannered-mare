@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, final
+from typing import final
 
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column

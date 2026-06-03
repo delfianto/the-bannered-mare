@@ -75,6 +75,12 @@ line-length = 100
 src = ["src", "tests"]
 # Drives pyupgrade (UP) rules to rewrite code to 3.14-era idioms.
 target-version = "py314"
+# Auto-generated Alembic migration scripts are not linted or formatted
+# (mirrors the basedpyright exclude of alembic/versions/**).
+extend-exclude = ["alembic/versions"]
+# Honor the exclude even when a path is passed explicitly (e.g. by editor
+# integrations or pre-commit/hooks), so migrations are never reformatted.
+force-exclude = true
 
 [tool.ruff.lint]
 select = [

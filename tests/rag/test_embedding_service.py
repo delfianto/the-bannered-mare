@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-
 from src.core.config import EmbeddingSettings
 from src.rag.embedding_service import BATCH_SIZE, EmbeddingService
 
@@ -144,6 +143,8 @@ async def test_embed_error_handling():
     mock_client.__aenter__ = AsyncMock(return_value=mock_client)
     mock_client.__aexit__ = AsyncMock(return_value=False)
 
-    with patch("src.rag.embedding_service.httpx.AsyncClient", return_value=mock_client):
-        with pytest.raises(httpx.HTTPStatusError):
-            await service.embed(["fail"])
+    with (
+        patch("src.rag.embedding_service.httpx.AsyncClient", return_value=mock_client),
+        pytest.raises(httpx.HTTPStatusError),
+    ):
+        await service.embed(["fail"])
