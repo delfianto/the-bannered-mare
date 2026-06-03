@@ -1,14 +1,21 @@
 """Character ORM model."""
 
+# Bidirectional ORM relationships form TYPE_CHECKING-only import cycles with no
+# runtime import edge; the file-level cycle report would be a false positive here.
+# pyright: reportImportCycles=false
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final
 
 from sqlalchemy import Enum, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import Gender
 from src.core.persistence.models._base import BaseModel, StringList
+
+if TYPE_CHECKING:
+    from src.core.persistence.models.chat import Chat
+    from src.core.persistence.models.lore import Lorebook
 
 
 @final

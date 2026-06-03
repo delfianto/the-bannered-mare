@@ -16,9 +16,9 @@ class TemplateContext:
 
     def __init__(
         self,
-        character: "Character",
-        persona: "Persona | None",
-        chat: "Chat",
+        character: Character,
+        persona: Persona | None,
+        chat: Chat,
     ):
         self.character = character
         self.persona = persona
