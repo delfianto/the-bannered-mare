@@ -223,3 +223,12 @@ storage/temp/*
 # OS specific
 .DS_Store
 Thumbs.db
+
+# SillyTavern source, kept locally for implementation reference only
+st/
+
+# Claude Code: track shared project config (settings.json + hooks),
+# ignore personal permissions and machine-local skills
+.claude/*
+!.claude/settings.json
+!.claude/hooks/

@@ -119,6 +119,32 @@ pytest
 
 ```
 
+### 5.3 Local Claude Code Environment
+
+When setting up this project on a new machine, the shared `.claude/settings.json`
+is version-controlled and wires up the project hooks (ruff, basedpyright,
+git-write guard, session context) automatically. It also declares the plugins
+this project relies on under `enabledPlugins`.
+
+Install these plugins **for this project only** (not globally) so the config
+resolves on a fresh checkout. From the official marketplace
+(`claude-plugins-official`):
+
+| Plugin | Purpose |
+|--------|---------|
+| `pyright-lsp` | basedpyright LSP integration for strict type checking |
+| `logfire` | Pydantic Logfire observability / tracing |
+| `42crunch-api-security-testing` | OpenAPI audit + live security scan |
+
+Install via the `/plugin` menu (select the project scope, not user/global), e.g.
+`pyright-lsp@claude-plugins-official`.
+
+Not tracked / not required on a new machine:
+
+- `.claude/settings.local.json` — personal permission allowlist and skill
+  overrides; gitignored, regenerated per-machine.
+- `.claude/skills/` — machine-local skill copies; gitignored.
+
 ---
 
 ## 6. Coding Standards
