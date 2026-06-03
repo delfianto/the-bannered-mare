@@ -15,19 +15,13 @@ class LoggingSettings(BaseModel):
     level: str = "INFO"
     format: Literal["json", "console"] = "json"
 
-    # MongoDB
-    mongo_enabled: bool = True
-    mongo_uri: str = "mongodb://localhost:27017"
-    mongo_database: str = "candlekeep_logs"
+    # Persisted audit logging (PostgreSQL). Master switch for the audit writer.
+    audit_enabled: bool = True
 
-    # TTL (seconds)
-    http_logs_ttl: int = 7 * 24 * 60 * 60  # 7 days
-    llm_audit_ttl: int = 30 * 24 * 60 * 60  # 30 days
-    error_logs_ttl: int = 90 * 24 * 60 * 60  # 90 days
-
-    # Toggles
+    # Per-type toggles
     log_http_requests: bool = True
     log_llm_calls: bool = True
+    log_errors: bool = True
     log_request_body: bool = False
     log_response_body: bool = False
     redact_api_keys: bool = True

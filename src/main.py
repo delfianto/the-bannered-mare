@@ -12,7 +12,7 @@ from src.character import router as characters_router
 from src.chat_message import router as chat_messages_router
 from src.chat_session import router as chats_router
 from src.core.config import settings
-from src.core.logging import RequestLoggingMiddleware, configure_structlog, get_logger, mongo_logger
+from src.core.logging import RequestLoggingMiddleware, configure_structlog, get_logger
 from src.core.utils.storage import ensure_storage_directories
 from src.health import router as health_router
 from src.lore import router as lore_router
@@ -44,12 +44,9 @@ async def lifespan(_app: FastAPI):
 
     seed_database()
 
-    await mongo_logger.initialize()
-
     yield
 
     logger.info("application_shutdown")
-    await mongo_logger.close()
 
 
 app = FastAPI(

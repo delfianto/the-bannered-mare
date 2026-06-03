@@ -35,7 +35,6 @@ dependencies = [
 
     # Logging
     "structlog==25.5.0",
-    "pymongo==4.15.5",
 
     # Prompt templating
     "Jinja2==3.1.6",

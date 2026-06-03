@@ -110,9 +110,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Query Http Logs Admin Logs Http Get"
+                  "$ref": "#/components/schemas/HttpLogPage"
                 }
               }
             }
@@ -234,9 +232,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Query Llm Logs Admin Logs Llm Get"
+                  "$ref": "#/components/schemas/LlmAuditLogPage"
                 }
               }
             }
@@ -305,9 +301,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get Llm Stats Admin Logs Llm Stats Get"
+                  "$ref": "#/components/schemas/LlmStatsResponse"
                 }
               }
             }
@@ -381,9 +375,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Query Error Logs Admin Logs Errors Get"
+                  "$ref": "#/components/schemas/ErrorLogPage"
                 }
               }
             }
@@ -5641,6 +5633,86 @@
         "title": "DataBankUpdate",
         "description": "Schema for updating a data bank entry"
       },
+      "ErrorLogPage": {
+        "properties": {
+          "logs": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorLogResponse"
+            },
+            "type": "array",
+            "title": "Logs"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          }
+        },
+        "type": "object",
+        "required": [
+          "logs",
+          "total",
+          "limit",
+          "skip"
+        ],
+        "title": "ErrorLogPage",
+        "description": "Paginated error logs"
+      },
+      "ErrorLogResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "error_type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "stack_trace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stack Trace"
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "error_type",
+          "message",
+          "stack_trace",
+          "context"
+        ],
+        "title": "ErrorLogResponse",
+        "description": "A single error audit record"
+      },
       "FragmentCreate": {
         "properties": {
           "name": {
@@ -5844,6 +5916,133 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HttpLogPage": {
+        "properties": {
+          "logs": {
+            "items": {
+              "$ref": "#/components/schemas/HttpLogResponse"
+            },
+            "type": "array",
+            "title": "Logs"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          }
+        },
+        "type": "object",
+        "required": [
+          "logs",
+          "total",
+          "limit",
+          "skip"
+        ],
+        "title": "HttpLogPage",
+        "description": "Paginated HTTP logs"
+      },
+      "HttpLogResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "status_code": {
+            "type": "integer",
+            "title": "Status Code"
+          },
+          "latency_ms": {
+            "type": "number",
+            "title": "Latency Ms"
+          },
+          "client_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Ip"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent"
+          },
+          "request_body": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Body"
+          },
+          "response_body": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "request_id",
+          "method",
+          "path",
+          "status_code",
+          "latency_ms",
+          "client_ip",
+          "user_agent",
+          "request_body",
+          "response_body"
+        ],
+        "title": "HttpLogResponse",
+        "description": "A single HTTP request audit record"
+      },
       "InsertionPosition": {
         "type": "string",
         "enum": [
@@ -5854,6 +6053,254 @@
         ],
         "title": "InsertionPosition",
         "description": "Where activated lore entries are injected into the prompt"
+      },
+      "LlmAuditLogPage": {
+        "properties": {
+          "logs": {
+            "items": {
+              "$ref": "#/components/schemas/LlmAuditLogResponse"
+            },
+            "type": "array",
+            "title": "Logs"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "skip": {
+            "type": "integer",
+            "title": "Skip"
+          }
+        },
+        "type": "object",
+        "required": [
+          "logs",
+          "total",
+          "limit",
+          "skip"
+        ],
+        "title": "LlmAuditLogPage",
+        "description": "Paginated LLM audit logs"
+      },
+      "LlmAuditLogResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "prompt_tokens": {
+            "type": "integer",
+            "title": "Prompt Tokens"
+          },
+          "completion_tokens": {
+            "type": "integer",
+            "title": "Completion Tokens"
+          },
+          "total_tokens": {
+            "type": "integer",
+            "title": "Total Tokens"
+          },
+          "latency_ms": {
+            "type": "number",
+            "title": "Latency Ms"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "request_payload": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Request Payload"
+          },
+          "response_payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "chat_id",
+          "provider",
+          "model",
+          "prompt_tokens",
+          "completion_tokens",
+          "total_tokens",
+          "latency_ms",
+          "status",
+          "estimated_cost_usd",
+          "error_message",
+          "request_payload",
+          "response_payload"
+        ],
+        "title": "LlmAuditLogResponse",
+        "description": "A single LLM audit record"
+      },
+      "LlmStatsResponse": {
+        "properties": {
+          "stats": {
+            "items": {
+              "$ref": "#/components/schemas/LlmUsageStat"
+            },
+            "type": "array",
+            "title": "Stats"
+          },
+          "period": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Period"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stats",
+          "period"
+        ],
+        "title": "LlmStatsResponse",
+        "description": "LLM usage stats over an optional time window"
+      },
+      "LlmUsageStat": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "total_calls": {
+            "type": "integer",
+            "title": "Total Calls"
+          },
+          "total_prompt_tokens": {
+            "type": "integer",
+            "title": "Total Prompt Tokens"
+          },
+          "total_completion_tokens": {
+            "type": "integer",
+            "title": "Total Completion Tokens"
+          },
+          "total_tokens": {
+            "type": "integer",
+            "title": "Total Tokens"
+          },
+          "total_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Cost Usd"
+          },
+          "avg_latency_ms": {
+            "type": "number",
+            "title": "Avg Latency Ms"
+          },
+          "success_count": {
+            "type": "integer",
+            "title": "Success Count"
+          },
+          "error_count": {
+            "type": "integer",
+            "title": "Error Count"
+          },
+          "success_rate": {
+            "type": "number",
+            "title": "Success Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "model",
+          "total_calls",
+          "total_prompt_tokens",
+          "total_completion_tokens",
+          "total_tokens",
+          "total_cost_usd",
+          "avg_latency_ms",
+          "success_count",
+          "error_count",
+          "success_rate"
+        ],
+        "title": "LlmUsageStat",
+        "description": "Aggregated usage stats for one provider/model pair"
       },
       "LoreEntryCreate": {
         "properties": {

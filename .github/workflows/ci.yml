@@ -15,8 +15,8 @@ permissions:
   contents: read
 
 env:
-  # Tests disable Mongo logging themselves, but make the intent explicit in CI.
-  LOGGING__MONGO_ENABLED: "false"
+  # Tests disable the audit writer themselves, but make the intent explicit in CI.
+  LOGGING__AUDIT_ENABLED: "false"
 
 jobs:
   lint:
