@@ -125,7 +125,7 @@ class GeminiAdapter(ProviderAdapter):
         thought_parts = [p.get("text", "") for p in parts if p.get("thought")]
         reasoning = "".join(thought_parts) or None
 
-        raw_reason = candidate.get("finishReason", "STOP")
+        raw_reason: str = candidate.get("finishReason") or "STOP"
         finish_reason = _FINISH_REASON_MAP.get(raw_reason, raw_reason.lower())
 
         usage_data = data.get("usageMetadata", {})

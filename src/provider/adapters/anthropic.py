@@ -109,7 +109,7 @@ class AnthropicAdapter(ProviderAdapter):
         ]
         reasoning = "".join(thinking_parts) or None
 
-        raw_reason = data.get("stop_reason", "end_turn")
+        raw_reason: str = data.get("stop_reason") or "end_turn"
         finish_reason = _STOP_REASON_MAP.get(raw_reason, raw_reason)
 
         usage_data = data.get("usage", {})

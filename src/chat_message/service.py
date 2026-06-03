@@ -118,6 +118,11 @@ class ChatMessageService:
 
     def _build_gateway(self, chat: Chat) -> ProviderGateway:
         """Build a ProviderGateway with optional preset parameters."""
+        if chat.model is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Chat does not have a valid model assigned.",
+            )
         preset_params = chat.preset.parameters if chat.preset else None
         return ProviderGateway(chat.model.provider, chat.model, preset_parameters=preset_params)
 

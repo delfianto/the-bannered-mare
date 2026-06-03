@@ -12,37 +12,45 @@ class CharacterBase(BaseModel):
     """Base character schema with common fields"""
 
     name: str = Field(..., min_length=1, max_length=100, description="Character name")
-    description: str | None = Field(None, max_length=50000, description="Character description")
+    description: str | None = Field(
+        default=None, max_length=50000, description="Character description"
+    )
     personality: str | None = Field(
-        None, max_length=50000, description="Personality traits and behavior"
+        default=None, max_length=50000, description="Personality traits and behavior"
     )
     first_message: str | None = Field(
-        None, max_length=50000, description="Initial greeting message"
+        default=None, max_length=50000, description="Initial greeting message"
     )
     example_dialogues: list[str] | None = Field(
         default=None, description="List of example dialogue strings"
     )
-    scenario: str | None = Field(None, max_length=50000, description="Current scenario context")
-    post_history_instructions: str | None = Field(
-        None, max_length=50000, description="Instructions after history"
+    scenario: str | None = Field(
+        default=None, max_length=50000, description="Current scenario context"
     )
-    alternate_greetings: list[str] | None = Field(None, description="Alternative first messages")
+    post_history_instructions: str | None = Field(
+        default=None, max_length=50000, description="Instructions after history"
+    )
+    alternate_greetings: list[str] | None = Field(
+        default=None, description="Alternative first messages"
+    )
 
     # Character Card Format fields
     tags: list[str] | None = Field(default=None, description="Tags for categorization")
-    gender: Gender | None = Field(None, description="Character gender")
+    gender: Gender | None = Field(default=None, description="Character gender")
     custom_gender: str | None = Field(
-        None, max_length=100, description="Custom gender value when gender is 'others'"
+        default=None, max_length=100, description="Custom gender value when gender is 'others'"
     )
-    creator: str | None = Field(None, max_length=100, description="Character creator/author")
+    creator: str | None = Field(
+        default=None, max_length=100, description="Character creator/author"
+    )
     system_prompt: str | None = Field(
-        None, max_length=50000, description="Per-character system prompt override"
+        default=None, max_length=50000, description="Per-character system prompt override"
     )
     creator_notes: str | None = Field(
-        None, max_length=50000, description="Creator's notes (not sent to LLM)"
+        default=None, max_length=50000, description="Creator's notes (not sent to LLM)"
     )
     character_version: str | None = Field(
-        None, max_length=100, description="Semantic version from card spec"
+        default=None, max_length=100, description="Semantic version from card spec"
     )
     version: int = Field(default=1, description="Character card version")
 
@@ -50,10 +58,10 @@ class CharacterBase(BaseModel):
 class CharacterFilterParams(BaseModel):
     """Query parameters for filtering characters"""
 
-    name__ilike: str | None = Field(None, description="Search name")
-    gender: Gender | None = Field(None, description="Filter by gender")
-    tags__ilike: str | None = Field(None, description="Filter by tag content")
-    created_at__ge: datetime | None = Field(None, description="Created after date")
+    name__ilike: str | None = Field(default=None, description="Search name")
+    gender: Gender | None = Field(default=None, description="Filter by gender")
+    tags__ilike: str | None = Field(default=None, description="Filter by tag content")
+    created_at__ge: datetime | None = Field(default=None, description="Created after date")
 
     def to_filter_dict(self) -> dict[str, Any]:
         return {k: v for k, v in self.model_dump().items() if v is not None}
@@ -68,23 +76,23 @@ class CharacterCreate(CharacterBase):
 class CharacterUpdate(BaseModel):
     """Schema for updating a character"""
 
-    name: str | None = Field(None, min_length=1, max_length=100)
-    description: str | None = Field(None, max_length=50000)
-    personality: str | None = Field(None, max_length=50000)
-    first_message: str | None = Field(None, max_length=50000)
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=50000)
+    personality: str | None = Field(default=None, max_length=50000)
+    first_message: str | None = Field(default=None, max_length=50000)
     example_dialogues: list[str] | None = None
-    scenario: str | None = Field(None, max_length=50000)
-    post_history_instructions: str | None = Field(None, max_length=50000)
+    scenario: str | None = Field(default=None, max_length=50000)
+    post_history_instructions: str | None = Field(default=None, max_length=50000)
     alternate_greetings: list[str] | None = None
 
     # Character Card Format fields
     tags: list[str] | None = None
     gender: Gender | None = None
-    custom_gender: str | None = Field(None, max_length=100)
-    creator: str | None = Field(None, max_length=100)
-    system_prompt: str | None = Field(None, max_length=50000)
-    creator_notes: str | None = Field(None, max_length=50000)
-    character_version: str | None = Field(None, max_length=100)
+    custom_gender: str | None = Field(default=None, max_length=100)
+    creator: str | None = Field(default=None, max_length=100)
+    system_prompt: str | None = Field(default=None, max_length=50000)
+    creator_notes: str | None = Field(default=None, max_length=50000)
+    character_version: str | None = Field(default=None, max_length=100)
     version: int | None = None
 
 

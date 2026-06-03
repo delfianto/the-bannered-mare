@@ -13,11 +13,17 @@ class PaginationMeta(BaseModel):
     has_more: bool = Field(..., description="Whether there are more items available")
 
     # Cursor-specific
-    cursor: str | None = Field(None, description="Cursor for the next page (for infinite scroll)")
+    cursor: str | None = Field(
+        default=None, description="Cursor for the next page (for infinite scroll)"
+    )
 
     # Offset-specific (Page Numbers)
-    total: int | None = Field(None, description="Total count of items (for page-based pagination)")
-    page: int | None = Field(None, description="Current page number (for page-based pagination)")
+    total: int | None = Field(
+        default=None, description="Total count of items (for page-based pagination)"
+    )
+    page: int | None = Field(
+        default=None, description="Current page number (for page-based pagination)"
+    )
 
 
 class PaginatedResponse[T](BaseModel):

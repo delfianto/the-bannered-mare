@@ -250,6 +250,7 @@ class TestChatMessageService:
         updated = await service.edit_message(chat.id, msg.id, "Edited text")
 
         assert updated.content == "Edited text"
+        assert updated.token_count is not None
         assert updated.token_count > 0
 
         # Verify token_count was recomputed (not zero or the same as original)

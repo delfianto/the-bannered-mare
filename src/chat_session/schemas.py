@@ -10,17 +10,17 @@ class ChatBase(BaseModel):
     """Base chat schema with common fields"""
 
     character_id: str = Field(..., max_length=12, description="Character ID")
-    model_id: str | None = Field(None, max_length=12, description="Model ID")
-    title: str | None = Field(None, max_length=200, description="Chat title")
+    model_id: str | None = Field(default=None, max_length=12, description="Model ID")
+    title: str | None = Field(default=None, max_length=200, description="Chat title")
 
 
 class ChatSessionFilterParams(BaseModel):
     """Query parameters for filtering chat sessions"""
 
-    character_id: str | None = Field(None, description="Filter by character")
-    model_id: str | None = Field(None, description="Filter by model")
-    created_at__ge: datetime | None = Field(None, description="Sessions started after")
-    created_at__le: datetime | None = Field(None, description="Sessions started before")
+    character_id: str | None = Field(default=None, description="Filter by character")
+    model_id: str | None = Field(default=None, description="Filter by model")
+    created_at__ge: datetime | None = Field(default=None, description="Sessions started after")
+    created_at__le: datetime | None = Field(default=None, description="Sessions started before")
 
     def to_filter_dict(self) -> dict[str, Any]:
         return {k: v for k, v in self.model_dump().items() if v is not None}
@@ -35,9 +35,9 @@ class ChatCreate(ChatBase):
 class ChatUpdate(BaseModel):
     """Schema for updating a chat"""
 
-    title: str | None = Field(None, max_length=200)
-    model_id: str | None = Field(None, max_length=12)
-    preset_id: str | None = Field(None, max_length=12)
+    title: str | None = Field(default=None, max_length=200)
+    model_id: str | None = Field(default=None, max_length=12)
+    preset_id: str | None = Field(default=None, max_length=12)
 
 
 class ChatCharacterResponse(BaseModel):

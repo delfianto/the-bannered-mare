@@ -201,7 +201,8 @@ def pg_server():
     import pgembed
 
     tmp_dir = tempfile.mkdtemp()
-    with pgembed.get_server(tmp_dir, cleanup_mode="delete") as pg:
+    # get_server is a valid runtime entry point but not re-exported in pgembed's __all__
+    with pgembed.get_server(tmp_dir, cleanup_mode="delete") as pg:  # pyright: ignore[reportPrivateImportUsage]
         yield pg
 
 

@@ -27,6 +27,7 @@ class TestParseReasoningTags:
             '*Alice nods thoughtfully.* "Indeed."'
         )
         content, reasoning = parse_reasoning_tags(text)
+        assert reasoning is not None
         assert "Step 1" in reasoning
         assert "Step 2" in reasoning
         assert "*Alice nods thoughtfully.*" in content
@@ -42,6 +43,7 @@ class TestParseReasoningTags:
             "<think>First thought</think>Response one. <think>Second thought</think>Response two."
         )
         content, reasoning = parse_reasoning_tags(text)
+        assert reasoning is not None
         assert "First thought" in reasoning
         assert "Second thought" in reasoning
         assert "Response one." in content
