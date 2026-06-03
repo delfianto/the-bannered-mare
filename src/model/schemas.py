@@ -16,14 +16,16 @@ class ModelBase(BaseModel):
         ..., min_length=1, max_length=100, description="Actual API model name"
     )
     openrouter_identifier: str | None = Field(
-        None, max_length=100, description="OpenRouter model name"
+        default=None, max_length=100, description="OpenRouter model name"
     )
     use_openrouter: bool = Field(False, description="Whether to route through OpenRouter")
     name: str = Field(..., min_length=1, max_length=100, description="User-friendly display name")
     model_family_id: str = Field(
         ..., min_length=1, max_length=12, description="Link to model family"
     )
-    template_id: str | None = Field(None, max_length=12, description="Default prompt template")
+    template_id: str | None = Field(
+        default=None, max_length=12, description="Default prompt template"
+    )
     parameters: dict[str, Any] = Field(
         default_factory=dict,
         description="All model parameters (temperature, max_tokens, etc.)",
@@ -34,9 +36,9 @@ class ModelBase(BaseModel):
 class ModelFilterParams(BaseModel):
     """Query parameters for filtering models"""
 
-    name__ilike: str | None = Field(None, description="Search by name (case-insensitive)")
-    provider_id: str | None = Field(None, description="Filter by provider")
-    enabled: bool | None = Field(None, description="Filter by enabled status")
+    name__ilike: str | None = Field(default=None, description="Search by name (case-insensitive)")
+    provider_id: str | None = Field(default=None, description="Filter by provider")
+    enabled: bool | None = Field(default=None, description="Filter by enabled status")
 
     def to_filter_dict(self) -> dict[str, Any]:
         return {k: v for k, v in self.model_dump().items() if v is not None}
@@ -51,13 +53,13 @@ class ModelCreate(ModelBase):
 class ModelUpdate(BaseModel):
     """Schema for updating a model definition"""
 
-    provider_id: str | None = Field(None, min_length=1, max_length=12)
-    model_identifier: str | None = Field(None, min_length=1, max_length=100)
-    openrouter_identifier: str | None = Field(None, max_length=100)
+    provider_id: str | None = Field(default=None, min_length=1, max_length=12)
+    model_identifier: str | None = Field(default=None, min_length=1, max_length=100)
+    openrouter_identifier: str | None = Field(default=None, max_length=100)
     use_openrouter: bool | None = None
-    name: str | None = Field(None, min_length=1, max_length=100)
-    model_family_id: str | None = Field(None, min_length=1, max_length=12)
-    template_id: str | None = Field(None, max_length=12)
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    model_family_id: str | None = Field(default=None, min_length=1, max_length=12)
+    template_id: str | None = Field(default=None, max_length=12)
     parameters: dict[str, Any] | None = None
     enabled: bool | None = None
 

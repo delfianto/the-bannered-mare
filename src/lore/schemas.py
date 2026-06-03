@@ -36,8 +36,8 @@ class LoreEntryCreate(LoreEntryBase):
 class LoreEntryUpdate(BaseModel):
     """Schema for updating a lore entry (all fields optional)"""
 
-    name: str | None = Field(None, min_length=1, max_length=200)
-    content: str | None = Field(None, min_length=1)
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    content: str | None = Field(default=None, min_length=1)
     keys: list[str] | None = None
     secondary_keys: list[str] | None = None
     secondary_logic: SecondaryLogic | None = None
@@ -47,9 +47,9 @@ class LoreEntryUpdate(BaseModel):
     enabled: bool | None = None
     constant: bool | None = None
     position: InsertionPosition | None = None
-    depth: int | None = Field(None, ge=0)
+    depth: int | None = Field(default=None, ge=0)
     role: MessageRole | None = None
-    priority: int | None = Field(None, ge=0)
+    priority: int | None = Field(default=None, ge=0)
     scan_depth: int | None = None
     ignore_budget: bool | None = None
     order: int | None = None
@@ -70,7 +70,7 @@ class LorebookBase(BaseModel):
     """Base lorebook schema"""
 
     name: str = Field(..., min_length=1, max_length=200)
-    description: str | None = Field(None, max_length=5000)
+    description: str | None = Field(default=None, max_length=5000)
     is_global: bool = False
     character_id: str | None = None
 
@@ -82,8 +82,8 @@ class LorebookCreate(LorebookBase):
 class LorebookUpdate(BaseModel):
     """Schema for updating a lorebook"""
 
-    name: str | None = Field(None, min_length=1, max_length=200)
-    description: str | None = Field(None, max_length=5000)
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=5000)
     is_global: bool | None = None
 
 

@@ -18,9 +18,9 @@ class DataBankCreate(BaseModel):
 class DataBankUpdate(BaseModel):
     """Schema for updating a data bank entry"""
 
-    name: str | None = Field(None, min_length=1, max_length=200)
-    content: str | None = Field(None, min_length=1)
-    scope: str | None = Field(None, max_length=20)
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    content: str | None = Field(default=None, min_length=1)
+    scope: str | None = Field(default=None, max_length=20)
 
 
 class DataBankResponse(DataBankCreate):

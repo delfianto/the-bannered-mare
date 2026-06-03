@@ -14,12 +14,12 @@ class ProviderCreate(BaseModel):
     name: str = Field(..., max_length=100, description="Unique provider name")
     provider_type: ProviderType = Field(..., description="Type of provider")
     base_url: str | None = Field(
-        None,
+        default=None,
         max_length=255,
         description="API endpoint URL (optional, uses default for known providers)",
     )
     api_key_env_var: str | None = Field(
-        None,
+        default=None,
         max_length=100,
         description="Environment variable name for API key (required for CUSTOM providers)",
     )
@@ -38,10 +38,10 @@ class ProviderCreate(BaseModel):
 class ProviderUpdate(BaseModel):
     """Schema for updating a provider"""
 
-    name: str | None = Field(None, max_length=100)
-    base_url: str | None = Field(None, max_length=255)
+    name: str | None = Field(default=None, max_length=100)
+    base_url: str | None = Field(default=None, max_length=255)
     api_key_env_var: str | None = Field(
-        None,
+        default=None,
         max_length=100,
         description="Environment variable name for API key (CUSTOM providers only)",
     )

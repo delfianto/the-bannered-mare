@@ -9,7 +9,7 @@ class FragmentBase(BaseModel):
     """Base prompt fragment schema"""
 
     name: str = Field(..., min_length=1, max_length=100)
-    description: str | None = Field(None, max_length=5000)
+    description: str | None = Field(default=None, max_length=5000)
     fragment_type: str = Field("instruction", max_length=50)
     content: str = Field(..., min_length=1, max_length=50000, description="Jinja2 template content")
     is_global: bool = Field(False)
@@ -24,10 +24,10 @@ class FragmentCreate(FragmentBase):
 class FragmentUpdate(BaseModel):
     """Schema for updating a prompt fragment — all fields optional"""
 
-    name: str | None = Field(None, min_length=1, max_length=100)
-    description: str | None = Field(None, max_length=5000)
-    fragment_type: str | None = Field(None, max_length=50)
-    content: str | None = Field(None, min_length=1, max_length=50000)
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=5000)
+    fragment_type: str | None = Field(default=None, max_length=50)
+    content: str | None = Field(default=None, min_length=1, max_length=50000)
     is_global: bool | None = None
 
 

@@ -1,5 +1,6 @@
 """Tests for EmbeddingService (mocked HTTP calls)"""
 
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
@@ -10,7 +11,7 @@ from src.rag.embedding_service import BATCH_SIZE, EmbeddingService
 
 
 def _ollama_settings(**overrides) -> EmbeddingSettings:
-    defaults = {
+    defaults: dict[str, Any] = {
         "provider": "ollama",
         "model": "nomic-embed-text",
         "ollama_url": "http://localhost:11434",
@@ -20,7 +21,7 @@ def _ollama_settings(**overrides) -> EmbeddingSettings:
 
 
 def _openai_settings(**overrides) -> EmbeddingSettings:
-    defaults = {
+    defaults: dict[str, Any] = {
         "provider": "openai",
         "model": "text-embedding-3-small",
         "openai_url": "https://api.openai.com/v1",

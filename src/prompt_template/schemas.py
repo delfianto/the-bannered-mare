@@ -14,7 +14,7 @@ class PromptTemplateBase(BaseModel):
     """Base prompt template schema"""
 
     name: str = Field(..., min_length=1, max_length=100)
-    description: str | None = Field(None, max_length=1000)
+    description: str | None = Field(default=None, max_length=1000)
     is_default: bool = Field(False)
     system_template: str = Field(
         ..., min_length=1, max_length=50000, description="Jinja2 template for system prompt"
@@ -23,7 +23,7 @@ class PromptTemplateBase(BaseModel):
     components_enabled: dict[str, bool] = Field(
         default_factory=lambda: DEFAULT_COMPONENTS_ENABLED.copy()
     )
-    max_history_tokens: int | None = Field(None, ge=0, le=1000000)
+    max_history_tokens: int | None = Field(default=None, ge=0, le=1000000)
 
 
 class PromptTemplateCreate(PromptTemplateBase):
@@ -35,13 +35,13 @@ class PromptTemplateCreate(PromptTemplateBase):
 class PromptTemplateUpdate(BaseModel):
     """Schema for updating a prompt template"""
 
-    name: str | None = Field(None, min_length=1, max_length=100)
-    description: str | None = Field(None, max_length=1000)
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=1000)
     is_default: bool | None = None
-    system_template: str | None = Field(None, min_length=1, max_length=50000)
+    system_template: str | None = Field(default=None, min_length=1, max_length=50000)
     component_order: list[str] | None = None
     components_enabled: dict[str, bool] | None = None
-    max_history_tokens: int | None = Field(None, ge=0, le=1000000)
+    max_history_tokens: int | None = Field(default=None, ge=0, le=1000000)
 
 
 class PromptTemplateResponse(PromptTemplateBase):

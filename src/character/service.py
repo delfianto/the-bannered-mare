@@ -1,6 +1,7 @@
 """Character business logic service"""
 
 import json
+from pathlib import Path
 from typing import Any
 
 from fastapi import HTTPException, UploadFile, status
@@ -236,11 +237,12 @@ class CharacterService:
             import io
 
             from fastapi import UploadFile as FUpload
+            from starlette.datastructures import Headers
 
             avatar_file = FUpload(
                 filename=f"{card.name}.png",
                 file=io.BytesIO(file_data),
-                headers={"content-type": "image/png"},
+                headers=Headers({"content-type": "image/png"}),
             )
             original_path, thumbnail_path = await save_character_avatar(created.id, avatar_file)
             created.avatar = original_path
@@ -265,7 +267,7 @@ class CharacterService:
         if character.avatar:
             from src.core.config import settings
 
-            avatar_path = settings.storage_path / character.avatar
+            avatar_path = Path(settings.storage_path) / character.avatar
             if avatar_path.exists():
                 avatar_data = avatar_path.read_bytes()
 
