@@ -6,8 +6,8 @@ import tempfile
 from collections.abc import AsyncGenerator, Generator
 from typing import TYPE_CHECKING
 
-# Disable MongoDB logging in tests (avoids 30s connection timeout per router test)
-os.environ.setdefault("LOGGING__MONGO_ENABLED", "false")
+# Disable the fire-and-forget audit writer in tests (its own session is not the test DB)
+os.environ.setdefault("LOGGING__AUDIT_ENABLED", "false")
 
 import pytest  # noqa: E402
 import pytest_asyncio
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 
 def _import_all_models():
     """Ensure all ORM models are registered with Base.metadata."""
+    import src.audit.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.character.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.chat_message.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.chat_session.models  # noqa: F401 # pyright: ignore[reportUnusedImport]

@@ -9,7 +9,7 @@ from src.core.logging.request_logging import RequestLoggingMiddleware
 
 @pytest.mark.asyncio
 async def test_middleware_logging() -> None:
-    """Test that middleware calls logger and mongo_logger"""
+    """Test that middleware logs and records an HTTP audit row"""
     app = MagicMock()
     middleware = RequestLoggingMiddleware(app)
 
@@ -26,14 +26,15 @@ async def test_middleware_logging() -> None:
 
     call_next = AsyncMock(return_value=response)
 
+    # audit_logger is imported lazily inside dispatch from src.audit.writer
     with (
         patch("src.core.logging.request_logging.logger") as mock_logger,
-        patch("src.core.logging.request_logging.mongo_logger") as mock_mongo_logger,
+        patch("src.audit.writer.audit_logger") as mock_audit_logger,
     ):
-        mock_mongo_logger.log_http_request = AsyncMock()
+        mock_audit_logger.log_http_request = AsyncMock()
 
         _ = await middleware.dispatch(request, call_next)
 
         assert mock_logger.info.call_count >= 2
-        mock_mongo_logger.log_http_request.assert_called_once()
+        mock_audit_logger.log_http_request.assert_called_once()
         assert "X-Request-ID" in response.headers

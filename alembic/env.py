@@ -10,6 +10,7 @@ from alembic import context  # type: ignore
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.audit.models import *  # noqa
 from src.chat_message.models import *  # noqa
 from src.chat_session.models import *  # noqa
 from src.core.persistence.base_model import Base

@@ -1,11 +1,13 @@
 """Message business logic service (FULLY ASYNC)"""
 
+import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import HTTPException, status
 
+from src.audit.writer import audit_logger
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.repository_async import (
     AsyncMessageAlternativeRepository,
@@ -29,6 +31,7 @@ from src.core.utils.tokenizer import TokenizerService
 from src.lore.activation_engine import ActivatedEntry
 from src.lore.service import LoreService
 from src.prompt_template.prompt_builder import PromptBuilder
+from src.provider.adapters.base import TokenUsage
 from src.provider.gateway import ProviderGateway
 from src.rag.retrieval_service import RetrievalService
 
@@ -134,6 +137,79 @@ class ChatMessageService:
         )
         return total
 
+    async def _record_llm_audit(
+        self,
+        *,
+        gateway: ProviderGateway,
+        api_messages: list[dict[str, Any]],
+        chat_id: str,
+        latency_ms: float,
+        error: Exception | None = None,
+        content: str | None = None,
+        reasoning: str | None = None,
+        finish_reason: str | None = None,
+        usage: TokenUsage | None = None,
+        raw: dict[str, Any] | None = None,
+    ) -> None:
+        """Record one LLM-call audit row (fire-and-forget; never raises)."""
+        try:
+            provider = gateway.provider.provider_type.value
+            model = gateway.active_identifier
+            if error is not None:
+                await audit_logger.log_llm_call(
+                    chat_id=chat_id,
+                    provider=provider,
+                    model=model,
+                    prompt_tokens=0,
+                    completion_tokens=0,
+                    total_tokens=0,
+                    latency_ms=latency_ms,
+                    status=_classify_error(error),
+                    error_message=str(error),
+                    request_payload=api_messages,
+                    response_payload=None,
+                )
+                return
+
+            usage_dict = None
+            in_tok = out_tok = tot_tok = 0
+            if usage is not None:
+                in_tok, out_tok, tot_tok = (
+                    usage.input_tokens,
+                    usage.output_tokens,
+                    usage.total_tokens,
+                )
+                usage_dict = {
+                    "input_tokens": usage.input_tokens,
+                    "output_tokens": usage.output_tokens,
+                    "total_tokens": usage.total_tokens,
+                    "cache_read_tokens": usage.cache_read_tokens,
+                    "cache_creation_tokens": usage.cache_creation_tokens,
+                }
+            response_payload: dict[str, Any] = {
+                "content": content,
+                "reasoning": reasoning,
+                "finish_reason": finish_reason,
+                "usage": usage_dict,
+            }
+            if raw is not None:
+                response_payload["raw"] = raw
+
+            await audit_logger.log_llm_call(
+                chat_id=chat_id,
+                provider=provider,
+                model=model,
+                prompt_tokens=in_tok,
+                completion_tokens=out_tok,
+                total_tokens=tot_tok,
+                latency_ms=latency_ms,
+                status="success",
+                request_payload=api_messages,
+                response_payload=response_payload,
+            )
+        except Exception:
+            logger.warning("llm_audit_capture_failed", exc_info=True)
+
     async def get_messages(
         self, chat_id: str, limit: int = 20, cursor: str | None = None
     ) -> PaginatedResponse[MessageResponse]:
@@ -224,10 +300,36 @@ class ChatMessageService:
 
         estimated_tokens = self._log_token_budget(api_messages)
 
+        gateway = self._build_gateway(chat)
+        start = time.perf_counter()
         try:
-            gateway = self._build_gateway(chat)
             response = await gateway.chat_completion(api_messages)
+        except Exception as e:
+            await self._record_llm_audit(
+                gateway=gateway,
+                api_messages=api_messages,
+                chat_id=chat_id,
+                latency_ms=(time.perf_counter() - start) * 1000,
+                error=e,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error communicating with AI provider: {str(e)}",
+            ) from e
 
+        await self._record_llm_audit(
+            gateway=gateway,
+            api_messages=api_messages,
+            chat_id=chat_id,
+            latency_ms=(time.perf_counter() - start) * 1000,
+            content=response.content,
+            reasoning=response.reasoning,
+            finish_reason=response.finish_reason,
+            usage=response.usage,
+            raw=response.raw,
+        )
+
+        try:
             # Log token drift if provider reports actual usage
             if response.usage.input_tokens:
                 logger.info(
@@ -294,8 +396,9 @@ class ChatMessageService:
         last_usage = None
         last_finish_reason = None
 
+        gateway = self._build_gateway(chat)
+        start = time.perf_counter()
         try:
-            gateway = self._build_gateway(chat)
             async for chunk in gateway.chat_completion_stream(api_messages):
                 if chunk.content:
                     full_content += chunk.content
@@ -307,6 +410,18 @@ class ChatMessageService:
                     last_usage = chunk.usage
                 if chunk.finish_reason:
                     last_finish_reason = chunk.finish_reason
+
+            # Capture the audit from the raw assembled stream, before think-tag parsing
+            await self._record_llm_audit(
+                gateway=gateway,
+                api_messages=api_messages,
+                chat_id=chat_id,
+                latency_ms=(time.perf_counter() - start) * 1000,
+                content=full_content or None,
+                reasoning=full_reasoning or None,
+                finish_reason=last_finish_reason,
+                usage=last_usage,
+            )
 
             if full_content:
                 reasoning = full_reasoning or None
@@ -359,6 +474,13 @@ class ChatMessageService:
             yield StreamEvent(type="done", finish_reason=last_finish_reason or "stop")
 
         except Exception as e:
+            await self._record_llm_audit(
+                gateway=gateway,
+                api_messages=api_messages,
+                chat_id=chat_id,
+                latency_ms=(time.perf_counter() - start) * 1000,
+                error=e,
+            )
             logger.error(f"Error during streaming: {e!s}")
             yield StreamEvent(type="error", message=str(e), code=_classify_error(e))
 
@@ -453,25 +575,42 @@ class ChatMessageService:
             chat, messages_for_prompt, activated_lore=activated_lore, rag_results=rag_results
         )
 
+        gateway = self._build_gateway(chat)
+        start = time.perf_counter()
         try:
-            gateway = self._build_gateway(chat)
             response = await gateway.chat_completion(api_messages)
-
-            assistant_content = response.content
-            token_count = response.usage.output_tokens or self.tokenizer.count_tokens(
-                assistant_content
-            )
-
-            await self._store_alternative(last_message, assistant_content, token_count)
-            await self._update_chat_metadata(chat_id, assistant_content)
-
-            return last_message
-
         except Exception as e:
+            await self._record_llm_audit(
+                gateway=gateway,
+                api_messages=api_messages,
+                chat_id=chat_id,
+                latency_ms=(time.perf_counter() - start) * 1000,
+                error=e,
+            )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Error communicating with AI provider: {str(e)}",
             ) from e
+
+        await self._record_llm_audit(
+            gateway=gateway,
+            api_messages=api_messages,
+            chat_id=chat_id,
+            latency_ms=(time.perf_counter() - start) * 1000,
+            content=response.content,
+            reasoning=response.reasoning,
+            finish_reason=response.finish_reason,
+            usage=response.usage,
+            raw=response.raw,
+        )
+
+        assistant_content = response.content
+        token_count = response.usage.output_tokens or self.tokenizer.count_tokens(assistant_content)
+
+        await self._store_alternative(last_message, assistant_content, token_count)
+        await self._update_chat_metadata(chat_id, assistant_content)
+
+        return last_message
 
     async def regenerate_stream(self, chat_id: str) -> AsyncIterator[StreamEvent]:
         """Regenerate the last assistant message (streaming). Stores old content as alternative."""

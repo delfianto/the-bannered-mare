@@ -4,6 +4,7 @@ All imports from `src.core.persistence.models` continue to work unchanged.
 """
 
 from src.core.persistence.models._base import StringList
+from src.core.persistence.models.audit_log import ErrorLog, HttpLog, LlmAuditLog
 from src.core.persistence.models.character import Character
 from src.core.persistence.models.chat import Chat, Message, MessageAlternative
 from src.core.persistence.models.lore import Lorebook, LoreEntry
@@ -26,6 +27,9 @@ from src.core.persistence.models.rag import DataBankEntry, Embedding
 
 __all__ = [
     "StringList",
+    "ErrorLog",
+    "HttpLog",
+    "LlmAuditLog",
     "Character",
     "Chat",
     "DEFAULT_COMPONENT_ORDER",

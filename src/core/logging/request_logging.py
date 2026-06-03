@@ -11,7 +11,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
 from src.core.logging.logger_config import get_logger
-from src.core.logging.mongo_logger import mongo_logger
 
 logger = get_logger(__name__)
 
@@ -27,6 +26,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         """Process request and log details"""
+        # Imported lazily to avoid a circular import at module load
+        # (logging package -> this middleware -> audit.writer -> logging.logger_config).
+        from src.audit.writer import audit_logger
 
         # Generate unique request ID
         request_id = str(uuid4())
@@ -72,8 +74,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 latency_ms=round(latency_ms, 2),
             )
 
-            # Log to MongoDB (async, fire-and-forget)
-            await mongo_logger.log_http_request(
+            # Persist the request audit (async, fire-and-forget)
+            await audit_logger.log_http_request(
                 request_id=request_id,
                 method=method,
                 path=path,
@@ -102,8 +104,8 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 latency_ms=round(latency_ms, 2),
             )
 
-            # Log error to MongoDB
-            await mongo_logger.log_error(
+            # Persist the error audit
+            await audit_logger.log_error(
                 error_type=type(e).__name__,
                 message=str(e),
                 context={
