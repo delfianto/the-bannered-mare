@@ -223,7 +223,7 @@ def pg_async_db_url(pg_db_url):
 
 
 @pytest.fixture(scope="function")
-def sample_provider(db: Session) -> "Provider":
+def sample_provider(db: Session) -> Provider:
     """Create a sample provider for testing"""
     from src.provider import Provider, ProviderType
 
@@ -235,7 +235,7 @@ def sample_provider(db: Session) -> "Provider":
 
 
 @pytest.fixture(scope="function")
-def sample_family(db: Session) -> "ModelFamily":
+def sample_family(db: Session) -> ModelFamily:
     """Create a sample model family for testing"""
     from src.model_family import ModelFamily
 
@@ -255,7 +255,7 @@ def sample_family(db: Session) -> "ModelFamily":
 
 
 @pytest.fixture(scope="function")
-def sample_model(db: Session, sample_provider: "Provider", sample_family: "ModelFamily") -> "Model":
+def sample_model(db: Session, sample_provider: Provider, sample_family: ModelFamily) -> Model:
     """Create a sample model for testing"""
     from src.model import Model
 
@@ -272,7 +272,7 @@ def sample_model(db: Session, sample_provider: "Provider", sample_family: "Model
 
 
 @pytest.fixture(scope="function")
-def sample_character(db: Session) -> "Character":
+def sample_character(db: Session) -> Character:
     """Create a sample character for testing"""
     from src.character import Character
 
@@ -284,7 +284,7 @@ def sample_character(db: Session) -> "Character":
 
 
 @pytest.fixture(scope="function")
-def sample_persona(db: Session) -> "Persona":
+def sample_persona(db: Session) -> Persona:
     """Create a sample persona for testing"""
     from src.persona import Persona
 
@@ -306,7 +306,7 @@ def seeded_providers(db: Session) -> None:
 
 
 @pytest.fixture(scope="function")
-def test_chat_id(db: Session, sample_character: "Character", sample_model: "Model") -> str:
+def test_chat_id(db: Session, sample_character: Character, sample_model: Model) -> str:
     """Create a chat and return its ID"""
     from src.chat_session.models import Chat
 
@@ -324,7 +324,7 @@ def test_api_key_env(monkeypatch: pytest.MonkeyPatch):
 
 # ASYNC FIXTURES
 @pytest_asyncio.fixture(scope="function")
-async def async_sample_provider(async_db_session: AsyncSession) -> "Provider":
+async def async_sample_provider(async_db_session: AsyncSession) -> Provider:
     """Create a sample provider for async testing"""
     from src.provider import Provider, ProviderType
 
@@ -336,7 +336,7 @@ async def async_sample_provider(async_db_session: AsyncSession) -> "Provider":
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_sample_family(async_db_session: AsyncSession) -> "ModelFamily":
+async def async_sample_family(async_db_session: AsyncSession) -> ModelFamily:
     """Create a sample model family for async testing"""
     from src.model_family import ModelFamily
 
@@ -358,9 +358,9 @@ async def async_sample_family(async_db_session: AsyncSession) -> "ModelFamily":
 @pytest_asyncio.fixture(scope="function")
 async def async_sample_model(
     async_db_session: AsyncSession,
-    async_sample_provider: "Provider",
-    async_sample_family: "ModelFamily",
-) -> "Model":
+    async_sample_provider: Provider,
+    async_sample_family: ModelFamily,
+) -> Model:
     """Create a sample model for async testing"""
     from src.model import Model
 
@@ -377,7 +377,7 @@ async def async_sample_model(
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_sample_character(async_db_session: AsyncSession) -> "Character":
+async def async_sample_character(async_db_session: AsyncSession) -> Character:
     """Create a sample character for async testing"""
     from src.character import Character
 
@@ -391,8 +391,8 @@ async def async_sample_character(async_db_session: AsyncSession) -> "Character":
 @pytest_asyncio.fixture(scope="function")
 async def async_test_chat_id(
     async_db_session: AsyncSession,
-    async_sample_character: "Character",
-    async_sample_model: "Model",
+    async_sample_character: Character,
+    async_sample_model: Model,
 ) -> str:
     """Create a chat and return its ID for async testing"""
     from src.chat_session.models import Chat

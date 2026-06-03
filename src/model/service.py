@@ -24,7 +24,7 @@ class ModelService:
         model_repo: ModelRepository,
         provider_repo: ProviderRepository,
         family_repo: ModelFamilyRepository,
-        chat_repo: "ChatRepository",
+        chat_repo: ChatRepository,
     ):
         self.model_repo = model_repo
         self.provider_repo = provider_repo

@@ -3,7 +3,7 @@
 import enum
 
 
-class MessageRole(str, enum.Enum):
+class MessageRole(enum.StrEnum):
     """Message role types"""
 
     USER = "user"
@@ -11,7 +11,7 @@ class MessageRole(str, enum.Enum):
     SYSTEM = "system"
 
 
-class ProviderType(str, enum.Enum):
+class ProviderType(enum.StrEnum):
     """Supported provider types"""
 
     XAI = "xai"
@@ -23,7 +23,7 @@ class ProviderType(str, enum.Enum):
     CUSTOM = "custom"
 
 
-class Gender(str, enum.Enum):
+class Gender(enum.StrEnum):
     """Character gender options"""
 
     MALE = "male"
@@ -32,7 +32,7 @@ class Gender(str, enum.Enum):
     OTHERS = "others"
 
 
-class InsertionPosition(str, enum.Enum):
+class InsertionPosition(enum.StrEnum):
     """Where activated lore entries are injected into the prompt"""
 
     BEFORE_CHARACTER = "before_character"
@@ -41,7 +41,7 @@ class InsertionPosition(str, enum.Enum):
     BEFORE_EXAMPLES = "before_examples"
 
 
-class SecondaryLogic(str, enum.Enum):
+class SecondaryLogic(enum.StrEnum):
     """Logic for combining primary and secondary keyword matches"""
 
     AND_ANY = "and_any"

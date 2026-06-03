@@ -1,16 +1,22 @@
 """Provider ORM model and ProviderConfig."""
 
+# Bidirectional ORM relationships form TYPE_CHECKING-only import cycles with no
+# runtime import edge; the file-level cycle report would be a false positive here.
+# pyright: reportImportCycles=false
 from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import final
+from typing import TYPE_CHECKING, final
 
 from sqlalchemy import Boolean, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import ProviderType
 from src.core.persistence.models._base import BaseModel
+
+if TYPE_CHECKING:
+    from src.core.persistence.models.model import Model
 
 
 @dataclass

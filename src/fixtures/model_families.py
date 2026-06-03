@@ -39,7 +39,7 @@ class ListParameterSchema(TypedDict):
 
     type: Literal["list"]
     default: NotRequired[list[Any]]
-    item_schema: "ParameterSchema"
+    item_schema: ParameterSchema
 
 
 class ObjectParameterSchema(TypedDict):
@@ -47,7 +47,7 @@ class ObjectParameterSchema(TypedDict):
 
     type: Literal["object"]
     default: NotRequired[dict[str, Any]]
-    properties: NotRequired[dict[str, "ParameterSchema"]]
+    properties: NotRequired[dict[str, ParameterSchema]]
 
 
 class JsonParameterSchema(TypedDict):

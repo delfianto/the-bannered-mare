@@ -1,13 +1,19 @@
 """Preset ORM model."""
 
+# Bidirectional ORM relationships form TYPE_CHECKING-only import cycles with no
+# runtime import edge; the file-level cycle report would be a false positive here.
+# pyright: reportImportCycles=false
 from __future__ import annotations
 
-from typing import Any, final
+from typing import TYPE_CHECKING, Any, final
 
 from sqlalchemy import JSON, Boolean, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.models._base import BaseModel
+
+if TYPE_CHECKING:
+    from src.core.persistence.models.chat import Chat
 
 
 @final

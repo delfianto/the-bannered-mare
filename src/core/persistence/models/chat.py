@@ -1,14 +1,24 @@
 """Chat, Message, and MessageAlternative ORM models."""
 
+# Bidirectional ORM relationships form TYPE_CHECKING-only import cycles with no
+# runtime import edge; the file-level cycle report would be a false positive here.
+# pyright: reportImportCycles=false
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final
 
 from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import MessageRole
 from src.core.persistence.models._base import BaseModel
+
+if TYPE_CHECKING:
+    from src.core.persistence.models.character import Character
+    from src.core.persistence.models.model import Model
+    from src.core.persistence.models.persona import Persona
+    from src.core.persistence.models.preset import Preset
+    from src.core.persistence.models.prompt import PromptTemplate
 
 
 @final

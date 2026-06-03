@@ -1,10 +1,6 @@
 """Common schemas for pagination and responses"""
 
-from typing import TypeVar
-
 from pydantic import BaseModel, Field
-
-T = TypeVar("T")
 
 
 class PaginatedResponse[T](BaseModel):
@@ -21,7 +17,7 @@ class PaginatedResponse[T](BaseModel):
     has_more: bool = Field(..., description="Whether there are more items available")
 
     @classmethod
-    def create(cls, items: list[T], total: int, limit: int, offset: int) -> "PaginatedResponse[T]":
+    def create(cls, items: list[T], total: int, limit: int, offset: int) -> PaginatedResponse[T]:
         """
         Factory method to create paginated response.
 
