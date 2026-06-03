@@ -3,7 +3,6 @@
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-
 from src.rag.repository import DataBankRepository
 from src.rag.service import DataBankService
 

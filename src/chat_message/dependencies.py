@@ -15,10 +15,10 @@ from src.core.persistence import AsyncDbSession
 from src.lore.dependencies import get_lore_service
 from src.lore.service import LoreService
 from src.prompt_template.dependencies import get_prompt_template_repository
-from src.rag.dependencies import get_retrieval_service
-from src.rag.retrieval_service import RetrievalService
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.prompt_template.repository import PromptTemplateRepository
+from src.rag.dependencies import get_retrieval_service
+from src.rag.retrieval_service import RetrievalService
 
 
 async def get_async_message_repository(db: AsyncDbSession) -> AsyncMessageRepository:

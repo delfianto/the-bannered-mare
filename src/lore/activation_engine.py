@@ -22,10 +22,7 @@ class ActivatedEntry:
 def _match_keyword(keyword: str, text: str, *, case_sensitive: bool, whole_words: bool) -> bool:
     """Check if a single keyword matches the scan text."""
     flags = 0 if case_sensitive else re.IGNORECASE
-    if whole_words:
-        pattern = rf"\b{re.escape(keyword)}\b"
-    else:
-        pattern = re.escape(keyword)
+    pattern = rf"\b{re.escape(keyword)}\b" if whole_words else re.escape(keyword)
     return bool(re.search(pattern, text, flags))
 
 
