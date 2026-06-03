@@ -65,7 +65,7 @@ candlekeep-core/
 
 ### 4.1 Core Stack
 
-- **Runtime:** Python 3.12+
+- **Runtime:** Python 3.14+
 - **Framework:** FastAPI
 - **ORM:** SQLAlchemy 2.0
 - **Migrations:** Alembic

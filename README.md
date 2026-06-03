@@ -61,7 +61,7 @@ Features that are deliberately **not** implemented:
 
 | Layer | Technology |
 |-------|-----------|
-| Runtime | Python 3.13+ |
+| Runtime | Python 3.14+ |
 | Framework | FastAPI (ASGI) |
 | Database | PostgreSQL + pgvector (vchord-upgradeable) |
 | ORM | SQLAlchemy 2.0 (async + sync) |

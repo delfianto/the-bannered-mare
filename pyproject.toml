@@ -1,7 +1,7 @@
 [project]
 name = "candlekeep"
 version = "0.2.5"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 license = "AGPL-3.0-or-later"
 
 dependencies = [
@@ -73,6 +73,8 @@ dev = [
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]
+# Drives pyupgrade (UP) rules to rewrite code to 3.14-era idioms.
+target-version = "py314"
 
 [tool.ruff.lint]
 select = [
@@ -119,5 +121,5 @@ reportUnknownArgumentType = false
 reportImportCycles = true
 
 # Python version settings
-pythonVersion = "3.13"
+pythonVersion = "3.14"
 pythonPlatform = "Linux"
