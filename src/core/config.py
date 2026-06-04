@@ -49,14 +49,24 @@ class DatabaseSettings(BaseModel):
 
 
 class EmbeddingSettings(BaseModel):
-    """Embedding provider configuration"""
+    """Embedding provider configuration.
 
-    provider: str = "ollama"
-    model: str = "nomic-embed-text"
+    Defaults target a local llama.cpp server running EmbeddingGemma (768-dim,
+    matching the pinned `embeddings.embedding` column). `ollama` and `openai`
+    (any OpenAI-compatible endpoint) remain selectable via `provider`.
+    """
+
+    provider: str = "llamacpp"
+    model: str = "embeddinggemma"
     dimensions: int = 768
+    llamacpp_url: str = "http://localhost:8080"
     ollama_url: str = "http://localhost:11434"
     openai_url: str = "https://api.openai.com/v1"
     openai_key_env: str = "OPENAI_API_KEY"
+    # EmbeddingGemma is asymmetric — queries and documents need different prompts.
+    # https://ai.google.dev/gemma/docs/embeddinggemma/model_card#prompt_instructions
+    query_prefix: str = "task: search result | query: "
+    document_prefix: str = "title: none | text: "
 
 
 class RAGSettings(BaseModel):

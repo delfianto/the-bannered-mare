@@ -64,10 +64,10 @@ jobs:
         run: uv run pytest
 
   integration:
-    name: Integration (Postgres + pgvector)
+    name: Integration (Postgres + VectorChord)
     runs-on: ubuntu-latest
     env:
-      # VectorChord container = Postgres 18 + pgvector, matching production parity.
+      # VectorChord container = Postgres 18 + vchord (on pgvector), matching production parity.
       DATABASE_URL: postgresql://candlekeep:candlekeep@localhost:5432/candlekeep
     steps:
       - uses: actions/checkout@v6

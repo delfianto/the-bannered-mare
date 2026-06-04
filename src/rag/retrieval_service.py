@@ -38,8 +38,7 @@ class RetrievalService:
         threshold: float = 0.3,
     ) -> list[RetrievedChunk]:
         """Embed query, search vectors, return top-K results."""
-        embeddings = await self.embedding_service.embed([query_text])
-        query_vec = embeddings[0]
+        query_vec = await self.embedding_service.embed_query(query_text)
 
         source_types = ["message", "data_bank"]
         source_ids = [chat_id]
@@ -92,7 +91,7 @@ class RetrievalService:
         if await self.embedding_repo.exists_by_hash(content_hash, "message"):
             return
 
-        embeddings = await self.embedding_service.embed([content])
+        embeddings = await self.embedding_service.embed_documents([content])
 
         entity = Embedding(
             id=gen_id(),
@@ -124,7 +123,7 @@ class RetrievalService:
         if not chunks:
             return
 
-        embeddings = await self.embedding_service.embed(chunks)
+        embeddings = await self.embedding_service.embed_documents(chunks)
 
         for idx, (chunk, vec) in enumerate(zip(chunks, embeddings, strict=True)):
             entity = Embedding(

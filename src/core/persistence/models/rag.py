@@ -41,9 +41,11 @@ class Embedding(BaseModel):
     )
     dimensions: Mapped[int] = mapped_column(Integer, nullable=False, comment="Vector dimensions")
 
-    # The vector column — defined conditionally based on pgvector availability
+    # The vector column — defined conditionally based on pgvector availability.
+    # Dimension is pinned (matches EmbeddingSettings.dimensions / nomic-embed-text)
+    # because the VectorChord vchordrq index requires a fixed-dimension column.
     if Vector is not None:
-        embedding = Column(Vector(), nullable=False)
+        embedding = Column(Vector(768), nullable=False)
 
 
 @final

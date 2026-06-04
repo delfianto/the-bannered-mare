@@ -1,4 +1,4 @@
-"""Async embedding service with Ollama and OpenAI-compatible adapters."""
+"""Async embedding service with llama.cpp, Ollama, and OpenAI-compatible adapters."""
 
 import os
 
@@ -10,25 +10,46 @@ BATCH_SIZE = 10
 
 
 class EmbeddingService:
-    """Embeds text using a configured provider (Ollama or OpenAI-compatible)."""
+    """Embeds text via the configured provider (llama.cpp, Ollama, or OpenAI-compatible).
+
+    EmbeddingGemma (the default model) is asymmetric: a query and the documents it
+    searches over are embedded with different prompt prefixes. Callers therefore pick
+    `embed_query` or `embed_documents` rather than embedding both the same way.
+    """
 
     def __init__(self, settings: EmbeddingSettings):
         self.settings = settings
 
-    async def embed(self, texts: list[str]) -> list[list[float]]:
-        """Embed texts using configured provider. Handles batching."""
+    async def embed_query(self, text: str) -> list[float]:
+        """Embed a single search query, applying the configured query prompt prefix."""
+        vectors = await self._embed([text], self.settings.query_prefix)
+        return vectors[0]
+
+    async def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        """Embed stored chunks/documents, applying the configured document prompt prefix."""
+        return await self._embed(texts, self.settings.document_prefix)
+
+    async def _embed(self, texts: list[str], prefix: str) -> list[list[float]]:
+        """Prefix each text, then embed in batches via the configured provider."""
+        prefixed = [f"{prefix}{text}" for text in texts]
         results: list[list[float]] = []
-        for i in range(0, len(texts), BATCH_SIZE):
-            batch = texts[i : i + BATCH_SIZE]
+        for i in range(0, len(prefixed), BATCH_SIZE):
+            batch = prefixed[i : i + BATCH_SIZE]
             if self.settings.provider == "ollama":
-                batch_results = await self._embed_ollama(batch)
+                results.extend(await self._embed_ollama(batch))
+            elif self.settings.provider == "llamacpp":
+                # llama-server exposes an OpenAI-compatible endpoint under /v1.
+                base_url = f"{self.settings.llamacpp_url}/v1"
+                results.extend(await self._embed_openai_compatible(batch, base_url))
             else:
-                batch_results = await self._embed_openai(batch)
-            results.extend(batch_results)
+                api_key = os.getenv(self.settings.openai_key_env, "")
+                results.extend(
+                    await self._embed_openai_compatible(batch, self.settings.openai_url, api_key)
+                )
         return results
 
     async def _embed_ollama(self, texts: list[str]) -> list[list[float]]:
-        """POST to Ollama /api/embed endpoint."""
+        """POST to Ollama's native /api/embed endpoint."""
         url = f"{self.settings.ollama_url}/api/embed"
         payload = {"model": self.settings.model, "input": texts}
 
@@ -38,11 +59,12 @@ class EmbeddingService:
             data = response.json()
             return data["embeddings"]
 
-    async def _embed_openai(self, texts: list[str]) -> list[list[float]]:
-        """POST to OpenAI-compatible /v1/embeddings endpoint."""
-        api_key = os.getenv(self.settings.openai_key_env, "")
-        url = f"{self.settings.openai_url}/embeddings"
-        headers = {"Authorization": f"Bearer {api_key}"}
+    async def _embed_openai_compatible(
+        self, texts: list[str], base_url: str, api_key: str = ""
+    ) -> list[list[float]]:
+        """POST to an OpenAI-compatible /embeddings endpoint (OpenAI, vLLM, llama.cpp)."""
+        url = f"{base_url}/embeddings"
+        headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
         payload = {"model": self.settings.model, "input": texts}
 
         async with httpx.AsyncClient() as client:
