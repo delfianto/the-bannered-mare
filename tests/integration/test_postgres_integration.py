@@ -1,12 +1,14 @@
-"""PostgreSQL + pgvector integration tests.
+"""PostgreSQL + VectorChord integration tests.
 
 These run against a real Postgres container (DATABASE_URL) with the schema already
 migrated via `alembic upgrade head`. They exercise the parts that cannot run on
-SQLite: the pgvector `<=>` similarity search, the retrieval pipeline, and that
-seed data + migrations land correctly on real Postgres.
+SQLite: the VectorChord `<=>` cosine search over the vchordrq index, the retrieval
+pipeline, and that seed data + migrations land correctly on real Postgres.
 
 Embeddings are mocked (the embedding HTTP call is covered by unit tests); the
-vector storage and search are real.
+vector storage and search are real. Test vectors are padded to the pinned column
+dimension (`DIM`); the leading components carry the direction under test, the
+zero-padded tail leaves cosine similarity unchanged.
 """
 
 from unittest.mock import AsyncMock
@@ -24,6 +26,14 @@ from src.rag.retrieval_service import RetrievalService
 
 pytestmark = pytest.mark.postgres
 
+# Matches the pinned `embeddings.embedding` column type (vector(768)).
+DIM = 768
+
+
+def _pad(prefix: list[float]) -> list[float]:
+    """Extend a short direction vector to the pinned column dimension with zeros."""
+    return prefix + [0.0] * (DIM - len(prefix))
+
 
 def _embedding(
     source_id: str, vec: list[float], content: str, source_type: str = "message"
@@ -40,12 +50,27 @@ def _embedding(
     )
 
 
-def test_vector_extension_and_schema(pg_sync_session: Session) -> None:
-    """Migrations applied on real PG: the `vector` extension and key tables exist."""
-    ext = pg_sync_session.execute(
-        text("select extname from pg_extension where extname = 'vector'")
+def test_vectorchord_extension_and_schema(pg_sync_session: Session) -> None:
+    """Migrations applied on real PG: vchord (on pgvector) and the vchordrq index exist."""
+    extensions = set(
+        pg_sync_session.execute(
+            text("select extname from pg_extension where extname in ('vector', 'vchord')")
+        )
+        .scalars()
+        .all()
+    )
+    assert {"vector", "vchord"} <= extensions
+
+    # The embedding column is indexed by VectorChord's vchordrq access method.
+    index_am = pg_sync_session.execute(
+        text(
+            "select am.amname from pg_class i "
+            "join pg_index ix on ix.indexrelid = i.oid "
+            "join pg_am am on am.oid = i.relam "
+            "where i.relname = 'ix_embeddings_vchordrq'"
+        )
     ).scalar_one_or_none()
-    assert ext == "vector"
+    assert index_am == "vchordrq"
 
     tables = set(
         pg_sync_session.execute(
@@ -59,16 +84,16 @@ def test_vector_extension_and_schema(pg_sync_session: Session) -> None:
 
 @pytest.mark.asyncio
 async def test_pgvector_search_ranking(pg_async_session: AsyncSession) -> None:
-    """Real pgvector cosine search ranks by closeness and honours the threshold."""
+    """Real VectorChord cosine search ranks by closeness and honours the threshold."""
     repo = AsyncEmbeddingRepository(pg_async_session)
     chat_id = "itchatrank1"
-    await repo.create(_embedding(chat_id, [1.0, 0.0, 0.0, 0.0], "near"))
-    await repo.create(_embedding(chat_id, [0.8, 0.2, 0.0, 0.0], "mid"))
-    await repo.create(_embedding(chat_id, [0.0, 0.0, 0.0, 1.0], "far"))
+    await repo.create(_embedding(chat_id, _pad([1.0, 0.0, 0.0, 0.0]), "near"))
+    await repo.create(_embedding(chat_id, _pad([0.8, 0.2, 0.0, 0.0]), "mid"))
+    await repo.create(_embedding(chat_id, _pad([0.0, 0.0, 0.0, 1.0]), "far"))
     await pg_async_session.flush()
 
     rows = await repo.search_similar(
-        query_embedding=[1.0, 0.0, 0.0, 0.0],
+        query_embedding=_pad([1.0, 0.0, 0.0, 0.0]),
         source_types=["message"],
         source_ids=[chat_id],
         limit=10,
@@ -85,14 +110,14 @@ async def test_pgvector_search_ranking(pg_async_session: AsyncSession) -> None:
 async def test_retrieval_service_mocked_embeddings(
     pg_async_session: AsyncSession, pg_sync_session: Session
 ) -> None:
-    """End-to-end retrieve(): mocked query embedding + real pgvector search."""
+    """End-to-end retrieve(): mocked query embedding + real VectorChord search."""
     chat_id = "itretrieve01"
     repo = AsyncEmbeddingRepository(pg_async_session)
-    await repo.create(_embedding(chat_id, [1.0, 0.0, 0.0, 0.0], "the dragon guards the keep"))
+    await repo.create(_embedding(chat_id, _pad([1.0, 0.0, 0.0, 0.0]), "the dragon guards the keep"))
     await pg_async_session.flush()
 
     mock_embed = EmbeddingService.__new__(EmbeddingService)
-    mock_embed.embed = AsyncMock(return_value=[[1.0, 0.0, 0.0, 0.0]])
+    mock_embed.embed_query = AsyncMock(return_value=_pad([1.0, 0.0, 0.0, 0.0]))
 
     service = RetrievalService(mock_embed, repo, DataBankRepository(pg_sync_session))
     results = await service.retrieve(
@@ -100,7 +125,7 @@ async def test_retrieval_service_mocked_embeddings(
     )
 
     assert any(r.content == "the dragon guards the keep" for r in results)
-    mock_embed.embed.assert_awaited_once()
+    mock_embed.embed_query.assert_awaited_once()
 
 
 def test_seed_data_populates(pg_sync_session: Session) -> None:
