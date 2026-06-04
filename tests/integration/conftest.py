@@ -5,12 +5,64 @@ They are skipped when the corresponding API key is not set in the environment.
 """
 
 import os
+from collections.abc import AsyncGenerator, Generator
 from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+import pytest_asyncio
+from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import NullPool
+from src.core.persistence.database import get_async_db_url
 from src.core.persistence.enums import ProviderType
 from src.provider.gateway import ProviderGateway
+
+
+def _pg_url() -> str | None:
+    """Return DATABASE_URL only if it points at a real PostgreSQL instance."""
+    url = os.environ.get("DATABASE_URL", "")
+    return url if url.startswith("postgresql") else None
+
+
+@pytest_asyncio.fixture
+async def pg_async_session() -> AsyncGenerator[AsyncSession]:
+    """Async session bound to the real Postgres container (DATABASE_URL).
+
+    Rolls back at teardown so each test is isolated with no explicit cleanup —
+    pgvector search sees uncommitted rows within the same transaction.
+    """
+    url = _pg_url()
+    if not url:
+        pytest.skip("DATABASE_URL not set to a PostgreSQL instance")
+
+    engine = create_async_engine(get_async_db_url(url), poolclass=NullPool)
+    session = AsyncSession(engine, expire_on_commit=False)
+    try:
+        yield session
+    finally:
+        await session.rollback()
+        await session.close()
+        await engine.dispose()
+
+
+@pytest.fixture
+def pg_sync_session() -> Generator[Session]:
+    """Sync session bound to the real Postgres container (DATABASE_URL)."""
+    url = _pg_url()
+    if not url:
+        pytest.skip("DATABASE_URL not set to a PostgreSQL instance")
+
+    engine = create_engine(url, poolclass=NullPool)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.rollback()
+        session.close()
+        engine.dispose()
 
 
 def _make_provider(provider_type: ProviderType, base_url: str, api_key: str) -> Any:

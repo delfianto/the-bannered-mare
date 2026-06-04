@@ -2,7 +2,6 @@
 
 import asyncio
 import os
-import tempfile
 from collections.abc import AsyncGenerator, Generator
 from typing import TYPE_CHECKING
 
@@ -189,34 +188,6 @@ def client(db_session: Session, async_db_engine: AsyncEngine) -> Generator[TestC
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
-
-
-# ---------------------------------------------------------------------------
-# Embedded PostgreSQL (session-scoped, lazy — only starts if requested)
-# ---------------------------------------------------------------------------
-
-
-@pytest.fixture(scope="session")
-def pg_server():
-    """Start an embedded PostgreSQL server for the entire test session."""
-    import pgembed
-
-    tmp_dir = tempfile.mkdtemp()
-    # get_server is a valid runtime entry point but not re-exported in pgembed's __all__
-    with pgembed.get_server(tmp_dir, cleanup_mode="delete") as pg:  # pyright: ignore[reportPrivateImportUsage]
-        yield pg
-
-
-@pytest.fixture(scope="session")
-def pg_db_url(pg_server):
-    """Synchronous PostgreSQL URI (psycopg2)."""
-    return pg_server.get_uri("candlekeep_test")
-
-
-@pytest.fixture(scope="session")
-def pg_async_db_url(pg_db_url):
-    """Async PostgreSQL URI (asyncpg)."""
-    return pg_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 
 # ---------------------------------------------------------------------------

@@ -58,9 +58,6 @@ dev = [
     "aiosqlite==0.22.0",
     "greenlet>=3.0.0",
 
-    # Embedded PostgreSQL for integration tests
-    "pgembed>=0.2.0",
-
     # Code quality
     "ruff==0.14.10",
     "basedpyright==1.36.1",
