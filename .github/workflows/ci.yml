@@ -62,3 +62,38 @@ jobs:
         run: uv sync --locked --extra dev
       - name: Run tests
         run: uv run pytest
+
+  integration:
+    name: Integration (Postgres + pgvector)
+    runs-on: ubuntu-latest
+    env:
+      # VectorChord container = Postgres 18 + pgvector, matching production parity.
+      DATABASE_URL: postgresql://candlekeep:candlekeep@localhost:5432/candlekeep
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.14"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev
+      - name: Start VectorChord (Postgres + pgvector) via podman
+        run: |
+          podman run -d --name vchord -p 5432:5432 \
+            -e POSTGRES_USER=candlekeep \
+            -e POSTGRES_PASSWORD=candlekeep \
+            -e POSTGRES_DB=candlekeep \
+            docker.io/tensorchord/vchord-postgres:pg18-v1.1.1
+      - name: Wait for Postgres to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if podman exec vchord pg_isready -U candlekeep -d candlekeep; then
+              echo "postgres ready"; exit 0
+            fi
+            echo "waiting for postgres ($i)..."; sleep 2
+          done
+          echo "postgres did not become ready"; podman logs vchord; exit 1
+      - name: Apply migrations
+        run: uv run alembic upgrade head
+      - name: Run Postgres integration tests
+        run: uv run pytest -m postgres
