@@ -11,7 +11,7 @@ constraints (community-driven JS monolith vs. greenfield Python backend).
 
 | Metric | SillyTavern | Candlekeep Core |
 |--------|------------|-----------------|
-| Primary language | JavaScript (ESM) | Python 3.13 |
+| Primary language | JavaScript (ESM) | Python 3.14 |
 | Total source LoC | ~185,000 | ~12,200 |
 | Source files | ~340 `.js` | ~167 `.py` |
 | Test LoC | ~5,000 | ~5,600 |
@@ -128,7 +128,7 @@ endpoints/characters.js  # 1,543 lines: routes, validation, file I/O, logic
 | Utility hub | `src/util.js` (1,565 lines, 40+ exports) | `src/core/utils/` (6 files, ~530 lines total) |
 | Constants/Enums | `src/constants.js` (558 lines) | `src/core/persistence/enums.py` (50 lines) |
 | Config | `config.yaml` + CLI args + env vars (multi-source merge) | Pydantic Settings: `.env` + env vars (88 lines) |
-| Logging | Minimal (console + `accessLogWriter.js`) | Structured: structlog + MongoDB audit (420 lines) |
+| Logging | Minimal (console + `accessLogWriter.js`) | Structured: structlog + PostgreSQL audit (420 lines) |
 | Base patterns | None (each endpoint is standalone) | `BaseRepository` (225 lines), `BaseModel` (47 lines) |
 
 ST's `util.js` is the universal dependency -- imported by nearly every file in
@@ -332,7 +332,7 @@ tests/
 | Formatting | Not configured | Ruff format (config in `pyproject.toml`) |
 | Type checking | `jsconfig.json` (2 configs: server + client) | `basedpyright` (config in `pyproject.toml`) |
 | Tool config files | 5+ separate files | 1 file (`pyproject.toml` consolidates all tools) |
-| CI/runtime targets | Node >= 20, experimental Deno/Bun | Python >= 3.13, Uvicorn ASGI server |
+| CI/runtime targets | Node >= 20, experimental Deno/Bun | Python >= 3.14, Uvicorn ASGI server |
 
 SillyTavern's config system is more sophisticated out of necessity -- it
 supports multi-user deployments with per-user config migration. Candlekeep's

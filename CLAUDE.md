@@ -13,7 +13,7 @@ Your goal is to build a high-performance, strictly typed, and modular system tha
 
 ### 2.1 Version Control & File Handling
 
-- **NO GIT COMMITS:** You do not have permission to commit code. You must only save files to the disk. The user handles all version control.
+- **NO GIT COMMITS:** You do not have permission to commit code unless the user asked you do do so.
 - **File Retrieval:** Always use `File Fetcher` to read full file contents before editing. Do not rely on snippets or assumptions.
 
 ### 2.2 Database Interaction
@@ -130,11 +130,11 @@ Install these plugins **for this project only** (not globally) so the config
 resolves on a fresh checkout. From the official marketplace
 (`claude-plugins-official`):
 
-| Plugin | Purpose |
-|--------|---------|
-| `pyright-lsp` | basedpyright LSP integration for strict type checking |
-| `logfire` | Pydantic Logfire observability / tracing |
-| `42crunch-api-security-testing` | OpenAPI audit + live security scan |
+| Plugin                          | Purpose                                               |
+| ------------------------------- | ----------------------------------------------------- |
+| `pyright-lsp`                   | basedpyright LSP integration for strict type checking |
+| `logfire`                       | Pydantic Logfire observability / tracing              |
+| `42crunch-api-security-testing` | OpenAPI audit + live security scan                    |
 
 Install via the `/plugin` menu (select the project scope, not user/global), e.g.
 `pyright-lsp@claude-plugins-official`.

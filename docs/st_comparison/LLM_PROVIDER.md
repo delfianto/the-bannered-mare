@@ -440,7 +440,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 |--------------------------|--------------------------------------------|---------------------------------------------|
 | Provider count           | ~40+ (23 chat + 15 text + 3 dedicated)     | 7 types, 4 adapter classes                  |
 | Architecture             | Switch/if-else in monolithic handlers      | Adapter pattern + Gateway                   |
-| Language / Runtime       | Node.js / Express                          | Python 3.12+ / FastAPI                      |
+| Language / Runtime       | Node.js / Express                          | Python 3.14+ / FastAPI                      |
 | HTTP client              | node-fetch                                 | httpx (async)                               |
 | Auth storage             | Per-user JSON file with rotation           | Environment variables                       |
 | Auth patterns            | 5+ (Bearer, x-api-key, api-key, query, JWT)| 3 (Bearer, x-api-key, query param)         |
