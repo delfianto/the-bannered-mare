@@ -1,9 +1,8 @@
 """OpenRouter-specific model family seed data.
 
 Parameter ranges/defaults below follow each vendor's documented sampling guidance:
-Moonshot Kimi K2 (thinking temp ~1.0 / instant ~0.6, 256K ctx), Zhipu GLM
-(temp 0-1, thinking auto, 200K ctx), MiniMax M2 (temp 1.0 / top_p 0.95 /
-top_k 20-40, 204K ctx).
+Moonshot Kimi K2 (thinking temp ~1.0 / instant ~0.6, 256K ctx), MiniMax M2
+(temp 1.0 / top_p 0.95 / top_k 20-40, 204K ctx).
 """
 
 from src.fixtures.model_families import ModelFamilySeedData
@@ -24,27 +23,6 @@ OPENROUTER_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 8192,
             "supports_vision": False,
             "supports_function_calling": False,
-        },
-    },
-    {
-        "name": "GLM General",
-        "family_identifier": "openrouter/glm",
-        "description": "Zhipu GLM 4.7/5 family. Thinking mode auto-enabled; temperature capped at 1.0.",
-        "provider_types": ["openrouter"],
-        "parameters": {
-            "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 128000},
-            "temperature": {"type": "float", "default": 0.8, "min_value": 0.0, "max_value": 1.0},
-            "top_p": {"type": "float", "default": 0.95, "min_value": 0.0, "max_value": 1.0},
-            "thinking": {
-                "type": "enum",
-                "default": "enabled",
-                "str_values": ["enabled", "disabled"],
-            },
-        },
-        "extra_metadata": {
-            "context_window": 200000,
-            "supports_vision": False,
-            "supports_function_calling": True,
         },
     },
     {
