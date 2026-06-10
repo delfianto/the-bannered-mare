@@ -20,6 +20,7 @@ class ProviderType(enum.StrEnum):
     ANTHROPIC = "anthropic"
     OPENROUTER = "openrouter"
     OLLAMA = "ollama"
+    LMSTUDIO = "lmstudio"
     CUSTOM = "custom"
 
 
