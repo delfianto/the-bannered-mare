@@ -76,8 +76,8 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         "name": "OpenAI GPT-5 Chat",
         "family_identifier": "openai/gpt-5-chat",
         "description": (
-            "OpenAI GPT-5.x chat / instant (non-reasoning). Classic sampling, no reasoning. "
-            "128K context."
+            "OpenAI GPT-5 chat models (5, 5.1, 5.2, 5.3, chat-latest) — non-reasoning, "
+            "classic sampling. Up to 400K context."
         ),
         "provider_types": ["openai", "openrouter"],
         "parameters": {
@@ -85,7 +85,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
                 "type": "int",
                 "default": 8192,
                 "min_value": 1,
-                "max_value": 16384,
+                "max_value": 128000,
             },
             **OPENAI_SAMPLING,
         },
@@ -93,10 +93,16 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         "extra_metadata": {
             "lineage": "gpt",
             "developer": "openai",
-            "context_window": 128000,
+            "context_window": 400000,
             "supports_vision": False,
             "supports_function_calling": True,
-            "models": ["gpt-5.3-instant", "gpt-chat-latest"],
+            "models": [
+                "gpt-5-chat",
+                "gpt-5.1-chat",
+                "gpt-5.2-chat",
+                "gpt-5.3-chat",
+                "gpt-chat-latest",
+            ],
         },
     },
     {
