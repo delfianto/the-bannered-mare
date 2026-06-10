@@ -66,6 +66,12 @@ PROVIDER_CONFIGS: dict[ProviderType, ProviderConfig] = {
         default_base_url="http://localhost:11434",
         requires_api_key=False,
     ),
+    ProviderType.LMSTUDIO: ProviderConfig(
+        display_name="LM Studio",
+        env_var_name=None,
+        default_base_url="http://localhost:1234",
+        requires_api_key=False,
+    ),
     ProviderType.CUSTOM: ProviderConfig(
         display_name="Custom",
         env_var_name=None,

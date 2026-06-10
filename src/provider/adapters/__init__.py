@@ -9,6 +9,7 @@ from src.provider.adapters.base import (
     TokenUsage,
 )
 from src.provider.adapters.gemini import GeminiAdapter
+from src.provider.adapters.lmstudio import LMStudioAdapter
 from src.provider.adapters.ollama import OllamaAdapter
 from src.provider.adapters.openai import OpenAIAdapter
 
@@ -19,6 +20,7 @@ _REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
     ProviderType.XAI: OpenAIAdapter,
     ProviderType.OPENROUTER: OpenAIAdapter,
     ProviderType.OLLAMA: OllamaAdapter,
+    ProviderType.LMSTUDIO: LMStudioAdapter,
     ProviderType.CUSTOM: OpenAIAdapter,
 }
 

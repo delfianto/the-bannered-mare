@@ -166,7 +166,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=100), nullable=False, comment='Unique name of the AI provider'),
     sa.Column('base_url', sa.String(length=255), nullable=True, comment='API endpoint base URL for the service'),
     sa.Column('api_key_env_var', sa.String(length=100), nullable=True, comment='Name of the environment variable storing the API key'),
-    sa.Column('provider_type', sa.Enum('xai', 'google', 'openai', 'anthropic', 'openrouter', 'ollama', 'custom', name='providertype'), nullable=False, comment='Classification of the provider (openai, anthropic, etc.)'),
+    sa.Column('provider_type', sa.Enum('xai', 'google', 'openai', 'anthropic', 'openrouter', 'ollama', 'lmstudio', 'custom', name='providertype'), nullable=False, comment='Classification of the provider (openai, anthropic, etc.)'),
     sa.Column('enabled', sa.Boolean(), nullable=False, comment='Whether this provider is currently active and usable'),
     sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
