@@ -241,7 +241,9 @@ class TestPromptBuilderSystemPromptOverride:
         assert "Template for Alice." in system_msg["content"]
 
 
-def _make_template_fragment(content: str, position: str = "after_system", ordinal: int = 0) -> Any:
+def _make_template_fragment(
+    content: str, position: str = "after_system", ordinal: int = 0, depth: int | None = None
+) -> Any:
     """Create a mock TemplateFragment with its associated fragment."""
     fragment = MagicMock()
     fragment.content = content
@@ -249,6 +251,7 @@ def _make_template_fragment(content: str, position: str = "after_system", ordina
     tf = MagicMock()
     tf.position = position
     tf.ordinal = ordinal
+    tf.depth = depth
     tf.fragment = fragment
     return tf
 
@@ -306,6 +309,46 @@ class TestPromptBuilderFragments:
         idx1 = contents.index("First instruction.")
         idx2 = contents.index("Second instruction.")
         assert idx1 < idx2
+
+    def test_fragment_at_depth_injected_into_history(self, db: Session) -> None:
+        """at_depth fragments (drift reminders) are spliced into chat history by depth."""
+        tf = _make_template_fragment("Stay in character as {{char}}.", "at_depth", depth=2)
+        template = _make_template(template_fragments=[tf])
+        chat = _make_chat(template=template)
+        messages = [
+            _make_message("user", "msg1"),
+            _make_message("assistant", "reply1"),
+            _make_message("user", "msg2"),
+            _make_message("assistant", "reply2"),
+        ]
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(chat, messages, activated_lore=None)
+
+        contents = [m["content"] for m in result]
+        reminder = "Stay in character as Alice."
+        assert reminder in contents
+        # depth=2 → 2 messages from the end: before "msg2"/"reply2".
+        assert contents.index(reminder) < contents.index("msg2")
+        assert contents.index("reply1") < contents.index(reminder)
+
+    def test_fragment_at_depth_default_depth(self, db: Session) -> None:
+        """at_depth fragment with no explicit depth falls back to DEFAULT_DEPTH."""
+        tf = _make_template_fragment("Reminder for {{char}}.", "at_depth", depth=None)
+        template = _make_template(template_fragments=[tf])
+        chat = _make_chat(template=template)
+        messages = [_make_message("user", "only message")]
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(chat, messages, activated_lore=None)
+
+        contents = [m["content"] for m in result]
+        reminder = "Reminder for Alice."
+        # DEFAULT_DEPTH exceeds history length → clamps to the front of history.
+        assert reminder in contents
+        assert contents.index(reminder) < contents.index("only message")
 
     def test_no_fragments_backward_compat(self, db: Session) -> None:
         """Templates without fragments work normally."""

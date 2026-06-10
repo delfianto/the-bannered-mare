@@ -148,10 +148,15 @@ class TemplateFragment(BaseModel):
         String(50),
         nullable=False,
         default="after_system",
-        comment="Injection position: after_system, pre_history, post_history",
+        comment="Injection position: after_system, pre_history, post_history, at_depth",
     )
     ordinal: Mapped[int] = mapped_column(
         Integer, nullable=False, default=0, comment="Order within position (0-based)"
+    )
+    depth: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        comment="Chat depth (messages from the end) for position='at_depth'; defaults to 4 if null",
     )
 
     template: Mapped[PromptTemplate] = relationship(back_populates="template_fragments")

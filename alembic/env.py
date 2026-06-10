@@ -4,9 +4,13 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
+import alembic_postgresql_enum  # noqa: F401  # import registers native-PG-enum autogenerate handlers
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context  # type: ignore
+from alembic.autogenerate.api import AutogenContext
+from alembic.operations import ops as alembic_ops
+from alembic.runtime.migration import MigrationContext
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -51,6 +55,55 @@ def _include_object(
     return not (type_ == "index" and name == "ix_embeddings_vchordrq")
 
 
+# VectorChord approximate-NN index backing the cosine `<=>` similarity search.
+# `lists` is omitted (flat RaBitQ scan) — the right default for modest local datasets.
+_VCHORDRQ_SQL = (
+    "CREATE INDEX ix_embeddings_vchordrq ON embeddings "
+    "USING vchordrq (embedding vector_cosine_ops) "
+    "WITH (options = $$\nresidual_quantization = true\n$$)"
+)
+
+
+def _render_item(type_: str, obj: object, autogen_context: AutogenContext) -> bool:
+    """Emit pgvector's import when a VECTOR column type is rendered.
+
+    Autogenerate renders the type fully-qualified but never injects the import,
+    so the generated migration would NameError without this.
+    """
+    if type_ == "type" and type(obj).__module__.startswith("pgvector"):
+        autogen_context.imports.add("import pgvector.sqlalchemy.vector")
+    return False  # fall back to Alembic's default rendering
+
+
+def _process_revision_directives(
+    context: MigrationContext,
+    revision: object,
+    directives: list[alembic_ops.MigrationScript],
+) -> None:
+    """Inject the VectorChord DDL that Alembic's schema diff cannot model.
+
+    Fires only when a migration (re)creates the embeddings table — i.e. the
+    consolidated full-schema build — so delta migrations are left untouched.
+    Complements `_include_object`, which keeps the raw index out of comparison.
+    """
+    if not directives:
+        return
+    upgrade_ops = directives[0].upgrade_ops
+    if upgrade_ops is None:
+        return
+    builds_embeddings = any(
+        isinstance(op, alembic_ops.CreateTableOp) and op.table_name == "embeddings"
+        for op in upgrade_ops.ops
+    )
+    if not builds_embeddings:
+        return
+    # pgvector (pulled in via CASCADE) must exist before the embeddings.embedding column.
+    upgrade_ops.ops.insert(
+        0, alembic_ops.ExecuteSQLOp("CREATE EXTENSION IF NOT EXISTS vchord CASCADE")
+    )
+    upgrade_ops.ops.append(alembic_ops.ExecuteSQLOp(_VCHORDRQ_SQL))
+
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -76,6 +129,8 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         include_object=_include_object,
+        render_item=_render_item,
+        process_revision_directives=_process_revision_directives,
     )
 
     with context.begin_transaction():
@@ -100,6 +155,8 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             include_object=_include_object,
+            render_item=_render_item,
+            process_revision_directives=_process_revision_directives,
         )
 
         with context.begin_transaction():
