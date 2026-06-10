@@ -109,23 +109,6 @@ OPENROUTER_FAMILIES: list[ModelFamilySeedData] = [
         },
     },
     {
-        "name": "Gemma 4 (OpenRouter)",
-        "family_identifier": "openrouter/gemma",
-        "description": "Google Gemma 4 (26B A4B MoE + 31B dense). Multimodal, 256K context, reasoning mode.",
-        "provider_types": ["openrouter"],
-        "parameters": {
-            "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 16384},
-            "temperature": {**TEMPERATURE, "default": 0.8},
-            "top_p": {"type": "float", "default": 0.9, "min_value": 0.0, "max_value": 1.0},
-            "top_k": {"type": "int", "default": 64, "min_value": 1, "max_value": 100},
-        },
-        "extra_metadata": {
-            "context_window": 256000,
-            "supports_vision": True,
-            "supports_function_calling": True,
-        },
-    },
-    {
         "name": "OpenRouter Misc",
         "family_identifier": "openrouter/misc",
         "description": "Various OpenRouter models (Arcee, Qwen, Xiaomi, Poolside)",
