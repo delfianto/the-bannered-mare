@@ -10,10 +10,11 @@ _DRUMMER_PARAMS = {
     "num_ctx": 8192,
 }
 
+# Official Gemma 4 sampling guidance for all use cases
 _GEMMA4_PARAMS = {
-    "temperature": 0.8,
-    "top_p": 0.9,
-    "top_k": 60,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 64,
     "num_ctx": 32768,
 }
 
@@ -46,8 +47,8 @@ OLLAMA_MODELS: list[ModelSeedData] = [
         "enabled": True,
     },
     {
-        "name": "Gemma 4 4B Q4_K_M",
-        "model_identifier": "gemma4:latest",
+        "name": "Gemma 4 E2B",
+        "model_identifier": "gemma4:e2b",
         "openrouter_identifier": None,
         "family_identifier": "ollama/gemma-4",
         "provider_type": "ollama",
@@ -55,7 +56,16 @@ OLLAMA_MODELS: list[ModelSeedData] = [
         "enabled": True,
     },
     {
-        "name": "Gemma 4 12B Q4_K_M",
+        "name": "Gemma 4 E4B",
+        "model_identifier": "gemma4:e4b",
+        "openrouter_identifier": None,
+        "family_identifier": "ollama/gemma-4",
+        "provider_type": "ollama",
+        "parameters": {**_GEMMA4_PARAMS},
+        "enabled": True,
+    },
+    {
+        "name": "Gemma 4 12B",
         "model_identifier": "gemma4:12b",
         "openrouter_identifier": None,
         "family_identifier": "ollama/gemma-4",
@@ -64,8 +74,17 @@ OLLAMA_MODELS: list[ModelSeedData] = [
         "enabled": True,
     },
     {
-        "name": "Gemma 4 27B Q4_K_M",
-        "model_identifier": "gemma4:27b",
+        "name": "Gemma 4 26B A4B",
+        "model_identifier": "gemma4:26b",
+        "openrouter_identifier": None,
+        "family_identifier": "ollama/gemma-4",
+        "provider_type": "ollama",
+        "parameters": {**_GEMMA4_PARAMS},
+        "enabled": True,
+    },
+    {
+        "name": "Gemma 4 31B",
+        "model_identifier": "gemma4:31b",
         "openrouter_identifier": None,
         "family_identifier": "ollama/gemma-4",
         "provider_type": "ollama",
