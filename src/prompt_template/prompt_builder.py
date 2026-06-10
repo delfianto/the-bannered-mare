@@ -1,5 +1,6 @@
 "Service for building LLM prompts using templates and context"
 
+from dataclasses import dataclass
 from typing import Any
 
 from src.character.models import Character
@@ -12,6 +13,22 @@ from src.lore.activation_engine import ActivatedEntry
 from src.persona.models import Persona
 from src.prompt_template.models import PromptTemplate
 from src.prompt_template.repository import PromptTemplateRepository
+
+# Default depth (messages from the end) for at_depth fragments without an explicit depth.
+DEFAULT_DEPTH = 4
+
+
+@dataclass
+class DepthInjection:
+    """A snippet spliced into the chat history at a given depth from the end.
+
+    Shared mechanism for lore AT_DEPTH entries and `at_depth` prompt fragments
+    (drift-prevention reminders) — both keep instructions near the generation point.
+    """
+
+    content: str
+    depth: int
+    role: str
 
 
 class PromptBuilder:
@@ -53,8 +70,13 @@ class PromptBuilder:
         # Group lore entries by position
         lore_by_position = self._group_lore(activated_lore)
 
-        # Separate AT_DEPTH entries for chat history injection
-        at_depth_entries = lore_by_position.get(InsertionPosition.AT_DEPTH, [])
+        # Depth-injected content: lore AT_DEPTH entries + at_depth prompt fragments
+        # (drift reminders) ride the same in-history injection mechanism.
+        depth_injections: list[DepthInjection] = [
+            DepthInjection(content=e.content, depth=e.depth, role=e.role)
+            for e in lore_by_position.get(InsertionPosition.AT_DEPTH, [])
+        ]
+        depth_injections.extend(self._build_depth_fragments(template, context))
 
         system_content = self._resolve_system_prompt(chat.character, template, context)
 
@@ -74,7 +96,7 @@ class PromptBuilder:
             ),
             "example_dialogues": self._build_example_dialogues(chat.character),
             "rag_context": self._build_rag_context(rag_results),
-            "chat_history": self._build_chat_history(messages, template, at_depth_entries),
+            "chat_history": self._build_chat_history(messages, template, depth_injections),
             "post_history_instructions": self._build_post_history_instructions(chat.character),
         }
 
@@ -119,6 +141,26 @@ class PromptBuilder:
                 if rendered.strip():
                     messages.append({"role": "system", "content": rendered})
         return messages
+
+    def _build_depth_fragments(
+        self, template: PromptTemplate, context: TemplateContext
+    ) -> list[DepthInjection]:
+        """Render `at_depth` prompt fragments (drift reminders) into depth injections."""
+        if not getattr(template, "template_fragments", None):
+            return []
+        out: list[DepthInjection] = []
+        for tf in template.template_fragments:
+            if tf.position == "at_depth":
+                rendered = self.template_service.render(tf.fragment.content, context)
+                if rendered.strip():
+                    out.append(
+                        DepthInjection(
+                            content=rendered,
+                            depth=tf.depth or DEFAULT_DEPTH,
+                            role="system",
+                        )
+                    )
+        return out
 
     def _build_rag_context(self, results: list[Any] | None) -> list[dict[str, Any]]:
         """Build RAG context from retrieved chunks."""
@@ -194,9 +236,9 @@ class PromptBuilder:
         self,
         messages: list[Message],
         template: PromptTemplate,
-        at_depth_entries: list[ActivatedEntry] | None = None,
+        depth_injections: list[DepthInjection] | None = None,
     ) -> list[dict[str, Any]]:
-        """Build chat history with token budget and AT_DEPTH lore injection."""
+        """Build chat history with token budget + depth-injected reminders (lore + fragments)."""
         max_tokens = template.max_history_tokens or 4096
 
         budget_messages = []
@@ -216,11 +258,12 @@ class PromptBuilder:
 
         history = list(reversed(budget_messages))
 
-        # Inject AT_DEPTH lore entries into the history
-        if at_depth_entries and history:
-            for entry in sorted(at_depth_entries, key=lambda e: e.depth, reverse=True):
-                insert_idx = max(0, len(history) - entry.depth)
-                history.insert(insert_idx, {"role": entry.role, "content": entry.content})
+        # Splice depth-anchored content (lore AT_DEPTH + at_depth fragments) into history.
+        # Deeper entries first so earlier insertions don't shift later indices.
+        if depth_injections and history:
+            for inj in sorted(depth_injections, key=lambda d: d.depth, reverse=True):
+                insert_idx = max(0, len(history) - inj.depth)
+                history.insert(insert_idx, {"role": inj.role, "content": inj.content})
 
         return history
 
