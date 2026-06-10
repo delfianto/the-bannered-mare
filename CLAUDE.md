@@ -15,6 +15,7 @@ Your goal is to build a high-performance, strictly typed, and modular system tha
 
 - **NO GIT COMMITS:** You do not have permission to commit code unless the user asked you do do so.
 - **File Retrieval:** Always use `File Fetcher` to read full file contents before editing. Do not rely on snippets or assumptions.
+- **Shell Check:** The machine running this project DOES NOT always run BASH; check the running shell before you make an assumption. When running shell commands, use shell-specific syntax to avoid command failure.
 
 ### 2.2 Database Interaction
 
