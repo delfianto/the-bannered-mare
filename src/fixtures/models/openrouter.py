@@ -2,15 +2,86 @@
 
 from src.fixtures.models._types import ModelSeedData
 
+# Shared RP sampler for the Llama 3 finetunes/merges (min_p + repetition_penalty
+# are the community staples).
+_LLAMA_RP = {
+    "max_tokens": 4096,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "top_k": 50,
+    "min_p": 0.05,
+    "repetition_penalty": 1.05,
+}
+
 OPENROUTER_MODELS: list[ModelSeedData] = [
-    # RP-focused
+    # Llama 3 RP finetunes & merges (-> llama3 family)
     {
-        "name": "Sao10K L3 Euryale 70B v2.1",
+        "name": "Sao10K Euryale 70B v2.1 (L3)",
         "model_identifier": "sao10k/l3-euryale-70b",
         "openrouter_identifier": "sao10k/l3-euryale-70b",
-        "family_identifier": "openrouter/llama-3-rp",
+        "family_identifier": "llama3",
         "provider_type": "openrouter",
-        "parameters": {"temperature": 0.85, "top_p": 0.9, "max_tokens": 4096},
+        "parameters": {**_LLAMA_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "Sao10K Euryale 70B v2.2 (L3.1)",
+        "model_identifier": "sao10k/l3.1-euryale-70b",
+        "openrouter_identifier": "sao10k/l3.1-euryale-70b",
+        "family_identifier": "llama3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "Sao10K Euryale 70B v2.3 (L3.3)",
+        "model_identifier": "sao10k/l3.3-euryale-70b",
+        "openrouter_identifier": "sao10k/l3.3-euryale-70b",
+        "family_identifier": "llama3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "NeverSleep Lumimaid 70B (L3.1)",
+        "model_identifier": "neversleep/llama-3.1-lumimaid-70b",
+        "openrouter_identifier": "neversleep/llama-3.1-lumimaid-70b",
+        "family_identifier": "llama3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "TheDrummer Anubis 70B (L3.3)",
+        "model_identifier": "thedrummer/anubis-70b-v1.1",
+        "openrouter_identifier": "thedrummer/anubis-70b-v1.1",
+        "family_identifier": "llama3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "Nous Hermes 3 70B (L3.1)",
+        "model_identifier": "nousresearch/hermes-3-llama-3.1-70b",
+        "openrouter_identifier": "nousresearch/hermes-3-llama-3.1-70b",
+        "family_identifier": "llama3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "Sao10K Lunaris 8B (L3)",
+        "model_identifier": "sao10k/l3-lunaris-8b",
+        "openrouter_identifier": "sao10k/l3-lunaris-8b",
+        "family_identifier": "llama3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
         "enabled": True,
         "use_openrouter": True,
     },
