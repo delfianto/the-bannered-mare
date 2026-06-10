@@ -16,7 +16,7 @@ from src.fixtures.parameter_definitions import TEMPERATURE, TOP_K, TOP_P_95
 MINIMAX_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "MiniMax M2",
-        "family_identifier": "minimax-m2",
+        "family_identifier": "minimax/minimax-m2",
         "description": (
             "MiniMax M2.5 / M2.7. 204K context. Recommended temp 1.0 / top_p 0.95 / "
             "top_k 20-40. Thinking is always on (cannot be disabled). Routed via OpenRouter."
@@ -42,7 +42,7 @@ MINIMAX_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "MiniMax M3",
-        "family_identifier": "minimax-m3",
+        "family_identifier": "minimax/minimax-m3",
         "description": (
             "MiniMax M3. 1M context, up to 512K output. Toggleable thinking "
             "(adaptive/disabled); top_k and penalties removed. Routed via OpenRouter."

@@ -12,7 +12,7 @@ from src.fixtures.parameter_definitions import STOP_LIST, STREAM
 CLAUDE_FABLE_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Claude Fable 5",
-        "family_identifier": "claude-fable-5",
+        "family_identifier": "anthropic/claude-fable-5",
         "description": (
             "Anthropic Claude Fable 5. Most powerful tier (above Opus). Adaptive thinking "
             "only — sampling parameters removed and thinking cannot be disabled."

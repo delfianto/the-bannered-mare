@@ -11,7 +11,7 @@ from src.fixtures.parameter_definitions import CLAUDE_45_BASE
 CLAUDE_HAIKU_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Claude 4.5 Haiku",
-        "family_identifier": "claude-haiku-4.5",
+        "family_identifier": "anthropic/claude-haiku-4.5",
         "description": "Anthropic Claude 4.5 Haiku. Fast, low-cost tier for RP.",
         "provider_types": ["anthropic", "openrouter"],
         "parameters": {

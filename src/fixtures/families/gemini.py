@@ -22,7 +22,7 @@ from src.fixtures.parameter_definitions import (
 GEMINI_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Gemini 2.5",
-        "family_identifier": "gemini-2.5",
+        "family_identifier": "google/gemini-2.5",
         "description": (
             "Google Gemini 2.5 Pro / Flash / Flash-Lite. 1M context, full sampling surface "
             "(top_k + penalties) and a numeric thinking budget."
@@ -51,7 +51,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "Gemini 3",
-        "family_identifier": "gemini-3",
+        "family_identifier": "google/gemini-3",
         "description": (
             "Google Gemini 3.0 / 3.1 Pro / Flash / Flash-Lite. 1M context. thinking_level "
             "(low/medium/high) + media_resolution; top_k and penalties removed, temperature "
@@ -103,7 +103,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "Gemini 3.5",
-        "family_identifier": "gemini-3.5",
+        "family_identifier": "google/gemini-3.5",
         "description": (
             "Google Gemini 3.5 Flash. 1M context. Removes temperature/top_p/top_k entirely; "
             "thinking_level (minimal/low/medium/high, default medium) + media_resolution."

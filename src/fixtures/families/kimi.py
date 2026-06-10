@@ -19,7 +19,7 @@ from src.fixtures.parameter_definitions import (
 KIMI_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Kimi K2",
-        "family_identifier": "kimi-k2",
+        "family_identifier": "moonshot/kimi-k2",
         "description": (
             "Moonshot Kimi K2.5 / K2.6 (OpenAI/Anthropic-compatible). 256K context, full "
             "sampling surface plus reasoning_effort. Routed via OpenRouter."

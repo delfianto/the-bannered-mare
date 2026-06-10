@@ -30,7 +30,7 @@ _GLM_BASE: dict = {
 GLM_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "GLM 4",
-        "family_identifier": "glm-4",
+        "family_identifier": "zai/glm-4",
         "description": (
             "Zhipu/Z.ai GLM-4.5 / 4.6 / 4.7 (incl. Air, Flash). Hybrid thinking, "
             "temperature capped at 1.0, 200K context. Routed via OpenRouter."
@@ -54,7 +54,7 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "GLM 5",
-        "family_identifier": "glm-5",
+        "family_identifier": "zai/glm-5",
         "description": (
             "Zhipu/Z.ai GLM-5 / 5.1 (incl. Turbo). Forced thinking with reasoning_effort "
             "(GLM-5.1), temperature capped at 1.0, up to ~262K context. Routed via OpenRouter."

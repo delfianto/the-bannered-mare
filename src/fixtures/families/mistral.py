@@ -26,7 +26,7 @@ _MISTRAL_RP_PARAMS: dict = {
 MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Mistral Nemo 12B",
-        "family_identifier": "mistral-nemo",
+        "family_identifier": "mistral/mistral-nemo",
         "description": (
             "Mistral Nemo 12B base and its finetunes (e.g. TheDrummer's Rocinante). "
             "Text-only, ~128K context. Local (Ollama GGUF) or hosted (OpenRouter)."
@@ -56,7 +56,7 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "Mistral Small 24B",
-        "family_identifier": "mistral-small",
+        "family_identifier": "mistral/mistral-small",
         "description": (
             "Mistral Small 24B (3.1 / 3.2, including the Magistral reasoning variant) base "
             "and its finetunes (e.g. TheDrummer's Skyfall, Cydonia). 128K context. "

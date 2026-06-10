@@ -13,7 +13,7 @@ from src.fixtures.parameter_definitions import CLAUDE_45_BASE, CLAUDE_46_BASE
 CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Claude 4.5 Sonnet",
-        "family_identifier": "claude-sonnet-4.5",
+        "family_identifier": "anthropic/claude-sonnet-4.5",
         "description": "Anthropic Claude 4.5 Sonnet. Balanced speed/intelligence for RP.",
         "provider_types": ["anthropic", "openrouter"],
         "parameters": {
@@ -31,7 +31,7 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "Claude 4.6 Sonnet",
-        "family_identifier": "claude-sonnet-4.6",
+        "family_identifier": "anthropic/claude-sonnet-4.6",
         "description": "Anthropic Claude 4.6 Sonnet. Fast, high-intelligence with adaptive thinking.",
         "provider_types": ["anthropic", "openrouter"],
         "parameters": {

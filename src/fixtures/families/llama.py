@@ -17,7 +17,7 @@ from src.fixtures.parameter_definitions import TEMPERATURE, TOP_K, TOP_P_95
 LLAMA_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Llama 3",
-        "family_identifier": "llama3",
+        "family_identifier": "meta/llama-3",
         "description": (
             "Meta Llama 3 / 3.1 / 3.3 and the community RP finetunes & merges built on them "
             "(Sao10K Euryale & Stheno, NeverSleep Lumimaid, TheDrummer Anubis, Steelskull "
