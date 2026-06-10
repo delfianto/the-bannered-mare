@@ -12,12 +12,12 @@ from src.fixtures.families.deepseek import DEEPSEEK_FAMILIES
 from src.fixtures.families.gemini import GEMINI_FAMILIES
 from src.fixtures.families.gemma import GEMMA_FAMILIES
 from src.fixtures.families.glm import GLM_FAMILIES
+from src.fixtures.families.grok import GROK_FAMILIES
 from src.fixtures.families.kimi import KIMI_FAMILIES
 from src.fixtures.families.minimax import MINIMAX_FAMILIES
 from src.fixtures.families.mistral import MISTRAL_FAMILIES
 from src.fixtures.families.openai import OPENAI_FAMILIES
 from src.fixtures.families.openrouter import OPENROUTER_FAMILIES
-from src.fixtures.families.xai import XAI_FAMILIES
 from src.fixtures.model_families import ModelFamilySeedData
 
 MODEL_FAMILIES_SEED_DATA: list[ModelFamilySeedData] = [
@@ -27,7 +27,7 @@ MODEL_FAMILIES_SEED_DATA: list[ModelFamilySeedData] = [
     *CLAUDE_SONNET_FAMILIES,
     *CLAUDE_HAIKU_FAMILIES,
     *GEMINI_FAMILIES,
-    *XAI_FAMILIES,
+    *GROK_FAMILIES,
     *GEMMA_FAMILIES,
     *MISTRAL_FAMILIES,
     *DEEPSEEK_FAMILIES,
