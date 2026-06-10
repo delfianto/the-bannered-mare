@@ -13,7 +13,7 @@ from src.fixtures.parameter_definitions import TEMPERATURE, TOP_K, TOP_P_95
 GEMMA_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Gemma 4",
-        "family_identifier": "gemma4",
+        "family_identifier": "google/gemma-4",
         "description": (
             "Google Gemma 4 open-weight family (E2B, E4B, 12B, 26B A4B MoE, 31B). "
             "Multimodal, up to 256K context, thinking mode. Runs locally (Ollama GGUF) "

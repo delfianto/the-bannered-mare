@@ -26,7 +26,7 @@ _DEEPSEEK_CHAT: dict = {
 DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "DeepSeek V3",
-        "family_identifier": "deepseek-v3",
+        "family_identifier": "deepseek/deepseek-v3",
         "description": "DeepSeek V3.1 / V3.2 chat models. 128K context, standard sampling.",
         "provider_types": ["openrouter"],
         "parameters": {
@@ -44,7 +44,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "DeepSeek V4",
-        "family_identifier": "deepseek-v4",
+        "family_identifier": "deepseek/deepseek-v4",
         "description": "DeepSeek V4 chat models (Pro / Flash). 128K context, standard sampling.",
         "provider_types": ["openrouter"],
         "parameters": {
@@ -62,7 +62,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "DeepSeek R1",
-        "family_identifier": "deepseek-r1",
+        "family_identifier": "deepseek/deepseek-r1",
         "description": (
             "DeepSeek R1 reasoner. Thinking model — temperature/top_p and penalties are "
             "ignored by the API."

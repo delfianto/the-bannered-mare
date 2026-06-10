@@ -26,7 +26,7 @@ _UNSUPPORTED_THINKING = [
 GPT_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "OpenAI GPT-4o",
-        "family_identifier": "gpt-4o",
+        "family_identifier": "openai/gpt-4o",
         "description": "OpenAI GPT-4o family (incl. mini). 128K context, multimodal, classic sampling.",
         "provider_types": ["openai", "openrouter"],
         "parameters": {
@@ -50,7 +50,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "OpenAI GPT-4.1",
-        "family_identifier": "gpt-4.1",
+        "family_identifier": "openai/gpt-4.1",
         "description": "OpenAI GPT-4.1 family (incl. mini, nano). 1M context, classic sampling.",
         "provider_types": ["openai", "openrouter"],
         "parameters": {
@@ -74,7 +74,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "OpenAI GPT-5 Chat",
-        "family_identifier": "gpt-5-chat",
+        "family_identifier": "openai/gpt-5-chat",
         "description": (
             "OpenAI GPT-5.x chat / instant (non-reasoning). Classic sampling, no reasoning. "
             "128K context."
@@ -101,7 +101,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "OpenAI GPT-5 Thinking",
-        "family_identifier": "gpt-5-thinking",
+        "family_identifier": "openai/gpt-5-thinking",
         "description": (
             "OpenAI GPT-5.x reasoning models (5.4, 5.5, incl. mini/nano/pro). Extended "
             "reasoning via reasoning_effort + verbosity; sampling parameters are removed. "

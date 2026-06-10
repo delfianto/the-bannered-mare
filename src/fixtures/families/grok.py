@@ -24,7 +24,7 @@ from src.fixtures.parameter_definitions import (
 GROK_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "Grok 4.2",
-        "family_identifier": "grok-4.2",
+        "family_identifier": "xai/grok-4.2",
         "description": (
             "xAI Grok 4.20 (named 4.2 here) — flagship + multi-agent variant. 2M context, "
             "always-on reasoning (no stop/penalties). The multi-agent variant scales parallel "
@@ -64,7 +64,7 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
     },
     {
         "name": "Grok 4.3",
-        "family_identifier": "grok-4.3",
+        "family_identifier": "xai/grok-4.3",
         "description": (
             "xAI Grok 4.3. 1M context, hybrid reasoning via reasoning_effort (none/low/medium); "
             "supports stop and frequency/presence penalties. Consolidated target for the retired "
