@@ -4,12 +4,12 @@
 Candlekeep Core is a high-performance FastAPI backend designed for a roleplay (RP) platform. It manages character cards (NPCs), user personas, chat sessions, and multi-provider LLM integrations.
 
 ### Core Technologies
-- **Framework:** FastAPI (Python 3.13)
+- **Framework:** FastAPI (Python 3.14)
 - **Database:** PostgreSQL (Production) / SQLite (Testing)
 - **ORM:** SQLAlchemy 2.0 (Declarative Mapping, Repository Pattern)
 - **Migrations:** Alembic
 - **Validation:** Pydantic v2
-- **Logging:** Structured logging with `structlog`, audit logging in MongoDB
+- **Logging:** Structured logging with `structlog`, audit logging in PostgreSQL
 - **Templates:** Jinja2 for prompt construction
 - **Image Processing:** Pillow (for avatar resizing and thumbnail generation)
 
@@ -57,5 +57,5 @@ Candlekeep Core is a high-performance FastAPI backend designed for a roleplay (R
 
 ## Integration Details
 - **Database Connection:** Defined by `DATABASE_URL` environment variable.
-- **Logging:** Audit logs (LLM calls, errors) are stored in MongoDB if enabled.
+- **Logging:** Audit logs (LLM calls, errors) are stored in PostgreSQL if enabled.
 - **CORS:** Origins are configured via `CORS_ORIGINS`.

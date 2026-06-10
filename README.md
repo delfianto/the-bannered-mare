@@ -55,7 +55,7 @@ Features that are deliberately **not** implemented:
 - **Reasoning content** — Parse and persist thinking from Claude, DeepSeek, Gemini. Auto-extract `<think>` tags from local models that embed reasoning in output.
 - **Character management** — Full CRUD with avatar upload, thumbnail generation, filtering, pagination.
 - **Persona system** — User personas with per-chat binding.
-- **Structured logging** — structlog with optional MongoDB audit trail.
+- **Structured logging** — structlog with optional PostgreSQL audit trail.
 
 ## Tech Stack
 
@@ -71,7 +71,7 @@ Features that are deliberately **not** implemented:
 | Templating | Jinja2 (prompt construction) |
 | Token Counting | tiktoken |
 | Image Processing | Pillow (avatars, PNG metadata) |
-| Logging | structlog + MongoDB audit trail |
+| Logging | structlog + PostgreSQL audit trail |
 | Type Checking | basedpyright (strict mode) |
 | Linting | ruff |
 | Testing | pytest (300+ tests) |
