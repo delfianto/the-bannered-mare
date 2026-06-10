@@ -15,6 +15,7 @@ from src.fixtures.families.glm import GLM_FAMILIES
 from src.fixtures.families.gpt import GPT_FAMILIES
 from src.fixtures.families.grok import GROK_FAMILIES
 from src.fixtures.families.kimi import KIMI_FAMILIES
+from src.fixtures.families.llama import LLAMA_FAMILIES
 from src.fixtures.families.minimax import MINIMAX_FAMILIES
 from src.fixtures.families.mistral import MISTRAL_FAMILIES
 from src.fixtures.families.openrouter import OPENROUTER_FAMILIES
@@ -33,6 +34,7 @@ MODEL_FAMILIES_SEED_DATA: list[ModelFamilySeedData] = [
     *DEEPSEEK_FAMILIES,
     *GLM_FAMILIES,
     *KIMI_FAMILIES,
+    *LLAMA_FAMILIES,
     *MINIMAX_FAMILIES,
     *OPENROUTER_FAMILIES,
 ]
