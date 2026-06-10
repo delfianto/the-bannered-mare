@@ -140,6 +140,24 @@ GEMINI_SAMPLING: dict[str, Any] = {
     "safety_settings": GEMINI_SAFETY_SETTINGS,
 }
 
+# Gemini 3.x dropped top_k and the frequency/presence penalties, and discourages
+# changing temperature from its 1.0 default. Thinking moved from a numeric budget
+# to thinking_level (+ the new media_resolution control), declared per family.
+GEMINI_3_SAMPLING: dict[str, Any] = {
+    "temperature": TEMPERATURE,
+    "top_p": TOP_P_95,
+    "stop_sequences": STOP_LIST,
+    "safety_settings": GEMINI_SAFETY_SETTINGS,
+}
+
+# Gemini 3.5 went further than 3.0/3.1: temperature, top_p, and top_k are removed
+# outright (not just discouraged). Only stop/safety remain alongside thinking_level
+# (which gains a "minimal" tier, default medium) and media_resolution.
+GEMINI_35_SAMPLING: dict[str, Any] = {
+    "stop_sequences": STOP_LIST,
+    "safety_settings": GEMINI_SAFETY_SETTINGS,
+}
+
 # Shared Claude transport/sampling. 4.5 exposes an explicit thinking
 # budget_tokens; 4.6+ moved to adaptive thinking (no budget) plus an `effort`
 # enum declared per tier (Opus also adds a "max" tier and top_k up to 500).
