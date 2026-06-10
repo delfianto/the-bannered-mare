@@ -140,6 +140,57 @@ GEMINI_SAMPLING: dict[str, Any] = {
     "safety_settings": GEMINI_SAFETY_SETTINGS,
 }
 
+# Shared Claude transport/sampling. 4.5 exposes an explicit thinking
+# budget_tokens; 4.6+ moved to adaptive thinking (no budget) plus an `effort`
+# enum declared per tier (Opus also adds a "max" tier and top_k up to 500).
+# NOTE: temperature and top_p are mutually exclusive on every Claude 4.x model
+# (sending both 400s) — model seeds must set at most one. Opus 4.7+/Fable drop
+# sampling parameters entirely; see CLAUDE_47_BASE.
+CLAUDE_45_BASE: dict[str, Any] = {
+    "temperature": TEMPERATURE,
+    "top_p": TOP_P,
+    "top_k": TOP_K,
+    "stop_sequences": STOP_LIST,
+    "stream": STREAM,
+    "system": {"type": "string"},
+    "thinking": {
+        "type": "object",
+        "properties": {
+            "type": {"type": "enum", "str_values": ["enabled", "disabled"]},
+            "budget_tokens": {"type": "int", "min_value": 1024, "max_value": 20000},
+        },
+    },
+}
+
+CLAUDE_46_BASE: dict[str, Any] = {
+    "temperature": TEMPERATURE,
+    "top_p": TOP_P,
+    "top_k": TOP_K,
+    "stop_sequences": STOP_LIST,
+    "stream": STREAM,
+    "system": {"type": "string"},
+    "thinking": {
+        "type": "object",
+        "properties": {
+            "type": {"type": "enum", "str_values": ["enabled", "disabled"]},
+        },
+    },
+}
+
+# Opus 4.7+/Fable removed temperature/top_p/top_k entirely (400 if sent) and use
+# adaptive thinking only (budget_tokens removed). The `effort` enum gains "xhigh".
+CLAUDE_47_BASE: dict[str, Any] = {
+    "stop_sequences": STOP_LIST,
+    "stream": STREAM,
+    "system": {"type": "string"},
+    "thinking": {
+        "type": "object",
+        "properties": {
+            "type": {"type": "enum", "str_values": ["adaptive", "disabled"]},
+        },
+    },
+}
+
 # ---------------------------------------------------------------------------
 # User-facing parameter descriptions (unchanged)
 # ---------------------------------------------------------------------------
