@@ -11,7 +11,7 @@ OPENROUTER_FAMILIES: list[ModelFamilySeedData] = [
     {
         "name": "OpenRouter Misc",
         "family_identifier": "openrouter/misc",
-        "description": "Various OpenRouter models (Arcee, Qwen, Xiaomi, Poolside)",
+        "description": "Various OpenRouter models",
         "provider_types": ["openrouter"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 16384},
