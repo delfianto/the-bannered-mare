@@ -9,9 +9,9 @@ from src.fixtures.families.claude_haiku import CLAUDE_HAIKU_FAMILIES
 from src.fixtures.families.claude_opus import CLAUDE_OPUS_FAMILIES
 from src.fixtures.families.claude_sonnet import CLAUDE_SONNET_FAMILIES
 from src.fixtures.families.deepseek import DEEPSEEK_FAMILIES
+from src.fixtures.families.gemini import GEMINI_FAMILIES
 from src.fixtures.families.gemma import GEMMA_FAMILIES
 from src.fixtures.families.glm import GLM_FAMILIES
-from src.fixtures.families.google import GOOGLE_FAMILIES
 from src.fixtures.families.mistral import MISTRAL_FAMILIES
 from src.fixtures.families.openai import OPENAI_FAMILIES
 from src.fixtures.families.openrouter import OPENROUTER_FAMILIES
@@ -24,7 +24,7 @@ MODEL_FAMILIES_SEED_DATA: list[ModelFamilySeedData] = [
     *CLAUDE_OPUS_FAMILIES,
     *CLAUDE_SONNET_FAMILIES,
     *CLAUDE_HAIKU_FAMILIES,
-    *GOOGLE_FAMILIES,
+    *GEMINI_FAMILIES,
     *XAI_FAMILIES,
     *GEMMA_FAMILIES,
     *MISTRAL_FAMILIES,
