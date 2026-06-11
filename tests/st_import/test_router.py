@@ -10,6 +10,8 @@ from tests.st_import.factories import preset_dict, st_marker, st_prompt
 
 _URL = "/api/presets/import"
 _REFS_PRESET_DIR = Path(__file__).resolve().parents[2] / "refs" / "preset"
+_SAMPLE_DIR = Path(__file__).resolve().parents[1] / "preset" / "sample"
+_SAMPLES = sorted(_SAMPLE_DIR.glob("*.json"))
 
 
 def _upload(body: bytes | str, filename: str = "preset.json") -> dict:
@@ -89,3 +91,32 @@ class TestImportEndpoint:
         data = resp.json()
         assert data["template_id"]
         assert isinstance(data["warnings"], list)
+
+
+class TestCommittedSamples:
+    """Import the checked-in funny sample presets in tests/preset/sample/."""
+
+    @pytest.mark.parametrize("sample", _SAMPLES, ids=lambda p: p.name)
+    def test_sample_imports(self, client: TestClient, sample: Path) -> None:
+        resp = client.post(_URL, files=_upload(sample.read_bytes(), sample.name))
+        assert resp.status_code == 201, resp.text
+        data = resp.json()
+        assert data["template_id"]
+        assert isinstance(data["warnings"], list)
+
+    def test_chef_sample_creates_preset_with_samplers(self, client: TestClient) -> None:
+        sample = _SAMPLE_DIR / "chef_dungeon_master.json"
+        data = client.post(_URL, files=_upload(sample.read_bytes(), sample.name)).json()
+        assert data["preset_id"] is not None
+        assert data["template_name"] == "chef_dungeon_master"
+
+    def test_freaky_sample_is_prompts_only(self, client: TestClient) -> None:
+        sample = _SAMPLE_DIR / "freaky_frankenpurr.json"
+        data = client.post(_URL, files=_upload(sample.read_bytes(), sample.name)).json()
+        assert data["preset_id"] is None  # no sampler block
+        assert len(data["fragment_ids"]) == 5  # 2 disabled toggles are skipped
+
+    def test_minimal_sample_has_no_fragments(self, client: TestClient) -> None:
+        sample = _SAMPLE_DIR / "minimal_greeter.json"
+        data = client.post(_URL, files=_upload(sample.read_bytes(), sample.name)).json()
+        assert data["fragment_ids"] == []
