@@ -13,6 +13,11 @@ class PresetRepository(BaseRepository[Preset]):
     def __init__(self, db: Session):
         super().__init__(db, Preset)
 
+    def find_by_name(self, name: str) -> Preset | None:
+        """Find a preset by its unique name"""
+        stmt = select(Preset).where(Preset.name == name)
+        return self.db.execute(stmt).scalars().first()
+
     def find_default(self) -> Preset | None:
         """Find the default preset"""
         stmt = select(Preset).where(Preset.is_default)

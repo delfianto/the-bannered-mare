@@ -1,10 +1,14 @@
 """Preset API endpoints"""
 
-from fastapi import APIRouter, Query, status
+from typing import Annotated
+
+from fastapi import APIRouter, File, Query, UploadFile, status
 
 from src.core.schemas import PaginatedResponse, PaginationMeta
 from src.preset.dependencies import PresetServiceDep
 from src.preset.schemas import PresetCreate, PresetResponse, PresetUpdate
+from src.st_import.dependencies import STImportServiceDep
+from src.st_import.schemas import STImportResult
 
 router = APIRouter(prefix="/api/presets", tags=["presets"])
 
@@ -39,6 +43,20 @@ def create_preset(
         parameters=body.parameters,
         is_default=body.is_default,
     )
+
+
+@router.post("/import", response_model=STImportResult, status_code=status.HTTP_201_CREATED)
+async def import_st_preset(
+    service: STImportServiceDep,
+    file: Annotated[UploadFile, File(description="SillyTavern chat-completion preset .json")],
+) -> STImportResult:
+    """Import a SillyTavern chat-completion preset.
+
+    Maps the prompt structure to a PromptTemplate + fragments and, when sampler
+    settings are present, a Preset. Returns what was created plus warnings for
+    anything that did not transfer cleanly.
+    """
+    return await service.import_preset(file)
 
 
 @router.get("/{preset_id}", response_model=PresetResponse)

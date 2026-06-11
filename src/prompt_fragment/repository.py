@@ -13,6 +13,11 @@ class FragmentRepository(BaseRepository[PromptFragment]):
     def __init__(self, db: Session):
         super().__init__(db, PromptFragment)
 
+    def find_by_name(self, name: str) -> PromptFragment | None:
+        """Find a fragment by its unique name"""
+        stmt = select(PromptFragment).where(PromptFragment.name == name)
+        return self.db.execute(stmt).scalars().first()
+
     def find_all_ordered(self) -> list[PromptFragment]:
         """Find all fragments ordered by creation date"""
         stmt = select(PromptFragment).order_by(PromptFragment.created_at.desc())
