@@ -1,53 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { client } from "@/api/client";
+import type { components } from "@/api/schema";
 
 const { t } = useI18n();
 
-// ── Types ──────────────────────────────────────────────────
-interface HttpLog {
-  id: string;
-  method: string;
-  path: string;
-  status_code: number;
-  duration_ms: number;
-  timestamp: string;
-  request_id: string;
-}
-
-interface LlmLog {
-  id: string;
-  provider: string;
-  model: string;
-  chat_id: string;
-  status: string;
-  input_tokens: number;
-  output_tokens: number;
-  total_tokens: number;
-  duration_ms: number;
-  timestamp: string;
-  error?: string;
-}
-
-interface LlmStats {
-  total_requests: number;
-  successful: number;
-  failed: number;
-  total_input_tokens: number;
-  total_output_tokens: number;
-  total_tokens: number;
-  avg_duration_ms: number;
-  by_provider: Record<string, { requests: number; tokens: number }>;
-}
-
-interface ErrorLog {
-  id: string;
-  error_type: string;
-  message: string;
-  path: string;
-  timestamp: string;
-  stack_trace: string;
-}
+// ── Types (generated from the backend OpenAPI spec) ────────
+type HttpLog = components["schemas"]["HttpLogResponse"];
+type LlmLog = components["schemas"]["LlmAuditLogResponse"];
+type LlmStats = components["schemas"]["LlmStatsResponse"];
+type UsageStat = components["schemas"]["LlmUsageStat"];
+type ErrorLog = components["schemas"]["ErrorLogResponse"];
 
 // ── State ──────────────────────────────────────────────────
 const activeSubTab = ref<"http" | "llm" | "errors">("http");
@@ -68,7 +32,12 @@ function formatTokens(n: number): string {
 
 function formatDuration(ms: number): string {
   if (ms >= 1_000) return `${(ms / 1_000).toFixed(2)}s`;
-  return `${ms}ms`;
+  return `${Math.round(ms)}ms`;
+}
+
+function formatCost(usd: number | null | undefined): string {
+  if (!usd) return "$0";
+  return usd >= 1 ? `$${usd.toFixed(2)}` : `$${usd.toFixed(4)}`;
 }
 
 function formatTimestamp(iso: string): string {
@@ -101,46 +70,63 @@ const providerColors: Record<string, string> = {
 };
 
 // ── Computed ───────────────────────────────────────────────
+// The spec returns per provider+model rows; aggregate them for the summary cards.
+const aggregate = computed(() => {
+  const rows = llmStats.value?.stats ?? [];
+  const sum = (pick: (r: UsageStat) => number | null | undefined) =>
+    rows.reduce((acc, r) => acc + (pick(r) ?? 0), 0);
+  const calls = sum((r) => r.total_calls);
+  const weightedLatency = rows.reduce((acc, r) => acc + r.avg_latency_ms * r.total_calls, 0);
+  return {
+    requests: calls,
+    success: sum((r) => r.success_count),
+    tokens: sum((r) => r.total_tokens),
+    cost: sum((r) => r.total_cost_usd),
+    avgLatency: calls ? weightedLatency / calls : 0,
+  };
+});
+
 const successRate = computed(() => {
-  if (!llmStats.value) return "0";
-  return ((llmStats.value.successful / llmStats.value.total_requests) * 100).toFixed(1);
+  const { requests, success } = aggregate.value;
+  return requests ? ((success / requests) * 100).toFixed(1) : "0";
 });
 
 const statCards = computed(() => {
   if (!llmStats.value) return [];
+  const a = aggregate.value;
   return [
-    { label: t('settings.logs.totalRequests'), value: String(llmStats.value.total_requests), icon: "i-lucide-activity" },
-    { label: t('settings.logs.totalTokens'), value: formatTokens(llmStats.value.total_tokens), icon: "i-lucide-coins" },
+    { label: t('settings.logs.totalRequests'), value: String(a.requests), icon: "i-lucide-activity" },
+    { label: t('settings.logs.totalTokens'), value: formatTokens(a.tokens), icon: "i-lucide-coins" },
     { label: t('settings.logs.successRate'), value: `${successRate.value}%`, icon: "i-lucide-check-circle" },
-    { label: t('settings.logs.avgLatency'), value: formatDuration(llmStats.value.avg_duration_ms), icon: "i-lucide-timer" },
+    { label: t('settings.logs.avgLatency'), value: formatDuration(a.avgLatency), icon: "i-lucide-timer" },
   ];
 });
 
-const providerEntries = computed(() => {
-  if (!llmStats.value) return [];
-  return Object.entries(llmStats.value.by_provider).map(([name, data]) => ({
-    name,
-    requests: data.requests,
-    tokens: formatTokens(data.tokens),
-  }));
-});
+// Per provider+model usage rows, busiest first.
+const usageRows = computed(() =>
+  [...(llmStats.value?.stats ?? [])].sort((a, b) => b.total_calls - a.total_calls),
+);
+
+function rowSuccessRate(r: UsageStat): number {
+  return r.total_calls ? Math.round((r.success_count / r.total_calls) * 100) : 0;
+}
 
 // ── Fetch ──────────────────────────────────────────────────
 async function fetchAll() {
   loading.value = true;
   try {
     const [httpRes, llmRes, statsRes, errRes] = await Promise.all([
-      fetch("/admin/logs/http?limit=50"),
-      fetch("/admin/logs/llm?limit=50"),
-      fetch("/admin/logs/llm/stats"),
-      fetch("/admin/logs/errors?limit=50"),
+      client.GET("/admin/logs/http", { params: { query: { limit: 50 } } }),
+      client.GET("/admin/logs/llm", { params: { query: { limit: 50 } } }),
+      client.GET("/admin/logs/llm/stats"),
+      client.GET("/admin/logs/errors", { params: { query: { limit: 50 } } }),
     ]);
-    httpLogs.value = await httpRes.json();
-    llmLogs.value = await llmRes.json();
-    llmStats.value = await statsRes.json();
-    errorLogs.value = await errRes.json();
+    httpLogs.value = httpRes.data?.logs ?? [];
+    llmLogs.value = llmRes.data?.logs ?? [];
+    llmStats.value = statsRes.data ?? null;
+    errorLogs.value = errRes.data?.logs ?? [];
   } catch {
-    // silently handle — MSW may not be ready
+    // silently handle — backend/mocks may be unavailable
   } finally {
     loading.value = false;
   }
@@ -186,17 +172,37 @@ onMounted(fetchAll);
           </div>
         </div>
 
-        <!-- Provider Breakdown -->
-        <div v-if="providerEntries.length" class="mt-3 flex flex-wrap items-center gap-2">
+        <!-- Per provider + model breakdown -->
+        <div v-if="usageRows.length" class="mt-3 space-y-1.5">
           <span class="text-xs text-muted-foreground">{{ $t('settings.logs.byProvider') }}</span>
-          <span
-            v-for="prov in providerEntries"
-            :key="prov.name"
-            class="rounded-full px-2.5 py-0.5 text-[10px] font-medium capitalize tracking-wide"
-            :class="providerColors[prov.name] ?? 'bg-muted text-muted-foreground'"
+          <div
+            v-for="row in usageRows"
+            :key="`${row.provider}/${row.model}`"
+            class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-3 py-2"
           >
-            {{ prov.name }} &middot; {{ prov.requests }} req &middot; {{ prov.tokens }} tokens
-          </span>
+            <span
+              class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+              :class="providerColors[row.provider] ?? 'bg-muted text-muted-foreground'"
+            >
+              {{ row.provider }}
+            </span>
+            <span class="font-mono text-xs text-foreground">{{ row.model }}</span>
+            <span class="flex-1" />
+            <span class="text-xs text-muted-foreground">{{ row.total_calls }} calls</span>
+            <span class="text-xs text-muted-foreground">{{ formatTokens(row.total_tokens) }} tokens</span>
+            <span class="text-xs text-muted-foreground">{{ formatCost(row.total_cost_usd) }}</span>
+            <span class="text-xs text-muted-foreground">{{ formatDuration(row.avg_latency_ms) }}</span>
+            <span
+              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
+              :class="
+                rowSuccessRate(row) >= 95
+                  ? 'bg-emerald-500/10 text-emerald-500'
+                  : 'bg-amber-500/10 text-amber-500'
+              "
+            >
+              {{ rowSuccessRate(row) }}% ok
+            </span>
+          </div>
         </div>
       </section>
 
@@ -260,14 +266,14 @@ onMounted(fetchAll);
           <!-- Spacer -->
           <span class="flex-1" />
 
-          <!-- Duration -->
-          <span class="text-xs text-muted-foreground">{{ formatDuration(log.duration_ms) }}</span>
+          <!-- Latency -->
+          <span class="text-xs text-muted-foreground">{{ formatDuration(log.latency_ms) }}</span>
 
           <!-- Request ID -->
           <span class="font-mono text-[10px] text-muted-foreground/60">{{ log.request_id }}</span>
 
           <!-- Timestamp -->
-          <span class="text-xs text-muted-foreground">{{ formatTimestamp(log.timestamp) }}</span>
+          <span class="text-xs text-muted-foreground">{{ formatTimestamp(log.created_at) }}</span>
         </div>
       </section>
 
@@ -310,19 +316,24 @@ onMounted(fetchAll);
 
             <!-- Tokens -->
             <span class="text-xs text-muted-foreground">
-              {{ formatTokens(log.input_tokens) }} in / {{ formatTokens(log.output_tokens) }} out
+              {{ formatTokens(log.prompt_tokens) }} in / {{ formatTokens(log.completion_tokens) }} out
             </span>
 
-            <!-- Duration -->
-            <span class="text-xs text-muted-foreground">{{ formatDuration(log.duration_ms) }}</span>
+            <!-- Cost -->
+            <span v-if="log.estimated_cost_usd" class="text-xs text-muted-foreground">
+              {{ formatCost(log.estimated_cost_usd) }}
+            </span>
+
+            <!-- Latency -->
+            <span class="text-xs text-muted-foreground">{{ formatDuration(log.latency_ms) }}</span>
 
             <!-- Timestamp -->
-            <span class="text-xs text-muted-foreground">{{ formatTimestamp(log.timestamp) }}</span>
+            <span class="text-xs text-muted-foreground">{{ formatTimestamp(log.created_at) }}</span>
           </div>
 
           <!-- Error message -->
-          <p v-if="log.error" class="mt-1.5 text-xs text-red-500">
-            {{ log.error }}
+          <p v-if="log.error_message" class="mt-1.5 text-xs text-red-500">
+            {{ log.error_message }}
           </p>
         </div>
       </section>
@@ -354,11 +365,8 @@ onMounted(fetchAll);
             <!-- Spacer -->
             <span class="flex-1" />
 
-            <!-- Path -->
-            <span class="font-mono text-xs text-muted-foreground">{{ err.path }}</span>
-
             <!-- Timestamp -->
-            <span class="text-xs text-muted-foreground">{{ formatTimestamp(err.timestamp) }}</span>
+            <span class="text-xs text-muted-foreground">{{ formatTimestamp(err.created_at) }}</span>
 
             <!-- Expand indicator -->
             <UIcon
@@ -368,11 +376,17 @@ onMounted(fetchAll);
             />
           </button>
 
-          <!-- Stack trace (expandable) -->
-          <pre
-            v-if="expandedErrors.has(err.id)"
-            class="mt-3 overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-          >{{ err.stack_trace }}</pre>
+          <!-- Stack trace + context (expandable) -->
+          <div v-if="expandedErrors.has(err.id)" class="mt-3 space-y-2">
+            <pre
+              v-if="err.stack_trace"
+              class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
+            >{{ err.stack_trace }}</pre>
+            <pre
+              v-if="Object.keys(err.context).length"
+              class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
+            >{{ JSON.stringify(err.context, null, 2) }}</pre>
+          </div>
         </div>
       </section>
     </template>

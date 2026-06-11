@@ -1343,20 +1343,20 @@ export const handlers = [
     const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
 
     const allLogs = [
-      { id: "log-1", method: "GET", path: "/api/characters", status_code: 200, duration_ms: 45, timestamp: "2026-04-07T10:30:00Z", request_id: "req-abc123" },
-      { id: "log-2", method: "POST", path: "/api/chats/chat-1/messages", status_code: 200, duration_ms: 2340, timestamp: "2026-04-07T10:29:00Z", request_id: "req-def456" },
-      { id: "log-3", method: "GET", path: "/api/models", status_code: 200, duration_ms: 12, timestamp: "2026-04-07T10:28:00Z", request_id: "req-ghi789" },
-      { id: "log-4", method: "PUT", path: "/api/characters/char-1", status_code: 200, duration_ms: 89, timestamp: "2026-04-07T10:25:00Z", request_id: "req-jkl012" },
-      { id: "log-5", method: "GET", path: "/api/chats", status_code: 200, duration_ms: 23, timestamp: "2026-04-07T10:20:00Z", request_id: "req-mno345" },
-      { id: "log-6", method: "DELETE", path: "/api/chats/chat-5", status_code: 204, duration_ms: 34, timestamp: "2026-04-07T10:18:00Z", request_id: "req-pqr678" },
-      { id: "log-7", method: "POST", path: "/api/characters", status_code: 201, duration_ms: 156, timestamp: "2026-04-07T10:15:00Z", request_id: "req-stu901" },
-      { id: "log-8", method: "GET", path: "/api/providers", status_code: 200, duration_ms: 8, timestamp: "2026-04-07T10:12:00Z", request_id: "req-vwx234" },
-      { id: "log-9", method: "PUT", path: "/api/models/model-1", status_code: 200, duration_ms: 67, timestamp: "2026-04-07T10:10:00Z", request_id: "req-yza567" },
-      { id: "log-10", method: "GET", path: "/api/chats/chat-1/messages", status_code: 200, duration_ms: 112, timestamp: "2026-04-07T10:05:00Z", request_id: "req-bcd890" },
+      { id: "log-1", created_at: "2026-04-07T10:30:00Z", request_id: "req-abc123", method: "GET", path: "/api/characters", status_code: 200, latency_ms: 45, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-2", created_at: "2026-04-07T10:29:00Z", request_id: "req-def456", method: "POST", path: "/api/chats/chat-1/messages", status_code: 200, latency_ms: 2340, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: { stream: true }, response_body: null },
+      { id: "log-3", created_at: "2026-04-07T10:28:00Z", request_id: "req-ghi789", method: "GET", path: "/api/models", status_code: 200, latency_ms: 12, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-4", created_at: "2026-04-07T10:25:00Z", request_id: "req-jkl012", method: "PUT", path: "/api/characters/char-1", status_code: 200, latency_ms: 89, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-5", created_at: "2026-04-07T10:20:00Z", request_id: "req-mno345", method: "GET", path: "/api/chats", status_code: 200, latency_ms: 23, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-6", created_at: "2026-04-07T10:18:00Z", request_id: "req-pqr678", method: "DELETE", path: "/api/chats/chat-5", status_code: 204, latency_ms: 34, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-7", created_at: "2026-04-07T10:15:00Z", request_id: "req-stu901", method: "POST", path: "/api/characters", status_code: 201, latency_ms: 156, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-8", created_at: "2026-04-07T10:12:00Z", request_id: "req-vwx234", method: "GET", path: "/api/providers", status_code: 200, latency_ms: 8, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-9", created_at: "2026-04-07T10:10:00Z", request_id: "req-yza567", method: "PUT", path: "/api/models/model-1", status_code: 200, latency_ms: 67, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      { id: "log-10", created_at: "2026-04-07T10:05:00Z", request_id: "req-bcd890", method: "GET", path: "/api/chats/chat-1/messages", status_code: 200, latency_ms: 112, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
     ];
 
     await delay(150);
-    return HttpResponse.json(allLogs.slice(skip, skip + limit));
+    return HttpResponse.json({ logs: allLogs.slice(skip, skip + limit), total: allLogs.length, limit, skip });
   }),
 
   http.get("/admin/logs/llm", async ({ request }) => {
@@ -1365,33 +1365,27 @@ export const handlers = [
     const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
 
     const allLogs = [
-      { id: "llm-1", provider: "anthropic", model: "claude-4.6-sonnet", chat_id: "chat-1", status: "success", input_tokens: 1250, output_tokens: 430, total_tokens: 1680, duration_ms: 2340, timestamp: "2026-04-07T10:29:00Z" },
-      { id: "llm-2", provider: "openai", model: "gpt-4o", chat_id: "chat-2", status: "success", input_tokens: 890, output_tokens: 320, total_tokens: 1210, duration_ms: 1560, timestamp: "2026-04-07T10:25:00Z" },
-      { id: "llm-3", provider: "google", model: "gemini-2.5-flash", chat_id: "chat-3", status: "success", input_tokens: 2100, output_tokens: 680, total_tokens: 2780, duration_ms: 890, timestamp: "2026-04-07T10:20:00Z" },
-      { id: "llm-4", provider: "anthropic", model: "claude-4.5-haiku", chat_id: "chat-1", status: "error", input_tokens: 500, output_tokens: 0, total_tokens: 500, duration_ms: 5000, timestamp: "2026-04-07T10:15:00Z", error: "Rate limit exceeded" },
-      { id: "llm-5", provider: "xai", model: "grok-4.20", chat_id: "chat-4", status: "success", input_tokens: 1800, output_tokens: 550, total_tokens: 2350, duration_ms: 1200, timestamp: "2026-04-07T10:10:00Z" },
+      { id: "llm-1", created_at: "2026-04-07T10:29:00Z", chat_id: "chat-1", provider: "anthropic", model: "claude-4.6-sonnet", prompt_tokens: 1250, completion_tokens: 430, total_tokens: 1680, latency_ms: 2340, status: "success", estimated_cost_usd: 0.0252, error_message: null, request_payload: [], response_payload: null },
+      { id: "llm-2", created_at: "2026-04-07T10:25:00Z", chat_id: "chat-2", provider: "openai", model: "gpt-4o", prompt_tokens: 890, completion_tokens: 320, total_tokens: 1210, latency_ms: 1560, status: "success", estimated_cost_usd: 0.0151, error_message: null, request_payload: [], response_payload: null },
+      { id: "llm-3", created_at: "2026-04-07T10:20:00Z", chat_id: "chat-3", provider: "google", model: "gemini-2.5-flash", prompt_tokens: 2100, completion_tokens: 680, total_tokens: 2780, latency_ms: 890, status: "success", estimated_cost_usd: 0.0042, error_message: null, request_payload: [], response_payload: null },
+      { id: "llm-4", created_at: "2026-04-07T10:15:00Z", chat_id: "chat-1", provider: "anthropic", model: "claude-4.5-haiku", prompt_tokens: 500, completion_tokens: 0, total_tokens: 500, latency_ms: 5000, status: "error", estimated_cost_usd: null, error_message: "Rate limit exceeded", request_payload: [], response_payload: null },
+      { id: "llm-5", created_at: "2026-04-07T10:10:00Z", chat_id: "chat-4", provider: "xai", model: "grok-4.20", prompt_tokens: 1800, completion_tokens: 550, total_tokens: 2350, latency_ms: 1200, status: "success", estimated_cost_usd: 0.0188, error_message: null, request_payload: [], response_payload: null },
     ];
 
     await delay(150);
-    return HttpResponse.json(allLogs.slice(skip, skip + limit));
+    return HttpResponse.json({ logs: allLogs.slice(skip, skip + limit), total: allLogs.length, limit, skip });
   }),
 
   http.get("/admin/logs/llm/stats", async () => {
     await delay(150);
     return HttpResponse.json({
-      total_requests: 142,
-      successful: 138,
-      failed: 4,
-      total_input_tokens: 185000,
-      total_output_tokens: 62000,
-      total_tokens: 247000,
-      avg_duration_ms: 1450,
-      by_provider: {
-        anthropic: { requests: 68, tokens: 120000 },
-        openai: { requests: 42, tokens: 78000 },
-        google: { requests: 20, tokens: 35000 },
-        xai: { requests: 12, tokens: 14000 },
-      },
+      stats: [
+        { provider: "anthropic", model: "claude-4.6-sonnet", total_calls: 68, total_prompt_tokens: 90000, total_completion_tokens: 30000, total_tokens: 120000, total_cost_usd: 1.85, avg_latency_ms: 1400, success_count: 66, error_count: 2, success_rate: 0.97 },
+        { provider: "openai", model: "gpt-4o", total_calls: 42, total_prompt_tokens: 58000, total_completion_tokens: 20000, total_tokens: 78000, total_cost_usd: 1.2, avg_latency_ms: 1560, success_count: 41, error_count: 1, success_rate: 0.976 },
+        { provider: "google", model: "gemini-2.5-flash", total_calls: 20, total_prompt_tokens: 26000, total_completion_tokens: 9000, total_tokens: 35000, total_cost_usd: 0.18, avg_latency_ms: 890, success_count: 20, error_count: 0, success_rate: 1.0 },
+        { provider: "xai", model: "grok-4.20", total_calls: 12, total_prompt_tokens: 10500, total_completion_tokens: 3500, total_tokens: 14000, total_cost_usd: 0.22, avg_latency_ms: 1200, success_count: 11, error_count: 1, success_rate: 0.917 },
+      ],
+      period: { start_date: "2026-04-01T00:00:00Z", end_date: "2026-04-07T23:59:59Z" },
     });
   }),
 
@@ -1401,13 +1395,13 @@ export const handlers = [
     const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
 
     const allErrors = [
-      { id: "err-1", error_type: "ProviderError", message: "Rate limit exceeded for Anthropic API", path: "/api/chats/chat-1/messages", timestamp: "2026-04-07T10:15:00Z", stack_trace: "ProviderError: 429 Too Many Requests\n  at AnthropicAdapter.send()\n  at ProviderGateway.complete()" },
-      { id: "err-2", error_type: "TimeoutError", message: "Request timed out after 30s", path: "/api/chats/chat-3/messages", timestamp: "2026-04-06T22:45:00Z", stack_trace: "TimeoutError: Operation timed out\n  at ProviderGateway.complete()" },
-      { id: "err-3", error_type: "ValidationError", message: "Invalid model_family_id", path: "/api/models", timestamp: "2026-04-06T18:30:00Z", stack_trace: "ValidationError: Foreign key constraint failed" },
+      { id: "err-1", created_at: "2026-04-07T10:15:00Z", error_type: "ProviderError", message: "Rate limit exceeded for Anthropic API", stack_trace: "ProviderError: 429 Too Many Requests\n  at AnthropicAdapter.send()\n  at ProviderGateway.complete()", context: { path: "/api/chats/chat-1/messages", request_id: "req-def456", provider: "anthropic" } },
+      { id: "err-2", created_at: "2026-04-06T22:45:00Z", error_type: "TimeoutError", message: "Request timed out after 30s", stack_trace: "TimeoutError: Operation timed out\n  at ProviderGateway.complete()", context: { path: "/api/chats/chat-3/messages", request_id: "req-ghi789" } },
+      { id: "err-3", created_at: "2026-04-06T18:30:00Z", error_type: "ValidationError", message: "Invalid model_family_id", stack_trace: "ValidationError: Foreign key constraint failed", context: { path: "/api/models" } },
     ];
 
     await delay(150);
-    return HttpResponse.json(allErrors.slice(skip, skip + limit));
+    return HttpResponse.json({ logs: allErrors.slice(skip, skip + limit), total: allErrors.length, limit, skip });
   }),
 
   // ── Bookmarks ────────────────────────────────────────────

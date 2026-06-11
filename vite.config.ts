@@ -43,6 +43,11 @@ export default defineConfig(({ command }) => {
             target: "http://localhost:8000",
             changeOrigin: true,
           },
+          // Admin/observability endpoints live at the server root, not under /api
+          "/admin": {
+            target: "http://localhost:8000",
+            changeOrigin: true,
+          },
         },
   },
 })});

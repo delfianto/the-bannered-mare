@@ -1304,7 +1304,6 @@ export interface components {
         Body_import_character_api_characters_import_post: {
             /**
              * File
-             * Format: binary
              * @description PNG or JSON character card file
              */
             file: string;
@@ -1595,6 +1594,43 @@ export interface components {
             scope?: string | null;
         };
         /**
+         * ErrorLogPage
+         * @description Paginated error logs
+         */
+        ErrorLogPage: {
+            /** Logs */
+            logs: components["schemas"]["ErrorLogResponse"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Skip */
+            skip: number;
+        };
+        /**
+         * ErrorLogResponse
+         * @description A single error audit record
+         */
+        ErrorLogResponse: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Error Type */
+            error_type: string;
+            /** Message */
+            message: string;
+            /** Stack Trace */
+            stack_trace: string | null;
+            /** Context */
+            context: {
+                [key: string]: unknown;
+            };
+        };
+        /**
          * FragmentCreate
          * @description Schema for creating a prompt fragment
          */
@@ -1684,11 +1720,155 @@ export interface components {
             detail?: components["schemas"]["ValidationError"][];
         };
         /**
+         * HttpLogPage
+         * @description Paginated HTTP logs
+         */
+        HttpLogPage: {
+            /** Logs */
+            logs: components["schemas"]["HttpLogResponse"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Skip */
+            skip: number;
+        };
+        /**
+         * HttpLogResponse
+         * @description A single HTTP request audit record
+         */
+        HttpLogResponse: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Request Id */
+            request_id: string;
+            /** Method */
+            method: string;
+            /** Path */
+            path: string;
+            /** Status Code */
+            status_code: number;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Client Ip */
+            client_ip: string | null;
+            /** User Agent */
+            user_agent: string | null;
+            /** Request Body */
+            request_body: {
+                [key: string]: unknown;
+            } | null;
+            /** Response Body */
+            response_body: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /**
          * InsertionPosition
          * @description Where activated lore entries are injected into the prompt
          * @enum {string}
          */
         InsertionPosition: "before_character" | "after_character" | "at_depth" | "before_examples";
+        /**
+         * LlmAuditLogPage
+         * @description Paginated LLM audit logs
+         */
+        LlmAuditLogPage: {
+            /** Logs */
+            logs: components["schemas"]["LlmAuditLogResponse"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Skip */
+            skip: number;
+        };
+        /**
+         * LlmAuditLogResponse
+         * @description A single LLM audit record
+         */
+        LlmAuditLogResponse: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Chat Id */
+            chat_id: string | null;
+            /** Provider */
+            provider: string;
+            /** Model */
+            model: string;
+            /** Prompt Tokens */
+            prompt_tokens: number;
+            /** Completion Tokens */
+            completion_tokens: number;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Status */
+            status: string;
+            /** Estimated Cost Usd */
+            estimated_cost_usd: number | null;
+            /** Error Message */
+            error_message: string | null;
+            /** Request Payload */
+            request_payload: {
+                [key: string]: unknown;
+            }[];
+            /** Response Payload */
+            response_payload: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /**
+         * LlmStatsResponse
+         * @description LLM usage stats over an optional time window
+         */
+        LlmStatsResponse: {
+            /** Stats */
+            stats: components["schemas"]["LlmUsageStat"][];
+            /** Period */
+            period: {
+                [key: string]: string | null;
+            };
+        };
+        /**
+         * LlmUsageStat
+         * @description Aggregated usage stats for one provider/model pair
+         */
+        LlmUsageStat: {
+            /** Provider */
+            provider: string;
+            /** Model */
+            model: string;
+            /** Total Calls */
+            total_calls: number;
+            /** Total Prompt Tokens */
+            total_prompt_tokens: number;
+            /** Total Completion Tokens */
+            total_completion_tokens: number;
+            /** Total Tokens */
+            total_tokens: number;
+            /** Total Cost Usd */
+            total_cost_usd: number | null;
+            /** Avg Latency Ms */
+            avg_latency_ms: number;
+            /** Success Count */
+            success_count: number;
+            /** Error Count */
+            error_count: number;
+            /** Success Rate */
+            success_rate: number;
+        };
         /**
          * LoreEntryCreate
          * @description Schema for creating a lore entry
@@ -2970,6 +3150,10 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -3002,9 +3186,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["HttpLogPage"];
                 };
             };
             /** @description Validation Error */
@@ -3040,9 +3222,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["LlmAuditLogPage"];
                 };
             };
             /** @description Validation Error */
@@ -3074,9 +3254,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["LlmStatsResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3109,9 +3287,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ErrorLogPage"];
                 };
             };
             /** @description Validation Error */
