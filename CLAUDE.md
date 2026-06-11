@@ -199,12 +199,14 @@ Fixtures in `src/mocks/data/` mirror the backend seed data: **6 providers**, **1
 
 ### 5.3 Local Claude Code Environment
 
-This project version-controls a shared `.claude/settings.json` (permissions + hooks), mirroring `../candlekeep-core`:
+This project version-controls a shared `.claude/` setup, mirroring `../candlekeep-core`:
 
-- **Permissions:** an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`).
-- **Hooks:** `block-git-write` (PreToolUse — gates `git commit`/`push`), `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix` on edited source files, skips generated files), `typecheck` (Stop — `vue-tsc --noEmit` gate), `session-context` (SessionStart — anchors the stack). The hooks prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell.
+- **Permissions** (`settings.json`): an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). **`git commit`/`push` are deliberately not pre-allowed** — they're governed by §2.1 (no commits unless asked) plus the default permission prompt. Opt out of that prompt per-machine by adding them to `settings.local.json`'s `allow` (rules merge and evaluate deny→ask→allow, so a local `allow` only works because there's no competing project `ask`/hook for them).
+- **Hooks** (`.claude/hooks/`): `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix` on edited source files, skips generated files), `typecheck` (Stop — `vue-tsc --noEmit` gate), `session-context` (SessionStart — anchors the stack). They prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell.
+- **Skills** (`.claude/skills/`): `sync-schema`, `new-msw-handler`, `new-component`, `new-composable`, and the vendored `superdesign` — all tracked, so a fresh clone picks them up.
+- **MCP** (`.mcp.json`): the Nuxt UI MCP (`nuxt-ui` → `https://ui.nuxt.com/mcp`), pre-approved via `enabledMcpjsonServers`.
 
-Machine-local and **gitignored** (don't rely on them on a fresh checkout): `.claude/settings.local.json` (personal allowlist) and `.claude/skills/`.
+Only `.claude/settings.local.json` (personal allowlist) is **gitignored**.
 
 Vite+ can also wire up agent/editor integration via `vp migrate --agent` / `vp config`; this project drives that through the files above instead, so the migration was run with `--no-agent --no-editor --no-hooks`.
 
