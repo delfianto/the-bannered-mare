@@ -43,6 +43,7 @@ env.d.ts
 vite.config.d.ts
 vite.config.js
 
-# Claude Code — track settings.json + hooks/, ignore per-machine local files
+# Claude Code — track settings.json, hooks/, and custom project skills;
+# ignore per-machine local files and the vendored upstream superdesign skill
 .claude/settings.local.json
-.claude/skills/
+.claude/skills/superdesign/
