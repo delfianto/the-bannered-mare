@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# PostToolUse(Edit|Write|MultiEdit): auto-format and lint-fix the edited file.
-# Silent and non-blocking — keeps the tree clean without prompting.
+# PostToolUse(Edit|Write|MultiEdit): auto-format and lint-fix the edited file
+# through the Vite+ (vp) toolchain. Silent and non-blocking.
 set -euo pipefail
 
 input=$(cat)
@@ -15,23 +15,25 @@ case "$file" in
   */src/api/schema.d.ts) exit 0 ;;
 esac
 
-proj="${CLAUDE_PROJECT_DIR:-$(pwd)}"
-
-# Formatter — oxfmt is a standalone binary resolved from PATH.
+# Only touch source files the toolchain understands.
 case "$file" in
-  *.vue|*.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.css)
-    if command -v oxfmt >/dev/null 2>&1; then
-      oxfmt "$file" >/dev/null 2>&1 || true
-    fi
-    ;;
+  *.vue|*.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.css) ;;
+  *) exit 0 ;;
 esac
 
-# Linter with autofix — JS/TS/Vue only (prefer the project-local binary).
-oxlint="$proj/node_modules/.bin/oxlint"
-[ -x "$oxlint" ] || oxlint="oxlint"
+cd "${CLAUDE_PROJECT_DIR:-$(pwd)}" || exit 0
+
+# Hooks run in a fresh shell that doesn't source the interactive profile;
+# make sure the vp binary is reachable before using it.
+export PATH="$HOME/.vite-plus/bin:$PATH"
+command -v vp >/dev/null 2>&1 || exit 0
+
+vp fmt "$file" --write >/dev/null 2>&1 || true
+
+# Lint autofix for JS/TS/Vue (not CSS).
 case "$file" in
   *.vue|*.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs)
-    "$oxlint" --fix "$file" >/dev/null 2>&1 || true
+    vp lint "$file" --fix >/dev/null 2>&1 || true
     ;;
 esac
 

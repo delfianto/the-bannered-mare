@@ -76,9 +76,10 @@ src/
 
 ### 4.1 Core Stack
 
-- **Runtime / Package Manager:** Bun (`bun install`, `bun run dev`, `bun run build`)
+- **Toolchain:** Vite+ — the `vp` unified CLI from VoidZero (`vp dev`, `vp build`, `vp check`). Wraps the whole Rust stack below.
+- **Package Manager:** Bun (managed by `vp`; `vp install`, or `bun install` directly)
 - **Framework:** Vue 3.5 — always `<script setup lang="ts">` Composition API
-- **Build Tool:** Vite 8
+- **Build Bundler:** Vite 8 powered by Rolldown (Rust); Oxc transforms + Lightning CSS minify
 - **Language:** TypeScript 6 (strict mode)
 - **UI Library:** Nuxt UI v4 via the Vite plugin (`@nuxt/ui/vite`) — **NOT** Nuxt.js
 - **Styling:** Tailwind CSS v4 with custom CSS variables
@@ -88,7 +89,7 @@ src/
 - **API Client:** openapi-fetch (typed against `src/api/schema.d.ts`)
 - **Mocking:** MSW (Mock Service Worker)
 - **Icons:** Lucide via `@iconify-json/lucide` — always `<UIcon name="i-lucide-*" />`
-- **Lint / Format:** oxlint / oxfmt
+- **Lint / Format:** Oxlint / Oxfmt, run through `vp lint` / `vp fmt` (provided by the Vite+ toolchain — no standalone devDeps)
 
 ### 4.2 Layered Responsibilities
 
@@ -163,26 +164,29 @@ You must fix **ALL** errors before considering a task complete.
 
 ```bash
 # Install / run
-bun install                  # Install deps
-bun run dev                  # Dev server (port 5173, --host enabled)
+vp install                   # Install deps (Bun under the hood)
+vp dev --host                # Dev server (port 5173)
 
 # Quality gates
-bun run lint                 # Lint with oxlint
-bun run fmt                  # Format with oxfmt (fmt:check to verify only)
-bun run typecheck            # Type check only (vue-tsc --noEmit)
-bun run build                # FINAL GATE: vue-tsc -b && vite build
+vp lint                      # Lint with Oxlint
+vp fmt .                     # Format with Oxfmt (vp fmt . --check to verify only)
+vp check                     # fmt + lint + type-check in one pass
+bun run typecheck            # Type-check only (vue-tsc --noEmit)
+bun run build                # FINAL GATE: vue-tsc -b && vp build
 
 # Schema
 bun run api:gen              # Regenerate schema.d.ts from backend openapi.json
 ```
 
-`bun run build` is the authoritative check — it runs `vue-tsc` (strict type check) followed by the production Vite build. A task is not done until it passes.
+`bun run build` (`vue-tsc -b && vp build`) is the authoritative check — strict Vue type-check followed by the production Rolldown build. A task is not done until it passes.
+
+> **vp on PATH:** the installer added `vp` to your shell profile (restart your terminal). It lives in `~/.vite-plus/bin`; if a script or hook can't find `vp`, prepend that directory to `PATH`. The Claude Code hooks do this themselves.
 
 #### MSW Mock Mode
 
 ```bash
-VITE_USE_MOCKS=true bun run dev                              # Enable MSW mocks (disables Vite proxy)
-VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true bun run dev      # + log API calls
+VITE_USE_MOCKS=true vp dev --host                            # Enable MSW mocks (disables Vite proxy)
+VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true vp dev --host    # + log API calls
 ```
 
 When `VITE_USE_MOCKS=true`, the Vite `/api` proxy is disabled so MSW's service worker intercepts browser fetch calls. Without it, requests proxy to `localhost:8000` (real backend).
@@ -195,12 +199,14 @@ Fixtures in `src/mocks/data/` mirror the backend seed data: **6 providers**, **1
 
 ### 5.3 Local Claude Code Environment
 
-Unlike `../candlekeep-core`, this project does **not** version-control a shared `.claude/settings.json` (no committed hooks or `enabledPlugins`). The `.claude/` directory is currently untracked and machine-local:
+This project version-controls a shared `.claude/settings.json` (permissions + hooks), mirroring `../candlekeep-core`:
 
-- `.claude/settings.local.json` — personal permission allowlist and skill overrides; machine-local, do not rely on it being present on a fresh checkout.
-- `.claude/skills/` — machine-local skill copies.
+- **Permissions:** an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`).
+- **Hooks:** `block-git-write` (PreToolUse — gates `git commit`/`push`), `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix` on edited source files, skips generated files), `typecheck` (Stop — `vue-tsc --noEmit` gate), `session-context` (SessionStart — anchors the stack). The hooks prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell.
 
-If shared automation is introduced later, mirror Core's approach: a tracked `.claude/settings.json` wiring up project hooks (oxlint, `vue-tsc`, a git-write guard) and any `enabledPlugins`, installed at **project scope** via the `/plugin` menu.
+Machine-local and **gitignored** (don't rely on them on a fresh checkout): `.claude/settings.local.json` (personal allowlist) and `.claude/skills/`.
+
+Vite+ can also wire up agent/editor integration via `vp migrate --agent` / `vp config`; this project drives that through the files above instead, so the migration was run with `--no-agent --no-editor --no-hooks`.
 
 ---
 
@@ -313,6 +319,5 @@ If the user asks for a step-by-step plan, output specifically using this format:
 
 ## Verification
 
-- [ ] Run `bun run typecheck`
-- [ ] Run `bun run lint`
-- [ ] Run `bun run build` (final gate)
+- [ ] Run `vp check` (format + lint + type)
+- [ ] Run `bun run build` (final gate — `vue-tsc -b && vp build`)

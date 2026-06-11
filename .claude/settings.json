@@ -52,6 +52,7 @@
       "Bash(tail:*)",
       "Bash(tree:*)",
       "Bash(vite:*)",
+      "Bash(vp:*)",
       "Bash(vue-tsc:*)",
       "Bash(wc:*)",
       "Read(//tmp/**)",

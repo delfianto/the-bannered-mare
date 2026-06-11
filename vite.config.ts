@@ -2,7 +2,7 @@ import Terminal from "vite-plugin-terminal";
 import ViteYaml from "@modyfi/vite-plugin-yaml";
 import ui from "@nuxt/ui/vite";
 import vue from "@vitejs/plugin-vue";
-import { defineConfig } from "vite";
+import { defineConfig } from "vite-plus";
 import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig(({ command }) => {
