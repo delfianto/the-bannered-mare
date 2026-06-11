@@ -1,0 +1,137 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./node_modules/.bin/oxlint:*)",
+      "Bash(./node_modules/.bin/vue-tsc:*)",
+      "Bash(VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true bun run dev:*)",
+      "Bash(VITE_USE_MOCKS=true bun run dev:*)",
+      "Bash(bun add:*)",
+      "Bash(bun install:*)",
+      "Bash(bun remove:*)",
+      "Bash(bun run:*)",
+      "Bash(bunx:*)",
+      "Bash(cat:*)",
+      "Bash(cd:*)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(gh api:*)",
+      "Bash(gh auth status:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue status:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr status:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh repo list:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh search:*)",
+      "Bash(gh workflow list:*)",
+      "Bash(gh workflow view:*)",
+      "Bash(git add:*)",
+      "Bash(git branch:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git stash list:*)",
+      "Bash(git status:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(kill:*)",
+      "Bash(ls:*)",
+      "Bash(lsof:*)",
+      "Bash(node:*)",
+      "Bash(oxfmt:*)",
+      "Bash(oxlint:*)",
+      "Bash(rg:*)",
+      "Bash(superdesign:*)",
+      "Bash(tail:*)",
+      "Bash(tree:*)",
+      "Bash(vite:*)",
+      "Bash(vue-tsc:*)",
+      "Bash(wc:*)",
+      "Read(//tmp/**)",
+      "WebFetch(domain:developer.mozilla.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:pinia.vuejs.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:router.vuejs.org)",
+      "WebFetch(domain:tailwindcss.com)",
+      "WebFetch(domain:ui.nuxt.com)",
+      "WebFetch(domain:vite.dev)",
+      "WebFetch(domain:vitejs.dev)",
+      "WebFetch(domain:vue-i18n.intlify.dev)",
+      "WebFetch(domain:vuejs.org)",
+      "WebSearch"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)",
+      "Bash(git restore:*)",
+      "Bash(git clean:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": [
+      "Bash(sudo:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(gh repo archive:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-git-write.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/format-fix.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck.sh",
+            "timeout": 180
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-context.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
