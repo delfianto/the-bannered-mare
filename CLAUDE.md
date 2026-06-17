@@ -11,6 +11,7 @@ Your goal is to build a fast, strictly typed, and component-driven SPA with a wa
 ### 2.1 Version Control & File Handling
 
 - **NO GIT COMMITS:** You do not have permission to commit code unless the user asked you to do so.
+- **Default Branch:** `main` is the default and only long-lived branch. PRs target `main`.
 - **File Retrieval:** Always read full file contents before editing. Do not rely on snippets or assumptions.
 - **Shell Check:** This machine runs **zsh** (macOS), not always BASH. Check the running shell before assuming syntax; use shell-specific syntax to avoid command failure.
 

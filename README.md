@@ -1,73 +1,108 @@
-# Project Context: Candlekeep UI
+# Candlekeep UI
 
-## Project Overview
+The web client for **Candlekeep** — an AI-powered platform for local Roleplay sessions using LLMs. Built as a fast, strictly typed Vue 3 SPA with a warm literary fantasy aesthetic (amber/gold, Cinzel headings, parchment tones).
 
-Candlekeep UI is a greenfield project built from scratch, aiming to deliver a modern, high-fidelity UI for Roleplay (RP) chat with Large Language Models (LLMs). It serves as the official frontend for [Candlekeep Core](https://github.com/delfianto/candlekeep-core/tree/develop), a Python-based backend. The project is build on top of Vue 3, Vite, and the `shadcn-vue` component library.
+Talks to [Candlekeep Core](https://github.com/delfianto/candlekeep-core), a FastAPI backend, via a typed `openapi-fetch` client.
 
 ## Tech Stack
 
-- **Framework:** [Vue 3](https://vuejs.org/) (Composition API)
-- **Build Tool:** [Vite](https://vitejs.dev/)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
-- **UI Library:** [shadcn-vue](https://www.shadcn-vue.com/) (New York style)
-- **State Management:** [Pinia](https://pinia.vuejs.org/)
-- **Routing:** [Vue Router](https://router.vuejs.org/)
-- **API Client:** `openapi-fetch` (Type-safe fetch client)
-- **Icons:** `lucide-vue-next`
-- **Linting/Formatting:** `oxlint`, `oxfmt`
-- **Mocking:** `msw` (Mock Service Worker)
+| Layer | Choice |
+|---|---|
+| Framework | Vue 3.5 — `<script setup lang="ts">` Composition API |
+| Toolchain | [Vite+](https://vite-plus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
+| Package Manager | Bun |
+| Language | TypeScript 6 (strict) |
+| UI Library | [Nuxt UI v4](https://ui.nuxt.com) via `@nuxt/ui/vite` — **not** Nuxt.js |
+| Styling | Tailwind CSS v4 with custom CSS variables |
+| State | Pinia (global) + composables (feature-scoped) |
+| Routing | Vue Router 5 |
+| i18n | vue-i18n |
+| API Client | openapi-fetch (typed against auto-generated `src/api/schema.d.ts`) |
+| Mocking | MSW (Mock Service Worker) |
+| Icons | Lucide via `@iconify-json/lucide` — `<UIcon name="i-lucide-*" />` |
+| Lint / Format | Oxlint / Oxfmt via `vp lint` / `vp fmt` |
 
-## Key Commands
+## Getting Started
 
-**Note: This project uses [Bun](https://bun.sh/) as the package manager. Always use `bun` instead of `npm`.**
+```bash
+# Install dependencies
+vp install
 
-### Development
+# Start dev server (proxies /api to localhost:8000)
+vp dev --host
 
-- **Start Dev Server:** `bun run dev` (Runs on port 5173 by default, proxies `/api` to `http://localhost:8000`)
+# Start with MSW mock data (no backend required)
+VITE_USE_MOCKS=true vp dev --host
+```
 
-- **Type Check:** `bun run typecheck`
+> **`vp` on PATH:** the Vite+ installer adds `vp` to your shell profile (`~/.vite-plus/bin`). Restart your terminal after installation.
 
-- **Lint Code:** `bun run lint`
+## Commands
 
-- **Format Code:** `bun run fmt`
+```bash
+# Development
+vp dev --host                # Dev server on port 5173
+vp install                   # Install deps (Bun under the hood)
 
-### Build
+# Quality gates
+vp check                     # fmt + lint + type-check in one pass
+vp lint                      # Lint with Oxlint
+vp fmt .                     # Format with Oxfmt
+bun run typecheck            # Type-check only (vue-tsc --noEmit)
+bun run build                # FINAL GATE: vue-tsc -b && vp build
 
-- **Build for Production:** `bun run build`
+# Schema
+bun run api:gen              # Regenerate src/api/schema.d.ts from backend openapi.json
+```
 
-- **Preview Production Build:** `bun run preview`
+`bun run build` is the authoritative quality gate — strict Vue type-check followed by the Rolldown production build.
 
-### API Management
+## Project Structure
 
-- **Generate API Schema:** `bun run api:gen`
-  - Re-generates `src/api/schema.d.ts` from `openapi.json`.
+```text
+src/
+├── api/                    # openapi-fetch client + auto-generated schema
+├── assets/                 # Tailwind entry, theme tokens, fonts, SVG icons
+├── components/
+│   ├── chat/               # Chat UI (MessageBubble, ParchmentInput, etc.)
+│   ├── connections/        # Connections tabs + recursive ParamInput
+│   ├── creator/            # Character creator form
+│   ├── discover/           # Character library grid/list + filters
+│   ├── layout/             # AppShell, AppSidebar
+│   ├── settings/           # Settings page tabs
+│   └── shared/             # Cross-feature reusable components
+├── composables/            # Feature-scoped state + API fetchers (use* prefix)
+├── constants/              # Static data (app info, categories, options)
+├── locales/                # vue-i18n translation catalogs
+├── mocks/
+│   ├── handlers.ts         # 40+ MSW request handlers
+│   └── data/               # Fixtures + YAML conversation scenarios
+├── router/                 # Vue Router 5 route definitions
+├── stores/                 # Pinia stores (settings, etc.)
+├── types/                  # Hand-written TypeScript definitions
+└── views/                  # Routed page components
+```
 
-  - Run this after updating the backend `openapi.json` file.
+## Architecture
 
-## Project Structure & Conventions
+Data flows **View → Component → Composable → API Client**. Each layer has a narrow responsibility:
 
-### Directory Structure
+- **View** (`views/`): compose components, wire composables, handle route params. No direct API calls.
+- **Component** (`components/`): presentation and interaction only. No API calls or store mutations.
+- **Composable** (`composables/use*.ts`): feature state, data fetching, orchestration.
+- **API Client** (`api/client.ts`): the only layer that speaks HTTP.
 
-- `src/api`: API client configuration and generated schemas.
-- `src/components/ui`: Reusable UI components (shadcn-vue). Do not modify these manually if possible; update via CLI or copy-paste from documentation.
-- `src/views`: Page-level components.
-- `src/lib`: Utility functions (`utils.ts`) and library configurations.
-- `src/assets`: Static assets and global styles (`main.css`).
+## Mock Mode
 
-### Aliases
+MSW intercepts all API calls in the browser when `VITE_USE_MOCKS=true`. Fixtures in `src/mocks/data/` include 6 providers, 34 models across 19 families, 20 Elder Scrolls–themed characters, 20 chats with YAML conversation scenarios, and more.
 
-- `@/` -> `src/` (e.g., `import Button from '@/components/ui/button/Button.vue'`)
+```bash
+VITE_USE_MOCKS=true vp dev --host                         # mock mode
+VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true vp dev --host # + log requests
+```
 
-### Coding Conventions
+MSW requires `localhost` or HTTPS. For remote access: `ssh -L 5173:localhost:5173 user@host`.
 
-- **Styling:** Use Tailwind CSS utility classes. Avoid custom CSS when possible.
-- **Components:** Use PascalCase for component filenames and usage (e.g., `<MyComponent />`).
-- **API Interaction:** Use the generated client in `src/api/client.ts` (implied) for type-safety.
-- **Store:** Use Pinia stores for global state.
+## Claude Code Setup
 
-## Configuration
-
-- **Vite Config:** `vite.config.ts` handles plugins (Vue, Tailwind) and the dev server proxy.
-- **Tailwind Config:** v4 configuration is largely handled via CSS imports and the `@tailwindcss/postcss` plugin.
-- **Components Config:** `components.json` manages `shadcn-vue` settings.
+A shared `.claude/` config is checked into the repo (permissions, hooks, skills, MCP). Personal overrides go in `.claude/settings.local.json` (gitignored). See `CLAUDE.md` for the full AI developer guide.
