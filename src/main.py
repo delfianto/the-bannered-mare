@@ -20,6 +20,7 @@ from src.model import router as models_router
 from src.model_family import router as model_families_router
 from src.persona import router as personas_router
 from src.preset import router as presets_router
+from src.profile import router as profiles_router
 from src.prompt_fragment import fragment_router as prompt_fragments_router
 from src.prompt_fragment import template_fragment_router as template_fragments_router
 from src.prompt_template import router as prompt_templates_router
@@ -76,6 +77,7 @@ app.include_router(chats_router)
 app.include_router(chat_messages_router)
 app.include_router(personas_router)
 app.include_router(presets_router)
+app.include_router(profiles_router)
 app.include_router(prompt_templates_router)
 app.include_router(prompt_fragments_router)
 app.include_router(template_fragments_router)

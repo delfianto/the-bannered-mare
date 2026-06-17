@@ -10,6 +10,7 @@ from src.character.repository import CharacterRepository
 from src.chat_session.models import Chat
 from src.chat_session.repository import ChatRepository
 from src.model.repository import ModelRepository
+from src.profile.repository import ProfileRepository
 
 
 class ChatService:
@@ -20,10 +21,12 @@ class ChatService:
         chat_repo: ChatRepository,
         character_repo: CharacterRepository,
         model_repo: ModelRepository,
+        profile_repo: ProfileRepository,
     ):
         self.chat_repo = chat_repo
         self.character_repo = character_repo
         self.model_repo = model_repo
+        self.profile_repo = profile_repo
 
     def list_all(self) -> list[Chat]:
         """List all chats"""
@@ -58,54 +61,90 @@ class ChatService:
         return chat
 
     def create(
-        self, character_id: str, model_id: str | None = None, title: str | None = None
+        self,
+        character_id: str,
+        model_id: str | None = None,
+        title: str | None = None,
+        profile_id: str | None = None,
     ) -> Chat:
-        """Create a new chat"""
+        """Create a new chat, optionally applying a profile's settings."""
         if not self.character_repo.exists(character_id):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Character with ID '{character_id}' not found",
             )
 
-        model_name = None
-        if model_id is not None:
-            model = self.model_repo.find_by_id(model_id)
-            if not model:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Model with ID '{model_id}' not found",
-                )
-            model_name = model.name
+        chat = Chat(character_id=character_id, title=title)
 
-        chat = Chat(
-            character_id=character_id, model_id=model_id, title=title, model_name=model_name
-        )
+        if profile_id is not None:
+            self._apply_profile(chat, profile_id)
+            # initial_profile_name records the chat's birth config; immutable afterwards.
+            chat.initial_profile_name = chat.last_profile_name
+
+        # An explicit model_id overrides whatever model the profile carried.
+        if model_id is not None:
+            self._set_model(chat, model_id)
+
         created = self.chat_repo.create(chat)
         self.chat_repo.commit()
         return created
 
     def update(self, chat_id: str, title: str | None = None, model_id: str | None = None) -> Chat:
-        """Update chat (e.g., change title or model)"""
+        """Update chat (title and/or model). Re-applying a profile goes through apply_profile."""
         chat = self.get_by_id(chat_id)
 
-        # If updating model_id, verify new model exists and update snapshot
         if model_id is not None:
-            model = self.model_repo.find_by_id(model_id)
-            if not model:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Model with ID '{model_id}' not found",
-                )
-            chat.model_id = model_id
-            chat.model_name = model.name
+            self._set_model(chat, model_id)
 
-        # Update title if provided
         if title is not None:
             chat.title = title
 
         updated = self.chat_repo.update(chat)
         self.chat_repo.commit()
         return updated
+
+    def apply_profile(self, chat_id: str, profile_id: str) -> Chat:
+        """Apply a profile to an existing chat: copy its axes, update last_profile_name."""
+        chat = self.get_by_id(chat_id)
+        self._apply_profile(chat, profile_id)
+        updated = self.chat_repo.update(chat)
+        self.chat_repo.commit()
+        return updated
+
+    def _set_model(self, chat: Chat, model_id: str) -> None:
+        """Validate a model and set it on the chat, snapshotting its name."""
+        model = self.model_repo.find_by_id(model_id)
+        if not model:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Model with ID '{model_id}' not found",
+            )
+        chat.model_id = model_id
+        chat.model_name = model.name
+
+    def _apply_profile(self, chat: Chat, profile_id: str) -> None:
+        """Copy a profile's non-null axes onto the chat, snapshotting the profile name.
+
+        The chat owns the copied FKs as its live config; ``last_profile_name`` is a
+        provenance snapshot (a name, not a link), so renaming/deleting the profile
+        never affects the chat.
+        """
+        profile = self.profile_repo.find_by_id(profile_id)
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Profile with ID '{profile_id}' not found",
+            )
+
+        chat.last_profile_name = profile.name
+        if profile.prompt_template_id is not None:
+            chat.template_id = profile.prompt_template_id
+        if profile.preset_id is not None:
+            chat.preset_id = profile.preset_id
+        if profile.persona_id is not None:
+            chat.persona_id = profile.persona_id
+        if profile.model_id is not None:
+            self._set_model(chat, profile.model_id)
 
     def delete(self, chat_id: str) -> None:
         """Delete chat"""

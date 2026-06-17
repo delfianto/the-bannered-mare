@@ -143,6 +143,16 @@ class Chat(BaseModel):
         index=True,
         comment="Parameter preset (uses model defaults if None)",
     )
+    initial_profile_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="Name of the profile this chat was created with (provenance snapshot, immutable)",
+    )
+    last_profile_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="Name of the most recently applied profile (provenance snapshot, not an FK)",
+    )
 
     character: Mapped[Character] = relationship(back_populates="chats")
     model: Mapped[Model | None] = relationship(back_populates="chats")

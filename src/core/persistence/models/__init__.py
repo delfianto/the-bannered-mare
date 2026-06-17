@@ -11,6 +11,7 @@ from src.core.persistence.models.lore import Lorebook, LoreEntry
 from src.core.persistence.models.model import Model, ModelFamily
 from src.core.persistence.models.persona import Persona
 from src.core.persistence.models.preset import Preset
+from src.core.persistence.models.profile import Profile
 from src.core.persistence.models.prompt import (
     DEFAULT_COMPONENT_ORDER,
     DEFAULT_COMPONENTS_ENABLED,
@@ -42,6 +43,7 @@ __all__ = [
     "ModelFamily",
     "Persona",
     "Preset",
+    "Profile",
     "PromptFragment",
     "PromptTemplate",
     "Provider",

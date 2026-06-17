@@ -7,6 +7,7 @@ import pytest
 from sqlalchemy.orm import Session
 from src.core.persistence import Preset, PromptFragment, PromptTemplate
 from src.preset.repository import PresetRepository
+from src.profile.repository import ProfileRepository
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_template.repository import PromptTemplateRepository
 
@@ -53,6 +54,16 @@ class TestImportCreatesEntities:
         assert links[0].fragment_id == result.fragment_ids[0]
         assert PresetRepository(db).find_by_name("Adventure") is not None
 
+        # A profile ties the template + preset into one selectable unit.
+        assert result.profile_id is not None
+        assert result.profile_name == "Adventure"
+        profile = ProfileRepository(db).find_by_name("Adventure")
+        assert profile is not None
+        assert profile.prompt_template_id == result.template_id
+        assert profile.preset_id == result.preset_id
+        assert profile.source == "sillytavern"
+        assert profile.source_filename == "Adventure.json"
+
     async def test_prompts_only_creates_no_preset(self, db: Session) -> None:
         result = await _import(
             db, [st_prompt("rules", content="x")], ["rules"], filename="PromptsOnly.json"
@@ -60,6 +71,13 @@ class TestImportCreatesEntities:
         assert result.preset_id is None
         assert PresetRepository(db).find_by_name("PromptsOnly") is None
         assert any("No sampler settings" in w for w in result.warnings)
+
+        # A profile is still created (template only, preset unset).
+        assert result.profile_id is not None
+        profile = ProfileRepository(db).find_by_name("PromptsOnly")
+        assert profile is not None
+        assert profile.prompt_template_id == result.template_id
+        assert profile.preset_id is None
 
     async def test_at_depth_depth_persisted(self, db: Session) -> None:
         result = await _import(
@@ -180,10 +198,11 @@ class TestAtomicity:
         with pytest.raises(RuntimeError):
             await service.import_preset(make_upload(data, "Boom.json"))
 
-        # Nothing committed: template + fragments rolled back.
+        # Nothing committed: template + fragments + profile rolled back.
         assert PromptTemplateRepository(db).find_all() == []
         assert FragmentRepository(db).find_all() == []
         assert PresetRepository(db).find_all() == []
+        assert ProfileRepository(db).find_all() == []
 
 
 class TestBadFiles:

@@ -2,7 +2,7 @@
 
 Revision ID: a40885deaf32
 Revises: 
-Create Date: 2026-06-11 03:36:27.682409
+Create Date: 2026-06-17 16:15:46.058369
 
 """
 from alembic import op
@@ -229,6 +229,8 @@ def upgrade() -> None:
     sa.Column('template_id', sa.String(length=12), nullable=True, comment='Prompt template (uses default if None)'),
     sa.Column('persona_id', sa.String(length=12), nullable=True, comment='User persona (uses default if None)'),
     sa.Column('preset_id', sa.String(length=12), nullable=True, comment='Parameter preset (uses model defaults if None)'),
+    sa.Column('initial_profile_name', sa.String(length=100), nullable=True, comment='Name of the profile this chat was created with (provenance snapshot, immutable)'),
+    sa.Column('last_profile_name', sa.String(length=100), nullable=True, comment='Name of the most recently applied profile (provenance snapshot, not an FK)'),
     sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was last updated (UTC)'),
@@ -269,6 +271,30 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['lorebook_id'], ['lorebooks.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('profiles',
+    sa.Column('name', sa.String(length=100), nullable=False, comment='Display name of the profile'),
+    sa.Column('description', sa.Text(), nullable=True, comment="Brief description of the profile's purpose"),
+    sa.Column('is_default', sa.Boolean(), nullable=False, comment='Whether this profile is the default'),
+    sa.Column('prompt_template_id', sa.String(length=12), nullable=True, comment='Prompt template applied to chats using this profile'),
+    sa.Column('preset_id', sa.String(length=12), nullable=True, comment='Sampler preset applied to chats using this profile'),
+    sa.Column('persona_id', sa.String(length=12), nullable=True, comment='Default persona applied to chats using this profile'),
+    sa.Column('model_id', sa.String(length=12), nullable=True, comment='Default model applied to chats using this profile'),
+    sa.Column('source', sa.String(length=20), nullable=False, comment='Origin of the profile: manual, sillytavern, etc.'),
+    sa.Column('source_filename', sa.String(length=255), nullable=True, comment="Original filename when imported (preserves an imported preset's identity)"),
+    sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was last updated (UTC)'),
+    sa.ForeignKeyConstraint(['model_id'], ['models.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['persona_id'], ['personas.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['preset_id'], ['presets.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['prompt_template_id'], ['prompt_templates.id'], ondelete='SET NULL'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_profiles_model_id'), 'profiles', ['model_id'], unique=False)
+    op.create_index(op.f('ix_profiles_name'), 'profiles', ['name'], unique=True)
+    op.create_index(op.f('ix_profiles_persona_id'), 'profiles', ['persona_id'], unique=False)
+    op.create_index(op.f('ix_profiles_preset_id'), 'profiles', ['preset_id'], unique=False)
+    op.create_index(op.f('ix_profiles_prompt_template_id'), 'profiles', ['prompt_template_id'], unique=False)
     op.create_table('data_bank_entries',
     sa.Column('name', sa.String(length=200), nullable=False, comment='Display name'),
     sa.Column('content', sa.Text(), nullable=False, comment='Knowledge text'),
@@ -349,6 +375,12 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_data_bank_entries_chat_id'), table_name='data_bank_entries')
     op.drop_index(op.f('ix_data_bank_entries_character_id'), table_name='data_bank_entries')
     op.drop_table('data_bank_entries')
+    op.drop_index(op.f('ix_profiles_prompt_template_id'), table_name='profiles')
+    op.drop_index(op.f('ix_profiles_preset_id'), table_name='profiles')
+    op.drop_index(op.f('ix_profiles_persona_id'), table_name='profiles')
+    op.drop_index(op.f('ix_profiles_name'), table_name='profiles')
+    op.drop_index(op.f('ix_profiles_model_id'), table_name='profiles')
+    op.drop_table('profiles')
     op.drop_table('lore_entries')
     op.drop_index(op.f('ix_chats_template_id'), table_name='chats')
     op.drop_index(op.f('ix_chats_preset_id'), table_name='chats')

@@ -21,6 +21,7 @@ from src.core.persistence.base_model import Base
 from src.core.config import settings
 from src.model.models import *  # noqa
 from src.model_family.models import *  # noqa
+from src.profile.models import *  # noqa
 from src.prompt_template.models import *  # noqa
 from src.provider.models import *  # noqa
 from src.character.models import *  # noqa

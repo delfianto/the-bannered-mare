@@ -10,6 +10,7 @@ from src.chat_session import Chat, ChatRepository, ChatService
 from src.chat_session.repository_async import AsyncChatRepository
 from src.model import ModelRepository, ModelService
 from src.model_family.repository import ModelFamilyRepository
+from src.profile.repository import ProfileRepository
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.prompt_template.repository import PromptTemplateRepository
 from src.provider.repository import ProviderRepository
@@ -23,7 +24,7 @@ class TestLooseCoupling:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
 
         # Create chat with explicit None
         chat = service.create(
