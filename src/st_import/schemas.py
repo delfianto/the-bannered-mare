@@ -97,4 +97,6 @@ class STImportResult(BaseModel):
     fragment_ids: list[str] = Field(default_factory=list)
     preset_id: str | None = None
     preset_name: str | None = None
+    profile_id: str | None = None
+    profile_name: str | None = None
     warnings: list[str] = Field(default_factory=list)

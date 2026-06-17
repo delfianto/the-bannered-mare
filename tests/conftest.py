@@ -42,6 +42,7 @@ def _import_all_models():
     import src.model_family.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.persona.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.preset.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
+    import src.profile.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.prompt_fragment.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.prompt_template.models  # noqa: F401 # pyright: ignore[reportUnusedImport]
     import src.provider.models  # noqa: F401 # pyright: ignore[reportUnusedImport]

@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from src.core.persistence import Preset, Profile, PromptTemplate
 
 
 def test_create_chat(
@@ -83,3 +84,44 @@ def test_get_chat_details(
     assert "avatar_thumbnail" in data["character"]
     assert data["character"]["avatar"] == sample_character.avatar
     assert data["character"]["avatar_thumbnail"] == sample_character.avatar_thumbnail
+
+
+def test_apply_profile_to_chat(
+    client: TestClient, db: Session, sample_character: Any, sample_persona: Any
+) -> None:
+    """POST /api/chats/{id}/profile copies the profile's axes and records its name."""
+    tmpl = PromptTemplate(name="RouterT", system_template="x")
+    preset = Preset(name="RouterP", parameters={})
+    db.add_all([tmpl, preset])
+    db.commit()
+    db.refresh(tmpl)
+    db.refresh(preset)
+    profile = Profile(
+        name="Router Loadout",
+        prompt_template_id=tmpl.id,
+        preset_id=preset.id,
+        persona_id=sample_persona.id,
+    )
+    db.add(profile)
+    db.commit()
+
+    chat_id = client.post(
+        "/api/chats", json={"character_id": sample_character.id, "title": "Bare"}
+    ).json()["id"]
+
+    response = client.post(f"/api/chats/{chat_id}/profile", json={"profile_id": profile.id})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["template_id"] == tmpl.id
+    assert data["preset_id"] == preset.id
+    assert data["persona_id"] == sample_persona.id
+    assert data["last_profile_name"] == "Router Loadout"
+    assert data["initial_profile_name"] is None  # created bare
+
+
+def test_apply_missing_profile_returns_404(
+    client: TestClient, db: Session, sample_character: Any
+) -> None:
+    chat_id = client.post("/api/chats", json={"character_id": sample_character.id}).json()["id"]
+    response = client.post(f"/api/chats/{chat_id}/profile", json={"profile_id": "nonexistent"})
+    assert response.status_code == 404

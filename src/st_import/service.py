@@ -12,12 +12,14 @@ from sqlalchemy.exc import IntegrityError
 
 from src.core.persistence import (
     Preset,
+    Profile,
     PromptFragment,
     PromptTemplate,
     TemplateFragment,
     gen_id,
 )
 from src.preset.repository import PresetRepository
+from src.profile.repository import ProfileRepository
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_template.repository import PromptTemplateRepository
 from src.st_import.errors import STImportError
@@ -38,11 +40,13 @@ class STImportService:
         fragment_repo: FragmentRepository,
         template_fragment_repo: TemplateFragmentRepository,
         preset_repo: PresetRepository,
+        profile_repo: ProfileRepository,
     ):
         self.template_repo = template_repo
         self.fragment_repo = fragment_repo
         self.template_fragment_repo = template_fragment_repo
         self.preset_repo = preset_repo
+        self.profile_repo = profile_repo
 
     async def import_preset(self, file: UploadFile) -> STImportResult:
         """Read, validate, and import a .json ST preset. Raises HTTP 400 on bad input."""
@@ -62,7 +66,7 @@ class STImportService:
         plan = build_import_plan(preset, _derive_base_name(filename))
 
         try:
-            return self._persist(plan)
+            return self._persist(plan, filename or None)
         except IntegrityError as e:
             self.template_repo.rollback()
             raise HTTPException(
@@ -74,8 +78,8 @@ class STImportService:
             self.template_repo.rollback()
             raise
 
-    def _persist(self, plan: ImportPlan) -> STImportResult:
-        """Create template -> fragments -> join rows -> optional preset, then commit once."""
+    def _persist(self, plan: ImportPlan, source_filename: str | None) -> STImportResult:
+        """Create template -> fragments -> join rows -> optional preset -> profile; commit once."""
         template = self.template_repo.create(
             PromptTemplate(
                 id=gen_id(),
@@ -132,6 +136,19 @@ class STImportService:
             preset_id = created_preset.id
             preset_name = created_preset.name
 
+        created_profile = self.profile_repo.create(
+            Profile(
+                id=gen_id(),
+                name=self._unique_name(plan.profile.name, self.profile_repo.find_by_name),
+                description=plan.profile.description,
+                prompt_template_id=template.id,
+                preset_id=preset_id,
+                source="sillytavern",
+                source_filename=source_filename,
+                is_default=False,
+            )
+        )
+
         self.template_repo.commit()
 
         return STImportResult(
@@ -140,6 +157,8 @@ class STImportService:
             fragment_ids=fragment_ids,
             preset_id=preset_id,
             preset_name=preset_name,
+            profile_id=created_profile.id,
+            profile_name=created_profile.name,
             warnings=plan.warnings,
         )
 

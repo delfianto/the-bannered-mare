@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query, status
 
 from src.chat_session.dependencies import ChatServiceDep
 from src.chat_session.schemas import (
+    ChatApplyProfile,
     ChatCreate,
     ChatResponse,
     ChatSessionFilterParams,
@@ -44,7 +45,8 @@ def create_chat(chat_data: ChatCreate, service: ChatServiceDep):
     return service.create(
         character_id=chat_data.character_id,
         model_id=chat_data.model_id,
-        title=chat_data.title if hasattr(chat_data, "title") else None,
+        title=chat_data.title,
+        profile_id=chat_data.profile_id,
     )
 
 
@@ -64,6 +66,12 @@ def update_chat(chat_id: str, chat_data: ChatUpdate, service: ChatServiceDep):
         title=update_data.get("title"),
         model_id=update_data.get("model_id"),
     )
+
+
+@router.post("/{chat_id}/profile", response_model=ChatResponse)
+def apply_profile(chat_id: str, body: ChatApplyProfile, service: ChatServiceDep):
+    """Apply a profile (loadout) to a chat: copy its template/preset/persona/model onto the chat."""
+    return service.apply_profile(chat_id=chat_id, profile_id=body.profile_id)
 
 
 @router.delete("/{chat_id}", status_code=status.HTTP_204_NO_CONTENT)

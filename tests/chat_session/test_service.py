@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_session import Chat, ChatRepository, ChatService
 from src.model import Model, ModelRepository
+from src.profile.repository import ProfileRepository
 
 
 class TestChatService:
@@ -24,7 +25,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         chats = service.list_all()
 
         assert len(chats) == 2
@@ -41,7 +42,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         result = service.get_by_id(chat.id)
 
         assert result.id == chat.id
@@ -52,7 +53,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
 
         with pytest.raises(HTTPException) as exc_info:
             _ = service.get_by_id("nonexistent-id")
@@ -66,7 +67,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         chat = service.create(
             character_id=sample_character.id,
             model_id=sample_model.id,
@@ -83,7 +84,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         with pytest.raises(HTTPException) as exc_info:
             _ = service.create(
                 character_id="nonexistent-character",
@@ -98,7 +99,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         with pytest.raises(HTTPException) as exc_info:
             _ = service.create(
                 character_id=sample_character.id,
@@ -118,7 +119,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         updated = service.update(chat.id, title="New Title")
 
         assert updated.title == "New Title"
@@ -150,7 +151,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         updated = service.update(chat.id, model_id=model2.id)
 
         assert updated.model_id == model2.id
@@ -168,7 +169,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         with pytest.raises(HTTPException) as exc_info:
             _ = service.update(chat.id, model_id="nonexistent-model")
 
@@ -188,7 +189,7 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo)
+        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
         service.delete(chat_id)
 
         # Verify chat is deleted

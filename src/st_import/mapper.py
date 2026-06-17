@@ -97,10 +97,19 @@ class PresetSpec:
 
 
 @dataclass
+class ProfileSpec:
+    """The Profile to create, tying the template + (optional) preset into one unit."""
+
+    name: str
+    description: str | None
+
+
+@dataclass
 class ImportPlan:
     """A fully-resolved (but not yet persisted) import."""
 
     template: TemplateSpec
+    profile: ProfileSpec
     fragments: list[FragmentSpec] = field(default_factory=list)
     preset: PresetSpec | None = None
     warnings: list[str] = field(default_factory=list)
@@ -245,7 +254,18 @@ def build_import_plan(preset: STPreset, base_name: str) -> ImportPlan:
             "Dropped ST format/nudge strings with no Candlekeep equivalent: " + ", ".join(dropped)
         )
 
-    return ImportPlan(template=template, fragments=fragments, preset=preset_spec, warnings=warnings)
+    profile = ProfileSpec(
+        name=base_name,
+        description=f"Imported from SillyTavern preset '{base_name}'.",
+    )
+
+    return ImportPlan(
+        template=template,
+        profile=profile,
+        fragments=fragments,
+        preset=preset_spec,
+        warnings=warnings,
+    )
 
 
 def _has_enabled_main(order_items: list[Any], prompts_by_id: dict[str, STPrompt]) -> bool:

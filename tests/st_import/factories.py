@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from src.preset.repository import PresetRepository
+from src.profile.repository import ProfileRepository
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_template.repository import PromptTemplateRepository
 from src.st_import.service import STImportService
@@ -105,4 +106,5 @@ def make_service(db: Session) -> STImportService:
         fragment_repo=FragmentRepository(db),
         template_fragment_repo=TemplateFragmentRepository(db),
         preset_repo=PresetRepository(db),
+        profile_repo=ProfileRepository(db),
     )

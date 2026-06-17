@@ -12,6 +12,9 @@ class ChatBase(BaseModel):
     character_id: str = Field(..., max_length=12, description="Character ID")
     model_id: str | None = Field(default=None, max_length=12, description="Model ID")
     title: str | None = Field(default=None, max_length=200, description="Chat title")
+    profile_id: str | None = Field(
+        default=None, max_length=12, description="Profile to apply on creation"
+    )
 
 
 class ChatSessionFilterParams(BaseModel):
@@ -38,6 +41,12 @@ class ChatUpdate(BaseModel):
     title: str | None = Field(default=None, max_length=200)
     model_id: str | None = Field(default=None, max_length=12)
     preset_id: str | None = Field(default=None, max_length=12)
+
+
+class ChatApplyProfile(BaseModel):
+    """Body for applying a profile (loadout) to an existing chat"""
+
+    profile_id: str = Field(..., max_length=12, description="Profile to apply")
 
 
 class ChatCharacterResponse(BaseModel):
@@ -72,6 +81,12 @@ class ChatResponse(BaseModel):
     character: ChatCharacterResponse
     model: ChatModelResponse
 
+    template_id: str | None = None
+    preset_id: str | None = None
+    persona_id: str | None = None
+    initial_profile_name: str | None = None
+    last_profile_name: str | None = None
+
     model_config = ConfigDict(from_attributes=True)
 
     @model_validator(mode="before")
@@ -101,4 +116,9 @@ class ChatResponse(BaseModel):
                 "id": data.model_id,
                 "name": data.model_name,
             },
+            "template_id": data.template_id,
+            "preset_id": data.preset_id,
+            "persona_id": data.persona_id,
+            "initial_profile_name": data.initial_profile_name,
+            "last_profile_name": data.last_profile_name,
         }

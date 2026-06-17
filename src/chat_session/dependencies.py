@@ -28,12 +28,19 @@ async def get_async_chat_repository(db: AsyncDbSession) -> AsyncChatRepository:
 
 # Service (stays sync for now, only used in CRUD endpoints)
 def get_chat_service(
+    db: DbSession,
     chat_repo: Annotated[ChatRepository, Depends(get_chat_repository)],
     character_repo: Annotated[CharacterRepository, Depends(get_character_repository)],
     model_repo: Annotated[ModelRepository, Depends(get_model_repository)],
 ) -> ChatService:
-    """Factory for ChatService"""
-    return ChatService(chat_repo, character_repo, model_repo)
+    """Factory for ChatService.
+
+    ProfileRepository is built from a lazy import to avoid an import-time cycle
+    (profile -> preset -> st_import -> prompt_template -> chat_session).
+    """
+    from src.profile.repository import ProfileRepository
+
+    return ChatService(chat_repo, character_repo, model_repo, ProfileRepository(db))
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
