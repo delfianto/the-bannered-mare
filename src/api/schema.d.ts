@@ -501,6 +501,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/chats/{chat_id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply Profile
+         * @description Apply a profile (loadout) to a chat: copy its template/preset/persona/model onto the chat.
+         */
+        post: operations["apply_profile_api_chats__chat_id__profile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chats/{chat_id}/messages": {
         parameters: {
             query?: never;
@@ -725,6 +745,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/presets/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import St Preset
+         * @description Import a SillyTavern chat-completion preset.
+         *
+         *     Maps the prompt structure to a PromptTemplate + fragments and, when sampler
+         *     settings are present, a Preset. Returns what was created plus warnings for
+         *     anything that did not transfer cleanly.
+         */
+        post: operations["import_st_preset_api_presets_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/presets/{preset_id}": {
         parameters: {
             query?: never;
@@ -767,6 +811,78 @@ export interface paths {
          * @description Set preset as default
          */
         post: operations["set_default_preset_api_presets__preset_id__default_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Profiles
+         * @description List profiles with pagination
+         */
+        get: operations["list_profiles_api_profiles__get"];
+        put?: never;
+        /**
+         * Create Profile
+         * @description Create new profile
+         */
+        post: operations["create_profile_api_profiles__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/{profile_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Profile
+         * @description Get profile by ID
+         */
+        get: operations["get_profile_api_profiles__profile_id__get"];
+        /**
+         * Update Profile
+         * @description Update profile
+         */
+        put: operations["update_profile_api_profiles__profile_id__put"];
+        post?: never;
+        /**
+         * Delete Profile
+         * @description Delete profile
+         */
+        delete: operations["delete_profile_api_profiles__profile_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/profiles/{profile_id}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Set Default Profile
+         * @description Set profile as default
+         */
+        post: operations["set_default_profile_api_profiles__profile_id__default_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1308,6 +1424,14 @@ export interface components {
              */
             file: string;
         };
+        /** Body_import_st_preset_api_presets_import_post */
+        Body_import_st_preset_api_presets_import_post: {
+            /**
+             * File
+             * @description SillyTavern chat-completion preset .json
+             */
+            file: string;
+        };
         /** Body_update_character_api_characters__character_id__put */
         Body_update_character_api_characters__character_id__put: {
             /** Name */
@@ -1451,6 +1575,17 @@ export interface components {
             updated_at: string;
         };
         /**
+         * ChatApplyProfile
+         * @description Body for applying a profile (loadout) to an existing chat
+         */
+        ChatApplyProfile: {
+            /**
+             * Profile Id
+             * @description Profile to apply
+             */
+            profile_id: string;
+        };
+        /**
          * ChatCharacterResponse
          * @description Nested character info in chat response
          */
@@ -1484,6 +1619,11 @@ export interface components {
              * @description Chat title
              */
             title?: string | null;
+            /**
+             * Profile Id
+             * @description Profile to apply on creation
+             */
+            profile_id?: string | null;
         };
         /**
          * ChatModelResponse
@@ -1518,6 +1658,16 @@ export interface components {
             updated_at: string;
             character: components["schemas"]["ChatCharacterResponse"];
             model: components["schemas"]["ChatModelResponse"];
+            /** Template Id */
+            template_id?: string | null;
+            /** Preset Id */
+            preset_id?: string | null;
+            /** Persona Id */
+            persona_id?: string | null;
+            /** Initial Profile Name */
+            initial_profile_name?: string | null;
+            /** Last Profile Name */
+            last_profile_name?: string | null;
         };
         /**
          * ChatUpdate
@@ -2689,6 +2839,12 @@ export interface components {
             items: components["schemas"]["PresetResponse"][];
             meta: components["schemas"]["PaginationMeta"];
         };
+        /** PaginatedResponse[ProfileResponse] */
+        PaginatedResponse_ProfileResponse_: {
+            /** Items */
+            items: components["schemas"]["ProfileResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
         /** PaginatedResponse[PromptTemplateResponse] */
         PaginatedResponse_PromptTemplateResponse_: {
             /** Items */
@@ -2841,6 +2997,120 @@ export interface components {
             } | null;
             /** Is Default */
             is_default?: boolean | null;
+        };
+        /**
+         * ProfileCreate
+         * @description Schema for creating a profile
+         */
+        ProfileCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @description Brief description of the profile's purpose
+             */
+            description?: string | null;
+            /**
+             * Is Default
+             * @description Set as default profile
+             * @default false
+             */
+            is_default: boolean;
+            /**
+             * Prompt Template Id
+             * @description Prompt template to apply
+             */
+            prompt_template_id?: string | null;
+            /**
+             * Preset Id
+             * @description Sampler preset to apply
+             */
+            preset_id?: string | null;
+            /**
+             * Persona Id
+             * @description Default persona to apply
+             */
+            persona_id?: string | null;
+            /**
+             * Model Id
+             * @description Default model to apply
+             */
+            model_id?: string | null;
+        };
+        /**
+         * ProfileResponse
+         * @description Schema for profile response
+         */
+        ProfileResponse: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @description Brief description of the profile's purpose
+             */
+            description?: string | null;
+            /**
+             * Is Default
+             * @description Set as default profile
+             * @default false
+             */
+            is_default: boolean;
+            /**
+             * Prompt Template Id
+             * @description Prompt template to apply
+             */
+            prompt_template_id?: string | null;
+            /**
+             * Preset Id
+             * @description Sampler preset to apply
+             */
+            preset_id?: string | null;
+            /**
+             * Persona Id
+             * @description Default persona to apply
+             */
+            persona_id?: string | null;
+            /**
+             * Model Id
+             * @description Default model to apply
+             */
+            model_id?: string | null;
+            /** Id */
+            id: string;
+            /** Source */
+            source: string;
+            /** Source Filename */
+            source_filename?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ProfileUpdate
+         * @description Schema for updating a profile
+         */
+        ProfileUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Default */
+            is_default?: boolean | null;
+            /** Prompt Template Id */
+            prompt_template_id?: string | null;
+            /** Preset Id */
+            preset_id?: string | null;
+            /** Persona Id */
+            persona_id?: string | null;
+            /** Model Id */
+            model_id?: string | null;
         };
         /**
          * PromptTemplateCreate
@@ -3004,7 +3274,7 @@ export interface components {
          * @description Supported provider types
          * @enum {string}
          */
-        ProviderType: "xai" | "google" | "openai" | "anthropic" | "openrouter" | "ollama" | "custom";
+        ProviderType: "xai" | "google" | "openai" | "anthropic" | "openrouter" | "ollama" | "lmstudio" | "custom";
         /**
          * ProviderUpdate
          * @description Schema for updating a provider
@@ -3059,6 +3329,28 @@ export interface components {
             score: number;
             /** Chunk Index */
             chunk_index: number;
+        };
+        /**
+         * STImportResult
+         * @description What an import produced, plus warnings for anything that didn't transfer cleanly.
+         */
+        STImportResult: {
+            /** Template Id */
+            template_id: string;
+            /** Template Name */
+            template_name: string;
+            /** Fragment Ids */
+            fragment_ids?: string[];
+            /** Preset Id */
+            preset_id?: string | null;
+            /** Preset Name */
+            preset_name?: string | null;
+            /** Profile Id */
+            profile_id?: string | null;
+            /** Profile Name */
+            profile_name?: string | null;
+            /** Warnings */
+            warnings?: string[];
         };
         /**
          * SecondaryLogic
@@ -4328,6 +4620,41 @@ export interface operations {
             };
         };
     };
+    apply_profile_api_chats__chat_id__profile_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatApplyProfile"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_chat_messages_api_chats__chat_id__messages_get: {
         parameters: {
             query?: {
@@ -4829,6 +5156,39 @@ export interface operations {
             };
         };
     };
+    import_st_preset_api_presets_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_st_preset_api_presets_import_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["STImportResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_preset_api_presets__preset_id__get: {
         parameters: {
             query?: never;
@@ -4942,6 +5302,199 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PresetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_profiles_api_profiles__get: {
+        parameters: {
+            query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResponse_ProfileResponse_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_profile_api_profiles__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_profile_api_profiles__profile_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_profile_api_profiles__profile_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_profile_api_profiles__profile_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_default_profile_api_profiles__profile_id__default_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileResponse"];
                 };
             };
             /** @description Validation Error */
