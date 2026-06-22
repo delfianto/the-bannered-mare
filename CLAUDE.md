@@ -324,3 +324,9 @@ If the user asks for a step-by-step plan, output specifically using this format:
 
 - [ ] Run `vp check` (format + lint + type)
 - [ ] Run `bun run build` (final gate — `vue-tsc -b && vp build`)
+
+---
+
+## 8. Outstanding TODOs
+
+- [ ] **Translate the new-screen i18n keys.** Profiles, Lorebooks, SillyTavern preset import, and chat profile-apply added their keys (`profiles.*`, `lorebooks.*`, `presetImport.*`, `chat.profile.*`, plus `nav.profiles` / `nav.lorebooks`) to `src/locales/en.json` only. The other locales (`de`, `es`, `fr`, `pt`) currently fall back to English — mirror the en.json structure into each, keeping interpolation tokens (`{name}`, `{count}`) intact.
