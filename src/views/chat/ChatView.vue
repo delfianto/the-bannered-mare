@@ -4,6 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useChatSessions } from "@/composables/useChatSessions";
 import { useChatMessages } from "@/composables/useChatMessages";
+import { useProfiles } from "@/composables/useProfiles";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
@@ -24,7 +25,10 @@ const {
   loading: sessionsLoading,
   updateChat,
   deleteChat,
+  applyProfile,
 } = useChatSessions({ pageSize: 30 });
+
+const { profiles } = useProfiles();
 
 const {
   messages,
@@ -115,6 +119,11 @@ async function handleRename(newTitle: string) {
   await updateChat(activeSessionId.value, newTitle);
 }
 
+async function handleApplyProfile(profileId: string) {
+  if (!activeSessionId.value) return;
+  await applyProfile(activeSessionId.value, profileId);
+}
+
 async function handleDeleteChat() {
   if (!activeSessionId.value) return;
   const deletedId = activeSessionId.value;
@@ -197,9 +206,12 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
       <ChatHeader
         :character="activeSession.character"
         :session-title="activeSession.title || $t('chat.untitled')"
+        :profiles="profiles"
+        :current-profile-name="activeSession.last_profile_name"
         @back="router.push({ name: 'chats' })"
         @rename="handleRename"
         @delete="handleDeleteChat"
+        @apply-profile="handleApplyProfile"
       />
 
       <!-- Message List -->

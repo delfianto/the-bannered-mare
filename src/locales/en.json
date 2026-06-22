@@ -28,10 +28,116 @@
     "dataBank": "Data Bank",
     "sessions": "Sessions",
     "connections": "Connections",
+    "profiles": "Profiles",
+    "lorebooks": "Lorebooks",
     "settings": "Settings",
     "favorites": "Favorites",
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar"
+  },
+  "profiles": {
+    "title": "Profiles",
+    "subtitle": "Reusable loadouts — bundle a template, preset, persona, and model.",
+    "newProfile": "New Profile",
+    "empty": "No profiles yet. Create one to quickly configure new chats.",
+    "default": "Default",
+    "setDefault": "Set default",
+    "confirmDelete": "Confirm?",
+    "none": "None",
+    "sourceSillyTavern": "SillyTavern",
+    "fields": {
+      "template": "Prompt Template",
+      "preset": "Sampler Preset",
+      "persona": "Persona",
+      "model": "Model"
+    },
+    "form": {
+      "newTitle": "New Profile",
+      "editTitle": "Edit Profile",
+      "name": "Name",
+      "namePlaceholder": "e.g. Grimdark GM",
+      "description": "Description",
+      "descriptionPlaceholder": "What is this loadout for?",
+      "setDefault": "Set as default profile",
+      "create": "Create Profile",
+      "save": "Save Changes"
+    },
+    "toast": {
+      "created": "Profile created",
+      "updated": "Profile updated",
+      "deleted": "Profile deleted",
+      "defaultSet": "\"{name}\" is now the default",
+      "createFailed": "Could not create profile",
+      "updateFailed": "Could not update profile"
+    }
+  },
+  "lorebooks": {
+    "title": "Lorebooks",
+    "newLorebook": "New lorebook",
+    "empty": "No lorebooks yet.",
+    "global": "Global",
+    "entryCount": "{count} entries",
+    "editLorebook": "Edit lorebook",
+    "addEntry": "Add Entry",
+    "noEntries": "No entries yet. Add one to populate this lorebook.",
+    "selectPrompt": "Select a lorebook to view its entries.",
+    "order": "Order",
+    "constant": "Constant",
+    "confirmDelete": "Confirm?",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "form": {
+      "newTitle": "New Lorebook",
+      "editTitle": "Edit Lorebook",
+      "name": "Name",
+      "namePlaceholder": "e.g. Tamriel — Core Lore",
+      "description": "Description",
+      "descriptionPlaceholder": "What does this lorebook cover?",
+      "isGlobal": "Global (applies to all chats)",
+      "create": "Create Lorebook",
+      "save": "Save Changes"
+    },
+    "entryForm": {
+      "newTitle": "New Entry",
+      "editTitle": "Edit Entry",
+      "name": "Name",
+      "namePlaceholder": "e.g. The White-Gold Tower",
+      "keys": "Trigger keywords",
+      "keysPlaceholder": "Comma-separated, e.g. Imperial City, White-Gold",
+      "content": "Content",
+      "contentPlaceholder": "Lore text injected into the prompt when triggered…",
+      "position": "Position",
+      "order": "Order",
+      "priority": "Priority",
+      "enabled": "Enabled",
+      "constant": "Always on",
+      "add": "Add Entry",
+      "save": "Save Changes"
+    },
+    "toast": {
+      "created": "Lorebook created",
+      "updated": "Lorebook updated",
+      "deleted": "Lorebook deleted",
+      "entryAdded": "Entry added",
+      "entrySaved": "Entry saved",
+      "entryDeleted": "Entry deleted"
+    }
+  },
+  "presetImport": {
+    "button": "Import ST Preset",
+    "title": "Import SillyTavern Preset",
+    "complete": "Import complete",
+    "template": "Template",
+    "fragments": "{count} prompt fragments",
+    "preset": "Preset",
+    "profile": "Profile",
+    "warnings": "Warnings",
+    "done": "Done",
+    "importAnother": "Import another",
+    "dropzone": "Drop a SillyTavern preset .json here, or click to browse",
+    "dropzoneHint": "Creates a prompt template, its fragments, a sampler preset, and a matching profile.",
+    "importing": "Importing…",
+    "failed": "Import failed. Please check the file and try again."
   },
   "home": {
     "greeting": "Welcome back, Adventurer",
@@ -153,6 +259,13 @@
     "cancelSelection": "Cancel selection"
   },
   "chat": {
+    "profile": {
+      "title": "Profile",
+      "none": "No profile",
+      "empty": "No profiles yet",
+      "manage": "Manage profiles",
+      "hint": "Applying a profile updates this chat's template, preset, persona, and model."
+    },
     "selectTale": "Select a tale to continue…",
     "sessionBegan": "Session began",
     "loadEarlier": "Load earlier messages…",

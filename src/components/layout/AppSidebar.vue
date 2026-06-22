@@ -18,6 +18,8 @@ const navItems = [
   { id: "memory", to: "/memory", label: t('nav.dataBank'), icon: "i-lucide-database" },
   { id: "chats", to: "/chats", label: t('nav.sessions'), icon: "i-lucide-scroll-text" },
   { id: "connections", to: "/connections", label: t('nav.connections'), icon: "i-lucide-cable" },
+  { id: "profiles", to: "/profiles", label: t('nav.profiles'), icon: "i-lucide-layers" },
+  { id: "lorebooks", to: "/lorebooks", label: t('nav.lorebooks'), icon: "i-lucide-book-open" },
 ];
 
 function isActive(to: string) {

@@ -8,6 +8,7 @@ import { allModelFamiliesMock } from "@/mocks/data/model-families-data";
 import { modelFamiliesParameterDocs } from "@/mocks/data/model-parameters";
 import { dataBankEntries } from "@/mocks/data/data-bank";
 import { presets } from "@/mocks/data/presets";
+import { profiles } from "@/mocks/data/profiles";
 import { promptTemplates, templateFragments } from "@/mocks/data/prompt-templates";
 import { promptFragments } from "@/mocks/data/prompt-fragments";
 import { lorebooks } from "@/mocks/data/lorebooks";
@@ -22,6 +23,7 @@ type DataBankEntry = components["schemas"]["DataBankResponse"];
 type Persona = components["schemas"]["PersonaResponse"];
 type LorebookDetail = components["schemas"]["LorebookDetailResponse"];
 type LoreEntryResponse = components["schemas"]["LoreEntryResponse"];
+type Profile = components["schemas"]["ProfileResponse"];
 
 type TemplateFragmentResponse = components["schemas"]["TemplateFragmentResponse"];
 
@@ -34,6 +36,7 @@ const db = {
   allModelFamiliesMock,
   dataBankEntries,
   presets,
+  profiles,
   promptTemplates,
   promptFragments,
   templateFragments,
@@ -273,6 +276,26 @@ export const handlers = [
     db.chats.splice(idx, 1);
     await delay(100);
     return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Apply a profile (loadout) onto a chat
+  http.post("/api/chats/:chatId/profile", async ({ params, request }) => {
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    if (!chat) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["ChatApplyProfile"];
+
+    const profile = db.profiles.find((p) => p.id === body.profile_id);
+    if (profile) {
+      chat.last_profile_name = profile.name;
+      if (profile.model_id) {
+        const model = db.allModelsMock.find((m) => m.id === profile.model_id);
+        if (model) chat.model = { id: model.id, name: model.name };
+      }
+    }
+    chat.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(chat);
   }),
 
   // Messages endpoint with lazy loading and cursor-based pagination
@@ -802,6 +825,30 @@ export const handlers = [
     });
   }),
 
+  http.post("/api/presets/import", async ({ request }) => {
+    await delay(500);
+    const formData = await request.formData();
+    const file = formData.get("file");
+    const fileName = file instanceof File ? file.name : "preset.json";
+    const baseName = fileName.replace(/\.json$/i, "");
+    const title = baseName.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const stamp = Date.now();
+
+    // Simulate the importer creating a template (+ fragments), preset, and profile.
+    const result: components["schemas"]["STImportResult"] = {
+      template_id: `tpl-import-${stamp}`,
+      template_name: `${title} (Imported)`,
+      fragment_ids: [`frag-import-${stamp}-1`, `frag-import-${stamp}-2`, `frag-import-${stamp}-3`],
+      preset_id: `preset-import-${stamp}`,
+      preset_name: title,
+      profile_id: `profile-import-${stamp}`,
+      profile_name: `Imported — ${title}`,
+      warnings: ["Some SillyTavern-specific fields were skipped."],
+    };
+
+    return HttpResponse.json(result, { status: 201 });
+  }),
+
   http.get("/api/presets/:presetId", async ({ params }) => {
     const preset = db.presets.find((p) => p.id === params.presetId);
     if (!preset) return new HttpResponse(null, { status: 404 });
@@ -838,6 +885,103 @@ export const handlers = [
     for (const p of db.presets) {
       p.is_default = false;
     }
+    target.is_default = true;
+    target.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(target);
+  }),
+
+  // ── Profiles ───────────────────────────────────────────────
+
+  http.get("/api/profiles/", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    await delay(150);
+
+    const items = [...db.profiles];
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  http.post("/api/profiles/", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["ProfileCreate"];
+    await delay(200);
+
+    if (body.is_default) {
+      for (const p of db.profiles) p.is_default = false;
+    }
+
+    const now = new Date().toISOString();
+    const newProfile: Profile = {
+      id: `profile-${Date.now()}`,
+      name: body.name,
+      description: body.description ?? null,
+      is_default: body.is_default,
+      prompt_template_id: body.prompt_template_id ?? null,
+      preset_id: body.preset_id ?? null,
+      persona_id: body.persona_id ?? null,
+      model_id: body.model_id ?? null,
+      source: "manual",
+      source_filename: null,
+      created_at: now,
+      updated_at: now,
+    };
+
+    db.profiles.unshift(newProfile);
+    return HttpResponse.json(newProfile, { status: 201 });
+  }),
+
+  http.get("/api/profiles/:profileId", async ({ params }) => {
+    const profile = db.profiles.find((p) => p.id === params.profileId);
+    if (!profile) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(profile);
+  }),
+
+  http.put("/api/profiles/:profileId", async ({ params, request }) => {
+    const profile = db.profiles.find((p) => p.id === params.profileId);
+    if (!profile) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["ProfileUpdate"];
+
+    if (body.name !== undefined && body.name !== null) profile.name = body.name;
+    if (body.description !== undefined) profile.description = body.description;
+    if (body.is_default !== undefined && body.is_default !== null) {
+      if (body.is_default) {
+        for (const p of db.profiles) p.is_default = false;
+      }
+      profile.is_default = body.is_default;
+    }
+    if (body.prompt_template_id !== undefined) profile.prompt_template_id = body.prompt_template_id;
+    if (body.preset_id !== undefined) profile.preset_id = body.preset_id;
+    if (body.persona_id !== undefined) profile.persona_id = body.persona_id;
+    if (body.model_id !== undefined) profile.model_id = body.model_id;
+    profile.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(profile);
+  }),
+
+  http.delete("/api/profiles/:profileId", async ({ params }) => {
+    const idx = db.profiles.findIndex((p) => p.id === params.profileId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.profiles.splice(idx, 1);
+    await delay(150);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/profiles/:profileId/default", async ({ params }) => {
+    const target = db.profiles.find((p) => p.id === params.profileId);
+    if (!target) return new HttpResponse(null, { status: 404 });
+    for (const p of db.profiles) p.is_default = false;
     target.is_default = true;
     target.updated_at = new Date().toISOString();
     await delay(150);

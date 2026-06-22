@@ -1,16 +1,35 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { usePresets } from "@/composables/usePresets";
 import type { Preset } from "@/composables/usePresets";
+import ImportPresetModal from "./ImportPresetModal.vue";
 
 const { presets, loading, error, refresh } = usePresets();
+const showImport = ref(false);
 
 function parameterCount(preset: Preset): number {
   return preset.parameters ? Object.keys(preset.parameters).length : 0;
+}
+
+function onImported() {
+  refresh();
 }
 </script>
 
 <template>
   <div>
+    <div class="mb-4 flex justify-end">
+      <button
+        class="flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+        @click="showImport = true"
+      >
+        <UIcon name="i-lucide-upload" class="h-4 w-4" />
+        {{ $t('presetImport.button') }}
+      </button>
+    </div>
+
+    <ImportPresetModal v-if="showImport" @close="showImport = false" @imported="onImported" />
+
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
       <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />

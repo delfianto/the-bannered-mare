@@ -104,6 +104,27 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
     }
   };
 
+  const applyProfile = async (chatId: string, profileId: string) => {
+    try {
+      const { data, error: apiError } = await client.POST("/api/chats/{chat_id}/profile", {
+        params: { path: { chat_id: chatId } },
+        body: { profile_id: profileId },
+      });
+      if (apiError) {
+        throw new Error(`Failed to apply profile: ${JSON.stringify(apiError)}`);
+      }
+      if (data) {
+        const idx = chatSessions.value.findIndex((c) => c.id === chatId);
+        if (idx !== -1) chatSessions.value[idx] = data;
+        return data;
+      }
+      return null;
+    } catch (err) {
+      console.error("Error applying profile:", err);
+      return null;
+    }
+  };
+
   onMounted(() => {
     loadSessions();
   });
@@ -117,5 +138,6 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
     refresh,
     updateChat,
     deleteChat,
+    applyProfile,
   };
 }

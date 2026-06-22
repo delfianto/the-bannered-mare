@@ -1,16 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import type { ChatCharacterInfo } from "@/types/chat";
+import type { Profile } from "@/composables/useProfiles";
+import ChatProfilePicker from "@/components/chat/ChatProfilePicker.vue";
 
 const props = defineProps<{
   character: ChatCharacterInfo;
   sessionTitle: string;
+  profiles?: Profile[];
+  currentProfileName?: string | null;
 }>();
 
 const emit = defineEmits<{
   back: [];
   rename: [title: string];
   delete: [];
+  applyProfile: [profileId: string];
 }>();
 
 const menuOpen = ref(false);
@@ -136,35 +141,43 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div ref="menuRef" class="relative">
-      <button
-        :aria-label="$t('chat.sessionMenu')"
-        class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        @click="toggleMenu"
-      >
-        <UIcon name="i-lucide-more-horizontal" class="h-[18px] w-[18px]" />
-      </button>
+    <div class="flex items-center gap-2">
+      <ChatProfilePicker
+        :profiles="profiles ?? []"
+        :current-profile-name="currentProfileName"
+        @apply="emit('applyProfile', $event)"
+      />
 
-      <!-- Dropdown Menu -->
-      <div
-        v-if="menuOpen"
-        class="absolute right-0 top-full mt-1 min-w-[160px] rounded-lg border bg-card py-1 shadow-lg"
-      >
+      <div ref="menuRef" class="relative">
         <button
-          class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent/50"
-          @click="startRename"
+          :aria-label="$t('chat.sessionMenu')"
+          class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          @click="toggleMenu"
         >
-          <UIcon name="i-lucide-pencil" class="h-4 w-4" />
-          {{ $t('chat.rename') }}
+          <UIcon name="i-lucide-more-horizontal" class="h-[18px] w-[18px]" />
         </button>
-        <button
-          class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-accent/50"
-          :class="confirmDelete ? 'text-destructive font-medium' : 'text-destructive'"
-          @click="handleDelete"
+
+        <!-- Dropdown Menu -->
+        <div
+          v-if="menuOpen"
+          class="absolute right-0 top-full mt-1 min-w-[160px] rounded-lg border bg-card py-1 shadow-lg"
         >
-          <UIcon name="i-lucide-trash-2" class="h-4 w-4" />
-          {{ confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
-        </button>
+          <button
+            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent/50"
+            @click="startRename"
+          >
+            <UIcon name="i-lucide-pencil" class="h-4 w-4" />
+            {{ $t('chat.rename') }}
+          </button>
+          <button
+            class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-accent/50"
+            :class="confirmDelete ? 'text-destructive font-medium' : 'text-destructive'"
+            @click="handleDelete"
+          >
+            <UIcon name="i-lucide-trash-2" class="h-4 w-4" />
+            {{ confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
+          </button>
+        </div>
       </div>
     </div>
   </header>
