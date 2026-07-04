@@ -213,7 +213,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
     class="flex h-full flex-1 flex-col overflow-hidden px-8 py-8 lg:px-12"
   >
     <!-- Header -->
-    <header class="flex-shrink-0 pb-4 animate-fade-in-up">
+    <header class="shrink-0 pb-4 animate-fade-in-up">
       <div class="flex items-center gap-4">
         <div
           class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
