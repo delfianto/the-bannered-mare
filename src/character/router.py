@@ -52,6 +52,10 @@ async def create_character(
     custom_gender: Annotated[str | None, Form()] = None,
     creator: Annotated[str | None, Form()] = None,
     version: Annotated[int | None, Form()] = 1,
+    system_prompt: Annotated[str | None, Form()] = None,
+    creator_notes: Annotated[str | None, Form()] = None,
+    species: Annotated[str | None, Form()] = None,
+    age: Annotated[str | None, Form()] = None,
     avatar: Annotated[UploadFile | None, File()] = None,
 ):
     """Create a new character with optional avatar upload"""
@@ -69,6 +73,10 @@ async def create_character(
         custom_gender=custom_gender,
         creator=creator,
         version=version,
+        system_prompt=system_prompt,
+        creator_notes=creator_notes,
+        species=species,
+        age=age,
         avatar=avatar,
     )
 
@@ -138,6 +146,10 @@ async def update_character(
     custom_gender: Annotated[str | None, Form()] = None,
     creator: Annotated[str | None, Form()] = None,
     version: Annotated[int | None, Form()] = None,
+    system_prompt: Annotated[str | None, Form()] = None,
+    creator_notes: Annotated[str | None, Form()] = None,
+    species: Annotated[str | None, Form()] = None,
+    age: Annotated[str | None, Form()] = None,
     avatar: Annotated[UploadFile | None, File()] = None,
 ):
     """Update character"""
@@ -156,6 +168,10 @@ async def update_character(
         custom_gender=custom_gender,
         creator=creator,
         version=version,
+        system_prompt=system_prompt,
+        creator_notes=creator_notes,
+        species=species,
+        age=age,
         avatar=avatar,
     )
 

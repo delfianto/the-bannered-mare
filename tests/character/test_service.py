@@ -331,3 +331,65 @@ class TestCharacterService:
         assert data["alternate_greetings"] == ["Hey!", "Hi!"]
         assert data["tags"] == ["test"]
         assert "<START>" in data["mes_example"]
+
+    @pytest.mark.asyncio
+    async def test_import_and_export_character_book(self, db: Session) -> None:
+        """Test importing and exporting a V2 JSON card with a character_book"""
+        repo = CharacterRepository(db)
+        service = CharacterService(repo)
+
+        v2_card = json.dumps(
+            {
+                "spec": "chara_card_v2",
+                "spec_version": "2.0",
+                "data": {
+                    "name": "Lore Keeper",
+                    "description": "Guardian of the library",
+                    "personality": "Wise",
+                    "character_book": {
+                        "name": "Keeper's Lore",
+                        "description": "Library details",
+                        "entries": [
+                            {
+                                "keys": ["library", "books"],
+                                "content": "The library houses ancient spells.",
+                                "constant": False,
+                                "enabled": True,
+                                "name": "Ancient Spells",
+                                "priority": 150,
+                            }
+                        ],
+                    },
+                },
+            }
+        )
+
+        mock_file = Mock()
+        mock_file.filename = "keeper.json"
+        mock_file.read = AsyncMock(return_value=v2_card.encode("utf-8"))
+
+        character = await service.import_card(mock_file)
+        assert character.name == "Lore Keeper"
+
+        # Verify lorebook was created in the database
+        from src.lore.models import Lorebook
+        from sqlalchemy import select
+        lorebook = db.execute(
+            select(Lorebook).where(Lorebook.character_id == character.id)
+        ).scalars().first()
+
+        assert lorebook is not None
+        assert lorebook.name == "Keeper's Lore"
+        assert lorebook.description == "Library details"
+        assert len(lorebook.entries) == 1
+        assert lorebook.entries[0].keys == ["library", "books"]
+        assert lorebook.entries[0].content == "The library houses ancient spells."
+
+        # Now test exporting the same character back to json and verify character_book exists
+        db.refresh(character)
+        json_str = service.export_as_json(character.id)
+        exported = json.loads(json_str)
+
+        assert exported["data"]["character_book"]["name"] == "Keeper's Lore"
+        assert exported["data"]["character_book"]["entries"][0]["name"] == "Ancient Spells"
+        assert exported["data"]["character_book"]["entries"][0]["keys"] == ["library", "books"]

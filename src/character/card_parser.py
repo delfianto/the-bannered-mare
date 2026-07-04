@@ -35,6 +35,7 @@ class ParsedCard:
     alternate_greetings: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     extensions: dict[str, Any] = field(default_factory=dict)
+    character_book: dict[str, Any] = field(default_factory=dict)
     spec: str = "chara_card_v2"
     spec_version: str = "2.0"
 
@@ -85,6 +86,7 @@ def _parse_v2_data(data: dict[str, Any]) -> ParsedCard:
         alternate_greetings=data.get("alternate_greetings", []),
         tags=data.get("tags", []),
         extensions=data.get("extensions", {}),
+        character_book=data.get("character_book", {}),
         spec=data.get("spec", "chara_card_v2"),
         spec_version=data.get("spec_version", "2.0"),
     )
@@ -138,7 +140,7 @@ def parse_card_png(png_data: bytes) -> ParsedCard:
 
 def card_to_v2_dict(card: ParsedCard) -> dict[str, Any]:
     """Convert a ParsedCard back to TavernCard V2 JSON structure."""
-    return {
+    res = {
         "spec": "chara_card_v2",
         "spec_version": "2.0",
         "data": {
@@ -158,6 +160,9 @@ def card_to_v2_dict(card: ParsedCard) -> dict[str, Any]:
             "extensions": card.extensions,
         },
     }
+    if card.character_book:
+        res["data"]["character_book"] = card.character_book
+    return res
 
 
 def export_card_png(card: ParsedCard, avatar_data: bytes | None = None) -> bytes:

@@ -5087,6 +5087,50 @@
             "title": "Version",
             "default": 1
           },
+          "system_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System Prompt"
+          },
+          "creator_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Notes"
+          },
+          "species": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Species"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
           "avatar": {
             "anyOf": [
               {
@@ -5322,6 +5366,50 @@
             ],
             "title": "Version"
           },
+          "system_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "System Prompt"
+          },
+          "creator_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creator Notes"
+          },
+          "species": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Species"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
           "avatar": {
             "anyOf": [
               {
@@ -5544,6 +5632,32 @@
             ],
             "title": "Creator",
             "description": "Character creator/author"
+          },
+          "species": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Species",
+            "description": "Character species"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age",
+            "description": "Character age"
           },
           "system_prompt": {
             "anyOf": [
@@ -8652,8 +8766,7 @@
           "avatar": {
             "anyOf": [
               {
-                "type": "string",
-                "maxLength": 255
+                "type": "string"
               },
               {
                 "type": "null"
@@ -8664,8 +8777,7 @@
           "avatar_thumbnail": {
             "anyOf": [
               {
-                "type": "string",
-                "maxLength": 255
+                "type": "string"
               },
               {
                 "type": "null"

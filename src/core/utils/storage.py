@@ -11,9 +11,9 @@ from PIL import Image
 from src.core.config import settings
 
 THUMBNAIL_SIZE = (128, 128)
-MAX_AVATAR_SIZE = 5 * 1024 * 1024  # 5MB
+MAX_AVATAR_SIZE = 20 * 1024 * 1024  # 20MB
 ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
-MAX_DIMENSIONS = (2048, 2048)
+MAX_DIMENSIONS = (4096, 4096)
 
 
 async def validate_avatar(file: UploadFile) -> None:

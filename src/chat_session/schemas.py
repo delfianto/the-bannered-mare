@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, model_validator
 
 
 class ChatBase(BaseModel):
@@ -58,6 +58,18 @@ class ChatCharacterResponse(BaseModel):
     avatar_thumbnail: str | None = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+    @field_serializer("avatar")
+    def serialize_avatar(self, avatar: str | None) -> str | None:
+        if avatar and not (avatar.startswith("http://") or avatar.startswith("https://") or avatar.startswith("/")):
+            return f"/api/characters/{self.id}/avatar"
+        return avatar
+
+    @field_serializer("avatar_thumbnail")
+    def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:
+        if avatar_thumbnail and not (avatar_thumbnail.startswith("http://") or avatar_thumbnail.startswith("https://") or avatar_thumbnail.startswith("/")):
+            return f"/api/characters/{self.id}/avatar_thumbnail"
+        return avatar_thumbnail
 
 
 class ChatModelResponse(BaseModel):

@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from src.core.persistence.enums import Gender
 
@@ -43,6 +43,8 @@ class CharacterBase(BaseModel):
     creator: str | None = Field(
         default=None, max_length=100, description="Character creator/author"
     )
+    species: str | None = Field(default=None, max_length=100, description="Character species")
+    age: str | None = Field(default=None, max_length=100, description="Character age")
     system_prompt: str | None = Field(
         default=None, max_length=50000, description="Per-character system prompt override"
     )
@@ -90,6 +92,8 @@ class CharacterUpdate(BaseModel):
     gender: Gender | None = None
     custom_gender: str | None = Field(default=None, max_length=100)
     creator: str | None = Field(default=None, max_length=100)
+    species: str | None = Field(default=None, max_length=100)
+    age: str | None = Field(default=None, max_length=100)
     system_prompt: str | None = Field(default=None, max_length=50000)
     creator_notes: str | None = Field(default=None, max_length=50000)
     character_version: str | None = Field(default=None, max_length=100)
@@ -106,3 +110,15 @@ class CharacterResponse(CharacterBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_serializer("avatar")
+    def serialize_avatar(self, avatar: str | None) -> str | None:
+        if avatar and not (avatar.startswith("http://") or avatar.startswith("https://") or avatar.startswith("/")):
+            return f"/api/characters/{self.id}/avatar"
+        return avatar
+
+    @field_serializer("avatar_thumbnail")
+    def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:
+        if avatar_thumbnail and not (avatar_thumbnail.startswith("http://") or avatar_thumbnail.startswith("https://") or avatar_thumbnail.startswith("/")):
+            return f"/api/characters/{self.id}/avatar_thumbnail"
+        return avatar_thumbnail

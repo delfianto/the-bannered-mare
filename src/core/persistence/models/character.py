@@ -74,6 +74,12 @@ class Character(BaseModel):
     creator_notes: Mapped[str | None] = mapped_column(
         Text, nullable=True, comment="Creator's notes about the character (not sent to LLM)"
     )
+    species: Mapped[str | None] = mapped_column(
+        String(100), nullable=True, comment="Species of the character"
+    )
+    age: Mapped[str | None] = mapped_column(
+        String(100), nullable=True, comment="Age of the character"
+    )
     character_version: Mapped[str | None] = mapped_column(
         String(100), nullable=True, comment="Semantic version string from card spec"
     )
