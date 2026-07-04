@@ -13,10 +13,10 @@ from tests.integration.conftest import (
     SIMPLE_MESSAGES,
     has_anthropic_key,
     has_google_key,
+    has_lmstudio,
     has_ollama,
     has_openai_key,
     has_openrouter_key,
-    has_lmstudio,
 )
 
 # ---------------------------------------------------------------------------

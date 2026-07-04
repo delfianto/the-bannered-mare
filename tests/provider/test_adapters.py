@@ -3,6 +3,7 @@
 from src.provider.adapters.anthropic import AnthropicAdapter
 from src.provider.adapters.base import TokenUsage
 from src.provider.adapters.gemini import GeminiAdapter
+from src.provider.adapters.lmstudio import LMStudioAdapter, strip_v1_suffix
 from src.provider.adapters.ollama import OllamaAdapter
 from src.provider.adapters.openai import OpenAIAdapter
 
@@ -383,3 +384,34 @@ class TestOllamaAdapter:
 
     def test_timeout(self):
         assert self.adapter.get_timeout("llama3") == 300.0
+
+
+class TestLMStudioAdapter:
+    def setup_method(self):
+        self.adapter = LMStudioAdapter()
+
+    def test_build_url_bare_host(self):
+        url = self.adapter.build_url("http://localhost:1234", "llama-3", False)
+        assert url == "http://localhost:1234/v1/chat/completions"
+
+    def test_build_url_does_not_double_v1_suffix(self):
+        url = self.adapter.build_url("http://localhost:1234/v1", "llama-3", False)
+        assert url == "http://localhost:1234/v1/chat/completions"
+
+    def test_build_url_strips_trailing_slash(self):
+        url = self.adapter.build_url("http://localhost:1234/v1/", "llama-3", False)
+        assert url == "http://localhost:1234/v1/chat/completions"
+
+    def test_timeout(self):
+        assert self.adapter.get_timeout("llama-3") == 300.0
+
+
+class TestStripV1Suffix:
+    def test_bare_host_unchanged(self):
+        assert strip_v1_suffix("http://localhost:1234") == "http://localhost:1234"
+
+    def test_strips_v1_suffix(self):
+        assert strip_v1_suffix("http://localhost:1234/v1") == "http://localhost:1234"
+
+    def test_strips_trailing_slash_and_v1(self):
+        assert strip_v1_suffix("http://localhost:1234/v1/") == "http://localhost:1234"

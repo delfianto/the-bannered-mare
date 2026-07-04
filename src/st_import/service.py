@@ -95,20 +95,25 @@ class STImportService:
         used_fragment_names: set[str] = set()
         fragment_ids: list[str] = []
         for spec in plan.fragments:
-            frag_name = self._unique_name(
-                spec.name, self.fragment_repo.find_by_name, used_fragment_names
-            )
-            used_fragment_names.add(frag_name)
-            fragment = self.fragment_repo.create(
-                PromptFragment(
-                    id=gen_id(),
-                    name=frag_name,
-                    description=spec.description,
-                    fragment_type=spec.fragment_type,
-                    content=spec.content,
-                    is_global=False,
+            # Reimporting the same (or another preset sharing boilerplate) should
+            # reuse the existing fragment rather than pile up "(2)", "(3)", ...
+            # duplicates that only differ by name.
+            fragment = self.fragment_repo.find_by_content(spec.content)
+            if fragment is None:
+                frag_name = self._unique_name(
+                    spec.name, self.fragment_repo.find_by_name, used_fragment_names
                 )
-            )
+                used_fragment_names.add(frag_name)
+                fragment = self.fragment_repo.create(
+                    PromptFragment(
+                        id=gen_id(),
+                        name=frag_name,
+                        description=spec.description,
+                        fragment_type=spec.fragment_type,
+                        content=spec.content,
+                        is_global=False,
+                    )
+                )
             _ = self.template_fragment_repo.create(
                 TemplateFragment(
                     id=gen_id(),

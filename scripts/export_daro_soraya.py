@@ -5,9 +5,10 @@ import sys
 # Ensure project root is in path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.persistence.database import get_db
-from src.character.service import CharacterService
 from src.character.repository import CharacterRepository
+from src.character.service import CharacterService
+from src.core.persistence.database import get_db
+
 
 async def main():
     db_gen = get_db()
@@ -31,6 +32,7 @@ async def main():
         f.write(png_bytes)
 
     print(f"Successfully exported Daro-Soraya to {dest_path}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

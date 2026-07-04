@@ -125,6 +125,11 @@ class PromptFragment(BaseModel):
         back_populates="fragment", cascade="all, delete-orphan"
     )
 
+    @property
+    def used_by(self) -> list[PromptTemplate]:
+        """Templates currently referencing this fragment (via TemplateFragment)."""
+        return [tf.template for tf in self.template_fragments]
+
 
 @final
 class TemplateFragment(BaseModel):

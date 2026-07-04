@@ -82,6 +82,17 @@ class RAGSettings(BaseModel):
     vectorize_messages: bool = True
 
 
+class DiscoveryCacheSettings(BaseModel):
+    """In-process cache for auto-detected provider model lists (Ollama/LM Studio).
+
+    Named ``discovery_cache`` rather than ``model_cache`` — Pydantic reserves
+    the ``model_`` attribute prefix on BaseModel subclasses.
+    """
+
+    enabled: bool = True
+    ttl_seconds: int = 300
+
+
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
@@ -105,6 +116,15 @@ class Settings(BaseSettings):
 
     # RAG
     rag: RAGSettings = RAGSettings()
+
+    # Local provider auto-detection
+    discovery_cache: DiscoveryCacheSettings = DiscoveryCacheSettings()
+    ollama_host: str | None = Field(
+        default=None, description="Initial base URL for the seeded Ollama provider"
+    )
+    lmstudio_host: str | None = Field(
+        default=None, description="Initial base URL for the seeded LM Studio provider"
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",

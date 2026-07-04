@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from datetime import datetime
 from typing import TYPE_CHECKING, final
 
-from sqlalchemy import Boolean, Enum, String
+from sqlalchemy import Boolean, DateTime, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import ProviderType
@@ -106,6 +107,11 @@ class Provider(BaseModel):
         default=True,
         nullable=False,
         comment="Whether this provider is currently active and usable",
+    )
+    last_synced_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Timestamp when the provider's models were last synced",
     )
 
     models: Mapped[list[Model]] = relationship(

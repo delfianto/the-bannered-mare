@@ -1,9 +1,17 @@
 """Tests for ProviderService"""
 
+import httpx
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from src.provider import Provider, ProviderRepository, ProviderService, ProviderType
+from src.provider import (
+    DiscoveredModel,
+    Provider,
+    ProviderRepository,
+    ProviderService,
+    ProviderType,
+)
+from src.provider.model_cache import ModelListCache
 
 
 class TestProviderService:
@@ -183,3 +191,159 @@ class TestProviderService:
             service.delete("nonexistent-id")
 
         assert "cannot be deleted" in str(exc_info.value).lower()
+
+
+class _FakeDiscoveryClient:
+    """Stand-in for OllamaDiscoveryClient/LMStudioDiscoveryClient in service tests."""
+
+    def __init__(self, models: list[DiscoveredModel] | None = None, error: Exception | None = None):
+        self.models = models or []
+        self.error = error
+        self.list_calls = 0
+        self.load_calls: list[str] = []
+        self.unload_calls: list[str] = []
+
+    def list_models(self, base_url: str) -> list[DiscoveredModel]:
+        self.list_calls += 1
+        if self.error:
+            raise self.error
+        return self.models
+
+    def load_model(self, base_url: str, identifier: str) -> None:
+        if self.error:
+            raise self.error
+        self.load_calls.append(identifier)
+
+    def unload_model(self, base_url: str, identifier: str) -> None:
+        if self.error:
+            raise self.error
+        self.unload_calls.append(identifier)
+
+
+class TestProviderServiceDiscovery:
+    """Test suite for ProviderService model discovery/load/unload/cache logic"""
+
+    def _make_ollama_provider(self, db: Session) -> Provider:
+        provider = Provider(
+            name="Ollama", provider_type=ProviderType.OLLAMA, base_url="http://localhost:11434"
+        )
+        db.add(provider)
+        db.commit()
+        db.refresh(provider)
+        return provider
+
+    def test_list_available_models_unsupported_provider_type(self, db: Session) -> None:
+        provider = Provider(name="OpenAI", provider_type=ProviderType.OPENAI)
+        db.add(provider)
+        db.commit()
+        db.refresh(provider)
+
+        service = ProviderService(ProviderRepository(db))
+        with pytest.raises(HTTPException) as exc_info:
+            service.list_available_models(provider.id)
+
+        assert exc_info.value.status_code == 400
+
+    def test_list_available_models_live_fetch_then_cache_hit(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="llama3:8b", display_name="llama3:8b", state="loaded")
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+
+        first = service.list_available_models(provider.id)
+        assert first.from_cache is False
+        assert first.last_synced_at is not None
+        assert fake_client.list_calls == 1
+
+        second = service.list_available_models(provider.id)
+        assert second.from_cache is True
+        assert fake_client.list_calls == 1  # served from cache, no second live call
+
+    def test_sync_models_bypasses_cache(self, db: Session, monkeypatch: pytest.MonkeyPatch) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(models=[])
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        service.list_available_models(provider.id)
+        assert fake_client.list_calls == 1
+
+        result = service.sync_models(provider.id)
+        assert result.from_cache is False
+        assert fake_client.list_calls == 2
+
+    def test_discovery_cache_disabled_setting(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from src.core.config import settings
+
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(models=[])
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+        monkeypatch.setattr(settings.discovery_cache, "enabled", False)
+
+        service = ProviderService(ProviderRepository(db))
+        service.list_available_models(provider.id)
+        service.list_available_models(provider.id)
+        assert fake_client.list_calls == 2
+
+    def test_list_available_models_unreachable_returns_502(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(error=httpx.ConnectError("connection refused"))
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        with pytest.raises(HTTPException) as exc_info:
+            service.list_available_models(provider.id)
+
+        assert exc_info.value.status_code == 502
+
+    def test_load_model_invalidates_cache(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(models=[])
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        service.list_available_models(provider.id)
+        assert fake_client.list_calls == 1
+
+        result = service.load_model(provider.id, "llama3:8b")
+        assert result.action == "loaded"
+        assert fake_client.load_calls == ["llama3:8b"]
+
+        service.list_available_models(provider.id)
+        assert fake_client.list_calls == 2  # cache was invalidated by the load
+
+    def test_unload_model(self, db: Session, monkeypatch: pytest.MonkeyPatch) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(models=[])
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        result = service.unload_model(provider.id, "llama3:8b")
+
+        assert result.action == "unloaded"
+        assert fake_client.unload_calls == ["llama3:8b"]
+
+    def test_model_cache_is_isolated_per_service_instance_by_default(self, db: Session) -> None:
+        """Two ProviderService(repo) calls without an explicit cache get independent caches."""
+        service_a = ProviderService(ProviderRepository(db))
+        service_b = ProviderService(ProviderRepository(db))
+        assert service_a.model_cache is not service_b.model_cache
+
+    def test_model_cache_can_be_shared_explicitly(self, db: Session) -> None:
+        shared_cache = ModelListCache()
+        service_a = ProviderService(ProviderRepository(db), shared_cache)
+        service_b = ProviderService(ProviderRepository(db), shared_cache)
+        assert service_a.model_cache is service_b.model_cache

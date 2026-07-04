@@ -6,16 +6,17 @@ import sys
 # Ensure project root is in path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.core.persistence.database import get_db
-from src.character.service import CharacterService
-from src.character.repository import CharacterRepository
-from src.lore.repository import LoreRepository, LoreEntryRepository
-from src.lore.models import Lorebook, LoreEntry
-from src.core.persistence.enums import InsertionPosition, SecondaryLogic, MessageRole
 from fastapi import UploadFile
+from src.character.repository import CharacterRepository
+from src.character.service import CharacterService
+from src.core.persistence.database import get_db
+from src.core.persistence.enums import InsertionPosition, MessageRole, SecondaryLogic
+from src.lore.models import Lorebook, LoreEntry
+from src.lore.repository import LoreEntryRepository, LoreRepository
 
 # Path to the generated image
 GEN_IMAGE_PATH = "/home/geist/.gemini/antigravity-cli/brain/78afc4a2-d92d-4d56-84d7-f7287d59d7de/daro_soraya_avatar_1783165017861.jpg"
+
 
 async def main():
     # Initialize DB Session
@@ -32,12 +33,12 @@ async def main():
         # We read the image bytes
         with open(GEN_IMAGE_PATH, "rb") as f:
             img_data = f.read()
-        
+
         # Create UploadFile
         avatar_file = UploadFile(
             filename="daro_soraya.jpg",
             file=io.BytesIO(img_data),
-            headers={"content-type": "image/jpeg"}
+            headers={"content-type": "image/jpeg"},
         )
 
     # 2. Create Character
@@ -49,13 +50,13 @@ async def main():
         scenario="You encounter Daro-Soraya at a nomadic Khajiit caravan camp resting on the border of Valenwood and Northern Elsweyr. She performs a hypnotic dance under the twilight sky, but notices you watching her closely.",
         creator_notes="Elder Scrolls Lore-accurate Khajiit character. Daro-Soraya represents a high-intrigue spy and smuggler. She serves as an agent of the Thalmor in Elsweyr/Valenwood border disputes, but is secretly skimming off them to fund her own caravan's survival. Her name prefix 'Daro' denotes her thief/clever qualities.",
         system_prompt="You are roleplaying as Daro-Soraya, a cunning Khajiit caravan dancer, smuggler, and spy. Speak in the third-person style of the Khajiit ('Soraya thinks...', 'This one feels...'). Keep your replies mysterious, highly descriptive, and focus on body language, scent of sweet spices/moon-sugar, and the sound of your ankle bells.",
-        tags="[\"khajiit\", \"spy\", \"dancer\", \"elder-scrolls\", \"smuggler\"]",
+        tags='["khajiit", "spy", "dancer", "elder-scrolls", "smuggler"]',
         gender="others",
         custom_gender="Female",
         creator="yernox",
         species="Khajiit",
         age="27",
-        avatar=avatar_file
+        avatar=avatar_file,
     )
 
     print(f"Successfully seeded character Daro-Soraya with ID: {character.id}")
@@ -149,7 +150,7 @@ async def main():
             priority=130,
             ignore_budget=False,
             order=3,
-        )
+        ),
     ]
 
     for entry in entries:
@@ -157,6 +158,7 @@ async def main():
 
     lore_repo.commit()
     print("Successfully seeded all 4 lore entries!")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

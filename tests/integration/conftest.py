@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 from src.core.persistence.database import get_async_db_url
 from src.core.persistence.enums import ProviderType
+from src.provider.adapters.lmstudio import strip_v1_suffix
 from src.provider.gateway import ProviderGateway
 
 
@@ -120,6 +121,7 @@ def _lmstudio_host() -> str:
 def _ollama_available() -> bool:
     """Check if Ollama is running and has at least one model."""
     import httpx
+
     host = _ollama_host()
     try:
         resp = httpx.get(f"{host}/api/tags", timeout=2.0)
@@ -195,6 +197,7 @@ def openrouter_gateway() -> ProviderGateway:
 def ollama_gateway() -> ProviderGateway:
     """Use the first available Ollama model."""
     import httpx
+
     host = _ollama_host()
     resp = httpx.get(f"{host}/api/tags", timeout=2.0)
     model_name = resp.json()["models"][0]["name"]
@@ -207,12 +210,9 @@ def ollama_gateway() -> ProviderGateway:
 def _lmstudio_available() -> bool:
     """Check if LM Studio is running and has at least one model."""
     import httpx
+
     host = _lmstudio_host()
-    clean_host = host.rstrip("/")
-    if clean_host.endswith("/v1"):
-        endpoint = f"{clean_host}/models"
-    else:
-        endpoint = f"{clean_host}/v1/models"
+    endpoint = f"{strip_v1_suffix(host)}/v1/models"
     try:
         resp = httpx.get(endpoint, timeout=2.0)
         models = resp.json().get("data", [])
@@ -230,12 +230,9 @@ has_lmstudio = pytest.mark.skipif(
 def lmstudio_gateway() -> ProviderGateway:
     """Use the first available LM Studio model."""
     import httpx
+
     host = _lmstudio_host()
-    clean_host = host.rstrip("/")
-    if clean_host.endswith("/v1"):
-        endpoint = f"{clean_host}/models"
-    else:
-        endpoint = f"{clean_host}/v1/models"
+    endpoint = f"{strip_v1_suffix(host)}/v1/models"
     resp = httpx.get(endpoint, timeout=2.0)
     model_name = resp.json()["data"][0]["id"]
 

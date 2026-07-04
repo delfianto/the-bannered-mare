@@ -168,6 +168,19 @@ class TestCollisionAutoSuffix:
         }
         assert names == {"Same", "Same (2)"}
 
+    async def test_reimport_same_content_reuses_fragment(self, db: Session) -> None:
+        """Reimporting the same preset should reuse fragments by content, not duplicate them."""
+        first = await _import(
+            db, [st_prompt("f", content="identical")], ["f"], filename="Reuse.json"
+        )
+        second = await _import(
+            db, [st_prompt("f", content="identical")], ["f"], filename="Reuse.json"
+        )
+
+        assert second.template_name == "Reuse (2)"  # the template is still a fresh one
+        assert second.fragment_ids == first.fragment_ids  # but the fragment is reused
+        assert len(FragmentRepository(db).find_all_ordered()) == 1
+
     async def test_name_truncation_with_suffix_fits(self, db: Session) -> None:
         long_name = "A" * 100
         db.add(PromptTemplate(name=long_name, system_template="x"))

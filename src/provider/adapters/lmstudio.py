@@ -3,6 +3,20 @@
 from src.provider.adapters.openai import OpenAIAdapter
 
 
+def strip_v1_suffix(base_url: str) -> str:
+    """Strip a trailing ``/v1`` from a base URL.
+
+    Users commonly configure LM Studio's base_url with an OpenAI-SDK-style
+    ``/v1`` suffix already included. Both the OpenAI-compatible chat endpoint
+    and LM Studio's native ``/api/v1/...`` endpoints need the bare host, so
+    this normalization is shared rather than duplicated per call site.
+    """
+    clean_url = base_url.rstrip("/")
+    if clean_url.endswith("/v1"):
+        clean_url = clean_url[:-3]
+    return clean_url
+
+
 class LMStudioAdapter(OpenAIAdapter):
     """Adapter for LM Studio's OpenAI-compatible ``/v1/chat/completions`` endpoint.
 
@@ -19,10 +33,7 @@ class LMStudioAdapter(OpenAIAdapter):
         stream: bool,
         api_key: str | None = None,
     ) -> str:
-        clean_url = base_url.rstrip("/")
-        if clean_url.endswith("/v1"):
-            clean_url = clean_url[:-3]
-        return f"{clean_url}/v1/chat/completions"
+        return f"{strip_v1_suffix(base_url)}/v1/chat/completions"
 
     def get_timeout(self, model: str) -> float:
         # Local inference can be slow on first load / large models.

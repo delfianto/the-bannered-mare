@@ -241,6 +241,7 @@ class CharacterService:
             g_str = card.gender.lower().strip()
             if g_str in ["male", "female", "non-binary"]:
                 from src.core.persistence.enums import Gender
+
                 if g_str == "male":
                     gender_enum = Gender.MALE
                 elif g_str == "female":
@@ -249,10 +250,12 @@ class CharacterService:
                     gender_enum = Gender.NON_BINARY
             else:
                 from src.core.persistence.enums import Gender
+
                 gender_enum = Gender.OTHERS
                 custom_gender = card.gender
         elif card.custom_gender:
             from src.core.persistence.enums import Gender
+
             gender_enum = Gender.OTHERS
             custom_gender = card.custom_gender
 
@@ -280,9 +283,9 @@ class CharacterService:
 
         # Create character_book if present in card
         if hasattr(card, "character_book") and card.character_book:
-            from src.lore.repository import LoreRepository, LoreEntryRepository
+            from src.core.persistence.enums import InsertionPosition, MessageRole, SecondaryLogic
             from src.lore.models import Lorebook, LoreEntry
-            from src.core.persistence.enums import InsertionPosition, SecondaryLogic, MessageRole
+            from src.lore.repository import LoreEntryRepository, LoreRepository
 
             lore_repo = LoreRepository(self.character_repo.db)
             lore_entry_repo = LoreEntryRepository(self.character_repo.db)
@@ -336,7 +339,9 @@ class CharacterService:
 
                 lore_entry = LoreEntry(
                     lorebook_id=created_book.id,
-                    name=entry_dict.get("name") or entry_dict.get("comment") or (keys[0] if keys else "Untitled"),
+                    name=entry_dict.get("name")
+                    or entry_dict.get("comment")
+                    or (keys[0] if keys else "Untitled"),
                     content=content,
                     keys=keys,
                     secondary_keys=entry_dict.get("secondary_keys", []),
@@ -405,6 +410,7 @@ class CharacterService:
         # Fetch character-specific lorebooks
         from sqlalchemy import select
         from sqlalchemy.orm import joinedload
+
         from src.lore.models import Lorebook
 
         stmt = (
@@ -419,23 +425,29 @@ class CharacterService:
             lorebook = lorebooks[0]
             entries_data = []
             for entry in lorebook.entries:
-                entries_data.append({
-                    "keys": entry.keys,
-                    "content": entry.content,
-                    "constant": entry.constant,
-                    "enabled": entry.enabled,
-                    "name": entry.name,
-                    "secondary_keys": entry.secondary_keys,
-                    "case_sensitive": entry.case_sensitive,
-                    "use_regex": entry.use_regex,
-                    "match_whole_words": entry.match_whole_words,
-                    "position": entry.position.value if hasattr(entry.position, "value") else str(entry.position),
-                    "depth": entry.depth,
-                    "role": entry.role.value if hasattr(entry.role, "value") else str(entry.role),
-                    "priority": entry.priority,
-                    "ignore_budget": entry.ignore_budget,
-                    "order": entry.order,
-                })
+                entries_data.append(
+                    {
+                        "keys": entry.keys,
+                        "content": entry.content,
+                        "constant": entry.constant,
+                        "enabled": entry.enabled,
+                        "name": entry.name,
+                        "secondary_keys": entry.secondary_keys,
+                        "case_sensitive": entry.case_sensitive,
+                        "use_regex": entry.use_regex,
+                        "match_whole_words": entry.match_whole_words,
+                        "position": entry.position.value
+                        if hasattr(entry.position, "value")
+                        else str(entry.position),
+                        "depth": entry.depth,
+                        "role": entry.role.value
+                        if hasattr(entry.role, "value")
+                        else str(entry.role),
+                        "priority": entry.priority,
+                        "ignore_budget": entry.ignore_budget,
+                        "order": entry.order,
+                    }
+                )
             character_book = {
                 "name": lorebook.name,
                 "description": lorebook.description or "",

@@ -372,11 +372,14 @@ class TestCharacterService:
         assert character.name == "Lore Keeper"
 
         # Verify lorebook was created in the database
-        from src.lore.models import Lorebook
         from sqlalchemy import select
-        lorebook = db.execute(
-            select(Lorebook).where(Lorebook.character_id == character.id)
-        ).scalars().first()
+        from src.lore.models import Lorebook
+
+        lorebook = (
+            db.execute(select(Lorebook).where(Lorebook.character_id == character.id))
+            .scalars()
+            .first()
+        )
 
         assert lorebook is not None
         assert lorebook.name == "Keeper's Lore"
@@ -397,6 +400,7 @@ class TestCharacterService:
     @pytest.mark.anyio
     async def test_import_and_export_custom_fields(self, db):
         from src.core.persistence.enums import Gender
+
         repo = CharacterRepository(db)
         service = CharacterService(repo)
 
