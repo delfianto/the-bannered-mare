@@ -109,6 +109,20 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
         "use_openrouter": False,
     },
     {
+        "name": "Claude Sonnet 5",
+        "model_identifier": "claude-sonnet-5",
+        "openrouter_identifier": "anthropic/claude-sonnet-5",
+        "family_identifier": "anthropic/claude-sonnet-5",
+        "provider_type": "anthropic",
+        "parameters": {
+            "max_tokens": 8192,
+            "effort": "low",
+            "thinking": {"type": "disabled"},
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
+    {
         "name": "Claude Fable 5",
         "model_identifier": "claude-fable-5",
         "openrouter_identifier": "anthropic/claude-fable-5",
@@ -117,7 +131,6 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
         "parameters": {
             "max_tokens": 16384,
             "effort": "low",
-            # Fable 5 cannot disable thinking; adaptive is the only mode.
             "thinking": {"type": "adaptive"},
         },
         "enabled": True,
