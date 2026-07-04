@@ -31,6 +31,25 @@ function timeAgo(dateStr: string): string {
 
 <template>
   <div class="space-y-10 px-8 py-8 lg:px-12">
+    <!-- Header -->
+    <header class="animate-fade-in-up">
+      <div class="flex items-center gap-4">
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
+        >
+          <UIcon name="i-lucide-bookmark" class="h-7 w-7" />
+        </div>
+        <div>
+          <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+            {{ $t("bookmarks.title") }}
+          </h1>
+          <p class="mt-0.5 text-sm text-muted-foreground">
+            {{ $t("bookmarks.subtitle") }}
+          </p>
+        </div>
+      </div>
+    </header>
+
     <!-- Loading -->
     <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
       <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
@@ -43,25 +62,6 @@ function timeAgo(dateStr: string): string {
     </div>
 
     <template v-else>
-      <!-- Header -->
-      <header class="animate-fade-in-up">
-        <div class="flex items-center gap-4">
-          <div
-            class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
-          >
-            <UIcon name="i-lucide-bookmark" class="h-7 w-7" />
-          </div>
-          <div>
-            <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
-              {{ $t("bookmarks.title") }}
-            </h1>
-            <p class="mt-0.5 text-sm text-muted-foreground">
-              {{ $t("bookmarks.subtitle") }}
-            </p>
-          </div>
-        </div>
-      </header>
-
       <!-- Section 1: Favorite Characters -->
       <section
         v-if="characters.length > 0"
