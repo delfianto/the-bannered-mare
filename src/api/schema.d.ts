@@ -232,6 +232,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/providers/{provider_id}/models": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete Provider Model
+     * @description Delete/remove a model from a local provider's registry/filesystem
+     */
+    delete: operations["delete_provider_model_api_providers__provider_id__models_delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/providers/{provider_id}/models/persist": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Persist Provider Model
+     * @description Persist a discovered model as a local Model definition in the database
+     */
+    post: operations["persist_provider_model_api_providers__provider_id__models_persist_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/model-families/parameter-docs": {
     parameters: {
       query?: never;
@@ -2617,7 +2657,7 @@ export interface components {
        * Action
        * @enum {string}
        */
-      action: "loaded" | "unloaded";
+      action: "loaded" | "unloaded" | "deleted";
     };
     /**
      * ModelCreate
@@ -4132,6 +4172,75 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ModelActionResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  delete_provider_model_api_providers__provider_id__models_delete: {
+    parameters: {
+      query: {
+        /** @description Provider-native model identifier */
+        model_identifier: string;
+      };
+      header?: never;
+      path: {
+        provider_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ModelActionResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  persist_provider_model_api_providers__provider_id__models_persist_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        provider_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ModelActionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ModelResponse"];
         };
       };
       /** @description Validation Error */

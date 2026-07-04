@@ -114,6 +114,39 @@ export function useProvider() {
     }
   }
 
+  async function deleteModel(id: string, identifier: string) {
+    pendingModelAction.value = identifier;
+    try {
+      const { error: apiError } = await client.DELETE("/api/providers/{provider_id}/models", {
+        params: {
+          path: { provider_id: id },
+          query: { model_identifier: identifier },
+        },
+      });
+      if (apiError) throw new Error("Failed to delete model");
+      await fetchAvailableModels(id);
+    } finally {
+      pendingModelAction.value = null;
+    }
+  }
+
+  async function persistModel(id: string, identifier: string) {
+    pendingModelAction.value = identifier;
+    try {
+      const { data, error: apiError } = await client.POST(
+        "/api/providers/{provider_id}/models/persist",
+        {
+          params: { path: { provider_id: id } },
+          body: { model_identifier: identifier },
+        },
+      );
+      if (apiError) throw new Error("Failed to persist model");
+      return data;
+    } finally {
+      pendingModelAction.value = null;
+    }
+  }
+
   return {
     provider,
     loading,
@@ -130,5 +163,7 @@ export function useProvider() {
     syncNow,
     loadModel,
     unloadModel,
+    deleteModel,
+    persistModel,
   };
 }

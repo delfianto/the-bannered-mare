@@ -254,7 +254,7 @@ function formatDate(iso: string): string {
                   >
                     {{
                       fragmentTypeOptions.find((o) => o.value === form.fragment_type)?.label ||
-                      form.fragment_type
+                        form.fragment_type
                     }}
                   </button>
                 </USelectMenu>

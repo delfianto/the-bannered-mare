@@ -33,7 +33,7 @@ const emit = defineEmits<{
       </div>
       <textarea
         :value="pair.userMessage"
-        placeholder='*Examines the runes.* "What do they say?"'
+        placeholder="*Examines the runes.* &quot;What do they say?&quot;"
         rows="2"
         class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="
@@ -49,7 +49,7 @@ const emit = defineEmits<{
       </div>
       <textarea
         :value="pair.characterReply"
-        placeholder='*Traces the inscription.* "The script speaks of a key — not of metal, but of intent."'
+        placeholder="*Traces the inscription.* &quot;The script speaks of a key — not of metal, but of intent.&quot;"
         rows="3"
         class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="

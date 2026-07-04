@@ -60,9 +60,7 @@ function openFragment(id: string) {
         <UIcon name="i-lucide-filter" class="size-3.5" />
         Unused only
       </button>
-      <span class="text-xs text-muted-foreground"
-        >{{ total }} fragment{{ total === 1 ? "" : "s" }}</span
-      >
+      <span class="text-xs text-muted-foreground">{{ total }} fragment{{ total === 1 ? "" : "s" }}</span>
     </div>
 
     <!-- Loading -->
