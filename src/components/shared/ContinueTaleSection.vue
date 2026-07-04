@@ -87,7 +87,7 @@ function avatarSrc(chat: Chat): string {
         />
 
         <!-- Gradient overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
 
         <!-- Content -->
         <div class="absolute inset-x-0 bottom-0 p-4">

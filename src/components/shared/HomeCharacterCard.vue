@@ -30,7 +30,7 @@ function avatarSrc(): string {
     />
 
     <!-- Gradient overlay -->
-    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+    <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
 
     <!-- Bottom info overlay -->
     <div class="absolute inset-x-0 bottom-0 p-4">
