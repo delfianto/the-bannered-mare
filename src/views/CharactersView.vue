@@ -13,7 +13,7 @@ import CategoryPills from "@/components/discover/CategoryPills.vue";
 import BulkActionBar from "@/components/discover/BulkActionBar.vue";
 import CharacterCard from "@/components/discover/CharacterCard.vue";
 import CharacterListRow from "@/components/discover/CharacterListRow.vue";
-import EmptyState from "@/components/discover/EmptyState.vue";
+import EmptyState from "@/components/shared/EmptyState.vue";
 
 import ConfirmModal from "@/components/shared/ConfirmModal.vue";
 import ProfilePickerModal from "@/components/profiles/ProfilePickerModal.vue";
@@ -259,7 +259,7 @@ async function onFileSelected(event: Event) {
     <EmptyState
       v-if="!loading && filtered.length === 0"
       :has-filters="hasFilters"
-      @create-new="navigateToCreate"
+      @action="navigateToCreate"
     />
 
     <!-- Delete Confirmation Modal -->

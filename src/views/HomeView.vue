@@ -6,7 +6,7 @@ import SearchBar from "@/components/shared/SearchBar.vue";
 import ContinueTaleSection from "@/components/shared/ContinueTaleSection.vue";
 import DiscoverSection from "@/components/shared/DiscoverSection.vue";
 import SetupPromptBanner from "@/components/shared/SetupPromptBanner.vue";
-import EmptyState from "@/components/discover/EmptyState.vue";
+import EmptyState from "@/components/shared/EmptyState.vue";
 import { CATEGORIES } from "@/constants/discoverData";
 
 const router = useRouter();
@@ -38,7 +38,13 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
     </template>
     <template v-else-if="characters.length === 0 && chatSessions.length === 0">
       <div class="animate-fade-in-up" style="animation-delay: 80ms">
-        <EmptyState :has-filters="false" @create-new="router.push('/characters/create')" />
+        <EmptyState
+          icon="i-lucide-sparkles"
+          title="Welcome to Candlekeep"
+          description="Start your journey by creating your first character loadout, or import characters from SillyTavern."
+          action-label="Create Your First Character"
+          @action="router.push('/characters/create')"
+        />
       </div>
     </template>
     <template v-else>
