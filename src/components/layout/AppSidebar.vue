@@ -15,13 +15,13 @@ const { sessions } = useBookmarks();
 
 const navItems = [
   { id: "home", to: "/", label: t("nav.home"), icon: "i-lucide-home" },
-  { id: "characters", to: "/characters", label: t("nav.discover"), icon: "i-lucide-compass" },
-  { id: "bookmarks", to: "/bookmarks", label: t("nav.bookmarks"), icon: "i-lucide-bookmark" },
-  { id: "memory", to: "/memory", label: t("nav.dataBank"), icon: "i-lucide-database" },
   { id: "chats", to: "/chats", label: t("nav.sessions"), icon: "i-lucide-scroll-text" },
+  { id: "characters", to: "/characters", label: t("nav.discover"), icon: "i-lucide-compass" },
+  { id: "lorebooks", to: "/lorebooks", label: t("nav.lorebooks"), icon: "i-lucide-book-open" },
+  { id: "memory", to: "/memory", label: t("nav.dataBank"), icon: "i-lucide-database" },
+  { id: "bookmarks", to: "/bookmarks", label: t("nav.bookmarks"), icon: "i-lucide-bookmark" },
   { id: "connections", to: "/connections", label: t("nav.connections"), icon: "i-lucide-cable" },
   { id: "profiles", to: "/loadouts", label: t("nav.profiles"), icon: "i-lucide-layers" },
-  { id: "lorebooks", to: "/lorebooks", label: t("nav.lorebooks"), icon: "i-lucide-book-open" },
 ];
 
 function isActive(to: string) {
