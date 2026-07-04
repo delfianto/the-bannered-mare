@@ -205,7 +205,9 @@ onMounted(fetchAll);
             <span class="font-mono text-xs text-foreground">{{ row.model }}</span>
             <span class="flex-1" />
             <span class="text-xs text-muted-foreground">{{ row.total_calls }} calls</span>
-            <span class="text-xs text-muted-foreground">{{ formatTokens(row.total_tokens) }} tokens</span>
+            <span class="text-xs text-muted-foreground"
+              >{{ formatTokens(row.total_tokens) }} tokens</span
+            >
             <span class="text-xs text-muted-foreground">{{ formatCost(row.total_cost_usd) }}</span>
             <span class="text-xs text-muted-foreground">{{
               formatDuration(row.avg_latency_ms)
@@ -404,11 +406,13 @@ onMounted(fetchAll);
             <pre
               v-if="err.stack_trace"
               class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-            >{{ err.stack_trace }}</pre>
+              >{{ err.stack_trace }}</pre
+            >
             <pre
               v-if="Object.keys(err.context).length"
               class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-            >{{ JSON.stringify(err.context, null, 2) }}</pre>
+              >{{ JSON.stringify(err.context, null, 2) }}</pre
+            >
           </div>
         </div>
       </section>

@@ -549,7 +549,8 @@ function formatDate(iso: string): string {
               <div v-if="preview" class="mt-4 rounded-lg border border-border/50 bg-muted/20 p-4">
                 <pre
                   class="font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground"
-                >{{ preview.rendered }}</pre>
+                  >{{ preview.rendered }}</pre
+                >
               </div>
             </div>
           </div>

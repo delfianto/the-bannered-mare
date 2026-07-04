@@ -97,9 +97,11 @@ function onImported() {
         <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-sliders-horizontal" class="size-3 shrink-0" />
-            <span>{{ parameterCount(preset) }} parameter{{
-              parameterCount(preset) !== 1 ? "s" : ""
-            }}</span>
+            <span
+              >{{ parameterCount(preset) }} parameter{{
+                parameterCount(preset) !== 1 ? "s" : ""
+              }}</span
+            >
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
