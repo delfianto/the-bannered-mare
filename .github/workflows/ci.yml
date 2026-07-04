@@ -77,9 +77,9 @@ jobs:
           python-version: "3.14"
       - name: Install dependencies
         run: uv sync --locked --extra dev
-      - name: Start VectorChord (Postgres + pgvector) via podman
+      - name: Start VectorChord (Postgres + pgvector) via docker
         run: |
-          podman run -d --name vchord -p 5432:5432 \
+          docker run -d --name vchord -p 5432:5432 \
             -e POSTGRES_USER=candlekeep \
             -e POSTGRES_PASSWORD=candlekeep \
             -e POSTGRES_DB=candlekeep \
@@ -87,12 +87,12 @@ jobs:
       - name: Wait for Postgres to be ready
         run: |
           for i in $(seq 1 30); do
-            if podman exec vchord pg_isready -U candlekeep -d candlekeep; then
+            if docker exec vchord pg_isready -U candlekeep -d candlekeep; then
               echo "postgres ready"; exit 0
             fi
             echo "waiting for postgres ($i)..."; sleep 2
           done
-          echo "postgres did not become ready"; podman logs vchord; exit 1
+          echo "postgres did not become ready"; docker logs vchord; exit 1
       - name: Apply migrations
         run: uv run alembic upgrade head
       - name: Run Postgres integration tests
