@@ -19,7 +19,7 @@ withDefaults(defineProps<Props>(), {
     <!-- Header (Optional) -->
     <header
       v-if="title || $slots.header || $slots.headerActions"
-      class="flex-shrink-0"
+      class="shrink-0"
       :class="{ 'animate-fade-in-up': animate }"
     >
       <slot name="header">
