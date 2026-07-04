@@ -234,6 +234,28 @@ class CharacterService:
         if card.example_dialogues:
             example_list = [card.example_dialogues]
 
+        # Map gender string to Gender enum or OTHERS
+        gender_enum = None
+        custom_gender = None
+        if card.gender:
+            g_str = card.gender.lower().strip()
+            if g_str in ["male", "female", "non-binary"]:
+                from src.core.persistence.enums import Gender
+                if g_str == "male":
+                    gender_enum = Gender.MALE
+                elif g_str == "female":
+                    gender_enum = Gender.FEMALE
+                elif g_str == "non-binary":
+                    gender_enum = Gender.NON_BINARY
+            else:
+                from src.core.persistence.enums import Gender
+                gender_enum = Gender.OTHERS
+                custom_gender = card.gender
+        elif card.custom_gender:
+            from src.core.persistence.enums import Gender
+            gender_enum = Gender.OTHERS
+            custom_gender = card.custom_gender
+
         character = Character(
             name=card.name,
             description=card.description or None,
@@ -248,6 +270,10 @@ class CharacterService:
             character_version=card.character_version or None,
             alternate_greetings=card.alternate_greetings or None,
             tags=card.tags or None,
+            species=card.species or None,
+            age=card.age or None,
+            gender=gender_enum,
+            custom_gender=custom_gender,
             version=2,
         )
         created = self.character_repo.create(character)
@@ -431,6 +457,10 @@ class CharacterService:
             alternate_greetings=character.alternate_greetings or [],
             tags=character.tags or [],
             character_book=character_book,
+            species=character.species or "",
+            gender=character.gender.value if character.gender else "",
+            custom_gender=character.custom_gender or "",
+            age=character.age or "",
         )
 
     def _parse_json_field(self, value: str | None, field_name: str):

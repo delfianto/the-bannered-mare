@@ -36,6 +36,10 @@ class ParsedCard:
     tags: list[str] = field(default_factory=list)
     extensions: dict[str, Any] = field(default_factory=dict)
     character_book: dict[str, Any] = field(default_factory=dict)
+    species: str = ""
+    gender: str = ""
+    custom_gender: str = ""
+    age: str = ""
     spec: str = "chara_card_v2"
     spec_version: str = "2.0"
 
@@ -71,6 +75,15 @@ def _read_png_text_chunks(data: bytes) -> dict[str, str]:
 
 def _parse_v2_data(data: dict[str, Any]) -> ParsedCard:
     """Parse V2 'data' object into a ParsedCard."""
+    exts = data.get("extensions", {})
+    ck_ext = exts.get("candlekeep", {})
+    cp_ext = exts.get("chara_personal_details", {})
+
+    species = ck_ext.get("species") or exts.get("species") or cp_ext.get("species") or ""
+    age = ck_ext.get("age") or exts.get("age") or cp_ext.get("age") or ""
+    gender = ck_ext.get("gender") or exts.get("gender") or cp_ext.get("gender") or ""
+    custom_gender = ck_ext.get("custom_gender") or exts.get("custom_gender") or ""
+
     return ParsedCard(
         name=data.get("name", "Unknown"),
         description=data.get("description", ""),
@@ -85,8 +98,12 @@ def _parse_v2_data(data: dict[str, Any]) -> ParsedCard:
         character_version=data.get("character_version", ""),
         alternate_greetings=data.get("alternate_greetings", []),
         tags=data.get("tags", []),
-        extensions=data.get("extensions", {}),
+        extensions=exts,
         character_book=data.get("character_book", {}),
+        species=str(species),
+        gender=str(gender),
+        custom_gender=str(custom_gender),
+        age=str(age),
         spec=data.get("spec", "chara_card_v2"),
         spec_version=data.get("spec_version", "2.0"),
     )
@@ -140,6 +157,25 @@ def parse_card_png(png_data: bytes) -> ParsedCard:
 
 def card_to_v2_dict(card: ParsedCard) -> dict[str, Any]:
     """Convert a ParsedCard back to TavernCard V2 JSON structure."""
+    extensions = dict(card.extensions or {})
+
+    ck_data = {}
+    if card.species:
+        ck_data["species"] = card.species
+        extensions["species"] = card.species
+    if card.gender:
+        ck_data["gender"] = card.gender
+        extensions["gender"] = card.gender
+    if card.custom_gender:
+        ck_data["custom_gender"] = card.custom_gender
+        extensions["custom_gender"] = card.custom_gender
+    if card.age:
+        ck_data["age"] = card.age
+        extensions["age"] = card.age
+
+    if ck_data:
+        extensions["candlekeep"] = ck_data
+
     res = {
         "spec": "chara_card_v2",
         "spec_version": "2.0",
@@ -157,7 +193,7 @@ def card_to_v2_dict(card: ParsedCard) -> dict[str, Any]:
             "character_version": card.character_version,
             "alternate_greetings": card.alternate_greetings,
             "tags": card.tags,
-            "extensions": card.extensions,
+            "extensions": extensions,
         },
     }
     if card.character_book:
