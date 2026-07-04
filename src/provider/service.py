@@ -114,6 +114,7 @@ class ProviderService:
         name: str | None = None,
         base_url: str | None = None,
         api_key_env_var: str | None = None,
+        enabled: bool | None = None,
     ) -> Provider:
         """Update provider"""
         provider = self.get_by_id(provider_id)
@@ -144,6 +145,8 @@ class ProviderService:
             provider.base_url = base_url
         if api_key_env_var is not None:
             provider.api_key_env_var = api_key_env_var
+        if enabled is not None:
+            provider.enabled = enabled
 
         updated = self.provider_repo.update(provider)
         self.provider_repo.commit()

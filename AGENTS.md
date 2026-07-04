@@ -132,6 +132,13 @@ pytest
 - Use custom exceptions defined in [exceptions.py](file:///srv/project/personal/candlekeep-core/src/core/exceptions.py).
 - Map service-level exceptions to HTTP exceptions in the `Router` layer, not the Service layer.
 
+### 6.4 Tailwind CSS Conventions
+- **Canonical Classes:** When writing Tailwind CSS utility classes, always use the canonical/short forms instead of deprecated or alias classes.
+  - Use `shrink-0` instead of `flex-shrink-0`
+  - Use `shrink` instead of `flex-shrink`
+  - Use `grow` instead of `flex-grow`
+  - Use `grow-0` instead of `flex-grow-0`
+
 ---
 
 ## 7. Example Task Template

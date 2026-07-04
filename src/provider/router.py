@@ -47,6 +47,7 @@ def update_provider(provider_id: str, provider_data: ProviderUpdate, service: Pr
         name=provider_data.name,
         base_url=provider_data.base_url,
         api_key_env_var=provider_data.api_key_env_var,
+        enabled=provider_data.enabled,
     )
 
 
