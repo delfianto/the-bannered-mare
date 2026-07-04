@@ -17,6 +17,7 @@ import EmptyState from "@/components/shared/EmptyState.vue";
 
 import ConfirmModal from "@/components/shared/ConfirmModal.vue";
 import ProfilePickerModal from "@/components/profiles/ProfilePickerModal.vue";
+import PageContainer from "@/components/layout/PageContainer.vue";
 
 const router = useRouter();
 const { t } = useI18n();
@@ -160,7 +161,15 @@ async function onFileSelected(event: Event) {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-8 px-12 py-8">
+  <PageContainer>
+    <template #header>
+      <DiscoverHeader
+        :character-count="filtered.length"
+        @import="openImportDialog"
+        @create-new="navigateToCreate"
+      />
+    </template>
+
     <!-- Hidden file input for import -->
     <input
       ref="fileInputRef"
@@ -169,15 +178,6 @@ async function onFileSelected(event: Event) {
       class="hidden"
       @change="onFileSelected"
     />
-
-    <!-- Header -->
-    <div class="animate-fade-in-up">
-      <DiscoverHeader
-        :character-count="filtered.length"
-        @import="openImportDialog"
-        @create-new="navigateToCreate"
-      />
-    </div>
 
     <!-- Filters -->
     <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 60ms">
@@ -285,5 +285,5 @@ async function onFileSelected(event: Event) {
       @choose="chooseProfile"
       @cancel="cancelProfilePick"
     />
-  </div>
+  </PageContainer>
 </template>
