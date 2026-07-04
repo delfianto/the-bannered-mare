@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { reactive, onMounted, watch, computed } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useProvider } from "@/composables/useProvider";
+import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
 import anthropicIcon from "@/assets/icons/anthropic.svg";
 import googleIcon from "@/assets/icons/google.svg";
@@ -31,6 +32,8 @@ const {
   syncNow,
   loadModel,
   unloadModel,
+  deleteModel,
+  persistModel,
 } = useProvider();
 const toast = useAppToast();
 
@@ -58,10 +61,21 @@ const form = reactive({
   enabled: true,
 });
 
+const { models: persistedModels, loadPage: loadPersistedModels } = useModels({ pageSize: 100 });
+
+function isPersisted(modelIdentifier: string): boolean {
+  return persistedModels.value.some(
+    (m) => m.model_identifier === modelIdentifier && m.provider_id === provider.value?.id,
+  );
+}
+
 onMounted(async () => {
   const id = route.params.id as string;
   await fetchProvider(id);
-  if (isLocalProvider.value) await fetchAvailableModels(id);
+  if (isLocalProvider.value) {
+    await fetchAvailableModels(id);
+    await loadPersistedModels(1, { provider_id: id });
+  }
 });
 
 watch(provider, (p) => {
@@ -132,9 +146,12 @@ async function handleSyncNow() {
 
 async function handleLoadModel(identifier: string) {
   if (!provider.value) return;
+  if (!confirm(`Are you sure you want to load "${identifier}" into memory?`)) {
+    return;
+  }
   try {
     await loadModel(provider.value.id, identifier);
-    toast.success(`Loading ${identifier}`);
+    toast.success(`Loaded ${identifier}`);
   } catch (e) {
     toast.error("Failed to load model");
   }
@@ -142,11 +159,53 @@ async function handleLoadModel(identifier: string) {
 
 async function handleUnloadModel(identifier: string) {
   if (!provider.value) return;
+  if (!confirm(`Are you sure you want to unload "${identifier}" from memory?`)) {
+    return;
+  }
   try {
     await unloadModel(provider.value.id, identifier);
     toast.success(`Unloaded ${identifier}`);
   } catch (e) {
     toast.error("Failed to unload model");
+  }
+}
+
+async function handleDeleteModel(identifier: string) {
+  if (!provider.value) return;
+  if (
+    !confirm(
+      `Are you sure you want to delete model "${identifier}" from the provider server? This cannot be undone.`,
+    )
+  ) {
+    return;
+  }
+  try {
+    await deleteModel(provider.value.id, identifier);
+    toast.success(`Deleted ${identifier}`);
+    await loadPersistedModels(1, { provider_id: provider.value.id });
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : "Failed to delete model");
+  }
+}
+
+async function handlePersistModel(identifier: string) {
+  if (!provider.value) return;
+  try {
+    await persistModel(provider.value.id, identifier);
+    toast.success(`Persisted definition for ${identifier}`);
+    await loadPersistedModels(1, { provider_id: provider.value.id });
+  } catch (e) {
+    toast.error("Failed to persist model definition");
+  }
+}
+
+const openMenuModel = ref<string | null>(null);
+
+function toggleMenu(identifier: string) {
+  if (openMenuModel.value === identifier) {
+    openMenuModel.value = null;
+  } else {
+    openMenuModel.value = identifier;
   }
 }
 </script>
@@ -386,9 +445,9 @@ async function handleUnloadModel(identifier: string) {
               <li
                 v-for="model in availableModels"
                 :key="model.identifier"
-                class="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2"
+                class="relative flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2"
               >
-                <div class="min-w-0">
+                <div class="min-w-0 pr-4">
                   <p class="truncate text-sm text-foreground">{{ model.display_name }}</p>
                   <p class="text-[10px] text-muted-foreground">
                     {{
@@ -411,22 +470,89 @@ async function handleUnloadModel(identifier: string) {
                     />
                     {{ model.state === "loaded" ? "Loaded" : "Not Loaded" }}
                   </span>
-                  <button
-                    class="flex h-7 items-center gap-1 rounded-md border px-2 text-[11px] font-medium text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
-                    :disabled="pendingModelAction === model.identifier"
-                    @click="
-                      model.state === 'loaded'
-                        ? handleUnloadModel(model.identifier)
-                        : handleLoadModel(model.identifier)
-                    "
-                  >
-                    <UIcon
-                      v-if="pendingModelAction === model.identifier"
-                      name="i-lucide-loader-2"
-                      class="size-3 animate-spin"
-                    />
-                    {{ model.state === "loaded" ? "Unload" : "Load" }}
-                  </button>
+
+                  <!-- Context Dropdown Menu -->
+                  <div class="relative">
+                    <button
+                      class="flex size-7 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                      :disabled="pendingModelAction === model.identifier"
+                      @click.stop="toggleMenu(model.identifier)"
+                    >
+                      <UIcon
+                        v-if="pendingModelAction === model.identifier"
+                        name="i-lucide-loader-2"
+                        class="size-3.5 animate-spin"
+                      />
+                      <UIcon v-else name="i-lucide-ellipsis-vertical" class="size-3.5" />
+                    </button>
+
+                    <Transition
+                      enter-active-class="transition duration-150 ease-out"
+                      enter-from-class="scale-95 opacity-0"
+                      enter-to-class="scale-100 opacity-100"
+                      leave-active-class="transition duration-100 ease-in"
+                      leave-from-class="scale-100 opacity-100"
+                      leave-to-class="scale-95 opacity-0"
+                    >
+                      <div
+                        v-if="openMenuModel === model.identifier"
+                        class="absolute top-full right-0 z-50 mt-1 w-44 origin-top-right rounded-lg border bg-popover py-1 shadow-lg"
+                      >
+                        <!-- Click outside handler overlay -->
+                        <div class="fixed inset-0 z-[-1]" @click.stop="openMenuModel = null" />
+
+                        <!-- Load / Unload option -->
+                        <button
+                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-popover-foreground transition-colors hover:bg-muted/60"
+                          @click="
+                            openMenuModel = null;
+                            model.state === 'loaded'
+                              ? handleUnloadModel(model.identifier)
+                              : handleLoadModel(model.identifier);
+                          "
+                        >
+                          <UIcon
+                            :name="model.state === 'loaded' ? 'i-lucide-square' : 'i-lucide-play'"
+                            class="size-3.5"
+                          />
+                          {{ model.state === "loaded" ? "Unload Model" : "Load Model" }}
+                        </button>
+
+                        <!-- Persist option -->
+                        <button
+                          v-if="!isPersisted(model.identifier)"
+                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-popover-foreground transition-colors hover:bg-muted/60"
+                          @click="
+                            openMenuModel = null;
+                            handlePersistModel(model.identifier);
+                          "
+                        >
+                          <UIcon name="i-lucide-database-backup" class="size-3.5" />
+                          Persist Definition
+                        </button>
+                        <div
+                          v-else
+                          class="flex w-full cursor-not-allowed items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/60"
+                        >
+                          <UIcon name="i-lucide-check" class="size-3.5 text-emerald-500" />
+                          Persisted
+                        </div>
+
+                        <!-- Delete option (Ollama only) -->
+                        <button
+                          v-if="provider.provider_type === 'ollama'"
+                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-destructive transition-colors hover:bg-destructive/10"
+                          @click="
+                            openMenuModel = null;
+                            handleDeleteModel(model.identifier);
+                          "
+                        >
+                          <UIcon name="i-lucide-trash-2" class="size-3.5" />
+                          Delete Model
+                        </button>
+                      </div>
+                    </Transition>
+                  </div>
                 </div>
               </li>
             </ul>
