@@ -32,12 +32,12 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
     </div>
 
     <template v-if="charsLoading || chatsLoading">
-      <div class="flex justify-center py-16">
+      <div class="flex flex-1 items-center justify-center py-16">
         <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     </template>
     <template v-else-if="characters.length === 0 && chatSessions.length === 0">
-      <div class="animate-fade-in-up" style="animation-delay: 80ms">
+      <div class="animate-fade-in-up flex flex-1 flex-col" style="animation-delay: 80ms">
         <EmptyState
           icon="i-lucide-sparkles"
           title="Welcome to Candlekeep"
