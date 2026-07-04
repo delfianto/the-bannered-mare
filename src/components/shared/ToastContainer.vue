@@ -20,22 +20,30 @@ const getTypeClasses = (type: string) => {
   switch (type) {
     case "success":
       return {
-        border: "border-emerald-500/25 bg-emerald-950/90 text-emerald-100",
-        icon: "text-emerald-400",
+        border: "border-emerald-500/20 bg-emerald-50 dark:bg-emerald-950/85",
+        text: "text-emerald-900 dark:text-emerald-100",
+        desc: "text-emerald-700 dark:text-emerald-300",
+        icon: "text-emerald-600/90 dark:text-emerald-400",
       };
     case "error":
       return {
-        border: "border-destructive/25 bg-red-950/90 text-red-100",
-        icon: "text-red-400",
+        border: "border-destructive/20 bg-red-50 dark:bg-red-950/85",
+        text: "text-red-900 dark:text-red-100",
+        desc: "text-red-700 dark:text-red-300",
+        icon: "text-red-600/90 dark:text-red-400",
       };
     case "warning":
       return {
-        border: "border-amber-500/25 bg-amber-950/90 text-amber-100",
-        icon: "text-amber-400",
+        border: "border-amber-500/20 bg-amber-50 dark:bg-amber-950/85",
+        text: "text-amber-900 dark:text-amber-100",
+        desc: "text-amber-700 dark:text-amber-300",
+        icon: "text-amber-600/90 dark:text-amber-400",
       };
     default:
       return {
-        border: "border-white/10 bg-stone-900/90 text-stone-100",
+        border: "border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900/85",
+        text: "text-stone-900 dark:text-stone-100",
+        desc: "text-stone-600 dark:text-stone-400",
         icon: "text-primary",
       };
   }
@@ -59,7 +67,7 @@ const getTypeClasses = (type: string) => {
           v-for="toast in toasts"
           :key="toast.id"
           class="pointer-events-auto flex w-full overflow-hidden rounded-xl border p-4 shadow-2xl backdrop-blur-md"
-          :class="getTypeClasses(toast.type).border"
+          :class="[getTypeClasses(toast.type).border, getTypeClasses(toast.type).text]"
         >
           <div class="flex w-full items-start gap-3">
             <UIcon
@@ -68,20 +76,19 @@ const getTypeClasses = (type: string) => {
               :class="getTypeClasses(toast.type).icon"
             />
             <div class="min-w-0 flex-1">
-              <h4
-                class="font-cinzel text-xs font-semibold uppercase tracking-wider text-foreground"
-              >
+              <h4 class="font-cinzel text-xs font-semibold uppercase tracking-wider text-current">
                 {{ toast.title }}
               </h4>
               <p
                 v-if="toast.description"
-                class="mt-1 text-xs text-muted-foreground leading-relaxed"
+                class="mt-1 text-xs leading-relaxed"
+                :class="getTypeClasses(toast.type).desc"
               >
                 {{ toast.description }}
               </p>
             </div>
             <button
-              class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:bg-white/10 hover:text-foreground active:scale-95"
+              class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-current/60 transition-colors hover:bg-current/10 hover:text-current active:scale-95"
               @click="removeToast(toast.id)"
             >
               <UIcon name="i-lucide-x" class="h-3.5 w-3.5" />
