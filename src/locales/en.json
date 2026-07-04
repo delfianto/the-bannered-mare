@@ -387,7 +387,7 @@
       "isDefault": "Default Template",
       "systemTemplate": "System Template",
       "systemTemplatePlaceholder": "Jinja2 system template…",
-      "systemTemplateHint": "Jinja2 template. Variables: {{char}}, {{user}}, {{description}}, {{personality}}, {{scenario}}",
+      "systemTemplateHint": "Jinja2 template. Variables: char, user, description, personality, scenario",
       "components": "Prompt Components",
       "noComponents": "No components configured",
       "fragments": "Attached Fragments",

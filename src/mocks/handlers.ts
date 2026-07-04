@@ -2,6 +2,7 @@ import { http, HttpResponse, delay } from "msw";
 import { characters } from "@/mocks/data/characters";
 import { chats } from "@/mocks/data/chats";
 import { providers } from "@/mocks/data/providers";
+import { discoveredModelsByProvider } from "@/mocks/data/discovered-models";
 import { allModelsMock } from "@/mocks/data/models-data";
 import { personas } from "@/mocks/data/personas";
 import { allModelFamiliesMock } from "@/mocks/data/model-families-data";
@@ -557,6 +558,59 @@ export const handlers = [
     return HttpResponse.json(provider);
   }),
 
+  // Available models (auto-detected, cached) for local providers
+  http.get("/api/providers/:providerId/models/available", async ({ params }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    await delay(300);
+    return HttpResponse.json({
+      provider_id: provider.id,
+      models: discoveredModelsByProvider[provider.id] ?? [],
+      last_synced_at: provider.last_synced_at ?? null,
+      from_cache: false,
+    });
+  }),
+
+  // Force-sync a provider's model list
+  http.post("/api/providers/:providerId/models/sync", async ({ params }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    provider.last_synced_at = new Date().toISOString();
+    await delay(500);
+    return HttpResponse.json({
+      provider_id: provider.id,
+      models: discoveredModelsByProvider[provider.id] ?? [],
+      last_synced_at: provider.last_synced_at,
+      from_cache: false,
+    });
+  }),
+
+  // Load a model into memory
+  http.post("/api/providers/:providerId/models/load", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const model = (discoveredModelsByProvider[provider.id] ?? []).find(
+      (m) => m.identifier === body.model_identifier,
+    );
+    if (model) model.state = "loaded";
+    await delay(800);
+    return HttpResponse.json({ model_identifier: body.model_identifier, action: "loaded" });
+  }),
+
+  // Unload a model from memory
+  http.post("/api/providers/:providerId/models/unload", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const model = (discoveredModelsByProvider[provider.id] ?? []).find(
+      (m) => m.identifier === body.model_identifier,
+    );
+    if (model) model.state = "not-loaded";
+    await delay(300);
+    return HttpResponse.json({ model_identifier: body.model_identifier, action: "unloaded" });
+  }),
+
   // Models List
   http.get("/api/models", async ({ request }) => {
     await delay(100);
@@ -1032,6 +1086,9 @@ export const handlers = [
     const url = new URL(request.url);
     const fragmentType = url.searchParams.get("fragment_type");
     const isGlobal = url.searchParams.get("is_global");
+    const unusedOnly = url.searchParams.get("unused_only");
+    const page = Number(url.searchParams.get("page") ?? "1");
+    const limit = Number(url.searchParams.get("limit") ?? "20");
 
     await delay(150);
 
@@ -1042,8 +1099,24 @@ export const handlers = [
     if (isGlobal !== null && isGlobal !== undefined && isGlobal !== "") {
       items = items.filter((f) => f.is_global === (isGlobal === "true"));
     }
+    if (unusedOnly === "true") {
+      items = items.filter((f) => (f.used_by ?? []).length === 0);
+    }
 
-    return HttpResponse.json(items);
+    const total = items.length;
+    const offset = (page - 1) * limit;
+    const pageItems = items.slice(offset, offset + limit);
+
+    return HttpResponse.json({
+      items: pageItems,
+      meta: {
+        limit,
+        has_more: offset + limit < total,
+        cursor: null,
+        total,
+        page,
+      },
+    });
   }),
 
   http.get("/api/prompt-fragments/:fragmentId", async ({ params }) => {

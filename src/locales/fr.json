@@ -266,7 +266,7 @@
       "isDefault": "Modèle par défaut",
       "systemTemplate": "Modèle système",
       "systemTemplatePlaceholder": "Modèle système Jinja2…",
-      "systemTemplateHint": "Modèle Jinja2. Variables : {{char}}, {{user}}, {{description}}, {{personality}}, {{scenario}}",
+      "systemTemplateHint": "Modèle Jinja2. Variables : char, user, description, personality, scenario",
       "components": "Composants du prompt",
       "noComponents": "Aucun composant configuré",
       "fragments": "Fragments attachés",

@@ -266,7 +266,7 @@
       "isDefault": "Template padrão",
       "systemTemplate": "Template de sistema",
       "systemTemplatePlaceholder": "Template de sistema Jinja2…",
-      "systemTemplateHint": "Template Jinja2. Variáveis: {{char}}, {{user}}, {{description}}, {{personality}}, {{scenario}}",
+      "systemTemplateHint": "Template Jinja2. Variáveis: char, user, description, personality, scenario",
       "components": "Componentes do prompt",
       "noComponents": "Nenhum componente configurado",
       "fragments": "Fragmentos anexados",

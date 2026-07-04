@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useCharacters } from "@/composables/useCharacters";
+import { useCreateChat } from "@/composables/useCreateChat";
 import { useLibraryFilters } from "@/composables/useLibraryFilters";
 import { useAppToast } from "@/composables/useToast";
 import { CATEGORIES } from "@/constants/discoverData";
@@ -15,10 +16,12 @@ import CharacterListRow from "@/components/discover/CharacterListRow.vue";
 import EmptyState from "@/components/discover/EmptyState.vue";
 
 import ConfirmModal from "@/components/shared/ConfirmModal.vue";
+import ProfilePickerModal from "@/components/profiles/ProfilePickerModal.vue";
 
 const router = useRouter();
 const { t } = useI18n();
 const { success, error: toastError } = useAppToast();
+const { startTale, profileChoices, chooseProfile, cancelProfilePick } = useCreateChat();
 
 // Deletion confirmation state
 const showDeleteConfirm = ref(false);
@@ -67,6 +70,12 @@ async function handleContextAction(action: string, id: string) {
     characterToDelete.value = id;
     bulkDeleteMode.value = false;
     showDeleteConfirm.value = true;
+  } else if (action === "start-tale") {
+    try {
+      await startTale(id);
+    } catch {
+      // toast already surfaced by useCreateChat
+    }
   } else {
     console.log("Context action:", action, id);
   }
@@ -268,6 +277,13 @@ async function onFileSelected(event: Event) {
       destructive
       @confirm="executeDelete"
       @close="showDeleteConfirm = false"
+    />
+
+    <ProfilePickerModal
+      v-if="profileChoices"
+      :profiles="profileChoices"
+      @choose="chooseProfile"
+      @cancel="cancelProfilePick"
     />
   </div>
 </template>

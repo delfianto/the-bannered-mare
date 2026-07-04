@@ -5,12 +5,21 @@ import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
 import type { components } from "@/api/schema";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
+import ProfilePickerModal from "@/components/profiles/ProfilePickerModal.vue";
+import { useCreateChat } from "@/composables/useCreateChat";
 
 type CharacterResponse = components["schemas"]["CharacterResponse"];
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
+const {
+  creating,
+  profileChoices,
+  startTale: createTale,
+  chooseProfile,
+  cancelProfilePick,
+} = useCreateChat();
 
 const character = ref<CharacterResponse | null>(null);
 const loading = ref(true);
@@ -65,11 +74,12 @@ function genderLabel(
   return gender.charAt(0).toUpperCase() + gender.slice(1);
 }
 
-function startTale() {
-  router.push({
-    path: "/tales",
-    query: { new: "true", character: characterId.value },
-  });
+async function startTale() {
+  try {
+    await createTale(characterId.value);
+  } catch {
+    // toast already surfaced by useCreateChat
+  }
 }
 </script>
 
@@ -292,10 +302,15 @@ function startTale() {
         <!-- Start Tale Button -->
         <div class="animate-fade-in-up" style="animation-delay: 180ms">
           <button
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-cinzel text-sm font-semibold tracking-wide text-primary-foreground transition-colors hover:bg-primary/90"
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-cinzel text-sm font-semibold tracking-wide text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-60"
+            :disabled="creating"
             @click="startTale"
           >
-            <UIcon name="i-lucide-message-square-plus" class="h-5 w-5" />
+            <UIcon
+              :name="creating ? 'i-lucide-loader-2' : 'i-lucide-message-square-plus'"
+              class="h-5 w-5"
+              :class="{ 'animate-spin': creating }"
+            />
             {{ $t("characters.detail.startTale") }}
           </button>
         </div>
@@ -318,4 +333,11 @@ function startTale() {
       </div>
     </div>
   </div>
+
+  <ProfilePickerModal
+    v-if="profileChoices"
+    :profiles="profileChoices"
+    @choose="chooseProfile"
+    @cancel="cancelProfilePick"
+  />
 </template>

@@ -4,6 +4,7 @@ import { useCharacters } from "@/composables/useCharacters";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import ContinueTaleSection from "@/components/shared/ContinueTaleSection.vue";
 import DiscoverSection from "@/components/shared/DiscoverSection.vue";
+import SetupPromptBanner from "@/components/shared/SetupPromptBanner.vue";
 import { CATEGORIES } from "@/constants/discoverData";
 
 const { chatSessions, loading: chatsLoading } = useChatSessions({ pageSize: 8 });
@@ -20,6 +21,11 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
       <p class="text-sm text-muted-foreground">
         {{ $t("home.tagline") }}
       </p>
+    </div>
+
+    <!-- Setup prompt (only shown when no profiles exist yet) -->
+    <div class="animate-fade-in-up" style="animation-delay: 40ms">
+      <SetupPromptBanner />
     </div>
 
     <!-- Search -->

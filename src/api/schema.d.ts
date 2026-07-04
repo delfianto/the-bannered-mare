@@ -152,6 +152,86 @@ export interface paths {
         patch: operations["update_provider_flags_api_providers__provider_id__flags_patch"];
         trace?: never;
     };
+    "/api/providers/{provider_id}/models/available": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Available Models
+         * @description List models live-detected on a local provider (Ollama/LM Studio), cache-aware
+         */
+        get: operations["list_available_models_api_providers__provider_id__models_available_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/providers/{provider_id}/models/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Provider Models
+         * @description Force a live refresh of a provider's model list, bypassing the cache
+         */
+        post: operations["sync_provider_models_api_providers__provider_id__models_sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/providers/{provider_id}/models/load": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Load Provider Model
+         * @description Load a model into memory on a local provider
+         */
+        post: operations["load_provider_model_api_providers__provider_id__models_load_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/providers/{provider_id}/models/unload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unload Provider Model
+         * @description Unload a model from memory on a local provider
+         */
+        post: operations["unload_provider_model_api_providers__provider_id__models_unload_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/model-families/parameter-docs": {
         parameters: {
             query?: never;
@@ -990,7 +1070,7 @@ export interface paths {
         };
         /**
          * List Fragments
-         * @description List prompt fragments with optional filtering
+         * @description List prompt fragments with pagination, filtering, and template-usage info
          */
         get: operations["list_fragments_api_prompt_fragments__get"];
         put?: never;
@@ -1428,6 +1508,20 @@ export interface components {
              */
             ordinal: number;
         };
+        /**
+         * AvailableModelsResponse
+         * @description Result of listing (or syncing) a provider's live model list.
+         */
+        AvailableModelsResponse: {
+            /** Provider Id */
+            provider_id: string;
+            /** Models */
+            models: components["schemas"]["DiscoveredModel"][];
+            /** Last Synced At */
+            last_synced_at: string | null;
+            /** From Cache */
+            from_cache: boolean;
+        };
         /** Body_create_character_api_characters_post */
         Body_create_character_api_characters_post: {
             /** Name */
@@ -1840,6 +1934,30 @@ export interface components {
             scope?: string | null;
         };
         /**
+         * DiscoveredModel
+         * @description A model discovered by querying a local provider's native API.
+         */
+        DiscoveredModel: {
+            /**
+             * Identifier
+             * @description Provider-native model identifier
+             */
+            identifier: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "loaded" | "not-loaded";
+            /** Size Bytes */
+            size_bytes?: number | null;
+            /** Quantization */
+            quantization?: string | null;
+            /** Max Context Length */
+            max_context_length?: number | null;
+        };
+        /**
          * ErrorLogPage
          * @description Paginated error logs
          */
@@ -1937,6 +2055,21 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /**
+             * Used By
+             * @description Templates currently referencing this fragment
+             */
+            used_by?: components["schemas"]["FragmentTemplateSummary"][];
+        };
+        /**
+         * FragmentTemplateSummary
+         * @description Minimal template reference, for showing which templates use a fragment.
+         */
+        FragmentTemplateSummary: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
         };
         /**
          * FragmentUpdate
@@ -2466,6 +2599,27 @@ export interface components {
             content: string;
         };
         /**
+         * ModelActionRequest
+         * @description Identifies which discovered model a load/unload action applies to.
+         */
+        ModelActionRequest: {
+            /** Model Identifier */
+            model_identifier: string;
+        };
+        /**
+         * ModelActionResponse
+         * @description Result of a load/unload action.
+         */
+        ModelActionResponse: {
+            /** Model Identifier */
+            model_identifier: string;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "loaded" | "unloaded";
+        };
+        /**
          * ModelCreate
          * @description Schema for creating a new model definition
          */
@@ -2903,6 +3057,12 @@ export interface components {
         PaginatedResponse_ChatResponse_: {
             /** Items */
             items: components["schemas"]["ChatResponse"][];
+            meta: components["schemas"]["PaginationMeta"];
+        };
+        /** PaginatedResponse[FragmentResponse] */
+        PaginatedResponse_FragmentResponse_: {
+            /** Items */
+            items: components["schemas"]["FragmentResponse"][];
             meta: components["schemas"]["PaginationMeta"];
         };
         /** PaginatedResponse[MessageResponse] */
@@ -3354,6 +3514,8 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Last Synced At */
+            last_synced_at?: string | null;
             /**
              * Api Key Configured
              * @description Whether API key is available in environment
@@ -3830,6 +3992,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProviderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_available_models_api_providers__provider_id__models_available_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailableModelsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_provider_models_api_providers__provider_id__models_sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailableModelsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    load_provider_model_api_providers__provider_id__models_load_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelActionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unload_provider_model_api_providers__provider_id__models_unload_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelActionResponse"];
                 };
             };
             /** @description Validation Error */
@@ -5837,10 +6131,16 @@ export interface operations {
     list_fragments_api_prompt_fragments__get: {
         parameters: {
             query?: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page */
+                limit?: number;
                 /** @description Filter by fragment type */
                 fragment_type?: string | null;
                 /** @description Filter by global status */
                 is_global?: boolean | null;
+                /** @description Only fragments not attached to any template */
+                unused_only?: boolean;
             };
             header?: never;
             path?: never;
@@ -5854,7 +6154,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FragmentResponse"][];
+                    "application/json": components["schemas"]["PaginatedResponse_FragmentResponse_"];
                 };
             };
             /** @description Validation Error */

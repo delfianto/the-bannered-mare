@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { usePresetImport } from "@/composables/usePresetImport";
+import type { STImportResult } from "@/composables/usePresetImport";
 
 const emit = defineEmits<{
   close: [];
-  imported: [];
+  imported: [result: STImportResult];
 }>();
 
 const { importing, result, error, importPreset, reset } = usePresetImport();
@@ -18,7 +19,7 @@ function browse() {
 
 async function handleFile(file: File) {
   const res = await importPreset(file);
-  if (res) emit("imported");
+  if (res) emit("imported", res);
 }
 
 function onFileSelected(e: Event) {
