@@ -187,7 +187,7 @@ async function setDefault(personaId: string) {
   <div class="mx-auto max-w-2xl animate-fade-in-up">
     <!-- Header Row -->
     <div class="mb-4 flex items-center justify-between">
-      <h3 class="font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+      <h3 class="font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase">
         {{ $t("settings.persona.title") }}
       </h3>
       <UButton
@@ -213,7 +213,7 @@ async function setDefault(personaId: string) {
             v-model="formName"
             type="text"
             :placeholder="$t('settings.persona.namePlaceholder')"
-            class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
         <label class="block">
@@ -224,7 +224,7 @@ async function setDefault(personaId: string) {
             v-model="formDescription"
             rows="3"
             :placeholder="$t('settings.persona.descriptionPlaceholder')"
-            class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
         <div class="flex items-center gap-3">
@@ -255,7 +255,7 @@ async function setDefault(personaId: string) {
             @click="saveForm"
           >
             <span v-if="formSaving" class="flex items-center gap-2">
-              <UIcon name="i-lucide-loader-2" class="h-3.5 w-3.5 animate-spin" />
+              <UIcon name="i-lucide-loader-2" class="size-3.5 animate-spin" />
               {{ $t("common.saving") }}
             </span>
             <span v-else>
@@ -278,18 +278,18 @@ async function setDefault(personaId: string) {
 
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-16">
-      <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-muted-foreground" />
+      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="rounded-xl border bg-card/50 p-8 text-center">
-      <UIcon name="i-lucide-alert-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+      <UIcon name="i-lucide-alert-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ error }}</p>
     </div>
 
     <!-- Empty State -->
     <div v-else-if="personas.length === 0" class="rounded-xl border bg-card/50 p-8 text-center">
-      <UIcon name="i-lucide-user-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+      <UIcon name="i-lucide-user-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ $t("settings.persona.noPersonas") }}</p>
     </div>
 
@@ -304,7 +304,7 @@ async function setDefault(personaId: string) {
         <img
           :src="getAvatarSrc(persona)"
           :alt="persona.name"
-          class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-border"
+          class="size-12 shrink-0 rounded-full object-cover ring-1 ring-border"
         />
 
         <!-- Info -->
@@ -351,7 +351,7 @@ async function setDefault(personaId: string) {
             @click="openEditForm(persona)"
           />
           <button
-            class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm transition-colors"
+            class="inline-flex size-8 items-center justify-center rounded-md text-sm transition-colors"
             :class="
               pendingDeleteId === persona.id
                 ? 'bg-destructive/10 text-destructive'
@@ -368,7 +368,7 @@ async function setDefault(personaId: string) {
               :name="
                 pendingDeleteId === persona.id ? 'i-lucide-alert-triangle' : 'i-lucide-trash-2'
               "
-              class="h-4 w-4"
+              class="size-4"
             />
           </button>
         </div>

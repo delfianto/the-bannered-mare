@@ -8,12 +8,12 @@ const { templates, loading, error, refresh } = usePromptTemplates();
   <div>
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -41,7 +41,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
           </div>
           <span
             v-if="template.is_default"
-            class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground"
+            class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
           >
             Default
           </span>
@@ -61,20 +61,20 @@ const { templates, loading, error, refresh } = usePromptTemplates();
         <!-- Details -->
         <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
           <div v-if="template.max_history_tokens" class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-hash" class="h-3 w-3 shrink-0" />
+            <UIcon name="i-lucide-hash" class="size-3 shrink-0" />
             <span>{{ template.max_history_tokens.toLocaleString() }} max history tokens</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-clock" class="h-3 w-3 shrink-0" />
+            <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
             <span>{{ new Date(template.updated_at).toLocaleDateString() }}</span>
           </div>
         </div>
 
         <!-- Edit hint -->
         <div
-          class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+          class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
         >
-          <UIcon name="i-lucide-pencil" class="h-3 w-3" />
+          <UIcon name="i-lucide-pencil" class="size-3" />
           {{ $t("common.edit") }}
         </div>
       </RouterLink>

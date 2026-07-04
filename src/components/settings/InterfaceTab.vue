@@ -44,19 +44,19 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-2xl space-y-8 animate-fade-in-up">
+  <div class="mx-auto max-w-2xl animate-fade-in-up space-y-8">
     <!-- Behavior Section -->
     <section>
       <h3
-        class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+        class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
       >
         {{ $t("settings.interface.behavior") }}
       </h3>
-      <div class="rounded-xl border bg-card/50 p-5 space-y-5">
+      <div class="space-y-5 rounded-xl border bg-card/50 p-5">
         <!-- Stream Responses -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-radio" class="h-5 w-5 text-primary" />
+            <UIcon name="i-lucide-radio" class="size-5 text-primary" />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.streamResponses") }}
@@ -75,7 +75,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             @click="toggleStream"
           >
             <span
-              class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+              class="size-4 rounded-full shadow-sm transition-transform duration-300"
               :class="streamResponses ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
             />
           </button>
@@ -87,7 +87,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Show Typing Indicator -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-pen-tool" class="h-5 w-5 text-primary" />
+            <UIcon name="i-lucide-pen-tool" class="size-5 text-primary" />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.typingIndicator") }}
@@ -106,7 +106,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             @click="toggleTyping"
           >
             <span
-              class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+              class="size-4 rounded-full shadow-sm transition-transform duration-300"
               :class="typingIndicator ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
             />
           </button>
@@ -118,7 +118,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Language -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-languages" class="h-5 w-5 text-primary" />
+            <UIcon name="i-lucide-languages" class="size-5 text-primary" />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.language") }}
@@ -140,10 +140,10 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             }"
           >
             <button
-              class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+              class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
             >
               {{ SUPPORTED_LOCALES.find((l) => l.code === currentLocale)?.name }}
-              <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 text-muted-foreground" />
+              <UIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -153,15 +153,15 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
     <!-- Color Scheme Section -->
     <section>
       <h3
-        class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+        class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
       >
         {{ $t("settings.interface.colorScheme") }}
       </h3>
-      <div class="rounded-xl border bg-card/50 p-5 space-y-5">
+      <div class="space-y-5 rounded-xl border bg-card/50 p-5">
         <!-- Dark mode toggle -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" class="h-5 w-5 text-primary" />
+            <UIcon :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" class="size-5 text-primary" />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.darkMode") }}
@@ -180,7 +180,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             @click="toggleTheme"
           >
             <span
-              class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+              class="size-4 rounded-full shadow-sm transition-transform duration-300"
               :class="isDark ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
             />
           </button>
@@ -203,13 +203,13 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           >
             <!-- Mini UI mockup -->
             <div
-              class="aspect-[4/3] w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
+              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
             >
               <div class="flex h-full">
                 <!-- Sidebar strip -->
                 <div class="w-[10px] shrink-0" :style="{ backgroundColor: previewBg(preset) }">
                   <div
-                    class="mx-auto mt-2 h-1.5 w-1.5 rounded-full"
+                    class="mx-auto mt-2 size-1.5 rounded-full"
                     :style="{ backgroundColor: preset.preview.primary }"
                   />
                 </div>
@@ -228,15 +228,15 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
                     />
                     <div class="flex gap-1">
                       <div
-                        class="h-3 w-3 rounded opacity-20"
+                        class="size-3 rounded opacity-20"
                         :style="{ backgroundColor: preset.preview.primary }"
                       />
                       <div
-                        class="h-3 w-3 rounded opacity-20"
+                        class="size-3 rounded opacity-20"
                         :style="{ backgroundColor: preset.preview.primary }"
                       />
                       <div
-                        class="h-3 w-3 rounded opacity-20"
+                        class="size-3 rounded opacity-20"
                         :style="{ backgroundColor: preset.preview.primary }"
                       />
                     </div>
@@ -248,9 +248,9 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             <!-- Active checkmark -->
             <div
               v-if="colorScheme === preset.id"
-              class="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
+              class="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
             >
-              <UIcon name="i-lucide-check" class="h-3 w-3" />
+              <UIcon name="i-lucide-check" class="size-3" />
             </div>
 
             <!-- Label -->

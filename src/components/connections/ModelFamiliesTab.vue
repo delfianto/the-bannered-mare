@@ -15,12 +15,12 @@ function goToPage(pageNum: number) {
   <div>
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
@@ -31,7 +31,7 @@ function goToPage(pageNum: number) {
         v-if="families.length === 0"
         class="flex flex-col items-center justify-center gap-2 py-16"
       >
-        <UIcon name="i-lucide-folder-open" class="h-8 w-8 text-muted-foreground/50" />
+        <UIcon name="i-lucide-folder-open" class="size-8 text-muted-foreground/50" />
         <p class="text-sm text-muted-foreground">{{ $t("connections.noFamilies") }}</p>
       </div>
 
@@ -77,7 +77,7 @@ function goToPage(pageNum: number) {
             <span
               v-for="pt in family.provider_types"
               :key="pt"
-              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground"
+              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
             >
               {{ pt }}
             </span>
@@ -85,9 +85,9 @@ function goToPage(pageNum: number) {
 
           <!-- Edit hint -->
           <div
-            class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+            class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
           >
-            <UIcon name="i-lucide-pencil" class="h-3 w-3" />
+            <UIcon name="i-lucide-pencil" class="size-3" />
             {{ $t("common.edit") }}
           </div>
         </RouterLink>
@@ -98,12 +98,12 @@ function goToPage(pageNum: number) {
         <span class="text-xs text-muted-foreground"> Page {{ page }} of {{ totalPages }} </span>
         <div class="flex items-center gap-2">
           <UButton variant="outline" size="xs" :disabled="page <= 1" @click="goToPage(page - 1)">
-            <UIcon name="i-lucide-chevron-left" class="h-3.5 w-3.5" />
+            <UIcon name="i-lucide-chevron-left" class="size-3.5" />
             Prev
           </UButton>
           <UButton variant="outline" size="xs" :disabled="!hasMore" @click="goToPage(page + 1)">
             Next
-            <UIcon name="i-lucide-chevron-right" class="h-3.5 w-3.5" />
+            <UIcon name="i-lucide-chevron-right" class="size-3.5" />
           </UButton>
         </div>
       </div>

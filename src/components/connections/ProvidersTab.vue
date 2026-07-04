@@ -47,12 +47,12 @@ function formatUrl(url: string | null): string {
   <div>
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -74,24 +74,24 @@ function formatUrl(url: string | null): string {
         <!-- Header: icon + name + status -->
         <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2.5">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent p-1.5">
+            <div class="flex size-8 items-center justify-center rounded-lg bg-accent p-1.5">
               <img
                 :src="getIcon(provider.provider_type)"
                 :alt="provider.provider_type"
-                class="h-full w-full object-contain dark:invert"
+                class="size-full object-contain dark:invert"
               />
             </div>
             <div class="min-w-0">
               <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
                 {{ provider.name }}
               </h3>
-              <span class="text-[10px] uppercase tracking-wide text-muted-foreground">
+              <span class="text-[10px] tracking-wide text-muted-foreground uppercase">
                 {{ provider.provider_type }}
               </span>
             </div>
           </div>
           <span
-            class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
+            class="mt-1 size-2.5 shrink-0 rounded-full"
             :class="provider.enabled ? 'bg-emerald-500' : 'bg-red-400'"
             :title="provider.enabled ? 'Enabled' : 'Disabled'"
           />
@@ -103,11 +103,11 @@ function formatUrl(url: string | null): string {
         <!-- Details (pinned to bottom area) -->
         <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-link" class="h-3 w-3 shrink-0" />
+            <UIcon name="i-lucide-link" class="size-3 shrink-0" />
             <span class="truncate">{{ formatUrl(provider.base_url) }}</span>
           </div>
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-key" class="h-3 w-3 shrink-0" />
+            <UIcon name="i-lucide-key" class="size-3 shrink-0" />
             <span v-if="provider.api_key_configured" class="text-emerald-500">{{
               $t("connections.provider.keyConfigured")
             }}</span>
@@ -117,9 +117,9 @@ function formatUrl(url: string | null): string {
 
         <!-- Edit hint -->
         <div
-          class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+          class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
         >
-          <UIcon name="i-lucide-pencil" class="h-3 w-3" />
+          <UIcon name="i-lucide-pencil" class="size-3" />
           {{ $t("common.edit") }}
         </div>
       </RouterLink>

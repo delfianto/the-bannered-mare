@@ -62,7 +62,7 @@ const filteredModels = computed(() => models.value);
 <template>
   <div>
     <!-- Filters row -->
-    <div class="animate-fade-in-up mb-6 flex flex-wrap items-center gap-2">
+    <div class="mb-6 flex animate-fade-in-up flex-wrap items-center gap-2">
       <!-- Search -->
       <div class="relative min-w-[200px] flex-1">
         <div
@@ -75,7 +75,7 @@ const filteredModels = computed(() => models.value);
         >
           <UIcon
             name="i-lucide-search"
-            class="h-4 w-4 shrink-0 transition-colors"
+            class="size-4 shrink-0 transition-colors"
             :class="searchFocused ? 'text-primary' : 'text-muted-foreground'"
           />
           <input
@@ -95,7 +95,6 @@ const filteredModels = computed(() => models.value);
       <!-- Provider filter (server-side via API) -->
       <USelectMenu
         :model-value="selectedProvider"
-        @update:model-value="handleProviderFilter"
         :items="providerItems"
         value-key="value"
         :search-input="false"
@@ -104,11 +103,12 @@ const filteredModels = computed(() => models.value);
           content: 'border bg-card ring-0 outline-none shadow-lg',
           item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
         }"
+        @update:model-value="handleProviderFilter"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground outline-none transition-all hover:border-muted-foreground/30"
+          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
-          <UIcon name="i-lucide-server" class="h-3.5 w-3.5" />
+          <UIcon name="i-lucide-server" class="size-3.5" />
           {{ providerLabel }}
         </button>
       </USelectMenu>
@@ -128,9 +128,9 @@ const filteredModels = computed(() => models.value);
       >
         <button
           disabled
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground/50 outline-none cursor-not-allowed"
+          class="flex h-9 min-w-[160px] cursor-not-allowed items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground/50 outline-none"
         >
-          <UIcon name="i-lucide-layers" class="h-3.5 w-3.5" />
+          <UIcon name="i-lucide-layers" class="size-3.5" />
           {{ $t("connections.allFamilies") }}
         </button>
       </USelectMenu>
@@ -138,12 +138,12 @@ const filteredModels = computed(() => models.value);
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
@@ -154,7 +154,7 @@ const filteredModels = computed(() => models.value);
         v-if="filteredModels.length === 0"
         class="flex flex-col items-center justify-center gap-2 py-16"
       >
-        <UIcon name="i-lucide-search-x" class="h-8 w-8 text-muted-foreground/50" />
+        <UIcon name="i-lucide-search-x" class="size-8 text-muted-foreground/50" />
         <p class="text-sm text-muted-foreground">{{ $t("connections.noModels") }}</p>
       </div>
 
@@ -178,7 +178,7 @@ const filteredModels = computed(() => models.value);
               </p>
             </div>
             <span
-              class="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full"
+              class="mt-0.5 size-2.5 shrink-0 rounded-full"
               :class="model.enabled ? 'bg-emerald-500' : 'bg-red-400'"
               :title="model.enabled ? 'Enabled' : 'Disabled'"
             />
@@ -190,7 +190,7 @@ const filteredModels = computed(() => models.value);
           <!-- Badges (pinned to bottom) -->
           <div class="flex flex-wrap items-center gap-1.5 border-t border-border/30 pt-3">
             <span
-              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground"
+              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
             >
               {{ model.provider_id }}
             </span>
@@ -203,9 +203,9 @@ const filteredModels = computed(() => models.value);
 
           <!-- Edit hint -->
           <div
-            class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+            class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
           >
-            <UIcon name="i-lucide-pencil" class="h-3 w-3" />
+            <UIcon name="i-lucide-pencil" class="size-3" />
             {{ $t("common.edit") }}
           </div>
         </RouterLink>
@@ -219,12 +219,12 @@ const filteredModels = computed(() => models.value);
         <span class="text-xs text-muted-foreground"> Page {{ page }} of {{ totalPages }} </span>
         <div class="flex items-center gap-2">
           <UButton variant="outline" size="xs" :disabled="page <= 1" @click="loadPage(page - 1)">
-            <UIcon name="i-lucide-chevron-left" class="h-3.5 w-3.5" />
+            <UIcon name="i-lucide-chevron-left" class="size-3.5" />
             Prev
           </UButton>
           <UButton variant="outline" size="xs" :disabled="!hasMore" @click="loadPage(page + 1)">
             Next
-            <UIcon name="i-lucide-chevron-right" class="h-3.5 w-3.5" />
+            <UIcon name="i-lucide-chevron-right" class="size-3.5" />
           </UButton>
         </div>
       </div>

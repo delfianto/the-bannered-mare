@@ -28,7 +28,7 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
       </div>
     </template>
 
-    <div class="space-y-8 flex flex-col flex-1 w-full">
+    <div class="flex w-full flex-1 flex-col space-y-8">
       <!-- Setup prompt (only shown when no profiles exist yet) -->
       <div class="animate-fade-in-up" style="animation-delay: 40ms">
         <SetupPromptBanner />
@@ -36,11 +36,11 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
 
       <template v-if="charsLoading || chatsLoading">
         <div class="flex flex-1 items-center justify-center py-16">
-          <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
+          <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
         </div>
       </template>
       <template v-else-if="characters.length === 0 && chatSessions.length === 0">
-        <div class="animate-fade-in-up flex flex-1 flex-col" style="animation-delay: 80ms">
+        <div class="flex flex-1 animate-fade-in-up flex-col" style="animation-delay: 80ms">
           <EmptyState
             icon="i-lucide-sparkles"
             title="Welcome to Candlekeep"

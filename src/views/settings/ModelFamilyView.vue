@@ -110,14 +110,14 @@ function formatDate(iso: string): string {
       class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
-        <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -134,15 +134,15 @@ function formatDate(iso: string): string {
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             :aria-label="$t('connections.family.backToFamilies')"
             @click="router.push({ path: '/connections', query: { tab: 'model-families' } })"
           >
-            <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
+            <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
           </button>
           <div class="flex items-center gap-2">
-            <div class="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
-              <UIcon name="i-lucide-layers" class="h-3.5 w-3.5 text-primary-foreground" />
+            <div class="flex size-6 items-center justify-center rounded-md bg-primary">
+              <UIcon name="i-lucide-layers" class="size-3.5 text-primary-foreground" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Model Family
@@ -164,7 +164,7 @@ function formatDate(iso: string): string {
           >
             <UIcon
               :name="deleting ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
-              class="h-4 w-4"
+              class="size-4"
               :class="{ 'animate-spin': deleting }"
             />
             {{
@@ -184,7 +184,7 @@ function formatDate(iso: string): string {
           >
             <UIcon
               :name="saving ? 'i-lucide-loader-2' : 'i-lucide-save'"
-              class="h-4 w-4"
+              class="size-4"
               :class="{ 'animate-spin': saving }"
             />
             {{ saving ? $t("common.saving") : $t("common.save") }}
@@ -201,7 +201,7 @@ function formatDate(iso: string): string {
               <!-- Name -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.family.name") }}
                 </span>
@@ -209,14 +209,14 @@ function formatDate(iso: string): string {
                   v-model="form.name"
                   type="text"
                   placeholder="Family name"
-                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
               <!-- Family Identifier -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.family.identifier") }}
                 </span>
@@ -224,14 +224,14 @@ function formatDate(iso: string): string {
                   v-model="form.family_identifier"
                   type="text"
                   placeholder="provider/model-family"
-                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
               <!-- Description -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.family.description") }}
                 </span>
@@ -239,7 +239,7 @@ function formatDate(iso: string): string {
                   v-model="form.description"
                   rows="3"
                   :placeholder="t('connections.family.descriptionPlaceholder')"
-                  class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
             </div>
@@ -248,7 +248,7 @@ function formatDate(iso: string): string {
           <!-- Provider Types card -->
           <div class="rounded-xl border bg-card/50 p-5">
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.family.providerTypes") }}
             </h2>
@@ -256,7 +256,7 @@ function formatDate(iso: string): string {
               <span
                 v-for="pt in family.provider_types"
                 :key="pt"
-                class="rounded-full bg-accent px-3 py-1 text-xs font-medium uppercase tracking-wide text-foreground"
+                class="rounded-full bg-accent px-3 py-1 text-xs font-medium tracking-wide text-foreground uppercase"
               >
                 {{ pt }}
               </span>
@@ -272,7 +272,7 @@ function formatDate(iso: string): string {
             class="rounded-xl border bg-card/50 p-5"
           >
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.family.parameterSchema") }}
             </h2>
@@ -285,7 +285,7 @@ function formatDate(iso: string): string {
                 <div class="flex items-center gap-2">
                   <code class="text-sm font-semibold text-primary">{{ key }}</code>
                   <span
-                    class="rounded bg-accent px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground"
+                    class="rounded bg-accent px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground uppercase"
                   >
                     {{ getParamType(schema) }}
                   </span>
@@ -314,7 +314,7 @@ function formatDate(iso: string): string {
             class="rounded-xl border bg-card/50 p-5"
           >
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.family.unsupportedParams") }}
             </h2>

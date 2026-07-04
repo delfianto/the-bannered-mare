@@ -6,7 +6,6 @@ type ModelFamilyItem = components["schemas"]["ModelFamilyListResponse"];
 
 // Helper to strip 'parameters' for the list view to reduce payload size
 const toSummary = (item: any): ModelFamilyItem => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { parameters, ...rest } = item;
   return rest as ModelFamilyItem;
 };

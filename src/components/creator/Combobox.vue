@@ -44,7 +44,7 @@ function handleBlur(e: FocusEvent) {
       <input
         :value="open ? filter : modelValue"
         :placeholder="placeholder"
-        class="h-11 w-full rounded-lg border bg-muted/40 px-4 pr-10 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-11 w-full rounded-lg border bg-muted/40 px-4 pr-10 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="
           filter = ($event.target as HTMLInputElement).value;
           open = true;
@@ -54,19 +54,19 @@ function handleBlur(e: FocusEvent) {
       <button
         type="button"
         tabindex="-1"
-        class="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground"
+        class="absolute top-0 right-0 flex h-full w-10 items-center justify-center text-muted-foreground"
         @click="open = !open"
       >
         <UIcon
           name="i-lucide-chevron-down"
-          class="h-4 w-4 transition-transform"
+          class="size-4 transition-transform"
           :class="open ? 'rotate-180' : ''"
         />
       </button>
     </div>
     <div
       v-if="open && filtered.length > 0"
-      class="absolute z-30 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg"
+      class="absolute inset-x-0 top-full z-30 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg"
     >
       <button
         v-for="opt in filtered"

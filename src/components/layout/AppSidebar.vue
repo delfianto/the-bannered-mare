@@ -41,23 +41,23 @@ const favorites = computed(() => {
 
 <template>
   <aside
-    class="hidden h-screen flex-col border-r bg-secondary overflow-hidden lg:flex transition-[width,min-width] duration-300 ease-in-out"
+    class="hidden h-screen flex-col overflow-hidden border-r bg-secondary transition-[width,min-width] duration-300 ease-in-out lg:flex"
     :class="collapsed ? 'w-[68px] min-w-[68px]' : 'w-[260px] min-w-[260px]'"
   >
     <!-- Brand Mark -->
     <div class="pt-6 pb-4" :class="collapsed ? 'px-3' : 'px-6'">
       <div class="flex items-center justify-center gap-2.5">
         <button
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
+          class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
           :title="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           :aria-label="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           @click="toggleSidebar"
         >
-          <UIcon name="i-lucide-flame" class="h-5 w-5 text-primary-foreground" />
+          <UIcon name="i-lucide-flame" class="size-5 text-primary-foreground" />
         </button>
         <h1
           v-if="!collapsed"
-          class="font-cinzel text-xl font-semibold tracking-wider text-foreground whitespace-nowrap overflow-hidden"
+          class="overflow-hidden font-cinzel text-xl font-semibold tracking-wider whitespace-nowrap text-foreground"
         >
           {{ APP_INFO.name }}
         </h1>
@@ -76,14 +76,14 @@ const favorites = computed(() => {
             navItems.length % 2 !== 0 && i === navItems.length - 1 ? 'col-span-2' : '',
             isActive(item.to)
               ? 'bg-accent text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+              : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
           ]"
         >
           <span
             v-if="isActive(item.to)"
-            class="absolute left-1.5 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+            class="absolute top-1/2 left-1.5 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
           />
-          <UIcon :name="item.icon" class="h-5 w-5" />
+          <UIcon :name="item.icon" class="size-5" />
           <span class="text-[11px] font-medium tracking-wide">{{ item.label }}</span>
         </RouterLink>
       </div>
@@ -106,16 +106,16 @@ const favorites = computed(() => {
           >
             <span
               v-if="isActive(item.to)"
-              class="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+              class="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary"
             />
-            <UIcon :name="item.icon" class="h-[18px] w-[18px]" />
+            <UIcon :name="item.icon" class="size-[18px]" />
           </RouterLink>
         </UTooltip>
       </div>
     </nav>
 
     <!-- Divider -->
-    <div v-if="favorites.length > 0" class="mx-3 my-3 h-px bg-border" />
+    <div v-if="favorites.length > 0" class="m-3 h-px bg-border" />
 
     <!-- Favorites -->
     <div
@@ -125,7 +125,7 @@ const favorites = computed(() => {
     >
       <p
         v-if="!collapsed"
-        class="mb-2.5 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
+        class="mb-2.5 px-3 text-[11px] font-semibold tracking-widest text-muted-foreground uppercase"
       >
         {{ $t("nav.favorites") }}
       </p>
@@ -144,10 +144,10 @@ const favorites = computed(() => {
               <img
                 :src="char.avatar"
                 :alt="char.name"
-                class="h-10 w-10 rounded-full object-cover ring-1 ring-border"
+                class="size-10 rounded-full object-cover ring-1 ring-border"
               />
               <span
-                class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-secondary bg-emerald-500"
+                class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-secondary bg-emerald-500"
               />
             </div>
             <p class="truncate text-sm font-medium text-foreground">
@@ -171,7 +171,7 @@ const favorites = computed(() => {
               <img
                 :src="char.avatar"
                 :alt="char.name"
-                class="h-9 w-9 rounded-full object-cover ring-2 transition-all duration-200"
+                class="size-9 rounded-full object-cover ring-2 transition-all duration-200"
                 :class="
                   route.path === char.chatPath
                     ? 'ring-primary shadow-[0_0_8px_var(--color-primary)/0.3]'
@@ -179,7 +179,7 @@ const favorites = computed(() => {
                 "
               />
               <span
-                class="absolute bottom-1 right-2.5 h-2 w-2 rounded-full border-[1.5px] border-secondary bg-emerald-500"
+                class="absolute right-2.5 bottom-1 size-2 rounded-full border-[1.5px] border-secondary bg-emerald-500"
               />
             </RouterLink>
           </UTooltip>
@@ -188,7 +188,7 @@ const favorites = computed(() => {
     </div>
 
     <!-- Footer: Settings + Theme Toggle -->
-    <div class="border-t px-2 py-3 space-y-0.5">
+    <div class="space-y-0.5 border-t px-2 py-3">
       <UTooltip
         :text="$t('nav.settings')"
         :content="{ side: 'right', sideOffset: 8 }"
@@ -199,10 +199,10 @@ const favorites = computed(() => {
           class="flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
           :class="[
             collapsed ? 'justify-center px-0' : 'gap-3 px-3',
-            isActive('/settings') ? 'text-foreground bg-accent' : '',
+            isActive('/settings') ? 'bg-accent text-foreground' : '',
           ]"
         >
-          <UIcon name="i-lucide-settings" class="h-[18px] w-[18px] shrink-0" />
+          <UIcon name="i-lucide-settings" class="size-[18px] shrink-0" />
           <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t("nav.settings") }}</span>
         </RouterLink>
       </UTooltip>
@@ -223,7 +223,7 @@ const favorites = computed(() => {
           <div class="flex items-center" :class="collapsed ? '' : 'gap-2.5'">
             <UIcon
               :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-              class="h-[18px] w-[18px] shrink-0 text-primary"
+              class="size-[18px] shrink-0 text-primary"
             />
             <span v-if="!collapsed" class="text-sm font-medium text-foreground">
               {{ $t("settings.interface.darkMode") }}
@@ -235,7 +235,7 @@ const favorites = computed(() => {
             :class="isDark ? 'bg-primary' : 'bg-muted-foreground/40'"
           >
             <span
-              class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+              class="size-4 rounded-full shadow-sm transition-transform duration-300"
               :class="isDark ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
             />
           </div>

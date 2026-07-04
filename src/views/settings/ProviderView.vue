@@ -148,14 +148,14 @@ async function handleUnloadModel(identifier: string) {
       class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
-        <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -172,15 +172,15 @@ async function handleUnloadModel(identifier: string) {
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             :aria-label="$t('connections.provider.backToProviders')"
             @click="router.push({ path: '/connections', query: { tab: 'providers' } })"
           >
-            <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
+            <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
           </button>
           <div class="flex items-center gap-2">
-            <div class="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
-              <UIcon name="i-lucide-plug" class="h-3.5 w-3.5 text-primary-foreground" />
+            <div class="flex size-6 items-center justify-center rounded-md bg-primary">
+              <UIcon name="i-lucide-plug" class="size-3.5 text-primary-foreground" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Provider
@@ -195,7 +195,7 @@ async function handleUnloadModel(identifier: string) {
         >
           <UIcon
             :name="saving ? 'i-lucide-loader-2' : 'i-lucide-save'"
-            class="h-4 w-4"
+            class="size-4"
             :class="{ 'animate-spin': saving }"
           />
           {{ saving ? $t("common.saving") : $t("common.save") }}
@@ -209,15 +209,15 @@ async function handleUnloadModel(identifier: string) {
           <div class="rounded-xl border bg-card/50 p-5">
             <!-- Provider type badge -->
             <div class="mb-5 flex items-center gap-3">
-              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+              <div class="flex size-10 items-center justify-center rounded-lg bg-accent">
                 <UIcon
                   :name="providerTypeIcons[provider.provider_type] || 'i-lucide-settings'"
-                  class="h-5 w-5 text-foreground"
+                  class="size-5 text-foreground"
                 />
               </div>
               <div>
                 <span
-                  class="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+                  class="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-foreground uppercase"
                 >
                   {{ provider.provider_type }}
                 </span>
@@ -229,7 +229,7 @@ async function handleUnloadModel(identifier: string) {
               <!-- Name -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.provider.name") }}
                 </span>
@@ -237,14 +237,14 @@ async function handleUnloadModel(identifier: string) {
                   v-model="form.name"
                   type="text"
                   placeholder="Provider name"
-                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
               <!-- Base URL -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.provider.baseUrl") }}
                 </span>
@@ -252,30 +252,30 @@ async function handleUnloadModel(identifier: string) {
                   v-model="form.base_url"
                   type="text"
                   placeholder="https://api.example.com/v1"
-                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
               <!-- Enabled toggle -->
               <div class="flex items-center justify-between">
                 <label
-                  class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.provider.enabled") }}
                 </label>
                 <button
-                  @click="toggleEnabled"
                   role="switch"
                   :aria-checked="form.enabled"
                   aria-label="Enabled"
                   class="cursor-pointer"
+                  @click="toggleEnabled"
                 >
                   <div
                     class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
                     :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
                   >
                     <span
-                      class="h-4 w-4 rounded-full shadow-sm transition-transform"
+                      class="size-4 rounded-full shadow-sm transition-transform"
                       :class="
                         form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
                       "
@@ -289,7 +289,7 @@ async function handleUnloadModel(identifier: string) {
           <!-- API Key section -->
           <div class="rounded-xl border bg-card/50 p-5">
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.provider.apiKey") }}
             </h2>
@@ -313,7 +313,7 @@ async function handleUnloadModel(identifier: string) {
                   "
                 >
                   <span
-                    class="h-1.5 w-1.5 rounded-full"
+                    class="size-1.5 rounded-full"
                     :class="provider.api_key_configured ? 'bg-emerald-500' : 'bg-amber-500'"
                   />
                   {{
@@ -331,7 +331,7 @@ async function handleUnloadModel(identifier: string) {
             <div class="mb-4 flex items-center justify-between">
               <div>
                 <h2
-                  class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   Available Models
                 </h2>
@@ -350,7 +350,7 @@ async function handleUnloadModel(identifier: string) {
               >
                 <UIcon
                   :name="syncing ? 'i-lucide-loader-2' : 'i-lucide-refresh-cw'"
-                  class="h-3.5 w-3.5"
+                  class="size-3.5"
                   :class="{ 'animate-spin': syncing }"
                 />
                 {{ syncing ? "Syncing..." : "Sync Now" }}
@@ -358,11 +358,11 @@ async function handleUnloadModel(identifier: string) {
             </div>
 
             <div v-if="modelsLoading" class="flex justify-center py-6">
-              <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-muted-foreground" />
+              <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
             </div>
 
             <div v-else-if="modelsError" class="flex flex-col items-center gap-2 py-6 text-center">
-              <UIcon name="i-lucide-alert-circle" class="h-5 w-5 text-destructive" />
+              <UIcon name="i-lucide-alert-circle" class="size-5 text-destructive" />
               <p class="text-xs text-muted-foreground">{{ modelsError.message }}</p>
             </div>
 
@@ -394,7 +394,7 @@ async function handleUnloadModel(identifier: string) {
                     "
                   >
                     <span
-                      class="h-1.5 w-1.5 rounded-full"
+                      class="size-1.5 rounded-full"
                       :class="model.state === 'loaded' ? 'bg-emerald-500' : 'bg-amber-500'"
                     />
                     {{ model.state === "loaded" ? "Loaded" : "Not Loaded" }}
@@ -411,7 +411,7 @@ async function handleUnloadModel(identifier: string) {
                     <UIcon
                       v-if="pendingModelAction === model.identifier"
                       name="i-lucide-loader-2"
-                      class="h-3 w-3 animate-spin"
+                      class="size-3 animate-spin"
                     />
                     {{ model.state === "loaded" ? "Unload" : "Load" }}
                   </button>

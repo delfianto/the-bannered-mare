@@ -19,10 +19,10 @@ const actions = [
 <template>
   <div class="relative">
     <button
-      class="flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-white/20"
+      class="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/20"
       @click.stop="open = !open"
     >
-      <UIcon name="i-lucide-ellipsis-vertical" class="h-4 w-4" />
+      <UIcon name="i-lucide-ellipsis-vertical" class="size-4" />
     </button>
 
     <Transition
@@ -35,10 +35,10 @@ const actions = [
     >
       <div
         v-if="open"
-        class="absolute right-0 bottom-full z-50 mb-1 w-44 origin-bottom-right rounded-lg border bg-popover py-1 shadow-lg"
-        @blur.capture="open = false"
-        tabindex="-1"
         ref="menuRef"
+        class="absolute right-0 bottom-full z-50 mb-1 w-44 origin-bottom-right rounded-lg border bg-popover py-1 shadow-lg"
+        tabindex="-1"
+        @blur.capture="open = false"
       >
         <div class="fixed inset-0 z-[-1]" @click.stop="open = false" />
         <button
@@ -55,7 +55,7 @@ const actions = [
             open = false;
           "
         >
-          <UIcon :name="item.icon" class="h-3.5 w-3.5" />
+          <UIcon :name="item.icon" class="size-3.5" />
           {{ item.label }}
         </button>
       </div>

@@ -204,21 +204,19 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
     v-if="sessionsLoading && chatSessions.length === 0"
     class="flex h-full flex-1 items-center justify-center"
   >
-    <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
+    <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
   </div>
 
   <!-- Empty state -->
   <div
     v-else-if="chatSessions.length === 0"
-    class="flex h-full flex-1 flex-col overflow-hidden px-8 py-8 lg:px-12"
+    class="flex h-full flex-1 flex-col overflow-hidden p-8 lg:px-12"
   >
     <!-- Header -->
-    <header class="shrink-0 pb-4 animate-fade-in-up">
+    <header class="shrink-0 animate-fade-in-up pb-4">
       <div class="flex items-center gap-4">
-        <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
-        >
-          <UIcon name="i-lucide-scroll-text" class="h-7 w-7" />
+        <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <UIcon name="i-lucide-scroll-text" class="size-7" />
         </div>
         <div>
           <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
@@ -272,7 +270,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
           <!-- Load More -->
           <div v-if="hasMore" class="flex justify-center py-2">
             <button
-              class="text-xs text-muted-foreground hover:text-primary transition-colors"
+              class="text-xs text-muted-foreground transition-colors hover:text-primary"
               @click="loadMore"
             >
               {{ $t("chat.loadEarlier") }}
@@ -285,7 +283,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
               <div class="h-px w-12 bg-border" />
               <div class="text-center">
                 <p
-                  class="font-cinzel text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  class="font-cinzel text-xs font-semibold tracking-wider text-muted-foreground uppercase"
                 >
                   {{ activeSession.title || $t("chat.untitled") }}
                 </p>
@@ -302,7 +300,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
           <div v-if="messagesLoading && messages.length === 0" class="flex justify-center py-8">
             <UIcon
               name="i-lucide-loader-circle"
-              class="h-6 w-6 animate-spin text-muted-foreground"
+              class="size-6 animate-spin text-muted-foreground"
             />
           </div>
 

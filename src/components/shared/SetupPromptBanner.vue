@@ -30,8 +30,8 @@ function dismiss() {
     class="flex items-center justify-between gap-4 rounded-xl border border-primary/30 bg-primary/5 p-4"
   >
     <div class="flex items-center gap-3">
-      <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-        <UIcon name="i-lucide-sparkles" class="h-4.5 w-4.5 text-primary" />
+      <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
+        <UIcon name="i-lucide-sparkles" class="size-4.5 text-primary" />
       </div>
       <div>
         <p class="text-sm font-medium text-foreground">Let's get your first profile set up</p>

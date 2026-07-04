@@ -108,7 +108,7 @@ function onSubmit() {
           v-model="name"
           type="text"
           :placeholder="$t('lorebooks.entryForm.namePlaceholder')"
-          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -120,7 +120,7 @@ function onSubmit() {
           v-model="keysText"
           type="text"
           :placeholder="$t('lorebooks.entryForm.keysPlaceholder')"
-          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -132,7 +132,7 @@ function onSubmit() {
           v-model="content"
           rows="4"
           :placeholder="$t('lorebooks.entryForm.contentPlaceholder')"
-          class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -143,7 +143,7 @@ function onSubmit() {
           }}</span>
           <select
             v-model="position"
-            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           >
             <option v-for="p in positions" :key="p.value" :value="p.value">{{ p.label }}</option>
           </select>
@@ -155,7 +155,7 @@ function onSubmit() {
           <input
             v-model.number="order"
             type="number"
-            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
         <label class="block">
@@ -165,7 +165,7 @@ function onSubmit() {
           <input
             v-model.number="priority"
             type="number"
-            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
       </div>
@@ -183,7 +183,7 @@ function onSubmit() {
             :class="enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
           >
             <span
-              class="h-3.5 w-3.5 rounded-full shadow-sm transition-transform duration-300"
+              class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
               :class="enabled ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
             />
           </span>
@@ -202,7 +202,7 @@ function onSubmit() {
             :class="constant ? 'bg-primary' : 'bg-muted-foreground/40'"
           >
             <span
-              class="h-3.5 w-3.5 rounded-full shadow-sm transition-transform duration-300"
+              class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
               :class="constant ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
             />
           </span>

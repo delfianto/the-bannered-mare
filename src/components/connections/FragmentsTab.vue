@@ -57,7 +57,7 @@ function openFragment(id: string) {
         "
         @click="toggleUnusedOnly"
       >
-        <UIcon name="i-lucide-filter" class="h-3.5 w-3.5" />
+        <UIcon name="i-lucide-filter" class="size-3.5" />
         Unused only
       </button>
       <span class="text-xs text-muted-foreground"
@@ -67,12 +67,12 @@ function openFragment(id: string) {
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -87,7 +87,7 @@ function openFragment(id: string) {
       v-else-if="fragments.length === 0"
       class="flex flex-col items-center justify-center gap-3 py-20"
     >
-      <UIcon name="i-lucide-puzzle" class="h-8 w-8 text-muted-foreground/40" />
+      <UIcon name="i-lucide-puzzle" class="size-8 text-muted-foreground/40" />
       <p class="text-sm text-muted-foreground">
         {{ unusedOnly ? "No unused fragments." : "No fragments yet." }}
       </p>
@@ -99,27 +99,27 @@ function openFragment(id: string) {
         <thead>
           <tr class="border-b bg-muted/30">
             <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               Name
             </th>
             <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               Type
             </th>
             <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               Scope
             </th>
             <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               Used By
             </th>
             <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               Updated
             </th>
@@ -137,7 +137,7 @@ function openFragment(id: string) {
             </td>
             <td class="px-4 py-2.5">
               <span
-                class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+                class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
                 :class="typeBadgeClass(fragment.fragment_type)"
               >
                 {{ fragment.fragment_type }}
@@ -177,12 +177,12 @@ function openFragment(id: string) {
       <span class="text-xs text-muted-foreground">Page {{ page }} of {{ totalPages }}</span>
       <div class="flex items-center gap-2">
         <UButton variant="outline" size="xs" :disabled="page <= 1" @click="loadPage(page - 1)">
-          <UIcon name="i-lucide-chevron-left" class="h-3.5 w-3.5" />
+          <UIcon name="i-lucide-chevron-left" class="size-3.5" />
           Prev
         </UButton>
         <UButton variant="outline" size="xs" :disabled="!hasMore" @click="loadPage(page + 1)">
           Next
-          <UIcon name="i-lucide-chevron-right" class="h-3.5 w-3.5" />
+          <UIcon name="i-lucide-chevron-right" class="size-3.5" />
         </UButton>
       </div>
     </div>

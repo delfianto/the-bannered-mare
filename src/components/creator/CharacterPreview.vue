@@ -22,31 +22,31 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
   <div class="space-y-4">
     <!-- Character Card -->
     <div
-      class="relative aspect-[3/4] max-h-[280px] overflow-hidden rounded-xl"
+      class="relative aspect-3/4 max-h-[280px] overflow-hidden rounded-xl"
       style="box-shadow: 0 4px 20px var(--color-foreground) / 0.08"
     >
       <img
         v-if="data.avatarUrl"
         :src="data.avatarUrl"
         :alt="data.name"
-        class="absolute inset-0 h-full w-full object-cover"
+        class="absolute inset-0 size-full object-cover"
       />
       <div v-else class="absolute inset-0 flex items-center justify-center bg-muted">
-        <UIcon name="i-lucide-user" class="h-16 w-16 text-muted-foreground/30" />
+        <UIcon name="i-lucide-user" class="size-16 text-muted-foreground/30" />
       </div>
       <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
-      <div v-if="data.tags.length > 0" class="absolute left-3 top-3 flex flex-wrap gap-1">
+      <div v-if="data.tags.length > 0" class="absolute top-3 left-3 flex flex-wrap gap-1">
         <span
           v-for="tag in data.tags.slice(0, 3)"
           :key="tag"
-          class="rounded-full border border-white/10 bg-white/15 px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-white/80 backdrop-blur-sm"
+          class="rounded-full border border-white/10 bg-white/15 px-2 py-0.5 text-[9px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm"
         >
           {{ tag }}
         </span>
       </div>
 
-      <div class="absolute bottom-0 left-0 right-0 p-4">
+      <div class="absolute inset-x-0 bottom-0 p-4">
         <h3
           class="truncate font-cinzel text-sm font-semibold text-white drop-shadow-lg"
           style="letter-spacing: 0.02em"
@@ -64,24 +64,24 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
     <!-- Greeting Preview -->
     <div class="space-y-2 rounded-xl border bg-card p-4">
       <div
-        class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+        class="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
       >
-        <UIcon name="i-lucide-message-circle" class="h-3 w-3" />
+        <UIcon name="i-lucide-message-circle" class="size-3" />
         {{ $t("characters.form.greeting") }}
       </div>
       <div v-if="greetingPreview" class="text-xs leading-[1.7]">
         <NarrativeText :content="greetingPreview + (data.greeting.length > 300 ? '...' : '')" />
       </div>
-      <span v-else class="text-xs italic text-muted-foreground">No greeting set yet...</span>
+      <span v-else class="text-xs text-muted-foreground italic">No greeting set yet...</span>
     </div>
 
     <!-- Completeness -->
     <div class="rounded-xl border bg-card p-4">
-      <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+      <p class="mb-2 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase">
         {{ $t("characters.form.completeness") }}
       </p>
       <div class="flex items-center gap-3">
-        <svg width="44" height="44" class="-rotate-90 shrink-0">
+        <svg width="44" height="44" class="shrink-0 -rotate-90">
           <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3" />
           <circle
             cx="22"
@@ -102,7 +102,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
           </p>
           <p class="text-[11px] text-muted-foreground">
             <span v-if="pct >= 100" class="flex items-center gap-1 text-primary">
-              <UIcon name="i-lucide-check" class="h-3 w-3" /> Character complete
+              <UIcon name="i-lucide-check" class="size-3" /> Character complete
             </span>
             <span v-else-if="pct >= 50">Looking good — keep going!</span>
             <span v-else>Fill in more details</span>

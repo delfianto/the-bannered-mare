@@ -88,7 +88,7 @@ const userActions = [
 
 <template>
   <div
-    class="flex gap-3 animate-fade-in-up"
+    class="flex animate-fade-in-up gap-3"
     :class="isUser ? 'flex-row-reverse' : 'flex-row'"
     :style="{ animationDelay: `${index * 60}ms` }"
     @mouseenter="hovered = true"
@@ -99,7 +99,7 @@ const userActions = [
       <img
         :src="characterAvatar"
         :alt="characterName"
-        class="h-9 w-9 rounded-full object-cover ring-1 ring-border"
+        class="size-9 rounded-full object-cover ring-1 ring-border"
       />
     </div>
 
@@ -109,20 +109,20 @@ const userActions = [
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
         :aria-label="$t('chat.swipe.previous')"
-        class="absolute -left-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
+        class="absolute top-1/2 -left-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'left')"
       >
-        <UIcon name="i-lucide-chevron-left" class="h-4 w-4" />
+        <UIcon name="i-lucide-chevron-left" class="size-4" />
       </button>
 
       <!-- Swipe Right Arrow (assistant only) -->
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
         :aria-label="$t('chat.swipe.next')"
-        class="absolute -right-10 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
+        class="absolute top-1/2 -right-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'right')"
       >
-        <UIcon name="i-lucide-chevron-right" class="h-4 w-4" />
+        <UIcon name="i-lucide-chevron-right" class="size-4" />
       </button>
 
       <!-- Sender name — assistant only -->
@@ -183,15 +183,15 @@ const userActions = [
         :class="isUser ? 'mr-1 flex-row-reverse' : 'ml-1'"
       >
         <!-- Inline action icons (always visible) -->
-        <div class="flex items-center gap-0.5" v-if="!isEditing">
+        <div v-if="!isEditing" class="flex items-center gap-0.5">
           <button
             v-for="act in isUser ? userActions : characterActions"
             :key="act.key"
             :title="act.label"
-            class="flex h-6 w-6 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:text-muted-foreground"
+            class="flex size-6 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:text-muted-foreground"
             @click="handleAction(act.key)"
           >
-            <UIcon :name="act.icon" class="h-3 w-3" />
+            <UIcon :name="act.icon" class="size-3" />
           </button>
         </div>
 

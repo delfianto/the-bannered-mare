@@ -34,7 +34,7 @@ function onChange(e: Event) {
   <div class="space-y-2">
     <label class="pl-0.5 text-sm font-medium text-foreground">Portrait</label>
     <div
-      class="relative aspect-[3/4] w-full max-w-[200px] cursor-pointer overflow-hidden rounded-xl transition-all hover:scale-[1.01]"
+      class="relative aspect-3/4 w-full max-w-[200px] cursor-pointer overflow-hidden rounded-xl transition-all hover:scale-[1.01]"
       :class="
         avatarUrl
           ? 'border-2 border-border'
@@ -49,7 +49,7 @@ function onChange(e: Event) {
         <img
           :src="avatarUrl"
           alt="Character portrait"
-          class="absolute inset-0 h-full w-full object-cover"
+          class="absolute inset-0 size-full object-cover"
         />
         <div
           class="group absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/40"
@@ -57,17 +57,17 @@ function onChange(e: Event) {
           <div
             class="flex flex-col items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100"
           >
-            <UIcon name="i-lucide-camera" class="h-6 w-6 text-white" />
+            <UIcon name="i-lucide-camera" class="size-6 text-white" />
             <span class="text-xs font-medium text-white">Change</span>
           </div>
         </div>
       </template>
       <template v-else>
         <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4">
-          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <div class="flex size-12 items-center justify-center rounded-full bg-muted">
             <UIcon
               name="i-lucide-image-plus"
-              class="h-6 w-6"
+              class="size-6"
               :class="dragOver ? 'text-primary' : 'text-muted-foreground'"
             />
           </div>

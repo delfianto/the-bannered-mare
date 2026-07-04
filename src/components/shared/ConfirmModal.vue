@@ -49,7 +49,7 @@ const emit = defineEmits<{
         :disabled="loading"
         @click="emit('confirm')"
       >
-        <UIcon v-if="loading" name="i-lucide-loader-2" class="h-4 w-4 animate-spin" />
+        <UIcon v-if="loading" name="i-lucide-loader-2" class="size-4 animate-spin" />
         <span>{{ confirmText || $t("common.delete") || "Confirm" }}</span>
       </button>
     </template>

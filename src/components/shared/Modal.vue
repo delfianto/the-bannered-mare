@@ -100,10 +100,10 @@ const maxWidthClass = {
                 </h2>
               </slot>
               <button
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground active:scale-95"
+                class="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground active:scale-95"
                 @click="emit('close')"
               >
-                <UIcon name="i-lucide-x" class="h-4 w-4" />
+                <UIcon name="i-lucide-x" class="size-4" />
               </button>
             </div>
 

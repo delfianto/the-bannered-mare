@@ -44,7 +44,7 @@ function handleImport(e: Event) {
   <div class="animate-fade-in-up space-y-6">
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.worldSetting") }}
       </h2>
@@ -61,7 +61,7 @@ function handleImport(e: Event) {
         :value="data.scenario"
         placeholder="You have descended into the ruins beneath the coastal city of Thornhaven, following rumors of the legendary Sunken Library…"
         rows="4"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'scenario', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -75,11 +75,11 @@ function handleImport(e: Event) {
       >
         <UIcon
           name="i-lucide-chevron-right"
-          class="h-4 w-4 transition-transform"
+          class="size-4 transition-transform"
           :class="lorebookOpen ? 'rotate-90' : ''"
         />
-        <UIcon name="i-lucide-book-open" class="h-3.5 w-3.5" />
-        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">{{
+        <UIcon name="i-lucide-book-open" class="size-3.5" />
+        <span class="font-cinzel text-[11px] tracking-[0.08em] uppercase">{{
           $t("characters.form.lorebook")
         }}</span>
         <span class="ml-auto text-xs text-muted-foreground">
@@ -109,7 +109,7 @@ function handleImport(e: Event) {
           class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           @click="emit('addLorebook')"
         >
-          <UIcon name="i-lucide-plus" class="h-4 w-4" />
+          <UIcon name="i-lucide-plus" class="size-4" />
           {{ $t("characters.form.addLorebook") }}
         </button>
       </div>
@@ -118,7 +118,7 @@ function handleImport(e: Event) {
     <!-- Import / Export -->
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.importExport") }}
       </h2>
@@ -131,7 +131,7 @@ function handleImport(e: Event) {
         class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
         @click="importRef?.click()"
       >
-        <UIcon name="i-lucide-upload" class="h-5 w-5 text-muted-foreground" />
+        <UIcon name="i-lucide-upload" class="size-5 text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">{{
           $t("characters.form.importCharacter")
         }}</span>
@@ -152,7 +152,7 @@ function handleImport(e: Event) {
         class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
         @click="emit('export')"
       >
-        <UIcon name="i-lucide-download" class="h-5 w-5 text-muted-foreground" />
+        <UIcon name="i-lucide-download" class="size-5 text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">{{
           $t("characters.form.exportJson")
         }}</span>
