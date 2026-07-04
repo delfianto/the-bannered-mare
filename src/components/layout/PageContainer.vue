@@ -15,7 +15,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col px-8 py-8 lg:px-12 w-full min-h-full" :class="[spacingClass]">
+  <div class="flex min-h-full w-full flex-1 flex-col p-8 lg:px-12" :class="[spacingClass]">
     <!-- Header (Optional) -->
     <header
       v-if="title || $slots.header || $slots.headerActions"
@@ -41,7 +41,7 @@ withDefaults(defineProps<Props>(), {
 
     <!-- Main Content Area -->
     <div
-      class="flex-1 flex flex-col"
+      class="flex flex-1 flex-col"
       :class="{ 'animate-fade-in-up': animate }"
       style="animation-delay: 40ms"
     >

@@ -45,19 +45,19 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       :title="$t('chat.profile.title')"
       @click="toggle"
     >
-      <UIcon name="i-lucide-layers" class="h-3.5 w-3.5 shrink-0" />
+      <UIcon name="i-lucide-layers" class="size-3.5 shrink-0" />
       <span class="max-w-[120px] truncate">{{
         currentProfileName || $t("chat.profile.none")
       }}</span>
-      <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 shrink-0" />
+      <UIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0" />
     </button>
 
     <div
       v-if="open"
-      class="absolute right-0 top-full z-20 mt-1 w-64 rounded-lg border bg-card py-1 shadow-lg"
+      class="absolute top-full right-0 z-20 mt-1 w-64 rounded-lg border bg-card py-1 shadow-lg"
     >
       <div
-        class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+        class="px-3 py-1.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase"
       >
         {{ $t("chat.profile.title") }}
       </div>
@@ -70,7 +70,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       >
         <UIcon
           name="i-lucide-check"
-          class="mt-0.5 h-3.5 w-3.5 shrink-0"
+          class="mt-0.5 size-3.5 shrink-0"
           :class="p.name === currentProfileName ? 'text-primary' : 'text-transparent'"
         />
         <span class="min-w-0">
@@ -81,7 +81,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
         </span>
       </button>
 
-      <div v-if="profiles.length === 0" class="px-3 py-3 text-center text-xs text-muted-foreground">
+      <div v-if="profiles.length === 0" class="p-3 text-center text-xs text-muted-foreground">
         {{ $t("chat.profile.empty") }}
       </div>
 
@@ -91,7 +91,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
         class="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
         @click="goManage"
       >
-        <UIcon name="i-lucide-settings-2" class="h-4 w-4" />
+        <UIcon name="i-lucide-settings-2" class="size-4" />
         {{ $t("chat.profile.manage") }}
       </button>
 

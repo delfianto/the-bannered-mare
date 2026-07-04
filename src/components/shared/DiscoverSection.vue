@@ -34,7 +34,7 @@ const filtered = computed(() => {
       <button
         v-for="cat in categories"
         :key="cat"
-        class="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-200"
+        class="relative rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200"
         :class="
           activeCategory === cat
             ? 'bg-primary text-primary-foreground'
@@ -48,7 +48,7 @@ const filtered = computed(() => {
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-8">
-      <UIcon name="i-lucide-loader-circle" class="h-5 w-5 animate-spin text-muted-foreground" />
+      <UIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Character Grid -->

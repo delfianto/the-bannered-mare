@@ -3,11 +3,11 @@ import { APP_INFO } from "@/constants/appInfo";
 </script>
 
 <template>
-  <div class="flex justify-center animate-fade-in-up">
+  <div class="flex animate-fade-in-up justify-center">
     <div class="w-full max-w-md rounded-xl border bg-card/50 p-8 text-center">
       <!-- App Icon -->
-      <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary">
-        <UIcon name="i-lucide-flame" class="h-8 w-8 text-primary-foreground" />
+      <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-primary">
+        <UIcon name="i-lucide-flame" class="size-8 text-primary-foreground" />
       </div>
 
       <!-- App Name -->
@@ -16,7 +16,7 @@ import { APP_INFO } from "@/constants/appInfo";
       </h2>
 
       <!-- Tagline -->
-      <p class="mt-2 text-sm italic text-muted-foreground">
+      <p class="mt-2 text-sm text-muted-foreground italic">
         {{ APP_INFO.description }}
       </p>
 
@@ -30,7 +30,7 @@ import { APP_INFO } from "@/constants/appInfo";
 
       <!-- License -->
       <div class="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <UIcon name="i-lucide-scale" class="h-4 w-4" />
+        <UIcon name="i-lucide-scale" class="size-4" />
         <span>{{ APP_INFO.license }}</span>
       </div>
 

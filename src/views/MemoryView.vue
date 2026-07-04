@@ -202,20 +202,20 @@ function scopeBadgeClass(scope: string): string {
           class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="openCreateForm"
         >
-          <UIcon name="i-lucide-plus" class="h-4 w-4" />
+          <UIcon name="i-lucide-plus" class="size-4" />
           {{ $t("memory.addEntry") }}
         </button>
       </div>
     </template>
 
-    <div class="space-y-8 flex flex-col flex-1 w-full">
+    <div class="flex w-full flex-1 flex-col space-y-8">
       <!-- RAG Search Section -->
       <div
         class="animate-fade-in-up rounded-xl border bg-card/50 p-5"
         style="animation-delay: 30ms"
       >
         <h2
-          class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+          class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("memory.semanticSearch") }}
         </h2>
@@ -223,7 +223,7 @@ function scopeBadgeClass(scope: string): string {
           <div class="relative flex-1">
             <UIcon
               name="i-lucide-search"
-              class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50"
+              class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground/50"
             />
             <input
               v-model="searchQuery"
@@ -231,7 +231,7 @@ function scopeBadgeClass(scope: string): string {
               :placeholder="$t('memory.searchPlaceholder')"
               aria-label="Semantic search"
               autocomplete="off"
-              class="w-full rounded-lg border bg-background py-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 transition-shadow focus:outline-none focus:ring-1 focus:ring-primary focus:shadow-[0_0_12px_var(--color-primary)/0.15]"
+              class="w-full rounded-lg border bg-background py-2 pr-3 pl-10 text-sm text-foreground transition-shadow placeholder:text-muted-foreground/50 focus:shadow-[0_0_12px_var(--color-primary)/0.15] focus:ring-1 focus:ring-primary focus:outline-none"
               @keydown.enter="onSearch"
             />
           </div>
@@ -240,19 +240,19 @@ function scopeBadgeClass(scope: string): string {
             :disabled="searchLoading || !searchQuery.trim()"
             @click="onSearch"
           >
-            <UIcon v-if="searchLoading" name="i-lucide-loader-2" class="h-4 w-4 animate-spin" />
-            <UIcon v-else name="i-lucide-search" class="h-4 w-4" />
+            <UIcon v-if="searchLoading" name="i-lucide-loader-2" class="size-4 animate-spin" />
+            <UIcon v-else name="i-lucide-search" class="size-4" />
             {{ $t("common.search") }}
           </button>
         </div>
 
         <!-- Search Results -->
         <div v-if="searchLoading" class="mt-4 flex items-center justify-center py-6">
-          <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-primary" />
+          <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
         </div>
 
-        <div v-else-if="hasSearched && searchResults.length === 0" class="mt-4 text-center py-6">
-          <UIcon name="i-lucide-search-x" class="mx-auto mb-2 h-6 w-6 text-muted-foreground/40" />
+        <div v-else-if="hasSearched && searchResults.length === 0" class="mt-4 py-6 text-center">
+          <UIcon name="i-lucide-search-x" class="mx-auto mb-2 size-6 text-muted-foreground/40" />
           <p class="text-sm text-muted-foreground">
             {{ $t("memory.searchNoResults", { query: searchQuery }) }}
           </p>
@@ -266,7 +266,7 @@ function scopeBadgeClass(scope: string): string {
           >
             <div class="mb-2 flex items-center gap-2">
               <span
-                class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+                class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
                 :class="sourceTypeBadge(result.source_type)"
               >
                 {{ result.source_type.replace("_", " ") }}
@@ -286,7 +286,7 @@ function scopeBadgeClass(scope: string): string {
       </div>
 
       <!-- Scope Filter Pills -->
-      <div class="animate-fade-in-up flex items-center gap-2" style="animation-delay: 60ms">
+      <div class="flex animate-fade-in-up items-center gap-2" style="animation-delay: 60ms">
         <button
           v-for="scope in scopes"
           :key="scope.id"
@@ -316,7 +316,7 @@ function scopeBadgeClass(scope: string): string {
               v-model="formName"
               type="text"
               :placeholder="$t('memory.form.namePlaceholder')"
-              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </label>
           <label class="block">
@@ -325,7 +325,7 @@ function scopeBadgeClass(scope: string): string {
             }}</span>
             <select
               v-model="formScope"
-              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
             >
               <option value="global">{{ $t("memory.scopes.global") }}</option>
               <option value="character">{{ $t("memory.scopes.character") }}</option>
@@ -340,7 +340,7 @@ function scopeBadgeClass(scope: string): string {
               v-model="formContent"
               rows="4"
               :placeholder="$t('memory.form.contentPlaceholder')"
-              class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+              class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </label>
           <div class="flex items-center gap-3">
@@ -362,12 +362,12 @@ function scopeBadgeClass(scope: string): string {
 
       <!-- Loading -->
       <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
-        <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
       </div>
 
       <!-- Error -->
       <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-        <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+        <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
         <p class="text-sm text-muted-foreground">{{ error.message }}</p>
         <button
           class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -401,7 +401,7 @@ function scopeBadgeClass(scope: string): string {
               {{ entry.name }}
             </h3>
             <span
-              class="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+              class="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
               :class="scopeBadgeClass(entry.scope)"
             >
               {{ entry.scope }}
@@ -419,20 +419,20 @@ function scopeBadgeClass(scope: string): string {
           <!-- Bottom details -->
           <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
             <div class="flex items-center gap-1.5">
-              <UIcon name="i-lucide-clock" class="h-3 w-3 shrink-0" />
+              <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
               <span>{{ new Date(entry.updated_at).toLocaleDateString() }}</span>
             </div>
           </div>
 
           <!-- Action buttons (bottom-right) -->
           <div
-            class="absolute bottom-3 right-3 flex items-center gap-2 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+            class="absolute right-3 bottom-3 flex items-center gap-2 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
           >
             <button
               class="flex items-center gap-1 hover:text-foreground"
               @click.stop="openEditForm(entry)"
             >
-              <UIcon name="i-lucide-pencil" class="h-3 w-3" />
+              <UIcon name="i-lucide-pencil" class="size-3" />
               {{ $t("common.edit") }}
             </button>
             <button
@@ -441,7 +441,7 @@ function scopeBadgeClass(scope: string): string {
               @click.stop="onDeleteClick(entry.id)"
               @mouseleave="cancelDelete"
             >
-              <UIcon name="i-lucide-trash-2" class="h-3 w-3" />
+              <UIcon name="i-lucide-trash-2" class="size-3" />
               {{ pendingDeleteId === entry.id ? $t("memory.confirmDelete") : $t("common.delete") }}
             </button>
           </div>

@@ -52,11 +52,11 @@ function importAnother() {
           {{ $t("presetImport.title") }}
         </h2>
         <button
-          class="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           :aria-label="$t('common.cancel')"
           @click="emit('close')"
         >
-          <UIcon name="i-lucide-x" class="h-5 w-5" />
+          <UIcon name="i-lucide-x" class="size-5" />
         </button>
       </div>
 
@@ -72,17 +72,17 @@ function importAnother() {
       <div v-if="result" class="space-y-4">
         <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
           <div class="mb-3 flex items-center gap-2 text-emerald-400">
-            <UIcon name="i-lucide-circle-check" class="h-5 w-5" />
+            <UIcon name="i-lucide-circle-check" class="size-5" />
             <span class="font-medium">{{ $t("presetImport.complete") }}</span>
           </div>
           <div class="space-y-2 text-sm">
             <div class="flex items-center gap-2">
-              <UIcon name="i-lucide-scroll-text" class="h-4 w-4 shrink-0 text-muted-foreground" />
+              <UIcon name="i-lucide-scroll-text" class="size-4 shrink-0 text-muted-foreground" />
               <span class="text-muted-foreground">{{ $t("presetImport.template") }}:</span>
               <span class="truncate text-foreground">{{ result.template_name }}</span>
             </div>
             <div v-if="result.fragment_ids?.length" class="flex items-center gap-2">
-              <UIcon name="i-lucide-puzzle" class="h-4 w-4 shrink-0 text-muted-foreground" />
+              <UIcon name="i-lucide-puzzle" class="size-4 shrink-0 text-muted-foreground" />
               <span class="text-foreground">{{
                 $t("presetImport.fragments", { count: result.fragment_ids.length })
               }}</span>
@@ -90,13 +90,13 @@ function importAnother() {
             <div v-if="result.preset_name" class="flex items-center gap-2">
               <UIcon
                 name="i-lucide-sliders-horizontal"
-                class="h-4 w-4 shrink-0 text-muted-foreground"
+                class="size-4 shrink-0 text-muted-foreground"
               />
               <span class="text-muted-foreground">{{ $t("presetImport.preset") }}:</span>
               <span class="truncate text-foreground">{{ result.preset_name }}</span>
             </div>
             <div v-if="result.profile_name" class="flex items-center gap-2">
-              <UIcon name="i-lucide-layers" class="h-4 w-4 shrink-0 text-muted-foreground" />
+              <UIcon name="i-lucide-layers" class="size-4 shrink-0 text-muted-foreground" />
               <span class="text-muted-foreground">{{ $t("presetImport.profile") }}:</span>
               <span class="truncate text-foreground">{{ result.profile_name }}</span>
             </div>
@@ -108,7 +108,7 @@ function importAnother() {
           class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
         >
           <div class="mb-1 flex items-center gap-2 text-sm font-medium text-amber-400">
-            <UIcon name="i-lucide-triangle-alert" class="h-4 w-4" />
+            <UIcon name="i-lucide-triangle-alert" class="size-4" />
             {{ $t("presetImport.warnings") }}
           </div>
           <ul class="ml-6 list-disc text-xs text-muted-foreground">
@@ -151,9 +151,9 @@ function importAnother() {
           <UIcon
             v-if="importing"
             name="i-lucide-loader-2"
-            class="h-8 w-8 animate-spin text-primary"
+            class="size-8 animate-spin text-primary"
           />
-          <UIcon v-else name="i-lucide-upload" class="h-8 w-8 text-muted-foreground" />
+          <UIcon v-else name="i-lucide-upload" class="size-8 text-muted-foreground" />
           <div>
             <p class="text-sm font-medium text-foreground">
               {{ importing ? $t("presetImport.importing") : $t("presetImport.dropzone") }}

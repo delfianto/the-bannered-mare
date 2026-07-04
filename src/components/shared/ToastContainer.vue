@@ -53,7 +53,7 @@ const getTypeClasses = (type: string) => {
 <template>
   <Teleport to="body">
     <div
-      class="pointer-events-none fixed right-0 top-0 z-[100] flex w-full max-w-sm flex-col gap-3 p-4 sm:p-6"
+      class="pointer-events-none fixed top-0 right-0 z-[100] flex w-full max-w-sm flex-col gap-3 p-4 sm:p-6"
     >
       <TransitionGroup
         enter-active-class="transform ease-out duration-300 transition"
@@ -72,11 +72,11 @@ const getTypeClasses = (type: string) => {
           <div class="flex w-full items-start gap-3">
             <UIcon
               :name="getIcon(toast.type)"
-              class="mt-0.5 h-5 w-5 shrink-0"
+              class="mt-0.5 size-5 shrink-0"
               :class="getTypeClasses(toast.type).icon"
             />
             <div class="min-w-0 flex-1">
-              <h4 class="font-cinzel text-xs font-semibold uppercase tracking-wider text-current">
+              <h4 class="font-cinzel text-xs font-semibold tracking-wider text-current uppercase">
                 {{ toast.title }}
               </h4>
               <p
@@ -88,10 +88,10 @@ const getTypeClasses = (type: string) => {
               </p>
             </div>
             <button
-              class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-current/60 transition-colors hover:bg-current/10 hover:text-current active:scale-95"
+              class="flex size-5 shrink-0 items-center justify-center rounded text-current/60 transition-colors hover:bg-current/10 hover:text-current active:scale-95"
               @click="removeToast(toast.id)"
             >
-              <UIcon name="i-lucide-x" class="h-3.5 w-3.5" />
+              <UIcon name="i-lucide-x" class="size-3.5" />
             </button>
           </div>
         </div>

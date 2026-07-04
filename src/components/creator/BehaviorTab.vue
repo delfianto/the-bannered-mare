@@ -27,7 +27,7 @@ const dialoguesOpen = ref(true);
   <div class="animate-fade-in-up space-y-6">
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.persona") }}
       </h2>
@@ -44,7 +44,7 @@ const dialoguesOpen = ref(true);
         :value="data.description"
         placeholder="Elara Moonwhisper is a half-elf arcanist who has dedicated her considerable lifespan to preserving the knowledge of the Sunken Library…"
         rows="6"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'description', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -59,7 +59,7 @@ const dialoguesOpen = ref(true);
         :value="data.systemPrompt"
         placeholder="Custom system instructions for the LLM behavior…"
         rows="4"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'systemPrompt', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -73,7 +73,7 @@ const dialoguesOpen = ref(true);
         :value="data.personality"
         placeholder="Intellectual and warm, with a dry wit. Treats books like old friends and adventurers like puzzles."
         rows="3"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'personality', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -88,7 +88,7 @@ const dialoguesOpen = ref(true);
         :value="data.greeting"
         :placeholder="'*The torchlight flickers against the damp stone walls.* &quot;These wards were placed here centuries ago…&quot;'"
         rows="4"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'greeting', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -111,10 +111,10 @@ const dialoguesOpen = ref(true);
       >
         <UIcon
           name="i-lucide-chevron-right"
-          class="h-4 w-4 transition-transform"
+          class="size-4 transition-transform"
           :class="dialoguesOpen ? 'rotate-90' : ''"
         />
-        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">{{
+        <span class="font-cinzel text-[11px] tracking-[0.08em] uppercase">{{
           $t("characters.form.exampleDialogues")
         }}</span>
         <span class="ml-auto text-xs text-muted-foreground">
@@ -145,7 +145,7 @@ const dialoguesOpen = ref(true);
           class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           @click="emit('addDialogue')"
         >
-          <UIcon name="i-lucide-plus" class="h-4 w-4" />
+          <UIcon name="i-lucide-plus" class="size-4" />
           {{ $t("characters.form.addDialogue") }}
         </button>
       </div>

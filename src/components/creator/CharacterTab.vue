@@ -29,7 +29,7 @@ function handleAvatarChange(file: File) {
   <div class="animate-fade-in-up space-y-6">
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.identity") }}
       </h2>
@@ -44,7 +44,7 @@ function handleAvatarChange(file: File) {
           <input
             :value="data.name"
             placeholder="Elara Moonwhisper"
-            class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+            class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             @input="emit('update:field', 'name', ($event.target as HTMLInputElement).value)"
           />
         </FormField>
@@ -53,7 +53,7 @@ function handleAvatarChange(file: File) {
           <input
             :value="data.title"
             placeholder="Arcane Librarian of the Sunken Vaults"
-            class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+            class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             @input="emit('update:field', 'title', ($event.target as HTMLInputElement).value)"
           />
         </FormField>
@@ -79,7 +79,7 @@ function handleAvatarChange(file: File) {
             <input
               :value="data.age"
               placeholder="127"
-              class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+              class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               @input="emit('update:field', 'age', ($event.target as HTMLInputElement).value)"
             />
           </FormField>
@@ -95,7 +95,7 @@ function handleAvatarChange(file: File) {
         :value="data.creatorNotes"
         placeholder="A model student makes their parents proud..."
         rows="2"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'creatorNotes', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>

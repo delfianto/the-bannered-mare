@@ -13,7 +13,7 @@ defineProps<{
       <label class="pl-0.5 text-sm font-medium text-foreground" style="letter-spacing: 0.01em">
         {{ label }}
       </label>
-      <span v-if="hint" class="text-[11px] italic text-muted-foreground">{{ hint }}</span>
+      <span v-if="hint" class="text-[11px] text-muted-foreground italic">{{ hint }}</span>
     </div>
     <slot />
     <div v-if="charMax !== undefined" class="flex justify-end">

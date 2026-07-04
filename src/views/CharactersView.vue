@@ -212,13 +212,13 @@ async function onFileSelected(event: Event) {
       v-if="importing"
       class="flex items-center justify-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-6 py-4"
     >
-      <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-primary" />
+      <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
       <span class="text-sm text-foreground">{{ $t("characters.importing") }}</span>
     </div>
 
     <!-- Loading -->
     <div v-if="loading && characters.length === 0" class="flex justify-center py-16">
-      <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
+      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Grid view -->

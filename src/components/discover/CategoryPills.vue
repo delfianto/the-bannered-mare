@@ -14,7 +14,7 @@ defineEmits<{
     <button
       v-for="cat in categories"
       :key="cat"
-      class="whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-200"
+      class="rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200"
       :class="
         active === cat
           ? 'bg-primary text-primary-foreground'

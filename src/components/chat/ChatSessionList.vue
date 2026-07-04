@@ -48,9 +48,9 @@ function avatarSrc(chat: Chat): string {
 <template>
   <div class="flex h-full w-[300px] min-w-[300px] flex-col border-r bg-secondary">
     <!-- Search -->
-    <div class="px-3 pb-3 pt-4">
+    <div class="px-3 pt-4 pb-3">
       <div class="flex items-center gap-2 rounded-lg border bg-background/60 px-3 py-2">
-        <UIcon name="i-lucide-search" class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <UIcon name="i-lucide-search" class="size-3.5 shrink-0 text-muted-foreground" />
         <input
           v-model="search"
           type="text"
@@ -64,14 +64,14 @@ function avatarSrc(chat: Chat): string {
 
     <!-- Label -->
     <p
-      class="mb-1.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+      class="mb-1.5 px-5 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase"
     >
       {{ $t("chat.activeTales") }}
     </p>
 
     <!-- Loading -->
-    <div v-if="loading" class="flex-1 flex items-center justify-center">
-      <UIcon name="i-lucide-loader-circle" class="h-5 w-5 animate-spin text-muted-foreground" />
+    <div v-if="loading" class="flex flex-1 items-center justify-center">
+      <UIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Session List -->
@@ -79,14 +79,14 @@ function avatarSrc(chat: Chat): string {
       <button
         v-for="session in filtered"
         :key="session.id"
-        class="group relative flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-all duration-200"
+        class="group relative flex w-full items-start gap-3 rounded-xl p-3 text-left transition-all duration-200"
         :class="session.id === activeSessionId ? 'bg-accent' : 'hover:bg-accent/50'"
         @click="emit('select', session.id)"
       >
         <!-- Active bar -->
         <span
           v-if="session.id === activeSessionId"
-          class="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+          class="absolute top-1/2 left-0 h-6 w-[3px] -translate-y-1/2 rounded-full bg-primary"
         />
 
         <!-- Avatar -->
@@ -94,7 +94,7 @@ function avatarSrc(chat: Chat): string {
           <img
             :src="avatarSrc(session)"
             :alt="session.character.name"
-            class="h-10 w-10 rounded-full object-cover ring-1 ring-border"
+            class="size-10 rounded-full object-cover ring-1 ring-border"
           />
         </div>
 
@@ -113,7 +113,7 @@ function avatarSrc(chat: Chat): string {
           </p>
           <p
             v-if="session.preview"
-            class="mt-0.5 line-clamp-1 text-[11px] italic leading-relaxed text-muted-foreground"
+            class="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-muted-foreground italic"
           >
             {{ session.preview }}
           </p>

@@ -206,9 +206,9 @@ function finish() {
     <!-- Step indicator -->
     <div class="flex items-center justify-center gap-2 text-xs text-muted-foreground">
       <span :class="step >= 1 ? 'text-primary' : ''">1. Providers</span>
-      <UIcon name="i-lucide-chevron-right" class="h-3 w-3" />
+      <UIcon name="i-lucide-chevron-right" class="size-3" />
       <span :class="step >= 2 ? 'text-primary' : ''">2. Profile</span>
-      <UIcon name="i-lucide-chevron-right" class="h-3 w-3" />
+      <UIcon name="i-lucide-chevron-right" class="size-3" />
       <span :class="step >= 3 ? 'text-primary' : ''">3. Done</span>
     </div>
 
@@ -216,12 +216,12 @@ function finish() {
     <div v-if="step === 1" class="space-y-4">
       <div class="rounded-xl border bg-card/50 p-5">
         <h2
-          class="mb-3 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+          class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
           Local Providers
         </h2>
         <div v-if="providersLoading" class="flex justify-center py-4">
-          <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-muted-foreground" />
+          <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
         </div>
         <div v-else-if="localProviders.length === 0" class="text-xs text-muted-foreground">
           No local providers configured.
@@ -235,7 +235,7 @@ function finish() {
             <span class="flex items-center gap-2 text-sm text-foreground">
               <UIcon
                 :name="providerTypeIcons[provider.provider_type] || 'i-lucide-settings'"
-                class="h-4 w-4 text-muted-foreground"
+                class="size-4 text-muted-foreground"
               />
               {{ provider.name }}
             </span>
@@ -243,21 +243,21 @@ function finish() {
               v-if="localStatus[provider.id]?.loading"
               class="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
-              <UIcon name="i-lucide-loader-2" class="h-3.5 w-3.5 animate-spin" />
+              <UIcon name="i-lucide-loader-2" class="size-3.5 animate-spin" />
               Checking...
             </span>
             <span
               v-else-if="localStatus[provider.id]?.reachable"
               class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-500"
             >
-              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span class="size-1.5 rounded-full bg-emerald-500" />
               {{ localStatus[provider.id]?.models?.length ?? 0 }} models found
             </span>
             <span
               v-else
               class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-500"
             >
-              <span class="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              <span class="size-1.5 rounded-full bg-amber-500" />
               Not reachable
             </span>
           </li>
@@ -266,7 +266,7 @@ function finish() {
 
       <div class="rounded-xl border bg-card/50 p-5">
         <h2
-          class="mb-3 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+          class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
           Cloud Providers
         </h2>
@@ -279,7 +279,7 @@ function finish() {
             <span class="flex items-center gap-2 text-sm text-foreground">
               <UIcon
                 :name="providerTypeIcons[provider.provider_type] || 'i-lucide-settings'"
-                class="h-4 w-4 text-muted-foreground"
+                class="size-4 text-muted-foreground"
               />
               {{ provider.name }}
             </span>
@@ -292,7 +292,7 @@ function finish() {
               "
             >
               <span
-                class="h-1.5 w-1.5 rounded-full"
+                class="size-1.5 rounded-full"
                 :class="provider.api_key_configured ? 'bg-emerald-500' : 'bg-amber-500'"
               />
               {{ provider.api_key_configured ? "Key configured" : `Set ${provider.env_var_name}` }}
@@ -313,7 +313,7 @@ function finish() {
           @click="step = 2"
         >
           Next
-          <UIcon name="i-lucide-arrow-right" class="h-4 w-4" />
+          <UIcon name="i-lucide-arrow-right" class="size-4" />
         </button>
       </div>
     </div>
@@ -356,7 +356,7 @@ function finish() {
             class="flex flex-col items-center gap-3 rounded-xl border bg-card/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-accent"
             @click="createPath = 'manual'"
           >
-            <UIcon name="i-lucide-sliders-horizontal" class="h-8 w-8 text-primary" />
+            <UIcon name="i-lucide-sliders-horizontal" class="size-8 text-primary" />
             <span class="font-cinzel text-sm font-semibold text-foreground">Create Manually</span>
             <span class="text-xs text-muted-foreground"
               >Pick a model, template, preset, and persona yourself.</span
@@ -366,7 +366,7 @@ function finish() {
             class="flex flex-col items-center gap-3 rounded-xl border bg-card/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-accent"
             @click="showImportModal = true"
           >
-            <UIcon name="i-lucide-upload" class="h-8 w-8 text-primary" />
+            <UIcon name="i-lucide-upload" class="size-8 text-primary" />
             <span class="font-cinzel text-sm font-semibold text-foreground">Import ST Preset</span>
             <span class="text-xs text-muted-foreground"
               >Bring in a SillyTavern chat-completion preset.</span
@@ -386,7 +386,7 @@ function finish() {
               v-model="quickPersonaName"
               type="text"
               placeholder="Persona name (e.g. your name)"
-              class="h-11 w-full rounded-lg border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+              class="h-11 w-full rounded-lg border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
               @keydown.enter="quickCreatePersona"
             />
             <button
@@ -397,7 +397,7 @@ function finish() {
             >
               <UIcon
                 :name="creatingPersona ? 'i-lucide-loader-2' : 'i-lucide-plus'"
-                class="h-4 w-4"
+                class="size-4"
                 :class="{ 'animate-spin': creatingPersona }"
               />
               Create
@@ -438,15 +438,12 @@ function finish() {
                 class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
               >
                 <span class="flex min-w-0 items-center gap-2">
-                  <UIcon name="i-lucide-cpu" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <UIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
                   <span class="truncate">{{
                     labelFor(models, followUpModelId, "Select a model...")
                   }}</span>
                 </span>
-                <UIcon
-                  name="i-lucide-chevron-down"
-                  class="h-4 w-4 shrink-0 text-muted-foreground"
-                />
+                <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
               </button>
             </USelectMenu>
           </div>
@@ -460,7 +457,7 @@ function finish() {
                 v-model="quickPersonaName"
                 type="text"
                 placeholder="Persona name (e.g. your name)"
-                class="h-11 w-full rounded-lg border bg-muted/40 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+                class="h-11 w-full rounded-lg border bg-muted/40 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
                 @keydown.enter="quickCreatePersona"
               />
               <button
@@ -471,7 +468,7 @@ function finish() {
               >
                 <UIcon
                   :name="creatingPersona ? 'i-lucide-loader-2' : 'i-lucide-plus'"
-                  class="h-4 w-4"
+                  class="size-4"
                   :class="{ 'animate-spin': creatingPersona }"
                 />
                 Create
@@ -491,15 +488,12 @@ function finish() {
                 class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
               >
                 <span class="flex min-w-0 items-center gap-2">
-                  <UIcon name="i-lucide-user" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <UIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
                   <span class="truncate">{{
                     labelFor(personas, followUpPersonaId, "No persona")
                   }}</span>
                 </span>
-                <UIcon
-                  name="i-lucide-chevron-down"
-                  class="h-4 w-4 shrink-0 text-muted-foreground"
-                />
+                <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
               </button>
             </USelectMenu>
           </div>
@@ -512,7 +506,7 @@ function finish() {
             >
               <UIcon
                 :name="finishingImport ? 'i-lucide-loader-2' : 'i-lucide-check'"
-                class="h-4 w-4"
+                class="size-4"
                 :class="{ 'animate-spin': finishingImport }"
               />
               Finish
@@ -542,7 +536,7 @@ function finish() {
       v-else
       class="flex flex-col items-center gap-4 rounded-xl border bg-card/50 p-10 text-center"
     >
-      <UIcon name="i-lucide-circle-check" class="h-10 w-10 text-emerald-500" />
+      <UIcon name="i-lucide-circle-check" class="size-10 text-emerald-500" />
       <h2 class="font-cinzel text-lg font-semibold text-foreground">You're all set</h2>
       <p class="text-sm text-muted-foreground">
         Your first profile is ready. Head back and start a tale.

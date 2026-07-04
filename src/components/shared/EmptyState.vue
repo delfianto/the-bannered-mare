@@ -22,13 +22,13 @@ defineEmits<{
 
 <template>
   <div
-    class="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center animate-fade-in-up w-full"
+    class="flex w-full flex-1 animate-fade-in-up flex-col items-center justify-center px-4 py-12 text-center"
   >
     <!-- Icon with pulsing glow -->
     <div class="relative mb-6">
       <div class="absolute inset-0 animate-pulse rounded-full bg-primary/20 blur-xl" />
-      <div class="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-        <UIcon :name="icon" class="h-8 w-8 text-primary" />
+      <div class="relative flex size-16 items-center justify-center rounded-full bg-primary/10">
+        <UIcon :name="icon" class="size-8 text-primary" />
       </div>
     </div>
 
@@ -51,7 +51,7 @@ defineEmits<{
         class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         @click="$emit('action')"
       >
-        <UIcon name="i-lucide-plus" class="h-4 w-4" />
+        <UIcon name="i-lucide-plus" class="size-4" />
         {{ actionLabel || $t("characters.createNew") }}
       </button>
     </slot>

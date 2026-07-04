@@ -94,7 +94,7 @@ const selectUi = {
           v-model="name"
           type="text"
           :placeholder="$t('profiles.form.namePlaceholder')"
-          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -106,7 +106,7 @@ const selectUi = {
           v-model="description"
           rows="2"
           :placeholder="$t('profiles.form.descriptionPlaceholder')"
-          class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+          class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -128,10 +128,10 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-scroll-text" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                <UIcon name="i-lucide-scroll-text" class="size-4 shrink-0 text-muted-foreground" />
                 <span class="truncate">{{ labelFor(templates, templateId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground" />
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -154,11 +154,11 @@ const selectUi = {
               <span class="flex min-w-0 items-center gap-2">
                 <UIcon
                   name="i-lucide-sliders-horizontal"
-                  class="h-4 w-4 shrink-0 text-muted-foreground"
+                  class="size-4 shrink-0 text-muted-foreground"
                 />
                 <span class="truncate">{{ labelFor(presets, presetId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground" />
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -179,10 +179,10 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-user" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                <UIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
                 <span class="truncate">{{ labelFor(personas, personaId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground" />
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -203,10 +203,10 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-cpu" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                <UIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
                 <span class="truncate">{{ labelFor(models, modelId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground" />
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -221,7 +221,7 @@ const selectUi = {
         @click="isDefault = !isDefault"
       >
         <span class="flex items-center gap-2 text-sm text-foreground">
-          <UIcon name="i-lucide-star" class="h-4 w-4 text-muted-foreground" />
+          <UIcon name="i-lucide-star" class="size-4 text-muted-foreground" />
           {{ $t("profiles.form.setDefault") }}
         </span>
         <span
@@ -229,7 +229,7 @@ const selectUi = {
           :class="isDefault ? 'bg-primary' : 'bg-muted-foreground/40'"
         >
           <span
-            class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+            class="size-4 rounded-full shadow-sm transition-transform duration-300"
             :class="isDefault ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
           />
         </span>

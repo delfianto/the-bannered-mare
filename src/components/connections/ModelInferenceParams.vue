@@ -133,7 +133,7 @@ const sections = computed(() => {
         class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         @click="resetToDefaults"
       >
-        <UIcon name="i-lucide-rotate-ccw" class="h-3 w-3" />
+        <UIcon name="i-lucide-rotate-ccw" class="size-3" />
         Reset to Defaults
       </button>
     </div>
@@ -142,9 +142,9 @@ const sections = computed(() => {
     <div v-for="section in sections" :key="section.key" class="space-y-3">
       <!-- Section header -->
       <div class="flex items-center gap-2">
-        <UIcon :name="section.icon" class="h-4 w-4 text-muted-foreground" />
+        <UIcon :name="section.icon" class="size-4 text-muted-foreground" />
         <h3
-          class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+          class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
           {{ section.label }}
         </h3>
@@ -163,16 +163,13 @@ const sections = computed(() => {
           :key="paramKey"
           class="flex items-center justify-between gap-3 rounded-lg border border-border/30 bg-muted/10 px-3 py-2"
         >
-          <div class="flex items-center gap-2 min-w-0">
-            <span
-              v-if="isOverridden(paramKey)"
-              class="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-            />
+          <div class="flex min-w-0 items-center gap-2">
+            <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="truncate text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
               <UIcon
                 name="i-lucide-info"
-                class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50"
+                class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
             </UTooltip>
           </div>
@@ -194,15 +191,12 @@ const sections = computed(() => {
           class="rounded-lg border border-border/30 bg-muted/10 px-3 py-2.5"
         >
           <div class="mb-2 flex items-center gap-2">
-            <span
-              v-if="isOverridden(paramKey)"
-              class="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-            />
+            <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
               <UIcon
                 name="i-lucide-info"
-                class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50"
+                class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
             </UTooltip>
           </div>
@@ -224,15 +218,12 @@ const sections = computed(() => {
           class="rounded-lg border border-border/30 bg-muted/10 px-3 py-2.5"
         >
           <div class="mb-2 flex items-center gap-2">
-            <span
-              v-if="isOverridden(paramKey)"
-              class="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-            />
+            <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
               <UIcon
                 name="i-lucide-info"
-                class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50"
+                class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
             </UTooltip>
           </div>

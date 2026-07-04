@@ -184,14 +184,14 @@ function formatDate(iso: string): string {
       class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
-        <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <UIcon name="i-lucide-alert-circle" class="h-8 w-8 text-destructive" />
+      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -208,15 +208,15 @@ function formatDate(iso: string): string {
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             :aria-label="$t('connections.template.backToTemplates')"
             @click="router.push({ path: '/connections', query: { tab: 'templates' } })"
           >
-            <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
+            <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
           </button>
           <div class="flex items-center gap-2">
-            <div class="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
-              <UIcon name="i-lucide-file-text" class="h-3.5 w-3.5 text-primary-foreground" />
+            <div class="flex size-6 items-center justify-center rounded-md bg-primary">
+              <UIcon name="i-lucide-file-text" class="size-3.5 text-primary-foreground" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Template
@@ -238,7 +238,7 @@ function formatDate(iso: string): string {
           >
             <UIcon
               :name="deleting ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
-              class="h-4 w-4"
+              class="size-4"
               :class="{ 'animate-spin': deleting }"
             />
             {{
@@ -258,7 +258,7 @@ function formatDate(iso: string): string {
           >
             <UIcon
               :name="saving ? 'i-lucide-loader-2' : 'i-lucide-save'"
-              class="h-4 w-4"
+              class="size-4"
               :class="{ 'animate-spin': saving }"
             />
             {{ saving ? $t("common.saving") : $t("common.save") }}
@@ -274,7 +274,7 @@ function formatDate(iso: string): string {
             <!-- Basic Info card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 Basic Info
               </h2>
@@ -282,7 +282,7 @@ function formatDate(iso: string): string {
                 <!-- Name -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.template.name") }}
                   </span>
@@ -290,14 +290,14 @@ function formatDate(iso: string): string {
                     v-model="form.name"
                     type="text"
                     placeholder="Template name"
-                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </label>
 
                 <!-- Description -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.template.description") }}
                   </span>
@@ -305,30 +305,30 @@ function formatDate(iso: string): string {
                     v-model="form.description"
                     rows="3"
                     placeholder="Template description"
-                    class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </label>
 
                 <!-- Is Default toggle -->
                 <div class="flex items-center justify-between">
                   <label
-                    class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                    class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.template.isDefault") }}
                   </label>
                   <button
-                    @click="toggleDefault"
                     role="switch"
                     :aria-checked="form.is_default"
                     aria-label="Default template"
                     class="cursor-pointer"
+                    @click="toggleDefault"
                   >
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                       :class="form.is_default ? 'bg-primary' : 'bg-muted-foreground/40'"
                     >
                       <span
-                        class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+                        class="size-4 rounded-full shadow-sm transition-transform duration-300"
                         :class="
                           form.is_default ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
                         "
@@ -342,7 +342,7 @@ function formatDate(iso: string): string {
             <!-- System Template card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.systemTemplate") }}
               </h2>
@@ -350,7 +350,7 @@ function formatDate(iso: string): string {
                 v-model="form.system_template"
                 rows="8"
                 :placeholder="t('connections.template.systemTemplatePlaceholder')"
-                class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
               <p class="mt-2 text-[11px] text-muted-foreground/60">
                 {{ $t("connections.template.systemTemplateHint") }}
@@ -360,7 +360,7 @@ function formatDate(iso: string): string {
             <!-- Component Ordering card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.components") }}
               </h2>
@@ -371,15 +371,15 @@ function formatDate(iso: string): string {
                   class="flex items-center justify-between rounded-lg border border-border/50 bg-muted/20 px-4 py-3"
                 >
                   <div class="flex items-center gap-3">
-                    <UIcon name="i-lucide-grip-vertical" class="h-4 w-4 text-muted-foreground/40" />
+                    <UIcon name="i-lucide-grip-vertical" class="size-4 text-muted-foreground/40" />
                     <span class="text-sm text-foreground">{{ humanize(component) }}</span>
                   </div>
                   <button
-                    @click="toggleComponent(component)"
                     role="switch"
                     :aria-checked="form.components_enabled[component]"
                     :aria-label="component"
                     class="cursor-pointer"
+                    @click="toggleComponent(component)"
                   >
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
@@ -388,7 +388,7 @@ function formatDate(iso: string): string {
                       "
                     >
                       <span
-                        class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
+                        class="size-4 rounded-full shadow-sm transition-transform duration-300"
                         :class="
                           form.components_enabled[component]
                             ? 'translate-x-4 bg-background'
@@ -407,7 +407,7 @@ function formatDate(iso: string): string {
             <!-- Attached Fragments card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.fragments") }}
               </h2>
@@ -422,13 +422,13 @@ function formatDate(iso: string): string {
                       <p class="text-sm font-medium text-foreground">{{ tf.fragment.name }}</p>
                       <div class="mt-1 flex items-center gap-2">
                         <span
-                          class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+                          class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
                           :class="typeBadgeClass(tf.fragment.fragment_type)"
                         >
                           {{ tf.fragment.fragment_type }}
                         </span>
                         <span
-                          class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+                          class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
                           :class="positionColors[tf.position] || 'bg-accent text-foreground'"
                         >
                           {{ humanize(tf.position) }}
@@ -440,11 +440,11 @@ function formatDate(iso: string): string {
                     </div>
                   </div>
                   <button
-                    class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                     :aria-label="$t('connections.template.detachFragment')"
                     @click="handleDetachFragment(tf.fragment_id)"
                   >
-                    <UIcon name="i-lucide-x" class="h-4 w-4" />
+                    <UIcon name="i-lucide-x" class="size-4" />
                   </button>
                 </div>
               </div>
@@ -455,7 +455,7 @@ function formatDate(iso: string): string {
                 class="mt-3 flex items-center gap-2 rounded-lg border border-dashed px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 @click="handleAttachFragment"
               >
-                <UIcon name="i-lucide-plus" class="h-4 w-4" />
+                <UIcon name="i-lucide-plus" class="size-4" />
                 {{ $t("connections.template.attachFragment") }}
               </button>
             </div>
@@ -466,7 +466,7 @@ function formatDate(iso: string): string {
             <!-- Metadata card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 Metadata
               </h2>
@@ -480,7 +480,7 @@ function formatDate(iso: string): string {
                     :value="form.max_history_tokens ?? ''"
                     type="number"
                     placeholder="e.g. 4096"
-                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                     @input="
                       (e) => {
                         const v = (e.target as HTMLInputElement).value;
@@ -504,7 +504,7 @@ function formatDate(iso: string): string {
                     "
                   >
                     <span
-                      class="h-1.5 w-1.5 rounded-full"
+                      class="size-1.5 rounded-full"
                       :class="form.is_default ? 'bg-emerald-500' : 'bg-muted-foreground'"
                     />
                     {{ form.is_default ? "Yes" : "No" }}
@@ -530,7 +530,7 @@ function formatDate(iso: string): string {
             <!-- Preview card -->
             <div class="rounded-xl border bg-card/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.preview") }}
               </h2>
@@ -541,14 +541,14 @@ function formatDate(iso: string): string {
               >
                 <UIcon
                   :name="previewing ? 'i-lucide-loader-2' : 'i-lucide-eye'"
-                  class="h-4 w-4"
+                  class="size-4"
                   :class="{ 'animate-spin': previewing }"
                 />
                 {{ previewing ? $t("common.loading") : $t("connections.template.previewTemplate") }}
               </button>
               <div v-if="preview" class="mt-4 rounded-lg border border-border/50 bg-muted/20 p-4">
                 <pre
-                  class="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground"
+                  class="font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground"
                   >{{ preview.rendered }}</pre
                 >
               </div>

@@ -45,7 +45,7 @@ function removeKeyword(kw: string) {
       >
         <UIcon
           name="i-lucide-chevron-down"
-          class="h-4 w-4 transition-transform"
+          class="size-4 transition-transform"
           :class="expanded ? 'rotate-180' : ''"
         />
       </button>
@@ -70,7 +70,7 @@ function removeKeyword(kw: string) {
           type="button"
           :title="entry.enabled ? 'Disable' : 'Enable'"
           :aria-label="entry.enabled ? 'Disable entry' : 'Enable entry'"
-          class="flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+          class="flex size-7 items-center justify-center rounded-md transition-colors"
           :class="
             entry.enabled
               ? 'text-primary hover:bg-primary/10'
@@ -78,15 +78,15 @@ function removeKeyword(kw: string) {
           "
           @click="emit('update', entry.id, { enabled: !entry.enabled })"
         >
-          <UIcon name="i-lucide-power" class="h-3.5 w-3.5" />
+          <UIcon name="i-lucide-power" class="size-3.5" />
         </button>
         <button
           type="button"
-          class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
           :aria-label="t('characters.form.removeLorebook')"
           @click="emit('remove', entry.id)"
         >
-          <UIcon name="i-lucide-x" class="h-3.5 w-3.5" />
+          <UIcon name="i-lucide-x" class="size-3.5" />
         </button>
       </div>
     </div>
@@ -112,7 +112,7 @@ function removeKeyword(kw: string) {
               :aria-label="t('characters.form.removeKeyword', { keyword: kw })"
               @click="removeKeyword(kw)"
             >
-              <UIcon name="i-lucide-x" class="h-2.5 w-2.5" />
+              <UIcon name="i-lucide-x" class="size-2.5" />
             </button>
           </span>
           <input
@@ -135,7 +135,7 @@ function removeKeyword(kw: string) {
           :value="entry.content"
           placeholder="The Sunken Library was once the greatest repository of arcane knowledge…"
           rows="3"
-          class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+          class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
           @input="
             emit('update', entry.id, { content: ($event.target as HTMLTextAreaElement).value })
           "

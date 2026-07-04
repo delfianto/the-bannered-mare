@@ -35,10 +35,8 @@ function timeAgo(dateStr: string): string {
   <PageContainer spacing-class="space-y-10">
     <template #header>
       <div class="flex items-center gap-4">
-        <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
-        >
-          <UIcon name="i-lucide-bookmark" class="h-7 w-7" />
+        <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <UIcon name="i-lucide-bookmark" class="size-7" />
         </div>
         <div>
           <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
@@ -53,7 +51,7 @@ function timeAgo(dateStr: string): string {
 
     <!-- Loading -->
     <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
+      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Empty state -->
@@ -77,25 +75,25 @@ function timeAgo(dateStr: string): string {
               {{ $t("bookmarks.favoriteCharacters") }}
             </h2>
             <span
-              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
+              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wide text-primary uppercase"
             >
               {{ characters.length }}
             </span>
           </div>
           <div class="flex items-center gap-1.5">
             <button
-              class="flex h-8 w-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               :aria-label="$t('bookmarks.scrollLeft')"
               @click="scroll('left')"
             >
-              <UIcon name="i-lucide-chevron-left" class="h-4 w-4" />
+              <UIcon name="i-lucide-chevron-left" class="size-4" />
             </button>
             <button
-              class="flex h-8 w-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               :aria-label="$t('bookmarks.scrollRight')"
               @click="scroll('right')"
             >
-              <UIcon name="i-lucide-chevron-right" class="h-4 w-4" />
+              <UIcon name="i-lucide-chevron-right" class="size-4" />
             </button>
           </div>
         </div>
@@ -105,18 +103,18 @@ function timeAgo(dateStr: string): string {
             v-for="(char, i) in characters"
             :key="char.id"
             :to="`/characters/${char.id}`"
-            class="group relative aspect-[3/4] w-[220px] min-w-[220px] animate-fade-in-up cursor-pointer overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.12]"
+            class="group relative aspect-3/4 w-[220px] min-w-[220px] animate-fade-in-up cursor-pointer overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.12]"
             :style="{ animationDelay: `${i * 60}ms` }"
           >
             <img
               :src="char.avatar"
               :alt="char.name"
-              class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div
               class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"
             />
-            <div class="absolute bottom-0 left-0 right-0 p-4">
+            <div class="absolute inset-x-0 bottom-0 p-4">
               <h3 class="font-cinzel text-sm font-semibold tracking-wide text-white">
                 {{ char.name }}
               </h3>
@@ -124,7 +122,7 @@ function timeAgo(dateStr: string): string {
                 <span
                   v-for="tag in char.tags.slice(0, 2)"
                   :key="tag"
-                  class="rounded-full border border-white/10 bg-white/10 px-2 py-0.5 text-[8px] font-medium uppercase tracking-widest text-white/80 backdrop-blur-sm"
+                  class="rounded-full border border-white/10 bg-white/10 px-2 py-0.5 text-[8px] font-medium tracking-widest text-white/80 uppercase backdrop-blur-sm"
                 >
                   {{ tag }}
                 </span>
@@ -142,7 +140,7 @@ function timeAgo(dateStr: string): string {
               {{ $t("bookmarks.savedSessions") }}
             </h2>
             <span
-              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
+              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wide text-primary uppercase"
             >
               {{ sessions.length }}
             </span>
@@ -160,17 +158,17 @@ function timeAgo(dateStr: string): string {
             <img
               :src="session.character?.avatar_thumbnail || session.character?.avatar"
               :alt="session.character?.name"
-              class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-border"
+              class="size-12 shrink-0 rounded-full object-cover ring-1 ring-border"
             />
             <div class="min-w-0 flex-1">
               <h3 class="truncate font-cinzel text-sm font-semibold text-foreground">
                 {{ session.title }}
               </h3>
-              <p class="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+              <p class="mt-0.5 text-[10px] font-medium tracking-wide text-primary uppercase">
                 {{ $t("bookmarks.with", { name: session.character?.name }) }}
               </p>
             </div>
-            <span class="whitespace-nowrap text-[10px] text-muted-foreground">
+            <span class="text-[10px] whitespace-nowrap text-muted-foreground">
               {{ timeAgo(session.bookmarked_at || session.updated_at) }}
             </span>
           </RouterLink>
@@ -188,7 +186,7 @@ function timeAgo(dateStr: string): string {
             {{ $t("bookmarks.pinnedFragments") }}
           </h2>
           <span
-            class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
+            class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wide text-primary uppercase"
           >
             {{ messages.length }}
           </span>
@@ -207,13 +205,13 @@ function timeAgo(dateStr: string): string {
                 <img
                   :src="msg.character.avatar"
                   :alt="msg.character.name"
-                  class="h-10 w-10 rounded-full object-cover ring-1 ring-border"
+                  class="size-10 rounded-full object-cover ring-1 ring-border"
                 />
                 <div>
                   <h4 class="font-cinzel text-sm font-bold text-foreground">
                     {{ msg.character.name }}
                   </h4>
-                  <p class="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <p class="text-[10px] tracking-widest text-muted-foreground uppercase">
                     {{ $t("bookmarks.from") }}
                     <RouterLink :to="`/chats/${msg.chat.id}`" class="text-primary hover:underline">
                       {{ msg.chat.title }}
@@ -232,10 +230,10 @@ function timeAgo(dateStr: string): string {
             <!-- Footer -->
             <div class="mt-4 flex items-center justify-end border-t border-border/30 pt-3">
               <button
-                class="text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
                 :aria-label="$t('bookmarks.removeBookmark')"
               >
-                <UIcon name="i-lucide-trash-2" class="h-4 w-4" />
+                <UIcon name="i-lucide-trash-2" class="size-4" />
               </button>
             </div>
           </div>

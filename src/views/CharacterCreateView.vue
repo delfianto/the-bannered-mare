@@ -152,7 +152,7 @@ function handleImport(data: CharacterData) {
       class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
-        <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
+        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
@@ -163,14 +163,14 @@ function handleImport(data: CharacterData) {
     >
       <div class="flex items-center gap-3">
         <button
-          class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="router.back()"
         >
-          <UIcon name="i-lucide-arrow-left" class="h-[18px] w-[18px]" />
+          <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
         </button>
         <div class="flex items-center gap-2">
-          <div class="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
-            <UIcon name="i-lucide-flame" class="h-3.5 w-3.5 text-primary-foreground" />
+          <div class="flex size-6 items-center justify-center rounded-md bg-primary">
+            <UIcon name="i-lucide-flame" class="size-3.5 text-primary-foreground" />
           </div>
           <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
             {{ pageTitle }}
@@ -191,7 +191,7 @@ function handleImport(data: CharacterData) {
         >
           <UIcon
             :name="form.deleting.value ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
-            class="h-4 w-4"
+            class="size-4"
             :class="{ 'animate-spin': form.deleting.value }"
           />
           {{ form.deleting.value ? $t("common.deleting") : $t("common.delete") }}
@@ -201,7 +201,7 @@ function handleImport(data: CharacterData) {
           class="flex h-9 items-center gap-2 rounded-lg border px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="handleExport"
         >
-          <UIcon name="i-lucide-download" class="h-4 w-4" />
+          <UIcon name="i-lucide-download" class="size-4" />
           {{ $t("common.export") }}
         </button>
         <button
@@ -216,7 +216,7 @@ function handleImport(data: CharacterData) {
         >
           <UIcon
             :name="form.saving.value ? 'i-lucide-loader-2' : 'i-lucide-save'"
-            class="h-4 w-4"
+            class="size-4"
             :class="{ 'animate-spin': form.saving.value }"
           />
           {{
@@ -241,11 +241,11 @@ function handleImport(data: CharacterData) {
             "
             @click="activeTab = tab.id"
           >
-            <UIcon :name="tab.icon" class="h-4 w-4" />
+            <UIcon :name="tab.icon" class="size-4" />
             <span style="letter-spacing: 0.03em">{{ tab.label }}</span>
             <span
               v-if="activeTab === tab.id"
-              class="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-primary transition-all"
+              class="absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-primary transition-all"
             />
           </button>
         </div>
@@ -291,7 +291,7 @@ function handleImport(data: CharacterData) {
       >
         <div class="sticky top-0">
           <p
-            class="mb-4 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+            class="mb-4 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
           >
             {{ $t("characters.form.livePreview") }}
           </p>

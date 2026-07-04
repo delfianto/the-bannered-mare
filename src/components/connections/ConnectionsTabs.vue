@@ -31,11 +31,11 @@ const tabs = [
           "
           @click="emit('change', tab.id)"
         >
-          <UIcon :name="tab.icon" class="h-4 w-4" />
+          <UIcon :name="tab.icon" class="size-4" />
           <span class="font-cinzel tracking-wide">{{ tab.label }}</span>
           <span
             v-if="activeTab === tab.id"
-            class="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-primary transition-all"
+            class="absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-primary transition-all"
           />
         </button>
       </div>

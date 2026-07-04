@@ -160,17 +160,17 @@ onMounted(fetchAll);
 </script>
 
 <template>
-  <div class="mx-auto max-w-4xl space-y-6 animate-fade-in-up">
+  <div class="mx-auto max-w-4xl animate-fade-in-up space-y-6">
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
+      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
     </div>
 
     <template v-else>
       <!-- LLM Usage Stats -->
       <section>
         <h3
-          class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+          class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("settings.logs.llmUsage") }}
         </h3>
@@ -182,7 +182,7 @@ onMounted(fetchAll);
             :key="card.label"
             class="rounded-xl border bg-card/50 p-4 text-center"
           >
-            <UIcon :name="card.icon" class="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
+            <UIcon :name="card.icon" class="mx-auto mb-1 size-4 text-muted-foreground" />
             <p class="text-2xl font-bold text-foreground">{{ card.value }}</p>
             <p class="text-xs text-muted-foreground">{{ card.label }}</p>
           </div>
@@ -197,7 +197,7 @@ onMounted(fetchAll);
             class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-3 py-2"
           >
             <span
-              class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
               :class="providerColors[row.provider] ?? 'bg-muted text-muted-foreground'"
             >
               {{ row.provider }}
@@ -239,7 +239,7 @@ onMounted(fetchAll);
             },
           ]"
           :key="tab.id"
-          class="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-200"
+          class="relative rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200"
           :class="
             activeSubTab === tab.id
               ? 'bg-primary text-primary-foreground'
@@ -247,7 +247,7 @@ onMounted(fetchAll);
           "
           @click="activeSubTab = tab.id"
         >
-          <UIcon :name="tab.icon" class="mr-1 inline-block h-3.5 w-3.5 align-text-bottom" />
+          <UIcon :name="tab.icon" class="mr-1 inline-block size-3.5 align-text-bottom" />
           {{ tab.label }}
         </button>
       </div>
@@ -264,7 +264,7 @@ onMounted(fetchAll);
         >
           <!-- Method -->
           <span
-            class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+            class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
             :class="methodColors[log.method] ?? 'bg-muted text-muted-foreground'"
           >
             {{ log.method }}
@@ -314,7 +314,7 @@ onMounted(fetchAll);
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <!-- Provider -->
             <span
-              class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
               :class="providerColors[log.provider] ?? 'bg-muted text-muted-foreground'"
             >
               {{ log.provider }}
@@ -325,7 +325,7 @@ onMounted(fetchAll);
 
             <!-- Status -->
             <span
-              class="rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide"
+              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
               :class="
                 log.status === 'success'
                   ? 'bg-emerald-500/10 text-emerald-500'
@@ -379,7 +379,7 @@ onMounted(fetchAll);
           >
             <!-- Error type -->
             <span
-              class="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-red-500"
+              class="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-medium tracking-wide text-red-500 uppercase"
             >
               {{ err.error_type }}
             </span>
@@ -396,7 +396,7 @@ onMounted(fetchAll);
             <!-- Expand indicator -->
             <UIcon
               name="i-lucide-chevron-down"
-              class="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200"
+              class="size-3.5 text-muted-foreground transition-transform duration-200"
               :class="expandedErrors.has(err.id) ? 'rotate-180' : ''"
             />
           </button>

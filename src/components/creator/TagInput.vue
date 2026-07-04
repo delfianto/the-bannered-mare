@@ -41,11 +41,11 @@ function handleKeyDown(e: KeyboardEvent) {
         {{ tag }}
         <button
           type="button"
-          class="flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors hover:bg-primary/20"
+          class="flex size-3.5 items-center justify-center rounded-full transition-colors hover:bg-primary/20"
           :aria-label="'Remove tag ' + tag"
           @click="emit('remove', tag)"
         >
-          <UIcon name="i-lucide-x" class="h-2.5 w-2.5" />
+          <UIcon name="i-lucide-x" class="size-2.5" />
         </button>
       </span>
       <input
@@ -65,7 +65,7 @@ function handleKeyDown(e: KeyboardEvent) {
         class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
         @click="emit('add', s)"
       >
-        <UIcon name="i-lucide-plus" class="h-3 w-3" />
+        <UIcon name="i-lucide-plus" class="size-3" />
         {{ s }}
       </button>
     </div>

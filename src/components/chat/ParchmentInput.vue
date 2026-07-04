@@ -40,7 +40,7 @@ function handleKeyDown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="px-4 pb-4 pt-2">
+  <div class="px-4 pt-2 pb-4">
     <div
       class="relative flex items-center gap-3 rounded-xl border bg-card px-4 py-3 transition-all duration-300"
       :class="
@@ -53,7 +53,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <div class="shrink-0">
         <UIcon
           name="i-lucide-pen-tool"
-          class="h-[18px] w-[18px] transition-colors duration-300"
+          class="size-[18px] transition-colors duration-300"
           :class="focused ? 'text-primary' : 'text-muted-foreground'"
         />
       </div>
@@ -76,7 +76,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <button
         :aria-label="$t('chat.sendMessage')"
         :disabled="!canSend || disabled"
-        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
+        class="flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
         :class="
           canSend && !disabled
             ? 'bg-primary text-primary-foreground shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]'
@@ -84,7 +84,7 @@ function handleKeyDown(e: KeyboardEvent) {
         "
         @click="handleSend"
       >
-        <UIcon name="i-lucide-arrow-up" class="h-4 w-4" />
+        <UIcon name="i-lucide-arrow-up" class="size-4" />
       </button>
     </div>
 
