@@ -12,9 +12,10 @@ const emit = defineEmits<{
 }>();
 
 const tabs = [
-  { id: "providers", label: t("connections.tabs.providers"), icon: "i-lucide-server" },
-  { id: "models", label: t("connections.tabs.models"), icon: "i-lucide-cpu" },
-  { id: "model-families", label: t("connections.tabs.modelFamilies"), icon: "i-lucide-layers" },
+  { id: "profiles", label: t("profiles.tabs.profiles") || "Profiles", icon: "i-lucide-layers" },
+  { id: "presets", label: t("connections.tabs.presets"), icon: "i-lucide-sliders-horizontal" },
+  { id: "templates", label: t("connections.tabs.templates"), icon: "i-lucide-file-text" },
+  { id: "fragments", label: t("connections.tabs.fragments"), icon: "i-lucide-puzzle" },
 ];
 </script>
 
