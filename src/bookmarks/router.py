@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/bookmarks", tags=["bookmarks"])
 @router.get("/sessions")
 def get_bookmarked_sessions(db: Session = Depends(get_db)):
     """Get all bookmarked chat sessions"""
-    stmt = select(Chat).where(Chat.is_bookmarked == True)
+    stmt = select(Chat).where(Chat.is_bookmarked.is_(True))
     chats = db.execute(stmt).scalars().all()
     return {"items": [ChatResponse.model_validate(c) for c in chats]}
 
