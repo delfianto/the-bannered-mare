@@ -28,7 +28,7 @@
     "dataBank": "Data Bank",
     "sessions": "Sessions",
     "connections": "Connections",
-    "profiles": "Profiles",
+    "profiles": "Loadouts",
     "lorebooks": "Lorebooks",
     "settings": "Settings",
     "favorites": "Favorites",
@@ -36,8 +36,8 @@
     "collapseSidebar": "Collapse sidebar"
   },
   "profiles": {
-    "title": "Profiles",
-    "subtitle": "Reusable loadouts — bundle a template, preset, persona, and model.",
+    "title": "Loadouts",
+    "subtitle": "Configure prompt loadouts, presets, templates, and fragments.",
     "tabs": {
       "profiles": "Profiles"
     },

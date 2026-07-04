@@ -116,7 +116,7 @@ watch(
 );
 
 function skip() {
-  router.push("/profiles");
+  router.push("/loadouts");
 }
 
 // Profiles missing a model (e.g. an ST import that was never finished) can't
