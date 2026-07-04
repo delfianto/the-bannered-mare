@@ -50,12 +50,19 @@ def _make_ollama_provider(db: Session) -> Provider:
     return provider
 
 
-def test_list_available_models_unsupported_provider_type(client: TestClient, db: Session) -> None:
-    """Cloud providers don't support model auto-detection"""
+def test_list_available_models_unsupported_provider_type(
+    client: TestClient, db: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Cloud providers don't support model auto-detection when mock returned client is None"""
     provider = Provider(name="OpenAI", provider_type=ProviderType.OPENAI)
     db.add(provider)
     db.commit()
     db.refresh(provider)
+
+    monkeypatch.setattr(
+        "src.provider.service.get_discovery_client",
+        lambda _t: None,
+    )
 
     response = client.get(f"/api/providers/{provider.id}/models/available")
     assert response.status_code == 400
@@ -68,7 +75,9 @@ def test_list_available_models(
     models = [DiscoveredModel(identifier="llama3:8b", display_name="llama3:8b", state="loaded")]
     monkeypatch.setattr(
         "src.provider.service.get_discovery_client",
-        lambda _t: type("_C", (), {"list_models": lambda self, base_url: models})(),
+        lambda _t: type(
+            "_C", (), {"list_models": lambda self, base_url, api_key=None: models}
+        )(),
     )
 
     response = client.get(f"/api/providers/{provider.id}/models/available")
@@ -85,7 +94,7 @@ def test_sync_provider_models(
     provider = _make_ollama_provider(db)
     monkeypatch.setattr(
         "src.provider.service.get_discovery_client",
-        lambda _t: type("_C", (), {"list_models": lambda self, base_url: []})(),
+        lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: []})(),
     )
 
     response = client.post(f"/api/providers/{provider.id}/models/sync")

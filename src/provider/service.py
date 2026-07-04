@@ -201,6 +201,14 @@ class ProviderService:
                 detail=f"Could not reach {provider.name}: {e}",
             ) from e
 
+        # Centralized non-text/unsupported models blacklist filter
+        blacklist = [k.lower() for k in settings.model_blacklist]
+        models = [
+            m
+            for m in models
+            if not any(k in m.identifier.lower() or k in m.display_name.lower() for k in blacklist)
+        ]
+
         provider.last_synced_at = utc_now()
         self.provider_repo.update(provider)
         self.provider_repo.commit()
@@ -277,7 +285,7 @@ class ProviderService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e),
-            )
+            ) from e
         except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,

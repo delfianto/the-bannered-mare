@@ -6,6 +6,9 @@ from src.core.persistence.enums import ProviderType
 from src.provider.discovery import (
     LMStudioDiscoveryClient,
     OllamaDiscoveryClient,
+    OpenAIDiscoveryClient,
+    AnthropicDiscoveryClient,
+    GoogleDiscoveryClient,
     get_discovery_client,
 )
 
@@ -22,10 +25,13 @@ class TestGetDiscoveryClient:
         assert isinstance(get_discovery_client(ProviderType.OLLAMA), OllamaDiscoveryClient)
         assert isinstance(get_discovery_client(ProviderType.LMSTUDIO), LMStudioDiscoveryClient)
 
-    def test_cloud_providers_unsupported(self) -> None:
-        assert get_discovery_client(ProviderType.OPENAI) is None
-        assert get_discovery_client(ProviderType.ANTHROPIC) is None
-        assert get_discovery_client(ProviderType.CUSTOM) is None
+    def test_cloud_providers_supported(self) -> None:
+        assert isinstance(get_discovery_client(ProviderType.OPENAI), OpenAIDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.ANTHROPIC), AnthropicDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.GOOGLE), GoogleDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.OPENROUTER), OpenAIDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.XAI), OpenAIDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.CUSTOM), OpenAIDiscoveryClient)
 
 
 class TestOllamaDiscoveryClient:
