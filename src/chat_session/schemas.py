@@ -15,6 +15,7 @@ class ChatBase(BaseModel):
     profile_id: str | None = Field(
         default=None, max_length=12, description="Profile to apply on creation"
     )
+    is_bookmarked: bool = Field(default=False, description="Whether the chat session is bookmarked")
 
 
 class ChatSessionFilterParams(BaseModel):
@@ -41,6 +42,7 @@ class ChatUpdate(BaseModel):
     title: str | None = Field(default=None, max_length=200)
     model_id: str | None = Field(default=None, max_length=12)
     preset_id: str | None = Field(default=None, max_length=12)
+    is_bookmarked: bool | None = Field(default=None)
 
 
 class ChatApplyProfile(BaseModel):
@@ -87,6 +89,7 @@ class ChatResponse(BaseModel):
     id: str
     title: str | None = None
     preview: str | None = None
+    is_bookmarked: bool | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -121,6 +124,7 @@ class ChatResponse(BaseModel):
             "id": data.id,
             "title": data.title,
             "preview": data.preview,
+            "is_bookmarked": data.is_bookmarked,
             "created_at": data.created_at,
             "updated_at": data.updated_at,
             "character": data.character,

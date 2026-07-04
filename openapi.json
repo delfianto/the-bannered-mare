@@ -4491,6 +4491,66 @@
         }
       }
     },
+    "/api/bookmarks/sessions": {
+      "get": {
+        "tags": [
+          "bookmarks"
+        ],
+        "summary": "Get Bookmarked Sessions",
+        "description": "Get all bookmarked chat sessions",
+        "operationId": "get_bookmarked_sessions_api_bookmarks_sessions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookmarks/characters": {
+      "get": {
+        "tags": [
+          "bookmarks"
+        ],
+        "summary": "Get Bookmarked Characters",
+        "description": "Get all favorited characters",
+        "operationId": "get_bookmarked_characters_api_bookmarks_characters_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookmarks/messages": {
+      "get": {
+        "tags": [
+          "bookmarks"
+        ],
+        "summary": "Get Bookmarked Messages",
+        "description": "Get all pinned message fragments",
+        "operationId": "get_bookmarked_messages_api_bookmarks_messages_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/data-bank/": {
       "get": {
         "tags": [
@@ -5856,6 +5916,12 @@
             ],
             "title": "Profile Id",
             "description": "Profile to apply on creation"
+          },
+          "is_bookmarked": {
+            "type": "boolean",
+            "title": "Is Bookmarked",
+            "description": "Whether the chat session is bookmarked",
+            "default": false
           }
         },
         "type": "object",
@@ -5925,6 +5991,17 @@
               }
             ],
             "title": "Preview"
+          },
+          "is_bookmarked": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Bookmarked"
           },
           "created_at": {
             "type": "string",
@@ -6046,6 +6123,17 @@
               }
             ],
             "title": "Preset Id"
+          },
+          "is_bookmarked": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Bookmarked"
           }
         },
         "type": "object",

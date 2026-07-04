@@ -89,8 +89,14 @@ class ChatService:
         self.chat_repo.commit()
         return created
 
-    def update(self, chat_id: str, title: str | None = None, model_id: str | None = None) -> Chat:
-        """Update chat (title and/or model). Re-applying a profile goes through apply_profile."""
+    def update(
+        self,
+        chat_id: str,
+        title: str | None = None,
+        model_id: str | None = None,
+        is_bookmarked: bool | None = None,
+    ) -> Chat:
+        """Update chat (title and/or model, bookmark status). Re-applying a profile goes through apply_profile."""
         chat = self.get_by_id(chat_id)
 
         if model_id is not None:
@@ -98,6 +104,9 @@ class ChatService:
 
         if title is not None:
             chat.title = title
+
+        if is_bookmarked is not None:
+            chat.is_bookmarked = is_bookmarked
 
         updated = self.chat_repo.update(chat)
         self.chat_repo.commit()
