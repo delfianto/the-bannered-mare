@@ -214,16 +214,11 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
   >
     <!-- Header -->
     <header class="shrink-0 animate-fade-in-up pb-4">
-      <div class="flex items-center gap-4">
-        <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <UIcon name="i-lucide-scroll-text" class="size-7" />
-        </div>
-        <div>
-          <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
-            {{ $t("chat.activeTales") || "Active Tales" }}
-          </h1>
-          <p class="mt-0.5 text-sm text-muted-foreground">Your active roleplay chat sessions.</p>
-        </div>
+      <div>
+        <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+          {{ $t("chat.activeTales") || "Active Tales" }}
+        </h1>
+        <p class="mt-1 text-sm text-muted-foreground">Your active roleplay chat sessions.</p>
       </div>
     </header>
 
