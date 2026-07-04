@@ -164,6 +164,13 @@ function cancelDelete() {
   pendingDeleteId.value = null;
 }
 
+function clearFilters() {
+  searchQuery.value = "";
+  searchResults.value = [];
+  hasSearched.value = false;
+  onScopeChange("all");
+}
+
 function scopeBadgeClass(scope: string): string {
   switch (scope) {
     case "global":
@@ -199,6 +206,7 @@ function scopeBadgeClass(scope: string): string {
           </p>
         </div>
         <button
+          v-if="entries.length > 0"
           class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="openCreateForm"
         >
@@ -209,99 +217,6 @@ function scopeBadgeClass(scope: string): string {
     </template>
 
     <div class="flex w-full flex-1 flex-col space-y-8">
-      <!-- RAG Search Section -->
-      <div
-        class="animate-fade-in-up rounded-xl border bg-card/50 p-5"
-        style="animation-delay: 30ms"
-      >
-        <h2
-          class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
-        >
-          {{ $t("memory.semanticSearch") }}
-        </h2>
-        <div class="flex items-center gap-3">
-          <div class="relative flex-1">
-            <UIcon
-              name="i-lucide-search"
-              class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground/50"
-            />
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="$t('memory.searchPlaceholder')"
-              aria-label="Semantic search"
-              autocomplete="off"
-              class="w-full rounded-lg border bg-background py-2 pr-3 pl-10 text-sm text-foreground transition-shadow placeholder:text-muted-foreground/50 focus:shadow-[0_0_12px_var(--color-primary)/0.15] focus:ring-1 focus:ring-primary focus:outline-none"
-              @keydown.enter="onSearch"
-            />
-          </div>
-          <button
-            class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-            :disabled="searchLoading || !searchQuery.trim()"
-            @click="onSearch"
-          >
-            <UIcon v-if="searchLoading" name="i-lucide-loader-2" class="size-4 animate-spin" />
-            <UIcon v-else name="i-lucide-search" class="size-4" />
-            {{ $t("common.search") }}
-          </button>
-        </div>
-
-        <!-- Search Results -->
-        <div v-if="searchLoading" class="mt-4 flex items-center justify-center py-6">
-          <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
-        </div>
-
-        <div v-else-if="hasSearched && searchResults.length === 0" class="mt-4 py-6 text-center">
-          <UIcon name="i-lucide-search-x" class="mx-auto mb-2 size-6 text-muted-foreground/40" />
-          <p class="text-sm text-muted-foreground">
-            {{ $t("memory.searchNoResults", { query: searchQuery }) }}
-          </p>
-        </div>
-
-        <div v-else-if="searchResults.length > 0" class="mt-4 space-y-3">
-          <div
-            v-for="(result, i) in searchResults"
-            :key="i"
-            class="rounded-lg border border-border/50 bg-background/50 p-4 transition-colors hover:bg-background/80"
-          >
-            <div class="mb-2 flex items-center gap-2">
-              <span
-                class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
-                :class="sourceTypeBadge(result.source_type)"
-              >
-                {{ result.source_type.replace("_", " ") }}
-              </span>
-              <span
-                class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
-                :class="scoreColor(result.score)"
-              >
-                {{ $t("memory.matchPercent", { score: (result.score * 100).toFixed(0) }) }}
-              </span>
-            </div>
-            <p class="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
-              {{ result.content }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scope Filter Pills -->
-      <div class="flex animate-fade-in-up items-center gap-2" style="animation-delay: 60ms">
-        <button
-          v-for="scope in scopes"
-          :key="scope.id"
-          class="rounded-full px-4 py-1.5 text-xs font-medium tracking-wide transition-colors"
-          :class="
-            scopeFilter === scope.id
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-accent/60 text-muted-foreground hover:bg-accent hover:text-foreground'
-          "
-          @click="onScopeChange(scope.id)"
-        >
-          {{ scope.label }}
-        </button>
-      </div>
-
       <!-- Inline Create/Edit Form -->
       <div v-if="showForm" class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
         <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
@@ -360,93 +275,215 @@ function scopeBadgeClass(scope: string): string {
         </div>
       </div>
 
-      <!-- Loading -->
-      <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
-        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
-      </div>
-
-      <!-- Error -->
-      <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-        <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
-        <p class="text-sm text-muted-foreground">{{ error.message }}</p>
-        <button
-          class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
-          @click="refresh()"
-        >
-          {{ $t("common.retry") }}
-        </button>
-      </div>
-
-      <!-- Empty -->
-      <EmptyState
-        v-else-if="filteredEntries.length === 0"
-        icon="i-lucide-database"
-        :title="$t('memory.noEntries')"
-        description="No custom memory entries added to the Data Bank yet."
-        action-label="Add Memory Entry"
-        @action="openCreateForm"
-      />
-
-      <!-- Entry Cards Grid -->
-      <div v-else class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <template v-else>
+        <!-- Loading -->
         <div
-          v-for="(entry, index) in filteredEntries"
-          :key="entry.id"
-          class="group relative flex animate-fade-in-up flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
-          :style="{ animationDelay: `${index * 30}ms` }"
+          v-if="loading && entries.length === 0"
+          class="flex flex-1 items-center justify-center py-20"
         >
-          <!-- Header -->
-          <div class="mb-2 flex items-start justify-between gap-2">
-            <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
-              {{ entry.name }}
-            </h3>
-            <span
-              class="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
-              :class="scopeBadgeClass(entry.scope)"
+          <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+        </div>
+
+        <!-- Error -->
+        <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
+          <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+          <p class="text-sm text-muted-foreground">{{ error.message }}</p>
+          <button
+            class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+            @click="refresh()"
+          >
+            {{ $t("common.retry") }}
+          </button>
+        </div>
+
+        <!-- Total Empty State -->
+        <EmptyState
+          v-else-if="entries.length === 0"
+          icon="i-lucide-database"
+          :title="$t('memory.noEntries')"
+          description="No custom memory entries added to the Data Bank yet."
+          action-label="Add Memory Entry"
+          @action="openCreateForm"
+        />
+
+        <template v-else>
+          <!-- RAG Search Section -->
+          <div
+            class="animate-fade-in-up rounded-xl border bg-card/50 p-5"
+            style="animation-delay: 30ms"
+          >
+            <h2
+              class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
             >
-              {{ entry.scope }}
-            </span>
-          </div>
+              {{ $t("memory.semanticSearch") }}
+            </h2>
+            <div class="flex items-center gap-3">
+              <div class="relative flex-1">
+                <UIcon
+                  name="i-lucide-search"
+                  class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground/50"
+                />
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  :placeholder="$t('memory.searchPlaceholder')"
+                  aria-label="Semantic search"
+                  autocomplete="off"
+                  class="w-full rounded-lg border bg-background py-2 pr-3 pl-10 text-sm text-foreground transition-shadow placeholder:text-muted-foreground/50 focus:shadow-[0_0_12px_var(--color-primary)/0.15] focus:ring-1 focus:ring-primary focus:outline-none"
+                  @keydown.enter="onSearch"
+                />
+              </div>
+              <button
+                class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                :disabled="searchLoading || !searchQuery.trim()"
+                @click="onSearch"
+              >
+                <UIcon v-if="searchLoading" name="i-lucide-loader-2" class="size-4 animate-spin" />
+                <UIcon v-else name="i-lucide-search" class="size-4" />
+                {{ $t("common.search") }}
+              </button>
+            </div>
 
-          <!-- Content preview (3-line clamp) -->
-          <p class="mb-3 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
-            {{ entry.content }}
-          </p>
+            <!-- Search Results -->
+            <div v-if="searchLoading" class="mt-4 flex items-center justify-center py-6">
+              <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
+            </div>
 
-          <!-- Spacer -->
-          <div class="flex-1" />
+            <div
+              v-else-if="hasSearched && searchResults.length === 0"
+              class="mt-4 py-6 text-center"
+            >
+              <UIcon
+                name="i-lucide-search-x"
+                class="mx-auto mb-2 size-6 text-muted-foreground/40"
+              />
+              <p class="text-sm text-muted-foreground">
+                {{ $t("memory.searchNoResults", { query: searchQuery }) }}
+              </p>
+            </div>
 
-          <!-- Bottom details -->
-          <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
-            <div class="flex items-center gap-1.5">
-              <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
-              <span>{{ new Date(entry.updated_at).toLocaleDateString() }}</span>
+            <div v-else-if="searchResults.length > 0" class="mt-4 space-y-3">
+              <div
+                v-for="(result, i) in searchResults"
+                :key="i"
+                class="rounded-lg border border-border/50 bg-background/50 p-4 transition-colors hover:bg-background/80"
+              >
+                <div class="mb-2 flex items-center gap-2">
+                  <span
+                    class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+                    :class="sourceTypeBadge(result.source_type)"
+                  >
+                    {{ result.source_type.replace("_", " ") }}
+                  </span>
+                  <span
+                    class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
+                    :class="scoreColor(result.score)"
+                  >
+                    {{ $t("memory.matchPercent", { score: (result.score * 100).toFixed(0) }) }}
+                  </span>
+                </div>
+                <p class="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                  {{ result.content }}
+                </p>
+              </div>
             </div>
           </div>
 
-          <!-- Action buttons (bottom-right) -->
-          <div
-            class="absolute right-3 bottom-3 flex items-center gap-2 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
-          >
+          <!-- Scope Filter Pills -->
+          <div class="flex animate-fade-in-up items-center gap-2" style="animation-delay: 60ms">
             <button
-              class="flex items-center gap-1 hover:text-foreground"
-              @click.stop="openEditForm(entry)"
+              v-for="scope in scopes"
+              :key="scope.id"
+              class="rounded-full px-4 py-1.5 text-xs font-medium tracking-wide transition-colors"
+              :class="
+                scopeFilter === scope.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-accent/60 text-muted-foreground hover:bg-accent hover:text-foreground'
+              "
+              @click="onScopeChange(scope.id)"
             >
-              <UIcon name="i-lucide-pencil" class="size-3" />
-              {{ $t("common.edit") }}
-            </button>
-            <button
-              class="flex items-center gap-1"
-              :class="pendingDeleteId === entry.id ? 'text-destructive!' : 'hover:text-destructive'"
-              @click.stop="onDeleteClick(entry.id)"
-              @mouseleave="cancelDelete"
-            >
-              <UIcon name="i-lucide-trash-2" class="size-3" />
-              {{ pendingDeleteId === entry.id ? $t("memory.confirmDelete") : $t("common.delete") }}
+              {{ scope.label }}
             </button>
           </div>
-        </div>
-      </div>
+
+          <!-- Filtered Empty State -->
+          <EmptyState
+            v-if="filteredEntries.length === 0"
+            icon="i-lucide-search-x"
+            title="No Matching Entries"
+            description="Try adjusting your search query or scope filter."
+            action-label="Clear Filters"
+            @action="clearFilters"
+          />
+
+          <!-- Entry Cards Grid -->
+          <div v-else class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <div
+              v-for="(entry, index) in filteredEntries"
+              :key="entry.id"
+              class="group relative flex animate-fade-in-up flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+              :style="{ animationDelay: `${index * 30}ms` }"
+            >
+              <!-- Header -->
+              <div class="mb-2 flex items-start justify-between gap-2">
+                <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+                  {{ entry.name }}
+                </h3>
+                <span
+                  class="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+                  :class="scopeBadgeClass(entry.scope)"
+                >
+                  {{ entry.scope }}
+                </span>
+              </div>
+
+              <!-- Content preview (3-line clamp) -->
+              <p class="mb-3 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                {{ entry.content }}
+              </p>
+
+              <!-- Spacer -->
+              <div class="flex-1" />
+
+              <!-- Bottom details -->
+              <div
+                class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground"
+              >
+                <div class="flex items-center gap-1.5">
+                  <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
+                  <span>{{ new Date(entry.updated_at).toLocaleDateString() }}</span>
+                </div>
+              </div>
+
+              <!-- Action buttons (bottom-right) -->
+              <div
+                class="absolute right-3 bottom-3 flex items-center gap-2 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+              >
+                <button
+                  class="flex items-center gap-1 hover:text-foreground"
+                  @click.stop="openEditForm(entry)"
+                >
+                  <UIcon name="i-lucide-pencil" class="size-3" />
+                  {{ $t("common.edit") }}
+                </button>
+                <button
+                  class="flex items-center gap-1"
+                  :class="
+                    pendingDeleteId === entry.id ? 'text-destructive!' : 'hover:text-destructive'
+                  "
+                  @click.stop="onDeleteClick(entry.id)"
+                  @mouseleave="cancelDelete"
+                >
+                  <UIcon name="i-lucide-trash-2" class="size-3" />
+                  {{
+                    pendingDeleteId === entry.id ? $t("memory.confirmDelete") : $t("common.delete")
+                  }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </template>
     </div>
   </PageContainer>
 </template>
