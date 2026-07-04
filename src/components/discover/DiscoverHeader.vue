@@ -1,7 +1,13 @@
 <script setup lang="ts">
-defineProps<{
-  characterCount: number;
-}>();
+withDefaults(
+  defineProps<{
+    characterCount: number;
+    showActions?: boolean;
+  }>(),
+  {
+    showActions: true,
+  },
+);
 
 defineEmits<{
   import: [];
@@ -19,7 +25,7 @@ defineEmits<{
         {{ $t("characters.inCollection", { count: characterCount }) }}
       </p>
     </div>
-    <div class="flex items-center gap-2">
+    <div v-if="showActions" class="flex items-center gap-2">
       <button
         class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
         @click="$emit('import')"
