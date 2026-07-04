@@ -109,12 +109,20 @@ has_openrouter_key = pytest.mark.skipif(
 )
 
 
+def _ollama_host() -> str:
+    return os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+
+
+def _lmstudio_host() -> str:
+    return os.environ.get("LMSTUDIO_HOST", "http://localhost:1234")
+
+
 def _ollama_available() -> bool:
     """Check if Ollama is running and has at least one model."""
     import httpx
-
+    host = _ollama_host()
     try:
-        resp = httpx.get("http://localhost:11434/api/tags", timeout=2.0)
+        resp = httpx.get(f"{host}/api/tags", timeout=2.0)
         models = resp.json().get("models", [])
         return len(models) > 0
     except Exception:
@@ -187,10 +195,50 @@ def openrouter_gateway() -> ProviderGateway:
 def ollama_gateway() -> ProviderGateway:
     """Use the first available Ollama model."""
     import httpx
-
-    resp = httpx.get("http://localhost:11434/api/tags", timeout=2.0)
+    host = _ollama_host()
+    resp = httpx.get(f"{host}/api/tags", timeout=2.0)
     model_name = resp.json()["models"][0]["name"]
 
-    provider = _make_provider(ProviderType.OLLAMA, "http://localhost:11434", "")
+    provider = _make_provider(ProviderType.OLLAMA, host, "")
     model = _make_model(model_name, model_params={"max_tokens": 256, "temperature": 0})
+    return ProviderGateway(provider, model)
+
+
+def _lmstudio_available() -> bool:
+    """Check if LM Studio is running and has at least one model."""
+    import httpx
+    host = _lmstudio_host()
+    clean_host = host.rstrip("/")
+    if clean_host.endswith("/v1"):
+        endpoint = f"{clean_host}/models"
+    else:
+        endpoint = f"{clean_host}/v1/models"
+    try:
+        resp = httpx.get(endpoint, timeout=2.0)
+        models = resp.json().get("data", [])
+        return len(models) > 0
+    except Exception:
+        return False
+
+
+has_lmstudio = pytest.mark.skipif(
+    not _lmstudio_available(), reason="LM Studio not running or no models available"
+)
+
+
+@pytest.fixture
+def lmstudio_gateway() -> ProviderGateway:
+    """Use the first available LM Studio model."""
+    import httpx
+    host = _lmstudio_host()
+    clean_host = host.rstrip("/")
+    if clean_host.endswith("/v1"):
+        endpoint = f"{clean_host}/models"
+    else:
+        endpoint = f"{clean_host}/v1/models"
+    resp = httpx.get(endpoint, timeout=2.0)
+    model_name = resp.json()["data"][0]["id"]
+
+    provider = _make_provider(ProviderType.LMSTUDIO, host, "")
+    model = _make_model(model_name, model_params={"max_tokens": 32, "temperature": 0})
     return ProviderGateway(provider, model)

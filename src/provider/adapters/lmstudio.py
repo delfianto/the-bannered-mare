@@ -19,7 +19,10 @@ class LMStudioAdapter(OpenAIAdapter):
         stream: bool,
         api_key: str | None = None,
     ) -> str:
-        return f"{base_url}/v1/chat/completions"
+        clean_url = base_url.rstrip("/")
+        if clean_url.endswith("/v1"):
+            clean_url = clean_url[:-3]
+        return f"{clean_url}/v1/chat/completions"
 
     def get_timeout(self, model: str) -> float:
         # Local inference can be slow on first load / large models.
