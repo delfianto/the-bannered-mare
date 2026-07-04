@@ -12,6 +12,7 @@ import QuillTypingIndicator from "@/components/chat/QuillTypingIndicator.vue";
 import MoodChips from "@/components/chat/MoodChips.vue";
 import ParchmentInput from "@/components/chat/ParchmentInput.vue";
 import type { MoodChip } from "@/types/chat";
+import EmptyState from "@/components/shared/EmptyState.vue";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -229,29 +230,13 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
     </header>
 
     <!-- Empty Content -->
-    <div
-      class="flex flex-1 flex-col items-center justify-center gap-3 py-20 text-center animate-fade-in-up"
-      style="animation-delay: 100ms"
-    >
-      <div class="relative mb-4">
-        <div class="absolute inset-0 animate-pulse rounded-full bg-primary/10 blur-lg" />
-        <div class="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
-          <UIcon name="i-lucide-scroll-text" class="h-6 w-6 text-primary" />
-        </div>
-      </div>
-      <h3 class="font-cinzel text-lg font-semibold text-foreground">No Tales Begun</h3>
-      <p class="mb-6 max-w-md text-sm text-muted-foreground">
-        You haven't started any chat sessions yet. Head over to the Character Library, pick a
-        companion, and begin your journey.
-      </p>
-      <button
-        class="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/95"
-        @click="router.push('/characters')"
-      >
-        <UIcon name="i-lucide-compass" class="h-4.5 w-4.5" />
-        Browse Characters
-      </button>
-    </div>
+    <EmptyState
+      icon="i-lucide-scroll-text"
+      title="No Tales Begun"
+      description="You haven't started any chat sessions yet. Head over to the Character Library, pick a companion, and begin your journey."
+      action-label="Browse Characters"
+      @action="router.push('/characters')"
+    />
   </div>
 
   <!-- Normal chat view -->

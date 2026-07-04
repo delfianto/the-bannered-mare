@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBookmarks } from "@/composables/useBookmarks";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
+import EmptyState from "@/components/shared/EmptyState.vue";
 
 const { t } = useI18n();
 const { characters, sessions, messages, loading, totalCount } = useBookmarks();
@@ -56,10 +57,12 @@ function timeAgo(dateStr: string): string {
     </div>
 
     <!-- Empty state -->
-    <div v-else-if="totalCount === 0" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-bookmark" class="h-10 w-10 text-muted-foreground/40" />
-      <p class="text-sm text-muted-foreground">{{ $t("bookmarks.noBookmarks") }}</p>
-    </div>
+    <EmptyState
+      v-else-if="totalCount === 0"
+      icon="i-lucide-bookmark"
+      :title="$t('bookmarks.noBookmarks')"
+      description="You haven't bookmarked any sessions, messages, or favorite characters yet."
+    />
 
     <template v-else>
       <!-- Section 1: Favorite Characters -->
