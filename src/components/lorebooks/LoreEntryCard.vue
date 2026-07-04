@@ -27,7 +27,9 @@ const positionLabels: Record<string, string> = {
   >
     <!-- Header: name + enabled toggle -->
     <div class="mb-2 flex items-start justify-between gap-2">
-      <h4 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">{{ entry.name }}</h4>
+      <h4 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+        {{ entry.name }}
+      </h4>
       <button
         type="button"
         role="switch"
@@ -60,7 +62,9 @@ const positionLabels: Record<string, string> = {
     </div>
 
     <!-- Content preview -->
-    <p class="mb-3 line-clamp-3 text-xs leading-relaxed text-muted-foreground">{{ entry.content }}</p>
+    <p class="mb-3 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+      {{ entry.content }}
+    </p>
 
     <div class="flex-1" />
 
@@ -73,11 +77,11 @@ const positionLabels: Record<string, string> = {
         </span>
         <span class="flex items-center gap-1">
           <UIcon name="i-lucide-arrow-up-down" class="h-3 w-3" />
-          {{ $t('lorebooks.order') }} {{ entry.order }}
+          {{ $t("lorebooks.order") }} {{ entry.order }}
         </span>
         <span v-if="entry.constant" class="flex items-center gap-1 text-primary">
           <UIcon name="i-lucide-pin" class="h-3 w-3" />
-          {{ $t('lorebooks.constant') }}
+          {{ $t("lorebooks.constant") }}
         </span>
       </div>
       <div
@@ -85,7 +89,7 @@ const positionLabels: Record<string, string> = {
       >
         <button class="flex items-center gap-1 hover:text-foreground" @click="$emit('edit')">
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-          {{ $t('common.edit') }}
+          {{ $t("common.edit") }}
         </button>
         <button
           class="flex items-center gap-1"
@@ -93,7 +97,7 @@ const positionLabels: Record<string, string> = {
           @click="$emit('delete')"
         >
           <UIcon name="i-lucide-trash-2" class="h-3 w-3" />
-          {{ pendingDelete ? $t('lorebooks.confirmDelete') : $t('common.delete') }}
+          {{ pendingDelete ? $t("lorebooks.confirmDelete") : $t("common.delete") }}
         </button>
       </div>
     </div>

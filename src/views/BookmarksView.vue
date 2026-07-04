@@ -19,13 +19,13 @@ function scroll(direction: "left" | "right") {
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 60) return t('time.minutesAgo', { count: mins });
+  if (mins < 60) return t("time.minutesAgo", { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return t('time.hoursAgo', { count: hours });
+  if (hours < 24) return t("time.hoursAgo", { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 7) return t('time.daysAgo', { count: days });
+  if (days < 7) return t("time.daysAgo", { count: days });
   const weeks = Math.floor(days / 7);
-  return t('time.weeksAgo', { count: weeks });
+  return t("time.weeksAgo", { count: weeks });
 }
 </script>
 
@@ -37,12 +37,9 @@ function timeAgo(dateStr: string): string {
     </div>
 
     <!-- Empty state -->
-    <div
-      v-else-if="totalCount === 0"
-      class="flex flex-col items-center justify-center gap-3 py-20"
-    >
+    <div v-else-if="totalCount === 0" class="flex flex-col items-center justify-center gap-3 py-20">
       <UIcon name="i-lucide-bookmark" class="h-10 w-10 text-muted-foreground/40" />
-      <p class="text-sm text-muted-foreground">{{ $t('bookmarks.noBookmarks') }}</p>
+      <p class="text-sm text-muted-foreground">{{ $t("bookmarks.noBookmarks") }}</p>
     </div>
 
     <template v-else>
@@ -56,10 +53,10 @@ function timeAgo(dateStr: string): string {
           </div>
           <div>
             <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
-              {{ $t('bookmarks.title') }}
+              {{ $t("bookmarks.title") }}
             </h1>
             <p class="mt-0.5 text-sm text-muted-foreground">
-              {{ $t('bookmarks.subtitle') }}
+              {{ $t("bookmarks.subtitle") }}
             </p>
           </div>
         </div>
@@ -73,10 +70,8 @@ function timeAgo(dateStr: string): string {
       >
         <div class="mb-5 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <h2
-              class="font-cinzel text-lg font-semibold tracking-wide text-foreground"
-            >
-              {{ $t('bookmarks.favoriteCharacters') }}
+            <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
+              {{ $t("bookmarks.favoriteCharacters") }}
             </h2>
             <span
               class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
@@ -102,10 +97,7 @@ function timeAgo(dateStr: string): string {
           </div>
         </div>
 
-        <div
-          ref="scrollContainer"
-          class="scrollbar-hide flex gap-5 overflow-x-auto pb-4"
-        >
+        <div ref="scrollContainer" class="scrollbar-hide flex gap-5 overflow-x-auto pb-4">
           <RouterLink
             v-for="(char, i) in characters"
             :key="char.id"
@@ -122,9 +114,7 @@ function timeAgo(dateStr: string): string {
               class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"
             />
             <div class="absolute bottom-0 left-0 right-0 p-4">
-              <h3
-                class="font-cinzel text-sm font-semibold tracking-wide text-white"
-              >
+              <h3 class="font-cinzel text-sm font-semibold tracking-wide text-white">
                 {{ char.name }}
               </h3>
               <div v-if="char.tags?.length" class="mt-1.5 flex flex-wrap gap-1">
@@ -142,17 +132,11 @@ function timeAgo(dateStr: string): string {
       </section>
 
       <!-- Section 2: Bookmarked Sessions -->
-      <section
-        v-if="sessions.length > 0"
-        class="animate-fade-in-up"
-        style="animation-delay: 200ms"
-      >
+      <section v-if="sessions.length > 0" class="animate-fade-in-up" style="animation-delay: 200ms">
         <div class="mb-5 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <h2
-              class="font-cinzel text-lg font-semibold tracking-wide text-foreground"
-            >
-              {{ $t('bookmarks.savedSessions') }}
+            <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
+              {{ $t("bookmarks.savedSessions") }}
             </h2>
             <span
               class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
@@ -176,15 +160,11 @@ function timeAgo(dateStr: string): string {
               class="h-12 w-12 flex-shrink-0 rounded-full object-cover ring-1 ring-border"
             />
             <div class="min-w-0 flex-1">
-              <h3
-                class="truncate font-cinzel text-sm font-semibold text-foreground"
-              >
+              <h3 class="truncate font-cinzel text-sm font-semibold text-foreground">
                 {{ session.title }}
               </h3>
-              <p
-                class="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-primary"
-              >
-                {{ $t('bookmarks.with', { name: session.character?.name }) }}
+              <p class="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                {{ $t("bookmarks.with", { name: session.character?.name }) }}
               </p>
             </div>
             <span class="whitespace-nowrap text-[10px] text-muted-foreground">
@@ -201,10 +181,8 @@ function timeAgo(dateStr: string): string {
         style="animation-delay: 300ms"
       >
         <div class="mb-5 flex items-center gap-3">
-          <h2
-            class="font-cinzel text-lg font-semibold tracking-wide text-foreground"
-          >
-            {{ $t('bookmarks.pinnedFragments') }}
+          <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
+            {{ $t("bookmarks.pinnedFragments") }}
           </h2>
           <span
             class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary"
@@ -229,17 +207,12 @@ function timeAgo(dateStr: string): string {
                   class="h-10 w-10 rounded-full object-cover ring-1 ring-border"
                 />
                 <div>
-                  <h4
-                    class="font-cinzel text-sm font-bold text-foreground"
-                  >
+                  <h4 class="font-cinzel text-sm font-bold text-foreground">
                     {{ msg.character.name }}
                   </h4>
                   <p class="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    {{ $t('bookmarks.from') }}
-                    <RouterLink
-                      :to="`/chats/${msg.chat.id}`"
-                      class="text-primary hover:underline"
-                    >
+                    {{ $t("bookmarks.from") }}
+                    <RouterLink :to="`/chats/${msg.chat.id}`" class="text-primary hover:underline">
                       {{ msg.chat.title }}
                     </RouterLink>
                   </p>
@@ -254,9 +227,7 @@ function timeAgo(dateStr: string): string {
             <NarrativeText :content="msg.content" />
 
             <!-- Footer -->
-            <div
-              class="mt-4 flex items-center justify-end border-t border-border/30 pt-3"
-            >
+            <div class="mt-4 flex items-center justify-end border-t border-border/30 pt-3">
               <button
                 class="text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                 :aria-label="$t('bookmarks.removeBookmark')"

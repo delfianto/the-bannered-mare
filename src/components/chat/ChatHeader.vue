@@ -26,9 +26,11 @@ let deleteTimer: ReturnType<typeof setTimeout> | null = null;
 const menuRef = ref<HTMLElement | null>(null);
 
 function avatarSrc(): string {
-  return props.character.avatar_thumbnail
-    || props.character.avatar
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=80`;
+  return (
+    props.character.avatar_thumbnail ||
+    props.character.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=80`
+  );
 }
 
 function toggleMenu() {
@@ -167,7 +169,7 @@ onUnmounted(() => {
             @click="startRename"
           >
             <UIcon name="i-lucide-pencil" class="h-4 w-4" />
-            {{ $t('chat.rename') }}
+            {{ $t("chat.rename") }}
           </button>
           <button
             class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-accent/50"
@@ -175,7 +177,7 @@ onUnmounted(() => {
             @click="handleDelete"
           >
             <UIcon name="i-lucide-trash-2" class="h-4 w-4" />
-            {{ confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
+            {{ confirmDelete ? $t("common.deleteConfirm") : $t("common.delete") }}
           </button>
         </div>
       </div>

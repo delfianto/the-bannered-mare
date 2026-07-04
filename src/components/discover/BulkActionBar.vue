@@ -25,7 +25,7 @@ defineEmits<{
       class="flex items-center justify-between rounded-xl border bg-card px-4 py-2.5 shadow-lg"
     >
       <p class="text-sm font-medium text-foreground">
-        {{ $t('common.selected', { count: selectedCount }) }}
+        {{ $t("common.selected", { count: selectedCount }) }}
       </p>
       <div class="flex items-center gap-2">
         <button
@@ -33,14 +33,14 @@ defineEmits<{
           @click="$emit('export')"
         >
           <UIcon name="i-lucide-download" class="h-3.5 w-3.5" />
-          {{ $t('characters.bulkExport') }}
+          {{ $t("characters.bulkExport") }}
         </button>
         <button
           class="flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-destructive/90"
           @click="$emit('delete')"
         >
           <UIcon name="i-lucide-trash-2" class="h-3.5 w-3.5" />
-          {{ $t('characters.bulkDelete') }}
+          {{ $t("characters.bulkDelete") }}
         </button>
         <button
           :aria-label="$t('characters.cancelSelection')"

@@ -102,7 +102,9 @@ function sortLabel(value: SortOption): string {
       <button
         :aria-label="$t('characters.view.grid')"
         class="flex h-full items-center px-2.5 transition-colors"
-        :class="viewMode === 'grid' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'"
+        :class="
+          viewMode === 'grid' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+        "
         @click="emit('update:viewMode', 'grid')"
       >
         <UIcon name="i-lucide-layout-grid" class="h-4 w-4" />
@@ -111,7 +113,9 @@ function sortLabel(value: SortOption): string {
       <button
         :aria-label="$t('characters.view.list')"
         class="flex h-full items-center px-2.5 transition-colors"
-        :class="viewMode === 'list' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'"
+        :class="
+          viewMode === 'list' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+        "
         @click="emit('update:viewMode', 'list')"
       >
         <UIcon name="i-lucide-list" class="h-4 w-4" />
@@ -129,7 +133,7 @@ function sortLabel(value: SortOption): string {
       @click="emit('update:selectMode', !selectMode)"
     >
       <UIcon name="i-lucide-check-square" class="h-4 w-4" />
-      {{ $t('characters.view.select') }}
+      {{ $t("characters.view.select") }}
     </button>
   </div>
 </template>

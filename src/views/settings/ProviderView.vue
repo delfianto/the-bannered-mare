@@ -79,7 +79,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
+        <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
@@ -91,13 +91,15 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        {{ $t('common.goBack') }}
+        {{ $t("common.goBack") }}
       </button>
     </div>
 
     <template v-if="provider && !loading">
       <!-- Header -->
-      <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm">
+      <header
+        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+      >
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -126,7 +128,7 @@ function formatDate(iso: string): string {
             class="h-4 w-4"
             :class="{ 'animate-spin': saving }"
           />
-          {{ saving ? $t('common.saving') : $t('common.save') }}
+          {{ saving ? $t("common.saving") : $t("common.save") }}
         </button>
       </header>
 
@@ -144,7 +146,9 @@ function formatDate(iso: string): string {
                 />
               </div>
               <div>
-                <span class="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground">
+                <span
+                  class="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground"
+                >
                   {{ provider.provider_type }}
                 </span>
                 <p class="mt-0.5 text-[10px] text-muted-foreground">Provider Type (read-only)</p>
@@ -154,8 +158,10 @@ function formatDate(iso: string): string {
             <div class="space-y-4">
               <!-- Name -->
               <label class="block">
-                <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  {{ $t('connections.provider.name') }}
+                <span
+                  class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                >
+                  {{ $t("connections.provider.name") }}
                 </span>
                 <input
                   v-model="form.name"
@@ -167,8 +173,10 @@ function formatDate(iso: string): string {
 
               <!-- Base URL -->
               <label class="block">
-                <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  {{ $t('connections.provider.baseUrl') }}
+                <span
+                  class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                >
+                  {{ $t("connections.provider.baseUrl") }}
                 </span>
                 <input
                   v-model="form.base_url"
@@ -180,17 +188,27 @@ function formatDate(iso: string): string {
 
               <!-- Enabled toggle -->
               <div class="flex items-center justify-between">
-                <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  {{ $t('connections.provider.enabled') }}
+                <label
+                  class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                >
+                  {{ $t("connections.provider.enabled") }}
                 </label>
-                <button @click="toggleEnabled" role="switch" :aria-checked="form.enabled" aria-label="Enabled" class="cursor-pointer">
+                <button
+                  @click="toggleEnabled"
+                  role="switch"
+                  :aria-checked="form.enabled"
+                  aria-label="Enabled"
+                  class="cursor-pointer"
+                >
                   <div
                     class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
                     :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
                   >
                     <span
                       class="h-4 w-4 rounded-full shadow-sm transition-transform"
-                      :class="form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                      :class="
+                        form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
+                      "
                     />
                   </div>
                 </button>
@@ -200,12 +218,16 @@ function formatDate(iso: string): string {
 
           <!-- API Key section -->
           <div class="rounded-xl border bg-card/50 p-5">
-            <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-              {{ $t('connections.provider.apiKey') }}
+            <h2
+              class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+            >
+              {{ $t("connections.provider.apiKey") }}
             </h2>
             <div class="space-y-3">
               <div class="flex items-center justify-between">
-                <span class="text-sm text-muted-foreground">{{ $t('connections.provider.envVar') }}</span>
+                <span class="text-sm text-muted-foreground">{{
+                  $t("connections.provider.envVar")
+                }}</span>
                 <code class="rounded bg-accent px-2 py-0.5 text-xs text-foreground">
                   {{ provider.env_var_name || "N/A" }}
                 </code>
@@ -224,7 +246,11 @@ function formatDate(iso: string): string {
                     class="h-1.5 w-1.5 rounded-full"
                     :class="provider.api_key_configured ? 'bg-emerald-500' : 'bg-amber-500'"
                   />
-                  {{ provider.api_key_configured ? $t('connections.provider.keyConfigured') : $t('connections.provider.keyNotSet') }}
+                  {{
+                    provider.api_key_configured
+                      ? $t("connections.provider.keyConfigured")
+                      : $t("connections.provider.keyNotSet")
+                  }}
                 </span>
               </div>
             </div>

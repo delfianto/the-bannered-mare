@@ -7,7 +7,8 @@ import { useModelFamilies } from "@/composables/useModelFamilies";
 
 const { t } = useI18n();
 
-const { models, loading, error, page, hasMore, totalPages, loadPage, search, filterByProvider } = useModels();
+const { models, loading, error, page, hasMore, totalPages, loadPage, search, filterByProvider } =
+  useModels();
 const { providers } = useProviders();
 const { families } = useModelFamilies({ pageSize: 100 });
 
@@ -33,7 +34,9 @@ function handleProviderFilter(value: string) {
 
 const providerItems = computed(() => [
   { label: t("connections.allProviders"), value: "all" },
-  ...[...providers.value].sort((a: any, b: any) => a.name.localeCompare(b.name)).map((p: any) => ({ label: p.name, value: p.id })),
+  ...[...providers.value]
+    .sort((a: any, b: any) => a.name.localeCompare(b.name))
+    .map((p: any) => ({ label: p.name, value: p.id })),
 ]);
 
 const familyItems = computed(() => [
@@ -41,8 +44,10 @@ const familyItems = computed(() => [
   ...families.value.map((f: any) => ({ label: f.name, value: f.id })),
 ]);
 
-const providerLabel = computed(() =>
-  providerItems.value.find((i) => i.value === selectedProvider.value)?.label ?? t("connections.allProviders"),
+const providerLabel = computed(
+  () =>
+    providerItems.value.find((i) => i.value === selectedProvider.value)?.label ??
+    t("connections.allProviders"),
 );
 
 // const familyLabel = computed(() =>
@@ -126,7 +131,7 @@ const filteredModels = computed(() => models.value);
           class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground/50 outline-none cursor-not-allowed"
         >
           <UIcon name="i-lucide-layers" class="h-3.5 w-3.5" />
-          {{ $t('connections.allFamilies') }}
+          {{ $t("connections.allFamilies") }}
         </button>
       </USelectMenu>
     </div>
@@ -145,9 +150,12 @@ const filteredModels = computed(() => models.value);
     <!-- Cards -->
     <div v-else>
       <!-- Empty -->
-      <div v-if="filteredModels.length === 0" class="flex flex-col items-center justify-center gap-2 py-16">
+      <div
+        v-if="filteredModels.length === 0"
+        class="flex flex-col items-center justify-center gap-2 py-16"
+      >
         <UIcon name="i-lucide-search-x" class="h-8 w-8 text-muted-foreground/50" />
-        <p class="text-sm text-muted-foreground">{{ $t('connections.noModels') }}</p>
+        <p class="text-sm text-muted-foreground">{{ $t("connections.noModels") }}</p>
       </div>
 
       <!-- Card Grid -->
@@ -181,27 +189,34 @@ const filteredModels = computed(() => models.value);
 
           <!-- Badges (pinned to bottom) -->
           <div class="flex flex-wrap items-center gap-1.5 border-t border-border/30 pt-3">
-            <span class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground">
+            <span
+              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-foreground"
+            >
               {{ model.provider_id }}
             </span>
-            <span class="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground">
+            <span
+              class="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground"
+            >
               {{ model.model_family_id }}
             </span>
           </div>
 
           <!-- Edit hint -->
-          <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
+          <div
+            class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+          >
             <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-            {{ $t('common.edit') }}
+            {{ $t("common.edit") }}
           </div>
         </RouterLink>
       </div>
 
       <!-- Pagination (only if no local filters active and multiple pages) -->
-      <div v-if="totalPages > 1 && selectedProvider === 'all' && selectedFamily === 'all'" class="mt-5 flex items-center justify-between">
-        <span class="text-xs text-muted-foreground">
-          Page {{ page }} of {{ totalPages }}
-        </span>
+      <div
+        v-if="totalPages > 1 && selectedProvider === 'all' && selectedFamily === 'all'"
+        class="mt-5 flex items-center justify-between"
+      >
+        <span class="text-xs text-muted-foreground"> Page {{ page }} of {{ totalPages }} </span>
         <div class="flex items-center gap-2">
           <UButton variant="outline" size="xs" :disabled="page <= 1" @click="loadPage(page - 1)">
             <UIcon name="i-lucide-chevron-left" class="h-3.5 w-3.5" />

@@ -48,7 +48,7 @@ import { APP_INFO } from "@/constants/appInfo";
 
       <!-- Author -->
       <p class="mt-5 text-xs text-muted-foreground">
-        {{ $t('settings.about.craftedBy') }}
+        {{ $t("settings.about.craftedBy") }}
         <span class="font-medium text-foreground">{{ APP_INFO.author }}</span>
       </p>
     </div>

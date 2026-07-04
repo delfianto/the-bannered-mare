@@ -14,7 +14,9 @@ function init() {
   const storedMode = localStorage.getItem("theme-mode");
   if (
     storedMode === "dark" ||
-    (!storedMode && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    (!storedMode &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches)
   ) {
     isDark.value = true;
   }

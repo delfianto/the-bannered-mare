@@ -15,10 +15,10 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
     <!-- Greeting -->
     <div class="animate-fade-in-up">
       <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
-        {{ $t('home.greeting') }}
+        {{ $t("home.greeting") }}
       </h1>
       <p class="text-sm text-muted-foreground">
-        {{ $t('home.tagline') }}
+        {{ $t("home.tagline") }}
       </p>
     </div>
 

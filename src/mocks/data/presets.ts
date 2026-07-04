@@ -7,7 +7,8 @@ export const presets: Preset[] = [
   {
     id: "preset-default-rp",
     name: "Default RP",
-    description: "Balanced settings for general roleplay scenarios with natural language flow and moderate creativity.",
+    description:
+      "Balanced settings for general roleplay scenarios with natural language flow and moderate creativity.",
     parameters: {
       temperature: 0.85,
       top_p: 0.9,
@@ -22,7 +23,8 @@ export const presets: Preset[] = [
   {
     id: "preset-creative-writing",
     name: "Creative Writing",
-    description: "Higher temperature and top_p for more creative, varied, and surprising prose output.",
+    description:
+      "Higher temperature and top_p for more creative, varied, and surprising prose output.",
     parameters: {
       temperature: 1.2,
       top_p: 0.95,
@@ -37,7 +39,8 @@ export const presets: Preset[] = [
   {
     id: "preset-precise",
     name: "Precise",
-    description: "Low temperature for deterministic, focused responses. Best for factual or structured output.",
+    description:
+      "Low temperature for deterministic, focused responses. Best for factual or structured output.",
     parameters: {
       temperature: 0.3,
       top_p: 0.5,

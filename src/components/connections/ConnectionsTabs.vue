@@ -30,9 +30,7 @@ const tabs = [
           :key="tab.id"
           class="relative flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors"
           :class="
-            activeTab === tab.id
-              ? 'text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === tab.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
           "
           @click="emit('change', tab.id)"
         >

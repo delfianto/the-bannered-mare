@@ -1,23 +1,28 @@
 You are performing a **SuperDesign Init** — analyzing this repository to build UI context files that SuperDesign agent will use for design tasks.
 
 ## Output Directory
+
 Write all files to `.superdesign/init/` in the project root.
 
 ## Analysis Steps
 
 ### 1. Detect Framework & Component Library
+
 Scan `package.json`, config files (`next.config.*`, `vite.config.*`, `rsbuild.config.*`, `nuxt.config.*`, etc.), and import patterns to determine:
+
 - Framework: React, Vue, Svelte, Angular, etc.
 - Meta-framework: Next.js, Nuxt, Remix, Astro, etc.
 - Component library: shadcn/ui, Ant Design, MUI, Chakra, Radix, custom, etc.
 - CSS approach: Tailwind, CSS Modules, styled-components, vanilla CSS, etc.
 
 ### 2. Write `components.md`
+
 Identify the project's shared/reusable UI component directory (e.g., `src/components/ui/`, `components/`, `packages/ui/`).
 
 **IMPORTANT**: Include FULL source code for each component, not just descriptions. SuperDesign needs the actual implementation to reproduce accurately.
 
 For each component, include:
+
 - File path
 - Component name
 - Brief description (1 line)
@@ -29,7 +34,9 @@ Focus on **shared UI primitives** (Button, Input, Dialog, Card, Select, Checkbox
 ⚠️ This file should contain the ACTUAL CODE of components, not just a list of names.
 
 ### 3. Write `layouts.md`
+
 Find and READ all shared layout components. These are the components that appear on every page or across multiple pages:
+
 - App shell / root layout
 - Navigation bar (top nav, bottom nav)
 - Sidebar
@@ -39,6 +46,7 @@ Find and READ all shared layout components. These are the components that appear
 - Layout wrappers / HOCs
 
 For each, include:
+
 - File path
 - Full source code (copy the entire file content)
 - Brief description of what it renders
@@ -46,7 +54,9 @@ For each, include:
 This is critical — SuperDesign needs the actual layout code to reproduce pages accurately.
 
 ### 4. Write `routes.md`
+
 Map out the page/route structure:
+
 - For file-based routing (Next.js, Nuxt): list route files and their paths
 - For config-based routing (React Router, Vue Router): read the router config
 - For each route, include: URL path, component file path, layout used
@@ -55,7 +65,9 @@ Map out the page/route structure:
 For key pages (home, dashboard, main features), include a brief summary of what the page renders.
 
 ### 5. Write `theme.md`
+
 Extract the design system / theme tokens. **Include FULL file contents**, not summaries:
+
 - Read and include FULL CSS variable definitions (`:root`, `[data-theme]`, etc.)
 - Read and include FULL Tailwind config (`tailwind.config.*`) — especially `theme.extend`
 - Read and include any theme provider files
@@ -63,21 +75,25 @@ Extract the design system / theme tokens. **Include FULL file contents**, not su
 - Capture: colors, fonts, spacing scale, border radius, shadows, breakpoints
 
 **IMPORTANT**: Include the COMPLETE raw files in fenced code blocks:
+
 - Full `tailwind.config.ts/js` content
 - Full `globals.css` / `index.css` content
 - Full CSS variable definitions
 - Any design token files
 
 ### 6. Write `pages.md`
+
 For each key page/route in the app (home, dashboard, main features — up to 10 pages), build a **complete component dependency tree** by tracing imports recursively.
 
 For each page:
+
 1. Start from the page component file
 2. Trace ALL local imports (relative `./Foo`, `../Bar`, alias `@/components/Baz` — skip node_modules)
 3. For each import, trace ITS imports recursively
 4. Present as an indented tree showing every file the page depends on
 
 Format:
+
 ```
 ## / (Home Page)
 Entry: src/app/(home)/home-page.tsx
@@ -101,11 +117,13 @@ This tree is the **SINGLE SOURCE OF TRUTH** for which files to pass as `--contex
 Prioritize the most important/complex pages (home, dashboard, settings, etc.). Skip trivial pages (404, offline, status).
 
 ### 7. Write `extractable-components.md`
+
 Catalog UI components from the codebase that **can be extracted** as reusable SuperDesign `DraftComponent` entities. These are components that appear on multiple pages or define shared UI patterns (navigation, cards, headers, footers).
 
 Organize by category:
 
 #### Layout Components (appear on most pages)
+
 - NavBar / TopNav / BottomNav
 - Sidebar
 - Header / AppBar
@@ -113,6 +131,7 @@ Organize by category:
 - App Shell / Layout Wrapper
 
 #### Basic Components (used across pages)
+
 - Button variants
 - Card components
 - Input / Form fields
@@ -121,6 +140,7 @@ Organize by category:
 - Tab components
 
 For each extractable component, include:
+
 - **Name** (PascalCase, e.g., `NavBar`, `HeroSection`)
 - **Source file path** (e.g., `src/components/layout/NavBar.tsx`)
 - **Category**: `layout` or `basic`
@@ -133,6 +153,7 @@ For each extractable component, include:
 - **Hardcoded elements** (NOT props): icon names, text labels, CSS classes, image sources
 
 Format:
+
 ```
 ## NavBar
 - Source: `src/components/layout/NavBar.tsx`
@@ -145,6 +166,7 @@ Format:
 This file serves as a "menu" — the design workflow reads it to decide which components to extract before generating drafts.
 
 ## Format Guidelines
+
 - Use markdown with clear headings
 - Include file paths as code spans
 - **For `components.md`**: include FULL source code of each component in fenced code blocks
@@ -155,4 +177,5 @@ This file serves as a "menu" — the design workflow reads it to decide which co
 - Keep descriptions concise — the goal is machine-readable context, not documentation
 
 ## Key Principle: INCLUDE ACTUAL CODE
+
 The init files should contain **actual implementation code** (.tsx, .css, .ts), not just documentation or descriptions. SuperDesign needs real code to reproduce UI accurately. Be generous with the content — more context is always better than less.

@@ -18,17 +18,26 @@ const emit = defineEmits<{
   "add:tag": [tag: string];
   "remove:tag": [tag: string];
 }>();
+
+function handleAvatarChange(file: File) {
+  emit("update:field", "avatarFile", file);
+  emit("update:field", "avatarUrl", URL.createObjectURL(file));
+}
 </script>
 
 <template>
   <div class="animate-fade-in-up space-y-6">
     <div>
-      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">{{ $t('characters.form.identity') }}</h2>
+      <h2
+        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+      >
+        {{ $t("characters.form.identity") }}
+      </h2>
       <div class="mt-2 h-px bg-border" />
     </div>
 
     <div class="flex gap-6">
-      <AvatarUpload :avatar-url="data.avatarUrl" @change="emit('update:field', 'avatarUrl', $event)" />
+      <AvatarUpload :avatar-url="data.avatarUrl" @change="handleAvatarChange" />
 
       <div class="flex-1 space-y-4">
         <FormField :label="t('characters.form.name')">
@@ -51,10 +60,20 @@ const emit = defineEmits<{
 
         <div class="grid grid-cols-3 gap-3">
           <FormField :label="t('characters.form.species')">
-            <Combobox :model-value="data.species" :options="SPECIES_OPTIONS" placeholder="Half-Elf" @update:model-value="emit('update:field', 'species', $event)" />
+            <Combobox
+              :model-value="data.species"
+              :options="SPECIES_OPTIONS"
+              placeholder="Half-Elf"
+              @update:model-value="emit('update:field', 'species', $event)"
+            />
           </FormField>
           <FormField :label="t('characters.form.gender')">
-            <Combobox :model-value="data.gender" :options="GENDER_OPTIONS" placeholder="Female" @update:model-value="emit('update:field', 'gender', $event)" />
+            <Combobox
+              :model-value="data.gender"
+              :options="GENDER_OPTIONS"
+              placeholder="Female"
+              @update:model-value="emit('update:field', 'gender', $event)"
+            />
           </FormField>
           <FormField :label="t('characters.form.age')">
             <input
@@ -68,8 +87,27 @@ const emit = defineEmits<{
       </div>
     </div>
 
+    <FormField
+      :label="t('characters.form.creatorNotes')"
+      :hint="t('characters.form.creatorNotesHint')"
+    >
+      <textarea
+        :value="data.creatorNotes"
+        placeholder="A model student makes their parents proud..."
+        rows="2"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        @input="emit('update:field', 'creatorNotes', ($event.target as HTMLTextAreaElement).value)"
+      />
+    </FormField>
+
     <FormField :label="t('characters.form.tags')" :hint="`${data.tags.length}/10`">
-      <TagInput :tags="data.tags" :suggestions="SUGGESTED_TAGS" :max="10" @add="emit('add:tag', $event)" @remove="emit('remove:tag', $event)" />
+      <TagInput
+        :tags="data.tags"
+        :suggestions="SUGGESTED_TAGS"
+        :max="10"
+        @add="emit('add:tag', $event)"
+        @remove="emit('remove:tag', $event)"
+      />
     </FormField>
   </div>
 </template>

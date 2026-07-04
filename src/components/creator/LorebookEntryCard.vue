@@ -37,8 +37,17 @@ function removeKeyword(kw: string) {
   >
     <!-- Header -->
     <div class="flex items-center gap-2 px-4 py-3">
-      <button type="button" class="text-muted-foreground transition-colors hover:text-foreground" :aria-label="expanded ? 'Collapse entry' : 'Expand entry'" @click="expanded = !expanded">
-        <UIcon name="i-lucide-chevron-down" class="h-4 w-4 transition-transform" :class="expanded ? 'rotate-180' : ''" />
+      <button
+        type="button"
+        class="text-muted-foreground transition-colors hover:text-foreground"
+        :aria-label="expanded ? 'Collapse entry' : 'Expand entry'"
+        @click="expanded = !expanded"
+      >
+        <UIcon
+          name="i-lucide-chevron-down"
+          class="h-4 w-4 transition-transform"
+          :class="expanded ? 'rotate-180' : ''"
+        />
       </button>
 
       <span class="text-xs font-medium text-muted-foreground">Entry #{{ index + 1 }}</span>
@@ -62,7 +71,11 @@ function removeKeyword(kw: string) {
           :title="entry.enabled ? 'Disable' : 'Enable'"
           :aria-label="entry.enabled ? 'Disable entry' : 'Enable entry'"
           class="flex h-7 w-7 items-center justify-center rounded-md transition-colors"
-          :class="entry.enabled ? 'text-primary hover:bg-primary/10' : 'text-muted-foreground hover:bg-accent'"
+          :class="
+            entry.enabled
+              ? 'text-primary hover:bg-primary/10'
+              : 'text-muted-foreground hover:bg-accent'
+          "
           @click="emit('update', entry.id, { enabled: !entry.enabled })"
         >
           <UIcon name="i-lucide-power" class="h-3.5 w-3.5" />
@@ -81,15 +94,24 @@ function removeKeyword(kw: string) {
     <!-- Content -->
     <div v-if="expanded" class="space-y-3 px-4 pb-4">
       <label class="block space-y-1.5">
-        <span class="text-xs font-medium text-muted-foreground">{{ t('characters.form.keywords') }}</span>
-        <div class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border bg-background p-2">
+        <span class="text-xs font-medium text-muted-foreground">{{
+          t("characters.form.keywords")
+        }}</span>
+        <div
+          class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border bg-background p-2"
+        >
           <span
             v-for="kw in entry.keywords"
             :key="kw"
             class="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary"
           >
             {{ kw }}
-            <button type="button" class="hover:text-destructive" :aria-label="t('characters.form.removeKeyword', { keyword: kw })" @click="removeKeyword(kw)">
+            <button
+              type="button"
+              class="hover:text-destructive"
+              :aria-label="t('characters.form.removeKeyword', { keyword: kw })"
+              @click="removeKeyword(kw)"
+            >
               <UIcon name="i-lucide-x" class="h-2.5 w-2.5" />
             </button>
           </span>
@@ -104,7 +126,9 @@ function removeKeyword(kw: string) {
 
       <label class="block space-y-1.5">
         <div class="flex justify-between">
-          <span class="text-xs font-medium text-muted-foreground">{{ t('characters.form.content') }}</span>
+          <span class="text-xs font-medium text-muted-foreground">{{
+            t("characters.form.content")
+          }}</span>
           <span class="text-[10px] text-muted-foreground">{{ entry.content.length }}/2000</span>
         </div>
         <textarea
@@ -112,7 +136,9 @@ function removeKeyword(kw: string) {
           placeholder="The Sunken Library was once the greatest repository of arcane knowledge…"
           rows="3"
           class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-          @input="emit('update', entry.id, { content: ($event.target as HTMLTextAreaElement).value })"
+          @input="
+            emit('update', entry.id, { content: ($event.target as HTMLTextAreaElement).value })
+          "
         />
       </label>
     </div>

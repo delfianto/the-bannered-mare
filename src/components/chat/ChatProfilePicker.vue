@@ -46,7 +46,9 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       @click="toggle"
     >
       <UIcon name="i-lucide-layers" class="h-3.5 w-3.5 shrink-0" />
-      <span class="max-w-[120px] truncate">{{ currentProfileName || $t('chat.profile.none') }}</span>
+      <span class="max-w-[120px] truncate">{{
+        currentProfileName || $t("chat.profile.none")
+      }}</span>
       <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 shrink-0" />
     </button>
 
@@ -54,8 +56,10 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       v-if="open"
       class="absolute right-0 top-full z-20 mt-1 w-64 rounded-lg border bg-card py-1 shadow-lg"
     >
-      <div class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {{ $t('chat.profile.title') }}
+      <div
+        class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+      >
+        {{ $t("chat.profile.title") }}
       </div>
 
       <button
@@ -78,7 +82,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       </button>
 
       <div v-if="profiles.length === 0" class="px-3 py-3 text-center text-xs text-muted-foreground">
-        {{ $t('chat.profile.empty') }}
+        {{ $t("chat.profile.empty") }}
       </div>
 
       <div class="my-1 h-px bg-border" />
@@ -88,11 +92,11 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
         @click="goManage"
       >
         <UIcon name="i-lucide-settings-2" class="h-4 w-4" />
-        {{ $t('chat.profile.manage') }}
+        {{ $t("chat.profile.manage") }}
       </button>
 
       <p class="px-3 py-1.5 text-[10px] leading-snug text-muted-foreground/70">
-        {{ $t('chat.profile.hint') }}
+        {{ $t("chat.profile.hint") }}
       </p>
     </div>
   </div>

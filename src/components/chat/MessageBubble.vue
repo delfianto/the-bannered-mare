@@ -29,9 +29,7 @@ const isEditing = ref(false);
 const editContent = ref("");
 
 // Whether to show swipe arrows (assistant messages only, on hover)
-const showSwipeArrows = computed(
-  () => !isUser.value && hovered.value && !isEditing.value,
-);
+const showSwipeArrows = computed(() => !isUser.value && hovered.value && !isEditing.value);
 
 // Alternative counter display
 const hasAlternatives = computed(
@@ -77,14 +75,14 @@ function handleEditKeydown(e: KeyboardEvent) {
 }
 
 const characterActions = [
-  { icon: "i-lucide-rotate-ccw", label: t('chat.actions.regenerate'), key: "regen" },
-  { icon: "i-lucide-copy", label: t('chat.actions.copy'), key: "copy" },
-  { icon: "i-lucide-bookmark", label: t('chat.actions.bookmark'), key: "bookmark" },
+  { icon: "i-lucide-rotate-ccw", label: t("chat.actions.regenerate"), key: "regen" },
+  { icon: "i-lucide-copy", label: t("chat.actions.copy"), key: "copy" },
+  { icon: "i-lucide-bookmark", label: t("chat.actions.bookmark"), key: "bookmark" },
 ];
 
 const userActions = [
-  { icon: "i-lucide-pencil", label: t('chat.actions.edit'), key: "edit" },
-  { icon: "i-lucide-trash-2", label: t('chat.actions.delete'), key: "delete" },
+  { icon: "i-lucide-pencil", label: t("chat.actions.edit"), key: "edit" },
+  { icon: "i-lucide-trash-2", label: t("chat.actions.delete"), key: "delete" },
 ];
 </script>
 
@@ -164,13 +162,13 @@ const userActions = [
               class="rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               @click="cancelEdit"
             >
-              {{ $t('common.cancel') }}
+              {{ $t("common.cancel") }}
             </button>
             <button
               class="rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground transition-colors hover:bg-primary/90"
               @click="saveEdit"
             >
-              {{ $t('common.save') }}
+              {{ $t("common.save") }}
             </button>
           </div>
         </template>

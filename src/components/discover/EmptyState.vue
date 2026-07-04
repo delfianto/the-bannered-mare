@@ -13,22 +13,16 @@ defineEmits<{
     <!-- Flame icon with pulsing glow -->
     <div class="relative mb-6">
       <div class="absolute inset-0 animate-pulse rounded-full bg-primary/20 blur-xl" />
-      <div
-        class="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/10"
-      >
+      <div class="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
         <UIcon name="i-lucide-flame" class="h-8 w-8 text-primary" />
       </div>
     </div>
 
     <h3 class="mb-2 font-cinzel text-lg font-semibold text-foreground">
-      {{ hasFilters ? $t('characters.noFound') : $t('characters.libraryAwaits') }}
+      {{ hasFilters ? $t("characters.noFound") : $t("characters.libraryAwaits") }}
     </h3>
     <p class="mb-6 max-w-sm text-sm text-muted-foreground">
-      {{
-        hasFilters
-          ? $t('characters.tryFilters')
-          : $t('characters.createFirst')
-      }}
+      {{ hasFilters ? $t("characters.tryFilters") : $t("characters.createFirst") }}
     </p>
     <button
       v-if="!hasFilters"
@@ -36,7 +30,7 @@ defineEmits<{
       @click="$emit('createNew')"
     >
       <UIcon name="i-lucide-plus" class="h-4 w-4" />
-      {{ $t('characters.createNew') }}
+      {{ $t("characters.createNew") }}
     </button>
   </div>
 </template>

@@ -49,7 +49,10 @@ type Named = { id: string; name: string };
 
 // "" is the unset/None option; mapped back to null on submit.
 function toOptions(list: Named[]) {
-  return [{ label: t("profiles.none"), value: "" }, ...list.map((x) => ({ label: x.name, value: x.id }))];
+  return [
+    { label: t("profiles.none"), value: "" },
+    ...list.map((x) => ({ label: x.name, value: x.id })),
+  ];
 }
 
 function labelFor(list: Named[], id: string) {
@@ -79,12 +82,14 @@ const selectUi = {
 <template>
   <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
     <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-      {{ initial ? $t('profiles.form.editTitle') : $t('profiles.form.newTitle') }}
+      {{ initial ? $t("profiles.form.editTitle") : $t("profiles.form.newTitle") }}
     </h2>
 
     <div class="space-y-4">
       <label class="block">
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('profiles.form.name') }}</span>
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("profiles.form.name")
+        }}</span>
         <input
           v-model="name"
           type="text"
@@ -94,7 +99,9 @@ const selectUi = {
       </label>
 
       <label class="block">
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('profiles.form.description') }}</span>
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("profiles.form.description")
+        }}</span>
         <textarea
           v-model="description"
           rows="2"
@@ -106,7 +113,9 @@ const selectUi = {
       <!-- Loadout selectors -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('profiles.fields.template') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("profiles.fields.template")
+          }}</span>
           <USelectMenu
             v-model="templateId"
             :items="toOptions(templates)"
@@ -128,7 +137,9 @@ const selectUi = {
         </div>
 
         <div>
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('profiles.fields.preset') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("profiles.fields.preset")
+          }}</span>
           <USelectMenu
             v-model="presetId"
             :items="toOptions(presets)"
@@ -141,7 +152,10 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-sliders-horizontal" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                <UIcon
+                  name="i-lucide-sliders-horizontal"
+                  class="h-4 w-4 shrink-0 text-muted-foreground"
+                />
                 <span class="truncate">{{ labelFor(presets, presetId) }}</span>
               </span>
               <UIcon name="i-lucide-chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -150,7 +164,9 @@ const selectUi = {
         </div>
 
         <div>
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('profiles.fields.persona') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("profiles.fields.persona")
+          }}</span>
           <USelectMenu
             v-model="personaId"
             :items="toOptions(personas)"
@@ -172,7 +188,9 @@ const selectUi = {
         </div>
 
         <div>
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('profiles.fields.model') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("profiles.fields.model")
+          }}</span>
           <USelectMenu
             v-model="modelId"
             :items="toOptions(models)"
@@ -204,7 +222,7 @@ const selectUi = {
       >
         <span class="flex items-center gap-2 text-sm text-foreground">
           <UIcon name="i-lucide-star" class="h-4 w-4 text-muted-foreground" />
-          {{ $t('profiles.form.setDefault') }}
+          {{ $t("profiles.form.setDefault") }}
         </span>
         <span
           class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
@@ -224,13 +242,13 @@ const selectUi = {
           :disabled="saving || !name.trim()"
           @click="onSubmit"
         >
-          {{ initial ? $t('profiles.form.save') : $t('profiles.form.create') }}
+          {{ initial ? $t("profiles.form.save") : $t("profiles.form.create") }}
         </button>
         <button
           class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="$emit('cancel')"
         >
-          {{ $t('common.cancel') }}
+          {{ $t("common.cancel") }}
         </button>
       </div>
     </div>

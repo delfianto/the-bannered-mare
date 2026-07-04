@@ -52,7 +52,8 @@ export function usePromptTemplate() {
       const response = await fetch(`/api/prompt-templates/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok && response.status !== 204) throw new Error(`Delete failed: ${response.status}`);
+      if (!response.ok && response.status !== 204)
+        throw new Error(`Delete failed: ${response.status}`);
     } finally {
       deleting.value = false;
     }
@@ -84,7 +85,12 @@ export function usePromptTemplate() {
     }
   }
 
-  async function attachFragment(templateId: string, fragmentId: string, position: string, ordinal: number) {
+  async function attachFragment(
+    templateId: string,
+    fragmentId: string,
+    position: string,
+    ordinal: number,
+  ) {
     const response = await fetch(`/api/prompt-templates/${templateId}/fragments/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -100,7 +106,8 @@ export function usePromptTemplate() {
     const response = await fetch(`/api/prompt-templates/${templateId}/fragments/${fragmentId}`, {
       method: "DELETE",
     });
-    if (!response.ok && response.status !== 204) throw new Error(`Detach failed: ${response.status}`);
+    if (!response.ok && response.status !== 204)
+      throw new Error(`Detach failed: ${response.status}`);
     attachedFragments.value = attachedFragments.value.filter((f) => f.fragment_id !== fragmentId);
   }
 

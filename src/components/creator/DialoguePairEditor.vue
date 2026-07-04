@@ -36,7 +36,9 @@ const emit = defineEmits<{
         placeholder='*Examines the runes.* "What do they say?"'
         rows="2"
         class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-        @input="emit('update', pair.id, 'userMessage', ($event.target as HTMLTextAreaElement).value)"
+        @input="
+          emit('update', pair.id, 'userMessage', ($event.target as HTMLTextAreaElement).value)
+        "
       />
     </div>
 
@@ -50,7 +52,9 @@ const emit = defineEmits<{
         placeholder='*Traces the inscription.* "The script speaks of a key — not of metal, but of intent."'
         rows="3"
         class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-        @input="emit('update', pair.id, 'characterReply', ($event.target as HTMLTextAreaElement).value)"
+        @input="
+          emit('update', pair.id, 'characterReply', ($event.target as HTMLTextAreaElement).value)
+        "
       />
     </div>
   </div>

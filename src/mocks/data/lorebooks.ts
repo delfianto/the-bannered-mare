@@ -7,7 +7,8 @@ export const lorebooks: LorebookDetail[] = [
   {
     id: "lorebook-1",
     name: "Morrowind Lore Compendium",
-    description: "Comprehensive lore entries for the province of Morrowind, its peoples, and customs.",
+    description:
+      "Comprehensive lore entries for the province of Morrowind, its peoples, and customs.",
     is_global: true,
     character_id: null,
     entries: [

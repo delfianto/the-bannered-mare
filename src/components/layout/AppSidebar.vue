@@ -12,14 +12,14 @@ const { isDark, toggleTheme } = useTheme();
 const { collapsed, toggle: toggleSidebar } = useSidebar();
 
 const navItems = [
-  { id: "home", to: "/", label: t('nav.home'), icon: "i-lucide-home" },
-  { id: "characters", to: "/characters", label: t('nav.discover'), icon: "i-lucide-compass" },
-  { id: "bookmarks", to: "/bookmarks", label: t('nav.bookmarks'), icon: "i-lucide-bookmark" },
-  { id: "memory", to: "/memory", label: t('nav.dataBank'), icon: "i-lucide-database" },
-  { id: "chats", to: "/chats", label: t('nav.sessions'), icon: "i-lucide-scroll-text" },
-  { id: "connections", to: "/connections", label: t('nav.connections'), icon: "i-lucide-cable" },
-  { id: "profiles", to: "/profiles", label: t('nav.profiles'), icon: "i-lucide-layers" },
-  { id: "lorebooks", to: "/lorebooks", label: t('nav.lorebooks'), icon: "i-lucide-book-open" },
+  { id: "home", to: "/", label: t("nav.home"), icon: "i-lucide-home" },
+  { id: "characters", to: "/characters", label: t("nav.discover"), icon: "i-lucide-compass" },
+  { id: "bookmarks", to: "/bookmarks", label: t("nav.bookmarks"), icon: "i-lucide-bookmark" },
+  { id: "memory", to: "/memory", label: t("nav.dataBank"), icon: "i-lucide-database" },
+  { id: "chats", to: "/chats", label: t("nav.sessions"), icon: "i-lucide-scroll-text" },
+  { id: "connections", to: "/connections", label: t("nav.connections"), icon: "i-lucide-cable" },
+  { id: "profiles", to: "/profiles", label: t("nav.profiles"), icon: "i-lucide-layers" },
+  { id: "lorebooks", to: "/lorebooks", label: t("nav.lorebooks"), icon: "i-lucide-book-open" },
 ];
 
 function isActive(to: string) {
@@ -112,7 +112,7 @@ function isActive(to: string) {
         v-if="!collapsed"
         class="mb-2.5 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
       >
-        {{ $t('nav.favorites') }}
+        {{ $t("nav.favorites") }}
       </p>
 
       <div class="space-y-0.5">
@@ -131,7 +131,9 @@ function isActive(to: string) {
                 :alt="char.name"
                 class="h-10 w-10 rounded-full object-cover ring-1 ring-border"
               />
-              <span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-secondary bg-emerald-500" />
+              <span
+                class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-secondary bg-emerald-500"
+              />
             </div>
             <p class="truncate text-sm font-medium text-foreground">
               {{ char.name }}
@@ -161,7 +163,9 @@ function isActive(to: string) {
                     : 'ring-transparent hover:ring-primary/40'
                 "
               />
-              <span class="absolute bottom-1 right-2.5 h-2 w-2 rounded-full border-[1.5px] border-secondary bg-emerald-500" />
+              <span
+                class="absolute bottom-1 right-2.5 h-2 w-2 rounded-full border-[1.5px] border-secondary bg-emerald-500"
+              />
             </RouterLink>
           </UTooltip>
         </template>
@@ -184,7 +188,7 @@ function isActive(to: string) {
           ]"
         >
           <UIcon name="i-lucide-settings" class="h-[18px] w-[18px] flex-shrink-0" />
-          <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t('nav.settings') }}</span>
+          <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t("nav.settings") }}</span>
         </RouterLink>
       </UTooltip>
 
@@ -207,7 +211,7 @@ function isActive(to: string) {
               class="h-[18px] w-[18px] flex-shrink-0 text-primary"
             />
             <span v-if="!collapsed" class="text-sm font-medium text-foreground">
-              {{ $t('settings.interface.darkMode') }}
+              {{ $t("settings.interface.darkMode") }}
             </span>
           </div>
           <div

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import type { Character } from "@/types/discover";
 import CharacterContextMenu from "./CharacterContextMenu.vue";
 
@@ -9,15 +10,27 @@ const props = defineProps<{
   selected: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   select: [id: string];
   contextAction: [action: string, id: string];
 }>();
 
+const router = useRouter();
+
+function handleClick() {
+  if (props.selectMode) {
+    emit("select", props.character.id);
+  } else {
+    router.push(`/characters/${props.character.id}/edit`);
+  }
+}
+
 function avatarSrc(): string {
-  return props.character.avatar_thumbnail
-    || props.character.avatar
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=200`;
+  return (
+    props.character.avatar_thumbnail ||
+    props.character.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=200`
+  );
 }
 
 function timeAgo(dateStr: string): string {
@@ -36,7 +49,7 @@ function timeAgo(dateStr: string): string {
   <div
     class="group flex items-center gap-4 rounded-xl border bg-card/50 px-4 py-3 transition-all duration-200 animate-fade-in-up hover:bg-muted/40 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
     :style="{ animationDelay: `${index * 40}ms` }"
-    @click="selectMode ? $emit('select', character.id) : undefined"
+    @click="handleClick"
   >
     <!-- Checkbox -->
     <div v-if="selectMode" class="shrink-0">
@@ -55,11 +68,17 @@ function timeAgo(dateStr: string): string {
 
     <!-- Info -->
     <div class="min-w-0 flex-1">
-      <h3 class="truncate font-cinzel text-sm font-semibold text-foreground" style="letter-spacing: 0.02em">
+      <h3
+        class="truncate font-cinzel text-sm font-semibold text-foreground"
+        style="letter-spacing: 0.02em"
+      >
         {{ character.name }}
       </h3>
-      <p v-if="character.description" class="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground/70">
-        {{ character.description }}
+      <p
+        v-if="character.creator_notes || character.description"
+        class="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground/70"
+      >
+        {{ character.creator_notes || character.description }}
       </p>
       <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
         <span
@@ -81,7 +100,9 @@ function timeAgo(dateStr: string): string {
     </div>
 
     <!-- Context menu -->
-    <div class="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+    <div
+      class="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+    >
       <CharacterContextMenu @action="$emit('contextAction', $event, character.id)" />
     </div>
   </div>

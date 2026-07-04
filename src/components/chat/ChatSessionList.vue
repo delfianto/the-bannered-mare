@@ -21,27 +21,27 @@ const filtered = computed(() => {
   if (!search.value) return props.sessions;
   const q = search.value.toLowerCase();
   return props.sessions.filter(
-    (s) =>
-      s.character.name.toLowerCase().includes(q) ||
-      (s.title ?? "").toLowerCase().includes(q),
+    (s) => s.character.name.toLowerCase().includes(q) || (s.title ?? "").toLowerCase().includes(q),
   );
 });
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return t('time.justNow');
-  if (mins < 60) return t('time.minutesAgo', { count: mins });
+  if (mins < 1) return t("time.justNow");
+  if (mins < 60) return t("time.minutesAgo", { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return t('time.hoursAgo', { count: hours });
+  if (hours < 24) return t("time.hoursAgo", { count: hours });
   const days = Math.floor(hours / 24);
-  return t('time.daysAgo', { count: days });
+  return t("time.daysAgo", { count: days });
 }
 
 function avatarSrc(chat: Chat): string {
-  return chat.character.avatar_thumbnail
-    || chat.character.avatar
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=80`;
+  return (
+    chat.character.avatar_thumbnail ||
+    chat.character.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=80`
+  );
 }
 </script>
 
@@ -49,9 +49,7 @@ function avatarSrc(chat: Chat): string {
   <div class="flex h-full w-[300px] min-w-[300px] flex-col border-r bg-secondary">
     <!-- Search -->
     <div class="px-3 pb-3 pt-4">
-      <div
-        class="flex items-center gap-2 rounded-lg border bg-background/60 px-3 py-2"
-      >
+      <div class="flex items-center gap-2 rounded-lg border bg-background/60 px-3 py-2">
         <UIcon name="i-lucide-search" class="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
         <input
           v-model="search"
@@ -68,7 +66,7 @@ function avatarSrc(chat: Chat): string {
     <p
       class="mb-1.5 px-5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
     >
-      {{ $t('chat.activeTales') }}
+      {{ $t("chat.activeTales") }}
     </p>
 
     <!-- Loading -->
@@ -111,7 +109,7 @@ function avatarSrc(chat: Chat): string {
             </span>
           </div>
           <p class="mt-0.5 truncate font-cinzel text-[11px] text-primary/80">
-            {{ session.title || $t('chat.untitled') }}
+            {{ session.title || $t("chat.untitled") }}
           </p>
           <p
             v-if="session.preview"

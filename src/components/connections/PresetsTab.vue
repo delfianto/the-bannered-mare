@@ -24,7 +24,7 @@ function onImported() {
         @click="showImport = true"
       >
         <UIcon name="i-lucide-upload" class="h-4 w-4" />
-        {{ $t('presetImport.button') }}
+        {{ $t("presetImport.button") }}
       </button>
     </div>
 
@@ -43,7 +43,7 @@ function onImported() {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh"
       >
-        {{ $t('common.retry') }}
+        {{ $t("common.retry") }}
       </button>
     </div>
 
@@ -86,7 +86,11 @@ function onImported() {
         <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-sliders-horizontal" class="h-3 w-3 shrink-0" />
-            <span>{{ parameterCount(preset) }} parameter{{ parameterCount(preset) !== 1 ? "s" : "" }}</span>
+            <span
+              >{{ parameterCount(preset) }} parameter{{
+                parameterCount(preset) !== 1 ? "s" : ""
+              }}</span
+            >
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-clock" class="h-3 w-3 shrink-0" />
@@ -95,9 +99,11 @@ function onImported() {
         </div>
 
         <!-- Edit hint -->
-        <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
+        <div
+          class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+        >
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-          {{ $t('common.edit') }}
+          {{ $t("common.edit") }}
         </div>
       </RouterLink>
     </div>

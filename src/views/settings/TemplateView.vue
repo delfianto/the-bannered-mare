@@ -66,9 +66,7 @@ function toggleComponent(key: string) {
 }
 
 function humanize(str: string): string {
-  return str
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 const positionColors: Record<string, string> = {
@@ -98,12 +96,15 @@ async function handleSave() {
   if (!template.value) return;
   const updates: Record<string, unknown> = {};
   if (form.name !== template.value.name) updates.name = form.name;
-  if (form.description !== (template.value.description || "")) updates.description = form.description || null;
+  if (form.description !== (template.value.description || ""))
+    updates.description = form.description || null;
   if (form.is_default !== template.value.is_default) updates.is_default = form.is_default;
-  if (form.system_template !== template.value.system_template) updates.system_template = form.system_template;
+  if (form.system_template !== template.value.system_template)
+    updates.system_template = form.system_template;
   updates.component_order = form.component_order;
   updates.components_enabled = form.components_enabled;
-  if (form.max_history_tokens !== template.value.max_history_tokens) updates.max_history_tokens = form.max_history_tokens;
+  if (form.max_history_tokens !== template.value.max_history_tokens)
+    updates.max_history_tokens = form.max_history_tokens;
 
   if (Object.keys(updates).length === 0) {
     toast.info("No changes to save");
@@ -184,7 +185,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
+        <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
@@ -196,13 +197,15 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        {{ $t('common.goBack') }}
+        {{ $t("common.goBack") }}
       </button>
     </div>
 
     <template v-if="template && !loading">
       <!-- Header -->
-      <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm">
+      <header
+        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+      >
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -238,7 +241,13 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': deleting }"
             />
-            {{ deleting ? $t('common.deleting') : confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
+            {{
+              deleting
+                ? $t("common.deleting")
+                : confirmDelete
+                  ? $t("common.deleteConfirm")
+                  : $t("common.delete")
+            }}
           </button>
 
           <!-- Save button -->
@@ -252,7 +261,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': saving }"
             />
-            {{ saving ? $t('common.saving') : $t('common.save') }}
+            {{ saving ? $t("common.saving") : $t("common.save") }}
           </button>
         </div>
       </header>
@@ -264,14 +273,18 @@ function formatDate(iso: string): string {
           <div class="space-y-6 lg:col-span-3">
             <!-- Basic Info card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
                 Basic Info
               </h2>
               <div class="space-y-4">
                 <!-- Name -->
                 <label class="block">
-                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    {{ $t('connections.template.name') }}
+                  <span
+                    class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  >
+                    {{ $t("connections.template.name") }}
                   </span>
                   <input
                     v-model="form.name"
@@ -283,8 +296,10 @@ function formatDate(iso: string): string {
 
                 <!-- Description -->
                 <label class="block">
-                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    {{ $t('connections.template.description') }}
+                  <span
+                    class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  >
+                    {{ $t("connections.template.description") }}
                   </span>
                   <textarea
                     v-model="form.description"
@@ -296,17 +311,27 @@ function formatDate(iso: string): string {
 
                 <!-- Is Default toggle -->
                 <div class="flex items-center justify-between">
-                  <label class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    {{ $t('connections.template.isDefault') }}
+                  <label
+                    class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  >
+                    {{ $t("connections.template.isDefault") }}
                   </label>
-                  <button @click="toggleDefault" role="switch" :aria-checked="form.is_default" aria-label="Default template" class="cursor-pointer">
+                  <button
+                    @click="toggleDefault"
+                    role="switch"
+                    :aria-checked="form.is_default"
+                    aria-label="Default template"
+                    class="cursor-pointer"
+                  >
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                       :class="form.is_default ? 'bg-primary' : 'bg-muted-foreground/40'"
                     >
                       <span
                         class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
-                        :class="form.is_default ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                        :class="
+                          form.is_default ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
+                        "
                       />
                     </div>
                   </button>
@@ -316,8 +341,10 @@ function formatDate(iso: string): string {
 
             <!-- System Template card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                {{ $t('connections.template.systemTemplate') }}
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                {{ $t("connections.template.systemTemplate") }}
               </h2>
               <textarea
                 v-model="form.system_template"
@@ -326,14 +353,16 @@ function formatDate(iso: string): string {
                 class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
               <p class="mt-2 text-[11px] text-muted-foreground/60">
-                {{ $t('connections.template.systemTemplateHint') }}
+                {{ $t("connections.template.systemTemplateHint") }}
               </p>
             </div>
 
             <!-- Component Ordering card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                {{ $t('connections.template.components') }}
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                {{ $t("connections.template.components") }}
               </h2>
               <div v-if="form.component_order.length > 0" class="space-y-2">
                 <div
@@ -345,26 +374,42 @@ function formatDate(iso: string): string {
                     <UIcon name="i-lucide-grip-vertical" class="h-4 w-4 text-muted-foreground/40" />
                     <span class="text-sm text-foreground">{{ humanize(component) }}</span>
                   </div>
-                  <button @click="toggleComponent(component)" role="switch" :aria-checked="form.components_enabled[component]" :aria-label="component" class="cursor-pointer">
+                  <button
+                    @click="toggleComponent(component)"
+                    role="switch"
+                    :aria-checked="form.components_enabled[component]"
+                    :aria-label="component"
+                    class="cursor-pointer"
+                  >
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                      :class="form.components_enabled[component] ? 'bg-primary' : 'bg-muted-foreground/40'"
+                      :class="
+                        form.components_enabled[component] ? 'bg-primary' : 'bg-muted-foreground/40'
+                      "
                     >
                       <span
                         class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
-                        :class="form.components_enabled[component] ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                        :class="
+                          form.components_enabled[component]
+                            ? 'translate-x-4 bg-background'
+                            : 'translate-x-0 bg-white'
+                        "
                       />
                     </div>
                   </button>
                 </div>
               </div>
-              <p v-else class="text-sm text-muted-foreground">{{ $t('connections.template.noComponents') }}</p>
+              <p v-else class="text-sm text-muted-foreground">
+                {{ $t("connections.template.noComponents") }}
+              </p>
             </div>
 
             <!-- Attached Fragments card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                {{ $t('connections.template.fragments') }}
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                {{ $t("connections.template.fragments") }}
               </h2>
               <div v-if="attachedFragments.length > 0" class="space-y-2">
                 <div
@@ -403,13 +448,15 @@ function formatDate(iso: string): string {
                   </button>
                 </div>
               </div>
-              <p v-else class="mb-3 text-sm text-muted-foreground">{{ $t('connections.template.noFragments') }}</p>
+              <p v-else class="mb-3 text-sm text-muted-foreground">
+                {{ $t("connections.template.noFragments") }}
+              </p>
               <button
                 class="mt-3 flex items-center gap-2 rounded-lg border border-dashed px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 @click="handleAttachFragment"
               >
                 <UIcon name="i-lucide-plus" class="h-4 w-4" />
-                {{ $t('connections.template.attachFragment') }}
+                {{ $t("connections.template.attachFragment") }}
               </button>
             </div>
           </div>
@@ -418,21 +465,28 @@ function formatDate(iso: string): string {
           <div class="space-y-6 lg:col-span-2">
             <!-- Metadata card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
                 Metadata
               </h2>
               <div class="space-y-3">
                 <!-- Max History Tokens -->
                 <label class="block">
                   <span class="mb-1.5 block text-sm text-muted-foreground">
-                    {{ $t('connections.template.maxHistoryTokens') }}
+                    {{ $t("connections.template.maxHistoryTokens") }}
                   </span>
                   <input
                     :value="form.max_history_tokens ?? ''"
                     type="number"
                     placeholder="e.g. 4096"
                     class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-                    @input="(e) => { const v = (e.target as HTMLInputElement).value; form.max_history_tokens = v === '' ? null : Number(v); }"
+                    @input="
+                      (e) => {
+                        const v = (e.target as HTMLInputElement).value;
+                        form.max_history_tokens = v === '' ? null : Number(v);
+                      }
+                    "
                   />
                 </label>
 
@@ -475,8 +529,10 @@ function formatDate(iso: string): string {
 
             <!-- Preview card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                {{ $t('connections.template.preview') }}
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                {{ $t("connections.template.preview") }}
               </h2>
               <button
                 class="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
@@ -488,13 +544,13 @@ function formatDate(iso: string): string {
                   class="h-4 w-4"
                   :class="{ 'animate-spin': previewing }"
                 />
-                {{ previewing ? $t('common.loading') : $t('connections.template.previewTemplate') }}
+                {{ previewing ? $t("common.loading") : $t("connections.template.previewTemplate") }}
               </button>
-              <div
-                v-if="preview"
-                class="mt-4 rounded-lg border border-border/50 bg-muted/20 p-4"
-              >
-                <pre class="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground">{{ preview.rendered }}</pre>
+              <div v-if="preview" class="mt-4 rounded-lg border border-border/50 bg-muted/20 p-4">
+                <pre
+                  class="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground"
+                  >{{ preview.rendered }}</pre
+                >
               </div>
             </div>
           </div>

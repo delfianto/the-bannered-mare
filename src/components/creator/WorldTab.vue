@@ -31,7 +31,9 @@ function handleImport(e: Event) {
     try {
       const parsed = JSON.parse(ev.target?.result as string);
       if (parsed.name) emit("import", parsed);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
   reader.readAsText(file);
   (e.target as HTMLInputElement).value = "";
@@ -41,11 +43,20 @@ function handleImport(e: Event) {
 <template>
   <div class="animate-fade-in-up space-y-6">
     <div>
-      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">{{ $t('characters.form.worldSetting') }}</h2>
+      <h2
+        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+      >
+        {{ $t("characters.form.worldSetting") }}
+      </h2>
       <div class="mt-2 h-px bg-border" />
     </div>
 
-    <FormField :label="t('characters.form.scenario')" :hint="t('characters.form.scenarioHint')" :char-count="data.scenario.length" :char-max="2000">
+    <FormField
+      :label="t('characters.form.scenario')"
+      :hint="t('characters.form.scenarioHint')"
+      :char-count="data.scenario.length"
+      :char-max="2000"
+    >
       <textarea
         :value="data.scenario"
         placeholder="You have descended into the ruins beneath the coastal city of Thornhaven, following rumors of the legendary Sunken Library…"
@@ -62,11 +73,22 @@ function handleImport(e: Event) {
         class="flex w-full items-center gap-2 border-b py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
         @click="lorebookOpen = !lorebookOpen"
       >
-        <UIcon name="i-lucide-chevron-right" class="h-4 w-4 transition-transform" :class="lorebookOpen ? 'rotate-90' : ''" />
+        <UIcon
+          name="i-lucide-chevron-right"
+          class="h-4 w-4 transition-transform"
+          :class="lorebookOpen ? 'rotate-90' : ''"
+        />
         <UIcon name="i-lucide-book-open" class="h-3.5 w-3.5" />
-        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">{{ $t('characters.form.lorebook') }}</span>
+        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">{{
+          $t("characters.form.lorebook")
+        }}</span>
         <span class="ml-auto text-xs text-muted-foreground">
-          {{ data.lorebook.length }} {{ data.lorebook.length === 1 ? t('characters.form.entry').split(' | ')[0] : t('characters.form.entry').split(' | ')[1] }}
+          {{ data.lorebook.length }}
+          {{
+            data.lorebook.length === 1
+              ? t("characters.form.entry").split(" | ")[0]
+              : t("characters.form.entry").split(" | ")[1]
+          }}
         </span>
       </button>
 
@@ -76,7 +98,9 @@ function handleImport(e: Event) {
           :key="entry.id"
           :entry="entry"
           :index="i"
-          @update="(id: string, updates: Partial<LorebookEntry>) => emit('updateLorebook', id, updates)"
+          @update="
+            (id: string, updates: Partial<LorebookEntry>) => emit('updateLorebook', id, updates)
+          "
           @remove="(id: string) => emit('removeLorebook', id)"
         />
 
@@ -86,14 +110,18 @@ function handleImport(e: Event) {
           @click="emit('addLorebook')"
         >
           <UIcon name="i-lucide-plus" class="h-4 w-4" />
-          {{ $t('characters.form.addLorebook') }}
+          {{ $t("characters.form.addLorebook") }}
         </button>
       </div>
     </div>
 
     <!-- Import / Export -->
     <div>
-      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">{{ $t('characters.form.importExport') }}</h2>
+      <h2
+        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+      >
+        {{ $t("characters.form.importExport") }}
+      </h2>
       <div class="mt-2 h-px bg-border" />
     </div>
 
@@ -104,9 +132,19 @@ function handleImport(e: Event) {
         @click="importRef?.click()"
       >
         <UIcon name="i-lucide-upload" class="h-5 w-5 text-muted-foreground" />
-        <span class="text-sm font-medium text-foreground">{{ $t('characters.form.importCharacter') }}</span>
-        <span class="text-[11px] text-muted-foreground">{{ $t('characters.form.importFileTypes') }}</span>
-        <input ref="importRef" type="file" accept=".json,.png" class="hidden" @change="handleImport" />
+        <span class="text-sm font-medium text-foreground">{{
+          $t("characters.form.importCharacter")
+        }}</span>
+        <span class="text-[11px] text-muted-foreground">{{
+          $t("characters.form.importFileTypes")
+        }}</span>
+        <input
+          ref="importRef"
+          type="file"
+          accept=".json,.png"
+          class="hidden"
+          @change="handleImport"
+        />
       </button>
 
       <button
@@ -115,8 +153,12 @@ function handleImport(e: Event) {
         @click="emit('export')"
       >
         <UIcon name="i-lucide-download" class="h-5 w-5 text-muted-foreground" />
-        <span class="text-sm font-medium text-foreground">{{ $t('characters.form.exportJson') }}</span>
-        <span class="text-[11px] text-muted-foreground">{{ $t('characters.form.exportFileType') }}</span>
+        <span class="text-sm font-medium text-foreground">{{
+          $t("characters.form.exportJson")
+        }}</span>
+        <span class="text-[11px] text-muted-foreground">{{
+          $t("characters.form.exportFileType")
+        }}</span>
       </button>
     </div>
   </div>

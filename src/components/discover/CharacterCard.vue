@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import type { Character } from "@/types/discover";
 import CharacterContextMenu from "./CharacterContextMenu.vue";
 
@@ -9,15 +10,27 @@ const props = defineProps<{
   selected: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   select: [id: string];
   contextAction: [action: string, id: string];
 }>();
 
+const router = useRouter();
+
+function handleClick() {
+  if (props.selectMode) {
+    emit("select", props.character.id);
+  } else {
+    router.push(`/characters/${props.character.id}/edit`);
+  }
+}
+
 function avatarSrc(): string {
-  return props.character.avatar
-    || props.character.avatar_thumbnail
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`;
+  return (
+    props.character.avatar ||
+    props.character.avatar_thumbnail ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`
+  );
 }
 </script>
 
@@ -25,7 +38,7 @@ function avatarSrc(): string {
   <div
     class="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl shadow-[0_2px_12px_var(--color-foreground)/0.06] transition-all duration-300 animate-fade-in-up hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.18]"
     :style="{ animationDelay: `${index * 40}ms` }"
-    @click="selectMode ? $emit('select', character.id) : undefined"
+    @click="handleClick"
   >
     <!-- Character portrait -->
     <img
@@ -41,7 +54,9 @@ function avatarSrc(): string {
     <div v-if="selectMode" class="absolute left-3 top-3 z-10">
       <div
         class="flex h-5 w-5 items-center justify-center rounded border-2 transition-colors"
-        :class="selected ? 'border-primary bg-primary' : 'border-white/60 bg-black/30 backdrop-blur-sm'"
+        :class="
+          selected ? 'border-primary bg-primary' : 'border-white/60 bg-black/30 backdrop-blur-sm'
+        "
       >
         <UIcon v-if="selected" name="i-lucide-check" class="h-3.5 w-3.5 text-primary-foreground" />
       </div>
@@ -62,8 +77,11 @@ function avatarSrc(): string {
       >
         {{ character.name }}
       </h3>
-      <p v-if="character.description" class="mb-2 line-clamp-3 text-[11px] leading-relaxed text-white/60">
-        {{ character.description }}
+      <p
+        v-if="character.creator_notes || character.description"
+        class="mb-2 line-clamp-3 text-[11px] leading-relaxed text-white/60"
+      >
+        {{ character.creator_notes || character.description }}
       </p>
       <div v-if="character.tags?.length" class="flex flex-wrap gap-1.5">
         <span

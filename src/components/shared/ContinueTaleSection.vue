@@ -25,18 +25,20 @@ function scroll(direction: "left" | "right") {
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return t('time.justNow');
-  if (mins < 60) return t('time.minutesAgo', { count: mins });
+  if (mins < 1) return t("time.justNow");
+  if (mins < 60) return t("time.minutesAgo", { count: mins });
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return t('time.hoursAgo', { count: hours });
+  if (hours < 24) return t("time.hoursAgo", { count: hours });
   const days = Math.floor(hours / 24);
-  return t('time.daysAgo', { count: days });
+  return t("time.daysAgo", { count: days });
 }
 
 function avatarSrc(chat: Chat): string {
-  return chat.character.avatar_thumbnail
-    || chat.character.avatar
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=600`;
+  return (
+    chat.character.avatar_thumbnail ||
+    chat.character.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=600`
+  );
 }
 </script>
 
@@ -44,7 +46,7 @@ function avatarSrc(chat: Chat): string {
   <section>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
-        {{ $t('home.continueTale') }}
+        {{ $t("home.continueTale") }}
       </h2>
       <div class="flex items-center gap-1.5">
         <button
@@ -90,7 +92,7 @@ function avatarSrc(chat: Chat): string {
         <!-- Content -->
         <div class="absolute bottom-0 left-0 right-0 p-4">
           <h3 class="mb-1 text-sm font-semibold text-white drop-shadow-md">
-            {{ session.title || $t('chat.untitled') }}
+            {{ session.title || $t("chat.untitled") }}
           </h3>
           <p class="mb-2 text-xs text-white/70">with {{ session.character.name }}</p>
           <div class="flex items-center gap-3 text-[11px] text-white/60">

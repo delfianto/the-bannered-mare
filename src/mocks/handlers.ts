@@ -12,7 +12,11 @@ import { profiles } from "@/mocks/data/profiles";
 import { promptTemplates, templateFragments } from "@/mocks/data/prompt-templates";
 import { promptFragments } from "@/mocks/data/prompt-fragments";
 import { lorebooks } from "@/mocks/data/lorebooks";
-import { bookmarkedCharacters, bookmarkedSessions, bookmarkedMessages } from "@/mocks/data/bookmarks";
+import {
+  bookmarkedCharacters,
+  bookmarkedSessions,
+  bookmarkedMessages,
+} from "@/mocks/data/bookmarks";
 import { conversationCache } from "@/mocks/loader";
 import "@/mocks/data/messages"; // Initialize registrations
 import type { components } from "@/api/schema";
@@ -444,7 +448,8 @@ export const handlers = [
       {
         id: `alt-1-${params.messageId}`,
         message_id: params.messageId as string,
-        content: "[Alternative 1] The ancient tome reveals a different path — one shrouded in mystery, where the shadows speak louder than the light.",
+        content:
+          "[Alternative 1] The ancient tome reveals a different path — one shrouded in mystery, where the shadows speak louder than the light.",
         token_count: 42,
         ordinal: 0,
         created_at: new Date().toISOString(),
@@ -453,7 +458,8 @@ export const handlers = [
       {
         id: `alt-2-${params.messageId}`,
         message_id: params.messageId as string,
-        content: "[Alternative 2] She pauses, reconsidering her words. \"Perhaps there is another way to interpret the runes — one the scholars overlooked.\"",
+        content:
+          '[Alternative 2] She pauses, reconsidering her words. "Perhaps there is another way to interpret the runes — one the scholars overlooked."',
         token_count: 38,
         ordinal: 1,
         created_at: new Date().toISOString(),
@@ -463,17 +469,20 @@ export const handlers = [
   }),
 
   // Activate a message alternative
-  http.put("/api/chats/:chatId/messages/:messageId/alternatives/:alternativeId/activate", async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({
-      id: params.messageId as string,
-      chat_id: params.chatId as string,
-      role: "assistant" as const,
-      content: "[Swipe activated] The alternative response is now the active one.",
-      active_index: 1,
-      created_at: new Date().toISOString(),
-    });
-  }),
+  http.put(
+    "/api/chats/:chatId/messages/:messageId/alternatives/:alternativeId/activate",
+    async ({ params }) => {
+      await delay(100);
+      return HttpResponse.json({
+        id: params.messageId as string,
+        chat_id: params.chatId as string,
+        role: "assistant" as const,
+        content: "[Swipe activated] The alternative response is now the active one.",
+        active_index: 1,
+        created_at: new Date().toISOString(),
+      });
+    },
+  ),
 
   // Prefetch endpoint (optional)
   http.post("/api/chats/:chatId/prefetch", async ({ params }) => {
@@ -863,7 +872,8 @@ export const handlers = [
     const existing = db.presets[idx];
     if (body.name !== undefined) existing.name = body.name as string;
     if (body.description !== undefined) existing.description = body.description as string | null;
-    if (body.parameters !== undefined) existing.parameters = (body.parameters as Record<string, unknown> | null) ?? undefined;
+    if (body.parameters !== undefined)
+      existing.parameters = (body.parameters as Record<string, unknown> | null) ?? undefined;
     if (body.is_default !== undefined) existing.is_default = body.is_default as boolean;
     existing.updated_at = new Date().toISOString();
     db.presets[idx] = existing;
@@ -1099,7 +1109,8 @@ export const handlers = [
 
     if (body.name !== undefined && body.name !== null) lorebook.name = body.name;
     if (body.description !== undefined) lorebook.description = body.description ?? null;
-    if (body.is_global !== undefined && body.is_global !== null) lorebook.is_global = body.is_global;
+    if (body.is_global !== undefined && body.is_global !== null)
+      lorebook.is_global = body.is_global;
     lorebook.updated_at = new Date().toISOString();
 
     await delay(200);
@@ -1159,10 +1170,14 @@ export const handlers = [
     if (body.name !== undefined && body.name !== null) entry.name = body.name;
     if (body.content !== undefined && body.content !== null) entry.content = body.content;
     if (body.keys !== undefined && body.keys !== null) entry.keys = body.keys;
-    if (body.secondary_keys !== undefined && body.secondary_keys !== null) entry.secondary_keys = body.secondary_keys;
-    if (body.secondary_logic !== undefined && body.secondary_logic !== null) entry.secondary_logic = body.secondary_logic;
-    if (body.case_sensitive !== undefined && body.case_sensitive !== null) entry.case_sensitive = body.case_sensitive;
-    if (body.match_whole_words !== undefined && body.match_whole_words !== null) entry.match_whole_words = body.match_whole_words;
+    if (body.secondary_keys !== undefined && body.secondary_keys !== null)
+      entry.secondary_keys = body.secondary_keys;
+    if (body.secondary_logic !== undefined && body.secondary_logic !== null)
+      entry.secondary_logic = body.secondary_logic;
+    if (body.case_sensitive !== undefined && body.case_sensitive !== null)
+      entry.case_sensitive = body.case_sensitive;
+    if (body.match_whole_words !== undefined && body.match_whole_words !== null)
+      entry.match_whole_words = body.match_whole_words;
     if (body.use_regex !== undefined && body.use_regex !== null) entry.use_regex = body.use_regex;
     if (body.enabled !== undefined && body.enabled !== null) entry.enabled = body.enabled;
     if (body.constant !== undefined && body.constant !== null) entry.constant = body.constant;
@@ -1171,7 +1186,8 @@ export const handlers = [
     if (body.role !== undefined && body.role !== null) entry.role = body.role;
     if (body.priority !== undefined && body.priority !== null) entry.priority = body.priority;
     if (body.scan_depth !== undefined) entry.scan_depth = body.scan_depth ?? null;
-    if (body.ignore_budget !== undefined && body.ignore_budget !== null) entry.ignore_budget = body.ignore_budget;
+    if (body.ignore_budget !== undefined && body.ignore_budget !== null)
+      entry.ignore_budget = body.ignore_budget;
     if (body.order !== undefined && body.order !== null) entry.order = body.order;
     entry.updated_at = new Date().toISOString();
 
@@ -1487,20 +1503,145 @@ export const handlers = [
     const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
 
     const allLogs = [
-      { id: "log-1", created_at: "2026-04-07T10:30:00Z", request_id: "req-abc123", method: "GET", path: "/api/characters", status_code: 200, latency_ms: 45, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-2", created_at: "2026-04-07T10:29:00Z", request_id: "req-def456", method: "POST", path: "/api/chats/chat-1/messages", status_code: 200, latency_ms: 2340, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: { stream: true }, response_body: null },
-      { id: "log-3", created_at: "2026-04-07T10:28:00Z", request_id: "req-ghi789", method: "GET", path: "/api/models", status_code: 200, latency_ms: 12, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-4", created_at: "2026-04-07T10:25:00Z", request_id: "req-jkl012", method: "PUT", path: "/api/characters/char-1", status_code: 200, latency_ms: 89, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-5", created_at: "2026-04-07T10:20:00Z", request_id: "req-mno345", method: "GET", path: "/api/chats", status_code: 200, latency_ms: 23, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-6", created_at: "2026-04-07T10:18:00Z", request_id: "req-pqr678", method: "DELETE", path: "/api/chats/chat-5", status_code: 204, latency_ms: 34, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-7", created_at: "2026-04-07T10:15:00Z", request_id: "req-stu901", method: "POST", path: "/api/characters", status_code: 201, latency_ms: 156, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-8", created_at: "2026-04-07T10:12:00Z", request_id: "req-vwx234", method: "GET", path: "/api/providers", status_code: 200, latency_ms: 8, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-9", created_at: "2026-04-07T10:10:00Z", request_id: "req-yza567", method: "PUT", path: "/api/models/model-1", status_code: 200, latency_ms: 67, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
-      { id: "log-10", created_at: "2026-04-07T10:05:00Z", request_id: "req-bcd890", method: "GET", path: "/api/chats/chat-1/messages", status_code: 200, latency_ms: 112, client_ip: "127.0.0.1", user_agent: "Mozilla/5.0 (mock)", request_body: null, response_body: null },
+      {
+        id: "log-1",
+        created_at: "2026-04-07T10:30:00Z",
+        request_id: "req-abc123",
+        method: "GET",
+        path: "/api/characters",
+        status_code: 200,
+        latency_ms: 45,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-2",
+        created_at: "2026-04-07T10:29:00Z",
+        request_id: "req-def456",
+        method: "POST",
+        path: "/api/chats/chat-1/messages",
+        status_code: 200,
+        latency_ms: 2340,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: { stream: true },
+        response_body: null,
+      },
+      {
+        id: "log-3",
+        created_at: "2026-04-07T10:28:00Z",
+        request_id: "req-ghi789",
+        method: "GET",
+        path: "/api/models",
+        status_code: 200,
+        latency_ms: 12,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-4",
+        created_at: "2026-04-07T10:25:00Z",
+        request_id: "req-jkl012",
+        method: "PUT",
+        path: "/api/characters/char-1",
+        status_code: 200,
+        latency_ms: 89,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-5",
+        created_at: "2026-04-07T10:20:00Z",
+        request_id: "req-mno345",
+        method: "GET",
+        path: "/api/chats",
+        status_code: 200,
+        latency_ms: 23,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-6",
+        created_at: "2026-04-07T10:18:00Z",
+        request_id: "req-pqr678",
+        method: "DELETE",
+        path: "/api/chats/chat-5",
+        status_code: 204,
+        latency_ms: 34,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-7",
+        created_at: "2026-04-07T10:15:00Z",
+        request_id: "req-stu901",
+        method: "POST",
+        path: "/api/characters",
+        status_code: 201,
+        latency_ms: 156,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-8",
+        created_at: "2026-04-07T10:12:00Z",
+        request_id: "req-vwx234",
+        method: "GET",
+        path: "/api/providers",
+        status_code: 200,
+        latency_ms: 8,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-9",
+        created_at: "2026-04-07T10:10:00Z",
+        request_id: "req-yza567",
+        method: "PUT",
+        path: "/api/models/model-1",
+        status_code: 200,
+        latency_ms: 67,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-10",
+        created_at: "2026-04-07T10:05:00Z",
+        request_id: "req-bcd890",
+        method: "GET",
+        path: "/api/chats/chat-1/messages",
+        status_code: 200,
+        latency_ms: 112,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
     ];
 
     await delay(150);
-    return HttpResponse.json({ logs: allLogs.slice(skip, skip + limit), total: allLogs.length, limit, skip });
+    return HttpResponse.json({
+      logs: allLogs.slice(skip, skip + limit),
+      total: allLogs.length,
+      limit,
+      skip,
+    });
   }),
 
   http.get("/admin/logs/llm", async ({ request }) => {
@@ -1509,25 +1650,153 @@ export const handlers = [
     const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
 
     const allLogs = [
-      { id: "llm-1", created_at: "2026-04-07T10:29:00Z", chat_id: "chat-1", provider: "anthropic", model: "claude-4.6-sonnet", prompt_tokens: 1250, completion_tokens: 430, total_tokens: 1680, latency_ms: 2340, status: "success", estimated_cost_usd: 0.0252, error_message: null, request_payload: [], response_payload: null },
-      { id: "llm-2", created_at: "2026-04-07T10:25:00Z", chat_id: "chat-2", provider: "openai", model: "gpt-4o", prompt_tokens: 890, completion_tokens: 320, total_tokens: 1210, latency_ms: 1560, status: "success", estimated_cost_usd: 0.0151, error_message: null, request_payload: [], response_payload: null },
-      { id: "llm-3", created_at: "2026-04-07T10:20:00Z", chat_id: "chat-3", provider: "google", model: "gemini-2.5-flash", prompt_tokens: 2100, completion_tokens: 680, total_tokens: 2780, latency_ms: 890, status: "success", estimated_cost_usd: 0.0042, error_message: null, request_payload: [], response_payload: null },
-      { id: "llm-4", created_at: "2026-04-07T10:15:00Z", chat_id: "chat-1", provider: "anthropic", model: "claude-4.5-haiku", prompt_tokens: 500, completion_tokens: 0, total_tokens: 500, latency_ms: 5000, status: "error", estimated_cost_usd: null, error_message: "Rate limit exceeded", request_payload: [], response_payload: null },
-      { id: "llm-5", created_at: "2026-04-07T10:10:00Z", chat_id: "chat-4", provider: "xai", model: "grok-4.20", prompt_tokens: 1800, completion_tokens: 550, total_tokens: 2350, latency_ms: 1200, status: "success", estimated_cost_usd: 0.0188, error_message: null, request_payload: [], response_payload: null },
+      {
+        id: "llm-1",
+        created_at: "2026-04-07T10:29:00Z",
+        chat_id: "chat-1",
+        provider: "anthropic",
+        model: "claude-4.6-sonnet",
+        prompt_tokens: 1250,
+        completion_tokens: 430,
+        total_tokens: 1680,
+        latency_ms: 2340,
+        status: "success",
+        estimated_cost_usd: 0.0252,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-2",
+        created_at: "2026-04-07T10:25:00Z",
+        chat_id: "chat-2",
+        provider: "openai",
+        model: "gpt-4o",
+        prompt_tokens: 890,
+        completion_tokens: 320,
+        total_tokens: 1210,
+        latency_ms: 1560,
+        status: "success",
+        estimated_cost_usd: 0.0151,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-3",
+        created_at: "2026-04-07T10:20:00Z",
+        chat_id: "chat-3",
+        provider: "google",
+        model: "gemini-2.5-flash",
+        prompt_tokens: 2100,
+        completion_tokens: 680,
+        total_tokens: 2780,
+        latency_ms: 890,
+        status: "success",
+        estimated_cost_usd: 0.0042,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-4",
+        created_at: "2026-04-07T10:15:00Z",
+        chat_id: "chat-1",
+        provider: "anthropic",
+        model: "claude-4.5-haiku",
+        prompt_tokens: 500,
+        completion_tokens: 0,
+        total_tokens: 500,
+        latency_ms: 5000,
+        status: "error",
+        estimated_cost_usd: null,
+        error_message: "Rate limit exceeded",
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-5",
+        created_at: "2026-04-07T10:10:00Z",
+        chat_id: "chat-4",
+        provider: "xai",
+        model: "grok-4.20",
+        prompt_tokens: 1800,
+        completion_tokens: 550,
+        total_tokens: 2350,
+        latency_ms: 1200,
+        status: "success",
+        estimated_cost_usd: 0.0188,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
     ];
 
     await delay(150);
-    return HttpResponse.json({ logs: allLogs.slice(skip, skip + limit), total: allLogs.length, limit, skip });
+    return HttpResponse.json({
+      logs: allLogs.slice(skip, skip + limit),
+      total: allLogs.length,
+      limit,
+      skip,
+    });
   }),
 
   http.get("/admin/logs/llm/stats", async () => {
     await delay(150);
     return HttpResponse.json({
       stats: [
-        { provider: "anthropic", model: "claude-4.6-sonnet", total_calls: 68, total_prompt_tokens: 90000, total_completion_tokens: 30000, total_tokens: 120000, total_cost_usd: 1.85, avg_latency_ms: 1400, success_count: 66, error_count: 2, success_rate: 0.97 },
-        { provider: "openai", model: "gpt-4o", total_calls: 42, total_prompt_tokens: 58000, total_completion_tokens: 20000, total_tokens: 78000, total_cost_usd: 1.2, avg_latency_ms: 1560, success_count: 41, error_count: 1, success_rate: 0.976 },
-        { provider: "google", model: "gemini-2.5-flash", total_calls: 20, total_prompt_tokens: 26000, total_completion_tokens: 9000, total_tokens: 35000, total_cost_usd: 0.18, avg_latency_ms: 890, success_count: 20, error_count: 0, success_rate: 1.0 },
-        { provider: "xai", model: "grok-4.20", total_calls: 12, total_prompt_tokens: 10500, total_completion_tokens: 3500, total_tokens: 14000, total_cost_usd: 0.22, avg_latency_ms: 1200, success_count: 11, error_count: 1, success_rate: 0.917 },
+        {
+          provider: "anthropic",
+          model: "claude-4.6-sonnet",
+          total_calls: 68,
+          total_prompt_tokens: 90000,
+          total_completion_tokens: 30000,
+          total_tokens: 120000,
+          total_cost_usd: 1.85,
+          avg_latency_ms: 1400,
+          success_count: 66,
+          error_count: 2,
+          success_rate: 0.97,
+        },
+        {
+          provider: "openai",
+          model: "gpt-4o",
+          total_calls: 42,
+          total_prompt_tokens: 58000,
+          total_completion_tokens: 20000,
+          total_tokens: 78000,
+          total_cost_usd: 1.2,
+          avg_latency_ms: 1560,
+          success_count: 41,
+          error_count: 1,
+          success_rate: 0.976,
+        },
+        {
+          provider: "google",
+          model: "gemini-2.5-flash",
+          total_calls: 20,
+          total_prompt_tokens: 26000,
+          total_completion_tokens: 9000,
+          total_tokens: 35000,
+          total_cost_usd: 0.18,
+          avg_latency_ms: 890,
+          success_count: 20,
+          error_count: 0,
+          success_rate: 1.0,
+        },
+        {
+          provider: "xai",
+          model: "grok-4.20",
+          total_calls: 12,
+          total_prompt_tokens: 10500,
+          total_completion_tokens: 3500,
+          total_tokens: 14000,
+          total_cost_usd: 0.22,
+          avg_latency_ms: 1200,
+          success_count: 11,
+          error_count: 1,
+          success_rate: 0.917,
+        },
       ],
       period: { start_date: "2026-04-01T00:00:00Z", end_date: "2026-04-07T23:59:59Z" },
     });
@@ -1539,13 +1808,44 @@ export const handlers = [
     const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
 
     const allErrors = [
-      { id: "err-1", created_at: "2026-04-07T10:15:00Z", error_type: "ProviderError", message: "Rate limit exceeded for Anthropic API", stack_trace: "ProviderError: 429 Too Many Requests\n  at AnthropicAdapter.send()\n  at ProviderGateway.complete()", context: { path: "/api/chats/chat-1/messages", request_id: "req-def456", provider: "anthropic" } },
-      { id: "err-2", created_at: "2026-04-06T22:45:00Z", error_type: "TimeoutError", message: "Request timed out after 30s", stack_trace: "TimeoutError: Operation timed out\n  at ProviderGateway.complete()", context: { path: "/api/chats/chat-3/messages", request_id: "req-ghi789" } },
-      { id: "err-3", created_at: "2026-04-06T18:30:00Z", error_type: "ValidationError", message: "Invalid model_family_id", stack_trace: "ValidationError: Foreign key constraint failed", context: { path: "/api/models" } },
+      {
+        id: "err-1",
+        created_at: "2026-04-07T10:15:00Z",
+        error_type: "ProviderError",
+        message: "Rate limit exceeded for Anthropic API",
+        stack_trace:
+          "ProviderError: 429 Too Many Requests\n  at AnthropicAdapter.send()\n  at ProviderGateway.complete()",
+        context: {
+          path: "/api/chats/chat-1/messages",
+          request_id: "req-def456",
+          provider: "anthropic",
+        },
+      },
+      {
+        id: "err-2",
+        created_at: "2026-04-06T22:45:00Z",
+        error_type: "TimeoutError",
+        message: "Request timed out after 30s",
+        stack_trace: "TimeoutError: Operation timed out\n  at ProviderGateway.complete()",
+        context: { path: "/api/chats/chat-3/messages", request_id: "req-ghi789" },
+      },
+      {
+        id: "err-3",
+        created_at: "2026-04-06T18:30:00Z",
+        error_type: "ValidationError",
+        message: "Invalid model_family_id",
+        stack_trace: "ValidationError: Foreign key constraint failed",
+        context: { path: "/api/models" },
+      },
     ];
 
     await delay(150);
-    return HttpResponse.json({ logs: allErrors.slice(skip, skip + limit), total: allErrors.length, limit, skip });
+    return HttpResponse.json({
+      logs: allErrors.slice(skip, skip + limit),
+      total: allErrors.length,
+      limit,
+      skip,
+    });
   }),
 
   // ── Bookmarks ────────────────────────────────────────────

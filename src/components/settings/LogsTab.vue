@@ -48,10 +48,10 @@ function formatTimestamp(iso: string): string {
   const diffHr = Math.floor(diffMs / 3_600_000);
   const diffDay = Math.floor(diffMs / 86_400_000);
 
-  if (diffMin < 1) return t('time.justNow');
-  if (diffMin < 60) return t('time.minutesAgo', { count: diffMin });
-  if (diffHr < 24) return t('time.hoursAgo', { count: diffHr });
-  if (diffDay < 7) return t('time.daysAgo', { count: diffDay });
+  if (diffMin < 1) return t("time.justNow");
+  if (diffMin < 60) return t("time.minutesAgo", { count: diffMin });
+  if (diffHr < 24) return t("time.hoursAgo", { count: diffHr });
+  if (diffDay < 7) return t("time.daysAgo", { count: diffDay });
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
@@ -95,10 +95,26 @@ const statCards = computed(() => {
   if (!llmStats.value) return [];
   const a = aggregate.value;
   return [
-    { label: t('settings.logs.totalRequests'), value: String(a.requests), icon: "i-lucide-activity" },
-    { label: t('settings.logs.totalTokens'), value: formatTokens(a.tokens), icon: "i-lucide-coins" },
-    { label: t('settings.logs.successRate'), value: `${successRate.value}%`, icon: "i-lucide-check-circle" },
-    { label: t('settings.logs.avgLatency'), value: formatDuration(a.avgLatency), icon: "i-lucide-timer" },
+    {
+      label: t("settings.logs.totalRequests"),
+      value: String(a.requests),
+      icon: "i-lucide-activity",
+    },
+    {
+      label: t("settings.logs.totalTokens"),
+      value: formatTokens(a.tokens),
+      icon: "i-lucide-coins",
+    },
+    {
+      label: t("settings.logs.successRate"),
+      value: `${successRate.value}%`,
+      icon: "i-lucide-check-circle",
+    },
+    {
+      label: t("settings.logs.avgLatency"),
+      value: formatDuration(a.avgLatency),
+      icon: "i-lucide-timer",
+    },
   ];
 });
 
@@ -156,7 +172,7 @@ onMounted(fetchAll);
         <h3
           class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
         >
-          {{ $t('settings.logs.llmUsage') }}
+          {{ $t("settings.logs.llmUsage") }}
         </h3>
 
         <!-- Stat Cards -->
@@ -174,7 +190,7 @@ onMounted(fetchAll);
 
         <!-- Per provider + model breakdown -->
         <div v-if="usageRows.length" class="mt-3 space-y-1.5">
-          <span class="text-xs text-muted-foreground">{{ $t('settings.logs.byProvider') }}</span>
+          <span class="text-xs text-muted-foreground">{{ $t("settings.logs.byProvider") }}</span>
           <div
             v-for="row in usageRows"
             :key="`${row.provider}/${row.model}`"
@@ -189,9 +205,13 @@ onMounted(fetchAll);
             <span class="font-mono text-xs text-foreground">{{ row.model }}</span>
             <span class="flex-1" />
             <span class="text-xs text-muted-foreground">{{ row.total_calls }} calls</span>
-            <span class="text-xs text-muted-foreground">{{ formatTokens(row.total_tokens) }} tokens</span>
+            <span class="text-xs text-muted-foreground"
+              >{{ formatTokens(row.total_tokens) }} tokens</span
+            >
             <span class="text-xs text-muted-foreground">{{ formatCost(row.total_cost_usd) }}</span>
-            <span class="text-xs text-muted-foreground">{{ formatDuration(row.avg_latency_ms) }}</span>
+            <span class="text-xs text-muted-foreground">{{
+              formatDuration(row.avg_latency_ms)
+            }}</span>
             <span
               class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
               :class="
@@ -212,7 +232,11 @@ onMounted(fetchAll);
           v-for="tab in [
             { id: 'http' as const, label: $t('settings.logs.httpLogs'), icon: 'i-lucide-globe' },
             { id: 'llm' as const, label: $t('settings.logs.llmLogs'), icon: 'i-lucide-brain' },
-            { id: 'errors' as const, label: $t('settings.logs.errorLogs'), icon: 'i-lucide-alert-triangle' },
+            {
+              id: 'errors' as const,
+              label: $t('settings.logs.errorLogs'),
+              icon: 'i-lucide-alert-triangle',
+            },
           ]"
           :key="tab.id"
           class="relative whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-200"
@@ -231,7 +255,7 @@ onMounted(fetchAll);
       <!-- HTTP Logs -->
       <section v-if="activeSubTab === 'http'" class="space-y-2">
         <div v-if="!httpLogs.length" class="py-8 text-center text-sm text-muted-foreground">
-          {{ $t('settings.logs.noHttpLogs') }}
+          {{ $t("settings.logs.noHttpLogs") }}
         </div>
         <div
           v-for="log in httpLogs"
@@ -280,7 +304,7 @@ onMounted(fetchAll);
       <!-- LLM Logs -->
       <section v-if="activeSubTab === 'llm'" class="space-y-2">
         <div v-if="!llmLogs.length" class="py-8 text-center text-sm text-muted-foreground">
-          {{ $t('settings.logs.noLlmLogs') }}
+          {{ $t("settings.logs.noLlmLogs") }}
         </div>
         <div
           v-for="log in llmLogs"
@@ -316,7 +340,8 @@ onMounted(fetchAll);
 
             <!-- Tokens -->
             <span class="text-xs text-muted-foreground">
-              {{ formatTokens(log.prompt_tokens) }} in / {{ formatTokens(log.completion_tokens) }} out
+              {{ formatTokens(log.prompt_tokens) }} in /
+              {{ formatTokens(log.completion_tokens) }} out
             </span>
 
             <!-- Cost -->
@@ -341,7 +366,7 @@ onMounted(fetchAll);
       <!-- Error Logs -->
       <section v-if="activeSubTab === 'errors'" class="space-y-2">
         <div v-if="!errorLogs.length" class="py-8 text-center text-sm text-muted-foreground">
-          {{ $t('settings.logs.noErrorLogs') }}
+          {{ $t("settings.logs.noErrorLogs") }}
         </div>
         <div
           v-for="err in errorLogs"
@@ -381,11 +406,13 @@ onMounted(fetchAll);
             <pre
               v-if="err.stack_trace"
               class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-            >{{ err.stack_trace }}</pre>
+              >{{ err.stack_trace }}</pre
+            >
             <pre
               v-if="Object.keys(err.context).length"
               class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-            >{{ JSON.stringify(err.context, null, 2) }}</pre>
+              >{{ JSON.stringify(err.context, null, 2) }}</pre
+            >
           </div>
         </div>
       </section>

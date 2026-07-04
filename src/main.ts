@@ -55,10 +55,14 @@ async function prepareApp() {
       } else {
         console.log("[MSW] Waiting for controller...");
         await new Promise<void>((resolve) => {
-          navigator.serviceWorker.addEventListener("controllerchange", () => {
-            console.log("[MSW] Controller active.");
-            resolve();
-          }, { once: true });
+          navigator.serviceWorker.addEventListener(
+            "controllerchange",
+            () => {
+              console.log("[MSW] Controller active.");
+              resolve();
+            },
+            { once: true },
+          );
         });
       }
     } else {

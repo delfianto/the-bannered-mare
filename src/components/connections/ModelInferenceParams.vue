@@ -19,7 +19,11 @@ function categorizeParam(_key: string, schema: any): ParamGroup {
   if (type === "object" || type === "list" || type === "json" || type === "string") {
     return "advanced";
   }
-  if ((type === "int" || type === "float") && schema?.min_value !== undefined && schema?.max_value !== undefined) {
+  if (
+    (type === "int" || type === "float") &&
+    schema?.min_value !== undefined &&
+    schema?.max_value !== undefined
+  ) {
     return "fine-tuning";
   }
   return "general";
@@ -60,9 +64,7 @@ function getTooltip(key: string): string {
 }
 
 function humanize(str: string): string {
-  return str
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function getValue(key: string): unknown {
@@ -118,7 +120,10 @@ const sections = computed(() => {
     <!-- Reset button -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2 text-xs text-muted-foreground">
-        <span v-if="overrideCount > 0" class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-[10px] font-semibold text-primary">
+        <span
+          v-if="overrideCount > 0"
+          class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-[10px] font-semibold text-primary"
+        >
           {{ overrideCount }}
         </span>
         <span>{{ overrideCount > 0 ? "parameter overrides" : "Using family defaults" }}</span>
@@ -138,7 +143,9 @@ const sections = computed(() => {
       <!-- Section header -->
       <div class="flex items-center gap-2">
         <UIcon :name="section.icon" class="h-4 w-4 text-muted-foreground" />
-        <h3 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+        <h3
+          class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+        >
           {{ section.label }}
         </h3>
         <span
@@ -150,10 +157,7 @@ const sections = computed(() => {
       </div>
 
       <!-- General: compact grid -->
-      <div
-        v-if="section.key === 'general'"
-        class="space-y-2"
-      >
+      <div v-if="section.key === 'general'" class="space-y-2">
         <div
           v-for="paramKey in section.params"
           :key="paramKey"
@@ -166,7 +170,10 @@ const sections = computed(() => {
             />
             <span class="truncate text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
-              <UIcon name="i-lucide-info" class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50" />
+              <UIcon
+                name="i-lucide-info"
+                class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50"
+              />
             </UTooltip>
           </div>
           <ParamInput
@@ -180,10 +187,7 @@ const sections = computed(() => {
       </div>
 
       <!-- Fine-Tuning: sliders (2-col grid) -->
-      <div
-        v-else-if="section.key === 'fine-tuning'"
-        class="grid grid-cols-1 gap-3 lg:grid-cols-2"
-      >
+      <div v-else-if="section.key === 'fine-tuning'" class="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div
           v-for="paramKey in section.params"
           :key="paramKey"
@@ -196,7 +200,10 @@ const sections = computed(() => {
             />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
-              <UIcon name="i-lucide-info" class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50" />
+              <UIcon
+                name="i-lucide-info"
+                class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50"
+              />
             </UTooltip>
           </div>
           <ParamInput
@@ -210,10 +217,7 @@ const sections = computed(() => {
       </div>
 
       <!-- Advanced: full-width vertical -->
-      <div
-        v-else
-        class="space-y-3"
-      >
+      <div v-else class="space-y-3">
         <div
           v-for="paramKey in section.params"
           :key="paramKey"
@@ -226,7 +230,10 @@ const sections = computed(() => {
             />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
-              <UIcon name="i-lucide-info" class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50" />
+              <UIcon
+                name="i-lucide-info"
+                class="h-3.5 w-3.5 shrink-0 cursor-help text-muted-foreground/50"
+              />
             </UTooltip>
           </div>
           <ParamInput

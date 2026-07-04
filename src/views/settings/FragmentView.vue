@@ -107,7 +107,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
+        <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
@@ -119,7 +119,7 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        {{ $t('common.goBack') }}
+        {{ $t("common.goBack") }}
       </button>
     </div>
 
@@ -163,7 +163,13 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': deleting }"
             />
-            {{ deleting ? $t('common.deleting') : confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
+            {{
+              deleting
+                ? $t("common.deleting")
+                : confirmDelete
+                  ? $t("common.deleteConfirm")
+                  : $t("common.delete")
+            }}
           </button>
 
           <!-- Save button -->
@@ -177,7 +183,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': saving }"
             />
-            {{ saving ? $t('common.saving') : $t('common.save') }}
+            {{ saving ? $t("common.saving") : $t("common.save") }}
           </button>
         </div>
       </header>
@@ -198,7 +204,7 @@ function formatDate(iso: string): string {
                 <span
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  {{ $t('connections.fragment.name') }}
+                  {{ $t("connections.fragment.name") }}
                 </span>
                 <input
                   v-model="form.name"
@@ -213,7 +219,7 @@ function formatDate(iso: string): string {
                 <span
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  {{ $t('connections.fragment.description') }}
+                  {{ $t("connections.fragment.description") }}
                 </span>
                 <textarea
                   v-model="form.description"
@@ -228,7 +234,7 @@ function formatDate(iso: string): string {
                 <label
                   class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  {{ $t('connections.fragment.type') }}
+                  {{ $t("connections.fragment.type") }}
                 </label>
                 <USelectMenu
                   v-model="form.fragment_type"
@@ -259,9 +265,15 @@ function formatDate(iso: string): string {
                 <label
                   class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
                 >
-                  {{ $t('connections.fragment.isGlobal') }}
+                  {{ $t("connections.fragment.isGlobal") }}
                 </label>
-                <button @click="toggleGlobal" role="switch" :aria-checked="form.is_global" aria-label="Global fragment" class="cursor-pointer">
+                <button
+                  @click="toggleGlobal"
+                  role="switch"
+                  :aria-checked="form.is_global"
+                  aria-label="Global fragment"
+                  class="cursor-pointer"
+                >
                   <div
                     class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                     :class="form.is_global ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -269,9 +281,7 @@ function formatDate(iso: string): string {
                     <span
                       class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
                       :class="
-                        form.is_global
-                          ? 'translate-x-4 bg-background'
-                          : 'translate-x-0 bg-white'
+                        form.is_global ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
                       "
                     />
                   </div>
@@ -285,7 +295,7 @@ function formatDate(iso: string): string {
             <h2
               class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
             >
-              {{ $t('connections.fragment.content') }}
+              {{ $t("connections.fragment.content") }}
             </h2>
             <textarea
               v-model="form.content"
@@ -294,7 +304,7 @@ function formatDate(iso: string): string {
               class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
             <p class="mt-2 text-[11px] text-muted-foreground/60">
-              {{ $t('connections.fragment.contentHint') }}
+              {{ $t("connections.fragment.contentHint") }}
             </p>
           </div>
 

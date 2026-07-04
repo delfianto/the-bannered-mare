@@ -25,9 +25,9 @@ Your goal is to build a fast, strictly typed, and component-driven SPA with a wa
 ### 2.3 Code Documentation Style
 
 - **Minimalist Commenting:**
-    - **BANNED:** Redundant "AI-isms" or "play-by-play" comments.
-        - _Bad:_ `// import the component`, `// loop over items`, `// return the result`
-    - **ALLOWED:** Comments explaining _why_ a non-obvious approach exists, referencing design decisions, browser quirks, or backend constraints.
+  - **BANNED:** Redundant "AI-isms" or "play-by-play" comments.
+    - _Bad:_ `// import the component`, `// loop over items`, `// return the result`
+  - **ALLOWED:** Comments explaining _why_ a non-obvious approach exists, referencing design decisions, browser quirks, or backend constraints.
 - **Match the surrounding code:** Mirror the comment density, naming, and idiom already present in the file you are editing.
 
 ---
@@ -101,7 +101,7 @@ Data flows **View → Component → Composable → API Client**. Keep each layer
 - **Responsibilities:** Routed page. Compose components, wire up composables, manage page-level layout and route params.
 - **Forbidden:** No inline `fetch`/API calls and no raw business logic — delegate to a composable.
 
-2. **Component (`components/**/*.vue`)**:
+2. **Component (`components/**/\*.vue`)\*\*:
 
 - **Responsibilities:** Presentation and interaction. Receive `props`, emit events, render Nuxt UI primitives.
 - **Forbidden:** No direct API calls or global-state mutation — lift that into a composable or store.
@@ -119,23 +119,23 @@ Data flows **View → Component → Composable → API Client**. Keep each layer
 
 #### Composable Reference
 
-| Composable | Purpose |
-|-----------|---------|
-| `useChatSessions` | Chat list with cursor pagination |
-| `useChatMessages` | Messages with SSE streaming, send, regenerate |
-| `useCharacters` | Character list with page pagination |
-| `useCharacterForm` | Character CRUD with FormData mapping |
-| `useProviders` / `useProvider` | Provider list / single CRUD |
-| `useModels` / `useModel` | Model list (+ filters) / single CRUD |
-| `useModelFamilies` / `useModelFamily` | Family list / single CRUD |
-| `usePresets` | Preset list |
-| `usePromptTemplates` | Template list |
-| `usePromptFragments` | Fragment list |
-| `useDataBank` | Data bank CRUD with scope filter |
-| `useLibraryFilters` | Client-side character filtering |
-| `useSidebar` | Sidebar collapse state (localStorage) |
-| `useTheme` | Dark/light mode singleton (localStorage) |
-| `useAppToast` | Toast wrapper around Nuxt UI's `useToast` |
+| Composable                            | Purpose                                       |
+| ------------------------------------- | --------------------------------------------- |
+| `useChatSessions`                     | Chat list with cursor pagination              |
+| `useChatMessages`                     | Messages with SSE streaming, send, regenerate |
+| `useCharacters`                       | Character list with page pagination           |
+| `useCharacterForm`                    | Character CRUD with FormData mapping          |
+| `useProviders` / `useProvider`        | Provider list / single CRUD                   |
+| `useModels` / `useModel`              | Model list (+ filters) / single CRUD          |
+| `useModelFamilies` / `useModelFamily` | Family list / single CRUD                     |
+| `usePresets`                          | Preset list                                   |
+| `usePromptTemplates`                  | Template list                                 |
+| `usePromptFragments`                  | Fragment list                                 |
+| `useDataBank`                         | Data bank CRUD with scope filter              |
+| `useLibraryFilters`                   | Client-side character filtering               |
+| `useSidebar`                          | Sidebar collapse state (localStorage)         |
+| `useTheme`                            | Dark/light mode singleton (localStorage)      |
+| `useAppToast`                         | Toast wrapper around Nuxt UI's `useToast`     |
 
 ### 4.3 Key Architecture Decisions
 
@@ -262,15 +262,18 @@ Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitive
 ### 6.3 Design System
 
 **Fonts**
+
 - **Cinzel** (`font-cinzel`): display headings, section titles, character names
 - **Inter** (default): body text, UI labels
 - **BlackChancery** (`font-medieval`): brand wordmark "Candlekeep" only
 
 **Colors (CSS Variables)** — Nuxt UI configured with `primary: "amber"`, `neutral: "stone"`.
+
 - Light mode: parchment cream backgrounds (`#FFFFFF`), warm walnut text (`#2C2418`), amber primary (`#C9922E`)
 - Dark mode: deep walnut backgrounds (`#0F0D0B`), warm cream text (`#E8DFD0`), bright amber primary (`#D4A544`)
 
 **Common patterns**
+
 - **Card:** `rounded-xl border bg-card/50 p-4`
 - **Input:** `h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
 - **Section heading:** `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
