@@ -81,7 +81,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         {{ $t("characters.form.completeness") }}
       </p>
       <div class="flex items-center gap-3">
-        <svg width="44" height="44" class="-rotate-90 flex-shrink-0">
+        <svg width="44" height="44" class="-rotate-90 shrink-0">
           <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3" />
           <circle
             cx="22"

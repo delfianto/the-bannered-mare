@@ -140,7 +140,7 @@ function formatDate(iso: string): string {
     <template v-if="model && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button

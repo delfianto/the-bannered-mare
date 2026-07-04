@@ -25,7 +25,7 @@ const activeTab = computed({
 <template>
   <div class="flex h-full flex-col overflow-hidden">
     <!-- Header -->
-    <header class="flex-shrink-0 px-12 pt-8 pb-4">
+    <header class="shrink-0 px-12 pt-8 pb-4">
       <div class="animate-fade-in-up">
         <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
           {{ $t("connections.title") }}

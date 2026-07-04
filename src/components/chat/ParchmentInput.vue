@@ -50,7 +50,7 @@ function handleKeyDown(e: KeyboardEvent) {
       "
     >
       <!-- Quill icon -->
-      <div class="flex-shrink-0">
+      <div class="shrink-0">
         <UIcon
           name="i-lucide-pen-tool"
           class="h-[18px] w-[18px] transition-colors duration-300"
@@ -76,7 +76,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <button
         :aria-label="$t('chat.sendMessage')"
         :disabled="!canSend || disabled"
-        class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
         :class="
           canSend && !disabled
             ? 'bg-primary text-primary-foreground shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]'

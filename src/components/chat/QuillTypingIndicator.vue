@@ -10,7 +10,7 @@ defineProps<{
     <img
       :src="characterAvatar"
       :alt="characterName"
-      class="mt-1 h-9 w-9 flex-shrink-0 rounded-full object-cover ring-1 ring-border"
+      class="mt-1 h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-border"
     />
     <div class="rounded-2xl rounded-tl-md border bg-muted px-5 py-4">
       <div class="flex items-center gap-2.5">

@@ -48,7 +48,7 @@ const favorites = computed(() => {
     <div class="pt-6 pb-4" :class="collapsed ? 'px-3' : 'px-6'">
       <div class="flex items-center justify-center gap-2.5">
         <button
-          class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
           :title="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           :aria-label="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           @click="toggleSidebar"
@@ -140,7 +140,7 @@ const favorites = computed(() => {
             class="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
             :class="route.path === char.chatPath ? 'bg-accent' : ''"
           >
-            <div class="relative flex-shrink-0">
+            <div class="relative shrink-0">
               <img
                 :src="char.avatar"
                 :alt="char.name"
@@ -202,7 +202,7 @@ const favorites = computed(() => {
             isActive('/settings') ? 'text-foreground bg-accent' : '',
           ]"
         >
-          <UIcon name="i-lucide-settings" class="h-[18px] w-[18px] flex-shrink-0" />
+          <UIcon name="i-lucide-settings" class="h-[18px] w-[18px] shrink-0" />
           <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t("nav.settings") }}</span>
         </RouterLink>
       </UTooltip>
@@ -223,7 +223,7 @@ const favorites = computed(() => {
           <div class="flex items-center" :class="collapsed ? '' : 'gap-2.5'">
             <UIcon
               :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-              class="h-[18px] w-[18px] flex-shrink-0 text-primary"
+              class="h-[18px] w-[18px] shrink-0 text-primary"
             />
             <span v-if="!collapsed" class="text-sm font-medium text-foreground">
               {{ $t("settings.interface.darkMode") }}

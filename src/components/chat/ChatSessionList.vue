@@ -50,7 +50,7 @@ function avatarSrc(chat: Chat): string {
     <!-- Search -->
     <div class="px-3 pb-3 pt-4">
       <div class="flex items-center gap-2 rounded-lg border bg-background/60 px-3 py-2">
-        <UIcon name="i-lucide-search" class="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+        <UIcon name="i-lucide-search" class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <input
           v-model="search"
           type="text"
@@ -90,7 +90,7 @@ function avatarSrc(chat: Chat): string {
         />
 
         <!-- Avatar -->
-        <div class="relative flex-shrink-0">
+        <div class="relative shrink-0">
           <img
             :src="avatarSrc(session)"
             :alt="session.character.name"
@@ -104,7 +104,7 @@ function avatarSrc(chat: Chat): string {
             <p class="truncate text-sm font-medium text-foreground">
               {{ session.character.name }}
             </p>
-            <span class="flex-shrink-0 text-[10px] text-muted-foreground">
+            <span class="shrink-0 text-[10px] text-muted-foreground">
               {{ timeAgo(session.updated_at) }}
             </span>
           </div>

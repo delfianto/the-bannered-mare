@@ -168,7 +168,7 @@ async function handleUnloadModel(identifier: string) {
     <template v-if="provider && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
@@ -384,7 +384,7 @@ async function handleUnloadModel(identifier: string) {
                     }}
                   </p>
                 </div>
-                <div class="flex flex-shrink-0 items-center gap-2">
+                <div class="flex shrink-0 items-center gap-2">
                   <span
                     class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium"
                     :class="

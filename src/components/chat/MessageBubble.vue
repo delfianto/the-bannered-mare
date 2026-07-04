@@ -95,7 +95,7 @@ const userActions = [
     @mouseleave="hovered = false"
   >
     <!-- Avatar — assistant only -->
-    <div v-if="!isUser && characterAvatar" class="mt-1 flex-shrink-0">
+    <div v-if="!isUser && characterAvatar" class="mt-1 shrink-0">
       <img
         :src="characterAvatar"
         :alt="characterName"

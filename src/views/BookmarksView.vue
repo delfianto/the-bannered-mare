@@ -160,7 +160,7 @@ function timeAgo(dateStr: string): string {
             <img
               :src="session.character?.avatar_thumbnail || session.character?.avatar"
               :alt="session.character?.name"
-              class="h-12 w-12 flex-shrink-0 rounded-full object-cover ring-1 ring-border"
+              class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-border"
             />
             <div class="min-w-0 flex-1">
               <h3 class="truncate font-cinzel text-sm font-semibold text-foreground">
