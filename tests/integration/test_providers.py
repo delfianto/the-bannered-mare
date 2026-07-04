@@ -16,6 +16,7 @@ from tests.integration.conftest import (
     has_ollama,
     has_openai_key,
     has_openrouter_key,
+    has_lmstudio,
 )
 
 # ---------------------------------------------------------------------------
@@ -196,6 +197,46 @@ class TestOllama:
             {"role": "user", "content": "Say your catchphrase."},
         ]
         response = await ollama_gateway.chat_completion(messages)
+
+        assert isinstance(response, CompletionResponse)
+        assert len(response.content) > 0
+
+
+# ---------------------------------------------------------------------------
+# LM Studio (local)
+# ---------------------------------------------------------------------------
+
+
+@has_lmstudio
+class TestLMStudio:
+    @pytest.mark.asyncio
+    async def test_completion(self, lmstudio_gateway):
+        response = await lmstudio_gateway.chat_completion(SIMPLE_MESSAGES)
+
+        assert isinstance(response, CompletionResponse)
+        assert len(response.content) > 0
+        assert response.finish_reason in ("stop", "length")
+
+    @pytest.mark.asyncio
+    async def test_streaming(self, lmstudio_gateway):
+        chunks: list[StreamChunk] = []
+        async for chunk in lmstudio_gateway.chat_completion_stream(SIMPLE_MESSAGES):
+            chunks.append(chunk)
+
+        content_chunks = [c for c in chunks if c.content]
+        assert len(content_chunks) > 0
+
+        full_text = "".join(c.content for c in content_chunks if c.content)
+        assert len(full_text) > 0
+
+    @pytest.mark.asyncio
+    async def test_system_prompt(self, lmstudio_gateway):
+        """Verify system prompt works through LMStudio (OpenAI-compat)."""
+        messages = [
+            {"role": "system", "content": "You are a pirate. Always say 'Arrr'."},
+            {"role": "user", "content": "Say your catchphrase."},
+        ]
+        response = await lmstudio_gateway.chat_completion(messages)
 
         assert isinstance(response, CompletionResponse)
         assert len(response.content) > 0
