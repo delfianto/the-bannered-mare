@@ -65,6 +65,7 @@ def update_chat(chat_id: str, chat_data: ChatUpdate, service: ChatServiceDep):
         chat_id=chat_id,
         title=update_data.get("title"),
         model_id=update_data.get("model_id"),
+        is_bookmarked=update_data.get("is_bookmarked"),
     )
 
 

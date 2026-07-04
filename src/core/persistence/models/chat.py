@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from sqlalchemy import Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Enum, ForeignKey, Integer, String, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import MessageRole
@@ -99,6 +99,13 @@ class Chat(BaseModel):
         nullable=False,
         index=True,
         comment="Unique identifier of the character being roleplayed",
+    )
+    is_bookmarked: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default="false",
+        nullable=False,
+        comment="Whether the chat session is bookmarked",
     )
     model_id: Mapped[str | None] = mapped_column(
         String(12),
