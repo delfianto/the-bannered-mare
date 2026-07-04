@@ -180,7 +180,7 @@ async function onFileSelected(event: Event) {
     </div>
 
     <!-- Filters -->
-    <div class="animate-fade-in-up" style="animation-delay: 60ms">
+    <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 60ms">
       <FilterBar
         :search="filters.search"
         :sort="filters.sort"
@@ -194,7 +194,7 @@ async function onFileSelected(event: Event) {
     </div>
 
     <!-- Category pills -->
-    <div class="animate-fade-in-up" style="animation-delay: 120ms">
+    <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 120ms">
       <CategoryPills :active="filters.category" :categories="CATEGORIES" @change="setCategory" />
     </div>
 
