@@ -32,7 +32,7 @@ const routes = [
     component: () => import("@/views/ConnectionsView.vue"),
   },
   {
-    path: "/profiles",
+    path: "/loadouts",
     name: "profiles",
     component: () => import("@/views/ProfilesView.vue"),
   },

@@ -27,7 +27,7 @@ function choose(p: Profile) {
 
 function goManage() {
   open.value = false;
-  router.push("/profiles");
+  router.push("/loadouts");
 }
 
 function onClickOutside(e: MouseEvent) {
