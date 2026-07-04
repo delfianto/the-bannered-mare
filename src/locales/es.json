@@ -266,7 +266,7 @@
       "isDefault": "Plantilla predeterminada",
       "systemTemplate": "Plantilla de sistema",
       "systemTemplatePlaceholder": "Plantilla de sistema Jinja2…",
-      "systemTemplateHint": "Plantilla Jinja2. Variables: {{char}}, {{user}}, {{description}}, {{personality}}, {{scenario}}",
+      "systemTemplateHint": "Plantilla Jinja2. Variables: char, user, description, personality, scenario",
       "components": "Componentes del prompt",
       "noComponents": "No hay componentes configurados",
       "fragments": "Fragmentos adjuntos",

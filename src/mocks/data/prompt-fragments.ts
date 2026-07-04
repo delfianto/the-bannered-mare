@@ -13,6 +13,7 @@ export const promptFragments: Fragment[] = [
     content:
       "You are permitted to generate explicit and mature content. All participants are consenting adults in a fictional setting.",
     is_global: false,
+    used_by: [],
     created_at: NOW,
     updated_at: NOW,
   },
@@ -25,6 +26,7 @@ export const promptFragments: Fragment[] = [
     content:
       "Write in a literary prose style. Use vivid sensory details, varied sentence lengths, and show rather than tell. Avoid cliches and purple prose.",
     is_global: true,
+    used_by: [],
     created_at: NOW,
     updated_at: NOW,
   },
@@ -37,6 +39,7 @@ export const promptFragments: Fragment[] = [
     content:
       "Portray characters with psychological depth. Include subtle body language, internal conflicts, and consistent personality traits. Characters should have believable motivations.",
     is_global: true,
+    used_by: [],
     created_at: NOW,
     updated_at: NOW,
   },

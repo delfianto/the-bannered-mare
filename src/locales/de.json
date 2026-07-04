@@ -266,7 +266,7 @@
       "isDefault": "Standardvorlage",
       "systemTemplate": "Systemvorlage",
       "systemTemplatePlaceholder": "Jinja2-Systemvorlage…",
-      "systemTemplateHint": "Jinja2-Vorlage. Variablen: {{char}}, {{user}}, {{description}}, {{personality}}, {{scenario}}",
+      "systemTemplateHint": "Jinja2-Vorlage. Variablen: char, user, description, personality, scenario",
       "components": "Prompt-Komponenten",
       "noComponents": "Keine Komponenten konfiguriert",
       "fragments": "Angehängte Fragmente",

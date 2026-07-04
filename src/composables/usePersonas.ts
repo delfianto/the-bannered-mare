@@ -33,6 +33,26 @@ export function usePersonas() {
     }
   };
 
+  // Multipart upload — openapi-fetch doesn't handle multipart, per project convention.
+  const createPersona = async (name: string, isDefault = false): Promise<Persona | null> => {
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("is_default", String(isDefault));
+
+      const response = await fetch("/api/personas/", { method: "POST", body: formData });
+      if (!response.ok) throw new Error(`Failed to create persona: ${response.status}`);
+
+      const created: Persona = await response.json();
+      if (created.is_default) personas.value.forEach((p) => (p.is_default = false));
+      personas.value.unshift(created);
+      return created;
+    } catch (err) {
+      console.error("Error creating persona:", err);
+      return null;
+    }
+  };
+
   const refresh = () => {
     fetchPersonas();
   };
@@ -45,6 +65,7 @@ export function usePersonas() {
     personas,
     loading,
     error,
+    createPersona,
     refresh,
   };
 }

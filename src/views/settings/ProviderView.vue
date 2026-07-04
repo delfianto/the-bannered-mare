@@ -1,13 +1,35 @@
 <script setup lang="ts">
-import { reactive, onMounted, watch } from "vue";
+import { reactive, onMounted, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useProvider } from "@/composables/useProvider";
 import { useAppToast } from "@/composables/useToast";
 
 const router = useRouter();
 const route = useRoute();
-const { provider, loading, saving, error, fetchProvider, saveProvider } = useProvider();
+const { t } = useI18n();
+const {
+  provider,
+  loading,
+  saving,
+  error,
+  fetchProvider,
+  saveProvider,
+  availableModels,
+  modelsLoading,
+  syncing,
+  modelsError,
+  pendingModelAction,
+  fetchAvailableModels,
+  syncNow,
+  loadModel,
+  unloadModel,
+} = useProvider();
 const toast = useAppToast();
+
+const isLocalProvider = computed(
+  () => provider.value?.provider_type === "ollama" || provider.value?.provider_type === "lmstudio",
+);
 
 const providerTypeIcons: Record<string, string> = {
   openai: "i-lucide-bot",
@@ -28,6 +50,7 @@ const form = reactive({
 onMounted(async () => {
   const id = route.params.id as string;
   await fetchProvider(id);
+  if (isLocalProvider.value) await fetchAvailableModels(id);
 });
 
 watch(provider, (p) => {
@@ -67,6 +90,53 @@ function formatDate(iso: string): string {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return t("time.justNow");
+  if (mins < 60) return t("time.minutesAgo", { count: mins });
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return t("time.hoursAgo", { count: hours });
+  const days = Math.floor(hours / 24);
+  return t("time.daysAgo", { count: days });
+}
+
+function formatSize(bytes: number | null | undefined): string | null {
+  if (!bytes) return null;
+  const gb = bytes / 1024 ** 3;
+  return `${gb.toFixed(1)} GB`;
+}
+
+async function handleSyncNow() {
+  if (!provider.value) return;
+  try {
+    await syncNow(provider.value.id);
+    toast.success("Model list synced");
+  } catch (e) {
+    toast.error("Failed to sync models");
+  }
+}
+
+async function handleLoadModel(identifier: string) {
+  if (!provider.value) return;
+  try {
+    await loadModel(provider.value.id, identifier);
+    toast.success(`Loading ${identifier}`);
+  } catch (e) {
+    toast.error("Failed to load model");
+  }
+}
+
+async function handleUnloadModel(identifier: string) {
+  if (!provider.value) return;
+  try {
+    await unloadModel(provider.value.id, identifier);
+    toast.success(`Unloaded ${identifier}`);
+  } catch (e) {
+    toast.error("Failed to unload model");
+  }
 }
 </script>
 
@@ -254,6 +324,98 @@ function formatDate(iso: string): string {
                 </span>
               </div>
             </div>
+          </div>
+
+          <!-- Available Models (local providers only) -->
+          <div v-if="isLocalProvider" class="rounded-xl border bg-card/50 p-5">
+            <div class="mb-4 flex items-center justify-between">
+              <div>
+                <h2
+                  class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                >
+                  Available Models
+                </h2>
+                <p class="mt-0.5 text-[10px] text-muted-foreground">
+                  {{
+                    provider.last_synced_at
+                      ? `Last synced ${timeAgo(provider.last_synced_at)}`
+                      : "Never synced"
+                  }}
+                </p>
+              </div>
+              <button
+                class="flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+                :disabled="syncing"
+                @click="handleSyncNow"
+              >
+                <UIcon
+                  :name="syncing ? 'i-lucide-loader-2' : 'i-lucide-refresh-cw'"
+                  class="h-3.5 w-3.5"
+                  :class="{ 'animate-spin': syncing }"
+                />
+                {{ syncing ? "Syncing..." : "Sync Now" }}
+              </button>
+            </div>
+
+            <div v-if="modelsLoading" class="flex justify-center py-6">
+              <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+
+            <div v-else-if="modelsError" class="flex flex-col items-center gap-2 py-6 text-center">
+              <UIcon name="i-lucide-alert-circle" class="h-5 w-5 text-destructive" />
+              <p class="text-xs text-muted-foreground">{{ modelsError.message }}</p>
+            </div>
+
+            <div v-else-if="availableModels.length === 0" class="py-6 text-center">
+              <p class="text-xs text-muted-foreground">No models found on this server.</p>
+            </div>
+
+            <ul v-else class="space-y-2">
+              <li
+                v-for="model in availableModels"
+                :key="model.identifier"
+                class="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2"
+              >
+                <div class="min-w-0">
+                  <p class="truncate text-sm text-foreground">{{ model.display_name }}</p>
+                  <p class="text-[10px] text-muted-foreground">
+                    {{ [formatSize(model.size_bytes), model.quantization].filter(Boolean).join(" • ") }}
+                  </p>
+                </div>
+                <div class="flex flex-shrink-0 items-center gap-2">
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                    :class="
+                      model.state === 'loaded'
+                        ? 'bg-emerald-500/10 text-emerald-500'
+                        : 'bg-amber-500/10 text-amber-500'
+                    "
+                  >
+                    <span
+                      class="h-1.5 w-1.5 rounded-full"
+                      :class="model.state === 'loaded' ? 'bg-emerald-500' : 'bg-amber-500'"
+                    />
+                    {{ model.state === "loaded" ? "Loaded" : "Not Loaded" }}
+                  </span>
+                  <button
+                    class="flex h-7 items-center gap-1 rounded-md border px-2 text-[11px] font-medium text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+                    :disabled="pendingModelAction === model.identifier"
+                    @click="
+                      model.state === 'loaded'
+                        ? handleUnloadModel(model.identifier)
+                        : handleLoadModel(model.identifier)
+                    "
+                  >
+                    <UIcon
+                      v-if="pendingModelAction === model.identifier"
+                      name="i-lucide-loader-2"
+                      class="h-3 w-3 animate-spin"
+                    />
+                    {{ model.state === "loaded" ? "Unload" : "Load" }}
+                  </button>
+                </div>
+              </li>
+            </ul>
           </div>
 
           <!-- Timestamps -->
