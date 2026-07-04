@@ -165,6 +165,7 @@ async function onFileSelected(event: Event) {
     <template #header>
       <DiscoverHeader
         :character-count="filtered.length"
+        :show-actions="characters.length > 0"
         @import="openImportDialog"
         @create-new="navigateToCreate"
       />
@@ -260,7 +261,26 @@ async function onFileSelected(event: Event) {
       v-if="!loading && filtered.length === 0"
       :has-filters="hasFilters"
       @action="navigateToCreate"
-    />
+    >
+      <template v-if="!hasFilters" #action>
+        <div class="flex items-center gap-3">
+          <button
+            class="flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+            @click="openImportDialog"
+          >
+            <UIcon name="i-lucide-download" class="size-4" />
+            {{ $t("characters.importBtn") }}
+          </button>
+          <button
+            class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            @click="navigateToCreate"
+          >
+            <UIcon name="i-lucide-plus" class="size-4" />
+            {{ $t("characters.createNew") }}
+          </button>
+        </div>
+      </template>
+    </EmptyState>
 
     <!-- Delete Confirmation Modal -->
     <ConfirmModal
