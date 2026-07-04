@@ -1,6 +1,6 @@
 """Provider CRUD API endpoints"""
 
-from fastapi import APIRouter, status, Query, Depends
+from fastapi import APIRouter, Query, status
 
 from src.core.persistence import DbSession
 from src.model.schemas import ModelResponse
@@ -106,12 +106,12 @@ def persist_provider_model(
     db: DbSession,
 ):
     """Persist a discovered model as a local Model definition in the database"""
+    from src.chat_session.repository import ChatRepository
     from src.model.repository import ModelRepository
     from src.model.service import ModelService
-    from src.provider.repository import ProviderRepository
-    from src.model_family.repository import ModelFamilyRepository
-    from src.chat_session.repository import ChatRepository
     from src.model_family.models import ModelFamily
+    from src.model_family.repository import ModelFamilyRepository
+    from src.provider.repository import ProviderRepository
 
     model_repo = ModelRepository(db)
     provider_repo = ProviderRepository(db)

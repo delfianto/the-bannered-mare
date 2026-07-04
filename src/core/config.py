@@ -126,6 +126,24 @@ class Settings(BaseSettings):
         default=None, description="Initial base URL for the seeded LM Studio provider"
     )
 
+    model_blacklist: list[str] = [
+        "dall-e",
+        "whisper",
+        "tts-",
+        "embedding",
+        "moderation",
+        "flux",
+        "stable-diffusion",
+        "imagen",
+        "sora",
+        "veo",
+        "audio-",
+        "bge-",
+        "clip-",
+        "rerank",
+        "colbert",
+    ]
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

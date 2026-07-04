@@ -203,7 +203,7 @@ class _FakeDiscoveryClient:
         self.load_calls: list[str] = []
         self.unload_calls: list[str] = []
 
-    def list_models(self, base_url: str) -> list[DiscoveredModel]:
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
         self.list_calls += 1
         if self.error:
             raise self.error
@@ -219,6 +219,10 @@ class _FakeDiscoveryClient:
             raise self.error
         self.unload_calls.append(identifier)
 
+    def delete_model(self, base_url: str, identifier: str) -> None:
+        if self.error:
+            raise self.error
+
 
 class TestProviderServiceDiscovery:
     """Test suite for ProviderService model discovery/load/unload/cache logic"""
@@ -232,11 +236,16 @@ class TestProviderServiceDiscovery:
         db.refresh(provider)
         return provider
 
-    def test_list_available_models_unsupported_provider_type(self, db: Session) -> None:
+    def test_list_available_models_unsupported_provider_type(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         provider = Provider(name="OpenAI", provider_type=ProviderType.OPENAI)
         db.add(provider)
         db.commit()
         db.refresh(provider)
+
+        import src.provider.service
+        monkeypatch.setattr(src.provider.service, "get_discovery_client", lambda x: None)
 
         service = ProviderService(ProviderRepository(db))
         with pytest.raises(HTTPException) as exc_info:
