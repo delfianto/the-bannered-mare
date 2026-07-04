@@ -207,7 +207,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             >
               <div class="flex h-full">
                 <!-- Sidebar strip -->
-                <div class="w-[10px] flex-shrink-0" :style="{ backgroundColor: previewBg(preset) }">
+                <div class="w-[10px] shrink-0" :style="{ backgroundColor: previewBg(preset) }">
                   <div
                     class="mx-auto mt-2 h-1.5 w-1.5 rounded-full"
                     :style="{ backgroundColor: preset.preview.primary }"

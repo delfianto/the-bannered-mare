@@ -304,7 +304,7 @@ async function setDefault(personaId: string) {
         <img
           :src="getAvatarSrc(persona)"
           :alt="persona.name"
-          class="h-12 w-12 flex-shrink-0 rounded-full object-cover ring-1 ring-border"
+          class="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-border"
         />
 
         <!-- Info -->

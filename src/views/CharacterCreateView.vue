@@ -159,7 +159,7 @@ function handleImport(data: CharacterData) {
 
     <!-- Header -->
     <header
-      class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+      class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
     >
       <div class="flex items-center gap-3">
         <button
@@ -227,7 +227,7 @@ function handleImport(data: CharacterData) {
     </header>
 
     <!-- Tab Nav -->
-    <div class="flex-shrink-0 border-b bg-background/60">
+    <div class="shrink-0 border-b bg-background/60">
       <div class="flex items-center gap-1 px-8">
         <div class="mx-auto flex max-w-[580px] items-center gap-1">
           <button

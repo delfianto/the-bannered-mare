@@ -98,7 +98,7 @@ onUnmounted(() => {
 
 <template>
   <header
-    class="z-10 flex h-[62px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-5 backdrop-blur-sm"
+    class="z-10 flex h-[62px] shrink-0 items-center justify-between border-b bg-background/80 px-5 backdrop-blur-sm"
   >
     <button
       :aria-label="$t('common.goBack')"
