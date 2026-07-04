@@ -5,14 +5,11 @@ import ConnectionsTabs from "@/components/connections/ConnectionsTabs.vue";
 import ProvidersTab from "@/components/connections/ProvidersTab.vue";
 import ModelsTab from "@/components/connections/ModelsTab.vue";
 import ModelFamiliesTab from "@/components/connections/ModelFamiliesTab.vue";
-import PresetsTab from "@/components/connections/PresetsTab.vue";
-import TemplatesTab from "@/components/connections/TemplatesTab.vue";
-import FragmentsTab from "@/components/connections/FragmentsTab.vue";
 
 const route = useRoute();
 const router = useRouter();
 
-const validTabs = ["providers", "models", "model-families", "presets", "templates", "fragments"];
+const validTabs = ["providers", "models", "model-families"];
 
 const activeTab = computed({
   get: () => {
@@ -49,9 +46,6 @@ const activeTab = computed({
       <ProvidersTab v-if="activeTab === 'providers'" />
       <ModelsTab v-if="activeTab === 'models'" />
       <ModelFamiliesTab v-if="activeTab === 'model-families'" />
-      <PresetsTab v-if="activeTab === 'presets'" />
-      <TemplatesTab v-if="activeTab === 'templates'" />
-      <FragmentsTab v-if="activeTab === 'fragments'" />
     </div>
   </div>
 </template>
