@@ -59,7 +59,9 @@ export function useProvider() {
         { params: { path: { provider_id: id } } },
       );
       if (apiError || !data) throw new Error("Failed to load available models");
-      availableModels.value = data.models;
+      availableModels.value = [...data.models].sort((a, b) =>
+        a.display_name.localeCompare(b.display_name),
+      );
       if (provider.value) provider.value.last_synced_at = data.last_synced_at;
     } catch (e) {
       modelsError.value = e instanceof Error ? e : new Error("Unknown error");
@@ -77,7 +79,9 @@ export function useProvider() {
         { params: { path: { provider_id: id } } },
       );
       if (apiError || !data) throw new Error("Failed to sync models");
-      availableModels.value = data.models;
+      availableModels.value = [...data.models].sort((a, b) =>
+        a.display_name.localeCompare(b.display_name),
+      );
       if (provider.value) provider.value.last_synced_at = data.last_synced_at;
     } catch (e) {
       modelsError.value = e instanceof Error ? e : new Error("Unknown error");

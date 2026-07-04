@@ -358,7 +358,9 @@ function finish() {
           >
             <UIcon name="i-lucide-sliders-horizontal" class="size-8 text-primary" />
             <span class="font-cinzel text-sm font-semibold text-foreground">Create Manually</span>
-            <span class="text-xs text-muted-foreground">Pick a model, template, preset, and persona yourself.</span>
+            <span class="text-xs text-muted-foreground"
+              >Pick a model, template, preset, and persona yourself.</span
+            >
           </button>
           <button
             class="flex flex-col items-center gap-3 rounded-xl border bg-card/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-accent"
@@ -366,7 +368,9 @@ function finish() {
           >
             <UIcon name="i-lucide-upload" class="size-8 text-primary" />
             <span class="font-cinzel text-sm font-semibold text-foreground">Import ST Preset</span>
-            <span class="text-xs text-muted-foreground">Bring in a SillyTavern chat-completion preset.</span>
+            <span class="text-xs text-muted-foreground"
+              >Bring in a SillyTavern chat-completion preset.</span
+            >
           </button>
         </div>
       </div>
@@ -374,7 +378,9 @@ function finish() {
       <div v-else-if="createPath === 'manual'" class="space-y-4">
         <!-- No personas yet: offer to create one before the form's persona dropdown is reached -->
         <div v-if="personas.length === 0" class="rounded-xl border bg-card/50 p-5">
-          <span class="mb-1.5 block text-xs font-medium text-muted-foreground">You don't have a persona yet (optional, but recommended)</span>
+          <span class="mb-1.5 block text-xs font-medium text-muted-foreground"
+            >You don't have a persona yet (optional, but recommended)</span
+          >
           <div class="flex items-center gap-2">
             <input
               v-model="quickPersonaName"
