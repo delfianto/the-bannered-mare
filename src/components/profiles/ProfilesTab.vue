@@ -10,6 +10,7 @@ import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
 import ProfileCard from "@/components/profiles/ProfileCard.vue";
 import ProfileForm from "@/components/profiles/ProfileForm.vue";
+import EmptyState from "@/components/shared/EmptyState.vue";
 
 const { t } = useI18n();
 const toast = useAppToast();
@@ -143,20 +144,14 @@ function cancelDelete() {
     </div>
 
     <!-- Empty -->
-    <div
+    <EmptyState
       v-else-if="profiles.length === 0 && !showForm"
-      class="flex flex-col items-center justify-center gap-3 py-20"
-    >
-      <UIcon name="i-lucide-layers" class="size-8 text-muted-foreground/40" />
-      <p class="text-sm text-muted-foreground">{{ $t("profiles.empty") }}</p>
-      <button
-        class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-        @click="openCreate"
-      >
-        <UIcon name="i-lucide-plus" class="size-4" />
-        {{ $t("profiles.newProfile") }}
-      </button>
-    </div>
+      icon="i-lucide-layers"
+      :title="t('profiles.empty') || 'No Profiles'"
+      description="Create a configuration profile to customize your character interaction settings."
+      :action-label="t('profiles.newProfile') || 'New Profile'"
+      @action="openCreate"
+    />
 
     <!-- Profile grid -->
     <div v-else-if="!showForm" class="grid grid-cols-1 gap-3 lg:grid-cols-2">

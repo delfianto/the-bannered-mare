@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { usePresets } from "@/composables/usePresets";
 import type { Preset } from "@/composables/usePresets";
 import ImportPresetModal from "./ImportPresetModal.vue";
+import EmptyState from "@/components/shared/EmptyState.vue";
 
 const { presets, loading, error, refresh } = usePresets();
 const showImport = ref(false);
@@ -18,7 +19,7 @@ function onImported() {
 
 <template>
   <div>
-    <div class="mb-4 flex justify-end">
+    <div v-if="!loading && presets.length > 0" class="mb-4 flex justify-end">
       <button
         class="flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         @click="showImport = true"
@@ -46,6 +47,16 @@ function onImported() {
         {{ $t("common.retry") }}
       </button>
     </div>
+
+    <!-- Empty State -->
+    <EmptyState
+      v-else-if="presets.length === 0"
+      icon="i-lucide-sliders-horizontal"
+      title="No Presets Found"
+      description="Import a parameter preset to easily configure generation settings."
+      action-label="Import Preset"
+      @action="showImport = true"
+    />
 
     <!-- Grid -->
     <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
