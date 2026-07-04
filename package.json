@@ -6,7 +6,8 @@
   "scripts": {
     "api:gen": "openapi-typescript ../candlekeep-core/openapi.json -o ./src/api/schema.d.ts",
     "build": "vue-tsc -b && vp build",
-    "dev": "vp dev --host",
+    "dev": "VITE_USE_MOCKS=false vp dev --host",
+    "dev:mock": "VITE_USE_MOCKS=true vp dev --host",
     "fmt": "vp fmt src docs AGENTS.md vite.config.ts",
     "fmt:check": "vp fmt --check src docs AGENTS.md vite.config.ts",
     "lint": "vp lint",
