@@ -393,3 +393,49 @@ class TestCharacterService:
         assert exported["data"]["character_book"]["name"] == "Keeper's Lore"
         assert exported["data"]["character_book"]["entries"][0]["name"] == "Ancient Spells"
         assert exported["data"]["character_book"]["entries"][0]["keys"] == ["library", "books"]
+
+    @pytest.mark.anyio
+    async def test_import_and_export_custom_fields(self, db):
+        from src.core.persistence.enums import Gender
+        repo = CharacterRepository(db)
+        service = CharacterService(repo)
+
+        # 1. Test importing a card with species, age, gender in extensions
+        v2_card = json.dumps(
+            {
+                "spec": "chara_card_v2",
+                "spec_version": "2.0",
+                "data": {
+                    "name": "Custom Elf",
+                    "extensions": {
+                        "candlekeep": {
+                            "species": "Altmer",
+                            "gender": "female",
+                            "age": "130",
+                        }
+                    },
+                },
+            }
+        )
+
+        mock_file = Mock()
+        mock_file.filename = "elf.json"
+        mock_file.read = AsyncMock(return_value=v2_card.encode("utf-8"))
+
+        character = await service.import_card(mock_file)
+        assert character.name == "Custom Elf"
+        assert character.species == "Altmer"
+        assert character.gender == Gender.FEMALE
+        assert character.age == "130"
+
+        # 2. Test exporting a character with custom fields
+        db.refresh(character)
+        json_str = service.export_as_json(character.id)
+        exported = json.loads(json_str)
+
+        assert exported["data"]["extensions"]["candlekeep"]["species"] == "Altmer"
+        assert exported["data"]["extensions"]["candlekeep"]["gender"] == "female"
+        assert exported["data"]["extensions"]["candlekeep"]["age"] == "130"
+        assert exported["data"]["extensions"]["species"] == "Altmer"
+        assert exported["data"]["extensions"]["gender"] == "female"
+        assert exported["data"]["extensions"]["age"] == "130"
