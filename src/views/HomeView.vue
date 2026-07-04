@@ -15,7 +15,7 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
 </script>
 
 <template>
-  <div class="space-y-8 px-12 py-8">
+  <div class="flex flex-1 flex-col space-y-8 px-12 py-8">
     <!-- Greeting -->
     <div class="animate-fade-in-up">
       <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">

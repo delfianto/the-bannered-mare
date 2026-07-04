@@ -21,7 +21,9 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center px-4 py-20 text-center animate-fade-in-up">
+  <div
+    class="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center animate-fade-in-up w-full"
+  >
     <!-- Icon with pulsing glow -->
     <div class="relative mb-6">
       <div class="absolute inset-0 animate-pulse rounded-full bg-primary/20 blur-xl" />

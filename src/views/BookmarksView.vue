@@ -31,7 +31,7 @@ function timeAgo(dateStr: string): string {
 </script>
 
 <template>
-  <div class="space-y-10 px-8 py-8 lg:px-12">
+  <div class="flex flex-1 flex-col space-y-10 px-8 py-8 lg:px-12">
     <!-- Header -->
     <header class="animate-fade-in-up">
       <div class="flex items-center gap-4">
