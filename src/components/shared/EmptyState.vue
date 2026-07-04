@@ -22,7 +22,7 @@ defineEmits<{
 
 <template>
   <div
-    class="flex w-full flex-1 animate-fade-in-up flex-col items-center justify-center px-4 py-12 text-center"
+    class="flex w-full flex-1 animate-fade-in-up flex-col items-center justify-start px-4 pt-[12vh] pb-12 text-center"
   >
     <!-- Icon with pulsing glow -->
     <div class="relative mb-6">
