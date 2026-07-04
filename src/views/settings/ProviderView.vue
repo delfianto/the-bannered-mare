@@ -72,10 +72,8 @@ function isPersisted(modelIdentifier: string): boolean {
 onMounted(async () => {
   const id = route.params.id as string;
   await fetchProvider(id);
-  if (isLocalProvider.value) {
-    await fetchAvailableModels(id);
-    await loadPersistedModels(1, { provider_id: id });
-  }
+  await fetchAvailableModels(id);
+  await loadPersistedModels(1, { provider_id: id });
 });
 
 watch(provider, (p) => {
@@ -397,8 +395,8 @@ function toggleMenu(identifier: string) {
             </div>
           </div>
 
-          <!-- Available Models (local providers only) -->
-          <div v-if="isLocalProvider" class="rounded-xl border bg-card/50 p-5">
+          <!-- Available Models -->
+          <div class="rounded-xl border bg-card/50 p-5">
             <div class="mb-4 flex items-center justify-between">
               <div>
                 <h2
@@ -457,6 +455,7 @@ function toggleMenu(identifier: string) {
                 </div>
                 <div class="flex shrink-0 items-center gap-2">
                   <span
+                    v-if="isLocalProvider"
                     class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium"
                     :class="
                       model.state === 'loaded'
@@ -503,6 +502,7 @@ function toggleMenu(identifier: string) {
 
                         <!-- Load / Unload option -->
                         <button
+                          v-if="isLocalProvider"
                           class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-popover-foreground transition-colors hover:bg-muted/60"
                           @click="
                             openMenuModel = null;
