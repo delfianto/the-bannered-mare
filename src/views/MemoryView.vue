@@ -5,6 +5,7 @@ import { useDataBank } from "@/composables/useDataBank";
 import { client } from "@/api/client";
 import type { DataBankCreate, DataBankUpdate, DataBankEntry } from "@/composables/useDataBank";
 import type { components } from "@/api/schema";
+import EmptyState from "@/components/shared/EmptyState.vue";
 
 const { t } = useI18n();
 
@@ -177,7 +178,7 @@ function scopeBadgeClass(scope: string): string {
 </script>
 
 <template>
-  <div class="space-y-8 px-12 py-8">
+  <div class="flex flex-1 flex-col space-y-8 px-12 py-8">
     <!-- Header -->
     <div class="animate-fade-in-up">
       <div class="flex items-start justify-between">
@@ -356,7 +357,7 @@ function scopeBadgeClass(scope: string): string {
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="flex items-center justify-center py-20">
+    <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
       <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
     </div>
 
@@ -373,13 +374,14 @@ function scopeBadgeClass(scope: string): string {
     </div>
 
     <!-- Empty -->
-    <div
+    <EmptyState
       v-else-if="filteredEntries.length === 0"
-      class="flex flex-col items-center justify-center gap-3 py-20"
-    >
-      <UIcon name="i-lucide-database" class="h-8 w-8 text-muted-foreground/40" />
-      <p class="text-sm text-muted-foreground">{{ $t("memory.noEntries") }}</p>
-    </div>
+      icon="i-lucide-database"
+      :title="$t('memory.noEntries')"
+      description="No custom memory entries added to the Data Bank yet."
+      action-label="Add Memory Entry"
+      @action="openCreateForm"
+    />
 
     <!-- Entry Cards Grid -->
     <div v-else class="grid grid-cols-1 gap-3 lg:grid-cols-2">
