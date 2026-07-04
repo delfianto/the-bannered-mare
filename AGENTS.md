@@ -3,13 +3,14 @@
 This document outlines core instructions, tech stack conventions, and workflows for AI developers working on **Candlekeep UI**.
 
 For deep architectural details, refer to the following documentation files:
-*   [LLM Harness Agent & Connection Management](file:///srv/project/personal/candlekeep-ui/docs/LLM_HARNESS_AGENT.md)
-*   [Core & Shared Components](file:///srv/project/personal/candlekeep-ui/docs/CORE_COMPONENTS.md)
-*   [Design System & Aesthetics](file:///srv/project/personal/candlekeep-ui/docs/DESIGN_SYSTEM.md)
-*   [MSW Mock Harness & Offline Development](file:///srv/project/personal/candlekeep-ui/docs/MOCK_HARNESS.md)
-*   [Backend Integration & Streaming Client](file:///srv/project/personal/candlekeep-ui/docs/BACKEND_CONNECTION.md)
-*   [View Architecture & Main Screens](file:///srv/project/personal/candlekeep-ui/docs/MAIN_SCREENS.md)
-*   [State Management & Localization](file:///srv/project/personal/candlekeep-ui/docs/STATE_AND_LOCALIZATION.md)
+
+- [LLM Harness Agent & Connection Management](file:///srv/project/personal/candlekeep-ui/docs/LLM_HARNESS_AGENT.md)
+- [Core & Shared Components](file:///srv/project/personal/candlekeep-ui/docs/CORE_COMPONENTS.md)
+- [Design System & Aesthetics](file:///srv/project/personal/candlekeep-ui/docs/DESIGN_SYSTEM.md)
+- [MSW Mock Harness & Offline Development](file:///srv/project/personal/candlekeep-ui/docs/MOCK_HARNESS.md)
+- [Backend Integration & Streaming Client](file:///srv/project/personal/candlekeep-ui/docs/BACKEND_CONNECTION.md)
+- [View Architecture & Main Screens](file:///srv/project/personal/candlekeep-ui/docs/MAIN_SCREENS.md)
+- [State Management & Localization](file:///srv/project/personal/candlekeep-ui/docs/STATE_AND_LOCALIZATION.md)
 
 ---
 
@@ -24,18 +25,21 @@ Your goal is to build a fast, strictly typed, and component-driven SPA with a wa
 ## 2. Core Operational Constraints (Non-Negotiable)
 
 ### 2.1 Version Control & File Handling
+
 - **NO GIT COMMITS:** You do not have permission to commit code unless the user asked you to do so.
 - **Default Branch:** `main` is the default and only long-lived branch. PRs target `main`.
 - **File Retrieval:** Always read full file contents before editing. Do not rely on snippets or assumptions.
 - **Shell Check:** This machine runs **zsh** (macOS), not always BASH. Check the running shell before assuming syntax; use shell-specific syntax to avoid command failure.
 
 ### 2.2 API Schema & Mock Data
+
 - **Generated Schema is Read-Only:** `src/api/schema.d.ts` is auto-generated from the backend's `openapi.json`. **Never hand-edit it.** Regenerate with `bun run api:gen` when the backend contract changes.
 - **Typed Client Only:** Use the `openapi-fetch` client (`src/api/client.ts`) for API calls so requests are validated against the schema. Verify endpoint paths, params, and response shapes against `schema.d.ts` before coding.
 - **Keep Mocks in Sync:** MSW handlers (`src/mocks/handlers.ts`) and fixtures (`src/mocks/data/`) mirror the backend's seed data. When an endpoint or response shape changes, update the matching handler/fixture so mock mode stays faithful.
 - **FormData Exception:** For multipart mutations (character create/update), use `fetch()` directly — `openapi-fetch` does not handle multipart well.
 
 ### 2.3 Code Documentation Style
+
 - **Minimalist Commenting:**
   - **BANNED:** Redundant "AI-isms" or "play-by-play" comments.
     - _Bad:_ `// import the component`, `// loop over items`, `// return the result`
@@ -88,6 +92,7 @@ src/
 ## 4. Tech Stack & Architecture
 
 ### 4.1 Core Stack
+
 - **Toolchain:** Vite+ — the `vp` unified CLI from VoidZero (`vp dev`, `vp build`, `vp check`). Wraps the whole Rust stack below.
 - **Package Manager:** Bun (managed by `vp`; `vp install`, or `bun install` directly)
 - **Framework:** Vue 3.5 — always `<script setup lang="ts">` Composition API
@@ -104,13 +109,14 @@ src/
 - **Lint / Format:** Oxlint / Oxfmt, run through `vp lint` / `vp fmt` (provided by the Vite+ toolchain — no standalone devDeps)
 
 ### 4.2 Layered Responsibilities
+
 Data flows **View → Component → Composable → API Client**. Keep each layer's job narrow.
 
 1. **View (`views/*.vue`)**:
    - **Responsibilities:** Routed page. Compose components, wire up composables, manage page-level layout and route params.
    - **Forbidden:** No inline `fetch`/API calls and no raw business logic — delegate to a composable.
 
-2. **Component (`components/**/*.vue`)**:
+2. **Component (`components/**/\*.vue`)\*\*:
    - **Responsibilities:** Presentation and interaction. Receive `props`, emit events, render Nuxt UI primitives.
    - **Forbidden:** No direct API calls or global-state mutation — lift that into a composable or store.
 
@@ -124,6 +130,7 @@ Data flows **View → Component → Composable → API Client**. Keep each layer
 **Global state** that outlives a feature (theme, settings, sidebar) lives in a Pinia store (`stores/`) or a singleton composable, persisted to `localStorage` where noted.
 
 #### Composable Reference
+
 For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Connection Management](file:///srv/project/personal/candlekeep-ui/docs/LLM_HARNESS_AGENT.md) documentation.
 
 | Composable                            | Purpose                                       |
@@ -145,6 +152,7 @@ For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Conne
 | `useAppToast`                         | Toast wrapper around Nuxt UI's `useToast`     |
 
 ### 4.3 Key Architecture Decisions
+
 - **No shadcn/ui:** Migrated to Nuxt UI v4. The old `src/components/ui/` directory no longer exists.
 - **API types directly:** Components use `components["schemas"]["CharacterResponse"]` etc. from the generated schema. No parallel/duplicate type systems.
 - **Avatar URLs from API:** Use the `avatar` / `avatar_thumbnail` fields directly. Don't route through `getAvatarUrl()` (it generates endpoints not mocked in MSW).
@@ -157,13 +165,16 @@ For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Conne
 ## 5. Development Workflow
 
 ### 5.1 Implementation Protocol
+
 When asked to implement a feature, follow this strict template:
+
 1. **Analysis:** Read the relevant views/components/composables. Check API types in `schema.d.ts` and the matching MSW handler/fixture.
 2. **Plan:** Outline changes in **API Client → Composable → Component → View** order.
 3. **Code:** Apply changes, reusing existing patterns and Nuxt UI primitives.
 4. **Verify:** Run type checking, lint, and a full build.
 
 ### 5.2 Commands & Quality Assurance
+
 You must fix **ALL** errors before considering a task complete.
 
 ```bash
@@ -187,6 +198,7 @@ bun run api:gen              # Regenerate schema.d.ts from backend openapi.json
 > **vp on PATH:** the installer added `vp` to your shell profile (restart your terminal). It lives in `~/.vite-plus/bin`; if a script or hook can't find `vp`, prepend that directory to `PATH`. The Claude Code hooks do this themselves.
 
 #### MSW Mock Mode
+
 ```bash
 VITE_USE_MOCKS=true vp dev --host                            # Enable MSW mocks (disables Vite proxy)
 VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true vp dev --host    # + log API calls
@@ -197,10 +209,13 @@ When `VITE_USE_MOCKS=true`, the Vite `/api` proxy is disabled so MSW's service w
 **Important:** MSW only works on `localhost` (Service Workers require localhost or HTTPS). For remote access, use an SSH tunnel: `ssh -L 5173:localhost:5173 user@host`.
 
 #### Mock Data Inventory
+
 Fixtures in `src/mocks/data/` mirror the backend seed data: **6 providers**, **19 model families**, **34 models**, **20 characters** (Elder Scrolls themed, Unsplash portraits), **20 chats** with YAML conversation scenarios, **3 personas**, **3 presets**, **4 templates**, **3 fragments**, **5 data bank entries**.
 
 ### 5.3 Local Claude Code Environment
+
 This project version-controls a shared `.claude/` setup, mirroring `../candlekeep-core`:
+
 - **Permissions** (`settings.json`): an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). **`git commit`/`push` are deliberately not pre-allowed** — they're governed by §2.1 (no commits unless asked) plus the default permission prompt. Opt out of that prompt per-machine by adding them to `settings.local.json`'s `allow` (rules merge and evaluate deny→ask→allow, so a local `allow` only works because there's no competing project `ask`/hook for them).
 - **Hooks** (`.claude/hooks/`): `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix` on edited source files, skips generated files), `typecheck` (Stop — `vue-tsc --noEmit` gate), `session-context` (SessionStart — anchors the stack). They prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell.
 - **Skills** (`.claude/skills/`): `sync-schema`, `new-msw-handler`, `new-component`, `new-composable`, and the vendored `superdesign` — all tracked, so a fresh clone picks them up.
@@ -215,13 +230,16 @@ Vite+ can also wire up agent/editor integration via `vp migrate --agent` / `vp c
 ## 6. Coding Standards
 
 ### 6.1 Vue & Composition API
+
 - Always `<script setup lang="ts">`.
 - **PascalCase** for components, **camelCase** for composables with a `use*` prefix.
 - Extract shared logic into composables; keep components focused on rendering and interaction.
 - Prefer `computed`/`ref` reactivity over manual watchers where possible.
 
 ### 6.2 Nuxt UI & Components
+
 Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitives:
+
 ```vue
 <UApp>           <!-- Root wrapper: provides TooltipProvider, Toaster -->
 <UIcon>          <!-- ALWAYS use for icons, never bare <span class="i-lucide-*"> -->
@@ -233,6 +251,7 @@ Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitive
 ```
 
 **USelectMenu pattern (custom styled)** — the project uses a consistent warm-bordered dropdown:
+
 ```vue
 <USelectMenu
   v-model="value"
@@ -255,16 +274,20 @@ Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitive
 - Use `border` alone for card borders (the base layer sets `border-color: var(--color-border)` on all elements).
 
 ### 6.3 Design System
+
 **Fonts**
+
 - **Cinzel** (`font-cinzel`): display headings, section titles, character names
 - **Inter** (default): body text, UI labels
 - **BlackChancery** (`font-medieval`): brand wordmark "Candlekeep" only
 
 **Colors (CSS Variables)** — Nuxt UI configured with `primary: "amber"`, `neutral: "stone"`.
+
 - Light mode: parchment cream backgrounds (`#FFFFFF`), warm walnut text (`#2C2418`), amber primary (`#C9922E`)
 - Dark mode: deep walnut backgrounds (`#0F0D0B`), warm cream text (`#E8DFD0`), bright amber primary (`#D4A544`)
 
 **Common patterns**
+
 - **Card:** `rounded-xl border bg-card/50 p-4`
 - **Input:** `h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
 - **Section heading:** `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
@@ -272,11 +295,13 @@ Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitive
 - **Entry animation:** `animate-fade-in-up` with staggered `animation-delay`
 
 ### 6.4 State Management
+
 - **Pinia stores** (`stores/`) for truly global, app-wide state (e.g. settings).
 - **Composables** for feature-scoped state, returned as reactive refs.
 - **Singletons** (`useTheme`, `useSidebar`) share one ref module-wide and persist to `localStorage`.
 
 ### 6.5 Error Handling & User Feedback
+
 - API calls return `{ data, error }` — always branch on `error` before using `data`.
 - Surface user-facing errors and confirmations through `useAppToast` (wraps Nuxt UI's `useToast`); do not swallow errors silently.
 - Sanitize any rendered HTML (e.g. markdown output) with `dompurify` before injecting.
@@ -290,28 +315,35 @@ If the user asks for a step-by-step plan, output specifically using this format:
 # [Task Title]
 
 ## Objective
+
 [Brief description]
 
 ## Plan
 
 ### Step 1: API & Schema (If applicable)
+
 - Confirm the endpoint/types exist in `src/api/schema.d.ts`; run `bun run api:gen` if the backend contract changed.
 - Add or update the matching MSW handler in `src/mocks/handlers.ts` and fixtures in `src/mocks/data/`.
 
 ### Step 2: Composable Layer
+
 - Add/update `src/composables/use*.ts` with the data fetching and feature state.
 
 ### Step 3: Component Layer
+
 - Build/extend components in `src/components/<area>/` using Nuxt UI primitives and the design-system patterns.
 
 ### Step 4: View / Route
+
 - Wire components and composables into the routed view in `src/views/`; update `src/router/` if a new route is needed.
 
 ## Verification
+
 - [ ] Run `vp check` (format + lint + type)
 - [ ] Run `bun run build` (final gate — `vue-tsc -b && vp build`)
 
 ---
 
 ## 8. Outstanding TODOs
+
 - [ ] **Translate the new-screen i18n keys.** Profiles, Lorebooks, SillyTavern preset import, and chat profile-apply added their keys (`profiles.*`, `lorebooks.*`, `presetImport.*`, `chat.profile.*`, plus `nav.profiles` / `nav.lorebooks`) to `src/locales/en.json` only. The other locales (`de`, `es`, `fr`, `pt`) currently fall back to English — mirror the en.json structure into each, keeping interpolation tokens (`{name}`, `{count}`) intact.

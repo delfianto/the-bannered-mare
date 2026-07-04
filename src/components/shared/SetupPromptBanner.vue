@@ -35,9 +35,7 @@ function dismiss() {
       </div>
       <div>
         <p class="text-sm font-medium text-foreground">Let's get your first profile set up</p>
-        <p class="text-xs text-muted-foreground">
-          You'll need one before you can start a tale.
-        </p>
+        <p class="text-xs text-muted-foreground">You'll need one before you can start a tale.</p>
       </div>
     </div>
     <div class="flex shrink-0 items-center gap-3">

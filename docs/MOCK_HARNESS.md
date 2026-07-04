@@ -34,9 +34,11 @@ VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true vp dev --host
 ```
 
 ### Conditional Vite Proxy
+
 In [vite.config.ts](file:///srv/project/personal/candlekeep-ui/vite.config.ts), the configuration checks the `VITE_USE_MOCKS` flag.
-*   **If `false`**: Proxies `/api` network requests to the real FastAPI backend running at `http://localhost:8000`.
-*   **If `true`**: Disables the proxy backend target entirely, delegating intercept duties to MSW.
+
+- **If `false`**: Proxies `/api` network requests to the real FastAPI backend running at `http://localhost:8000`.
+- **If `true`**: Disables the proxy backend target entirely, delegating intercept duties to MSW.
 
 ---
 
@@ -44,11 +46,11 @@ In [vite.config.ts](file:///srv/project/personal/candlekeep-ui/vite.config.ts), 
 
 Mock logic is encapsulated under [src/mocks/](file:///srv/project/personal/candlekeep-ui/src/mocks/):
 
-*   **`handlers.ts`**: Implements 40+ endpoints mimicking backend behavior. Supports CRUD operations, pagination, filtering, and model loading state mutations.
-*   **`data/`**: JSON/JS files storing realistic test data mirroring seed fixtures:
-    *   **6 providers** (OpenAI, Anthropic, Ollama, LM Studio, etc.)
-    *   **19 model families** and **34 models**
-    *   **20 characters** (packaged with Unsplash avatar photos)
-    *   **20 chats** linked to YAML dialogue scripts
-    *   **Presets, templates, prompt fragments, and RAG data bank entries**
-*   **`data/scenarios/`**: Directory containing YAML scenario scripts describing multi-turn dialogues for character cards.
+- **`handlers.ts`**: Implements 40+ endpoints mimicking backend behavior. Supports CRUD operations, pagination, filtering, and model loading state mutations.
+- **`data/`**: JSON/JS files storing realistic test data mirroring seed fixtures:
+  - **6 providers** (OpenAI, Anthropic, Ollama, LM Studio, etc.)
+  - **19 model families** and **34 models**
+  - **20 characters** (packaged with Unsplash avatar photos)
+  - **20 chats** linked to YAML dialogue scripts
+  - **Presets, templates, prompt fragments, and RAG data bank entries**
+- **`data/scenarios/`**: Directory containing YAML scenario scripts describing multi-turn dialogues for character cards.

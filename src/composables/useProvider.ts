@@ -103,13 +103,10 @@ export function useProvider() {
   async function unloadModel(id: string, identifier: string) {
     pendingModelAction.value = identifier;
     try {
-      const { error: apiError } = await client.POST(
-        "/api/providers/{provider_id}/models/unload",
-        {
-          params: { path: { provider_id: id } },
-          body: { model_identifier: identifier },
-        },
-      );
+      const { error: apiError } = await client.POST("/api/providers/{provider_id}/models/unload", {
+        params: { path: { provider_id: id } },
+        body: { model_identifier: identifier },
+      });
       if (apiError) throw new Error("Failed to unload model");
       await fetchAvailableModels(id);
     } finally {

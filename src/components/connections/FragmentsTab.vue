@@ -4,8 +4,18 @@ import { useRouter } from "vue-router";
 import { usePromptFragments } from "@/composables/usePromptFragments";
 
 const router = useRouter();
-const { fragments, loading, error, page, hasMore, total, totalPages, loadPage, filterByUnusedOnly, refresh } =
-  usePromptFragments({ pageSize: 20 });
+const {
+  fragments,
+  loading,
+  error,
+  page,
+  hasMore,
+  total,
+  totalPages,
+  loadPage,
+  filterByUnusedOnly,
+  refresh,
+} = usePromptFragments({ pageSize: 20 });
 
 const unusedOnly = ref(false);
 
@@ -50,7 +60,9 @@ function openFragment(id: string) {
         <UIcon name="i-lucide-filter" class="h-3.5 w-3.5" />
         Unused only
       </button>
-      <span class="text-xs text-muted-foreground">{{ total }} fragment{{ total === 1 ? "" : "s" }}</span>
+      <span class="text-xs text-muted-foreground"
+        >{{ total }} fragment{{ total === 1 ? "" : "s" }}</span
+      >
     </div>
 
     <!-- Loading -->
@@ -71,7 +83,10 @@ function openFragment(id: string) {
     </div>
 
     <!-- Empty -->
-    <div v-else-if="fragments.length === 0" class="flex flex-col items-center justify-center gap-3 py-20">
+    <div
+      v-else-if="fragments.length === 0"
+      class="flex flex-col items-center justify-center gap-3 py-20"
+    >
       <UIcon name="i-lucide-puzzle" class="h-8 w-8 text-muted-foreground/40" />
       <p class="text-sm text-muted-foreground">
         {{ unusedOnly ? "No unused fragments." : "No fragments yet." }}
@@ -83,19 +98,29 @@ function openFragment(id: string) {
       <table class="w-full text-left text-sm">
         <thead>
           <tr class="border-b bg-muted/30">
-            <th class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            <th
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+            >
               Name
             </th>
-            <th class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            <th
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+            >
               Type
             </th>
-            <th class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            <th
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+            >
               Scope
             </th>
-            <th class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            <th
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+            >
               Used By
             </th>
-            <th class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            <th
+              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+            >
               Updated
             </th>
           </tr>
