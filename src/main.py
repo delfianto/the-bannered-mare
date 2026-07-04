@@ -8,10 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from src.admin.router import router as admin_router
+from src.bookmarks.router import router as bookmarks_router
 from src.character import router as characters_router
 from src.chat_message import router as chat_messages_router
 from src.chat_session import router as chats_router
-from src.bookmarks.router import router as bookmarks_router
 from src.core.config import settings
 from src.core.logging import RequestLoggingMiddleware, configure_structlog, get_logger
 from src.core.utils.storage import ensure_storage_directories

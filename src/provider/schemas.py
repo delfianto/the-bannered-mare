@@ -2,10 +2,44 @@
 
 import re
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.provider.models import ProviderType
+
+
+class DiscoveredModel(BaseModel):
+    """A model discovered by querying a local provider's native API."""
+
+    identifier: str = Field(description="Provider-native model identifier")
+    display_name: str
+    state: Literal["loaded", "not-loaded"]
+    size_bytes: int | None = None
+    quantization: str | None = None
+    max_context_length: int | None = None
+
+
+class AvailableModelsResponse(BaseModel):
+    """Result of listing (or syncing) a provider's live model list."""
+
+    provider_id: str
+    models: list[DiscoveredModel]
+    last_synced_at: datetime | None
+    from_cache: bool
+
+
+class ModelActionRequest(BaseModel):
+    """Identifies which discovered model a load/unload action applies to."""
+
+    model_identifier: str
+
+
+class ModelActionResponse(BaseModel):
+    """Result of a load/unload action."""
+
+    model_identifier: str
+    action: Literal["loaded", "unloaded"]
 
 
 class ProviderCreate(BaseModel):
@@ -74,6 +108,7 @@ class ProviderResponse(BaseModel):
     enabled: bool
     created_at: datetime
     updated_at: datetime
+    last_synced_at: datetime | None = None
 
     # Runtime status fields
     api_key_configured: bool = Field(description="Whether API key is available in environment")

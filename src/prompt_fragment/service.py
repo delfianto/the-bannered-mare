@@ -41,6 +41,23 @@ class FragmentService:
             return self.fragment_repo.find_global()
         return self.fragment_repo.find_all_ordered()
 
+    def list_paginated(
+        self,
+        limit: int = 10,
+        offset: int = 0,
+        fragment_type: str | None = None,
+        is_global: bool | None = None,
+        unused_only: bool = False,
+    ) -> tuple[list[PromptFragment], int]:
+        """List fragments with pagination, filtering, and template-usage info"""
+        return self.fragment_repo.find_paginated_with_usage(
+            limit=limit,
+            offset=offset,
+            fragment_type=fragment_type,
+            is_global=is_global,
+            unused_only=unused_only,
+        )
+
     def get_by_id(self, fragment_id: str) -> PromptFragment:
         """Get fragment by ID, raise 404 if not found"""
         fragment = self.fragment_repo.find_by_id(fragment_id)

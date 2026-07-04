@@ -7,6 +7,7 @@ from fastapi import HTTPException
 
 from src.core.persistence import gen_id
 from src.core.utils.template import TemplateService
+from src.prompt_fragment.repository import FragmentRepository
 from src.prompt_template.models import PromptTemplate
 from src.prompt_template.repository import PromptTemplateRepository
 
@@ -16,8 +17,13 @@ logger = logging.getLogger(__name__)
 class PromptTemplateService:
     """Service for prompt template CRUD operations (separate from template rendering service)"""
 
-    def __init__(self, template_repo: PromptTemplateRepository):
+    def __init__(
+        self,
+        template_repo: PromptTemplateRepository,
+        fragment_repo: FragmentRepository | None = None,
+    ):
         self.template_repo = template_repo
+        self.fragment_repo = fragment_repo or FragmentRepository(template_repo.db)
         self.template_service = TemplateService()
 
     def list_all(self) -> list[PromptTemplate]:
@@ -113,10 +119,23 @@ class PromptTemplateService:
         return updated
 
     def delete(self, template_id: str) -> None:
-        """Delete prompt template"""
+        """Delete prompt template.
+
+        Also removes any attached fragments left with no other usage — ST-imported
+        fragments are private to the template that generated them, not a shared
+        library entry, so they shouldn't outlive the only thing that used them.
+        """
         template = self.get_by_id(template_id)
+        fragment_ids = [tf.fragment_id for tf in template.template_fragments]
         self.template_repo.delete(template)
+        cleaned_up = self.fragment_repo.delete_orphaned(fragment_ids)
         self.template_repo.commit()
+        if cleaned_up:
+            logger.info(
+                "Cleaned up %d orphaned fragment(s) after deleting template %s",
+                cleaned_up,
+                template_id,
+            )
 
     def set_default(self, template_id: str) -> PromptTemplate:
         """Set prompt template as default"""

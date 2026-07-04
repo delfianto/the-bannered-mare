@@ -169,6 +169,85 @@ class TestFragmentListing:
         assert len(all_fragments) == 2
 
 
+class TestFragmentPagination:
+    def test_list_paginated_basic(self, db: Session) -> None:
+        service = _make_service(db)
+        for i in range(5):
+            service.create(name=f"Fragment {i}", content=f"Content {i}")
+
+        items, total = service.list_paginated(limit=2, offset=0)
+        assert total == 5
+        assert len(items) == 2
+
+    def test_list_paginated_used_by(self, db: Session) -> None:
+        service = _make_service(db)
+        template = _make_template(db, "Uses Fragment")
+        fragment = service.create(name="Shared", content="Shared content")
+        service.attach_to_template(template.id, fragment.id)
+
+        items, _ = service.list_paginated(limit=10, offset=0)
+        found = next(f for f in items if f.id == fragment.id)
+        assert [t.id for t in found.used_by] == [template.id]
+
+    def test_list_paginated_unused_only(self, db: Session) -> None:
+        service = _make_service(db)
+        template = _make_template(db)
+        used = service.create(name="Used", content="A")
+        unused = service.create(name="Unused", content="B")
+        service.attach_to_template(template.id, used.id)
+
+        items, total = service.list_paginated(limit=10, offset=0, unused_only=True)
+        assert total == 1
+        assert items[0].id == unused.id
+
+    def test_list_paginated_filters(self, db: Session) -> None:
+        service = _make_service(db)
+        service.create(name="NSFW", content="A", fragment_type="nsfw")
+        service.create(name="Instruction", content="B", fragment_type="instruction")
+
+        items, total = service.list_paginated(limit=10, offset=0, fragment_type="nsfw")
+        assert total == 1
+        assert items[0].fragment_type == "nsfw"
+
+
+class TestFragmentOrphanCleanup:
+    def test_delete_orphaned_removes_unattached_local_fragment(self, db: Session) -> None:
+        repo = FragmentRepository(db)
+        service = _make_service(db)
+        fragment = service.create(name="Private", content="one-off")
+
+        deleted = repo.delete_orphaned([fragment.id])
+
+        assert deleted == 1
+        assert repo.find_by_id(fragment.id) is None
+
+    def test_delete_orphaned_keeps_global_fragment(self, db: Session) -> None:
+        repo = FragmentRepository(db)
+        service = _make_service(db)
+        fragment = service.create(name="Global", content="shared library", is_global=True)
+
+        deleted = repo.delete_orphaned([fragment.id])
+
+        assert deleted == 0
+        assert repo.find_by_id(fragment.id) is not None
+
+    def test_delete_orphaned_keeps_fragment_still_attached_elsewhere(self, db: Session) -> None:
+        repo = FragmentRepository(db)
+        service = _make_service(db)
+        template_a = _make_template(db, "A")
+        template_b = _make_template(db, "B")
+        fragment = service.create(name="Shared", content="reused")
+        service.attach_to_template(template_a.id, fragment.id)
+        service.attach_to_template(template_b.id, fragment.id)
+
+        # Simulate template_a's attachment having been removed already.
+        service.detach_from_template(template_a.id, fragment.id)
+        deleted = repo.delete_orphaned([fragment.id])
+
+        assert deleted == 0
+        assert repo.find_by_id(fragment.id) is not None
+
+
 class TestTemplateFragmentAttachment:
     def test_attach_fragment_to_template(self, db: Session) -> None:
         service = _make_service(db)

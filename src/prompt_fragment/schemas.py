@@ -31,12 +31,24 @@ class FragmentUpdate(BaseModel):
     is_global: bool | None = None
 
 
+class FragmentTemplateSummary(BaseModel):
+    """Minimal template reference, for showing which templates use a fragment."""
+
+    id: str
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class FragmentResponse(FragmentBase):
     """Schema for prompt fragment response"""
 
     id: str
     created_at: datetime
     updated_at: datetime
+    used_by: list[FragmentTemplateSummary] = Field(
+        default_factory=list, description="Templates currently referencing this fragment"
+    )
 
     model_config = ConfigDict(from_attributes=True)
 

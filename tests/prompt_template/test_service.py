@@ -5,6 +5,8 @@ from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
+from src.prompt_fragment.service import FragmentService
 from src.prompt_template import PromptTemplate, PromptTemplateRepository, PromptTemplateService
 
 
@@ -249,6 +251,65 @@ class TestPromptTemplateService:
             service.delete("nonexistent-id")
 
         assert exc_info.value.status_code == 404
+
+    def test_delete_template_cleans_up_orphaned_fragment(self, db: Session) -> None:
+        """A private (non-global) fragment left unattached after deletion is removed too"""
+        template = PromptTemplate(name="Imported", system_template="You are {{char}}")
+        db.add(template)
+        db.commit()
+        db.refresh(template)
+
+        fragment_service = FragmentService(FragmentRepository(db), TemplateFragmentRepository(db))
+        fragment = fragment_service.create(name="One-off", content="private instructions")
+        fragment_service.attach_to_template(template.id, fragment.id)
+        fragment_id = fragment.id
+
+        repo = PromptTemplateRepository(db)
+        service = PromptTemplateService(repo, FragmentRepository(db))
+        service.delete(template.id)
+
+        assert FragmentRepository(db).find_by_id(fragment_id) is None
+
+    def test_delete_template_keeps_global_fragment(self, db: Session) -> None:
+        """A global fragment survives even if its last template attachment is deleted"""
+        template = PromptTemplate(name="Imported", system_template="You are {{char}}")
+        db.add(template)
+        db.commit()
+        db.refresh(template)
+
+        fragment_service = FragmentService(FragmentRepository(db), TemplateFragmentRepository(db))
+        fragment = fragment_service.create(
+            name="Shared Library Entry", content="reusable", is_global=True
+        )
+        fragment_service.attach_to_template(template.id, fragment.id)
+        fragment_id = fragment.id
+
+        repo = PromptTemplateRepository(db)
+        service = PromptTemplateService(repo, FragmentRepository(db))
+        service.delete(template.id)
+
+        assert FragmentRepository(db).find_by_id(fragment_id) is not None
+
+    def test_delete_template_keeps_fragment_shared_with_another_template(self, db: Session) -> None:
+        """A fragment still attached to a different template is not deleted"""
+        template_a = PromptTemplate(name="A", system_template="A")
+        template_b = PromptTemplate(name="B", system_template="B")
+        db.add_all([template_a, template_b])
+        db.commit()
+        db.refresh(template_a)
+        db.refresh(template_b)
+
+        fragment_service = FragmentService(FragmentRepository(db), TemplateFragmentRepository(db))
+        fragment = fragment_service.create(name="Shared", content="reused")
+        fragment_service.attach_to_template(template_a.id, fragment.id)
+        fragment_service.attach_to_template(template_b.id, fragment.id)
+        fragment_id = fragment.id
+
+        repo = PromptTemplateRepository(db)
+        service = PromptTemplateService(repo, FragmentRepository(db))
+        service.delete(template_a.id)
+
+        assert FragmentRepository(db).find_by_id(fragment_id) is not None
 
     def test_set_default_template(self, db: Session) -> None:
         """Test setting a template as default"""

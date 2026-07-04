@@ -606,6 +606,198 @@
         }
       }
     },
+    "/api/providers/{provider_id}/models/available": {
+      "get": {
+        "tags": [
+          "providers"
+        ],
+        "summary": "List Available Models",
+        "description": "List models live-detected on a local provider (Ollama/LM Studio), cache-aware",
+        "operationId": "list_available_models_api_providers__provider_id__models_available_get",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailableModelsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/{provider_id}/models/sync": {
+      "post": {
+        "tags": [
+          "providers"
+        ],
+        "summary": "Sync Provider Models",
+        "description": "Force a live refresh of a provider's model list, bypassing the cache",
+        "operationId": "sync_provider_models_api_providers__provider_id__models_sync_post",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailableModelsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/{provider_id}/models/load": {
+      "post": {
+        "tags": [
+          "providers"
+        ],
+        "summary": "Load Provider Model",
+        "description": "Load a model into memory on a local provider",
+        "operationId": "load_provider_model_api_providers__provider_id__models_load_post",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelActionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelActionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/{provider_id}/models/unload": {
+      "post": {
+        "tags": [
+          "providers"
+        ],
+        "summary": "Unload Provider Model",
+        "description": "Unload a model from memory on a local provider",
+        "operationId": "unload_provider_model_api_providers__provider_id__models_unload_post",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelActionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelActionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/model-families/parameter-docs": {
       "get": {
         "tags": [
@@ -3712,9 +3904,36 @@
           "prompt-fragments"
         ],
         "summary": "List Fragments",
-        "description": "List prompt fragments with optional filtering",
+        "description": "List prompt fragments with pagination, filtering, and template-usage info",
         "operationId": "list_fragments_api_prompt_fragments__get",
         "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Page number (1-based)",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Page number (1-based)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Items per page",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "Items per page"
+          },
           {
             "name": "fragment_type",
             "in": "query",
@@ -3750,6 +3969,18 @@
               "title": "Is Global"
             },
             "description": "Filter by global status"
+          },
+          {
+            "name": "unused_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only fragments not attached to any template",
+              "default": false,
+              "title": "Unused Only"
+            },
+            "description": "Only fragments not attached to any template"
           }
         ],
         "responses": {
@@ -3758,11 +3989,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FragmentResponse"
-                  },
-                  "title": "Response List Fragments Api Prompt Fragments  Get"
+                  "$ref": "#/components/schemas/PaginatedResponse_FragmentResponse_"
                 }
               }
             }
@@ -5007,6 +5234,46 @@
         ],
         "title": "AttachFragmentRequest",
         "description": "Schema for attaching a fragment to a template"
+      },
+      "AvailableModelsResponse": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "title": "Provider Id"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveredModel"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
+          "from_cache": {
+            "type": "boolean",
+            "title": "From Cache"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider_id",
+          "models",
+          "last_synced_at",
+          "from_cache"
+        ],
+        "title": "AvailableModelsResponse",
+        "description": "Result of listing (or syncing) a provider's live model list."
       },
       "Body_create_character_api_characters_post": {
         "properties": {
@@ -6301,6 +6568,68 @@
         "title": "DataBankUpdate",
         "description": "Schema for updating a data bank entry"
       },
+      "DiscoveredModel": {
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "title": "Identifier",
+            "description": "Provider-native model identifier"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "loaded",
+              "not-loaded"
+            ],
+            "title": "State"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Bytes"
+          },
+          "quantization": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantization"
+          },
+          "max_context_length": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Context Length"
+          }
+        },
+        "type": "object",
+        "required": [
+          "identifier",
+          "display_name",
+          "state"
+        ],
+        "title": "DiscoveredModel",
+        "description": "A model discovered by querying a local provider's native API."
+      },
       "ErrorLogPage": {
         "properties": {
           "logs": {
@@ -6479,6 +6808,14 @@
             "type": "string",
             "format": "date-time",
             "title": "Updated At"
+          },
+          "used_by": {
+            "items": {
+              "$ref": "#/components/schemas/FragmentTemplateSummary"
+            },
+            "type": "array",
+            "title": "Used By",
+            "description": "Templates currently referencing this fragment"
           }
         },
         "type": "object",
@@ -6491,6 +6828,25 @@
         ],
         "title": "FragmentResponse",
         "description": "Schema for prompt fragment response"
+      },
+      "FragmentTemplateSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "FragmentTemplateSummary",
+        "description": "Minimal template reference, for showing which templates use a fragment."
       },
       "FragmentUpdate": {
         "properties": {
@@ -7734,6 +8090,43 @@
         "title": "MessageUpdate",
         "description": "Schema for editing a message"
       },
+      "ModelActionRequest": {
+        "properties": {
+          "model_identifier": {
+            "type": "string",
+            "title": "Model Identifier"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_identifier"
+        ],
+        "title": "ModelActionRequest",
+        "description": "Identifies which discovered model a load/unload action applies to."
+      },
+      "ModelActionResponse": {
+        "properties": {
+          "model_identifier": {
+            "type": "string",
+            "title": "Model Identifier"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "loaded",
+              "unloaded"
+            ],
+            "title": "Action"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_identifier",
+          "action"
+        ],
+        "title": "ModelActionResponse",
+        "description": "Result of a load/unload action."
+      },
       "ModelCreate": {
         "properties": {
           "provider_id": {
@@ -8632,6 +9025,26 @@
           "meta"
         ],
         "title": "PaginatedResponse[ChatResponse]"
+      },
+      "PaginatedResponse_FragmentResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FragmentResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[FragmentResponse]"
       },
       "PaginatedResponse_MessageResponse_": {
         "properties": {
@@ -9705,6 +10118,18 @@
             "type": "string",
             "format": "date-time",
             "title": "Updated At"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
           },
           "api_key_configured": {
             "type": "boolean",

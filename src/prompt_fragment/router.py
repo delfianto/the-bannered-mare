@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
+from src.core.schemas import PaginatedResponse, PaginationMeta
 from src.prompt_fragment.dependencies import FragmentServiceDep
 from src.prompt_fragment.schemas import (
     AttachFragmentRequest,
@@ -21,14 +22,29 @@ template_fragment_router = APIRouter(
 # -- Fragment CRUD --
 
 
-@fragment_router.get("/", response_model=list[FragmentResponse])
+@fragment_router.get("/", response_model=PaginatedResponse[FragmentResponse])
 def list_fragments(
     service: FragmentServiceDep,
+    page: int = Query(1, ge=1, description="Page number (1-based)"),
+    limit: int = Query(20, ge=1, le=100, description="Items per page"),
     fragment_type: str | None = Query(None, description="Filter by fragment type"),
     is_global: bool | None = Query(None, description="Filter by global status"),
+    unused_only: bool = Query(False, description="Only fragments not attached to any template"),
 ):
-    """List prompt fragments with optional filtering"""
-    return service.list_all(fragment_type=fragment_type, is_global=is_global)
+    """List prompt fragments with pagination, filtering, and template-usage info"""
+    offset = (page - 1) * limit
+    items, total = service.list_paginated(
+        limit=limit,
+        offset=offset,
+        fragment_type=fragment_type,
+        is_global=is_global,
+        unused_only=unused_only,
+    )
+    has_more = (offset + limit) < total
+    return PaginatedResponse(
+        items=items,
+        meta=PaginationMeta(limit=limit, has_more=has_more, total=total, page=page, cursor=None),
+    )
 
 
 @fragment_router.post("/", response_model=FragmentResponse, status_code=status.HTTP_201_CREATED)
