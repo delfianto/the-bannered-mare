@@ -160,7 +160,7 @@ async function onFileSelected(event: Event) {
 </script>
 
 <template>
-  <div class="space-y-8 px-12 py-8">
+  <div class="flex flex-1 flex-col space-y-8 px-12 py-8">
     <!-- Hidden file input for import -->
     <input
       ref="fileInputRef"
