@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useTheme } from "@/composables/useTheme";
 import { useSidebar } from "@/composables/useSidebar";
 import { APP_INFO } from "@/constants/appInfo";
-import { PINNED_CHARACTERS } from "@/constants/pinnedCharacters";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useBookmarks } from "@/composables/useBookmarks";
 
 const { t } = useI18n();
 const route = useRoute();
 const { isDark, toggleTheme } = useTheme();
 const { collapsed, toggle: toggleSidebar } = useSidebar();
+const { sessions } = useBookmarks();
 
 const navItems = [
   { id: "home", to: "/", label: t("nav.home"), icon: "i-lucide-home" },
@@ -26,6 +28,15 @@ function isActive(to: string) {
   if (to === "/") return route.path === "/";
   return route.path.startsWith(to);
 }
+
+const favorites = computed(() => {
+  return sessions.value.slice(0, 4).map((session: any) => ({
+    id: session.id,
+    name: session.character?.name || "Unknown",
+    avatar: session.character?.avatar_thumbnail || session.character?.avatar || "",
+    chatPath: `/chats/${session.id}`,
+  }));
+});
 </script>
 
 <template>
@@ -104,10 +115,14 @@ function isActive(to: string) {
     </nav>
 
     <!-- Divider -->
-    <div class="mx-3 my-3 h-px bg-border" />
+    <div v-if="favorites.length > 0" class="mx-3 my-3 h-px bg-border" />
 
     <!-- Favorites -->
-    <div class="flex-1 overflow-y-auto" :class="collapsed ? 'px-2' : 'px-3'">
+    <div
+      v-if="favorites.length > 0"
+      class="flex-1 overflow-y-auto"
+      :class="collapsed ? 'px-2' : 'px-3'"
+    >
       <p
         v-if="!collapsed"
         class="mb-2.5 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
@@ -119,7 +134,7 @@ function isActive(to: string) {
         <!-- Expanded: list style with avatar + name -->
         <template v-if="!collapsed">
           <RouterLink
-            v-for="char in PINNED_CHARACTERS"
+            v-for="char in favorites"
             :key="char.id"
             :to="char.chatPath"
             class="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
@@ -144,7 +159,7 @@ function isActive(to: string) {
         <!-- Collapsed: stacked avatars -->
         <template v-else>
           <UTooltip
-            v-for="char in PINNED_CHARACTERS"
+            v-for="char in favorites"
             :key="char.id"
             :text="char.name"
             :content="{ side: 'right', sideOffset: 8 }"
