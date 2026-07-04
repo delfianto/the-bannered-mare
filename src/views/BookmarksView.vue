@@ -34,18 +34,13 @@ function timeAgo(dateStr: string): string {
 <template>
   <PageContainer spacing-class="space-y-10">
     <template #header>
-      <div class="flex items-center gap-4">
-        <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <UIcon name="i-lucide-bookmark" class="size-7" />
-        </div>
-        <div>
-          <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
-            {{ $t("bookmarks.title") }}
-          </h1>
-          <p class="mt-0.5 text-sm text-muted-foreground">
-            {{ $t("bookmarks.subtitle") }}
-          </p>
-        </div>
+      <div>
+        <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+          {{ $t("bookmarks.title") }}
+        </h1>
+        <p class="mt-1 text-sm text-muted-foreground">
+          {{ $t("bookmarks.subtitle") }}
+        </p>
       </div>
     </template>
 
