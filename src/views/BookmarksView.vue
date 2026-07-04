@@ -112,7 +112,7 @@ function timeAgo(dateStr: string): string {
               class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div
-              class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"
+              class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent"
             />
             <div class="absolute inset-x-0 bottom-0 p-4">
               <h3 class="font-cinzel text-sm font-semibold tracking-wide text-white">

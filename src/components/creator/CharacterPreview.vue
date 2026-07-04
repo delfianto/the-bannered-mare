@@ -34,7 +34,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
       <div v-else class="absolute inset-0 flex items-center justify-center bg-muted">
         <UIcon name="i-lucide-user" class="size-16 text-muted-foreground/30" />
       </div>
-      <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+      <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
 
       <div v-if="data.tags.length > 0" class="absolute top-3 left-3 flex flex-wrap gap-1">
         <span

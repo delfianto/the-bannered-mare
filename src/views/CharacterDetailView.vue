@@ -142,7 +142,7 @@ async function startTale() {
           <div class="relative h-72 overflow-hidden">
             <img :src="avatarSrc()" :alt="character.name" class="size-full object-cover" />
             <div
-              class="absolute inset-0 bg-gradient-to-t from-card/95 via-transparent to-transparent"
+              class="absolute inset-0 bg-linear-to-t from-card/95 via-transparent to-transparent"
             />
             <div class="absolute inset-x-0 bottom-0 p-6">
               <h2 class="font-cinzel text-xl font-bold text-foreground drop-shadow-lg">
