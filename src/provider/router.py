@@ -1,7 +1,9 @@
 """Provider CRUD API endpoints"""
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Query, Depends
 
+from src.core.persistence import DbSession
+from src.model.schemas import ModelResponse
 from src.provider.dependencies import ProviderServiceDep
 from src.provider.schemas import (
     AvailableModelsResponse,
@@ -85,3 +87,66 @@ def unload_provider_model(
 ):
     """Unload a model from memory on a local provider"""
     return service.unload_model(provider_id, action_data.model_identifier)
+
+
+@router.delete("/{provider_id}/models", response_model=ModelActionResponse)
+def delete_provider_model(
+    provider_id: str,
+    service: ProviderServiceDep,
+    model_identifier: str = Query(..., description="Provider-native model identifier"),
+):
+    """Delete/remove a model from a local provider's registry/filesystem"""
+    return service.delete_model(provider_id, model_identifier)
+
+
+@router.post("/{provider_id}/models/persist", response_model=ModelResponse)
+def persist_provider_model(
+    provider_id: str,
+    action_data: ModelActionRequest,
+    db: DbSession,
+):
+    """Persist a discovered model as a local Model definition in the database"""
+    from src.model.repository import ModelRepository
+    from src.model.service import ModelService
+    from src.provider.repository import ProviderRepository
+    from src.model_family.repository import ModelFamilyRepository
+    from src.chat_session.repository import ChatRepository
+    from src.model_family.models import ModelFamily
+
+    model_repo = ModelRepository(db)
+    provider_repo = ProviderRepository(db)
+    family_repo = ModelFamilyRepository(db)
+    chat_repo = ChatRepository(db)
+    model_service = ModelService(model_repo, provider_repo, family_repo, chat_repo)
+
+    existing = model_repo.find_by_identifier(provider_id, action_data.model_identifier)
+    if existing:
+        return existing
+
+    lower_id = action_data.model_identifier.lower()
+    family = None
+    if "deepseek" in lower_id and "r1" in lower_id:
+        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%r1%")).first()
+    if not family and "deepseek" in lower_id:
+        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%deepseek%")).first()
+    if not family and "gemma" in lower_id:
+        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%gemma%")).first()
+    if not family and "mistral" in lower_id:
+        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%mistral%")).first()
+    if not family and "llama" in lower_id:
+        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%llama%")).first()
+
+    if not family:
+        family = db.query(ModelFamily).first()
+
+    family_id = family.id if family else "gttl91cmw18b"
+
+    friendly_name = action_data.model_identifier.replace(":", " ").replace("-", " ").title()
+
+    return model_service.create(
+        name=friendly_name,
+        provider_id=provider_id,
+        model_identifier=action_data.model_identifier,
+        model_family_id=family_id,
+        enabled=True,
+    )

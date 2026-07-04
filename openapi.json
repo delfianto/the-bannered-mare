@@ -798,6 +798,113 @@
         }
       }
     },
+    "/api/providers/{provider_id}/models": {
+      "delete": {
+        "tags": [
+          "providers"
+        ],
+        "summary": "Delete Provider Model",
+        "description": "Delete/remove a model from a local provider's registry/filesystem",
+        "operationId": "delete_provider_model_api_providers__provider_id__models_delete",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          },
+          {
+            "name": "model_identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Provider-native model identifier",
+              "title": "Model Identifier"
+            },
+            "description": "Provider-native model identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelActionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/{provider_id}/models/persist": {
+      "post": {
+        "tags": [
+          "providers"
+        ],
+        "summary": "Persist Provider Model",
+        "description": "Persist a discovered model as a local Model definition in the database",
+        "operationId": "persist_provider_model_api_providers__provider_id__models_persist_post",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelActionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/model-families/parameter-docs": {
       "get": {
         "tags": [
@@ -8114,7 +8221,8 @@
             "type": "string",
             "enum": [
               "loaded",
-              "unloaded"
+              "unloaded",
+              "deleted"
             ],
             "title": "Action"
           }

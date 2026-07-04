@@ -21,7 +21,7 @@ _LOAD_TIMEOUT = 120.0
 class ModelDiscoveryClient(Protocol):
     """Queries a local provider's native API for its model inventory."""
 
-    def list_models(self, base_url: str) -> list[DiscoveredModel]:
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
         """Return every model installed on the server, with load state."""
         ...
 
@@ -33,18 +33,21 @@ class ModelDiscoveryClient(Protocol):
         """Unload a model from memory."""
         ...
 
+    def delete_model(self, base_url: str, identifier: str) -> None:
+        """Delete/remove a model from the server."""
+        ...
+
 
 class OllamaDiscoveryClient:
     """Ollama's native API: /api/tags (installed), /api/ps (loaded)."""
 
-    def list_models(self, base_url: str) -> list[DiscoveredModel]:
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
         clean_url = base_url.rstrip("/")
         with httpx.Client(timeout=_LIST_TIMEOUT) as client:
             tags_resp = client.get(f"{clean_url}/api/tags")
             tags_resp.raise_for_status()
             ps_resp = client.get(f"{clean_url}/api/ps")
             ps_resp.raise_for_status()
-
         loaded_names = {m["model"] for m in ps_resp.json().get("models", [])}
 
         models: list[DiscoveredModel] = []
@@ -68,6 +71,16 @@ class OllamaDiscoveryClient:
     def unload_model(self, base_url: str, identifier: str) -> None:
         self._generate(base_url, identifier, keep_alive=0)
 
+    def delete_model(self, base_url: str, identifier: str) -> None:
+        clean_url = base_url.rstrip("/")
+        with httpx.Client(timeout=_LIST_TIMEOUT) as client:
+            resp = client.request(
+                "DELETE",
+                f"{clean_url}/api/delete",
+                json={"name": identifier},
+            )
+            resp.raise_for_status()
+
     def _generate(self, base_url: str, identifier: str, keep_alive: int) -> None:
         clean_url = base_url.rstrip("/")
         with httpx.Client(timeout=_LOAD_TIMEOUT) as client:
@@ -81,7 +94,7 @@ class OllamaDiscoveryClient:
 class LMStudioDiscoveryClient:
     """LM Studio's native v1 REST API (0.4.0+): /api/v1/models[/load|/unload]."""
 
-    def list_models(self, base_url: str) -> list[DiscoveredModel]:
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
         clean_url = strip_v1_suffix(base_url)
         with httpx.Client(timeout=_LIST_TIMEOUT) as client:
             resp = client.get(f"{clean_url}/api/v1/models")
@@ -116,10 +129,141 @@ class LMStudioDiscoveryClient:
             )
             resp.raise_for_status()
 
+    def delete_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("LM Studio does not support model deletion via API")
+
+
+class OpenAIDiscoveryClient:
+    """OpenAI compatible model listing."""
+
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
+        clean_url = base_url.rstrip("/")
+        headers = {}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        with httpx.Client(timeout=_LIST_TIMEOUT) as client:
+            resp = client.get(f"{clean_url}/models", headers=headers)
+            resp.raise_for_status()
+
+        models: list[DiscoveredModel] = []
+        for m in resp.json().get("data", []):
+            model_id = m.get("id")
+            if not model_id:
+                continue
+            models.append(
+                DiscoveredModel(
+                    identifier=model_id,
+                    display_name=model_id,
+                    state="loaded",
+                    size_bytes=None,
+                    quantization=None,
+                    max_context_length=None,
+                )
+            )
+        return models
+
+    def load_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support loading models")
+
+    def unload_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support unloading models")
+
+    def delete_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support deleting models")
+
+
+class AnthropicDiscoveryClient:
+    """Anthropic model listing."""
+
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
+        clean_url = base_url.rstrip("/")
+        headers = {
+            "anthropic-version": "2023-06-01",
+        }
+        if api_key:
+            headers["x-api-key"] = api_key
+
+        with httpx.Client(timeout=_LIST_TIMEOUT) as client:
+            resp = client.get(f"{clean_url}/models", headers=headers)
+            resp.raise_for_status()
+
+        models: list[DiscoveredModel] = []
+        for m in resp.json().get("data", []):
+            model_id = m.get("id")
+            if not model_id:
+                continue
+            models.append(
+                DiscoveredModel(
+                    identifier=model_id,
+                    display_name=m.get("display_name", model_id),
+                    state="loaded",
+                    size_bytes=None,
+                    quantization=None,
+                    max_context_length=None,
+                )
+            )
+        return models
+
+    def load_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support loading models")
+
+    def unload_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support unloading models")
+
+    def delete_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support deleting models")
+
+
+class GoogleDiscoveryClient:
+    """Google Gemini model listing."""
+
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
+        clean_url = base_url.rstrip("/")
+        params = {}
+        if api_key:
+            params["key"] = api_key
+
+        with httpx.Client(timeout=_LIST_TIMEOUT) as client:
+            resp = client.get(f"{clean_url}/v1beta/models", params=params)
+            resp.raise_for_status()
+
+        models: list[DiscoveredModel] = []
+        for m in resp.json().get("models", []):
+            name = m.get("name", "")
+            if not name:
+                continue
+            display_name = name.split("/")[-1] if "/" in name else name
+            models.append(
+                DiscoveredModel(
+                    identifier=name,
+                    display_name=m.get("displayName", display_name),
+                    state="loaded",
+                    size_bytes=None,
+                    quantization=None,
+                    max_context_length=m.get("inputTokenLimit"),
+                )
+            )
+        return models
+
+    def load_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support loading models")
+
+    def unload_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support unloading models")
+
+    def delete_model(self, base_url: str, identifier: str) -> None:
+        raise NotImplementedError("Cloud providers do not support deleting models")
+
 
 _REGISTRY: dict[ProviderType, ModelDiscoveryClient] = {
     ProviderType.OLLAMA: OllamaDiscoveryClient(),
     ProviderType.LMSTUDIO: LMStudioDiscoveryClient(),
+    ProviderType.OPENAI: OpenAIDiscoveryClient(),
+    ProviderType.ANTHROPIC: AnthropicDiscoveryClient(),
+    ProviderType.GOOGLE: GoogleDiscoveryClient(),
+    ProviderType.OPENROUTER: OpenAIDiscoveryClient(),
+    ProviderType.XAI: OpenAIDiscoveryClient(),
+    ProviderType.CUSTOM: OpenAIDiscoveryClient(),
 }
 
 
