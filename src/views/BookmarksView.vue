@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useBookmarks } from "@/composables/useBookmarks";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
 import EmptyState from "@/components/shared/EmptyState.vue";
+import PageContainer from "@/components/layout/PageContainer.vue";
 
 const { t } = useI18n();
 const { characters, sessions, messages, loading, totalCount } = useBookmarks();
@@ -31,9 +32,8 @@ function timeAgo(dateStr: string): string {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-10 px-8 py-8 lg:px-12">
-    <!-- Header -->
-    <header class="animate-fade-in-up">
+  <PageContainer spacing-class="space-y-10">
+    <template #header>
       <div class="flex items-center gap-4">
         <div
           class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
@@ -49,7 +49,7 @@ function timeAgo(dateStr: string): string {
           </p>
         </div>
       </div>
-    </header>
+    </template>
 
     <!-- Loading -->
     <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
@@ -242,5 +242,5 @@ function timeAgo(dateStr: string): string {
         </div>
       </section>
     </template>
-  </div>
+  </PageContainer>
 </template>
