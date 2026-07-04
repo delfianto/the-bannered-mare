@@ -18,6 +18,7 @@ graph TD
 ```
 
 It manages:
+
 - **Provider Status**: Active/disabled toggles, base URLs, and environment variables.
 - **Model Synchronization**: Triggering model sync calls to inspect new downloads in local directories.
 - **Dynamic Loading/Unloading**: Explicitly spinning up or unloading model weights on local nodes (LM Studio).
@@ -53,6 +54,7 @@ export function useProvider() {
 ```
 
 ### Key Operations
+
 - **`syncNow(id)`**: Forces the backend to query local models directories and cache new entries in the database.
 - **`loadModel(id, identifier)`**: Tells the local provider (such as LM Studio) to load the specified model weights into memory.
 - **`unloadModel(id, identifier)`**: Tells the local provider to release the model weights from memory.
@@ -64,12 +66,15 @@ export function useProvider() {
 LLM configuration is presented through modular tabs and dedicated views:
 
 ### Provider Details View (`ProviderView.vue`)
+
 Located at [ProviderView.vue](file:///srv/project/personal/candlekeep-ui/src/views/settings/ProviderView.vue), this page is the central hub for:
+
 - Changing API keys, environment variable names, and endpoints.
 - Verifying the connection status.
 - Listing discovered models, showing their status (e.g. `loaded`, `cached`, `unloaded`), and providing action buttons to load, unload, or toggle availability.
 
 ### Connection Sub-Tabs (`src/components/connections/`)
+
 - **`ProvidersTab.vue`**: Lists all configured API connections (OpenAI, Anthropic, Ollama, etc.) with active indicators.
 - **`ModelsTab.vue`**: Displays all registered models with their associated families and active providers.
 - **`ModelFamiliesTab.vue`**: Configures global parameters (temperature, penalties, limits) and formatting guidelines per family.

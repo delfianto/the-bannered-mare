@@ -151,7 +151,10 @@ const finishingImport = ref(false);
 
 function onImported(result: STImportResult) {
   if (!result.profile_id) return;
-  profileToFinish.value = { id: result.profile_id, name: result.profile_name ?? "Imported Profile" };
+  profileToFinish.value = {
+    id: result.profile_id,
+    name: result.profile_name ?? "Imported Profile",
+  };
   showImportModal.value = false;
 }
 
@@ -236,7 +239,10 @@ function finish() {
               />
               {{ provider.name }}
             </span>
-            <span v-if="localStatus[provider.id]?.loading" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span
+              v-if="localStatus[provider.id]?.loading"
+              class="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
               <UIcon name="i-lucide-loader-2" class="h-3.5 w-3.5 animate-spin" />
               Checking...
             </span>
@@ -289,11 +295,7 @@ function finish() {
                 class="h-1.5 w-1.5 rounded-full"
                 :class="provider.api_key_configured ? 'bg-emerald-500' : 'bg-amber-500'"
               />
-              {{
-                provider.api_key_configured
-                  ? "Key configured"
-                  : `Set ${provider.env_var_name}`
-              }}
+              {{ provider.api_key_configured ? "Key configured" : `Set ${provider.env_var_name}` }}
             </span>
           </li>
         </ul>
@@ -441,7 +443,10 @@ function finish() {
                     labelFor(models, followUpModelId, "Select a model...")
                   }}</span>
                 </span>
-                <UIcon name="i-lucide-chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                <UIcon
+                  name="i-lucide-chevron-down"
+                  class="h-4 w-4 shrink-0 text-muted-foreground"
+                />
               </button>
             </USelectMenu>
           </div>
@@ -491,7 +496,10 @@ function finish() {
                     labelFor(personas, followUpPersonaId, "No persona")
                   }}</span>
                 </span>
-                <UIcon name="i-lucide-chevron-down" class="h-4 w-4 shrink-0 text-muted-foreground" />
+                <UIcon
+                  name="i-lucide-chevron-down"
+                  class="h-4 w-4 shrink-0 text-muted-foreground"
+                />
               </button>
             </USelectMenu>
           </div>
@@ -530,7 +538,10 @@ function finish() {
     </div>
 
     <!-- Step 3: done -->
-    <div v-else class="flex flex-col items-center gap-4 rounded-xl border bg-card/50 p-10 text-center">
+    <div
+      v-else
+      class="flex flex-col items-center gap-4 rounded-xl border bg-card/50 p-10 text-center"
+    >
       <UIcon name="i-lucide-circle-check" class="h-10 w-10 text-emerald-500" />
       <h2 class="font-cinzel text-lg font-semibold text-foreground">You're all set</h2>
       <p class="text-sm text-muted-foreground">

@@ -8,16 +8,16 @@ Candlekeep UI is built with a warm, literary fantasy aesthetic designed to emula
 
 The primary theme uses **Amber** (`primary`) and **Stone** (`neutral`) color settings. Custom CSS colors are defined in [main.css](file:///srv/project/personal/candlekeep-ui/src/assets/main.css):
 
-| Mode | Token | Value | Visual Role |
-| :--- | :--- | :--- | :--- |
-| **Light** | Background | `#FCF8F2` (Parchment) | Screen base layer |
-| | Text | `#2C2418` (Walnut Ink) | Headers and body text |
-| | Primary | `#C9922E` (Deep Gold) | Focus rings, selections, buttons |
-| **Dark** | Background | `#0F0D0B` (Midnight Walnut) | Screen base layer |
-| | Text | `#E8DFD0` (Soft Cream) | Headers and body text |
-| | Primary | `#D4A544` (Bright Amber) | Focus rings, selections, buttons |
+| Mode      | Token      | Value                       | Visual Role                      |
+| :-------- | :--------- | :-------------------------- | :------------------------------- |
+| **Light** | Background | `#FCF8F2` (Parchment)       | Screen base layer                |
+|           | Text       | `#2C2418` (Walnut Ink)      | Headers and body text            |
+|           | Primary    | `#C9922E` (Deep Gold)       | Focus rings, selections, buttons |
+| **Dark**  | Background | `#0F0D0B` (Midnight Walnut) | Screen base layer                |
+|           | Text       | `#E8DFD0` (Soft Cream)      | Headers and body text            |
+|           | Primary    | `#D4A544` (Bright Amber)    | Focus rings, selections, buttons |
 
-*   **Cards**: Rendered with translucent backgrounds (`bg-card/50`) overlaying fine borders (`border-color: var(--color-border)`) to maintain a clean layered effect.
+- **Cards**: Rendered with translucent backgrounds (`bg-card/50`) overlaying fine borders (`border-color: var(--color-border)`) to maintain a clean layered effect.
 
 ---
 
@@ -40,14 +40,16 @@ Three core font families are integrated:
 ## 3. Theme State Management (`useTheme`)
 
 The interface theme state is synchronized using a singleton composable:
-*   **Theming Composable**: `useTheme()` maintains a shared `isDark` boolean reference.
-*   **Persistence**: Saves state in the client's `localStorage` as `"theme:is-dark"`.
-*   **DOM Injection**: Appends or removes the `.dark` class directly on the HTML document root tag $\langle\text{html}\rangle$, allowing Tailwind dark selectors to activate instantly.
+
+- **Theming Composable**: `useTheme()` maintains a shared `isDark` boolean reference.
+- **Persistence**: Saves state in the client's `localStorage` as `"theme:is-dark"`.
+- **DOM Injection**: Appends or removes the `.dark` class directly on the HTML document root tag $\langle\text{html}\rangle$, allowing Tailwind dark selectors to activate instantly.
 
 ---
 
 ## 4. UI Transitions and Animations
 
 To increase premium feel, the application applies soft transitions and entry movements:
-*   **Entry Animation**: `animate-fade-in-up` moves elements slightly upward while fading them in when views change.
-*   **Transitions**: Buttons and input borders fade dynamically using `transition-all duration-200` to prevent abrupt flashing when hovered or focused.
+
+- **Entry Animation**: `animate-fade-in-up` moves elements slightly upward while fading them in when views change.
+- **Transitions**: Buttons and input borders fade dynamically using `transition-all duration-200` to prevent abrupt flashing when hovered or focused.

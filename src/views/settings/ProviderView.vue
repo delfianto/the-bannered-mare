@@ -379,7 +379,9 @@ async function handleUnloadModel(identifier: string) {
                 <div class="min-w-0">
                   <p class="truncate text-sm text-foreground">{{ model.display_name }}</p>
                   <p class="text-[10px] text-muted-foreground">
-                    {{ [formatSize(model.size_bytes), model.quantization].filter(Boolean).join(" • ") }}
+                    {{
+                      [formatSize(model.size_bytes), model.quantization].filter(Boolean).join(" • ")
+                    }}
                   </p>
                 </div>
                 <div class="flex flex-shrink-0 items-center gap-2">

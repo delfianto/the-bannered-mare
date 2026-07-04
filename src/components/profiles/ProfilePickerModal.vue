@@ -18,7 +18,10 @@ const emit = defineEmits<{
 const { templates } = usePromptTemplates();
 const { models } = useModels({ pageSize: 100 });
 
-function resolve(list: { id: string; name: string }[], id: string | null | undefined): string | null {
+function resolve(
+  list: { id: string; name: string }[],
+  id: string | null | undefined,
+): string | null {
   if (!id) return null;
   return list.find((x) => x.id === id)?.name ?? null;
 }
