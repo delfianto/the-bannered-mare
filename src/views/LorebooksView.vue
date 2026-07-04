@@ -11,6 +11,8 @@ import type {
 import { useAppToast } from "@/composables/useToast";
 import LoreEntryCard from "@/components/lorebooks/LoreEntryCard.vue";
 import LoreEntryForm from "@/components/lorebooks/LoreEntryForm.vue";
+import EmptyState from "@/components/shared/EmptyState.vue";
+import PageContainer from "@/components/layout/PageContainer.vue";
 
 const { t } = useI18n();
 const toast = useAppToast();
@@ -181,7 +183,100 @@ async function toggleEntry(entry: LoreEntryResponse) {
 </script>
 
 <template>
-  <div class="flex h-full overflow-hidden">
+  <!-- Empty State / Create Form when there are no lorebooks -->
+  <PageContainer v-if="lorebooks.length === 0" spacing-class="space-y-6">
+    <template #header>
+      <div class="flex items-start justify-between">
+        <div>
+          <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
+            {{ $t("lorebooks.title") }}
+          </h1>
+          <p class="text-sm text-muted-foreground">
+            Create collections of lorebook entries to inject context into chat sessions.
+          </p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Inline Lorebook form for first lorebook creation -->
+    <div v-if="showLorebookForm" class="mx-auto w-full max-w-2xl">
+      <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
+        <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
+          {{ editingLorebook ? $t("lorebooks.form.editTitle") : $t("lorebooks.form.newTitle") }}
+        </h2>
+        <div class="space-y-4">
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+              $t("lorebooks.form.name")
+            }}</span>
+            <input
+              v-model="lbName"
+              type="text"
+              :placeholder="$t('lorebooks.form.namePlaceholder')"
+              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+            />
+          </label>
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+              $t("lorebooks.form.description")
+            }}</span>
+            <textarea
+              v-model="lbDescription"
+              rows="2"
+              :placeholder="$t('lorebooks.form.descriptionPlaceholder')"
+              class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+            />
+          </label>
+          <button
+            type="button"
+            class="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2"
+            role="switch"
+            :aria-checked="lbIsGlobal"
+            @click="lbIsGlobal = !lbIsGlobal"
+          >
+            <span
+              class="flex h-[20px] w-9 items-center rounded-full px-[3px] transition-colors duration-300"
+              :class="lbIsGlobal ? 'bg-primary' : 'bg-muted-foreground/40'"
+            >
+              <span
+                class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
+                :class="lbIsGlobal ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
+              />
+            </span>
+            <span class="text-sm text-foreground">{{ $t("lorebooks.form.isGlobal") }}</span>
+          </button>
+          <div class="flex items-center gap-3 pt-1">
+            <button
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              :disabled="savingLorebook || !lbName.trim()"
+              @click="submitLorebook"
+            >
+              {{ editingLorebook ? $t("lorebooks.form.save") : $t("lorebooks.form.create") }}
+            </button>
+            <button
+              class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              @click="showLorebookForm = false"
+            >
+              {{ $t("common.cancel") }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <EmptyState
+      v-else
+      icon="i-lucide-book-open"
+      title="No Lorebooks Found"
+      description="No custom lorebooks added to the library yet."
+      action-label="Create Lorebook"
+      @action="openNewLorebook"
+    />
+  </PageContainer>
+
+  <!-- Split Sidebar/Detail layout when there are lorebooks -->
+  <div v-else class="flex h-full overflow-hidden">
     <!-- Left: lorebook list -->
     <div class="flex w-[300px] shrink-0 flex-col border-r">
       <div class="flex items-center justify-between px-5 pt-6 pb-3">
