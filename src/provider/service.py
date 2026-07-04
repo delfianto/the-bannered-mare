@@ -193,7 +193,8 @@ class ProviderService:
                 )
 
         try:
-            models = client.list_models(provider.get_base_url())
+            api_key = provider.get_api_key()
+            models = client.list_models(provider.get_base_url(), api_key=api_key)
         except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
@@ -259,6 +260,32 @@ class ProviderService:
 
         self.model_cache.invalidate(provider_id)
         return ModelActionResponse(model_identifier=model_identifier, action="unloaded")
+
+    def delete_model(self, provider_id: str, model_identifier: str) -> ModelActionResponse:
+        """Delete/remove a model from a local provider's filesystem/registry."""
+        provider = self.get_by_id(provider_id)
+        client = get_discovery_client(provider.provider_type)
+        if client is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"{provider.provider_type.value} does not support model management",
+            )
+
+        try:
+            client.delete_model(provider.get_base_url(), model_identifier)
+        except NotImplementedError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e),
+            )
+        except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Could not reach {provider.name}: {e}",
+            ) from e
+
+        self.model_cache.invalidate(provider_id)
+        return ModelActionResponse(model_identifier=model_identifier, action="deleted")
 
     def delete(self, provider_id: str) -> None:
         """

@@ -39,7 +39,7 @@ class ModelActionResponse(BaseModel):
     """Result of a load/unload action."""
 
     model_identifier: str
-    action: Literal["loaded", "unloaded"]
+    action: Literal["loaded", "unloaded", "deleted"]
 
 
 class ProviderCreate(BaseModel):
