@@ -61,6 +61,10 @@ class CharacterService:
         custom_gender: str | None = None,
         creator: str | None = None,
         version: int | None = 1,
+        system_prompt: str | None = None,
+        creator_notes: str | None = None,
+        species: str | None = None,
+        age: str | None = None,
     ) -> Character:
         """Create a new character with optional avatar upload"""
         parsed_dialogues = self._parse_json_field(example_dialogues, "example_dialogues")
@@ -92,6 +96,10 @@ class CharacterService:
             custom_gender=custom_gender,
             creator=creator,
             version=version or 1,
+            system_prompt=system_prompt,
+            creator_notes=creator_notes,
+            species=species,
+            age=age,
         )
         created = self.character_repo.create(character)
 
@@ -121,6 +129,10 @@ class CharacterService:
         custom_gender: str | None = None,
         creator: str | None = None,
         version: int | None = None,
+        system_prompt: str | None = None,
+        creator_notes: str | None = None,
+        species: str | None = None,
+        age: str | None = None,
     ) -> Character:
         """Update character"""
         character = self.get_by_id(character_id)
@@ -151,6 +163,14 @@ class CharacterService:
             character.creator = creator
         if version is not None:
             character.version = version
+        if system_prompt is not None:
+            character.system_prompt = system_prompt
+        if creator_notes is not None:
+            character.creator_notes = creator_notes
+        if species is not None:
+            character.species = species
+        if age is not None:
+            character.age = age
 
         # Parse and update JSON fields
         if example_dialogues is not None:
@@ -232,6 +252,83 @@ class CharacterService:
         )
         created = self.character_repo.create(character)
 
+        # Create character_book if present in card
+        if hasattr(card, "character_book") and card.character_book:
+            from src.lore.repository import LoreRepository, LoreEntryRepository
+            from src.lore.models import Lorebook, LoreEntry
+            from src.core.persistence.enums import InsertionPosition, SecondaryLogic, MessageRole
+
+            lore_repo = LoreRepository(self.character_repo.db)
+            lore_entry_repo = LoreEntryRepository(self.character_repo.db)
+
+            book_data = card.character_book
+            lorebook = Lorebook(
+                name=book_data.get("name") or f"{card.name} Lorebook",
+                description=book_data.get("description"),
+                is_global=False,
+                character_id=created.id,
+            )
+            created_book = lore_repo.create(lorebook)
+
+            # Map entries
+            entries_data = book_data.get("entries", [])
+            for idx, entry_dict in enumerate(entries_data):
+                keys = entry_dict.get("keys", [])
+                content = entry_dict.get("content", "")
+                if not keys or not content:
+                    continue
+
+                # Map insertion position
+                raw_pos = str(entry_dict.get("position", "after_character")).lower()
+                position = InsertionPosition.AFTER_CHARACTER
+                if "before_char" in raw_pos:
+                    position = InsertionPosition.BEFORE_CHARACTER
+                elif "after_char" in raw_pos:
+                    position = InsertionPosition.AFTER_CHARACTER
+                elif "depth" in raw_pos:
+                    position = InsertionPosition.AT_DEPTH
+                elif "example" in raw_pos:
+                    position = InsertionPosition.BEFORE_EXAMPLES
+
+                # Map secondary logic
+                raw_logic = str(entry_dict.get("secondary_logic", "and_any")).lower()
+                secondary_logic = SecondaryLogic.AND_ANY
+                if "and_all" in raw_logic:
+                    secondary_logic = SecondaryLogic.AND_ALL
+                elif "not_any" in raw_logic:
+                    secondary_logic = SecondaryLogic.NOT_ANY
+                elif "not_all" in raw_logic:
+                    secondary_logic = SecondaryLogic.NOT_ALL
+
+                # Map role
+                raw_role = str(entry_dict.get("role", "system")).lower()
+                role = MessageRole.SYSTEM
+                if "user" in raw_role:
+                    role = MessageRole.USER
+                elif "assistant" in raw_role or "char" in raw_role:
+                    role = MessageRole.ASSISTANT
+
+                lore_entry = LoreEntry(
+                    lorebook_id=created_book.id,
+                    name=entry_dict.get("name") or entry_dict.get("comment") or (keys[0] if keys else "Untitled"),
+                    content=content,
+                    keys=keys,
+                    secondary_keys=entry_dict.get("secondary_keys", []),
+                    secondary_logic=secondary_logic,
+                    case_sensitive=entry_dict.get("case_sensitive", False),
+                    match_whole_words=entry_dict.get("match_whole_words", False),
+                    use_regex=entry_dict.get("use_regex", False),
+                    enabled=entry_dict.get("enabled", True),
+                    constant=entry_dict.get("constant", False),
+                    position=position,
+                    depth=entry_dict.get("depth", 4),
+                    role=role,
+                    priority=entry_dict.get("priority", 100),
+                    ignore_budget=entry_dict.get("ignore_budget", False),
+                    order=entry_dict.get("order", idx),
+                )
+                lore_entry_repo.create(lore_entry)
+
         # If PNG, use the file itself as avatar
         if filename.endswith(".png"):
             import io
@@ -279,6 +376,46 @@ class CharacterService:
         if character.example_dialogues:
             example_str = "\n".join(character.example_dialogues)
 
+        # Fetch character-specific lorebooks
+        from sqlalchemy import select
+        from sqlalchemy.orm import joinedload
+        from src.lore.models import Lorebook
+
+        stmt = (
+            select(Lorebook)
+            .where(Lorebook.character_id == character.id)
+            .options(joinedload(Lorebook.entries))
+        )
+        lorebooks = list(self.character_repo.db.execute(stmt).scalars().unique().all())
+
+        character_book = {}
+        if lorebooks:
+            lorebook = lorebooks[0]
+            entries_data = []
+            for entry in lorebook.entries:
+                entries_data.append({
+                    "keys": entry.keys,
+                    "content": entry.content,
+                    "constant": entry.constant,
+                    "enabled": entry.enabled,
+                    "name": entry.name,
+                    "secondary_keys": entry.secondary_keys,
+                    "case_sensitive": entry.case_sensitive,
+                    "use_regex": entry.use_regex,
+                    "match_whole_words": entry.match_whole_words,
+                    "position": entry.position.value if hasattr(entry.position, "value") else str(entry.position),
+                    "depth": entry.depth,
+                    "role": entry.role.value if hasattr(entry.role, "value") else str(entry.role),
+                    "priority": entry.priority,
+                    "ignore_budget": entry.ignore_budget,
+                    "order": entry.order,
+                })
+            character_book = {
+                "name": lorebook.name,
+                "description": lorebook.description or "",
+                "entries": entries_data,
+            }
+
         return ParsedCard(
             name=character.name,
             description=character.description or "",
@@ -293,6 +430,7 @@ class CharacterService:
             character_version=character.character_version or "",
             alternate_greetings=character.alternate_greetings or [],
             tags=character.tags or [],
+            character_book=character_book,
         )
 
     def _parse_json_field(self, value: str | None, field_name: str):
