@@ -4,6 +4,13 @@ import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useProvider } from "@/composables/useProvider";
 import { useAppToast } from "@/composables/useToast";
+import anthropicIcon from "@/assets/icons/anthropic.svg";
+import googleIcon from "@/assets/icons/google.svg";
+import ollamaIcon from "@/assets/icons/ollama.svg";
+import openaiIcon from "@/assets/icons/openai.svg";
+import openrouterIcon from "@/assets/icons/openrouter.svg";
+import xaiIcon from "@/assets/icons/xai.svg";
+import otherIcon from "@/assets/icons/other.svg";
 
 const router = useRouter();
 const route = useRoute();
@@ -31,15 +38,19 @@ const isLocalProvider = computed(
   () => provider.value?.provider_type === "ollama" || provider.value?.provider_type === "lmstudio",
 );
 
-const providerTypeIcons: Record<string, string> = {
-  openai: "i-lucide-bot",
-  anthropic: "i-lucide-brain",
-  google: "i-lucide-sparkles",
-  ollama: "i-lucide-server",
-  openrouter: "i-lucide-route",
-  xai: "i-lucide-zap",
-  custom: "i-lucide-settings",
+const providerIcons: Record<string, string> = {
+  openai: openaiIcon,
+  anthropic: anthropicIcon,
+  google: googleIcon,
+  ollama: ollamaIcon,
+  openrouter: openrouterIcon,
+  xai: xaiIcon,
+  custom: otherIcon,
 };
+
+function getIcon(providerType: string): string {
+  return providerIcons[providerType] || otherIcon;
+}
 
 const form = reactive({
   name: "",
@@ -209,10 +220,11 @@ async function handleUnloadModel(identifier: string) {
           <div class="rounded-xl border bg-card/50 p-5">
             <!-- Provider type badge -->
             <div class="mb-5 flex items-center gap-3">
-              <div class="flex size-10 items-center justify-center rounded-lg bg-accent">
-                <UIcon
-                  :name="providerTypeIcons[provider.provider_type] || 'i-lucide-settings'"
-                  class="size-5 text-foreground"
+              <div class="flex size-10 items-center justify-center rounded-lg bg-accent p-2">
+                <img
+                  :src="getIcon(provider.provider_type)"
+                  :alt="provider.provider_type"
+                  class="size-full object-contain dark:invert"
                 />
               </div>
               <div>
