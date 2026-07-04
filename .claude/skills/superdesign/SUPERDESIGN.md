@@ -27,6 +27,7 @@ These files are pre-analyzed context and MUST be read every time before any desi
 SuperDesign needs ALL UI code for accurate reproduction. Include every piece of visual code — JSX/template, className, inline styles, props interfaces, CSS. Only strip pure business logic that has zero visual impact.
 
 **Strip logic code, keep happy-path UI.** That's it.
+
 - Remove: data fetching, event handlers, API calls, auth checks, loading/error/empty guard returns
 - Keep: all JSX, styles, className, props, CSS, config — the complete happy-path UI as-is
 
@@ -60,6 +61,7 @@ If `.superdesign/init/pages.md` exists, use it as the starting point — it pre-
 
 **⚠️ 1000+ LINE FILE RULE (MANDATORY):**
 Any file exceeding ~1000 lines MUST use line ranges — no exceptions. Extract only the sections relevant to the target page:
+
 - **Large CSS files (1000+ lines)**: extract ONLY the selectors/variables actually used by the target page's components. Trace each className → find its CSS definition lines → include only those sections.
 - **Large component files with many variants**: extract ONLY the variant/branch being used on the target page, skip unused variants.
 - **Large config files**: extract only the relevant config sections.
@@ -99,20 +101,21 @@ After requirements gathering, extract reusable components so they are available 
    b. Convert to Petite-Vue HTML template following the **Petite-Vue Template Spec** below
    c. Write the HTML to a temp file
    d. Create the component:
-      ```
-      superdesign create-component --project-id <id> \
-        --name "NavBar" \
-        --html-file /tmp/navbar-component.html \
-        --description "Main navigation bar" \
-        --props '[{"name":"activeItem","type":"string","defaultValue":"home"}]' \
-        --json
-      ```
+   ```
+   superdesign create-component --project-id <id> \
+     --name "NavBar" \
+     --html-file /tmp/navbar-component.html \
+     --description "Main navigation bar" \
+     --props '[{"name":"activeItem","type":"string","defaultValue":"home"}]' \
+     --json
+   ```
 5. **Focus on layout components first** (NavBar, Sidebar, Footer, Header) — these appear on every page and benefit most from extraction.
 6. **Skip basic UI primitives** (Button, Input, Card) — these are too simple to warrant extraction and are better as inline HTML in drafts.
 
 After extraction, proceed to Step 3. The draft generation agent will automatically see these components via `buildComponentContext()` and use `<sd-component>` tags in the generated HTML.
 
 **When to skip Step 2.5:**
+
 - Brand new projects with no existing UI components
 - When the user explicitly says they don't want component extraction
 - When `extractable-components.md` doesn't exist or lists no layout components
@@ -225,6 +228,7 @@ Step 3 — Design in SuperDesign:
 ## DESIGN SYSTEM SETUP
 
 Design system should provides full context across:
+
 - Product context, key pages & architecture, key features, JTBD
 - Branding & styling: color, font, spacing, shadow, layout structure, etc.
 - motion/animation patterns
@@ -368,6 +372,7 @@ Multiple ranges from the same file are automatically merged into a single contex
 When converting React components to Petite-Vue HTML templates for `create-component`:
 
 ### What to HARDCODE in the template (NOT props):
+
 - Icon names and SVG markup
 - Text labels, menu item names
 - Image sources and alt text
@@ -376,12 +381,14 @@ When converting React components to Petite-Vue HTML templates for `create-compon
 - Color values, font sizes, spacing
 
 ### What to EXTRACT as props (ONLY these categories):
+
 - **Active state**: `activeItem`, `isActive`, `currentTab` — indicates which page/section is selected
 - **Navigation URLs**: `homeHref`, `searchHref`, `profileHref` — link destinations
 - **Conditional visibility**: `showNotification`, `showBadge`, `isExpanded` — toggle elements
 - **Dynamic counts**: `badgeCount`, `notificationCount` — numeric values that change
 
 ### Allowed Petite-Vue syntax:
+
 - `{{ propName }}` — text interpolation
 - `:href="propName"` — attribute binding
 - `v-if="propName"` / `v-show="propName"` — conditional rendering
@@ -389,6 +396,7 @@ When converting React components to Petite-Vue HTML templates for `create-compon
 - `@click="$emit('name', payload)"` — event emission
 
 ### NOT allowed:
+
 - `v-for` for navigation items (hardcode each item instead)
 - `v-model` (no two-way binding)
 - `v-html` (no raw HTML injection)
@@ -397,6 +405,7 @@ When converting React components to Petite-Vue HTML templates for `create-compon
 ### Every prop MUST have a non-empty `defaultValue`.
 
 ### Output requirements:
+
 - Valid HTML with Tailwind CSS classes
 - Replace all CSS modules / styled-components with Tailwind utilities or inline styles
 - Use Lucide icon CDN or inline SVGs for icons
@@ -405,75 +414,84 @@ When converting React components to Petite-Vue HTML templates for `create-compon
 ### Example conversion:
 
 **React source:**
+
 ```tsx
-function NavBar({ activeItem = 'home' }) {
+function NavBar({ activeItem = "home" }) {
   return (
     <nav className="flex items-center gap-4 px-6 py-3 bg-white border-b">
       <Logo />
-      <Link to="/" className={cn("text-sm", activeItem === 'home' && "font-bold")}>Home</Link>
-      <Link to="/explore" className={cn("text-sm", activeItem === 'explore' && "font-bold")}>Explore</Link>
+      <Link to="/" className={cn("text-sm", activeItem === "home" && "font-bold")}>
+        Home
+      </Link>
+      <Link to="/explore" className={cn("text-sm", activeItem === "explore" && "font-bold")}>
+        Explore
+      </Link>
     </nav>
   );
 }
 ```
 
 **Petite-Vue template:**
+
 ```html
 <nav class="flex items-center gap-4 px-6 py-3 bg-white border-b">
   <svg class="w-6 h-6"><!-- actual logo SVG --></svg>
   <a :href="homeHref" :class="{ 'font-bold': activeItem === 'home' }" class="text-sm">Home</a>
-  <a :href="exploreHref" :class="{ 'font-bold': activeItem === 'explore' }" class="text-sm">Explore</a>
+  <a :href="exploreHref" :class="{ 'font-bold': activeItem === 'explore' }" class="text-sm"
+    >Explore</a
+  >
 </nav>
 ```
 
 **Props:**
+
 ```json
 [
-  {"name": "activeItem", "type": "string", "defaultValue": "home"},
-  {"name": "homeHref", "type": "string", "defaultValue": "#"},
-  {"name": "exploreHref", "type": "string", "defaultValue": "#"}
+  { "name": "activeItem", "type": "string", "defaultValue": "home" },
+  { "name": "homeHref", "type": "string", "defaultValue": "#" },
+  { "name": "exploreHref", "type": "string", "defaultValue": "#" }
 ]
 ```
 
 ---
 
 <marketing_assets_dimension_guidelines>
-| Category  | Platform               | Asset Type            | Aspect Ratio | Recommended Size (px) |
+| Category | Platform | Asset Type | Aspect Ratio | Recommended Size (px) |
 | --------- | ---------------------- | --------------------- | ------------ | --------------------- |
-| Feed      | Instagram              | Feed Post (Square)    | 1:1          | 1080 × 1080 (default) |
-| Feed      | Instagram              | Feed Post (Portrait)  | 4:5          | 1080 × 1350           |
-| Feed      | Instagram              | Feed Post (Landscape) | 1.91:1       | 1080 × 566            |
-| Feed      | Facebook               | Feed Post             | 1.91:1       | 1200 × 630            |
-| Feed      | LinkedIn               | Feed Post             | 1:1          | 1200 × 1200 (default) |
-| Feed      | LinkedIn               | Feed Post (Landscape) | 1.91:1       | 1200 × 627            |
-| Feed      | X / Twitter            | Post Image            | 16:9         | 1200 × 675            |
-| Feed      | Threads                | Post Image            | 1:1          | 1080 × 1080           |
-| Vertical  | Instagram              | Story                 | 9:16         | 1080 × 1920           |
-| Vertical  | Instagram              | Reel Cover            | 9:16         | 1080 × 1920           |
-| Vertical  | TikTok                 | Video / Cover         | 9:16         | 1080 × 1920           |
-| Vertical  | YouTube                | Shorts                | 9:16         | 1080 × 1920           |
-| Carousel  | Instagram              | Carousel Slide        | 4:5          | 1080 × 1350           |
-| Carousel  | LinkedIn               | Carousel (PDF slides) | 1:1          | 1080 × 1080           |
-| Cover     | LinkedIn               | Profile Cover         | 4:1          | 1584 × 396            |
-| Cover     | Facebook               | Page Cover            | ~1.9:1       | 1640 × 856            |
-| Cover     | X / Twitter            | Header                | 3:1          | 1500 × 500            |
-| Cover     | YouTube                | Channel Art           | 16:9         | 2560 × 1440           |
-| Thumbnail | YouTube                | Video Thumbnail       | 16:9         | 1280 × 720            |
-| Ads       | Google Display Ads     | Medium Rectangle      | 4:3          | 300 × 250             |
-| Ads       | Google Display Ads     | Large Rectangle       | 336 × 280    |                       |
-| Ads       | Google Display Ads     | Leaderboard           | 728 × 90     |                       |
-| Ads       | Google Display Ads     | Large Leaderboard     | 970 × 90     |                       |
-| Ads       | Google Display Ads     | Billboard             | 970 × 250    |                       |
-| Ads       | Google Display Ads     | Half Page             | 300 × 600    |                       |
-| Ads       | Google Display Ads     | Large Mobile Banner   | 320 × 100    |                       |
-| Ads       | Google Display Ads     | Mobile Banner         | 320 × 50     |                       |
-| Ads       | Google Display Ads     | Square                | 250 × 250    |                       |
-| Ads       | Google Display Ads     | Small Square          | 200 × 200    |                       |
-| Ads       | Google Performance Max | Landscape Image       | 1.91:1       | 1200 × 628            |
-| Ads       | Google Performance Max | Square Image          | 1:1          | 1200 × 1200           |
-| Ads       | Google Performance Max | Portrait Image        | 4:5          | 960 × 1200            |
-| Ads       | Google App Ads         | App Landscape         | 1.91:1       | 1200 × 628            |
-| Ads       | Google App Ads         | App Square            | 1:1          | 1200 × 1200           |
+| Feed | Instagram | Feed Post (Square) | 1:1 | 1080 × 1080 (default) |
+| Feed | Instagram | Feed Post (Portrait) | 4:5 | 1080 × 1350 |
+| Feed | Instagram | Feed Post (Landscape) | 1.91:1 | 1080 × 566 |
+| Feed | Facebook | Feed Post | 1.91:1 | 1200 × 630 |
+| Feed | LinkedIn | Feed Post | 1:1 | 1200 × 1200 (default) |
+| Feed | LinkedIn | Feed Post (Landscape) | 1.91:1 | 1200 × 627 |
+| Feed | X / Twitter | Post Image | 16:9 | 1200 × 675 |
+| Feed | Threads | Post Image | 1:1 | 1080 × 1080 |
+| Vertical | Instagram | Story | 9:16 | 1080 × 1920 |
+| Vertical | Instagram | Reel Cover | 9:16 | 1080 × 1920 |
+| Vertical | TikTok | Video / Cover | 9:16 | 1080 × 1920 |
+| Vertical | YouTube | Shorts | 9:16 | 1080 × 1920 |
+| Carousel | Instagram | Carousel Slide | 4:5 | 1080 × 1350 |
+| Carousel | LinkedIn | Carousel (PDF slides) | 1:1 | 1080 × 1080 |
+| Cover | LinkedIn | Profile Cover | 4:1 | 1584 × 396 |
+| Cover | Facebook | Page Cover | ~1.9:1 | 1640 × 856 |
+| Cover | X / Twitter | Header | 3:1 | 1500 × 500 |
+| Cover | YouTube | Channel Art | 16:9 | 2560 × 1440 |
+| Thumbnail | YouTube | Video Thumbnail | 16:9 | 1280 × 720 |
+| Ads | Google Display Ads | Medium Rectangle | 4:3 | 300 × 250 |
+| Ads | Google Display Ads | Large Rectangle | 336 × 280 | |
+| Ads | Google Display Ads | Leaderboard | 728 × 90 | |
+| Ads | Google Display Ads | Large Leaderboard | 970 × 90 | |
+| Ads | Google Display Ads | Billboard | 970 × 250 | |
+| Ads | Google Display Ads | Half Page | 300 × 600 | |
+| Ads | Google Display Ads | Large Mobile Banner | 320 × 100 | |
+| Ads | Google Display Ads | Mobile Banner | 320 × 50 | |
+| Ads | Google Display Ads | Square | 250 × 250 | |
+| Ads | Google Display Ads | Small Square | 200 × 200 | |
+| Ads | Google Performance Max | Landscape Image | 1.91:1 | 1200 × 628 |
+| Ads | Google Performance Max | Square Image | 1:1 | 1200 × 1200 |
+| Ads | Google Performance Max | Portrait Image | 4:5 | 960 × 1200 |
+| Ads | Google App Ads | App Landscape | 1.91:1 | 1200 × 628 |
+| Ads | Google App Ads | App Square | 1:1 | 1200 × 1200 |
 
 For marketing assets, MUST confirm with the user the dimension before creating, do NOT assume the dimension
 </marketing_assets_dimension_guidelines>

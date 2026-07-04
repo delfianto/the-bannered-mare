@@ -70,7 +70,12 @@ const stringValue = computed({
 });
 
 const selectValue = computed({
-  get: () => (currentValue.value != null ? String(currentValue.value) : (props.schema?.default != null ? String(props.schema.default) : "")),
+  get: () =>
+    currentValue.value != null
+      ? String(currentValue.value)
+      : props.schema?.default != null
+        ? String(props.schema.default)
+        : "",
   set: (val) => {
     currentValue.value = val;
   },
@@ -158,7 +163,13 @@ function updateObjectProp(key: string, val: unknown) {
 <template>
   <!-- Boolean toggle -->
   <template v-if="schemaType === 'boolean'">
-    <button @click="boolValue = !boolValue" class="cursor-pointer" role="switch" :aria-checked="boolValue" :aria-label="paramKey">
+    <button
+      @click="boolValue = !boolValue"
+      class="cursor-pointer"
+      role="switch"
+      :aria-checked="boolValue"
+      :aria-label="paramKey"
+    >
       <div
         class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
         :class="boolValue ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -173,7 +184,13 @@ function updateObjectProp(key: string, val: unknown) {
 
   <!-- Enabled/Disabled enum as toggle -->
   <template v-else-if="isEnabledDisabledEnum">
-    <button @click="enabledDisabledValue = !enabledDisabledValue" class="cursor-pointer" role="switch" :aria-checked="enabledDisabledValue" :aria-label="paramKey">
+    <button
+      @click="enabledDisabledValue = !enabledDisabledValue"
+      class="cursor-pointer"
+      role="switch"
+      :aria-checked="enabledDisabledValue"
+      :aria-label="paramKey"
+    >
       <div
         class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
         :class="enabledDisabledValue ? 'bg-primary' : 'bg-muted-foreground/40'"
@@ -204,7 +221,7 @@ function updateObjectProp(key: string, val: unknown) {
         class="flex h-9 items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
         :class="layout === 'horizontal' ? 'w-[180px]' : 'w-full'"
       >
-        <span class="truncate">{{ selectValue || 'Select...' }}</span>
+        <span class="truncate">{{ selectValue || "Select..." }}</span>
         <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       </button>
     </USelectMenu>
@@ -212,7 +229,10 @@ function updateObjectProp(key: string, val: unknown) {
 
   <!-- Number with range slider -->
   <template v-else-if="(schemaType === 'int' || schemaType === 'float') && hasRange">
-    <div class="flex items-center gap-3" :class="layout === 'horizontal' ? 'max-w-[280px]' : 'w-full'">
+    <div
+      class="flex items-center gap-3"
+      :class="layout === 'horizontal' ? 'max-w-[280px]' : 'w-full'"
+    >
       <input
         type="range"
         :min="schema.min_value"

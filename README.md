@@ -6,21 +6,21 @@ Talks to [Candlekeep Core](https://github.com/delfianto/candlekeep-core), a Fast
 
 ## Tech Stack
 
-| Layer | Choice |
-|---|---|
-| Framework | Vue 3.5 — `<script setup lang="ts">` Composition API |
-| Toolchain | [Vite+](https://vite-plus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
-| Package Manager | Bun |
-| Language | TypeScript 6 (strict) |
-| UI Library | [Nuxt UI v4](https://ui.nuxt.com) via `@nuxt/ui/vite` — **not** Nuxt.js |
-| Styling | Tailwind CSS v4 with custom CSS variables |
-| State | Pinia (global) + composables (feature-scoped) |
-| Routing | Vue Router 5 |
-| i18n | vue-i18n |
-| API Client | openapi-fetch (typed against auto-generated `src/api/schema.d.ts`) |
-| Mocking | MSW (Mock Service Worker) |
-| Icons | Lucide via `@iconify-json/lucide` — `<UIcon name="i-lucide-*" />` |
-| Lint / Format | Oxlint / Oxfmt via `vp lint` / `vp fmt` |
+| Layer           | Choice                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| Framework       | Vue 3.5 — `<script setup lang="ts">` Composition API                                        |
+| Toolchain       | [Vite+](https://vite-plus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
+| Package Manager | Bun                                                                                         |
+| Language        | TypeScript 6 (strict)                                                                       |
+| UI Library      | [Nuxt UI v4](https://ui.nuxt.com) via `@nuxt/ui/vite` — **not** Nuxt.js                     |
+| Styling         | Tailwind CSS v4 with custom CSS variables                                                   |
+| State           | Pinia (global) + composables (feature-scoped)                                               |
+| Routing         | Vue Router 5                                                                                |
+| i18n            | vue-i18n                                                                                    |
+| API Client      | openapi-fetch (typed against auto-generated `src/api/schema.d.ts`)                          |
+| Mocking         | MSW (Mock Service Worker)                                                                   |
+| Icons           | Lucide via `@iconify-json/lucide` — `<UIcon name="i-lucide-*" />`                           |
+| Lint / Format   | Oxlint / Oxfmt via `vp lint` / `vp fmt`                                                     |
 
 ## Getting Started
 

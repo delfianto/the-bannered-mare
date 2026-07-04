@@ -40,29 +40,32 @@ const {
   editMessage,
   fetchAlternatives,
   activateAlternative,
-} = useChatMessages(
-  () => activeSessionId.value || null,
-  { pageSize: 30 },
-);
+} = useChatMessages(() => activeSessionId.value || null, { pageSize: 30 });
 
 // Auto-select first session if none specified
-watch(chatSessions, (sessions) => {
-  if (!activeSessionId.value && sessions.length > 0) {
-    activeSessionId.value = sessions[0].id;
-    router.replace({ name: "chat", params: { chatId: sessions[0].id } });
-  }
-}, { immediate: true });
+watch(
+  chatSessions,
+  (sessions) => {
+    if (!activeSessionId.value && sessions.length > 0) {
+      activeSessionId.value = sessions[0].id;
+      router.replace({ name: "chat", params: { chatId: sessions[0].id } });
+    }
+  },
+  { immediate: true },
+);
 
-const activeSession = computed(
-  () => chatSessions.value.find((s) => s.id === activeSessionId.value),
+const activeSession = computed(() =>
+  chatSessions.value.find((s) => s.id === activeSessionId.value),
 );
 
 const characterAvatar = computed(() => {
   const char = activeSession.value?.character;
   if (!char) return "";
-  return char.avatar_thumbnail
-    || char.avatar
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(char.name)}&background=C9922E&color=fff&size=80`;
+  return (
+    char.avatar_thumbnail ||
+    char.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(char.name)}&background=C9922E&color=fff&size=80`
+  );
 });
 
 const showMoodChips = computed(() => {
@@ -81,14 +84,17 @@ function scrollToBottom() {
 }
 
 // Scroll on new messages
-watch(() => messages.value.length, () => scrollToBottom());
+watch(
+  () => messages.value.length,
+  () => scrollToBottom(),
+);
 
 const MOOD_CHIPS: MoodChip[] = [
-  { id: "mood-1", label: t('chat.moods.boldly') },
-  { id: "mood-2", label: t('chat.moods.caution') },
-  { id: "mood-3", label: t('chat.moods.whisper') },
-  { id: "mood-4", label: t('chat.moods.defiantly') },
-  { id: "mood-5", label: t('chat.moods.tenderly') },
+  { id: "mood-1", label: t("chat.moods.boldly") },
+  { id: "mood-2", label: t("chat.moods.caution") },
+  { id: "mood-3", label: t("chat.moods.whisper") },
+  { id: "mood-4", label: t("chat.moods.defiantly") },
+  { id: "mood-5", label: t("chat.moods.tenderly") },
 ];
 
 function handleSend(text: string) {
@@ -215,7 +221,11 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
       />
 
       <!-- Message List -->
-      <div ref="messageListRef" class="flex-1 overflow-y-auto px-5 py-6" style="scroll-behavior: smooth">
+      <div
+        ref="messageListRef"
+        class="flex-1 overflow-y-auto px-5 py-6"
+        style="scroll-behavior: smooth"
+      >
         <div class="mx-auto max-w-[720px] space-y-5">
           <!-- Load More -->
           <div v-if="hasMore" class="flex justify-center py-2">
@@ -223,7 +233,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
               class="text-xs text-muted-foreground hover:text-primary transition-colors"
               @click="loadMore"
             >
-              {{ $t('chat.loadEarlier') }}
+              {{ $t("chat.loadEarlier") }}
             </button>
           </div>
 
@@ -232,11 +242,14 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
             <div class="flex items-center gap-3">
               <div class="h-px w-12 bg-border" />
               <div class="text-center">
-                <p class="font-cinzel text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {{ activeSession.title || $t('chat.untitled') }}
+                <p
+                  class="font-cinzel text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                >
+                  {{ activeSession.title || $t("chat.untitled") }}
                 </p>
                 <p class="mt-0.5 text-[10px] text-muted-foreground/60">
-                  {{ $t('chat.sessionBegan') }} · {{ new Date(activeSession.created_at).toLocaleDateString() }}
+                  {{ $t("chat.sessionBegan") }} ·
+                  {{ new Date(activeSession.created_at).toLocaleDateString() }}
                 </p>
               </div>
               <div class="h-px w-12 bg-border" />
@@ -245,7 +258,10 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
 
           <!-- Loading messages -->
           <div v-if="messagesLoading && messages.length === 0" class="flex justify-center py-8">
-            <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
+            <UIcon
+              name="i-lucide-loader-circle"
+              class="h-6 w-6 animate-spin text-muted-foreground"
+            />
           </div>
 
           <!-- Messages -->
@@ -263,11 +279,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
           />
 
           <!-- Mood Chips -->
-          <MoodChips
-            v-if="showMoodChips"
-            :chips="MOOD_CHIPS"
-            @select="handleMoodSelect"
-          />
+          <MoodChips v-if="showMoodChips" :chips="MOOD_CHIPS" @select="handleMoodSelect" />
 
           <!-- Typing Indicator -->
           <QuillTypingIndicator
@@ -284,7 +296,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
 
     <!-- No session selected -->
     <div v-else class="flex flex-1 items-center justify-center">
-      <p class="text-muted-foreground">{{ $t('chat.selectTale') }}</p>
+      <p class="text-muted-foreground">{{ $t("chat.selectTale") }}</p>
     </div>
   </div>
 </template>

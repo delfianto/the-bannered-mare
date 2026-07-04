@@ -8,7 +8,8 @@ export const promptTemplates: PromptTemplate[] = [
   {
     id: "tpl-default",
     name: "Default Template",
-    description: "Standard roleplay template with all components enabled. Suitable for most character interactions.",
+    description:
+      "Standard roleplay template with all components enabled. Suitable for most character interactions.",
     is_default: true,
     system_template: "You are {{character_name}}. {{character_description}}",
     component_order: ["persona", "character", "scenario", "examples", "history"],
@@ -26,7 +27,8 @@ export const promptTemplates: PromptTemplate[] = [
   {
     id: "tpl-minimal",
     name: "Minimal Template",
-    description: "Lightweight template with only essential components. Faster token usage for simple conversations.",
+    description:
+      "Lightweight template with only essential components. Faster token usage for simple conversations.",
     is_default: false,
     system_template: "You are {{character_name}}.",
     component_order: ["character", "history"],
@@ -44,7 +46,8 @@ export const promptTemplates: PromptTemplate[] = [
   {
     id: "tpl-advanced-rp",
     name: "Advanced RP Template",
-    description: "Extended template with all components, post-history instructions, and higher token limits for deep roleplay.",
+    description:
+      "Extended template with all components, post-history instructions, and higher token limits for deep roleplay.",
     is_default: false,
     system_template: "You are {{character_name}}, {{character_personality}}. {{scenario}}",
     component_order: ["persona", "character", "scenario", "lore", "examples", "history"],
@@ -96,9 +99,11 @@ export const templateFragments: Map<string, TemplateFragment[]> = new Map([
         fragment: {
           id: "frag-writing-style",
           name: "Writing Style Guide",
-          description: "Enforces a literary prose style with vivid descriptions, sensory details, and varied sentence structure.",
+          description:
+            "Enforces a literary prose style with vivid descriptions, sensory details, and varied sentence structure.",
           fragment_type: "instruction",
-          content: "Write in a literary prose style. Use vivid sensory details, varied sentence lengths, and show rather than tell. Avoid cliches and purple prose.",
+          content:
+            "Write in a literary prose style. Use vivid sensory details, varied sentence lengths, and show rather than tell. Avoid cliches and purple prose.",
           is_global: true,
           created_at: NOW,
           updated_at: NOW,
@@ -114,9 +119,11 @@ export const templateFragments: Map<string, TemplateFragment[]> = new Map([
         fragment: {
           id: "frag-character-depth",
           name: "Character Depth Enhancement",
-          description: "Adds psychological depth and consistency to character portrayals with internal monologue cues.",
+          description:
+            "Adds psychological depth and consistency to character portrayals with internal monologue cues.",
           fragment_type: "system",
-          content: "Portray characters with psychological depth. Include subtle body language, internal conflicts, and consistent personality traits. Characters should have believable motivations.",
+          content:
+            "Portray characters with psychological depth. Include subtle body language, internal conflicts, and consistent personality traits. Characters should have believable motivations.",
           is_global: true,
           created_at: NOW,
           updated_at: NOW,

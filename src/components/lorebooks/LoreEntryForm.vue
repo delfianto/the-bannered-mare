@@ -96,12 +96,14 @@ function onSubmit() {
 <template>
   <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
     <h3 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-      {{ initial ? $t('lorebooks.entryForm.editTitle') : $t('lorebooks.entryForm.newTitle') }}
+      {{ initial ? $t("lorebooks.entryForm.editTitle") : $t("lorebooks.entryForm.newTitle") }}
     </h3>
 
     <div class="space-y-4">
       <label class="block">
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.entryForm.name') }}</span>
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("lorebooks.entryForm.name")
+        }}</span>
         <input
           v-model="name"
           type="text"
@@ -111,7 +113,9 @@ function onSubmit() {
       </label>
 
       <label class="block">
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.entryForm.keys') }}</span>
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("lorebooks.entryForm.keys")
+        }}</span>
         <input
           v-model="keysText"
           type="text"
@@ -121,7 +125,9 @@ function onSubmit() {
       </label>
 
       <label class="block">
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.entryForm.content') }}</span>
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("lorebooks.entryForm.content")
+        }}</span>
         <textarea
           v-model="content"
           rows="4"
@@ -132,7 +138,9 @@ function onSubmit() {
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.entryForm.position') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("lorebooks.entryForm.position")
+          }}</span>
           <select
             v-model="position"
             class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
@@ -141,7 +149,9 @@ function onSubmit() {
           </select>
         </label>
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.entryForm.order') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("lorebooks.entryForm.order")
+          }}</span>
           <input
             v-model.number="order"
             type="number"
@@ -149,7 +159,9 @@ function onSubmit() {
           />
         </label>
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.entryForm.priority') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("lorebooks.entryForm.priority")
+          }}</span>
           <input
             v-model.number="priority"
             type="number"
@@ -175,7 +187,7 @@ function onSubmit() {
               :class="enabled ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
             />
           </span>
-          <span class="text-sm text-foreground">{{ $t('lorebooks.entryForm.enabled') }}</span>
+          <span class="text-sm text-foreground">{{ $t("lorebooks.entryForm.enabled") }}</span>
         </button>
 
         <button
@@ -194,7 +206,7 @@ function onSubmit() {
               :class="constant ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
             />
           </span>
-          <span class="text-sm text-foreground">{{ $t('lorebooks.entryForm.constant') }}</span>
+          <span class="text-sm text-foreground">{{ $t("lorebooks.entryForm.constant") }}</span>
         </button>
       </div>
 
@@ -204,13 +216,13 @@ function onSubmit() {
           :disabled="saving || !name.trim() || !content.trim()"
           @click="onSubmit"
         >
-          {{ initial ? $t('lorebooks.entryForm.save') : $t('lorebooks.entryForm.add') }}
+          {{ initial ? $t("lorebooks.entryForm.save") : $t("lorebooks.entryForm.add") }}
         </button>
         <button
           class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="$emit('cancel')"
         >
-          {{ $t('common.cancel') }}
+          {{ $t("common.cancel") }}
         </button>
       </div>
     </div>

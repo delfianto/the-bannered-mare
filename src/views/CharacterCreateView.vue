@@ -23,7 +23,9 @@ const lorebookId = ref<string | null>(null);
 
 const editId = computed(() => route.params.id as string | undefined);
 const isEditMode = computed(() => !!editId.value);
-const pageTitle = computed(() => (isEditMode.value ? t("characters.form.editCharacter") : t("characters.form.createCharacter")));
+const pageTitle = computed(() =>
+  isEditMode.value ? t("characters.form.editCharacter") : t("characters.form.createCharacter"),
+);
 
 const tabs = computed<{ id: CreatorTab; label: string; icon: string }[]>(() => [
   { id: "character", label: t("characters.form.tabCharacter"), icon: "i-lucide-user" },
@@ -151,12 +153,14 @@ function handleImport(data: CharacterData) {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
+        <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
     <!-- Header -->
-    <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm">
+    <header
+      class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+    >
       <div class="flex items-center gap-3">
         <button
           class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -190,7 +194,7 @@ function handleImport(data: CharacterData) {
             class="h-4 w-4"
             :class="{ 'animate-spin': form.deleting.value }"
           />
-          {{ form.deleting.value ? $t('common.deleting') : $t('common.delete') }}
+          {{ form.deleting.value ? $t("common.deleting") : $t("common.delete") }}
         </button>
 
         <button
@@ -198,7 +202,7 @@ function handleImport(data: CharacterData) {
           @click="handleExport"
         >
           <UIcon name="i-lucide-download" class="h-4 w-4" />
-          {{ $t('common.export') }}
+          {{ $t("common.export") }}
         </button>
         <button
           class="flex h-9 items-center gap-2 rounded-lg px-5 text-sm font-medium transition-all active:scale-[0.96]"
@@ -215,7 +219,9 @@ function handleImport(data: CharacterData) {
             class="h-4 w-4"
             :class="{ 'animate-spin': form.saving.value }"
           />
-          {{ form.saving.value ? $t('common.saving') : saved ? $t('common.saved') : $t('common.save') }}
+          {{
+            form.saving.value ? $t("common.saving") : saved ? $t("common.saved") : $t("common.save")
+          }}
         </button>
       </div>
     </header>
@@ -224,20 +230,24 @@ function handleImport(data: CharacterData) {
     <div class="flex-shrink-0 border-b bg-background/60">
       <div class="flex items-center gap-1 px-8">
         <div class="mx-auto flex max-w-[580px] items-center gap-1">
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          class="relative flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors"
-          :class="activeTab === tab.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
-          @click="activeTab = tab.id"
-        >
-          <UIcon :name="tab.icon" class="h-4 w-4" />
-          <span style="letter-spacing: 0.03em">{{ tab.label }}</span>
-          <span
-            v-if="activeTab === tab.id"
-            class="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-primary transition-all"
-          />
-        </button>
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            class="relative flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors"
+            :class="
+              activeTab === tab.id
+                ? 'text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            "
+            @click="activeTab = tab.id"
+          >
+            <UIcon :name="tab.icon" class="h-4 w-4" />
+            <span style="letter-spacing: 0.03em">{{ tab.label }}</span>
+            <span
+              v-if="activeTab === tab.id"
+              class="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-primary transition-all"
+            />
+          </button>
         </div>
       </div>
     </div>
@@ -276,10 +286,14 @@ function handleImport(data: CharacterData) {
       </div>
 
       <!-- Preview Panel -->
-      <div class="hidden w-[340px] min-w-[340px] overflow-y-auto border-l bg-secondary/30 px-5 py-6 xl:block">
+      <div
+        class="hidden w-[340px] min-w-[340px] overflow-y-auto border-l bg-secondary/30 px-5 py-6 xl:block"
+      >
         <div class="sticky top-0">
-          <p class="mb-4 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-            {{ $t('characters.form.livePreview') }}
+          <p
+            class="mb-4 font-cinzel text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+          >
+            {{ $t("characters.form.livePreview") }}
           </p>
           <CharacterPreview :data="form.data" :completeness="form.completeness.value" />
         </div>

@@ -22,6 +22,7 @@ export interface CharacterData {
   age: string;
   tags: string[];
   avatarUrl: string;
+  avatarFile?: File | null;
   description: string;
   personality: string;
   greeting: string;
@@ -29,6 +30,8 @@ export interface CharacterData {
   scenario: string;
   exampleDialogues: DialoguePair[];
   lorebook: LorebookEntry[];
+  creatorNotes?: string;
+  systemPrompt?: string;
 }
 
 export const INITIAL_CHARACTER: CharacterData = {
@@ -39,6 +42,7 @@ export const INITIAL_CHARACTER: CharacterData = {
   age: "",
   tags: [],
   avatarUrl: "",
+  avatarFile: null,
   description: "",
   personality: "",
   greeting: "",
@@ -46,4 +50,6 @@ export const INITIAL_CHARACTER: CharacterData = {
   scenario: "",
   exampleDialogues: [],
   lorebook: [],
+  creatorNotes: "",
+  systemPrompt: "",
 };

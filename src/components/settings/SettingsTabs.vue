@@ -13,10 +13,10 @@ const emit = defineEmits<{
 }>();
 
 const tabs = computed(() => [
-  { id: "interface", label: t('settings.tabs.interface'), icon: "i-lucide-palette" },
-  { id: "persona", label: t('settings.tabs.persona'), icon: "i-lucide-user-circle" },
-  { id: "logs", label: t('settings.tabs.logs'), icon: "i-lucide-scroll-text" },
-  { id: "about", label: t('settings.tabs.about'), icon: "i-lucide-info" },
+  { id: "interface", label: t("settings.tabs.interface"), icon: "i-lucide-palette" },
+  { id: "persona", label: t("settings.tabs.persona"), icon: "i-lucide-user-circle" },
+  { id: "logs", label: t("settings.tabs.logs"), icon: "i-lucide-scroll-text" },
+  { id: "about", label: t("settings.tabs.about"), icon: "i-lucide-info" },
 ]);
 </script>
 
@@ -29,9 +29,7 @@ const tabs = computed(() => [
           :key="tab.id"
           class="relative flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors"
           :class="
-            activeTab === tab.id
-              ? 'text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
+            activeTab === tab.id ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
           "
           @click="emit('change', tab.id)"
         >

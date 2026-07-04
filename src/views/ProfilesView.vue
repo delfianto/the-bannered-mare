@@ -14,15 +14,26 @@ import ProfileForm from "@/components/profiles/ProfileForm.vue";
 const { t } = useI18n();
 const toast = useAppToast();
 
-const { profiles, loading, error, createProfile, updateProfile, deleteProfile, setDefault, refresh } =
-  useProfiles();
+const {
+  profiles,
+  loading,
+  error,
+  createProfile,
+  updateProfile,
+  deleteProfile,
+  setDefault,
+  refresh,
+} = useProfiles();
 const { templates } = usePromptTemplates();
 const { presets } = usePresets();
 const { personas } = usePersonas();
 // Load all models so every profile's model_id resolves to a name.
 const { models } = useModels({ pageSize: 100 });
 
-function resolve(list: { id: string; name: string }[], id: string | null | undefined): string | null {
+function resolve(
+  list: { id: string; name: string }[],
+  id: string | null | undefined,
+): string | null {
   if (!id) return null;
   return list.find((x) => x.id === id)?.name ?? id;
 }
@@ -95,9 +106,9 @@ function cancelDelete() {
     <div class="animate-fade-in-up flex items-start justify-between">
       <div>
         <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
-          {{ $t('profiles.title') }}
+          {{ $t("profiles.title") }}
         </h1>
-        <p class="text-sm text-muted-foreground">{{ $t('profiles.subtitle') }}</p>
+        <p class="text-sm text-muted-foreground">{{ $t("profiles.subtitle") }}</p>
       </div>
       <button
         v-if="!showForm"
@@ -105,7 +116,7 @@ function cancelDelete() {
         @click="openCreate"
       >
         <UIcon name="i-lucide-plus" class="h-4 w-4" />
-        {{ $t('profiles.newProfile') }}
+        {{ $t("profiles.newProfile") }}
       </button>
     </div>
 
@@ -135,7 +146,7 @@ function cancelDelete() {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh()"
       >
-        {{ $t('common.retry') }}
+        {{ $t("common.retry") }}
       </button>
     </div>
 
@@ -145,13 +156,13 @@ function cancelDelete() {
       class="flex flex-col items-center justify-center gap-3 py-20"
     >
       <UIcon name="i-lucide-layers" class="h-8 w-8 text-muted-foreground/40" />
-      <p class="text-sm text-muted-foreground">{{ $t('profiles.empty') }}</p>
+      <p class="text-sm text-muted-foreground">{{ $t("profiles.empty") }}</p>
       <button
         class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         @click="openCreate"
       >
         <UIcon name="i-lucide-plus" class="h-4 w-4" />
-        {{ $t('profiles.newProfile') }}
+        {{ $t("profiles.newProfile") }}
       </button>
     </div>
 

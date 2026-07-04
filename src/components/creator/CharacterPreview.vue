@@ -25,7 +25,12 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
       class="relative aspect-[3/4] max-h-[280px] overflow-hidden rounded-xl"
       style="box-shadow: 0 4px 20px var(--color-foreground) / 0.08"
     >
-      <img v-if="data.avatarUrl" :src="data.avatarUrl" :alt="data.name" class="absolute inset-0 h-full w-full object-cover" />
+      <img
+        v-if="data.avatarUrl"
+        :src="data.avatarUrl"
+        :alt="data.name"
+        class="absolute inset-0 h-full w-full object-cover"
+      />
       <div v-else class="absolute inset-0 flex items-center justify-center bg-muted">
         <UIcon name="i-lucide-user" class="h-16 w-16 text-muted-foreground/30" />
       </div>
@@ -42,21 +47,27 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
       </div>
 
       <div class="absolute bottom-0 left-0 right-0 p-4">
-        <h3 class="truncate font-cinzel text-sm font-semibold text-white drop-shadow-lg" style="letter-spacing: 0.02em">
+        <h3
+          class="truncate font-cinzel text-sm font-semibold text-white drop-shadow-lg"
+          style="letter-spacing: 0.02em"
+        >
           {{ data.name || "Unnamed Character" }}
         </h3>
         <p v-if="data.title" class="mt-0.5 truncate text-[11px] text-white/60">{{ data.title }}</p>
         <p v-if="data.species" class="mt-1 text-[10px] text-white/40">
-          {{ data.species }}{{ data.gender ? ` · ${data.gender}` : "" }}{{ data.age ? ` · ${data.age}` : "" }}
+          {{ data.species }}{{ data.gender ? ` · ${data.gender}` : ""
+          }}{{ data.age ? ` · ${data.age}` : "" }}
         </p>
       </div>
     </div>
 
     <!-- Greeting Preview -->
     <div class="space-y-2 rounded-xl border bg-card p-4">
-      <div class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+      <div
+        class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+      >
         <UIcon name="i-lucide-message-circle" class="h-3 w-3" />
-        {{ $t('characters.form.greeting') }}
+        {{ $t("characters.form.greeting") }}
       </div>
       <div v-if="greetingPreview" class="text-xs leading-[1.7]">
         <NarrativeText :content="greetingPreview + (data.greeting.length > 300 ? '...' : '')" />
@@ -66,12 +77,17 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
 
     <!-- Completeness -->
     <div class="rounded-xl border bg-card p-4">
-      <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{{ $t('characters.form.completeness') }}</p>
+      <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        {{ $t("characters.form.completeness") }}
+      </p>
       <div class="flex items-center gap-3">
         <svg width="44" height="44" class="-rotate-90 flex-shrink-0">
           <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3" />
           <circle
-            cx="22" cy="22" r="18" fill="none"
+            cx="22"
+            cy="22"
+            r="18"
+            fill="none"
             stroke="var(--primary)"
             stroke-width="3"
             stroke-linecap="round"

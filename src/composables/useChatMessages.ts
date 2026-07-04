@@ -275,7 +275,11 @@ export function useChatMessages(
       // Update message content locally
       const idx = messages.value.findIndex((m) => m.id === messageId);
       if (idx !== -1) {
-        messages.value[idx] = { ...messages.value[idx], content: updated.content, active_index: updated.active_index };
+        messages.value[idx] = {
+          ...messages.value[idx],
+          content: updated.content,
+          active_index: updated.active_index,
+        };
       }
     } catch (err) {
       console.error("Error activating alternative:", err);

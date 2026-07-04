@@ -47,7 +47,8 @@ export function usePromptFragment() {
       const response = await fetch(`/api/prompt-fragments/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok && response.status !== 204) throw new Error(`Delete failed: ${response.status}`);
+      if (!response.ok && response.status !== 204)
+        throw new Error(`Delete failed: ${response.status}`);
     } finally {
       deleting.value = false;
     }

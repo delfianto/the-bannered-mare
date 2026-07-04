@@ -42,14 +42,14 @@
   "peerDependencies": {
     "typescript": "^6"
   },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+  },
+  "packageManager": "bun@1.3.14",
   "msw": {
     "workerDirectory": [
       "public"
     ]
-  },
-  "packageManager": "bun@1.3.14",
-  "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   }
 }

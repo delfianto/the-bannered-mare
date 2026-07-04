@@ -42,9 +42,9 @@ onMounted(async () => {
 function avatarSrc(): string {
   if (!character.value) return "";
   return (
-    character.value.avatar
-    || character.value.avatar_thumbnail
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(character.value.name)}&background=C9922E&color=fff&size=600`
+    character.value.avatar ||
+    character.value.avatar_thumbnail ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(character.value.name)}&background=C9922E&color=fff&size=600`
   );
 }
 
@@ -56,7 +56,10 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function genderLabel(gender: string | null | undefined, customGender: string | null | undefined): string {
+function genderLabel(
+  gender: string | null | undefined,
+  customGender: string | null | undefined,
+): string {
   if (!gender) return t("characters.detail.notSpecified");
   if (gender === "others" && customGender) return customGender;
   return gender.charAt(0).toUpperCase() + gender.slice(1);
@@ -77,14 +80,17 @@ function startTale() {
   </div>
 
   <!-- Error -->
-  <div v-else-if="error || !character" class="flex flex-1 flex-col items-center justify-center gap-4 py-20">
+  <div
+    v-else-if="error || !character"
+    class="flex flex-1 flex-col items-center justify-center gap-4 py-20"
+  >
     <UIcon name="i-lucide-alert-circle" class="h-10 w-10 text-muted-foreground/40" />
-    <p class="text-sm text-muted-foreground">{{ error || $t('characters.notFound') }}</p>
+    <p class="text-sm text-muted-foreground">{{ error || $t("characters.notFound") }}</p>
     <button
       class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
       @click="router.push('/characters')"
     >
-      {{ $t('characters.detail.backToLibrary') }}
+      {{ $t("characters.detail.backToLibrary") }}
     </button>
   </div>
 
@@ -98,7 +104,7 @@ function startTale() {
           @click="router.push('/characters')"
         >
           <UIcon name="i-lucide-arrow-left" class="h-4 w-4" />
-          {{ $t('common.back') }}
+          {{ $t("common.back") }}
         </button>
         <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
           {{ character.name }}
@@ -109,7 +115,7 @@ function startTale() {
         @click="router.push(`/characters/${characterId}/edit`)"
       >
         <UIcon name="i-lucide-pencil" class="h-4 w-4" />
-        {{ $t('common.edit') }}
+        {{ $t("common.edit") }}
       </button>
     </div>
 
@@ -124,12 +130,10 @@ function startTale() {
         >
           <!-- Avatar (full-bleed with gradient) -->
           <div class="relative h-72 overflow-hidden">
-            <img
-              :src="avatarSrc()"
-              :alt="character.name"
-              class="h-full w-full object-cover"
+            <img :src="avatarSrc()" :alt="character.name" class="h-full w-full object-cover" />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-card/95 via-transparent to-transparent"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-card/95 via-transparent to-transparent" />
             <div class="absolute bottom-0 left-0 right-0 p-6">
               <h2 class="font-cinzel text-xl font-bold text-foreground drop-shadow-lg">
                 {{ character.name }}
@@ -148,20 +152,50 @@ function startTale() {
 
           <!-- Content -->
           <div class="space-y-5 p-6">
+            <!-- Creator Notes / Tagline -->
+            <div v-if="character.creator_notes">
+              <h3
+                class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              >
+                Tagline / Creator Notes
+              </h3>
+              <p class="text-sm leading-relaxed text-foreground italic">
+                {{ character.creator_notes }}
+              </p>
+            </div>
+
             <!-- Description -->
             <div v-if="character.description">
-              <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {{ $t('characters.detail.description') }}
+              <h3
+                class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              >
+                {{ $t("characters.detail.description") }}
               </h3>
               <p class="text-sm leading-relaxed text-foreground">
                 {{ character.description }}
               </p>
             </div>
 
+            <!-- System Prompt Override -->
+            <div v-if="character.system_prompt">
+              <h3
+                class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              >
+                System Prompt Override
+              </h3>
+              <p
+                class="text-sm leading-relaxed text-foreground font-mono bg-muted/20 p-3 rounded-lg whitespace-pre-wrap"
+              >
+                {{ character.system_prompt }}
+              </p>
+            </div>
+
             <!-- Personality -->
             <div v-if="character.personality">
-              <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {{ $t('characters.detail.personality') }}
+              <h3
+                class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              >
+                {{ $t("characters.detail.personality") }}
               </h3>
               <p class="text-sm leading-relaxed text-foreground">
                 {{ character.personality }}
@@ -170,8 +204,10 @@ function startTale() {
 
             <!-- First Message -->
             <div v-if="character.first_message">
-              <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {{ $t('characters.detail.firstMessage') }}
+              <h3
+                class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              >
+                {{ $t("characters.detail.firstMessage") }}
               </h3>
               <div class="rounded-lg border border-border/50 bg-background/50 p-4">
                 <NarrativeText :content="character.first_message" />
@@ -180,8 +216,10 @@ function startTale() {
 
             <!-- Example Dialogues -->
             <div v-if="character.example_dialogues?.length">
-              <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {{ $t('characters.detail.exampleDialogues') }}
+              <h3
+                class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              >
+                {{ $t("characters.detail.exampleDialogues") }}
               </h3>
               <div class="space-y-2">
                 <div
@@ -196,8 +234,10 @@ function startTale() {
 
             <!-- Scenario -->
             <div v-if="character.scenario">
-              <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                {{ $t('characters.detail.scenario') }}
+              <h3
+                class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+              >
+                {{ $t("characters.detail.scenario") }}
               </h3>
               <p class="text-sm leading-relaxed text-foreground">
                 {{ character.scenario }}
@@ -214,48 +254,49 @@ function startTale() {
           class="animate-fade-in-up rounded-xl border bg-card/50 p-4"
           style="animation-delay: 120ms"
         >
-          <h3 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {{ $t('characters.detail.details') }}
+          <h3
+            class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+          >
+            {{ $t("characters.detail.details") }}
           </h3>
           <div class="space-y-3 text-sm">
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">{{ $t('characters.detail.gender') }}</span>
-              <span class="text-foreground">{{ genderLabel(character.gender, character.custom_gender) }}</span>
+              <span class="text-muted-foreground">{{ $t("characters.detail.gender") }}</span>
+              <span class="text-foreground">{{
+                genderLabel(character.gender, character.custom_gender)
+              }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">{{ $t('characters.detail.creator') }}</span>
+              <span class="text-muted-foreground">{{ $t("characters.detail.creator") }}</span>
               <span class="text-foreground">{{ character.creator || "Unknown" }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">{{ $t('characters.detail.version') }}</span>
+              <span class="text-muted-foreground">{{ $t("characters.detail.version") }}</span>
               <span class="text-foreground">v{{ character.version }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">{{ $t('characters.detail.created') }}</span>
+              <span class="text-muted-foreground">{{ $t("characters.detail.created") }}</span>
               <span class="text-foreground">{{ formatDate(character.created_at) }}</span>
             </div>
             <div class="border-t border-border/30" />
             <div class="flex items-center justify-between">
-              <span class="text-muted-foreground">{{ $t('characters.detail.updated') }}</span>
+              <span class="text-muted-foreground">{{ $t("characters.detail.updated") }}</span>
               <span class="text-foreground">{{ formatDate(character.updated_at) }}</span>
             </div>
           </div>
         </div>
 
         <!-- Start Tale Button -->
-        <div
-          class="animate-fade-in-up"
-          style="animation-delay: 180ms"
-        >
+        <div class="animate-fade-in-up" style="animation-delay: 180ms">
           <button
             class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-cinzel text-sm font-semibold tracking-wide text-primary-foreground transition-colors hover:bg-primary/90"
             @click="startTale"
           >
             <UIcon name="i-lucide-message-square-plus" class="h-5 w-5" />
-            {{ $t('characters.detail.startTale') }}
+            {{ $t("characters.detail.startTale") }}
           </button>
         </div>
 
@@ -265,8 +306,10 @@ function startTale() {
           class="animate-fade-in-up rounded-xl border bg-card/50 p-4"
           style="animation-delay: 240ms"
         >
-          <h3 class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {{ $t('characters.detail.postHistory') }}
+          <h3
+            class="mb-2 font-cinzel text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+          >
+            {{ $t("characters.detail.postHistory") }}
           </h3>
           <p class="text-xs leading-relaxed text-muted-foreground">
             {{ character.post_history_instructions }}

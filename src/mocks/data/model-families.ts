@@ -36,15 +36,12 @@ const totalCount = allModelFamiliesMock.length;
 const totalPages = Math.ceil(totalCount / PAGE_LIMIT);
 
 // Generate pages dynamically (19 families = 2 pages: 10 + 9)
-export const modelFamiliesPages: ModelFamilyPage[] = Array.from(
-  { length: totalPages },
-  (_, i) => {
-    const pageNum = i + 1;
-    const start = i * PAGE_LIMIT;
-    const end = start + PAGE_LIMIT;
-    return createPage(allModelFamiliesMock.slice(start, end), pageNum, totalCount, PAGE_LIMIT);
-  },
-);
+export const modelFamiliesPages: ModelFamilyPage[] = Array.from({ length: totalPages }, (_, i) => {
+  const pageNum = i + 1;
+  const start = i * PAGE_LIMIT;
+  const end = start + PAGE_LIMIT;
+  return createPage(allModelFamiliesMock.slice(start, end), pageNum, totalCount, PAGE_LIMIT);
+});
 
 // Generate the filtered "Claude" result dynamically
 const claudeItems = allModelFamiliesMock.filter((item) =>

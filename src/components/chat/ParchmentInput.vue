@@ -89,7 +89,7 @@ function handleKeyDown(e: KeyboardEvent) {
     </div>
 
     <p class="mt-2 text-center text-[10px] text-muted-foreground opacity-60">
-      {{ $t('chat.inputHint') }}
+      {{ $t("chat.inputHint") }}
     </p>
   </div>
 </template>

@@ -70,7 +70,8 @@ async function handleSave() {
   if (!model.value) return;
   const updates: Record<string, unknown> = {};
   if (form.name !== model.value.name) updates.name = form.name;
-  if (form.model_identifier !== model.value.model_identifier) updates.model_identifier = form.model_identifier;
+  if (form.model_identifier !== model.value.model_identifier)
+    updates.model_identifier = form.model_identifier;
   if (form.provider_id !== model.value.provider_id) updates.provider_id = form.provider_id;
   if (form.enabled !== model.value.enabled) updates.enabled = form.enabled;
   // Always include parameters (hard to diff deeply)
@@ -120,7 +121,7 @@ function formatDate(iso: string): string {
     >
       <div class="flex flex-col items-center gap-3">
         <UIcon name="i-lucide-loader-2" class="h-6 w-6 animate-spin text-primary" />
-        <span class="text-sm text-muted-foreground">{{ $t('common.loading') }}</span>
+        <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
@@ -132,13 +133,15 @@ function formatDate(iso: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="router.back()"
       >
-        {{ $t('common.goBack') }}
+        {{ $t("common.goBack") }}
       </button>
     </div>
 
     <template v-if="model && !loading">
       <!-- Header -->
-      <header class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm">
+      <header
+        class="z-20 flex h-[60px] flex-shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+      >
         <div class="flex items-center gap-3">
           <button
             class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -174,7 +177,13 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': deleting }"
             />
-            {{ deleting ? $t('common.deleting') : confirmDelete ? $t('common.deleteConfirm') : $t('common.delete') }}
+            {{
+              deleting
+                ? $t("common.deleting")
+                : confirmDelete
+                  ? $t("common.deleteConfirm")
+                  : $t("common.delete")
+            }}
           </button>
 
           <!-- Save button -->
@@ -188,7 +197,7 @@ function formatDate(iso: string): string {
               class="h-4 w-4"
               :class="{ 'animate-spin': saving }"
             />
-            {{ saving ? $t('common.saving') : $t('common.save') }}
+            {{ saving ? $t("common.saving") : $t("common.save") }}
           </button>
         </div>
       </header>
@@ -200,14 +209,18 @@ function formatDate(iso: string): string {
           <div class="space-y-6 lg:col-span-3">
             <!-- Identity card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
                 Identity
               </h2>
               <div class="space-y-4">
                 <!-- Name -->
                 <label class="block">
-                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    {{ $t('connections.model.name') }}
+                  <span
+                    class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  >
+                    {{ $t("connections.model.name") }}
                   </span>
                   <input
                     v-model="form.name"
@@ -219,8 +232,10 @@ function formatDate(iso: string): string {
 
                 <!-- Model Identifier -->
                 <label class="block">
-                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    {{ $t('connections.model.identifier') }}
+                  <span
+                    class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  >
+                    {{ $t("connections.model.identifier") }}
                   </span>
                   <input
                     v-model="form.model_identifier"
@@ -232,8 +247,10 @@ function formatDate(iso: string): string {
 
                 <!-- Provider selector -->
                 <label class="block">
-                  <span class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    {{ $t('connections.model.provider') }}
+                  <span
+                    class="mb-1.5 block font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+                  >
+                    {{ $t("connections.model.provider") }}
                   </span>
                   <USelectMenu
                     v-if="allowedProviders.length > 1"
@@ -244,7 +261,8 @@ function formatDate(iso: string): string {
                     class="w-full"
                     :ui="{
                       base: 'w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-                      content: 'w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg',
+                      content:
+                        'w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg',
                       item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
                     }"
                   >
@@ -260,19 +278,20 @@ function formatDate(iso: string): string {
                     class="flex h-11 w-full items-center rounded-lg border bg-muted/20 px-4 text-sm text-muted-foreground"
                   >
                     {{ providerName }}
-                    <span class="ml-auto text-[10px] text-muted-foreground/60">{{ $t('connections.model.onlyCompatible') }}</span>
+                    <span class="ml-auto text-[10px] text-muted-foreground/60">{{
+                      $t("connections.model.onlyCompatible")
+                    }}</span>
                   </div>
                 </label>
-
-
-
               </div>
             </div>
 
             <!-- Inference Parameters card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                {{ $t('connections.model.inferenceParams') }}
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                {{ $t("connections.model.inferenceParams") }}
               </h2>
               <ModelInferenceParams
                 :family-parameters="familyParameters"
@@ -287,21 +306,33 @@ function formatDate(iso: string): string {
           <div class="space-y-6 lg:col-span-2">
             <!-- Metadata card -->
             <div class="rounded-xl border bg-card/50 p-5">
-              <h2 class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                {{ $t('connections.model.metadata') }}
+              <h2
+                class="mb-4 font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                {{ $t("connections.model.metadata") }}
               </h2>
               <div class="space-y-3">
                 <!-- Enabled toggle -->
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-muted-foreground">{{ $t('connections.model.enabled') }}</span>
-                  <button @click="toggleEnabled" role="switch" :aria-checked="form.enabled" aria-label="Enabled" class="cursor-pointer">
+                  <span class="text-sm text-muted-foreground">{{
+                    $t("connections.model.enabled")
+                  }}</span>
+                  <button
+                    @click="toggleEnabled"
+                    role="switch"
+                    :aria-checked="form.enabled"
+                    aria-label="Enabled"
+                    class="cursor-pointer"
+                  >
                     <div
                       class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
                       :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
                     >
                       <span
                         class="h-4 w-4 rounded-full shadow-sm transition-transform duration-300"
-                        :class="form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                        :class="
+                          form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
+                        "
                       />
                     </div>
                   </button>
@@ -311,7 +342,9 @@ function formatDate(iso: string): string {
 
                 <!-- Model Family -->
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-muted-foreground">{{ $t('connections.model.family') }}</span>
+                  <span class="text-sm text-muted-foreground">{{
+                    $t("connections.model.family")
+                  }}</span>
                   <button
                     class="text-sm text-primary hover:underline"
                     @click="router.push(`/settings/model-families/${model.model_family_id}`)"
@@ -322,7 +355,9 @@ function formatDate(iso: string): string {
 
                 <!-- Provider status -->
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-muted-foreground">{{ $t('connections.model.provider') }}</span>
+                  <span class="text-sm text-muted-foreground">{{
+                    $t("connections.model.provider")
+                  }}</span>
                   <div class="flex items-center gap-1.5">
                     <span class="text-sm text-foreground">{{ providerName }}</span>
                     <span
@@ -335,7 +370,9 @@ function formatDate(iso: string): string {
                 <!-- Active Identifier -->
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">Active Identifier</span>
-                  <code class="max-w-[200px] truncate rounded bg-accent px-2 py-0.5 text-xs text-foreground">
+                  <code
+                    class="max-w-[200px] truncate rounded bg-accent px-2 py-0.5 text-xs text-foreground"
+                  >
                     {{ model.active_identifier }}
                   </code>
                 </div>

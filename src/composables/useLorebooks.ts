@@ -136,13 +136,10 @@ export function useLorebooks() {
     payload: LoreEntryCreate,
   ): Promise<LoreEntryResponse | null> => {
     try {
-      const { data, error: apiError } = await client.POST(
-        "/api/lorebooks/{lorebook_id}/entries",
-        {
-          params: { path: { lorebook_id: lorebookId } },
-          body: payload,
-        },
-      );
+      const { data, error: apiError } = await client.POST("/api/lorebooks/{lorebook_id}/entries", {
+        params: { path: { lorebook_id: lorebookId } },
+        body: payload,
+      });
 
       if (apiError) {
         throw new Error(`Failed to create entry: ${JSON.stringify(apiError)}`);

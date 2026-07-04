@@ -26,11 +26,20 @@ const dialoguesOpen = ref(true);
 <template>
   <div class="animate-fade-in-up space-y-6">
     <div>
-      <h2 class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">{{ $t('characters.form.persona') }}</h2>
+      <h2
+        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+      >
+        {{ $t("characters.form.persona") }}
+      </h2>
       <div class="mt-2 h-px bg-border" />
     </div>
 
-    <FormField :label="t('characters.form.description')" :hint="t('characters.form.descriptionHint')" :char-count="data.description.length" :char-max="12000">
+    <FormField
+      :label="t('characters.form.description')"
+      :hint="t('characters.form.descriptionHint')"
+      :char-count="data.description.length"
+      :char-max="12000"
+    >
       <textarea
         :value="data.description"
         placeholder="Elara Moonwhisper is a half-elf arcanist who has dedicated her considerable lifespan to preserving the knowledge of the Sunken Library…"
@@ -40,7 +49,26 @@ const dialoguesOpen = ref(true);
       />
     </FormField>
 
-    <FormField :label="t('characters.form.personalitySummary')" :char-count="data.personality.length" :char-max="1000">
+    <FormField
+      :label="t('characters.form.systemPrompt')"
+      :hint="t('characters.form.systemPromptHint')"
+      :char-count="data.systemPrompt?.length || 0"
+      :char-max="12000"
+    >
+      <textarea
+        :value="data.systemPrompt"
+        placeholder="Custom system instructions for the LLM behavior…"
+        rows="4"
+        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        @input="emit('update:field', 'systemPrompt', ($event.target as HTMLTextAreaElement).value)"
+      />
+    </FormField>
+
+    <FormField
+      :label="t('characters.form.personalitySummary')"
+      :char-count="data.personality.length"
+      :char-max="1000"
+    >
       <textarea
         :value="data.personality"
         placeholder="Intellectual and warm, with a dry wit. Treats books like old friends and adventurers like puzzles."
@@ -50,7 +78,12 @@ const dialoguesOpen = ref(true);
       />
     </FormField>
 
-    <FormField :label="t('characters.form.greeting')" :hint="t('characters.form.greetingHint')" :char-count="data.greeting.length" :char-max="4000">
+    <FormField
+      :label="t('characters.form.greeting')"
+      :hint="t('characters.form.greetingHint')"
+      :char-count="data.greeting.length"
+      :char-max="4000"
+    >
       <textarea
         :value="data.greeting"
         :placeholder="'*The torchlight flickers against the damp stone walls.* &quot;These wards were placed here centuries ago…&quot;'"
@@ -61,7 +94,12 @@ const dialoguesOpen = ref(true);
     </FormField>
 
     <FormField :label="t('characters.form.responseStyle')">
-      <Combobox :model-value="data.responseStyle" :options="RESPONSE_STYLE_OPTIONS" placeholder="Narrative" @update:model-value="emit('update:field', 'responseStyle', $event)" />
+      <Combobox
+        :model-value="data.responseStyle"
+        :options="RESPONSE_STYLE_OPTIONS"
+        placeholder="Narrative"
+        @update:model-value="emit('update:field', 'responseStyle', $event)"
+      />
     </FormField>
 
     <!-- Example Dialogues -->
@@ -71,10 +109,21 @@ const dialoguesOpen = ref(true);
         class="flex w-full items-center gap-2 border-b py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
         @click="dialoguesOpen = !dialoguesOpen"
       >
-        <UIcon name="i-lucide-chevron-right" class="h-4 w-4 transition-transform" :class="dialoguesOpen ? 'rotate-90' : ''" />
-        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">{{ $t('characters.form.exampleDialogues') }}</span>
+        <UIcon
+          name="i-lucide-chevron-right"
+          class="h-4 w-4 transition-transform"
+          :class="dialoguesOpen ? 'rotate-90' : ''"
+        />
+        <span class="font-cinzel text-[11px] uppercase tracking-[0.08em]">{{
+          $t("characters.form.exampleDialogues")
+        }}</span>
         <span class="ml-auto text-xs text-muted-foreground">
-          {{ data.exampleDialogues.length }} {{ data.exampleDialogues.length === 1 ? t('characters.form.exchange').split(' | ')[0] : t('characters.form.exchange').split(' | ')[1] }}
+          {{ data.exampleDialogues.length }}
+          {{
+            data.exampleDialogues.length === 1
+              ? t("characters.form.exchange").split(" | ")[0]
+              : t("characters.form.exchange").split(" | ")[1]
+          }}
         </span>
       </button>
 
@@ -84,7 +133,10 @@ const dialoguesOpen = ref(true);
           :key="pair.id"
           :pair="pair"
           :index="i"
-          @update="(id: string, field: 'userMessage' | 'characterReply', val: string) => emit('updateDialogue', id, field, val)"
+          @update="
+            (id: string, field: 'userMessage' | 'characterReply', val: string) =>
+              emit('updateDialogue', id, field, val)
+          "
           @remove="(id: string) => emit('removeDialogue', id)"
         />
 
@@ -94,7 +146,7 @@ const dialoguesOpen = ref(true);
           @click="emit('addDialogue')"
         >
           <UIcon name="i-lucide-plus" class="h-4 w-4" />
-          {{ $t('characters.form.addDialogue') }}
+          {{ $t("characters.form.addDialogue") }}
         </button>
       </div>
     </div>

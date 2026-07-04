@@ -6,7 +6,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  change: [url: string];
+  change: [file: File];
 }>();
 
 const dragOver = ref(false);
@@ -14,11 +14,7 @@ const inputRef = ref<HTMLInputElement | null>(null);
 
 function handleFile(file: File) {
   if (!file.type.startsWith("image/")) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (e.target?.result) emit("change", e.target.result as string);
-  };
-  reader.readAsDataURL(file);
+  emit("change", file);
 }
 
 function onDrop(e: DragEvent) {
@@ -50,9 +46,17 @@ function onChange(e: Event) {
       @drop="onDrop"
     >
       <template v-if="avatarUrl">
-        <img :src="avatarUrl" alt="Character portrait" class="absolute inset-0 h-full w-full object-cover" />
-        <div class="group absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/40">
-          <div class="flex flex-col items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+        <img
+          :src="avatarUrl"
+          alt="Character portrait"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          class="group absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/40"
+        >
+          <div
+            class="flex flex-col items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100"
+          >
             <UIcon name="i-lucide-camera" class="h-6 w-6 text-white" />
             <span class="text-xs font-medium text-white">Change</span>
           </div>
@@ -61,7 +65,11 @@ function onChange(e: Event) {
       <template v-else>
         <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-            <UIcon name="i-lucide-image-plus" class="h-6 w-6" :class="dragOver ? 'text-primary' : 'text-muted-foreground'" />
+            <UIcon
+              name="i-lucide-image-plus"
+              class="h-6 w-6"
+              :class="dragOver ? 'text-primary' : 'text-muted-foreground'"
+            />
           </div>
           <div class="text-center">
             <p class="text-xs font-medium text-foreground">Drop image here</p>

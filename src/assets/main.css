@@ -42,58 +42,58 @@
 /* ── Candlekeep Light Theme Tokens ── */
 :root {
   color-scheme: light;
-  --background: #FFFFFF;
-  --foreground: #2C2418;
-  --card: #FFFFFF;
-  --card-foreground: #2C2418;
-  --popover: #FFFFFF;
-  --popover-foreground: #2C2418;
-  --primary: #C9922E;
-  --primary-foreground: #FFFFFF;
-  --secondary: #FAF7F2;
-  --secondary-foreground: #5C4E3C;
-  --muted: #F5F0E8;
-  --muted-foreground: #7A6E5D;
-  --accent: #E8DFD0;
-  --accent-foreground: #2C2418;
-  --destructive: #B84233;
-  --border: #E8DFD0;
-  --input: #E8DFD0;
-  --ring: #C9922E;
+  --background: #ffffff;
+  --foreground: #2c2418;
+  --card: #ffffff;
+  --card-foreground: #2c2418;
+  --popover: #ffffff;
+  --popover-foreground: #2c2418;
+  --primary: #c9922e;
+  --primary-foreground: #ffffff;
+  --secondary: #faf7f2;
+  --secondary-foreground: #5c4e3c;
+  --muted: #f5f0e8;
+  --muted-foreground: #7a6e5d;
+  --accent: #e8dfd0;
+  --accent-foreground: #2c2418;
+  --destructive: #b84233;
+  --border: #e8dfd0;
+  --input: #e8dfd0;
+  --ring: #c9922e;
   --radius: 0.625rem;
 
-  --chat-user-bg: #C9922E;
-  --chat-user-fg: #FFFFFF;
-  --chat-assistant-bg: #F5F0E8;
-  --chat-assistant-fg: #2C2418;
+  --chat-user-bg: #c9922e;
+  --chat-user-fg: #ffffff;
+  --chat-assistant-bg: #f5f0e8;
+  --chat-assistant-fg: #2c2418;
 }
 
 /* ── Candlekeep Dark Theme Tokens ── */
 .dark {
   color-scheme: dark;
-  --background: #0F0D0B;
-  --foreground: #E8DFD0;
-  --card: #1E1B17;
-  --card-foreground: #E8DFD0;
-  --popover: #1E1B17;
-  --popover-foreground: #E8DFD0;
-  --primary: #D4A544;
-  --primary-foreground: #0F0D0B;
-  --secondary: #1A1614;
-  --secondary-foreground: #D4C4A8;
-  --muted: #2A2520;
-  --muted-foreground: #9B8E7A;
-  --accent: #2A2520;
-  --accent-foreground: #E8DFD0;
-  --destructive: #D45B4F;
-  --border: #2A2520;
-  --input: #2A2520;
-  --ring: #D4A544;
+  --background: #0f0d0b;
+  --foreground: #e8dfd0;
+  --card: #1e1b17;
+  --card-foreground: #e8dfd0;
+  --popover: #1e1b17;
+  --popover-foreground: #e8dfd0;
+  --primary: #d4a544;
+  --primary-foreground: #0f0d0b;
+  --secondary: #1a1614;
+  --secondary-foreground: #d4c4a8;
+  --muted: #2a2520;
+  --muted-foreground: #9b8e7a;
+  --accent: #2a2520;
+  --accent-foreground: #e8dfd0;
+  --destructive: #d45b4f;
+  --border: #2a2520;
+  --input: #2a2520;
+  --ring: #d4a544;
 
-  --chat-user-bg: #D4A544;
-  --chat-user-fg: #0F0D0B;
-  --chat-assistant-bg: #2A2520;
-  --chat-assistant-fg: #E8DFD0;
+  --chat-user-bg: #d4a544;
+  --chat-user-fg: #0f0d0b;
+  --chat-assistant-bg: #2a2520;
+  --chat-assistant-fg: #e8dfd0;
 }
 
 /* ── Nuxt UI token bridge ── */

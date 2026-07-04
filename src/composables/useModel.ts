@@ -50,7 +50,8 @@ export function useModel() {
       const response = await fetch(`/api/models/${id}`, {
         method: "DELETE",
       });
-      if (!response.ok && response.status !== 204) throw new Error(`Delete failed: ${response.status}`);
+      if (!response.ok && response.status !== 204)
+        throw new Error(`Delete failed: ${response.status}`);
     } finally {
       deleting.value = false;
     }
@@ -70,5 +71,15 @@ export function useModel() {
     }
   }
 
-  return { model, loading, saving, deleting, error, fetchModel, saveModel, deleteModel, toggleFlags };
+  return {
+    model,
+    loading,
+    saving,
+    deleting,
+    error,
+    fetchModel,
+    saveModel,
+    deleteModel,
+    toggleFlags,
+  };
 }

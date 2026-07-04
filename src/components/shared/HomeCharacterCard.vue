@@ -9,8 +9,10 @@ const props = defineProps<{
 }>();
 
 function avatarSrc(): string {
-  return props.character.avatar
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`;
+  return (
+    props.character.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`
+  );
 }
 </script>
 

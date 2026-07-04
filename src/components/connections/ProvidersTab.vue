@@ -58,7 +58,7 @@ function formatUrl(url: string | null): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh"
       >
-        {{ $t('common.retry') }}
+        {{ $t("common.retry") }}
       </button>
     </div>
 
@@ -75,7 +75,11 @@ function formatUrl(url: string | null): string {
         <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2.5">
             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent p-1.5">
-              <img :src="getIcon(provider.provider_type)" :alt="provider.provider_type" class="h-full w-full object-contain dark:invert" />
+              <img
+                :src="getIcon(provider.provider_type)"
+                :alt="provider.provider_type"
+                class="h-full w-full object-contain dark:invert"
+              />
             </div>
             <div class="min-w-0">
               <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
@@ -104,15 +108,19 @@ function formatUrl(url: string | null): string {
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-key" class="h-3 w-3 shrink-0" />
-            <span v-if="provider.api_key_configured" class="text-emerald-500">{{ $t('connections.provider.keyConfigured') }}</span>
-            <span v-else class="text-amber-500">{{ $t('connections.provider.keyNotSet') }}</span>
+            <span v-if="provider.api_key_configured" class="text-emerald-500">{{
+              $t("connections.provider.keyConfigured")
+            }}</span>
+            <span v-else class="text-amber-500">{{ $t("connections.provider.keyNotSet") }}</span>
           </div>
         </div>
 
         <!-- Edit hint -->
-        <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
+        <div
+          class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+        >
           <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-          {{ $t('common.edit') }}
+          {{ $t("common.edit") }}
         </div>
       </RouterLink>
     </div>

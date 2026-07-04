@@ -27,9 +27,12 @@ function goToPage(pageNum: number) {
     <!-- Cards -->
     <div v-else>
       <!-- Empty -->
-      <div v-if="families.length === 0" class="flex flex-col items-center justify-center gap-2 py-16">
+      <div
+        v-if="families.length === 0"
+        class="flex flex-col items-center justify-center gap-2 py-16"
+      >
         <UIcon name="i-lucide-folder-open" class="h-8 w-8 text-muted-foreground/50" />
-        <p class="text-sm text-muted-foreground">{{ $t('connections.noFamilies') }}</p>
+        <p class="text-sm text-muted-foreground">{{ $t("connections.noFamilies") }}</p>
       </div>
 
       <!-- Card Grid -->
@@ -52,7 +55,9 @@ function goToPage(pageNum: number) {
               </p>
             </div>
             <span class="mt-0.5 shrink-0 text-[10px] text-muted-foreground">
-              {{ family.provider_types.length }} provider{{ family.provider_types.length !== 1 ? "s" : "" }}
+              {{ family.provider_types.length }} provider{{
+                family.provider_types.length !== 1 ? "s" : ""
+              }}
             </span>
           </div>
 
@@ -79,34 +84,24 @@ function goToPage(pageNum: number) {
           </div>
 
           <!-- Edit hint -->
-          <div class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60">
+          <div
+            class="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+          >
             <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-            {{ $t('common.edit') }}
+            {{ $t("common.edit") }}
           </div>
         </RouterLink>
       </div>
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="mt-5 flex items-center justify-between">
-        <span class="text-xs text-muted-foreground">
-          Page {{ page }} of {{ totalPages }}
-        </span>
+        <span class="text-xs text-muted-foreground"> Page {{ page }} of {{ totalPages }} </span>
         <div class="flex items-center gap-2">
-          <UButton
-            variant="outline"
-            size="xs"
-            :disabled="page <= 1"
-            @click="goToPage(page - 1)"
-          >
+          <UButton variant="outline" size="xs" :disabled="page <= 1" @click="goToPage(page - 1)">
             <UIcon name="i-lucide-chevron-left" class="h-3.5 w-3.5" />
             Prev
           </UButton>
-          <UButton
-            variant="outline"
-            size="xs"
-            :disabled="!hasMore"
-            @click="goToPage(page + 1)"
-          >
+          <UButton variant="outline" size="xs" :disabled="!hasMore" @click="goToPage(page + 1)">
             Next
             <UIcon name="i-lucide-chevron-right" class="h-3.5 w-3.5" />
           </UButton>

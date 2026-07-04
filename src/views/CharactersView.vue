@@ -14,9 +14,17 @@ import CharacterCard from "@/components/discover/CharacterCard.vue";
 import CharacterListRow from "@/components/discover/CharacterListRow.vue";
 import EmptyState from "@/components/discover/EmptyState.vue";
 
+import ConfirmModal from "@/components/shared/ConfirmModal.vue";
+
 const router = useRouter();
 const { t } = useI18n();
 const { success, error: toastError } = useAppToast();
+
+// Deletion confirmation state
+const showDeleteConfirm = ref(false);
+const characterToDelete = ref<string | null>(null);
+const bulkDeleteMode = ref(false);
+const deleteLoading = ref(false);
 
 // Fetch characters from API
 const { characters, loading, refresh } = useCharacters({ pageSize: 50 });
@@ -28,9 +36,7 @@ const { filters, filtered, setSearch, setCategory, setSort, setViewMode } =
 const selectMode = ref(false);
 const selected = ref(new Set<string>());
 
-const hasFilters = computed(
-  () => filters.search !== "" || filters.category !== "All",
-);
+const hasFilters = computed(() => filters.search !== "" || filters.category !== "All");
 
 function toggleSelect(id: string) {
   const next = new Set(selected.value);
@@ -49,12 +55,55 @@ function handleBulkExport() {
 }
 
 function handleBulkDelete() {
-  console.log("Deleting:", [...selected.value]);
+  if (selected.value.size === 0) return;
+  bulkDeleteMode.value = true;
+  showDeleteConfirm.value = true;
 }
 
-function handleContextAction(action: string, id: string) {
-  if (action === "edit") router.push(`/characters/${id}/edit`);
-  else console.log("Context action:", action, id);
+async function handleContextAction(action: string, id: string) {
+  if (action === "edit") {
+    router.push(`/characters/${id}/edit`);
+  } else if (action === "delete") {
+    characterToDelete.value = id;
+    bulkDeleteMode.value = false;
+    showDeleteConfirm.value = true;
+  } else {
+    console.log("Context action:", action, id);
+  }
+}
+
+async function executeDelete() {
+  deleteLoading.value = true;
+  try {
+    if (bulkDeleteMode.value) {
+      const count = selected.value.size;
+      const deletePromises = [...selected.value].map((id) =>
+        fetch(`/api/characters/${id}`, { method: "DELETE" }),
+      );
+      const responses = await Promise.all(deletePromises);
+      const failedCount = responses.filter((r) => !r.ok && r.status !== 204).length;
+      if (failedCount > 0) {
+        throw new Error(`${failedCount} deletions failed`);
+      }
+      success(t("characters.deleted"), `${count} character(s) deleted.`);
+      cancelSelect();
+    } else if (characterToDelete.value) {
+      const id = characterToDelete.value;
+      const response = await fetch(`/api/characters/${id}`, { method: "DELETE" });
+      if (!response.ok && response.status !== 204) {
+        throw new Error(`Failed to delete character: ${response.status}`);
+      }
+      success(t("characters.deleted"), t("characters.deleteSuccess"));
+    }
+    refresh();
+  } catch {
+    toastError(t("characters.deleteFailed"), t("characters.deleteError"));
+  } finally {
+    deleteLoading.value = false;
+    showDeleteConfirm.value = false;
+    characterToDelete.value = null;
+    bulkDeleteMode.value = false;
+  }
 }
 
 function navigateToCreate() {
@@ -137,11 +186,7 @@ async function onFileSelected(event: Event) {
 
     <!-- Category pills -->
     <div class="animate-fade-in-up" style="animation-delay: 120ms">
-      <CategoryPills
-        :active="filters.category"
-        :categories="CATEGORIES"
-        @change="setCategory"
-      />
+      <CategoryPills :active="filters.category" :categories="CATEGORIES" @change="setCategory" />
     </div>
 
     <!-- Bulk action bar -->
@@ -159,7 +204,7 @@ async function onFileSelected(event: Event) {
       class="flex items-center justify-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-6 py-4"
     >
       <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-primary" />
-      <span class="text-sm text-foreground">{{ $t('characters.importing') }}</span>
+      <span class="text-sm text-foreground">{{ $t("characters.importing") }}</span>
     </div>
 
     <!-- Loading -->
@@ -206,6 +251,23 @@ async function onFileSelected(event: Event) {
       v-if="!loading && filtered.length === 0"
       :has-filters="hasFilters"
       @create-new="navigateToCreate"
+    />
+
+    <!-- Delete Confirmation Modal -->
+    <ConfirmModal
+      :show="showDeleteConfirm"
+      :title="bulkDeleteMode ? 'Delete Selected Characters' : 'Delete Character'"
+      :message="
+        bulkDeleteMode
+          ? `Are you sure you want to delete the ${selected.size} selected characters? This action cannot be undone.`
+          : 'Are you sure you want to delete this character? This action cannot be undone.'
+      "
+      :confirm-text="t('common.delete') || 'Delete'"
+      :cancel-text="t('common.cancel') || 'Cancel'"
+      :loading="deleteLoading"
+      destructive
+      @confirm="executeDelete"
+      @close="showDeleteConfirm = false"
     />
   </div>
 </template>

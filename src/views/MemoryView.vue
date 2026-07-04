@@ -75,10 +75,10 @@ function sourceTypeBadge(type: string): string {
 // ── Data Bank ───────────────────────────────────────────
 const scopeFilter = ref<string>("all");
 const scopes = computed(() => [
-  { id: "all", label: t('memory.scopes.all') },
-  { id: "global", label: t('memory.scopes.global') },
-  { id: "character", label: t('memory.scopes.character') },
-  { id: "chat", label: t('memory.scopes.chat') },
+  { id: "all", label: t("memory.scopes.all") },
+  { id: "global", label: t("memory.scopes.global") },
+  { id: "character", label: t("memory.scopes.character") },
+  { id: "chat", label: t("memory.scopes.chat") },
 ]);
 
 const filteredEntries = computed(() => {
@@ -184,17 +184,17 @@ function scopeBadgeClass(scope: string): string {
         <div>
           <div class="flex items-center gap-3">
             <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
-              {{ $t('memory.title') }}
+              {{ $t("memory.title") }}
             </h1>
             <span
               v-if="ragIndexedCount !== null"
               class="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-medium text-emerald-400"
             >
-              {{ $t('memory.indexed', { count: ragIndexedCount }) }}
+              {{ $t("memory.indexed", { count: ragIndexedCount }) }}
             </span>
           </div>
           <p class="text-sm text-muted-foreground">
-            {{ $t('memory.subtitle') }}
+            {{ $t("memory.subtitle") }}
           </p>
         </div>
         <button
@@ -202,15 +202,17 @@ function scopeBadgeClass(scope: string): string {
           @click="openCreateForm"
         >
           <UIcon name="i-lucide-plus" class="h-4 w-4" />
-          {{ $t('memory.addEntry') }}
+          {{ $t("memory.addEntry") }}
         </button>
       </div>
     </div>
 
     <!-- RAG Search Section -->
     <div class="animate-fade-in-up rounded-xl border bg-card/50 p-5" style="animation-delay: 30ms">
-      <h2 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        {{ $t('memory.semanticSearch') }}
+      <h2
+        class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+      >
+        {{ $t("memory.semanticSearch") }}
       </h2>
       <div class="flex items-center gap-3">
         <div class="relative flex-1">
@@ -233,13 +235,9 @@ function scopeBadgeClass(scope: string): string {
           :disabled="searchLoading || !searchQuery.trim()"
           @click="onSearch"
         >
-          <UIcon
-            v-if="searchLoading"
-            name="i-lucide-loader-2"
-            class="h-4 w-4 animate-spin"
-          />
+          <UIcon v-if="searchLoading" name="i-lucide-loader-2" class="h-4 w-4 animate-spin" />
           <UIcon v-else name="i-lucide-search" class="h-4 w-4" />
-          {{ $t('common.search') }}
+          {{ $t("common.search") }}
         </button>
       </div>
 
@@ -250,7 +248,9 @@ function scopeBadgeClass(scope: string): string {
 
       <div v-else-if="hasSearched && searchResults.length === 0" class="mt-4 text-center py-6">
         <UIcon name="i-lucide-search-x" class="mx-auto mb-2 h-6 w-6 text-muted-foreground/40" />
-        <p class="text-sm text-muted-foreground">{{ $t('memory.searchNoResults', { query: searchQuery }) }}</p>
+        <p class="text-sm text-muted-foreground">
+          {{ $t("memory.searchNoResults", { query: searchQuery }) }}
+        </p>
       </div>
 
       <div v-else-if="searchResults.length > 0" class="mt-4 space-y-3">
@@ -270,7 +270,7 @@ function scopeBadgeClass(scope: string): string {
               class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
               :class="scoreColor(result.score)"
             >
-              {{ $t('memory.matchPercent', { score: (result.score * 100).toFixed(0) }) }}
+              {{ $t("memory.matchPercent", { score: (result.score * 100).toFixed(0) }) }}
             </span>
           </div>
           <p class="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
@@ -298,16 +298,15 @@ function scopeBadgeClass(scope: string): string {
     </div>
 
     <!-- Inline Create/Edit Form -->
-    <div
-      v-if="showForm"
-      class="animate-fade-in-up rounded-xl border bg-card/50 p-6"
-    >
+    <div v-if="showForm" class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
       <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-        {{ editingId ? $t('memory.form.editEntry') : $t('memory.form.newEntry') }}
+        {{ editingId ? $t("memory.form.editEntry") : $t("memory.form.newEntry") }}
       </h2>
       <div class="space-y-4">
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('memory.form.name') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("memory.form.name")
+          }}</span>
           <input
             v-model="formName"
             type="text"
@@ -316,18 +315,22 @@ function scopeBadgeClass(scope: string): string {
           />
         </label>
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('memory.form.scope') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("memory.form.scope")
+          }}</span>
           <select
             v-model="formScope"
             class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           >
-            <option value="global">{{ $t('memory.scopes.global') }}</option>
-            <option value="character">{{ $t('memory.scopes.character') }}</option>
-            <option value="chat">{{ $t('memory.scopes.chat') }}</option>
+            <option value="global">{{ $t("memory.scopes.global") }}</option>
+            <option value="character">{{ $t("memory.scopes.character") }}</option>
+            <option value="chat">{{ $t("memory.scopes.chat") }}</option>
           </select>
         </label>
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('memory.form.content') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("memory.form.content")
+          }}</span>
           <textarea
             v-model="formContent"
             rows="4"
@@ -340,13 +343,13 @@ function scopeBadgeClass(scope: string): string {
             class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             @click="saveForm"
           >
-            {{ editingId ? $t('memory.form.saveChanges') : $t('memory.form.createEntry') }}
+            {{ editingId ? $t("memory.form.saveChanges") : $t("memory.form.createEntry") }}
           </button>
           <button
             class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             @click="cancelForm"
           >
-            {{ $t('common.cancel') }}
+            {{ $t("common.cancel") }}
           </button>
         </div>
       </div>
@@ -365,7 +368,7 @@ function scopeBadgeClass(scope: string): string {
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
         @click="refresh()"
       >
-        {{ $t('common.retry') }}
+        {{ $t("common.retry") }}
       </button>
     </div>
 
@@ -375,7 +378,7 @@ function scopeBadgeClass(scope: string): string {
       class="flex flex-col items-center justify-center gap-3 py-20"
     >
       <UIcon name="i-lucide-database" class="h-8 w-8 text-muted-foreground/40" />
-      <p class="text-sm text-muted-foreground">{{ $t('memory.noEntries') }}</p>
+      <p class="text-sm text-muted-foreground">{{ $t("memory.noEntries") }}</p>
     </div>
 
     <!-- Entry Cards Grid -->
@@ -424,20 +427,16 @@ function scopeBadgeClass(scope: string): string {
             @click.stop="openEditForm(entry)"
           >
             <UIcon name="i-lucide-pencil" class="h-3 w-3" />
-            {{ $t('common.edit') }}
+            {{ $t("common.edit") }}
           </button>
           <button
             class="flex items-center gap-1"
-            :class="
-              pendingDeleteId === entry.id
-                ? 'text-destructive!'
-                : 'hover:text-destructive'
-            "
+            :class="pendingDeleteId === entry.id ? 'text-destructive!' : 'hover:text-destructive'"
             @click.stop="onDeleteClick(entry.id)"
             @mouseleave="cancelDelete"
           >
             <UIcon name="i-lucide-trash-2" class="h-3 w-3" />
-            {{ pendingDeleteId === entry.id ? $t('memory.confirmDelete') : $t('common.delete') }}
+            {{ pendingDeleteId === entry.id ? $t("memory.confirmDelete") : $t("common.delete") }}
           </button>
         </div>
       </div>

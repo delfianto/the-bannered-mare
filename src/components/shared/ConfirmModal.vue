@@ -1,0 +1,57 @@
+<script setup lang="ts">
+import Modal from "./Modal.vue";
+
+defineProps<{
+  show: boolean;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  loading?: boolean;
+  destructive?: boolean;
+}>();
+
+const emit = defineEmits<{
+  confirm: [];
+  close: [];
+}>();
+</script>
+
+<template>
+  <Modal
+    :show="show"
+    :title="title"
+    max-width="sm"
+    :close-on-backdrop="!loading"
+    @close="emit('close')"
+  >
+    <p class="leading-relaxed text-muted-foreground/90">
+      {{ message }}
+    </p>
+
+    <template #footer>
+      <button
+        type="button"
+        class="h-9 rounded-xl border border-border bg-transparent px-4 text-sm font-medium text-foreground transition-colors hover:bg-white/5 disabled:opacity-50"
+        :disabled="loading"
+        @click="emit('close')"
+      >
+        {{ cancelText || $t("common.cancel") || "Cancel" }}
+      </button>
+      <button
+        type="button"
+        class="flex h-9 items-center gap-2 rounded-xl px-5 text-sm font-medium transition-all active:scale-[0.96] disabled:opacity-50"
+        :class="
+          destructive
+            ? 'bg-destructive text-destructive-foreground hover:bg-destructive/95 shadow-sm'
+            : 'bg-primary text-primary-foreground hover:bg-primary/95 shadow-sm'
+        "
+        :disabled="loading"
+        @click="emit('confirm')"
+      >
+        <UIcon v-if="loading" name="i-lucide-loader-2" class="h-4 w-4 animate-spin" />
+        <span>{{ confirmText || $t("common.delete") || "Confirm" }}</span>
+      </button>
+    </template>
+  </Modal>
+</template>

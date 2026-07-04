@@ -28,7 +28,7 @@ async function loadPersonas() {
   try {
     const { data, error: apiError } = await client.GET("/api/personas/");
     if (apiError) {
-      error.value = t('settings.persona.failedLoad');
+      error.value = t("settings.persona.failedLoad");
       return;
     }
     if (data) {
@@ -44,9 +44,11 @@ async function loadPersonas() {
 onMounted(loadPersonas);
 
 function getAvatarSrc(persona: PersonaResponse): string {
-  return persona.avatar_thumbnail
-    || persona.avatar
-    || `https://ui-avatars.com/api/?name=${encodeURIComponent(persona.name)}&background=C9922E&color=fff&size=80`;
+  return (
+    persona.avatar_thumbnail ||
+    persona.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(persona.name)}&background=C9922E&color=fff&size=80`
+  );
 }
 
 // ── Create / Edit form ──────────────────────────────────
@@ -186,7 +188,7 @@ async function setDefault(personaId: string) {
     <!-- Header Row -->
     <div class="mb-4 flex items-center justify-between">
       <h3 class="font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        {{ $t('settings.persona.title') }}
+        {{ $t("settings.persona.title") }}
       </h3>
       <UButton
         icon="i-lucide-plus"
@@ -198,16 +200,15 @@ async function setDefault(personaId: string) {
     </div>
 
     <!-- Inline Create/Edit Form -->
-    <div
-      v-if="showForm"
-      class="mb-4 animate-fade-in-up rounded-xl border bg-card/50 p-5"
-    >
+    <div v-if="showForm" class="mb-4 animate-fade-in-up rounded-xl border bg-card/50 p-5">
       <h4 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-        {{ editingId ? $t('settings.persona.editPersona') : $t('settings.persona.newPersona') }}
+        {{ editingId ? $t("settings.persona.editPersona") : $t("settings.persona.newPersona") }}
       </h4>
       <div class="space-y-4">
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('settings.persona.name') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("settings.persona.name")
+          }}</span>
           <input
             v-model="formName"
             type="text"
@@ -216,7 +217,9 @@ async function setDefault(personaId: string) {
           />
         </label>
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('settings.persona.description') }}</span>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("settings.persona.description")
+          }}</span>
           <textarea
             v-model="formDescription"
             rows="3"
@@ -231,11 +234,13 @@ async function setDefault(personaId: string) {
               type="checkbox"
               class="rounded text-primary focus:ring-primary"
             />
-            {{ $t('settings.persona.setAsDefault') }}
+            {{ $t("settings.persona.setAsDefault") }}
           </label>
         </div>
         <div>
-          <label class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('settings.persona.avatar') }}</label>
+          <label class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("settings.persona.avatar")
+          }}</label>
           <input
             type="file"
             accept="image/*"
@@ -251,17 +256,21 @@ async function setDefault(personaId: string) {
           >
             <span v-if="formSaving" class="flex items-center gap-2">
               <UIcon name="i-lucide-loader-2" class="h-3.5 w-3.5 animate-spin" />
-              {{ $t('common.saving') }}
+              {{ $t("common.saving") }}
             </span>
             <span v-else>
-              {{ editingId ? $t('settings.persona.saveChanges') : $t('settings.persona.createPersona') }}
+              {{
+                editingId
+                  ? $t("settings.persona.saveChanges")
+                  : $t("settings.persona.createPersona")
+              }}
             </span>
           </button>
           <button
             class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             @click="cancelForm"
           >
-            {{ $t('common.cancel') }}
+            {{ $t("common.cancel") }}
           </button>
         </div>
       </div>
@@ -273,21 +282,15 @@ async function setDefault(personaId: string) {
     </div>
 
     <!-- Error State -->
-    <div
-      v-else-if="error"
-      class="rounded-xl border bg-card/50 p-8 text-center"
-    >
+    <div v-else-if="error" class="rounded-xl border bg-card/50 p-8 text-center">
       <UIcon name="i-lucide-alert-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ error }}</p>
     </div>
 
     <!-- Empty State -->
-    <div
-      v-else-if="personas.length === 0"
-      class="rounded-xl border bg-card/50 p-8 text-center"
-    >
+    <div v-else-if="personas.length === 0" class="rounded-xl border bg-card/50 p-8 text-center">
       <UIcon name="i-lucide-user-circle" class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-      <p class="text-sm text-muted-foreground">{{ $t('settings.persona.noPersonas') }}</p>
+      <p class="text-sm text-muted-foreground">{{ $t("settings.persona.noPersonas") }}</p>
     </div>
 
     <!-- Persona List -->
@@ -310,10 +313,7 @@ async function setDefault(personaId: string) {
             <p class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
               {{ persona.name }}
             </p>
-            <button
-              v-if="persona.is_default"
-              class="cursor-default"
-            >
+            <button v-if="persona.is_default" class="cursor-default">
               <UBadge
                 :label="$t('settings.persona.default')"
                 size="sm"
@@ -336,10 +336,7 @@ async function setDefault(personaId: string) {
               />
             </button>
           </div>
-          <p
-            v-if="persona.description"
-            class="mt-0.5 line-clamp-2 text-xs text-muted-foreground"
-          >
+          <p v-if="persona.description" class="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
             {{ persona.description }}
           </p>
         </div>
@@ -361,12 +358,16 @@ async function setDefault(personaId: string) {
                 : 'text-muted-foreground hover:bg-accent hover:text-foreground'
             "
             :title="pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'"
-            :aria-label="pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'"
+            :aria-label="
+              pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'
+            "
             @click.stop="onDeleteClick(persona.id)"
             @mouseleave="cancelDelete"
           >
             <UIcon
-              :name="pendingDeleteId === persona.id ? 'i-lucide-alert-triangle' : 'i-lucide-trash-2'"
+              :name="
+                pendingDeleteId === persona.id ? 'i-lucide-alert-triangle' : 'i-lucide-trash-2'
+              "
               class="h-4 w-4"
             />
           </button>

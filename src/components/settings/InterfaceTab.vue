@@ -47,8 +47,10 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
   <div class="mx-auto max-w-2xl space-y-8 animate-fade-in-up">
     <!-- Behavior Section -->
     <section>
-      <h3 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        {{ $t('settings.interface.behavior') }}
+      <h3
+        class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+      >
+        {{ $t("settings.interface.behavior") }}
       </h3>
       <div class="rounded-xl border bg-card/50 p-5 space-y-5">
         <!-- Stream Responses -->
@@ -56,8 +58,12 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           <div class="flex items-center gap-3">
             <UIcon name="i-lucide-radio" class="h-5 w-5 text-primary" />
             <div>
-              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.streamResponses') }}</p>
-              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.streamDescription') }}</p>
+              <p class="text-sm font-medium text-foreground">
+                {{ $t("settings.interface.streamResponses") }}
+              </p>
+              <p class="text-xs text-muted-foreground">
+                {{ $t("settings.interface.streamDescription") }}
+              </p>
             </div>
           </div>
           <button
@@ -83,8 +89,12 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           <div class="flex items-center gap-3">
             <UIcon name="i-lucide-pen-tool" class="h-5 w-5 text-primary" />
             <div>
-              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.typingIndicator') }}</p>
-              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.typingDescription') }}</p>
+              <p class="text-sm font-medium text-foreground">
+                {{ $t("settings.interface.typingIndicator") }}
+              </p>
+              <p class="text-xs text-muted-foreground">
+                {{ $t("settings.interface.typingDescription") }}
+              </p>
             </div>
           </div>
           <button
@@ -110,13 +120,17 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           <div class="flex items-center gap-3">
             <UIcon name="i-lucide-languages" class="h-5 w-5 text-primary" />
             <div>
-              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.language') }}</p>
-              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.languageDescription') }}</p>
+              <p class="text-sm font-medium text-foreground">
+                {{ $t("settings.interface.language") }}
+              </p>
+              <p class="text-xs text-muted-foreground">
+                {{ $t("settings.interface.languageDescription") }}
+              </p>
             </div>
           </div>
           <USelectMenu
             v-model="currentLocale"
-            :items="SUPPORTED_LOCALES.map(l => ({ label: l.name, value: l.code }))"
+            :items="SUPPORTED_LOCALES.map((l) => ({ label: l.name, value: l.code }))"
             value-key="value"
             :search-input="false"
             :ui="{
@@ -125,8 +139,10 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
             }"
           >
-            <button class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30">
-              {{ SUPPORTED_LOCALES.find(l => l.code === currentLocale)?.name }}
+            <button
+              class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+            >
+              {{ SUPPORTED_LOCALES.find((l) => l.code === currentLocale)?.name }}
               <UIcon name="i-lucide-chevron-down" class="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </USelectMenu>
@@ -136,20 +152,23 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
     <!-- Color Scheme Section -->
     <section>
-      <h3 class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-        {{ $t('settings.interface.colorScheme') }}
+      <h3
+        class="mb-3 font-cinzel text-sm font-semibold uppercase tracking-widest text-muted-foreground"
+      >
+        {{ $t("settings.interface.colorScheme") }}
       </h3>
       <div class="rounded-xl border bg-card/50 p-5 space-y-5">
         <!-- Dark mode toggle -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon
-              :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-              class="h-5 w-5 text-primary"
-            />
+            <UIcon :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" class="h-5 w-5 text-primary" />
             <div>
-              <p class="text-sm font-medium text-foreground">{{ $t('settings.interface.darkMode') }}</p>
-              <p class="text-xs text-muted-foreground">{{ $t('settings.interface.darkModeDescription') }}</p>
+              <p class="text-sm font-medium text-foreground">
+                {{ $t("settings.interface.darkMode") }}
+              </p>
+              <p class="text-xs text-muted-foreground">
+                {{ $t("settings.interface.darkModeDescription") }}
+              </p>
             </div>
           </div>
           <button
@@ -177,9 +196,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             :key="preset.id"
             class="group relative flex flex-col items-center gap-2 rounded-xl p-2.5 transition-all"
             :class="
-              colorScheme === preset.id
-                ? 'ring-2 ring-primary bg-accent/30'
-                : 'hover:bg-accent/20'
+              colorScheme === preset.id ? 'ring-2 ring-primary bg-accent/30' : 'hover:bg-accent/20'
             "
             :aria-label="`Select ${preset.name} color scheme`"
             @click="setColorScheme(preset.id)"
@@ -190,10 +207,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             >
               <div class="flex h-full">
                 <!-- Sidebar strip -->
-                <div
-                  class="w-[10px] flex-shrink-0"
-                  :style="{ backgroundColor: previewBg(preset) }"
-                >
+                <div class="w-[10px] flex-shrink-0" :style="{ backgroundColor: previewBg(preset) }">
                   <div
                     class="mx-auto mt-2 h-1.5 w-1.5 rounded-full"
                     :style="{ backgroundColor: preset.preview.primary }"
@@ -250,6 +264,5 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         </div>
       </div>
     </section>
-
   </div>
 </template>

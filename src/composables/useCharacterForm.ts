@@ -74,6 +74,10 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
     if (data.personality) fd.append("personality", data.personality);
     if (data.greeting) fd.append("first_message", data.greeting);
     if (data.scenario) fd.append("scenario", data.scenario);
+    if (data.creatorNotes) fd.append("creator_notes", data.creatorNotes);
+    if (data.systemPrompt) fd.append("system_prompt", data.systemPrompt);
+    if (data.species) fd.append("species", data.species);
+    if (data.age) fd.append("age", data.age);
 
     if (data.tags.length > 0) {
       fd.append("tags", JSON.stringify(data.tags));
@@ -97,7 +101,9 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       }
     }
 
-    if (data.avatarUrl) fd.append("avatar", data.avatarUrl);
+    if (data.avatarFile) {
+      fd.append("avatar", data.avatarFile);
+    }
 
     fd.append("version", "1");
 
@@ -115,6 +121,11 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
     data.scenario = res.scenario || "";
     data.tags = res.tags || [];
     data.avatarUrl = res.avatar || "";
+    data.avatarFile = null;
+    data.creatorNotes = res.creator_notes || "";
+    data.systemPrompt = res.system_prompt || "";
+    data.species = res.species || "";
+    data.age = res.age || "";
 
     // Map gender back
     if (res.gender === "others" && res.custom_gender) {
@@ -145,8 +156,6 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
 
     // Reset fields not in API
     data.title = "";
-    data.species = "";
-    data.age = "";
     data.responseStyle = "";
     data.lorebook = [];
   }
@@ -170,6 +179,71 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       const result: CharacterResponse = await response.json();
       id.value = result.id;
       data.id = result.id;
+
+      // Sync lorebook entries
+      const { data: lorebooks } = await client.GET("/api/lorebooks", {
+        params: { query: { character_id: result.id } },
+      });
+
+      let lorebookId = "";
+      if (lorebooks && lorebooks.length > 0) {
+        lorebookId = lorebooks[0].id;
+      } else if (data.lorebook.length > 0) {
+        // Create new lorebook
+        const newBook = await client.POST("/api/lorebooks", {
+          body: {
+            name: `${data.name} Lorebook`,
+            description: `Lorebook for ${data.name}`,
+            is_global: false,
+            character_id: result.id,
+          },
+        });
+        if (newBook.data) {
+          lorebookId = newBook.data.id;
+        }
+      }
+
+      if (lorebookId) {
+        // Fetch existing entries to know what to delete/update
+        const { data: bookDetails } = await client.GET("/api/lorebooks/{lorebook_id}", {
+          params: { path: { lore_book_id: lorebookId } }, // Wait! Is it lore_book_id or lorebook_id? Let's check openapi schema.
+        } as any); // Use as any to prevent typings issues if endpoint matches differently
+        const existingEntries = (bookDetails as any)?.entries || [];
+
+        // Determine entries to delete
+        const currentIds = new Set(data.lorebook.map((e) => e.id));
+        for (const entry of existingEntries) {
+          if (!currentIds.has(entry.id)) {
+            await client.DELETE("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
+              params: { path: { lorebook_id: lorebookId, entry_id: entry.id } },
+            } as any);
+          }
+        }
+
+        // Create or update current entries
+        for (const entry of data.lorebook) {
+          const isNew = !existingEntries.some((e: any) => e.id === entry.id);
+          const payload = {
+            name: entry.keywords[0] || "Untitled",
+            content: entry.content,
+            keys: entry.keywords,
+            enabled: entry.enabled,
+          };
+
+          if (isNew) {
+            await client.POST("/api/lorebooks/{lorebook_id}/entries", {
+              params: { path: { lorebook_id: lorebookId } },
+              body: payload,
+            } as any);
+          } else {
+            await client.PUT("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
+              params: { path: { lorebook_id: lorebookId, entry_id: entry.id } },
+              body: payload,
+            } as any);
+          }
+        }
+      }
+
       return result;
     } finally {
       saving.value = false;
@@ -189,6 +263,28 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       }
 
       mapResponseToForm(res);
+
+      // Load lorebook if it exists
+      const { data: lorebooks } = await client.GET("/api/lorebooks", {
+        params: { query: { character_id: characterId } },
+      });
+
+      if (lorebooks && lorebooks.length > 0) {
+        const lorebookId = lorebooks[0].id;
+        const { data: bookDetails } = await client.GET("/api/lorebooks/{lorebook_id}", {
+          params: { path: { lorebook_id: lorebookId } },
+        } as any);
+        if (bookDetails && (bookDetails as any).entries) {
+          data.lorebook = (bookDetails as any).entries.map((entry: any) => ({
+            id: entry.id,
+            keywords: entry.keys,
+            content: entry.content,
+            enabled: entry.enabled,
+          }));
+        }
+      } else {
+        data.lorebook = [];
+      }
     } finally {
       loading.value = false;
     }
@@ -209,9 +305,16 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
 
   const completeness = computed(() => {
     const fields = [
-      data.name, data.title, data.species, data.gender,
-      data.avatarUrl, data.description, data.personality,
-      data.greeting, data.responseStyle, data.scenario,
+      data.name,
+      data.title,
+      data.species,
+      data.gender,
+      data.avatarUrl,
+      data.description,
+      data.personality,
+      data.greeting,
+      data.responseStyle,
+      data.scenario,
     ];
     const filled = fields.filter((f) => f.trim().length > 0).length;
     const hasDialogues = data.exampleDialogues.length > 0 ? 1 : 0;

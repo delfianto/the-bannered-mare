@@ -186,7 +186,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
     <div class="flex w-[300px] shrink-0 flex-col border-r">
       <div class="flex items-center justify-between px-5 pb-3 pt-6">
         <h1 class="font-cinzel text-lg font-bold tracking-wide text-foreground">
-          {{ $t('lorebooks.title') }}
+          {{ $t("lorebooks.title") }}
         </h1>
         <button
           class="flex h-8 w-8 items-center justify-center rounded-lg border bg-card text-foreground transition-colors hover:bg-accent"
@@ -205,12 +205,14 @@ async function toggleEntry(entry: LoreEntryResponse) {
           @click="selectLorebook(lb.id)"
         >
           <div class="flex items-center justify-between gap-2">
-            <span class="truncate font-cinzel text-sm font-medium text-foreground">{{ lb.name }}</span>
+            <span class="truncate font-cinzel text-sm font-medium text-foreground">{{
+              lb.name
+            }}</span>
             <span
               v-if="lb.is_global"
               class="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-[8px] font-medium uppercase tracking-wide text-primary"
             >
-              {{ $t('lorebooks.global') }}
+              {{ $t("lorebooks.global") }}
             </span>
           </div>
           <p v-if="lb.description" class="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground">
@@ -221,8 +223,11 @@ async function toggleEntry(entry: LoreEntryResponse) {
         <div v-if="loading && lorebooks.length === 0" class="flex justify-center py-8">
           <UIcon name="i-lucide-loader-2" class="h-5 w-5 animate-spin text-primary" />
         </div>
-        <div v-else-if="lorebooks.length === 0" class="px-3 py-8 text-center text-xs text-muted-foreground">
-          {{ $t('lorebooks.empty') }}
+        <div
+          v-else-if="lorebooks.length === 0"
+          class="px-3 py-8 text-center text-xs text-muted-foreground"
+        >
+          {{ $t("lorebooks.empty") }}
         </div>
       </div>
     </div>
@@ -233,11 +238,13 @@ async function toggleEntry(entry: LoreEntryResponse) {
       <div v-if="showLorebookForm" class="px-8 py-6">
         <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
           <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-            {{ editingLorebook ? $t('lorebooks.form.editTitle') : $t('lorebooks.form.newTitle') }}
+            {{ editingLorebook ? $t("lorebooks.form.editTitle") : $t("lorebooks.form.newTitle") }}
           </h2>
           <div class="space-y-4">
             <label class="block">
-              <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.form.name') }}</span>
+              <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+                $t("lorebooks.form.name")
+              }}</span>
               <input
                 v-model="lbName"
                 type="text"
@@ -246,7 +253,9 @@ async function toggleEntry(entry: LoreEntryResponse) {
               />
             </label>
             <label class="block">
-              <span class="mb-1 block text-xs font-medium text-muted-foreground">{{ $t('lorebooks.form.description') }}</span>
+              <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+                $t("lorebooks.form.description")
+              }}</span>
               <textarea
                 v-model="lbDescription"
                 rows="2"
@@ -267,10 +276,12 @@ async function toggleEntry(entry: LoreEntryResponse) {
               >
                 <span
                   class="h-3.5 w-3.5 rounded-full shadow-sm transition-transform duration-300"
-                  :class="lbIsGlobal ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
+                  :class="
+                    lbIsGlobal ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'
+                  "
                 />
               </span>
-              <span class="text-sm text-foreground">{{ $t('lorebooks.form.isGlobal') }}</span>
+              <span class="text-sm text-foreground">{{ $t("lorebooks.form.isGlobal") }}</span>
             </button>
             <div class="flex items-center gap-3 pt-1">
               <button
@@ -278,13 +289,13 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 :disabled="savingLorebook || !lbName.trim()"
                 @click="submitLorebook"
               >
-                {{ editingLorebook ? $t('lorebooks.form.save') : $t('lorebooks.form.create') }}
+                {{ editingLorebook ? $t("lorebooks.form.save") : $t("lorebooks.form.create") }}
               </button>
               <button
                 class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 @click="showLorebookForm = false"
               >
-                {{ $t('common.cancel') }}
+                {{ $t("common.cancel") }}
               </button>
             </div>
           </div>
@@ -297,19 +308,21 @@ async function toggleEntry(entry: LoreEntryResponse) {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <div class="flex items-center gap-2">
-                <h2 class="font-cinzel text-xl font-bold text-foreground">{{ currentLorebook.name }}</h2>
+                <h2 class="font-cinzel text-xl font-bold text-foreground">
+                  {{ currentLorebook.name }}
+                </h2>
                 <span
                   v-if="currentLorebook.is_global"
                   class="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-medium uppercase tracking-wide text-primary"
                 >
-                  {{ $t('lorebooks.global') }}
+                  {{ $t("lorebooks.global") }}
                 </span>
               </div>
               <p v-if="currentLorebook.description" class="mt-1 text-sm text-muted-foreground">
                 {{ currentLorebook.description }}
               </p>
               <p class="mt-1 text-xs text-muted-foreground">
-                {{ $t('lorebooks.entryCount', { count: entries.length }) }}
+                {{ $t("lorebooks.entryCount", { count: entries.length }) }}
               </p>
             </div>
             <div class="flex shrink-0 items-center gap-2">
@@ -331,14 +344,14 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 @mouseleave="pendingDeleteLb = null"
               >
                 <UIcon name="i-lucide-trash-2" class="h-4 w-4" />
-                {{ pendingDeleteLb === currentLorebook.id ? $t('lorebooks.confirmDelete') : '' }}
+                {{ pendingDeleteLb === currentLorebook.id ? $t("lorebooks.confirmDelete") : "" }}
               </button>
               <button
                 class="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 @click="openNewEntry"
               >
                 <UIcon name="i-lucide-plus" class="h-4 w-4" />
-                {{ $t('lorebooks.addEntry') }}
+                {{ $t("lorebooks.addEntry") }}
               </button>
             </div>
           </div>
@@ -364,7 +377,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
             />
           </div>
           <div v-else-if="!showEntryForm" class="py-12 text-center text-sm text-muted-foreground">
-            {{ $t('lorebooks.noEntries') }}
+            {{ $t("lorebooks.noEntries") }}
           </div>
         </div>
       </template>
@@ -373,7 +386,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
       <div v-else class="flex h-full items-center justify-center">
         <div class="text-center">
           <UIcon name="i-lucide-book-open" class="mx-auto mb-2 h-8 w-8 text-muted-foreground/40" />
-          <p class="text-sm text-muted-foreground">{{ $t('lorebooks.selectPrompt') }}</p>
+          <p class="text-sm text-muted-foreground">{{ $t("lorebooks.selectPrompt") }}</p>
         </div>
       </div>
     </div>

@@ -40,9 +40,7 @@ export function useLibraryFilters(characters: Ref<Character[]>) {
         result.sort((a, b) => b.name.localeCompare(a.name));
         break;
       case "newest":
-        result.sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        );
+        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         break;
       // 'recent' keeps the default order (updated_at desc from API)
     }
