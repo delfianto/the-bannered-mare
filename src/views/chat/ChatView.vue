@@ -198,7 +198,64 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
 </script>
 
 <template>
-  <div class="flex h-full overflow-hidden">
+  <!-- Loading state -->
+  <div
+    v-if="sessionsLoading && chatSessions.length === 0"
+    class="flex h-full flex-1 items-center justify-center"
+  >
+    <UIcon name="i-lucide-loader-circle" class="h-6 w-6 animate-spin text-muted-foreground" />
+  </div>
+
+  <!-- Empty state -->
+  <div
+    v-else-if="chatSessions.length === 0"
+    class="flex h-full flex-1 flex-col overflow-hidden px-8 py-8 lg:px-12"
+  >
+    <!-- Header -->
+    <header class="flex-shrink-0 pb-4 animate-fade-in-up">
+      <div class="flex items-center gap-4">
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"
+        >
+          <UIcon name="i-lucide-scroll-text" class="h-7 w-7" />
+        </div>
+        <div>
+          <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+            {{ $t("chat.activeTales") || "Active Tales" }}
+          </h1>
+          <p class="mt-0.5 text-sm text-muted-foreground">Your active roleplay chat sessions.</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Empty Content -->
+    <div
+      class="flex flex-1 flex-col items-center justify-center gap-3 py-20 text-center animate-fade-in-up"
+      style="animation-delay: 100ms"
+    >
+      <div class="relative mb-4">
+        <div class="absolute inset-0 animate-pulse rounded-full bg-primary/10 blur-lg" />
+        <div class="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
+          <UIcon name="i-lucide-scroll-text" class="h-6 w-6 text-primary" />
+        </div>
+      </div>
+      <h3 class="font-cinzel text-lg font-semibold text-foreground">No Tales Begun</h3>
+      <p class="mb-6 max-w-md text-sm text-muted-foreground">
+        You haven't started any chat sessions yet. Head over to the Character Library, pick a
+        companion, and begin your journey.
+      </p>
+      <button
+        class="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/95"
+        @click="router.push('/characters')"
+      >
+        <UIcon name="i-lucide-compass" class="h-4.5 w-4.5" />
+        Browse Characters
+      </button>
+    </div>
+  </div>
+
+  <!-- Normal chat view -->
+  <div v-else class="flex h-full overflow-hidden">
     <!-- Session List (from API) -->
     <ChatSessionList
       :sessions="chatSessions"
