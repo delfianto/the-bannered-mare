@@ -108,6 +108,32 @@ class TestModelService:
         assert total == 1
         assert [m.name for m in models] == ["In Family"]
 
+    def test_can_use_openrouter_is_model_derived(
+        self, db: Session, sample_provider: Any, sample_family: Any
+    ) -> None:
+        """can_use_openrouter reflects the model's own openrouter_identifier, not the
+        family — so a local-only finetune sharing a family with a hosted model is
+        correctly excluded even when the family lists 'openrouter'."""
+        local = Model(
+            name="Local Finetune",
+            provider_id=sample_provider.id,
+            model_identifier="thedrummer/skyfall",
+            model_family_id=sample_family.id,
+            openrouter_identifier=None,
+        )
+        hosted = Model(
+            name="Hosted",
+            provider_id=sample_provider.id,
+            model_identifier="gpt-4o",
+            model_family_id=sample_family.id,
+            openrouter_identifier="openai/gpt-4o",
+        )
+        db.add_all([local, hosted])
+        db.commit()
+
+        assert local.can_use_openrouter is False
+        assert hosted.can_use_openrouter is True
+
     def test_get_by_id_success(self, db: Session, sample_model: Any) -> None:
         """Test getting a model by ID successfully"""
         repo = ModelRepository(db)

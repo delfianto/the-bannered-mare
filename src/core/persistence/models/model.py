@@ -87,7 +87,11 @@ class Model(BaseModel):
 
     @property
     def can_use_openrouter(self) -> bool:
-        return "openrouter" in self.model_family.provider_types
+        # Availability on OpenRouter is a per-model fact, not a family one: a model
+        # is on OpenRouter iff it has an OpenRouter identifier. This lets local-only
+        # finetunes share a base family with hosted models without inheriting the
+        # family's OpenRouter availability.
+        return bool(self.openrouter_identifier)
 
     @property
     def active_identifier(self) -> str:
