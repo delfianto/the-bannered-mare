@@ -36,6 +36,9 @@ class ModelFamilyFilterParams(BaseModel):
 
     name__ilike: str | None = Field(default=None, description="Search family name")
     family_identifier: str | None = Field(default=None, description="Exact match identifier")
+    provider_type: str | None = Field(
+        default=None, description="Filter to families supporting this provider type"
+    )
 
     def to_filter_dict(self) -> dict[str, Any]:
         return {k: v for k, v in self.model_dump().items() if v is not None}

@@ -71,6 +71,43 @@ class TestModelService:
         assert total == 4
         assert [m.name for m in models] == ["apex", "banana", "Mango", "Zeta"]
 
+    def test_list_paginated_filters_by_model_family(
+        self, db: Session, sample_provider: Any, sample_family: Any
+    ) -> None:
+        """The model_family_id filter returns only that family's models."""
+        other = ModelFamily(name="Other Family", family_identifier="test.other-family")
+        db.add(other)
+        db.commit()
+        db.refresh(other)
+        db.add_all(
+            [
+                Model(
+                    name="In Family",
+                    provider_id=sample_provider.id,
+                    model_identifier="in-fam",
+                    model_family_id=sample_family.id,
+                ),
+                Model(
+                    name="Other",
+                    provider_id=sample_provider.id,
+                    model_identifier="other",
+                    model_family_id=other.id,
+                ),
+            ]
+        )
+        db.commit()
+
+        repo = ModelRepository(db)
+        provider_repo = ProviderRepository(db)
+        family_repo = ModelFamilyRepository(db)
+        chat_repo = ChatRepository(db)
+        service = ModelService(repo, provider_repo, family_repo, chat_repo)
+
+        models, total = service.list_paginated(filters={"model_family_id": sample_family.id})
+
+        assert total == 1
+        assert [m.name for m in models] == ["In Family"]
+
     def test_get_by_id_success(self, db: Session, sample_model: Any) -> None:
         """Test getting a model by ID successfully"""
         repo = ModelRepository(db)

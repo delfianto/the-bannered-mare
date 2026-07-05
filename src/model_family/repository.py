@@ -27,8 +27,15 @@ class ModelFamilyRepository(BaseRepository[ModelFamily]):
         if limit > self.MAX_LIMIT:
             raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
 
+        # provider_type matches against the provider_types ARRAY, so it can't go
+        # through the generic column-operator filter — handle it separately.
+        remaining = dict(filters or {})
+        provider_type = remaining.pop("provider_type", None)
+
         stmt = select(ModelFamily)
-        stmt = self._apply_filters(stmt, filters)
+        stmt = self._apply_filters(stmt, remaining)
+        if provider_type:
+            stmt = stmt.where(cast(Any, provider_type == any_(ModelFamily.provider_types)))
 
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total = self.db.execute(count_stmt).scalar_one()
