@@ -19,7 +19,7 @@ GEMMA_FAMILIES: list[ModelFamilySeedData] = [
             "Multimodal, up to 256K context, thinking mode. Runs locally (Ollama GGUF) "
             "or hosted (OpenRouter)."
         ),
-        "provider_types": ["ollama", "openrouter"],
+        "provider_types": ["ollama", "lmstudio", "openrouter"],
         "parameters": {
             # Official Gemma 4 sampling guidance: temperature=1.0, top_p=0.95, top_k=64
             "temperature": TEMPERATURE,

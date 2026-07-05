@@ -24,7 +24,7 @@ LLAMA_FAMILIES: list[ModelFamilySeedData] = [
             "Nevoria, Nous Hermes 3, Lunaris). Classic Llama-3 finetunes are 8K context; "
             "3.1/3.3 are 128K. Run locally (Ollama/vLLM) or hosted (OpenRouter)."
         ),
-        "provider_types": ["ollama", "openrouter"],
+        "provider_types": ["ollama", "lmstudio", "openrouter"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 16384},
             "temperature": TEMPERATURE,
