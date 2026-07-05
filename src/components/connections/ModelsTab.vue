@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { useModels } from "@/composables/useModels";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
+import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
 const { t } = useI18n();
+const router = useRouter();
 
-const { models, loading, error, page, hasMore, totalPages, loadPage, search, filterByProvider } =
+const { models, loading, error, page, totalPages, loadPage, search, filterByProvider } =
   useModels();
 const { providers } = useProviders();
 const { families } = useModelFamilies({ pageSize: 100 });
@@ -57,6 +60,30 @@ const providerLabel = computed(
 // TODO: Family filter — needs model_family_id param added to backend API
 // TODO: Add order_by=name query param when backend supports it
 const filteredModels = computed(() => models.value);
+
+// Resolve the raw FK ids to human names (both lists are already loaded above).
+function providerNameFor(id: string): string {
+  return providers.value.find((p: any) => p.id === id)?.name ?? id;
+}
+function familyNameFor(id: string): string {
+  return families.value.find((f: any) => f.id === id)?.name ?? id;
+}
+
+const columns: DataTableColumn[] = [
+  { key: "name", label: "Name", tdClass: "max-w-[240px] truncate font-medium text-foreground" },
+  {
+    key: "model_identifier",
+    label: "Identifier",
+    tdClass: "max-w-[220px] truncate font-mono text-xs text-muted-foreground",
+  },
+  { key: "provider", label: "Provider", tdClass: "text-xs text-muted-foreground" },
+  { key: "family", label: "Family", tdClass: "text-xs text-muted-foreground" },
+  { key: "status", label: "Status" },
+];
+
+function openModel(row: any) {
+  router.push(`/settings/models/${row.id}`);
+}
 </script>
 
 <template>
@@ -147,7 +174,7 @@ const filteredModels = computed(() => models.value);
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
-    <!-- Cards -->
+    <!-- Content -->
     <div v-else>
       <!-- Empty -->
       <div
@@ -158,83 +185,30 @@ const filteredModels = computed(() => models.value);
         <p class="text-sm text-muted-foreground">{{ $t("connections.noModels") }}</p>
       </div>
 
-      <!-- Card Grid -->
-      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <RouterLink
-          v-for="(model, index) in filteredModels"
-          :key="model.id"
-          :to="`/settings/models/${model.id}`"
-          class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
-          :style="{ animationDelay: `${index * 30}ms` }"
-        >
-          <!-- Header: name + status -->
-          <div class="flex items-start justify-between gap-2">
-            <div class="min-w-0 flex-1">
-              <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
-                {{ model.name }}
-              </h3>
-              <p class="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
-                {{ model.model_identifier }}
-              </p>
-            </div>
-            <span
-              class="mt-0.5 size-2.5 shrink-0 rounded-full"
-              :class="model.enabled ? 'bg-emerald-500' : 'bg-red-400'"
-              :title="model.enabled ? 'Enabled' : 'Disabled'"
-            />
-          </div>
-
-          <!-- Spacer -->
-          <div class="flex-1" />
-
-          <!-- Badges (pinned to bottom) -->
-          <div class="flex flex-wrap items-center gap-1.5 border-t border-border/30 pt-3">
-            <span
-              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
-            >
-              {{ model.provider_id }}
-            </span>
-            <span
-              class="rounded-full bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground"
-            >
-              {{ model.model_family_id }}
-            </span>
-          </div>
-
-          <!-- Edit hint -->
-          <div
-            class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
-          >
-            <UIcon name="i-lucide-pencil" class="size-3" />
-            {{ $t("common.edit") }}
-          </div>
-        </RouterLink>
-      </div>
-
-      <!-- Pagination (only if no local filters active and multiple pages) -->
-      <div
-        v-if="totalPages > 1 && selectedProvider === 'all' && selectedFamily === 'all'"
-        class="mt-5 flex items-center justify-between"
+      <!-- Table -->
+      <DataTable
+        v-else
+        :columns="columns"
+        :rows="filteredModels"
+        :page="page"
+        :total-pages="totalPages"
+        @row-click="openModel"
+        @update:page="loadPage"
       >
-        <span class="text-xs text-muted-foreground"> Page {{ page }} of {{ totalPages }} </span>
-        <div class="flex items-center gap-2">
-          <UButton variant="outline" size="xs" :disabled="page <= 1" @click="loadPage(page - 1)">
-            <UIcon name="i-lucide-chevron-left" class="size-3.5" />
-            Prev
-          </UButton>
-          <UButton variant="outline" size="xs" :disabled="!hasMore" @click="loadPage(page + 1)">
-            Next
-            <UIcon name="i-lucide-chevron-right" class="size-3.5" />
-          </UButton>
-        </div>
-      </div>
-
-      <!-- Result count when filtering -->
-      <div v-if="selectedProvider !== 'all' || selectedFamily !== 'all'" class="mt-4">
-        <span class="text-xs text-muted-foreground">
-          {{ filteredModels.length }} of {{ models.length }} models
-        </span>
-      </div>
+        <template #cell-provider="{ row }">{{ providerNameFor(row.provider_id) }}</template>
+        <template #cell-family="{ row }">{{ familyNameFor(row.model_family_id) }}</template>
+        <template #cell-status="{ row }">
+          <span
+            v-if="row.enabled"
+            class="inline-flex items-center gap-1.5 text-xs text-emerald-500"
+          >
+            <span class="size-1.5 rounded-full bg-emerald-500" />Enabled
+          </span>
+          <span v-else class="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span class="size-1.5 rounded-full bg-red-400" />Disabled
+          </span>
+        </template>
+      </DataTable>
     </div>
   </div>
 </template>

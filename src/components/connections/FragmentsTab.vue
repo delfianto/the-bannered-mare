@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { usePromptFragments } from "@/composables/usePromptFragments";
+import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
 const router = useRouter();
 const {
@@ -9,7 +10,6 @@ const {
   loading,
   error,
   page,
-  hasMore,
   total,
   totalPages,
   loadPage,
@@ -39,9 +39,17 @@ function typeBadgeClass(type: string): string {
   }
 }
 
-function openFragment(id: string) {
-  router.push(`/settings/fragments/${id}`);
+function openFragment(row: any) {
+  router.push(`/settings/fragments/${row.id}`);
 }
+
+const columns: DataTableColumn[] = [
+  { key: "name", label: "Name", tdClass: "max-w-[280px] truncate font-medium text-foreground" },
+  { key: "type", label: "Type" },
+  { key: "scope", label: "Scope" },
+  { key: "usedBy", label: "Used By" },
+  { key: "updated", label: "Updated", tdClass: "text-xs text-muted-foreground" },
+];
 </script>
 
 <template>
@@ -94,97 +102,45 @@ function openFragment(id: string) {
     </div>
 
     <!-- Table -->
-    <div v-else class="overflow-hidden rounded-xl border bg-card/50">
-      <table class="w-full text-left text-sm">
-        <thead>
-          <tr class="border-b bg-muted/30">
-            <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-            >
-              Name
-            </th>
-            <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-            >
-              Type
-            </th>
-            <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-            >
-              Scope
-            </th>
-            <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-            >
-              Used By
-            </th>
-            <th
-              class="px-4 py-2.5 font-cinzel text-[10px] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-            >
-              Updated
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="fragment in fragments"
-            :key="fragment.id"
-            class="cursor-pointer border-b border-border/50 transition-colors last:border-0 hover:bg-accent/40"
-            @click="openFragment(fragment.id)"
-          >
-            <td class="max-w-[280px] truncate px-4 py-2.5 font-medium text-foreground">
-              {{ fragment.name }}
-            </td>
-            <td class="px-4 py-2.5">
-              <span
-                class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
-                :class="typeBadgeClass(fragment.fragment_type)"
-              >
-                {{ fragment.fragment_type }}
-              </span>
-            </td>
-            <td class="px-4 py-2.5">
-              <span v-if="fragment.is_global" class="text-emerald-500">Global</span>
-              <span v-else class="text-muted-foreground">Local</span>
-            </td>
-            <td class="px-4 py-2.5">
-              <span
-                v-if="(fragment.used_by ?? []).length === 0"
-                class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500"
-              >
-                Unused
-              </span>
-              <span
-                v-else
-                class="text-xs text-muted-foreground"
-                :title="(fragment.used_by ?? []).map((t) => t.name).join(', ')"
-              >
-                {{ (fragment.used_by ?? []).length }} template{{
-                  (fragment.used_by ?? []).length === 1 ? "" : "s"
-                }}
-              </span>
-            </td>
-            <td class="px-4 py-2.5 text-xs text-muted-foreground">
-              {{ new Date(fragment.updated_at).toLocaleDateString() }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    <div v-if="totalPages > 1" class="mt-5 flex items-center justify-between">
-      <span class="text-xs text-muted-foreground">Page {{ page }} of {{ totalPages }}</span>
-      <div class="flex items-center gap-2">
-        <UButton variant="outline" size="xs" :disabled="page <= 1" @click="loadPage(page - 1)">
-          <UIcon name="i-lucide-chevron-left" class="size-3.5" />
-          Prev
-        </UButton>
-        <UButton variant="outline" size="xs" :disabled="!hasMore" @click="loadPage(page + 1)">
-          Next
-          <UIcon name="i-lucide-chevron-right" class="size-3.5" />
-        </UButton>
-      </div>
-    </div>
+    <DataTable
+      v-else
+      :columns="columns"
+      :rows="fragments"
+      :page="page"
+      :total-pages="totalPages"
+      @row-click="openFragment"
+      @update:page="loadPage"
+    >
+      <template #cell-type="{ row }">
+        <span
+          class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+          :class="typeBadgeClass(row.fragment_type)"
+        >
+          {{ row.fragment_type }}
+        </span>
+      </template>
+      <template #cell-scope="{ row }">
+        <span v-if="row.is_global" class="text-emerald-500">Global</span>
+        <span v-else class="text-muted-foreground">Local</span>
+      </template>
+      <template #cell-usedBy="{ row }">
+        <span
+          v-if="(row.used_by ?? []).length === 0"
+          class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500"
+        >
+          Unused
+        </span>
+        <span
+          v-else
+          class="text-xs text-muted-foreground"
+          :title="(row.used_by ?? []).map((tpl: any) => tpl.name).join(', ')"
+        >
+          {{ (row.used_by ?? []).length }} template{{ (row.used_by ?? []).length === 1 ? "" : "s" }}
+        </span>
+      </template>
+      <template #cell-updated="{ row }">
+        {{ new Date(row.updated_at).toLocaleDateString() }}
+      </template>
+    </DataTable>
   </div>
 </template>

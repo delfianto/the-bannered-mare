@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, computed } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useProvider } from "@/composables/useProvider";
@@ -28,8 +29,14 @@ const {
   syncing,
   modelsError,
   pendingModelAction,
+  searchResults,
+  searchingModels,
+  savingFilter,
   fetchAvailableModels,
   syncNow,
+  searchModels,
+  clearSearch,
+  setModelFilter,
   loadModel,
   unloadModel,
   deleteModel,
@@ -40,6 +47,30 @@ const toast = useAppToast();
 const isLocalProvider = computed(
   () => provider.value?.provider_type === "ollama" || provider.value?.provider_type === "lmstudio",
 );
+
+// Local providers (Ollama/LM Studio) have no API-key env var, so a green
+// "configured" or an amber warning both mislead — present a neutral "Not set".
+const apiKeyStatus = computed(() => {
+  const p = provider.value;
+  if (p && !p.env_var_name) {
+    return {
+      label: t("connections.provider.keyNotSet"),
+      badge: "bg-muted text-muted-foreground",
+      dot: "bg-muted-foreground/50",
+    };
+  }
+  return p?.api_key_configured
+    ? {
+        label: t("connections.provider.keyConfigured"),
+        badge: "bg-emerald-500/10 text-emerald-500",
+        dot: "bg-emerald-500",
+      }
+    : {
+        label: t("connections.provider.keyNotSet"),
+        badge: "bg-amber-500/10 text-amber-500",
+        dot: "bg-amber-500",
+      };
+});
 
 const providerIcons: Record<string, string> = {
   openai: openaiIcon,
@@ -67,6 +98,64 @@ function isPersisted(modelIdentifier: string): boolean {
   return persistedModels.value.some(
     (m) => m.model_identifier === modelIdentifier && m.provider_id === provider.value?.id,
   );
+}
+
+// --- Model filter (search + chips) ---
+const modelSearchQuery = ref("");
+const showSearchResults = ref(false);
+
+const allowedModels = computed(() => provider.value?.allowed_models ?? []);
+
+function isFiltered(identifier: string): boolean {
+  return allowedModels.value.includes(identifier);
+}
+
+const debouncedSearch = useDebounceFn(async (q: string) => {
+  if (!provider.value || !q.trim()) {
+    clearSearch();
+    return;
+  }
+  try {
+    await searchModels(provider.value.id, q.trim());
+    showSearchResults.value = true;
+  } catch {
+    // Search is advisory — a failure just leaves the dropdown empty.
+  }
+}, 250);
+
+function onSearchInput() {
+  if (modelSearchQuery.value.trim()) {
+    showSearchResults.value = true;
+    void debouncedSearch(modelSearchQuery.value);
+  } else {
+    showSearchResults.value = false;
+    clearSearch();
+  }
+}
+
+async function persistFilter(next: string[]) {
+  if (!provider.value) return;
+  try {
+    await setModelFilter(provider.value.id, next);
+  } catch {
+    toast.error("Failed to update model filter");
+  }
+}
+
+async function addToFilter(identifier: string) {
+  if (isFiltered(identifier)) return;
+  await persistFilter([...allowedModels.value, identifier]);
+  modelSearchQuery.value = "";
+  showSearchResults.value = false;
+  clearSearch();
+}
+
+async function removeFromFilter(identifier: string) {
+  await persistFilter(allowedModels.value.filter((m) => m !== identifier));
+}
+
+async function clearFilter() {
+  await persistFilter([]);
 }
 
 onMounted(async () => {
@@ -375,21 +464,10 @@ function toggleMenu(identifier: string) {
                 <span class="text-sm text-muted-foreground">Status</span>
                 <span
                   class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  :class="
-                    provider.api_key_configured
-                      ? 'bg-emerald-500/10 text-emerald-500'
-                      : 'bg-amber-500/10 text-amber-500'
-                  "
+                  :class="apiKeyStatus.badge"
                 >
-                  <span
-                    class="size-1.5 rounded-full"
-                    :class="provider.api_key_configured ? 'bg-emerald-500' : 'bg-amber-500'"
-                  />
-                  {{
-                    provider.api_key_configured
-                      ? $t("connections.provider.keyConfigured")
-                      : $t("connections.provider.keyNotSet")
-                  }}
+                  <span class="size-1.5 rounded-full" :class="apiKeyStatus.dot" />
+                  {{ apiKeyStatus.label }}
                 </span>
               </div>
             </div>
@@ -426,6 +504,102 @@ function toggleMenu(identifier: string) {
               </button>
             </div>
 
+            <!-- Model filter: search + chips narrow the list below (empty = show all) -->
+            <div class="mb-4 space-y-2">
+              <div class="relative">
+                <UIcon
+                  name="i-lucide-search"
+                  class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <input
+                  v-model="modelSearchQuery"
+                  type="text"
+                  placeholder="Search models to add to the filter…"
+                  class="h-10 w-full rounded-lg border bg-muted/40 pr-9 pl-9 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  @input="onSearchInput"
+                  @focus="modelSearchQuery && (showSearchResults = true)"
+                />
+                <UIcon
+                  v-if="searchingModels"
+                  name="i-lucide-loader-2"
+                  class="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground"
+                />
+
+                <!-- Results dropdown -->
+                <div
+                  v-if="showSearchResults && modelSearchQuery"
+                  class="absolute z-40 mt-1 w-full overflow-hidden rounded-lg border bg-popover shadow-lg"
+                >
+                  <div class="fixed inset-0 z-[-1]" @click="showSearchResults = false" />
+                  <div
+                    v-if="searchingModels && searchResults.length === 0"
+                    class="px-3 py-2 text-xs text-muted-foreground"
+                  >
+                    Searching…
+                  </div>
+                  <div
+                    v-else-if="searchResults.length === 0"
+                    class="px-3 py-2 text-xs text-muted-foreground"
+                  >
+                    No matching models.
+                  </div>
+                  <ul v-else class="max-h-64 overflow-y-auto py-1">
+                    <li v-for="r in searchResults" :key="r.identifier">
+                      <button
+                        class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition-colors hover:bg-muted/60 disabled:cursor-not-allowed disabled:opacity-40"
+                        :disabled="isFiltered(r.identifier) || savingFilter"
+                        @click="addToFilter(r.identifier)"
+                      >
+                        <span class="min-w-0 truncate font-mono text-xs text-foreground">{{
+                          r.identifier
+                        }}</span>
+                        <UIcon
+                          :name="isFiltered(r.identifier) ? 'i-lucide-check' : 'i-lucide-plus'"
+                          class="size-3.5 shrink-0"
+                          :class="
+                            isFiltered(r.identifier) ? 'text-emerald-500' : 'text-muted-foreground'
+                          "
+                        />
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Active filter chips -->
+              <div v-if="allowedModels.length > 0" class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] tracking-wide text-muted-foreground uppercase"
+                  >Filter:</span
+                >
+                <span
+                  v-for="id in allowedModels"
+                  :key="id"
+                  class="inline-flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pr-1 pl-2.5 text-[11px] font-medium text-primary"
+                >
+                  <span class="max-w-[220px] truncate font-mono">{{ id }}</span>
+                  <button
+                    class="flex size-4 items-center justify-center rounded-full transition-colors hover:bg-primary/20 disabled:opacity-50"
+                    :disabled="savingFilter"
+                    aria-label="Remove from filter"
+                    @click="removeFromFilter(id)"
+                  >
+                    <UIcon name="i-lucide-x" class="size-3" />
+                  </button>
+                </span>
+                <button
+                  class="ml-1 text-[10px] text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline disabled:opacity-50"
+                  :disabled="savingFilter"
+                  @click="clearFilter"
+                >
+                  Clear all
+                </button>
+              </div>
+              <p v-else class="text-[10px] text-muted-foreground">
+                No filter set — showing all discovered models. Search above to show only specific
+                ones.
+              </p>
+            </div>
+
             <div v-if="modelsLoading" class="flex justify-center py-6">
               <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
             </div>
@@ -436,7 +610,13 @@ function toggleMenu(identifier: string) {
             </div>
 
             <div v-else-if="availableModels.length === 0" class="py-6 text-center">
-              <p class="text-xs text-muted-foreground">No models found on this server.</p>
+              <p class="text-xs text-muted-foreground">
+                {{
+                  allowedModels.length > 0
+                    ? "No discovered models match the current filter."
+                    : "No models found on this server."
+                }}
+              </p>
             </div>
 
             <ul v-else class="space-y-2">
