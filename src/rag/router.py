@@ -109,4 +109,9 @@ def rag_status():
         "chunk_overlap": rag.chunk_overlap,
         "similarity_threshold": rag.similarity_threshold,
         "max_results": rag.max_results,
+        "rerank": {
+            "enabled": rag.rerank.enabled,
+            "model": rag.rerank.model,
+            "candidates": rag.rerank.candidates,
+        },
     }
