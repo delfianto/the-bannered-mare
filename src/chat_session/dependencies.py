@@ -38,9 +38,18 @@ def get_chat_service(
     ProfileRepository is built from a lazy import to avoid an import-time cycle
     (profile -> preset -> st_import -> prompt_template -> chat_session).
     """
+    from src.chat_message.repository import MessageRepository
+    from src.persona.repository import PersonaRepository
     from src.profile.repository import ProfileRepository
 
-    return ChatService(chat_repo, character_repo, model_repo, ProfileRepository(db))
+    return ChatService(
+        chat_repo,
+        character_repo,
+        model_repo,
+        ProfileRepository(db),
+        MessageRepository(db),
+        PersonaRepository(db),
+    )
 
 
 ChatServiceDep = Annotated[ChatService, Depends(get_chat_service)]
