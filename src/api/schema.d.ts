@@ -4420,6 +4420,7 @@ export interface operations {
         limit?: number;
         name__ilike?: string | null;
         family_identifier?: string | null;
+        provider_type?: string | null;
       };
       header?: never;
       path?: never;
@@ -4584,6 +4585,7 @@ export interface operations {
         limit?: number;
         name__ilike?: string | null;
         provider_id?: string | null;
+        model_family_id?: string | null;
         enabled?: boolean | null;
       };
       header?: never;

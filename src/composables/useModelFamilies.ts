@@ -8,6 +8,11 @@ interface UseModelFamiliesOptions {
   pageSize?: number;
 }
 
+interface ModelFamilyFilters {
+  name?: string;
+  provider_type?: string;
+}
+
 export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
   const { pageSize = 12 } = options;
 
@@ -23,16 +28,29 @@ export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
     return Math.ceil(total.value / pageSize);
   });
 
-  const loadPage = async (pageNum: number = 1) => {
+  const currentFilters = ref<ModelFamilyFilters>({});
+
+  const loadPage = async (pageNum: number = 1, filters?: ModelFamilyFilters) => {
     loading.value = true;
     error.value = null;
 
+    if (filters !== undefined) {
+      currentFilters.value = filters;
+    }
+    const f = currentFilters.value;
+
     try {
+      const query: Record<string, unknown> = { page: pageNum, limit: pageSize };
+      if (f.name) query.name__ilike = f.name;
+      if (f.provider_type) query.provider_type = f.provider_type;
+
       const { data, error: apiError } = await client.GET("/api/model-families", {
         params: {
-          query: {
-            page: pageNum,
-            limit: pageSize,
+          query: query as {
+            page?: number;
+            limit?: number;
+            name__ilike?: string | null;
+            provider_type?: string | null;
           },
         },
       });
@@ -55,6 +73,14 @@ export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
     }
   };
 
+  const search = (name: string) => {
+    loadPage(1, { ...currentFilters.value, name: name || undefined });
+  };
+
+  const filterByProviderType = (providerType: string | undefined) => {
+    loadPage(1, { ...currentFilters.value, provider_type: providerType });
+  };
+
   onMounted(() => {
     loadPage(1);
   });
@@ -68,5 +94,7 @@ export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
     total,
     totalPages,
     loadPage,
+    search,
+    filterByProviderType,
   };
 }
