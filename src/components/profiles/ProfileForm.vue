@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Profile, ProfileCreate } from "@/composables/useProfiles";
 import type { PromptTemplate } from "@/composables/usePromptTemplates";
@@ -23,13 +23,18 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
+// Reka UI's Combobox forbids an item value of "" (it reserves the empty string
+// for the cleared state), so the "None" option uses a sentinel that maps back
+// to null on submit.
+const NONE = "__none__";
+
 const name = ref("");
 const description = ref("");
 const isDefault = ref(false);
-const templateId = ref("");
-const presetId = ref("");
-const personaId = ref("");
-const modelId = ref("");
+const templateId = ref(NONE);
+const presetId = ref(NONE);
+const personaId = ref(NONE);
+const modelId = ref(NONE);
 
 watch(
   () => props.initial,
@@ -37,20 +42,20 @@ watch(
     name.value = p?.name ?? "";
     description.value = p?.description ?? "";
     isDefault.value = p?.is_default ?? false;
-    templateId.value = p?.prompt_template_id ?? "";
-    presetId.value = p?.preset_id ?? "";
-    personaId.value = p?.persona_id ?? "";
-    modelId.value = p?.model_id ?? "";
+    templateId.value = p?.prompt_template_id ?? NONE;
+    presetId.value = p?.preset_id ?? NONE;
+    personaId.value = p?.persona_id ?? NONE;
+    modelId.value = p?.model_id ?? NONE;
   },
   { immediate: true },
 );
 
 type Named = { id: string; name: string };
 
-// "" is the unset/None option; mapped back to null on submit.
+// NONE is the unset/None option; mapped back to null on submit.
 function toOptions(list: Named[]) {
   return [
-    { label: t("profiles.none"), value: "" },
+    { label: t("profiles.none"), value: NONE },
     ...list.map((x) => ({ label: x.name, value: x.id })),
   ];
 }
@@ -59,16 +64,24 @@ function labelFor(list: Named[], id: string) {
   return list.find((x) => x.id === id)?.name ?? t("profiles.none");
 }
 
+// Stable option arrays. Recomputing toOptions() inline on every render hands the
+// combobox a new array each time, forcing a full keyed re-patch of its list —
+// which crashes Reka UI's popper on a large list (the ~75 models).
+const templateOptions = computed(() => toOptions(props.templates));
+const presetOptions = computed(() => toOptions(props.presets));
+const personaOptions = computed(() => toOptions(props.personas));
+const modelOptions = computed(() => toOptions(props.models));
+
 function onSubmit() {
   if (!name.value.trim()) return;
   emit("submit", {
     name: name.value.trim(),
     description: description.value.trim() || null,
     is_default: isDefault.value,
-    prompt_template_id: templateId.value || null,
-    preset_id: presetId.value || null,
-    persona_id: personaId.value || null,
-    model_id: modelId.value || null,
+    prompt_template_id: templateId.value === NONE ? null : templateId.value,
+    preset_id: presetId.value === NONE ? null : presetId.value,
+    persona_id: personaId.value === NONE ? null : personaId.value,
+    model_id: modelId.value === NONE ? null : modelId.value,
   });
 }
 
@@ -118,7 +131,7 @@ const selectUi = {
           }}</span>
           <USelectMenu
             v-model="templateId"
-            :items="toOptions(templates)"
+            :items="templateOptions"
             value-key="value"
             :search-input="false"
             :ui="selectUi"
@@ -142,7 +155,7 @@ const selectUi = {
           }}</span>
           <USelectMenu
             v-model="presetId"
-            :items="toOptions(presets)"
+            :items="presetOptions"
             value-key="value"
             :search-input="false"
             :ui="selectUi"
@@ -169,7 +182,7 @@ const selectUi = {
           }}</span>
           <USelectMenu
             v-model="personaId"
-            :items="toOptions(personas)"
+            :items="personaOptions"
             value-key="value"
             :search-input="false"
             :ui="selectUi"
@@ -193,9 +206,9 @@ const selectUi = {
           }}</span>
           <USelectMenu
             v-model="modelId"
-            :items="toOptions(models)"
+            :items="modelOptions"
             value-key="value"
-            :search-input="false"
+            :search-input="true"
             :ui="selectUi"
           >
             <button

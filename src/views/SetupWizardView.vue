@@ -36,9 +36,18 @@ const selectUi = {
   item: "text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent",
 };
 
+// Reka UI's Combobox forbids an item value of "" (it reserves the empty string
+// for the cleared state), so the "None" option uses a sentinel that maps back
+// to null on submit.
+const NONE = "__none__";
+
 function toOptions(list: { id: string; name: string }[], noneLabel: string) {
-  return [{ label: noneLabel, value: "" }, ...list.map((x) => ({ label: x.name, value: x.id }))];
+  return [{ label: noneLabel, value: NONE }, ...list.map((x) => ({ label: x.name, value: x.id }))];
 }
+
+// Stable reference so the large model list isn't re-patched on every render
+// (an inline array crashes Reka UI's combobox popper — see ProfileForm).
+const modelOptions = computed(() => toOptions(models.value, "Select a model..."));
 
 function labelFor(list: { id: string; name: string }[], id: string, noneLabel: string) {
   return list.find((x) => x.id === id)?.name ?? noneLabel;
@@ -145,8 +154,8 @@ const showImportModal = ref(false);
 // General "finish this profile" state — covers both a just-imported profile
 // and resuming a previously-abandoned incomplete one.
 const profileToFinish = ref<{ id: string; name: string } | null>(null);
-const followUpModelId = ref("");
-const followUpPersonaId = ref("");
+const followUpModelId = ref(NONE);
+const followUpPersonaId = ref(NONE);
 const finishingImport = ref(false);
 
 function onImported(result: STImportResult) {
@@ -164,15 +173,15 @@ function resumeIncompleteProfile(profile: { id: string; name: string }) {
 
 async function finishImportSetup() {
   if (!profileToFinish.value) return;
-  if (!followUpModelId.value) {
+  if (followUpModelId.value === NONE) {
     toast.error("Pick a model so this profile can actually start a tale");
     return;
   }
   finishingImport.value = true;
   try {
     const res = await updateProfile(profileToFinish.value.id, {
-      model_id: followUpModelId.value || null,
-      persona_id: followUpPersonaId.value || null,
+      model_id: followUpModelId.value === NONE ? null : followUpModelId.value,
+      persona_id: followUpPersonaId.value === NONE ? null : followUpPersonaId.value,
       is_default: true,
     });
     if (res) {
@@ -428,9 +437,9 @@ function finish() {
             <span class="mb-1 block text-xs font-medium text-muted-foreground">Model</span>
             <USelectMenu
               v-model="followUpModelId"
-              :items="toOptions(models, 'Select a model...')"
+              :items="modelOptions"
               value-key="value"
-              :search-input="false"
+              :search-input="true"
               :ui="selectUi"
             >
               <button
