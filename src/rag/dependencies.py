@@ -39,10 +39,17 @@ async def get_retrieval_service(
     embedding_service: Annotated[EmbeddingService, Depends(get_embedding_service)],
     embedding_repo: Annotated[AsyncEmbeddingRepository, Depends(get_async_embedding_repository)],
     data_bank_repo: Annotated[DataBankRepository, Depends(get_data_bank_repository)],
-) -> RetrievalService:
-    """Factory for RetrievalService with all dependencies injected"""
+) -> RetrievalService | None:
+    """Factory for RetrievalService, or None when RAG is disabled.
+
+    ``settings.rag.enabled`` is the master switch: when off, chat sends skip
+    auto-retrieval and manual search returns a disabled error — so no embedding
+    calls are attempted against a backend that may not be configured.
+    """
+    if not settings.rag.enabled:
+        return None
     return RetrievalService(embedding_service, embedding_repo, data_bank_repo)
 
 
 DataBankServiceDep = Annotated[DataBankService, Depends(get_data_bank_service)]
-RetrievalServiceDep = Annotated[RetrievalService, Depends(get_retrieval_service)]
+RetrievalServiceDep = Annotated[RetrievalService | None, Depends(get_retrieval_service)]
