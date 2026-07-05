@@ -24,7 +24,9 @@ Your goal is to build a high-performance, strictly typed, and modular system tha
 ## 2. Core Operational Constraints (Non-Negotiable)
 
 ### 2.1 Version Control & File Handling
-- **NO GIT COMMITS:** You do not have permission to commit code unless the user asked you to do so.
+- **Work on `main`:** Commit directly to `main`. Do not create feature branches or open PRs unless the user asks.
+- **Commit Freely:** Commit each completed unit of work with a clear, conventional message.
+- **Never Push Unprompted:** Do NOT run `git push` unless the user explicitly asks.
 - **File Retrieval:** Always read full file contents before editing. Do not rely on snippets or assumptions.
 - **Shell Check:** The machine running this project DOES NOT always run BASH; check the running shell before you make an assumption. When running shell commands, use shell-specific syntax to avoid command failure.
 
