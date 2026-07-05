@@ -1,8 +1,8 @@
-"""consolidated schema
+"""consolidated_schema
 
-Revision ID: a40885deaf32
+Revision ID: 9991145fdc05
 Revises: 
-Create Date: 2026-06-17 16:15:46.058369
+Create Date: 2026-07-05 15:02:28.451575
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 import pgvector.sqlalchemy.vector
 
 # revision identifiers, used by Alembic.
-revision = 'a40885deaf32'
+revision = '9991145fdc05'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -42,6 +42,8 @@ def upgrade() -> None:
     sa.Column('creator', sa.String(length=100), nullable=True, comment='Creator or author of the character card'),
     sa.Column('system_prompt', sa.Text(), nullable=True, comment='Per-character system prompt override (V2 spec)'),
     sa.Column('creator_notes', sa.Text(), nullable=True, comment="Creator's notes about the character (not sent to LLM)"),
+    sa.Column('species', sa.String(length=100), nullable=True, comment='Species of the character'),
+    sa.Column('age', sa.String(length=100), nullable=True, comment='Age of the character'),
     sa.Column('character_version', sa.String(length=100), nullable=True, comment='Semantic version string from card spec'),
     sa.Column('version', sa.Integer(), server_default='1', nullable=False, comment='Character card version'),
     sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
@@ -164,6 +166,8 @@ def upgrade() -> None:
     sa.Column('api_key_env_var', sa.String(length=100), nullable=True, comment='Name of the environment variable storing the API key'),
     sa.Column('provider_type', postgresql.ENUM('xai', 'google', 'openai', 'anthropic', 'openrouter', 'ollama', 'lmstudio', 'custom', name='providertype', create_type=False), nullable=False, comment='Classification of the provider (openai, anthropic, etc.)'),
     sa.Column('enabled', sa.Boolean(), nullable=False, comment='Whether this provider is currently active and usable'),
+    sa.Column('last_synced_at', sa.DateTime(timezone=True), nullable=True, comment="Timestamp when the provider's models were last synced"),
+    sa.Column('allowed_models', sa.JSON().with_variant(postgresql.ARRAY(sa.String()), 'postgresql'), nullable=False, comment='Curated allow-list of provider-native model identifiers; empty means show all'),
     sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was last updated (UTC)'),
@@ -222,6 +226,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_template_fragments_template_id'), 'template_fragments', ['template_id'], unique=False)
     op.create_table('chats',
     sa.Column('character_id', sa.String(length=12), nullable=False, comment='Unique identifier of the character being roleplayed'),
+    sa.Column('is_bookmarked', sa.Boolean(), server_default='false', nullable=False, comment='Whether the chat session is bookmarked'),
     sa.Column('model_id', sa.String(length=12), nullable=True, comment='Unique identifier of the LLM model used for this chat'),
     sa.Column('title', sa.String(length=200), nullable=True, comment='User-defined or auto-generated title for the conversation'),
     sa.Column('preview', sa.Text(), nullable=True, comment='Short text snippet of the last message for list display'),
