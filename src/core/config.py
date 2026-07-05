@@ -52,14 +52,19 @@ class EmbeddingSettings(BaseModel):
     """Embedding provider configuration.
 
     Defaults target a local llama.cpp server running EmbeddingGemma (768-dim,
-    matching the pinned `embeddings.embedding` column). `ollama` and `openai`
-    (any OpenAI-compatible endpoint) remain selectable via `provider`.
+    matching the pinned `embeddings.embedding` column). Selectable via `provider`:
+    - `llamacpp` / `openai`: any OpenAI-compatible `/v1/embeddings` endpoint.
+    - `ollama`: Ollama's native `/api/embed`.
+    - `huggingface`: HF Text Embeddings Inference's native `/embed`. TEI has no
+      OpenAI-compatible rerank route (text-embeddings-inference#683), so its
+      native dialect is used for both embeddings and (later) reranking.
     """
 
     provider: str = "llamacpp"
     model: str = "embeddinggemma"
     dimensions: int = 768
     llamacpp_url: str = "http://localhost:8080"
+    huggingface_url: str = "http://localhost:8080"
     ollama_url: str = "http://localhost:11434"
     openai_url: str = "https://api.openai.com/v1"
     openai_key_env: str = "OPENAI_API_KEY"
