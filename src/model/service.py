@@ -183,6 +183,17 @@ class ModelService:
                 detail=f"Model Family with ID '{model_family_id}' not found",
             )
 
+        # The model's own provider must be one the family can actually run on.
+        if provider.provider_type.value not in model_family.provider_types:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Provider '{provider.name}' ({provider.provider_type.value}) cannot serve "
+                    f"model family '{model_family.name}'. "
+                    f"Supported: {', '.join(model_family.provider_types) or 'none'}."
+                ),
+            )
+
         # Validate OpenRouter routing
         if use_openrouter:
             if "openrouter" not in model_family.provider_types:
@@ -266,6 +277,22 @@ class ModelService:
             target_family = new_family
             model.model_family_id = model_family_id
             family_changed = True
+
+        # Re-validate the primary provider whenever the provider or family changes.
+        if provider_id is not None or family_changed:
+            eff_provider = self.provider_repo.find_by_id(model.provider_id)
+            if (
+                eff_provider
+                and eff_provider.provider_type.value not in target_family.provider_types
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=(
+                        f"Provider '{eff_provider.name}' ({eff_provider.provider_type.value}) "
+                        f"cannot serve model family '{target_family.name}'. "
+                        f"Supported: {', '.join(target_family.provider_types) or 'none'}."
+                    ),
+                )
 
         new_use_openrouter = use_openrouter if use_openrouter is not None else model.use_openrouter
         new_or_id = (

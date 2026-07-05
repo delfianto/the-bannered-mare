@@ -31,7 +31,7 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
             "Mistral Nemo 12B base and its finetunes (e.g. TheDrummer's Rocinante). "
             "Text-only, ~128K context. Local (Ollama GGUF) or hosted (OpenRouter)."
         ),
-        "provider_types": ["ollama", "openrouter"],
+        "provider_types": ["ollama", "lmstudio", "openrouter"],
         "parameters": {**_MISTRAL_RP_PARAMS},
         "unsupported_parameters": [],
         "extra_metadata": {
@@ -62,7 +62,7 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
             "and its finetunes (e.g. TheDrummer's Skyfall, Cydonia). 128K context. "
             "Local (Ollama GGUF) or hosted (OpenRouter)."
         ),
-        "provider_types": ["ollama", "openrouter"],
+        "provider_types": ["ollama", "lmstudio", "openrouter"],
         "parameters": {**_MISTRAL_RP_PARAMS},
         "unsupported_parameters": [],
         "extra_metadata": {

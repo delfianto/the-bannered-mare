@@ -231,6 +231,7 @@ class TestModelService:
         family2 = ModelFamily(
             name="Claude",
             family_identifier="test.claude",
+            provider_types=["anthropic"],
             parameters={"temperature": {"supported": True}},
         )
         db.add_all([provider2, family2])
@@ -323,3 +324,99 @@ class TestModelService:
             service.delete("nonexistent-id")
 
         assert exc_info.value.status_code == 404
+
+    def test_create_rejects_provider_type_not_in_family(self, db: Session) -> None:
+        """A family that can't run on the chosen provider type is a 400."""
+        provider = Provider(name="Local LM Studio", provider_type=ProviderType.LMSTUDIO)
+        family = ModelFamily(
+            name="Ollama-only Fam",
+            family_identifier="test/ollama-only",
+            provider_types=["ollama"],
+        )
+        db.add_all([provider, family])
+        db.commit()
+
+        service = ModelService(
+            ModelRepository(db),
+            ProviderRepository(db),
+            ModelFamilyRepository(db),
+            ChatRepository(db),
+        )
+        with pytest.raises(HTTPException) as exc:
+            service.create(
+                name="X",
+                provider_id=provider.id,
+                model_identifier="x",
+                model_family_id=family.id,
+            )
+        assert exc.value.status_code == 400
+        assert "cannot serve" in exc.value.detail
+
+    def test_create_allows_provider_type_in_family(self, db: Session) -> None:
+        """LM Studio is allowed once the family lists it."""
+        provider = Provider(name="Local LM Studio", provider_type=ProviderType.LMSTUDIO)
+        family = ModelFamily(
+            name="Local Fam",
+            family_identifier="test/local",
+            provider_types=["ollama", "lmstudio"],
+        )
+        db.add_all([provider, family])
+        db.commit()
+
+        service = ModelService(
+            ModelRepository(db),
+            ProviderRepository(db),
+            ModelFamilyRepository(db),
+            ChatRepository(db),
+        )
+        created = service.create(
+            name="X", provider_id=provider.id, model_identifier="x", model_family_id=family.id
+        )
+        assert created.id
+
+    def test_update_rejects_family_change_incompatible_with_provider(self, db: Session) -> None:
+        """Switching to a family the current provider can't serve is a 400."""
+        provider = Provider(name="Local LM Studio", provider_type=ProviderType.LMSTUDIO)
+        ok_family = ModelFamily(
+            name="Local Fam2", family_identifier="test/local2", provider_types=["lmstudio"]
+        )
+        cloud_family = ModelFamily(
+            name="Cloud Fam", family_identifier="test/cloud", provider_types=["anthropic"]
+        )
+        db.add_all([provider, ok_family, cloud_family])
+        db.commit()
+        service = ModelService(
+            ModelRepository(db),
+            ProviderRepository(db),
+            ModelFamilyRepository(db),
+            ChatRepository(db),
+        )
+        model = service.create(
+            name="X", provider_id=provider.id, model_identifier="x", model_family_id=ok_family.id
+        )
+        with pytest.raises(HTTPException) as exc:
+            service.update(model.id, model_family_id=cloud_family.id)
+        assert exc.value.status_code == 400
+
+    def test_update_rejects_provider_change_incompatible_with_family(self, db: Session) -> None:
+        """Switching to a provider the current family can't run on is a 400."""
+        lmstudio = Provider(name="Local LM Studio", provider_type=ProviderType.LMSTUDIO)
+        anthropic = Provider(name="Anthropic", provider_type=ProviderType.ANTHROPIC)
+        family = ModelFamily(
+            name="Local Fam3", family_identifier="test/local3", provider_types=["lmstudio"]
+        )
+        db.add_all([lmstudio, anthropic, family])
+        db.commit()
+        service = ModelService(
+            ModelRepository(db),
+            ProviderRepository(db),
+            ModelFamilyRepository(db),
+            ChatRepository(db),
+        )
+        model = service.create(
+            name="X", provider_id=lmstudio.id, model_identifier="x", model_family_id=family.id
+        )
+        with pytest.raises(HTTPException) as exc:
+            service.update(model.id, provider_id=anthropic.id)
+        assert exc.value.status_code == 400
+        assert "cannot serve" in exc.value.detail
