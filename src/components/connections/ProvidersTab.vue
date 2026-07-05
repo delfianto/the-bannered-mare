@@ -62,19 +62,21 @@ function formatUrl(url: string | null): string {
       </button>
     </div>
 
-    <!-- Grid -->
-    <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Grid (compact cards) -->
+    <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <RouterLink
         v-for="(provider, index) in sortedProviders"
         :key="provider.id"
         :to="`/settings/providers/${provider.id}`"
-        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group flex animate-fade-in-up cursor-pointer flex-col gap-2.5 rounded-xl border bg-card/50 p-3 transition-all hover:border-muted-foreground/20 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
       >
-        <!-- Header: icon + name + status -->
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex items-center gap-2.5">
-            <div class="flex size-8 items-center justify-center rounded-lg bg-accent p-1.5">
+        <!-- Header: icon + name + enabled -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex min-w-0 items-center gap-2">
+            <div
+              class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent p-1.5"
+            >
               <img
                 :src="getIcon(provider.provider_type)"
                 :alt="provider.provider_type"
@@ -82,7 +84,7 @@ function formatUrl(url: string | null): string {
               />
             </div>
             <div class="min-w-0">
-              <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+              <h3 class="truncate font-cinzel text-sm font-semibold tracking-wide text-foreground">
                 {{ provider.name }}
               </h3>
               <span class="text-[10px] tracking-wide text-muted-foreground uppercase">
@@ -91,36 +93,27 @@ function formatUrl(url: string | null): string {
             </div>
           </div>
           <span
-            class="mt-1 size-2.5 shrink-0 rounded-full"
+            class="size-2.5 shrink-0 rounded-full"
             :class="provider.enabled ? 'bg-emerald-500' : 'bg-red-400'"
             :title="provider.enabled ? 'Enabled' : 'Disabled'"
           />
         </div>
 
-        <!-- Spacer -->
-        <div class="flex-1" />
-
-        <!-- Details (pinned to bottom area) -->
-        <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
-          <div class="flex items-center gap-1.5">
+        <!-- Info line: url + key status -->
+        <div class="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+          <span class="flex min-w-0 items-center gap-1.5">
             <UIcon name="i-lucide-link" class="size-3 shrink-0" />
             <span class="truncate">{{ formatUrl(provider.base_url) }}</span>
-          </div>
-          <div class="flex items-center gap-1.5">
+          </span>
+          <span class="flex shrink-0 items-center gap-1.5">
             <UIcon name="i-lucide-key" class="size-3 shrink-0" />
-            <span v-if="provider.api_key_configured" class="text-emerald-500">{{
+            <!-- Local providers (no env var) never need a key — show neutral, not a warning -->
+            <span v-if="!provider.env_var_name">{{ $t("connections.provider.keyNotSet") }}</span>
+            <span v-else-if="provider.api_key_configured" class="text-emerald-500">{{
               $t("connections.provider.keyConfigured")
             }}</span>
             <span v-else class="text-amber-500">{{ $t("connections.provider.keyNotSet") }}</span>
-          </div>
-        </div>
-
-        <!-- Edit hint -->
-        <div
-          class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
-        >
-          <UIcon name="i-lucide-pencil" class="size-3" />
-          {{ $t("common.edit") }}
+          </span>
         </div>
       </RouterLink>
     </div>

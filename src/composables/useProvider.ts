@@ -17,6 +17,10 @@ export function useProvider() {
   const modelsError = ref<Error | null>(null);
   const pendingModelAction = ref<string | null>(null);
 
+  const searchResults = ref<DiscoveredModel[]>([]);
+  const searchingModels = ref(false);
+  const savingFilter = ref(false);
+
   async function fetchProvider(id: string) {
     loading.value = true;
     error.value = null;
@@ -87,6 +91,45 @@ export function useProvider() {
       modelsError.value = e instanceof Error ? e : new Error("Unknown error");
     } finally {
       syncing.value = false;
+    }
+  }
+
+  async function searchModels(id: string, query: string) {
+    searchingModels.value = true;
+    try {
+      const { data, error: apiError } = await client.GET(
+        "/api/providers/{provider_id}/models/search",
+        { params: { path: { provider_id: id }, query: { q: query } } },
+      );
+      if (apiError || !data) throw new Error("Failed to search models");
+      searchResults.value = data.models;
+      return data.models;
+    } finally {
+      searchingModels.value = false;
+    }
+  }
+
+  function clearSearch() {
+    searchResults.value = [];
+  }
+
+  // Persists the curated allow-list; the response carries the freshly-filtered
+  // available list so the caller doesn't need a separate refetch.
+  async function setModelFilter(id: string, allowedModels: string[]) {
+    savingFilter.value = true;
+    try {
+      const { data, error: apiError } = await client.PUT(
+        "/api/providers/{provider_id}/models/filter",
+        { params: { path: { provider_id: id } }, body: { allowed_models: allowedModels } },
+      );
+      if (apiError || !data) throw new Error("Failed to update model filter");
+      availableModels.value = [...data.models].sort((a, b) =>
+        a.display_name.localeCompare(b.display_name),
+      );
+      if (provider.value) provider.value.allowed_models = allowedModels;
+      return data.models;
+    } finally {
+      savingFilter.value = false;
     }
   }
 
@@ -163,8 +206,14 @@ export function useProvider() {
     syncing,
     modelsError,
     pendingModelAction,
+    searchResults,
+    searchingModels,
+    savingFilter,
     fetchAvailableModels,
     syncNow,
+    searchModels,
+    clearSearch,
+    setModelFilter,
     loadModel,
     unloadModel,
     deleteModel,

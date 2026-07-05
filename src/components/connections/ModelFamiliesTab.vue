@@ -1,13 +1,28 @@
 <script setup lang="ts">
+import { useRouter } from "vue-router";
 import { useModelFamilies } from "@/composables/useModelFamilies";
+import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
-const { families, loading, error, page, totalPages, hasMore, loadPage } = useModelFamilies();
+const router = useRouter();
+const { families, loading, error, page, totalPages, loadPage } = useModelFamilies();
 
-// TODO: Add order_by=name query param when backend supports it
+const columns: DataTableColumn[] = [
+  { key: "name", label: "Name", tdClass: "max-w-[220px] truncate font-medium text-foreground" },
+  {
+    key: "family_identifier",
+    label: "Identifier",
+    tdClass: "max-w-[200px] truncate font-mono text-xs text-muted-foreground",
+  },
+  {
+    key: "description",
+    label: "Description",
+    tdClass: "max-w-[320px] truncate text-xs text-muted-foreground",
+  },
+  { key: "providers", label: "Providers" },
+];
 
-function goToPage(pageNum: number) {
-  if (pageNum < 1 || pageNum > totalPages.value) return;
-  loadPage(pageNum);
+function openFamily(row: any) {
+  router.push(`/settings/model-families/${row.id}`);
 }
 </script>
 
@@ -24,7 +39,7 @@ function goToPage(pageNum: number) {
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
-    <!-- Cards -->
+    <!-- Content -->
     <div v-else>
       <!-- Empty -->
       <div
@@ -35,78 +50,32 @@ function goToPage(pageNum: number) {
         <p class="text-sm text-muted-foreground">{{ $t("connections.noFamilies") }}</p>
       </div>
 
-      <!-- Card Grid -->
-      <div v-else class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <RouterLink
-          v-for="(family, index) in families"
-          :key="family.id"
-          :to="`/settings/model-families/${family.id}`"
-          class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
-          :style="{ animationDelay: `${index * 30}ms` }"
-        >
-          <!-- Header: name + provider count -->
-          <div class="flex items-start justify-between gap-2">
-            <div class="min-w-0 flex-1">
-              <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
-                {{ family.name }}
-              </h3>
-              <p class="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">
-                {{ family.family_identifier }}
-              </p>
-            </div>
-            <span class="mt-0.5 shrink-0 text-[10px] text-muted-foreground">
-              {{ family.provider_types.length }} provider{{
-                family.provider_types.length !== 1 ? "s" : ""
-              }}
-            </span>
-          </div>
-
-          <!-- Description -->
-          <p
-            v-if="family.description"
-            class="mt-2 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground"
-          >
-            {{ family.description }}
-          </p>
-
-          <!-- Spacer -->
-          <div class="flex-1" />
-
-          <!-- Provider type badges (pinned to bottom) -->
-          <div class="flex flex-wrap gap-1.5 border-t border-border/30 pt-3">
+      <!-- Table -->
+      <DataTable
+        v-else
+        :columns="columns"
+        :rows="families"
+        :page="page"
+        :total-pages="totalPages"
+        @row-click="openFamily"
+        @update:page="loadPage"
+      >
+        <template #cell-description="{ row }">{{ row.description || "—" }}</template>
+        <template #cell-providers="{ row }">
+          <div class="flex flex-wrap items-center gap-1.5">
             <span
-              v-for="pt in family.provider_types"
+              v-for="pt in row.provider_types.slice(0, 4)"
               :key="pt"
               class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
             >
               {{ pt }}
             </span>
+            <span v-if="row.provider_types.length > 4" class="text-[10px] text-muted-foreground">
+              +{{ row.provider_types.length - 4 }}
+            </span>
           </div>
-
-          <!-- Edit hint -->
-          <div
-            class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
-          >
-            <UIcon name="i-lucide-pencil" class="size-3" />
-            {{ $t("common.edit") }}
-          </div>
-        </RouterLink>
-      </div>
-
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="mt-5 flex items-center justify-between">
-        <span class="text-xs text-muted-foreground"> Page {{ page }} of {{ totalPages }} </span>
-        <div class="flex items-center gap-2">
-          <UButton variant="outline" size="xs" :disabled="page <= 1" @click="goToPage(page - 1)">
-            <UIcon name="i-lucide-chevron-left" class="size-3.5" />
-            Prev
-          </UButton>
-          <UButton variant="outline" size="xs" :disabled="!hasMore" @click="goToPage(page + 1)">
-            Next
-            <UIcon name="i-lucide-chevron-right" class="size-3.5" />
-          </UButton>
-        </div>
-      </div>
+        </template>
+      </DataTable>
     </div>
   </div>
 </template>

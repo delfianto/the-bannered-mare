@@ -192,6 +192,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/providers/{provider_id}/models/search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search Provider Models
+     * @description Search a provider's live model list by name, ignoring the allow-list filter
+     */
+    get: operations["search_provider_models_api_providers__provider_id__models_search_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/providers/{provider_id}/models/filter": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Set Provider Model Filter
+     * @description Set the curated allow-list and return the newly-filtered available models
+     */
+    put: operations["set_provider_model_filter_api_providers__provider_id__models_filter_put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/providers/{provider_id}/models/load": {
     parameters: {
       query?: never;
@@ -3062,6 +3102,18 @@ export interface components {
       provider_enabled: boolean;
     };
     /**
+     * ModelSearchResponse
+     * @description Substring matches for a model-name query against a provider's live list.
+     */
+    ModelSearchResponse: {
+      /** Provider Id */
+      provider_id: string;
+      /** Query */
+      query: string;
+      /** Models */
+      models: components["schemas"]["DiscoveredModel"][];
+    };
+    /**
      * ModelUpdate
      * @description Schema for updating a model definition
      */
@@ -3530,6 +3582,17 @@ export interface components {
       enabled: boolean;
     };
     /**
+     * ProviderModelFilterUpdate
+     * @description Sets the curated allow-list that narrows a provider's available models.
+     */
+    ProviderModelFilterUpdate: {
+      /**
+       * Allowed Models
+       * @description Provider-native model identifiers to keep; empty shows all
+       */
+      allowed_models?: string[];
+    };
+    /**
      * ProviderResponse
      * @description Schema for provider responses
      */
@@ -3556,6 +3619,11 @@ export interface components {
       updated_at: string;
       /** Last Synced At */
       last_synced_at?: string | null;
+      /**
+       * Allowed Models
+       * @description Curated allow-list of model identifiers; empty means all are shown
+       */
+      allowed_models?: string[];
       /**
        * Api Key Configured
        * @description Whether API key is available in environment
@@ -4094,6 +4162,75 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AvailableModelsResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  search_provider_models_api_providers__provider_id__models_search_get: {
+    parameters: {
+      query?: {
+        /** @description Substring to match against model id or name */
+        q?: string;
+      };
+      header?: never;
+      path: {
+        provider_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ModelSearchResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_provider_model_filter_api_providers__provider_id__models_filter_put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        provider_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ProviderModelFilterUpdate"];
+      };
+    };
     responses: {
       /** @description Successful Response */
       200: {
