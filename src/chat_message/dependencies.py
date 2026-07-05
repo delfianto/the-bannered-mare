@@ -48,7 +48,7 @@ async def get_chat_message_service(
     alt_repo: Annotated[
         AsyncMessageAlternativeRepository, Depends(get_async_alternative_repository)
     ],
-    retrieval_service: Annotated[RetrievalService, Depends(get_retrieval_service)],
+    retrieval_service: Annotated[RetrievalService | None, Depends(get_retrieval_service)],
 ) -> ChatMessageService:
     """Factory for ChatMessageService with async repositories injected"""
     return ChatMessageService(
