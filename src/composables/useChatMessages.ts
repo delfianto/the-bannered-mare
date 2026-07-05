@@ -113,45 +113,63 @@ export function useChatMessages(
 
     const assistantMsgIndex = messages.value.length - 1;
     let buffer = "";
+    let streamError: string | null = null;
 
     try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        buffer += chunk;
+        buffer += decoder.decode(value, { stream: true });
 
         const lines = buffer.split("\n\n");
         buffer = lines.pop() || "";
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const dataStr = line.slice(6);
-            if (dataStr === "[DONE]") break;
+          if (!line.startsWith("data: ")) continue;
+          const dataStr = line.slice(6);
+          if (dataStr === "[DONE]") continue;
 
-            try {
-              const data = JSON.parse(dataStr);
-              if (data.error) throw new Error(data.error);
-              if (data.text) {
-                // Mutate the reactive message object
-                // We use a new object reference to ensure standard watchers trigger
-                const currentMsg = messages.value[assistantMsgIndex];
-                if (currentMsg) {
-                  messages.value[assistantMsgIndex] = {
-                    ...currentMsg,
-                    content: currentMsg.content + data.text,
-                  };
-                }
-              }
-            } catch (e) {
-              console.warn("Stream parse error", e);
-            }
+          // Backend SSE events are { type, content?, message? } — the typed
+          // StreamEvent from the API, NOT { text, error }.
+          let event: { type?: string; content?: string; message?: string } | null = null;
+          try {
+            event = JSON.parse(dataStr);
+          } catch (e) {
+            console.warn("Stream parse error", e);
+          }
+          if (!event) continue;
+
+          const currentMsg = messages.value[assistantMsgIndex];
+          if (!currentMsg) continue;
+
+          if (event.type === "text" && event.content) {
+            // New object reference so standard watchers trigger.
+            messages.value[assistantMsgIndex] = {
+              ...currentMsg,
+              content: currentMsg.content + event.content,
+            };
+          } else if (event.type === "reasoning" && event.content) {
+            messages.value[assistantMsgIndex] = {
+              ...currentMsg,
+              reasoning_content: (currentMsg.reasoning_content ?? "") + event.content,
+            };
+          } else if (event.type === "error") {
+            streamError = event.message ?? "Generation failed";
+            break;
           }
         }
+
+        if (streamError) break;
       }
     } finally {
       isGenerating.value = false;
+    }
+
+    if (streamError) {
+      // Drop the empty placeholder so an error never lingers as a blank reply.
+      messages.value = messages.value.filter((m) => m.id !== tempMsg.id || m.content);
+      throw new Error(streamError);
     }
   };
 
