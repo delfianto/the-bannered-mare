@@ -63,6 +63,11 @@ const routes = [
     component: () => import("@/views/settings/ProviderView.vue"),
   },
   {
+    path: "/settings/models/create",
+    name: "model-create",
+    component: () => import("@/views/settings/ModelCreateView.vue"),
+  },
+  {
     path: "/settings/models/:id",
     name: "model-edit",
     component: () => import("@/views/settings/ModelView.vue"),

@@ -198,7 +198,7 @@
   },
   "connections": {
     "title": "Conexiones",
-    "subtitle": "Gestiona proveedores, modelos, presets, plantillas y fragmentos",
+    "subtitle": "Gestiona proveedores, modelos y familias de modelos",
     "tabs": {
       "providers": "Proveedores",
       "models": "Modelos",

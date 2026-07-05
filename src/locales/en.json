@@ -322,7 +322,7 @@
   },
   "connections": {
     "title": "Connections",
-    "subtitle": "Manage providers, models, presets, templates, and fragments",
+    "subtitle": "Manage providers, models, and model families",
     "tabs": {
       "providers": "Providers",
       "models": "Models",

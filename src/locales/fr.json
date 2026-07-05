@@ -198,7 +198,7 @@
   },
   "connections": {
     "title": "Connexions",
-    "subtitle": "Gérez les fournisseurs, modèles, préréglages, modèles de prompt et fragments",
+    "subtitle": "Gérez les fournisseurs, modèles et familles de modèles",
     "tabs": {
       "providers": "Fournisseurs",
       "models": "Modèles",
