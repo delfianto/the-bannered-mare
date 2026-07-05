@@ -2,13 +2,17 @@
 
 import hashlib
 
+from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
 from src.rag.chunker import chunk_text
 from src.rag.embedding_service import EmbeddingService
 from src.rag.models import Embedding
 from src.rag.repository import DataBankRepository
 from src.rag.repository_async import AsyncEmbeddingRepository
+from src.rag.rerank_service import RerankService
 from src.rag.schemas import RetrievedChunk
+
+logger = get_logger(__name__)
 
 
 def _content_hash(text: str) -> int:
@@ -24,10 +28,12 @@ class RetrievalService:
         embedding_service: EmbeddingService,
         embedding_repo: AsyncEmbeddingRepository,
         data_bank_repo: DataBankRepository,
+        rerank_service: RerankService | None = None,
     ):
         self.embedding_service = embedding_service
         self.embedding_repo = embedding_repo
         self.data_bank_repo = data_bank_repo
+        self.rerank_service = rerank_service
 
     async def retrieve(
         self,
@@ -60,15 +66,21 @@ class RetrievalService:
 
         source_ids.extend(e.id for e in entries)
 
+        # With a reranker, cast a wider net at the vector stage and let the
+        # cross-encoder pick the final max_results.
+        limit = max_results
+        if self.rerank_service is not None:
+            limit = max(max_results, self.rerank_service.settings.candidates)
+
         rows = await self.embedding_repo.search_similar(
             query_embedding=query_vec,
             source_types=source_types,
             source_ids=source_ids,
-            limit=max_results,
+            limit=limit,
             threshold=threshold,
         )
 
-        return [
+        chunks = [
             RetrievedChunk(
                 content=row["content"],
                 source_type=row["source_type"],
@@ -78,6 +90,30 @@ class RetrievalService:
             )
             for row in rows
         ]
+
+        if self.rerank_service is not None and len(chunks) > 1:
+            chunks = await self._rerank(query_text, chunks, max_results)
+
+        return chunks[:max_results]
+
+    async def _rerank(
+        self, query_text: str, chunks: list[RetrievedChunk], top_n: int
+    ) -> list[RetrievedChunk]:
+        """Reorder candidates with the cross-encoder; keep vector order on failure.
+
+        Reranking is a quality boost, not a correctness requirement, so a down or
+        slow reranker must never break retrieval — fall back to the vector ranking.
+        """
+        if self.rerank_service is None:
+            return chunks
+        try:
+            order = await self.rerank_service.rerank(
+                query_text, [c.content for c in chunks], top_n=top_n
+            )
+        except Exception:
+            logger.warning("rerank_failed", exc_info=True)
+            return chunks
+        return [chunks[i] for i in order]
 
     async def vectorize_message(
         self,

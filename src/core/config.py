@@ -74,11 +74,28 @@ class EmbeddingSettings(BaseModel):
     document_prefix: str = "title: none | text: "
 
 
+class RerankSettings(BaseModel):
+    """Cross-encoder reranker over the RAG candidate set.
+
+    Runs on a dedicated HF Text Embeddings Inference instance via its native
+    `/rerank` (TEI serves one model per process and has no OpenAI-compatible
+    rerank route — text-embeddings-inference#683). Disabled by default; when on,
+    the retriever pulls `candidates` vector hits and the cross-encoder reorders
+    them down to `rag.max_results`.
+    """
+
+    enabled: bool = False
+    huggingface_url: str = "http://localhost:8091"
+    model: str = "BAAI/bge-reranker-v2-m3"  # informational; TEI serves a fixed model
+    candidates: int = 30
+
+
 class RAGSettings(BaseModel):
     """RAG system configuration"""
 
     enabled: bool = False
     embedding: EmbeddingSettings = EmbeddingSettings()
+    rerank: RerankSettings = RerankSettings()
     chunk_size: int = 500
     chunk_overlap: int = 50
     similarity_threshold: float = 0.3
