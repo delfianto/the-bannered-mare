@@ -26,8 +26,9 @@ Your goal is to build a fast, strictly typed, and component-driven SPA with a wa
 
 ### 2.1 Version Control & File Handling
 
-- **NO GIT COMMITS:** You do not have permission to commit code unless the user asked you to do so.
-- **Default Branch:** `main` is the default and only long-lived branch. PRs target `main`.
+- **Work on `main`:** `main` is the only long-lived branch — commit directly to it. Do not create feature branches or open PRs unless the user asks.
+- **Commit Freely:** Commit each completed unit of work with a clear, conventional message.
+- **Never Push Unprompted:** Do NOT run `git push` unless the user explicitly asks.
 - **File Retrieval:** Always read full file contents before editing. Do not rely on snippets or assumptions.
 - **Shell Check:** This machine runs **zsh** (macOS), not always BASH. Check the running shell before assuming syntax; use shell-specific syntax to avoid command failure.
 
@@ -216,7 +217,7 @@ Fixtures in `src/mocks/data/` mirror the backend seed data: **6 providers**, **1
 
 This project version-controls a shared `.claude/` setup, mirroring `../candlekeep-core`:
 
-- **Permissions** (`settings.json`): an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). **`git commit`/`push` are deliberately not pre-allowed** — they're governed by §2.1 (no commits unless asked) plus the default permission prompt. Opt out of that prompt per-machine by adding them to `settings.local.json`'s `allow` (rules merge and evaluate deny→ask→allow, so a local `allow` only works because there's no competing project `ask`/hook for them).
+- **Permissions** (`settings.json`): an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). Per §2.1 you commit directly to `main` and never `git push` unless the user asks. `git commit`/`push` aren't pre-allowed in the project `settings.json`; add them to `settings.local.json`'s `allow` per-machine to skip the prompt (rules merge and evaluate deny→ask→allow).
 - **Hooks** (`.claude/hooks/`): `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix` on edited source files, skips generated files), `typecheck` (Stop — `vue-tsc --noEmit` gate), `session-context` (SessionStart — anchors the stack). They prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell.
 - **Skills** (`.claude/skills/`): `sync-schema`, `new-msw-handler`, `new-component`, `new-composable`, and the vendored `superdesign` — all tracked, so a fresh clone picks them up.
 - **MCP** (`.mcp.json`): the Nuxt UI MCP (`nuxt-ui` → `https://ui.nuxt.com/mcp`), pre-approved via `enabledMcpjsonServers`.
