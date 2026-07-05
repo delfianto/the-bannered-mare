@@ -38,9 +38,9 @@ async def test_rerank_reorders_and_caps_top_n():
     mock_client = _client(_mock_response(ranked))
 
     with patch("src.rag.rerank_service.httpx.AsyncClient", return_value=mock_client):
-        order = await service.rerank("who guards the keep?", ["a", "b", "c"], top_n=2)
+        ranked = await service.rerank("who guards the keep?", ["a", "b", "c"], top_n=2)
 
-    assert order == [2, 0]
+    assert ranked == [(2, 0.9), (0, 0.5)]  # (index, score), best-first, capped at top_n
     mock_client.post.assert_called_once_with(
         "http://localhost:8091/rerank",
         json={"query": "who guards the keep?", "texts": ["a", "b", "c"]},
@@ -52,8 +52,8 @@ async def test_rerank_reorders_and_caps_top_n():
 async def test_rerank_empty_texts_makes_no_call():
     service = RerankService(RerankSettings())
     with patch("src.rag.rerank_service.httpx.AsyncClient") as mock_cls:
-        order = await service.rerank("q", [], top_n=5)
-    assert order == []
+        ranked = await service.rerank("q", [], top_n=5)
+    assert ranked == []
     mock_cls.assert_not_called()
 
 

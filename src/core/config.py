@@ -79,15 +79,21 @@ class RerankSettings(BaseModel):
 
     Runs on a dedicated HF Text Embeddings Inference instance via its native
     `/rerank` (TEI serves one model per process and has no OpenAI-compatible
-    rerank route — text-embeddings-inference#683). Disabled by default; when on,
-    the retriever pulls `candidates` vector hits and the cross-encoder reorders
-    them down to `rag.max_results`.
+    rerank route — text-embeddings-inference#683). Disabled by default.
+
+    When enabled the retriever casts a wide net: it pulls up to `candidates`
+    vector hits WITHOUT the vector similarity floor (so the cross-encoder, not
+    cosine distance, decides relevance), then keeps hits scoring at least
+    `score_threshold` and cuts to `rag.max_results`.
     """
 
     enabled: bool = False
     huggingface_url: str = "http://localhost:8091"
     model: str = "BAAI/bge-reranker-v2-m3"  # informational; TEI serves a fixed model
     candidates: int = 30
+    # Minimum reranker score (0-1, normalized) to keep a hit — this replaces the
+    # vector similarity_threshold as the relevance floor whenever reranking is on.
+    score_threshold: float = 0.3
 
 
 class RAGSettings(BaseModel):
