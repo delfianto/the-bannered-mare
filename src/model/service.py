@@ -329,17 +329,13 @@ class ModelService:
             model.enabled = enabled
 
         if use_openrouter is not None:
-            if use_openrouter:
-                if not model.can_use_openrouter:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"Model family '{model.model_family.name}' does not support OpenRouter routing",
-                    )
-                if not model.openrouter_identifier:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="OpenRouter identifier must be set before enabling OpenRouter routing",
-                    )
+            # A model can route via OpenRouter iff it has an OpenRouter identifier
+            # (that presence is exactly what can_use_openrouter now reflects).
+            if use_openrouter and not model.openrouter_identifier:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="OpenRouter identifier must be set before enabling OpenRouter routing",
+                )
             model.use_openrouter = use_openrouter
 
         updated = self.model_repo.update(model)
