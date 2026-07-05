@@ -5,6 +5,7 @@ import { useModel } from "@/composables/useModel";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { useAppToast } from "@/composables/useToast";
+import { providersForFamily } from "@/utils/modelProviderFilter";
 
 const route = useRoute();
 const router = useRouter();
@@ -34,18 +35,24 @@ const selectUi = {
   item: "text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent",
 };
 
+const selectedFamily = computed(() =>
+  families.value.find((f: any) => f.id === form.model_family_id),
+);
 const providerItems = computed(() =>
-  [...providers.value]
-    .sort((a: any, b: any) => a.name.localeCompare(b.name))
-    .map((p: any) => ({ label: p.name, value: p.id })),
+  providersForFamily(providers.value as any, selectedFamily.value as any)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((p) => ({ label: p.name, value: p.id })),
 );
 const familyItems = computed(() =>
   [...families.value]
     .sort((a: any, b: any) => a.name.localeCompare(b.name))
     .map((f: any) => ({ label: f.name, value: f.id })),
 );
+// Fall back to the full provider list so a prefilled provider still displays
+// before its family is chosen.
 const providerName = computed(
-  () => providerItems.value.find((i) => i.value === form.provider_id)?.label || "Select a provider",
+  () => providers.value.find((p: any) => p.id === form.provider_id)?.name || "Select a provider",
 );
 const familyName = computed(
   () => familyItems.value.find((i) => i.value === form.model_family_id)?.label || "Select a family",
@@ -62,6 +69,25 @@ watch(
   () => form.openrouter_identifier,
   (v) => {
     if (!v.trim()) form.use_openrouter = false;
+  },
+);
+
+// Provider is constrained by the family. On family change, drop an incompatible
+// provider; restore a prefilled provider (from the "Add as Model" flow) once a
+// compatible family is chosen.
+const prefilledProviderId = (route.query.provider_id as string) || "";
+watch(
+  () => form.model_family_id,
+  () => {
+    const valid = providerItems.value.some((i) => i.value === form.provider_id);
+    if (form.provider_id && !valid) form.provider_id = "";
+    if (
+      !form.provider_id &&
+      prefilledProviderId &&
+      providerItems.value.some((i) => i.value === prefilledProviderId)
+    ) {
+      form.provider_id = prefilledProviderId;
+    }
   },
 );
 
@@ -201,28 +227,6 @@ onBeforeRouteLeave(() => {
               />
             </label>
 
-            <!-- Provider -->
-            <label class="block">
-              <span
-                class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-              >
-                Provider
-              </span>
-              <USelectMenu
-                v-model="form.provider_id"
-                :items="providerItems"
-                value-key="value"
-                class="w-full"
-                :ui="selectUi"
-              >
-                <button
-                  class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
-                >
-                  {{ providerName }}
-                </button>
-              </USelectMenu>
-            </label>
-
             <!-- Model Family -->
             <label class="block">
               <span
@@ -241,6 +245,30 @@ onBeforeRouteLeave(() => {
                   class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
                 >
                   {{ familyName }}
+                </button>
+              </USelectMenu>
+            </label>
+
+            <!-- Provider -->
+            <label class="block">
+              <span
+                class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              >
+                Provider
+              </span>
+              <USelectMenu
+                v-model="form.provider_id"
+                :items="providerItems"
+                value-key="value"
+                class="w-full"
+                :ui="selectUi"
+                :disabled="!form.model_family_id"
+              >
+                <button
+                  :disabled="!form.model_family_id"
+                  class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {{ form.model_family_id ? providerName : "Select a family first" }}
                 </button>
               </USelectMenu>
             </label>

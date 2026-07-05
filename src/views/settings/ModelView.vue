@@ -6,6 +6,7 @@ import { useSettingsStore } from "@/stores/settings";
 import { useAppToast } from "@/composables/useToast";
 import ModelInferenceParams from "@/components/connections/ModelInferenceParams.vue";
 import { useModelFamilies } from "@/composables/useModelFamilies";
+import { providersForFamily } from "@/utils/modelProviderFilter";
 
 const router = useRouter();
 const route = useRoute();
@@ -78,16 +79,32 @@ watch(
   },
 );
 
+// Drop a provider that the newly chosen family can't serve.
+watch(
+  () => form.model_family_id,
+  () => {
+    if (form.provider_id && !providerItems.value.some((i) => i.value === form.provider_id)) {
+      form.provider_id = "";
+    }
+  },
+);
+
 const selectUi = {
   base: "w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent",
   content: "w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg",
   item: "text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent",
 };
 
+const selectedFamily = computed(
+  () =>
+    families.value.find((f: any) => f.id === form.model_family_id) ||
+    (model.value?.model_family as any),
+);
 const providerItems = computed(() =>
-  [...settingsStore.providers]
-    .sort((a: any, b: any) => a.name.localeCompare(b.name))
-    .map((p: any) => ({ label: p.name, value: p.id })),
+  providersForFamily(settingsStore.providers as any, selectedFamily.value as any)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((p) => ({ label: p.name, value: p.id })),
 );
 const familyItems = computed(() =>
   [...families.value]
@@ -300,29 +317,6 @@ function formatDate(iso: string): string {
                   />
                 </label>
 
-                <!-- Provider selector -->
-                <label class="block">
-                  <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-                  >
-                    {{ $t("connections.model.provider") }}
-                  </span>
-                  <USelectMenu
-                    v-model="form.provider_id"
-                    :items="providerItems"
-                    value-key="value"
-                    :search-input="false"
-                    class="w-full"
-                    :ui="selectUi"
-                  >
-                    <button
-                      class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
-                    >
-                      {{ providerName }}
-                    </button>
-                  </USelectMenu>
-                </label>
-
                 <!-- Model Family -->
                 <label class="block">
                   <span
@@ -341,6 +335,31 @@ function formatDate(iso: string): string {
                       class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
                     >
                       {{ familyName }}
+                    </button>
+                  </USelectMenu>
+                </label>
+
+                <!-- Provider selector -->
+                <label class="block">
+                  <span
+                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  >
+                    {{ $t("connections.model.provider") }}
+                  </span>
+                  <USelectMenu
+                    v-model="form.provider_id"
+                    :items="providerItems"
+                    value-key="value"
+                    :search-input="false"
+                    class="w-full"
+                    :ui="selectUi"
+                    :disabled="!form.model_family_id"
+                  >
+                    <button
+                      class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      :disabled="!form.model_family_id"
+                    >
+                      {{ providerName }}
                     </button>
                   </USelectMenu>
                 </label>
