@@ -36,7 +36,19 @@ def _openai_settings(**overrides) -> EmbeddingSettings:
     return EmbeddingSettings(**defaults)
 
 
-def _mock_response(json_data: dict, status_code: int = 200) -> MagicMock:
+def _hf_settings(**overrides) -> EmbeddingSettings:
+    defaults: dict[str, Any] = {
+        "provider": "huggingface",
+        "model": "google/embeddinggemma-300m",
+        "huggingface_url": "http://localhost:8090",
+        "query_prefix": "",
+        "document_prefix": "",
+    }
+    defaults.update(overrides)
+    return EmbeddingSettings(**defaults)
+
+
+def _mock_response(json_data: Any, status_code: int = 200) -> MagicMock:
     resp = MagicMock(spec=httpx.Response)
     resp.status_code = status_code
     resp.json.return_value = json_data
@@ -134,6 +146,32 @@ async def test_embed_llamacpp_applies_embeddinggemma_prefixes():
     assert query_call.kwargs["json"]["input"] == [
         "task: search result | query: who guards the keep?"
     ]
+
+
+@pytest.mark.asyncio
+async def test_embed_huggingface():
+    """TEI's native /embed uses `inputs` and returns a bare list of vectors."""
+    settings = _hf_settings()
+    service = EmbeddingService(settings)
+
+    embeddings = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+    # TEI returns the array directly, not the OpenAI {"data": [{"embedding": ...}]} shape.
+    mock_resp = _mock_response(embeddings)
+
+    mock_client = AsyncMock(spec=httpx.AsyncClient)
+    mock_client.post.return_value = mock_resp
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=False)
+
+    with patch("src.rag.embedding_service.httpx.AsyncClient", return_value=mock_client):
+        result = await service.embed_documents(["hello", "world"])
+
+    assert result == embeddings
+    mock_client.post.assert_called_once_with(
+        "http://localhost:8090/embed",
+        json={"inputs": ["hello", "world"], "normalize": True, "truncate": True},
+        timeout=60.0,
+    )
 
 
 @pytest.mark.asyncio

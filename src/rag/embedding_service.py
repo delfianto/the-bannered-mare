@@ -37,6 +37,8 @@ class EmbeddingService:
             batch = prefixed[i : i + BATCH_SIZE]
             if self.settings.provider == "ollama":
                 results.extend(await self._embed_ollama(batch))
+            elif self.settings.provider == "huggingface":
+                results.extend(await self._embed_hf(batch))
             elif self.settings.provider == "llamacpp":
                 # llama-server exposes an OpenAI-compatible endpoint under /v1.
                 base_url = f"{self.settings.llamacpp_url}/v1"
@@ -47,6 +49,26 @@ class EmbeddingService:
                     await self._embed_openai_compatible(batch, self.settings.openai_url, api_key)
                 )
         return results
+
+    async def _embed_hf(self, texts: list[str]) -> list[list[float]]:
+        """POST to Text Embeddings Inference's native ``/embed`` endpoint.
+
+        TEI exposes an OpenAI-compatible route for embeddings but NOT for
+        reranking (text-embeddings-inference#683), so the ``huggingface``
+        provider speaks TEI's native dialect — ``/embed`` here, ``/rerank`` for
+        the reranker — rather than mixing two API shapes. Unlike the OpenAI
+        format, the request key is ``inputs`` and the response is a bare list of
+        float arrays (one per input), not ``{"data": [{"embedding": ...}]}``.
+        """
+        url = f"{self.settings.huggingface_url}/embed"
+        # truncate guards against inputs longer than the model's context window
+        # (queries are built from recent messages and can run long).
+        payload = {"inputs": texts, "normalize": True, "truncate": True}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=payload, timeout=60.0)
+            response.raise_for_status()
+            return response.json()
 
     async def _embed_ollama(self, texts: list[str]) -> list[list[float]]:
         """POST to Ollama's native /api/embed endpoint."""
