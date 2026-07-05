@@ -57,6 +57,16 @@ function avatarSrc(): string {
   );
 }
 
+function goBack() {
+  // Retrace to wherever the user came from; fall back to the library on a cold
+  // load (deep link / refresh) where there is no in-app history entry to pop.
+  if (window.history.state?.back != null) {
+    router.back();
+  } else {
+    router.push("/characters");
+  }
+}
+
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
     year: "numeric",
@@ -111,7 +121,7 @@ async function startTale() {
       <div class="flex items-center gap-4">
         <button
           class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          @click="router.push('/characters')"
+          @click="goBack"
         >
           <UIcon name="i-lucide-arrow-left" class="size-4" />
           {{ $t("common.back") }}
