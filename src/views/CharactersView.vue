@@ -180,107 +180,109 @@ async function onFileSelected(event: Event) {
       @change="onFileSelected"
     />
 
-    <!-- Filters -->
-    <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 60ms">
-      <FilterBar
-        :search="filters.search"
-        :sort="filters.sort"
-        :view-mode="filters.viewMode"
-        :select-mode="selectMode"
-        @update:search="setSearch"
-        @update:sort="setSort"
-        @update:view-mode="setViewMode"
-        @update:select-mode="(v: boolean) => (v ? (selectMode = true) : cancelSelect())"
+    <div class="flex flex-1 flex-col space-y-6">
+      <!-- Filters -->
+      <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 60ms">
+        <FilterBar
+          :search="filters.search"
+          :sort="filters.sort"
+          :view-mode="filters.viewMode"
+          :select-mode="selectMode"
+          @update:search="setSearch"
+          @update:sort="setSort"
+          @update:view-mode="setViewMode"
+          @update:select-mode="(v: boolean) => (v ? (selectMode = true) : cancelSelect())"
+        />
+      </div>
+
+      <!-- Category pills -->
+      <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 120ms">
+        <CategoryPills :active="filters.category" :categories="CATEGORIES" @change="setCategory" />
+      </div>
+
+      <!-- Bulk action bar -->
+      <BulkActionBar
+        :selected-count="selected.size"
+        :visible="selectMode"
+        @export="handleBulkExport"
+        @delete="handleBulkDelete"
+        @cancel="cancelSelect"
       />
+
+      <!-- Import loading overlay -->
+      <div
+        v-if="importing"
+        class="flex items-center justify-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-6 py-4"
+      >
+        <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
+        <span class="text-sm text-foreground">{{ $t("characters.importing") }}</span>
+      </div>
+
+      <!-- Loading -->
+      <div v-if="loading && characters.length === 0" class="flex justify-center py-16">
+        <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
+      </div>
+
+      <!-- Grid view -->
+      <div
+        v-else-if="filtered.length > 0 && filters.viewMode === 'grid'"
+        class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+      >
+        <CharacterCard
+          v-for="(character, i) in filtered"
+          :key="character.id"
+          :character="character"
+          :index="i"
+          :select-mode="selectMode"
+          :selected="selected.has(character.id)"
+          @select="toggleSelect"
+          @context-action="handleContextAction"
+        />
+      </div>
+
+      <!-- List view -->
+      <div
+        v-else-if="filtered.length > 0 && filters.viewMode === 'list'"
+        class="grid grid-cols-1 gap-3 lg:grid-cols-2"
+      >
+        <CharacterListRow
+          v-for="(character, i) in filtered"
+          :key="character.id"
+          :character="character"
+          :index="i"
+          :select-mode="selectMode"
+          :selected="selected.has(character.id)"
+          @select="toggleSelect"
+          @context-action="handleContextAction"
+        />
+      </div>
+
+      <!-- Empty state -->
+      <EmptyState
+        v-if="!loading && filtered.length === 0"
+        :has-filters="hasFilters"
+        @action="navigateToCreate"
+      >
+        <template v-if="!hasFilters" #action>
+          <div class="flex items-center gap-3">
+            <button
+              class="flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+              @click="openImportDialog"
+            >
+              <UIcon name="i-lucide-download" class="size-4" />
+              {{ $t("characters.importBtn") }}
+            </button>
+            <button
+              class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              @click="navigateToCreate"
+            >
+              <UIcon name="i-lucide-plus" class="size-4" />
+              {{ $t("characters.createNew") }}
+            </button>
+          </div>
+        </template>
+      </EmptyState>
     </div>
-
-    <!-- Category pills -->
-    <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 120ms">
-      <CategoryPills :active="filters.category" :categories="CATEGORIES" @change="setCategory" />
-    </div>
-
-    <!-- Bulk action bar -->
-    <BulkActionBar
-      :selected-count="selected.size"
-      :visible="selectMode"
-      @export="handleBulkExport"
-      @delete="handleBulkDelete"
-      @cancel="cancelSelect"
-    />
-
-    <!-- Import loading overlay -->
-    <div
-      v-if="importing"
-      class="flex items-center justify-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-6 py-4"
-    >
-      <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
-      <span class="text-sm text-foreground">{{ $t("characters.importing") }}</span>
-    </div>
-
-    <!-- Loading -->
-    <div v-if="loading && characters.length === 0" class="flex justify-center py-16">
-      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
-    </div>
-
-    <!-- Grid view -->
-    <div
-      v-else-if="filtered.length > 0 && filters.viewMode === 'grid'"
-      class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-    >
-      <CharacterCard
-        v-for="(character, i) in filtered"
-        :key="character.id"
-        :character="character"
-        :index="i"
-        :select-mode="selectMode"
-        :selected="selected.has(character.id)"
-        @select="toggleSelect"
-        @context-action="handleContextAction"
-      />
-    </div>
-
-    <!-- List view -->
-    <div
-      v-else-if="filtered.length > 0 && filters.viewMode === 'list'"
-      class="grid grid-cols-1 gap-3 lg:grid-cols-2"
-    >
-      <CharacterListRow
-        v-for="(character, i) in filtered"
-        :key="character.id"
-        :character="character"
-        :index="i"
-        :select-mode="selectMode"
-        :selected="selected.has(character.id)"
-        @select="toggleSelect"
-        @context-action="handleContextAction"
-      />
-    </div>
-
-    <!-- Empty state -->
-    <EmptyState
-      v-if="!loading && filtered.length === 0"
-      :has-filters="hasFilters"
-      @action="navigateToCreate"
-    >
-      <template v-if="!hasFilters" #action>
-        <div class="flex items-center gap-3">
-          <button
-            class="flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
-            @click="openImportDialog"
-          >
-            <UIcon name="i-lucide-download" class="size-4" />
-            {{ $t("characters.importBtn") }}
-          </button>
-          <button
-            class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            @click="navigateToCreate"
-          >
-            <UIcon name="i-lucide-plus" class="size-4" />
-            {{ $t("characters.createNew") }}
-          </button>
-        </div>
-      </template>
-    </EmptyState>
 
     <!-- Delete Confirmation Modal -->
     <ConfirmModal
