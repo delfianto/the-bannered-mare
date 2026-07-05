@@ -75,9 +75,7 @@ def test_list_available_models(
     models = [DiscoveredModel(identifier="llama3:8b", display_name="llama3:8b", state="loaded")]
     monkeypatch.setattr(
         "src.provider.service.get_discovery_client",
-        lambda _t: type(
-            "_C", (), {"list_models": lambda self, base_url, api_key=None: models}
-        )(),
+        lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: models})(),
     )
 
     response = client.get(f"/api/providers/{provider.id}/models/available")
@@ -142,3 +140,49 @@ def test_unload_provider_model(
     assert response.status_code == 200
     assert response.json() == {"model_identifier": "llama3:8b", "action": "unloaded"}
     assert calls == ["llama3:8b"]
+
+
+def test_search_provider_models(
+    client: TestClient, db: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    provider = _make_ollama_provider(db)
+    models = [
+        DiscoveredModel(identifier="gpt-4o", display_name="GPT-4o", state="loaded"),
+        DiscoveredModel(identifier="gpt-4o-mini", display_name="GPT-4o mini", state="loaded"),
+        DiscoveredModel(identifier="claude-3", display_name="Claude 3", state="loaded"),
+    ]
+    monkeypatch.setattr(
+        "src.provider.service.get_discovery_client",
+        lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: models})(),
+    )
+
+    response = client.get(f"/api/providers/{provider.id}/models/search", params={"q": "gpt-4o"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["query"] == "gpt-4o"
+    assert [m["identifier"] for m in data["models"]] == ["gpt-4o", "gpt-4o-mini"]
+
+
+def test_set_provider_model_filter(
+    client: TestClient, db: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    provider = _make_ollama_provider(db)
+    models = [
+        DiscoveredModel(identifier="keep:1", display_name="Keep One", state="loaded"),
+        DiscoveredModel(identifier="drop:2", display_name="Drop Two", state="loaded"),
+    ]
+    monkeypatch.setattr(
+        "src.provider.service.get_discovery_client",
+        lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: models})(),
+    )
+
+    response = client.put(
+        f"/api/providers/{provider.id}/models/filter",
+        json={"allowed_models": ["keep:1", "keep:1", "  "]},
+    )
+    assert response.status_code == 200
+    assert [m["identifier"] for m in response.json()["models"]] == ["keep:1"]
+
+    # Filter persisted on the provider (deduped, blanks removed)
+    provider_resp = client.get(f"/api/providers/{provider.id}")
+    assert provider_resp.json()["allowed_models"] == ["keep:1"]

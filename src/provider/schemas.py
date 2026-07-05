@@ -29,6 +29,23 @@ class AvailableModelsResponse(BaseModel):
     from_cache: bool
 
 
+class ModelSearchResponse(BaseModel):
+    """Substring matches for a model-name query against a provider's live list."""
+
+    provider_id: str
+    query: str
+    models: list[DiscoveredModel]
+
+
+class ProviderModelFilterUpdate(BaseModel):
+    """Sets the curated allow-list that narrows a provider's available models."""
+
+    allowed_models: list[str] = Field(
+        default_factory=list,
+        description="Provider-native model identifiers to keep; empty shows all",
+    )
+
+
 class ModelActionRequest(BaseModel):
     """Identifies which discovered model a load/unload action applies to."""
 
@@ -109,6 +126,10 @@ class ProviderResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     last_synced_at: datetime | None = None
+    allowed_models: list[str] = Field(
+        default_factory=list,
+        description="Curated allow-list of model identifiers; empty means all are shown",
+    )
 
     # Runtime status fields
     api_key_configured: bool = Field(description="Whether API key is available in environment")

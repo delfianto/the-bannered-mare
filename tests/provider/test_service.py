@@ -245,6 +245,7 @@ class TestProviderServiceDiscovery:
         db.refresh(provider)
 
         import src.provider.service
+
         monkeypatch.setattr(src.provider.service, "get_discovery_client", lambda x: None)
 
         service = ProviderService(ProviderRepository(db))
@@ -356,3 +357,115 @@ class TestProviderServiceDiscovery:
         service_a = ProviderService(ProviderRepository(db), shared_cache)
         service_b = ProviderService(ProviderRepository(db), shared_cache)
         assert service_a.model_cache is service_b.model_cache
+
+    def test_list_available_models_applies_allow_list(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        provider.allowed_models = ["keep:1"]
+        db.commit()
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="keep:1", display_name="Keep One", state="loaded"),
+                DiscoveredModel(identifier="drop:2", display_name="Drop Two", state="loaded"),
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        result = service.list_available_models(provider.id)
+
+        assert [m.identifier for m in result.models] == ["keep:1"]
+
+    def test_list_available_models_empty_allow_list_returns_all(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="a:1", display_name="A", state="loaded"),
+                DiscoveredModel(identifier="b:2", display_name="B", state="loaded"),
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        result = service.list_available_models(provider.id)
+
+        assert {m.identifier for m in result.models} == {"a:1", "b:2"}
+
+    def test_search_models_substring_ignores_allow_list(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        # A narrow allow-list must NOT constrain search — you search to expand it.
+        provider.allowed_models = ["gpt-4o"]
+        db.commit()
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="gpt-4o", display_name="GPT-4o", state="loaded"),
+                DiscoveredModel(
+                    identifier="gpt-4o-mini", display_name="GPT-4o mini", state="loaded"
+                ),
+                DiscoveredModel(identifier="claude-3", display_name="Claude 3", state="loaded"),
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        result = service.search_models(provider.id, "GPT-4O")  # case-insensitive
+
+        assert [m.identifier for m in result.models] == ["gpt-4o", "gpt-4o-mini"]
+        assert result.query == "GPT-4O"
+
+    def test_search_models_matches_display_name(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="x:1", display_name="Wizard LM", state="loaded"),
+                DiscoveredModel(identifier="y:2", display_name="Other", state="loaded"),
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        result = service.search_models(provider.id, "wizard")
+
+        assert [m.identifier for m in result.models] == ["x:1"]
+
+    def test_search_models_caps_results(self, db: Session, monkeypatch: pytest.MonkeyPatch) -> None:
+        provider = self._make_ollama_provider(db)
+        many = [
+            DiscoveredModel(
+                identifier=f"model-{i:03d}", display_name=f"model-{i:03d}", state="loaded"
+            )
+            for i in range(120)
+        ]
+        fake_client = _FakeDiscoveryClient(models=many)
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        result = service.search_models(provider.id, "model-")
+
+        assert len(result.models) == 50
+
+    def test_set_allowed_models_persists_and_normalizes(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="keep:1", display_name="Keep One", state="loaded"),
+                DiscoveredModel(identifier="drop:2", display_name="Drop Two", state="loaded"),
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        result = service.set_allowed_models(provider.id, ["keep:1", "keep:1", "  ", "keep:1"])
+
+        refreshed = service.get_by_id(provider.id)
+        assert refreshed.allowed_models == ["keep:1"]  # deduped, blanks dropped, persisted
+        assert [m.identifier for m in result.models] == ["keep:1"]  # response already filtered

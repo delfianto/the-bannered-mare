@@ -9,8 +9,10 @@ from src.provider.schemas import (
     AvailableModelsResponse,
     ModelActionRequest,
     ModelActionResponse,
+    ModelSearchResponse,
     ProviderCreate,
     ProviderFlagsUpdate,
+    ProviderModelFilterUpdate,
     ProviderResponse,
     ProviderUpdate,
 )
@@ -71,6 +73,24 @@ def list_available_models(provider_id: str, service: ProviderServiceDep):
 def sync_provider_models(provider_id: str, service: ProviderServiceDep):
     """Force a live refresh of a provider's model list, bypassing the cache"""
     return service.sync_models(provider_id)
+
+
+@router.get("/{provider_id}/models/search", response_model=ModelSearchResponse)
+def search_provider_models(
+    provider_id: str,
+    service: ProviderServiceDep,
+    q: str = Query(default="", description="Substring to match against model id or name"),
+):
+    """Search a provider's live model list by name, ignoring the allow-list filter"""
+    return service.search_models(provider_id, q)
+
+
+@router.put("/{provider_id}/models/filter", response_model=AvailableModelsResponse)
+def set_provider_model_filter(
+    provider_id: str, filter_data: ProviderModelFilterUpdate, service: ProviderServiceDep
+):
+    """Set the curated allow-list and return the newly-filtered available models"""
+    return service.set_allowed_models(provider_id, filter_data.allowed_models)
 
 
 @router.post("/{provider_id}/models/load", response_model=ModelActionResponse)

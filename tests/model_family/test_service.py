@@ -60,6 +60,27 @@ class TestModelFamilyService:
         assert len(items) == 1
         assert total >= 2
 
+    def test_list_paginated_orders_by_name_case_insensitive(self, db: Session) -> None:
+        """list_paginated returns families alphabetically by name, ignoring case."""
+        # ci order ("apex, banana, Mango, Zeta") differs from raw ASCII order.
+        for i, name in enumerate(["Zeta", "apex", "Mango", "banana"]):
+            db.add(
+                ModelFamily(
+                    name=name,
+                    family_identifier=f"test.fam-{i}",
+                    provider_types=["openai"],
+                )
+            )
+        db.commit()
+
+        repo = ModelFamilyRepository(db)
+        service = ModelFamilyService(repo)
+
+        families, total = service.list_paginated(limit=10, offset=0)
+
+        assert total == 4
+        assert [f.name for f in families] == ["apex", "banana", "Mango", "Zeta"]
+
     def test_get_by_id_success(self, db: Session, sample_family: Any) -> None:
         """Test getting a model family by ID successfully"""
         repo = ModelFamilyRepository(db)

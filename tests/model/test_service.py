@@ -43,6 +43,34 @@ class TestModelService:
         assert any(m.name == "GPT-4" for m in models)
         assert any(m.name == "GPT-3.5" for m in models)
 
+    def test_list_paginated_orders_by_name_case_insensitive(
+        self, db: Session, sample_provider: Any, sample_family: Any
+    ) -> None:
+        """list_paginated returns models alphabetically by name, ignoring case."""
+        # Mixed case whose case-insensitive order ("apex, banana, Mango, Zeta")
+        # differs from raw ASCII order ("Mango, Zeta, apex, banana").
+        for i, name in enumerate(["Zeta", "apex", "Mango", "banana"]):
+            db.add(
+                Model(
+                    name=name,
+                    provider_id=sample_provider.id,
+                    model_identifier=f"id-{i}",
+                    model_family_id=sample_family.id,
+                )
+            )
+        db.commit()
+
+        repo = ModelRepository(db)
+        provider_repo = ProviderRepository(db)
+        family_repo = ModelFamilyRepository(db)
+        chat_repo = ChatRepository(db)
+        service = ModelService(repo, provider_repo, family_repo, chat_repo)
+
+        models, total = service.list_paginated(limit=10, offset=0)
+
+        assert total == 4
+        assert [m.name for m in models] == ["apex", "banana", "Mango", "Zeta"]
+
     def test_get_by_id_success(self, db: Session, sample_model: Any) -> None:
         """Test getting a model by ID successfully"""
         repo = ModelRepository(db)
