@@ -10,8 +10,17 @@ import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.v
 const { t } = useI18n();
 const router = useRouter();
 
-const { models, loading, error, page, totalPages, loadPage, search, filterByProvider } =
-  useModels();
+const {
+  models,
+  loading,
+  error,
+  page,
+  totalPages,
+  loadPage,
+  search,
+  filterByProvider,
+  filterByFamily,
+} = useModels();
 const { providers } = useProviders();
 const { families } = useModelFamilies({ pageSize: 100 });
 
@@ -35,6 +44,11 @@ function handleProviderFilter(value: string) {
   filterByProvider(value === "all" ? undefined : value);
 }
 
+function handleFamilyFilter(value: string) {
+  selectedFamily.value = value;
+  filterByFamily(value === "all" ? undefined : value);
+}
+
 const providerItems = computed(() => [
   { label: t("connections.allProviders"), value: "all" },
   ...[...providers.value]
@@ -53,12 +67,12 @@ const providerLabel = computed(
     t("connections.allProviders"),
 );
 
-// const familyLabel = computed(() =>
-//   familyItems.value.find((i) => i.value === selectedFamily.value)?.label ?? "All Families",
-// );
+const familyLabel = computed(
+  () =>
+    familyItems.value.find((i) => i.value === selectedFamily.value)?.label ??
+    t("connections.allFamilies"),
+);
 
-// TODO: Family filter — needs model_family_id param added to backend API
-// TODO: Add order_by=name query param when backend supports it
 const filteredModels = computed(() => models.value);
 
 // Resolve the raw FK ids to human names (both lists are already loaded above).
@@ -140,25 +154,23 @@ function openModel(row: any) {
         </button>
       </USelectMenu>
 
-      <!-- TODO: Family filter — needs model_family_id query param added to backend API -->
+      <!-- Family filter (server-side via API) -->
       <USelectMenu
-        v-model="selectedFamily"
+        :model-value="selectedFamily"
         :items="familyItems"
         value-key="value"
-        :search-input="false"
-        disabled
         :ui="{
           base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
           content: 'border bg-card ring-0 outline-none shadow-lg',
           item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
         }"
+        @update:model-value="handleFamilyFilter"
       >
         <button
-          disabled
-          class="flex h-9 min-w-[160px] cursor-not-allowed items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground/50 outline-none"
+          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <UIcon name="i-lucide-layers" class="size-3.5" />
-          {{ $t("connections.allFamilies") }}
+          {{ familyLabel }}
         </button>
       </USelectMenu>
     </div>

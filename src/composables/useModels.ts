@@ -11,6 +11,7 @@ interface UseModelsOptions {
 interface ModelFilters {
   name?: string;
   provider_id?: string;
+  model_family_id?: string;
 }
 
 export function useModels(options: UseModelsOptions = {}) {
@@ -47,6 +48,7 @@ export function useModels(options: UseModelsOptions = {}) {
 
       if (f.name) query.name__ilike = f.name;
       if (f.provider_id) query.provider_id = f.provider_id;
+      if (f.model_family_id) query.model_family_id = f.model_family_id;
 
       const { data, error: apiError } = await client.GET("/api/models", {
         params: {
@@ -55,6 +57,7 @@ export function useModels(options: UseModelsOptions = {}) {
             limit?: number;
             name__ilike?: string | null;
             provider_id?: string | null;
+            model_family_id?: string | null;
           },
         },
       });
@@ -85,6 +88,10 @@ export function useModels(options: UseModelsOptions = {}) {
     loadPage(1, { ...currentFilters.value, provider_id: providerId });
   };
 
+  const filterByFamily = (familyId: string | undefined) => {
+    loadPage(1, { ...currentFilters.value, model_family_id: familyId });
+  };
+
   onMounted(() => {
     loadPage(1);
   });
@@ -100,5 +107,6 @@ export function useModels(options: UseModelsOptions = {}) {
     loadPage,
     search,
     filterByProvider,
+    filterByFamily,
   };
 }
