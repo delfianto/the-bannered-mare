@@ -21,7 +21,7 @@ function handleClick() {
   if (props.selectMode) {
     emit("select", props.character.id);
   } else {
-    router.push(`/characters/${props.character.id}/edit`);
+    router.push(`/characters/${props.character.id}`);
   }
 }
 
