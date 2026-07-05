@@ -14,7 +14,7 @@ from sqlalchemy import Boolean, DateTime, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import ProviderType
-from src.core.persistence.models._base import BaseModel
+from src.core.persistence.models._base import BaseModel, StringList
 
 if TYPE_CHECKING:
     from src.core.persistence.models.model import Model
@@ -112,6 +112,12 @@ class Provider(BaseModel):
         DateTime(timezone=True),
         nullable=True,
         comment="Timestamp when the provider's models were last synced",
+    )
+    allowed_models: Mapped[list[str]] = mapped_column(
+        StringList,
+        default=list,
+        nullable=False,
+        comment="Curated allow-list of provider-native model identifiers; empty means show all",
     )
 
     models: Mapped[list[Model]] = relationship(

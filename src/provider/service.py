@@ -12,9 +12,30 @@ from src.provider.discovery import get_discovery_client
 from src.provider.model_cache import ModelListCache
 from src.provider.models import Provider, ProviderType
 from src.provider.repository import ProviderRepository
-from src.provider.schemas import AvailableModelsResponse, ModelActionResponse
+from src.provider.schemas import (
+    AvailableModelsResponse,
+    DiscoveredModel,
+    ModelActionResponse,
+    ModelSearchResponse,
+)
 
 logger = get_logger(__name__)
+
+# Cap search hits so a broad query (e.g. against OpenRouter's ~300 models)
+# returns a UI-friendly slice rather than the whole catalog.
+_SEARCH_RESULT_LIMIT = 50
+
+
+def _dedupe_preserving_order(identifiers: list[str]) -> list[str]:
+    """Trim, drop blanks, and de-duplicate while keeping first-seen order."""
+    seen: set[str] = set()
+    result: list[str] = []
+    for raw in identifiers:
+        value = raw.strip()
+        if value and value not in seen:
+            seen.add(value)
+            result.append(value)
+    return result
 
 
 class ProviderService:
@@ -169,12 +190,72 @@ class ProviderService:
     def list_available_models(
         self, provider_id: str, *, force_refresh: bool = False
     ) -> AvailableModelsResponse:
-        """List models live-detected on a local provider (Ollama/LM Studio).
+        """List a provider's live models, narrowed by its curated allow-list.
 
         Serves from the in-process cache unless force_refresh is set or the
         cache is disabled via settings. A live fetch updates last_synced_at.
+        When ``allowed_models`` is non-empty, only those identifiers are
+        returned; otherwise the full discovered list is.
         """
         provider = self.get_by_id(provider_id)
+        models, from_cache = self._fetch_discovered_models(provider, force_refresh=force_refresh)
+        return AvailableModelsResponse(
+            provider_id=provider_id,
+            models=self._apply_allow_list(provider, models),
+            last_synced_at=provider.last_synced_at,
+            from_cache=from_cache,
+        )
+
+    def sync_models(self, provider_id: str) -> AvailableModelsResponse:
+        """Force a live refresh of a provider's model list, bypassing the cache."""
+        return self.list_available_models(provider_id, force_refresh=True)
+
+    def search_models(self, provider_id: str, query: str) -> ModelSearchResponse:
+        """Search the provider's full live list by substring (identifier or name).
+
+        Deliberately ignores the allow-list: this feeds the picker used to
+        *build* that filter, so every candidate must be visible. Results are
+        capped to keep the response and the UI dropdown manageable.
+        """
+        provider = self.get_by_id(provider_id)
+        models, _ = self._fetch_discovered_models(provider, force_refresh=False)
+
+        needle = query.strip().lower()
+        if needle:
+            models = [
+                m
+                for m in models
+                if needle in m.identifier.lower() or needle in m.display_name.lower()
+            ]
+        models = sorted(models, key=lambda m: m.identifier)[:_SEARCH_RESULT_LIMIT]
+        return ModelSearchResponse(provider_id=provider_id, query=query, models=models)
+
+    def set_allowed_models(
+        self, provider_id: str, allowed_models: list[str]
+    ) -> AvailableModelsResponse:
+        """Persist the curated allow-list and return the newly-filtered list."""
+        provider = self.get_by_id(provider_id)
+        provider.allowed_models = _dedupe_preserving_order(allowed_models)
+        self.provider_repo.update(provider)
+        self.provider_repo.commit()
+
+        # Reuse the cache — changing the filter never needs a fresh provider call.
+        models, from_cache = self._fetch_discovered_models(provider, force_refresh=False)
+        return AvailableModelsResponse(
+            provider_id=provider_id,
+            models=self._apply_allow_list(provider, models),
+            last_synced_at=provider.last_synced_at,
+            from_cache=from_cache,
+        )
+
+    def _fetch_discovered_models(
+        self, provider: Provider, *, force_refresh: bool
+    ) -> tuple[list[DiscoveredModel], bool]:
+        """Return the full (blacklist-filtered) discovered list and a cache flag.
+
+        Shared by the available/sync/search/filter paths so the provider's API
+        is hit at most once per cache window no matter which one is called.
+        """
         client = get_discovery_client(provider.provider_type)
         if client is None:
             raise HTTPException(
@@ -183,14 +264,9 @@ class ProviderService:
             )
 
         if not force_refresh and settings.discovery_cache.enabled:
-            cached = self.model_cache.get(provider_id, settings.discovery_cache.ttl_seconds)
+            cached = self.model_cache.get(provider.id, settings.discovery_cache.ttl_seconds)
             if cached is not None:
-                return AvailableModelsResponse(
-                    provider_id=provider_id,
-                    models=cached,
-                    last_synced_at=provider.last_synced_at,
-                    from_cache=True,
-                )
+                return cached, True
 
         try:
             api_key = provider.get_api_key()
@@ -214,18 +290,19 @@ class ProviderService:
         self.provider_repo.commit()
 
         if settings.discovery_cache.enabled:
-            self.model_cache.set(provider_id, models)
+            self.model_cache.set(provider.id, models)
 
-        return AvailableModelsResponse(
-            provider_id=provider_id,
-            models=models,
-            last_synced_at=provider.last_synced_at,
-            from_cache=False,
-        )
+        return models, False
 
-    def sync_models(self, provider_id: str) -> AvailableModelsResponse:
-        """Force a live refresh of a provider's model list, bypassing the cache."""
-        return self.list_available_models(provider_id, force_refresh=True)
+    @staticmethod
+    def _apply_allow_list(
+        provider: Provider, models: list[DiscoveredModel]
+    ) -> list[DiscoveredModel]:
+        """Keep only allow-listed identifiers; an empty allow-list keeps all."""
+        allowed = set(provider.allowed_models or [])
+        if not allowed:
+            return models
+        return [m for m in models if m.identifier in allowed]
 
     def load_model(self, provider_id: str, model_identifier: str) -> ModelActionResponse:
         """Load a model into memory on a local provider."""

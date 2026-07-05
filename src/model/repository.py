@@ -32,7 +32,9 @@ class ModelRepository(BaseRepository[Model]):
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total = self.db.execute(count_stmt).scalar_one()
 
-        stmt = stmt.limit(limit).offset(offset)
+        # Default to case-insensitive name ordering so the list is alphabetical
+        # and pagination is deterministic; id breaks ties for duplicate names.
+        stmt = stmt.order_by(func.lower(Model.name), Model.id).limit(limit).offset(offset)
         items = list(self.db.execute(stmt).scalars().all())
 
         return items, total

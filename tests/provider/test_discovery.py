@@ -4,11 +4,11 @@ from unittest.mock import MagicMock, patch
 
 from src.core.persistence.enums import ProviderType
 from src.provider.discovery import (
+    AnthropicDiscoveryClient,
+    GoogleDiscoveryClient,
     LMStudioDiscoveryClient,
     OllamaDiscoveryClient,
     OpenAIDiscoveryClient,
-    AnthropicDiscoveryClient,
-    GoogleDiscoveryClient,
     get_discovery_client,
 )
 
