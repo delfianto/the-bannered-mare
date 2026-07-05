@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 
 from src.chat_session.models import Chat
 from src.core.persistence.base_repository_async import AsyncBaseRepository
+from src.core.persistence.models import PromptTemplate, TemplateFragment
 from src.model.models import Model
 
 
@@ -23,8 +24,10 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
         """
         Find chat by ID with all relations eagerly loaded.
 
-        This is CRITICAL for async to avoid lazy loading issues.
-        Loads: character, model, model.provider, template, persona
+        This is CRITICAL for async to avoid lazy loading issues. The prompt
+        builder walks template.template_fragments and each fragment, so those
+        must be eager-loaded too (both for the chat's own template and the
+        model's default template) or the async session raises MissingGreenlet.
         """
         stmt = (
             select(Chat)
@@ -33,8 +36,13 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
                 joinedload(Chat.character),
                 joinedload(Chat.model).joinedload(Model.provider),
                 joinedload(Chat.model).joinedload(Model.model_family),
-                joinedload(Chat.model).joinedload(Model.template),
-                joinedload(Chat.template),
+                joinedload(Chat.model)
+                .joinedload(Model.template)
+                .selectinload(PromptTemplate.template_fragments)
+                .joinedload(TemplateFragment.fragment),
+                joinedload(Chat.template)
+                .selectinload(PromptTemplate.template_fragments)
+                .joinedload(TemplateFragment.fragment),
                 joinedload(Chat.persona),
                 joinedload(Chat.preset),
             )
