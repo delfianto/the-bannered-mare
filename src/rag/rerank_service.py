@@ -16,16 +16,17 @@ class RerankService:
     def __init__(self, settings: RerankSettings):
         self.settings = settings
 
-    async def rerank(self, query: str, texts: list[str], top_n: int) -> list[int]:
-        """Rank `texts` against `query`, returning their indices best-first, capped at top_n.
+    async def rerank(self, query: str, texts: list[str], top_n: int) -> list[tuple[int, float]]:
+        """Rank `texts` against `query`, returning (index, score) pairs best-first.
 
         Args:
             query: The search query.
             texts: Candidate passages to score.
-            top_n: Maximum number of indices to return.
+            top_n: Maximum number of pairs to return.
 
         Returns:
-            Indices into `texts`, ordered most-relevant first (length <= top_n).
+            (index_into_texts, score) pairs, most-relevant first (length <= top_n).
+            Scores are TEI's normalized relevance in [0, 1].
         """
         if not texts or top_n <= 0:
             return []
@@ -38,4 +39,4 @@ class RerankService:
             response.raise_for_status()
             ranked = response.json()  # [{"index": i, "score": s}, ...] sorted desc
 
-        return [item["index"] for item in ranked[:top_n]]
+        return [(item["index"], item["score"]) for item in ranked[:top_n]]

@@ -16,8 +16,14 @@ logger = get_logger(__name__)
 
 
 def _content_hash(text: str) -> int:
-    """Deterministic 64-bit hash for dedup."""
-    return int(hashlib.sha256(text.encode()).hexdigest()[:16], 16)
+    """Deterministic 63-bit hash for dedup.
+
+    Masked to 63 bits so it always fits the signed BIGINT content_hash column:
+    the top 16 hex digits of SHA-256 span the full *unsigned* 64-bit range and
+    overflow Postgres int8 (asyncpg raises DataError) for ~half of all inputs,
+    which silently dropped those chunks from the index.
+    """
+    return int(hashlib.sha256(text.encode()).hexdigest()[:16], 16) & 0x7FFFFFFFFFFFFFFF
 
 
 class RetrievalService:
@@ -66,18 +72,23 @@ class RetrievalService:
 
         source_ids.extend(e.id for e in entries)
 
-        # With a reranker, cast a wider net at the vector stage and let the
-        # cross-encoder pick the final max_results.
-        limit = max_results
-        if self.rerank_service is not None:
-            limit = max(max_results, self.rerank_service.settings.candidates)
+        # With a reranker, cast a wide net: pull up to `candidates` hits with no
+        # vector similarity floor and let the cross-encoder decide relevance
+        # (the reranker score_threshold becomes the floor instead).
+        rerank_service = self.rerank_service
+        if rerank_service is not None:
+            search_limit = max(max_results, rerank_service.settings.candidates)
+            search_threshold = 0.0
+        else:
+            search_limit = max_results
+            search_threshold = threshold
 
         rows = await self.embedding_repo.search_similar(
             query_embedding=query_vec,
             source_types=source_types,
             source_ids=source_ids,
-            limit=limit,
-            threshold=threshold,
+            limit=search_limit,
+            threshold=search_threshold,
         )
 
         chunks = [
@@ -91,29 +102,41 @@ class RetrievalService:
             for row in rows
         ]
 
-        if self.rerank_service is not None and len(chunks) > 1:
-            chunks = await self._rerank(query_text, chunks, max_results)
+        if rerank_service is not None and chunks:
+            chunks = await self._rerank(
+                query_text, chunks, max_results, rerank_service.settings.score_threshold
+            )
 
         return chunks[:max_results]
 
     async def _rerank(
-        self, query_text: str, chunks: list[RetrievedChunk], top_n: int
+        self,
+        query_text: str,
+        chunks: list[RetrievedChunk],
+        top_n: int,
+        score_threshold: float,
     ) -> list[RetrievedChunk]:
-        """Reorder candidates with the cross-encoder; keep vector order on failure.
+        """Reorder candidates with the cross-encoder, dropping those below threshold.
 
         Reranking is a quality boost, not a correctness requirement, so a down or
         slow reranker must never break retrieval — fall back to the vector ranking.
+        Surviving chunks carry the reranker score so callers see the new basis for
+        the order.
         """
         if self.rerank_service is None:
             return chunks
         try:
-            order = await self.rerank_service.rerank(
+            ranked = await self.rerank_service.rerank(
                 query_text, [c.content for c in chunks], top_n=top_n
             )
         except Exception:
             logger.warning("rerank_failed", exc_info=True)
             return chunks
-        return [chunks[i] for i in order]
+        return [
+            chunks[i].model_copy(update={"score": score})
+            for i, score in ranked
+            if score >= score_threshold
+        ]
 
     async def vectorize_message(
         self,

@@ -155,5 +155,6 @@ def rag_status():
             "enabled": rag.rerank.enabled,
             "model": rag.rerank.model,
             "candidates": rag.rerank.candidates,
+            "score_threshold": rag.rerank.score_threshold,
         },
     }
