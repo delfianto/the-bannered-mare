@@ -6,7 +6,7 @@ type ModelFamilyItem = components["schemas"]["ModelFamilyListResponse"];
 
 // Helper to strip 'parameters' for the list view to reduce payload size
 const toSummary = (item: any): ModelFamilyItem => {
-  const { parameters, ...rest } = item;
+  const { parameters: _parameters, ...rest } = item;
   return rest as ModelFamilyItem;
 };
 

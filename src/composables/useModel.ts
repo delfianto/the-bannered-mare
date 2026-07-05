@@ -76,17 +76,13 @@ export function useModel() {
   }
 
   async function toggleFlags(id: string, flags: Record<string, unknown>) {
-    try {
-      const response = await fetch(`/api/models/${id}/flags`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(flags),
-      });
-      if (!response.ok) throw new Error(`Toggle failed: ${response.status}`);
-      return await response.json();
-    } catch (e) {
-      throw e;
-    }
+    const response = await fetch(`/api/models/${id}/flags`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(flags),
+    });
+    if (!response.ok) throw new Error(`Toggle failed: ${response.status}`);
+    return await response.json();
   }
 
   return {
