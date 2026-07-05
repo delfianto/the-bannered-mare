@@ -198,7 +198,7 @@
   },
   "connections": {
     "title": "Conexões",
-    "subtitle": "Gerencie provedores, modelos, presets, templates e fragmentos",
+    "subtitle": "Gerencie provedores, modelos e famílias de modelos",
     "tabs": {
       "providers": "Provedores",
       "models": "Modelos",

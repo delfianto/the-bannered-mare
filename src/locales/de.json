@@ -198,7 +198,7 @@
   },
   "connections": {
     "title": "Verbindungen",
-    "subtitle": "Verwalten Sie Anbieter, Modelle, Voreinstellungen, Vorlagen und Fragmente",
+    "subtitle": "Verwalten Sie Anbieter, Modelle und Modellfamilien",
     "tabs": {
       "providers": "Anbieter",
       "models": "Modelle",

@@ -40,7 +40,6 @@ const {
   loadModel,
   unloadModel,
   deleteModel,
-  persistModel,
 } = useProvider();
 const toast = useAppToast();
 
@@ -275,15 +274,18 @@ async function handleDeleteModel(identifier: string) {
   }
 }
 
-async function handlePersistModel(identifier: string) {
+// Don't persist immediately — open the create form prefilled so the user can
+// review, pick a model family, and confirm before it's saved.
+function handleAddModel(m: { identifier: string; display_name?: string }) {
   if (!provider.value) return;
-  try {
-    await persistModel(provider.value.id, identifier);
-    toast.success(`Persisted definition for ${identifier}`);
-    await loadPersistedModels(1, { provider_id: provider.value.id });
-  } catch (e) {
-    toast.error("Failed to persist model definition");
-  }
+  router.push({
+    name: "model-create",
+    query: {
+      provider_id: provider.value.id,
+      model_identifier: m.identifier,
+      name: m.display_name || m.identifier,
+    },
+  });
 }
 
 const openMenuModel = ref<string | null>(null);
@@ -698,24 +700,24 @@ function toggleMenu(identifier: string) {
                           {{ model.state === "loaded" ? "Unload Model" : "Load Model" }}
                         </button>
 
-                        <!-- Persist option -->
+                        <!-- Add as model (opens the create form prefilled) -->
                         <button
                           v-if="!isPersisted(model.identifier)"
                           class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-popover-foreground transition-colors hover:bg-muted/60"
                           @click="
                             openMenuModel = null;
-                            handlePersistModel(model.identifier);
+                            handleAddModel(model);
                           "
                         >
-                          <UIcon name="i-lucide-database-backup" class="size-3.5" />
-                          Persist Definition
+                          <UIcon name="i-lucide-plus" class="size-3.5" />
+                          Add as Model…
                         </button>
                         <div
                           v-else
                           class="flex w-full cursor-not-allowed items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/60"
                         >
                           <UIcon name="i-lucide-check" class="size-3.5 text-emerald-500" />
-                          Persisted
+                          Added
                         </div>
 
                         <!-- Delete option (Ollama only) -->

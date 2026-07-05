@@ -37,8 +37,26 @@ export function useModel() {
       });
       if (!response.ok) throw new Error(`Save failed: ${response.status}`);
       const data = await response.json();
-      model.value = data;
+      // PUT returns ModelResponse (no embedded model_family); merge into the
+      // existing detail so the family object and other detail-only fields
+      // survive the save instead of being clobbered.
+      model.value = model.value ? { ...model.value, ...data } : data;
       return data;
+    } finally {
+      saving.value = false;
+    }
+  }
+
+  async function createModel(payload: Record<string, unknown>) {
+    saving.value = true;
+    try {
+      const response = await fetch(`/api/models`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`Create failed: ${response.status}`);
+      return await response.json();
     } finally {
       saving.value = false;
     }
@@ -78,6 +96,7 @@ export function useModel() {
     deleting,
     error,
     fetchModel,
+    createModel,
     saveModel,
     deleteModel,
     toggleFlags,
