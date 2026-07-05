@@ -1100,6 +1100,22 @@
               ],
               "title": "Family Identifier"
             }
+          },
+          {
+            "name": "provider_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Provider Type"
+            }
           }
         ],
         "responses": {
@@ -1360,6 +1376,22 @@
                 }
               ],
               "title": "Provider Id"
+            }
+          },
+          {
+            "name": "model_family_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Family Id"
             }
           },
           {

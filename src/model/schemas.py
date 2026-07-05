@@ -38,6 +38,7 @@ class ModelFilterParams(BaseModel):
 
     name__ilike: str | None = Field(default=None, description="Search by name (case-insensitive)")
     provider_id: str | None = Field(default=None, description="Filter by provider")
+    model_family_id: str | None = Field(default=None, description="Filter by model family")
     enabled: bool | None = Field(default=None, description="Filter by enabled status")
 
     def to_filter_dict(self) -> dict[str, Any]:

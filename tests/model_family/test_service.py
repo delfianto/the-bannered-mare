@@ -81,6 +81,24 @@ class TestModelFamilyService:
         assert total == 4
         assert [f.name for f in families] == ["apex", "banana", "Mango", "Zeta"]
 
+    def test_list_paginated_filters_by_name(self, db: Session) -> None:
+        """The name__ilike filter matches case-insensitively on the family name."""
+        for name, ident in [
+            ("Claude Sonnet", "test.claude-sonnet"),
+            ("GPT-4o", "test.gpt-4o"),
+            ("Claude Opus", "test.claude-opus"),
+        ]:
+            db.add(ModelFamily(name=name, family_identifier=ident, provider_types=["openai"]))
+        db.commit()
+
+        repo = ModelFamilyRepository(db)
+        service = ModelFamilyService(repo)
+
+        families, total = service.list_paginated(filters={"name__ilike": "claude"})
+
+        assert total == 2
+        assert all("claude" in f.name.lower() for f in families)
+
     def test_get_by_id_success(self, db: Session, sample_family: Any) -> None:
         """Test getting a model family by ID successfully"""
         repo = ModelFamilyRepository(db)
