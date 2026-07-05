@@ -16,6 +16,7 @@ from src.chat_message.repository_async import (
 from src.chat_message.schemas import MessageResponse, StreamEvent
 from src.chat_session.models import Chat
 from src.chat_session.repository_async import AsyncChatRepository
+from src.core.config import settings
 from src.core.exceptions import (
     ProviderAuthError,
     ProviderException,
@@ -93,6 +94,25 @@ class ChatMessageService:
         except Exception:
             logger.warning("rag_retrieval_failed", exc_info=True)
             return None
+
+    async def _vectorize(self, message: Message) -> None:
+        """Embed and store a message for RAG (best-effort — never blocks the reply).
+
+        Gated on RAG being enabled (retrieval_service present) and the
+        vectorize_messages flag; failures are swallowed so indexing can never
+        break a send.
+        """
+        if self.retrieval_service is None or not settings.rag.vectorize_messages:
+            return
+        try:
+            await self.retrieval_service.vectorize_message(
+                message_id=message.id,
+                content=message.content,
+                model_name=settings.rag.embedding.model,
+                dimensions=settings.rag.embedding.dimensions,
+            )
+        except Exception:
+            logger.warning("message_vectorize_failed", message_id=message.id, exc_info=True)
 
     async def _get_chat_by_id(self, chat_id: str) -> Chat:
         """Helper to get chat with all relations or raise 404."""
@@ -367,6 +387,8 @@ class ChatMessageService:
 
             await self._update_chat_metadata(chat_id, assistant_content)
 
+            await self._vectorize(user_message)
+            await self._vectorize(created)
             return created
 
         except Exception as e:
@@ -458,6 +480,7 @@ class ChatMessageService:
                     )
                     _ = await self.message_repo.create(assistant_message)
                     await self.message_repo.commit()
+                    await self._vectorize(assistant_message)
 
                 await self._update_chat_metadata(chat_id, full_content)
 
@@ -508,6 +531,10 @@ class ChatMessageService:
 
         async for event in self._stream_completion(chat_id, chat, api_messages):
             yield event
+
+        # Index the user turn after the reply has streamed (keeps embedding off
+        # the pre-generation path); the assistant turn is indexed in-stream.
+        await self._vectorize(user_message)
 
     # --- Regeneration with Alternatives (6.2) ---
 

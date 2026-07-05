@@ -128,6 +128,55 @@ class TestChatMessageService:
         assert messages[0].role == MessageRole.USER
         assert messages[0].content == "Hello"
 
+    @pytest.mark.asyncio
+    async def test_send_message_vectorizes_both_turns(
+        self,
+        async_db_session: AsyncSession,
+        db: Session,
+        async_sample_character: Any,
+        async_sample_model: Any,
+        monkeypatch: Any,
+    ) -> None:
+        """With a retrieval service present, the user and assistant turns are indexed."""
+        from src.core.config import settings
+
+        monkeypatch.setattr(settings.rag, "vectorize_messages", True)
+
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+        await async_db_session.refresh(chat)
+
+        mock_response = CompletionResponse(
+            content="A reply.", finish_reason="stop", usage=TokenUsage()
+        )
+        message_repo = AsyncMessageRepository(async_db_session)
+        chat_repo = AsyncChatRepository(async_db_session)
+        prompt_builder = PromptBuilder(PromptTemplateRepository(db))
+
+        retrieval = AsyncMock()
+        retrieval.retrieve.return_value = []  # keep RAG context empty for prompt building
+        service = ChatMessageService(
+            message_repo, chat_repo, prompt_builder, retrieval_service=retrieval
+        )
+
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+        ):
+            mock_client = AsyncMock()
+            mock_client.chat_completion.return_value = mock_response
+            mock_gateway_class.return_value = mock_client
+            await service.send_message(chat.id, "Hello")
+
+        assert retrieval.vectorize_message.await_count == 2
+        indexed = {call.kwargs["content"] for call in retrieval.vectorize_message.await_args_list}
+        assert indexed == {"Hello", "A reply."}
+
     def test_prompt_builder_integration(
         self, db: Session, sample_character: Any, sample_model: Any
     ) -> None:

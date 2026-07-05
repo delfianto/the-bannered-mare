@@ -176,3 +176,8 @@ class RetrievalService:
             await self.embedding_repo.create(entity)
 
         await self.embedding_repo.commit()
+
+    async def remove_embeddings(self, source_type: str, source_id: str) -> None:
+        """Delete all stored embeddings for a source (e.g. a removed data-bank entry)."""
+        await self.embedding_repo.delete_by_source(source_type, source_id)
+        await self.embedding_repo.commit()
