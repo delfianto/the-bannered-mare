@@ -1,4 +1,4 @@
-# OpenAI Chat Completions API — Deep Analysis for Multi-Provider Architecture
+# OpenAI Chat Completions API
 
 > **Source:** OpenAI OpenAPI spec v2.3.0 (`openai/openai-openapi`, `manual_spec` branch)
 > **Endpoint:** `POST /v1/chat/completions`
@@ -647,31 +647,52 @@ This is fundamentally broken because:
 
 ### 12.2 Architecture: Strategy Pattern + Adapter Layer
 
-```
-                        ┌─────────────────────────┐
-                        │   ChatMessageService     │
-                        │   (business logic)       │
-                        └──────────┬──────────────┘
-                                   │
-                                   │ uses
-                                   ▼
-                        ┌─────────────────────────┐
-                        │   ProviderGateway        │  ← Facade
-                        │   (route to adapter)     │
-                        └──────────┬──────────────┘
-                                   │
-                    ┌──────────────┼──────────────────┐
-                    │              │                   │
-                    ▼              ▼                   ▼
-           ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-           │ OpenAIAdapter│ │AnthropicAdapter│ │ GeminiAdapter│ ...
-           └──────┬───────┘ └──────┬───────┘ └──────┬───────┘
-                  │                │                 │
-                  ▼                ▼                 ▼
-           ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-           │ OpenAI API   │ │ Anthropic API│ │ Gemini API   │
-           └──────────────┘ └──────────────┘ └──────────────┘
-```
+<Figure tag="Figure 1" title="Strategy pattern — one gateway, many adapters" id="fig-adapter-strategy">
+<svg viewBox="0 0 720 400" role="img" aria-label="Provider gateway routing to per-provider adapters" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <rect x="260" y="16" width="200" height="52" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="360" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">ChatMessageService</text>
+  <text x="360" y="57" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">business logic</text>
+  <rect x="250" y="104" width="220" height="56" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+  <text x="360" y="128" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">ProviderGateway</text>
+  <text x="360" y="145" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">facade · routes to an adapter</text>
+  <g font-size="11.5" text-anchor="middle">
+    <rect x="30" y="216" width="180" height="52" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="120" y="247" fill="var(--tbm-dgm-ink)">OpenAIAdapter</text>
+    <rect x="270" y="216" width="180" height="52" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="360" y="247" fill="var(--tbm-dgm-ink)">AnthropicAdapter</text>
+    <rect x="510" y="216" width="180" height="52" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="600" y="247" fill="var(--tbm-dgm-ink)">GeminiAdapter</text>
+  </g>
+  <g font-size="11.5" text-anchor="middle">
+    <rect x="30" y="324" width="180" height="52" rx="9" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/><text x="120" y="355" fill="var(--tbm-dgm-ink)">OpenAI API</text>
+    <rect x="270" y="324" width="180" height="52" rx="9" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/><text x="360" y="355" fill="var(--tbm-dgm-ink)">Anthropic API</text>
+    <rect x="510" y="324" width="180" height="52" rx="9" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/><text x="600" y="355" fill="var(--tbm-dgm-ink)">Gemini API</text>
+  </g>
+  <text x="700" y="248" font-size="16" fill="var(--tbm-dgm-faint)">…</text>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none">
+    <path d="M360 68 L360 102" marker-end="url(#tbm-ah)"/>
+    <path d="M360 160 L360 190"/>
+    <path d="M120 190 L600 190"/>
+    <path d="M120 190 L120 214" marker-end="url(#tbm-ah)"/>
+    <path d="M360 190 L360 214" marker-end="url(#tbm-ah)"/>
+    <path d="M600 190 L600 214" marker-end="url(#tbm-ah)"/>
+    <path d="M120 268 L120 322" marker-end="url(#tbm-ah)"/>
+    <path d="M360 268 L360 322" marker-end="url(#tbm-ah)"/>
+    <path d="M600 268 L600 322" marker-end="url(#tbm-ah)"/>
+  </g>
+  <text x="372" y="90" font-size="10" fill="var(--tbm-dgm-ink-2)">uses</text>
+</svg>
+<template #caption>
+
+**One provider-agnostic call, translated per provider.** `ChatMessageService` speaks only to
+the `ProviderGateway`; the gateway selects the adapter for the target model, and each adapter
+translates the shared request into its provider's native API. Adding a provider means adding an
+adapter — nothing above the gateway changes.
+
+</template>
+</Figure>
 
 ### 12.3 Key Abstractions
 

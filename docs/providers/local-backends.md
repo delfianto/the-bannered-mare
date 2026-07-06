@@ -1,4 +1,4 @@
-# Local Model Server APIs -- Deep Analysis for Multi-Backend Architecture
+# Local Model Server APIs
 
 > **Sources:** llama.cpp server README, OOBA text-generation-webui OpenAI API wiki + typing.py,
 > vLLM OpenAI-compatible server docs, KoboldCpp API (expose.h + koboldcpp_api),

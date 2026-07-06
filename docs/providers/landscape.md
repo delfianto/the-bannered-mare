@@ -1,4 +1,4 @@
-# API Provider Integration — Gap Analysis
+# Provider Landscape & Gap Analysis
 
 > **Scope:** How SillyTavern integrates 25+ LLM API providers vs The Bannered Mare's current
 > abstraction layer. Focus on architectural patterns, not 1:1 feature parity.

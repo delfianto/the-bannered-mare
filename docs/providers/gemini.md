@@ -1,4 +1,4 @@
-# Google Gemini API — Deep Analysis for Multi-Provider Architecture
+# Google Gemini API
 
 > **Source:** Google AI for Developers API reference (`ai.google.dev/api`), REST API spec (v1beta)
 > **Endpoint:** `POST /v1beta/models/{model}:generateContent`
