@@ -46,12 +46,16 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
             # Rocinante's HF card has no base_model field; lineage confirmed via
             # config (MistralForCausalLM, 12.2B) + "Mistral for NeMo" template.
             "finetunes": {
-                "thedrummer/rocinante:12b-v1.1-q4_k_m": {
+                "thedrummer/rocinante-12b": {
+                    "author": "TheDrummer",
+                    "base_model": "mistralai/Mistral-Nemo-Base-2407",
+                },
+                "thedrummer/unslopnemo-12b": {
                     "author": "TheDrummer",
                     "base_model": "mistralai/Mistral-Nemo-Base-2407",
                 },
             },
-            "models": ["thedrummer/rocinante:12b-v1.1-q4_k_m"],
+            "models": ["thedrummer/rocinante-12b", "thedrummer/unslopnemo-12b"],
         },
     },
     {
@@ -78,19 +82,19 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
             "supports_function_calling": False,
             "quantization": "Q4_K_M",
             "finetunes": {
-                "thedrummer/skyfall:31b-v4.2-q4_k_m": {
+                "thedrummer/skyfall-36b-v2": {
                     "author": "TheDrummer",
                     "base_model": "mistralai/Mistral-Small-3.2-24B-Instruct-2507",
-                    "note": "upscaled to 31B",
+                    "note": "upscaled to 36B",
                 },
-                "thedrummer/cydonia:24b-v3.1-q4_k_m": {
+                "thedrummer/cydonia-24b-v4.1": {
                     "author": "TheDrummer",
-                    "base_model": "mistralai/Magistral-Small-2506",
+                    "base_model": "mistralai/Mistral-Small-3.2-24B-Instruct-2507",
                 },
             },
             "models": [
-                "thedrummer/skyfall:31b-v4.2-q4_k_m",
-                "thedrummer/cydonia:24b-v3.1-q4_k_m",
+                "thedrummer/skyfall-36b-v2",
+                "thedrummer/cydonia-24b-v4.1",
             ],
         },
     },
