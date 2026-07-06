@@ -6,7 +6,7 @@ This document explains the global state management patterns, persistence layers,
 
 ## 1. Global State Management (Pinia)
 
-App-wide state that crosses multiple feature layers is managed using **Pinia** (defined in [src/stores/](../src/stores/)):
+App-wide state that crosses multiple feature layers is managed using **Pinia** (defined in [src/stores/](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/stores/)):
 
 ### `useSettingsStore`
 
@@ -42,7 +42,7 @@ The Bannered Mare combines backend DTO schemas with frontend-specific types:
 
 The application supports multiple languages using `vue-i18n` (initialized in `src/i18n.ts`):
 
-- **Translation Catalogs**: Stored as JSON files in [src/locales/](../src/locales/):
+- **Translation Catalogs**: Stored as JSON files in [src/locales/](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/locales/):
   - `en.json` (English - authoritative key mapping reference)
   - `de.json` (German)
   - `es.json` (Spanish)

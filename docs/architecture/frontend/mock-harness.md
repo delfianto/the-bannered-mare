@@ -35,7 +35,7 @@ VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true vp dev --host
 
 ### Conditional Vite Proxy
 
-In [vite.config.ts](../vite.config.ts), the configuration checks the `VITE_USE_MOCKS` flag.
+In [vite.config.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/vite.config.ts), the configuration checks the `VITE_USE_MOCKS` flag.
 
 - **If `false`**: Proxies `/api` network requests to the real FastAPI backend running at `http://localhost:8000`.
 - **If `true`**: Disables the proxy backend target entirely, delegating intercept duties to MSW.
@@ -44,7 +44,7 @@ In [vite.config.ts](../vite.config.ts), the configuration checks the `VITE_USE_M
 
 ## 3. Directory Layout
 
-Mock logic is encapsulated under [src/mocks/](../src/mocks/):
+Mock logic is encapsulated under [src/mocks/](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/mocks/):
 
 - **`handlers.ts`**: Implements 40+ endpoints mimicking backend behavior. Supports CRUD operations, pagination, filtering, and model loading state mutations.
 - **`data/`**: JSON/JS files storing realistic test data mirroring seed fixtures:

@@ -16,7 +16,7 @@ Three core database models define LLM connectivity:
 
 ## 2. Stateless Adapter Pattern
 
-To prevent duplicate API transportation logic, The Bannered Mare employs a stateless adapter pattern. The abstract class `ProviderAdapter` (defined in [base.py](../../src/provider/adapters/base.py)) exposes five core hooks:
+To prevent duplicate API transportation logic, The Bannered Mare employs a stateless adapter pattern. The abstract class `ProviderAdapter` (defined in [base.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/provider/adapters/base.py)) exposes five core hooks:
 
 *   `build_url`: Assembles the full API endpoint URL.
 *   `build_headers`: Assembles authentication headers (API keys, custom agents, org headers).
@@ -35,7 +35,7 @@ To prevent duplicate API transportation logic, The Bannered Mare employs a state
 
 ## 3. Centralized Gateway (`ProviderGateway`)
 
-The `ProviderGateway` (defined in [gateway.py](../../src/provider/gateway.py)) is the execution coordinator. Unlike adapters, it is stateful and owns the actual asynchronous HTTP connection (`httpx.AsyncClient`), handles timeouts, and maps connection failures to normalized internal exceptions:
+The `ProviderGateway` (defined in [gateway.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/provider/gateway.py)) is the execution coordinator. Unlike adapters, it is stateful and owns the actual asynchronous HTTP connection (`httpx.AsyncClient`), handles timeouts, and maps connection failures to normalized internal exceptions:
 
 ```mermaid
 graph LR
@@ -63,6 +63,6 @@ The gateway catches standard HTTP status codes and maps them to clean system exc
 
 To simplify connecting local backends, The Bannered Mare features auto-discovery of models:
 
-*   **ModelDiscoveryClient** ([discovery.py](../../src/provider/discovery.py)): Queries provider API listing endpoints (such as LM Studio's `/v1/models` or Ollama's `/api/tags`) and translates them into normalized list items.
-*   **ModelListCache** ([model_cache.py](../../src/provider/model_cache.py)): Memory-based cache to avoid querying network backends excessively when browsing available models.
+*   **ModelDiscoveryClient** ([discovery.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/provider/discovery.py)): Queries provider API listing endpoints (such as LM Studio's `/v1/models` or Ollama's `/api/tags`) and translates them into normalized list items.
+*   **ModelListCache** ([model_cache.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/provider/model_cache.py)): Memory-based cache to avoid querying network backends excessively when browsing available models.
 *   **Model Synchronizer**: Merges discovered models with the database, creating new `Model` entries automatically while preserving user modifications to existing models.

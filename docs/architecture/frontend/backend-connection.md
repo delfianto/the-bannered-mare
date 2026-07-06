@@ -8,11 +8,11 @@ The Bannered Mare connects to the FastAPI backend using a combination of a stron
 
 The frontend ensures type safety across all network exchanges:
 
-- **Schema Compilation**: The API specification [schema.d.ts](../src/api/schema.d.ts) is compiled directly from the root `openapi.json` contract via:
+- **Schema Compilation**: The API specification [schema.d.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/api/schema.d.ts) is compiled directly from the root `openapi.json` contract via:
   ```bash
   bun run api:gen
   ```
-- **Client Factory**: The client (defined in [client.ts](../src/api/client.ts)) instantiates `openapi-fetch`, providing autocompletion and compile-time verification for path variables, query params, headers, and body structures.
+- **Client Factory**: The client (defined in [client.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/api/client.ts)) instantiates `openapi-fetch`, providing autocompletion and compile-time verification for path variables, query params, headers, and body structures.
 
 ### Standard Query Example
 
@@ -35,7 +35,7 @@ Standard JSON clients do not handle multi-part file payloads (such as Character 
 
 ## 3. Server-Side Streaming (SSE) Engine
 
-Real-time roleplay responses are processed via Server-Sent Events (SSE). The streaming client is implemented inside `useChatMessages` (defined in [useChatMessages.ts](../src/composables/useChatMessages.ts)):
+Real-time roleplay responses are processed via Server-Sent Events (SSE). The streaming client is implemented inside `useChatMessages` (defined in [useChatMessages.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/composables/useChatMessages.ts)):
 
 ```mermaid
 graph TD

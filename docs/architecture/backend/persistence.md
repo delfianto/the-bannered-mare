@@ -6,7 +6,7 @@ The persistence layer of The Bannered Mare manages relational data storage, sche
 
 ## 1. Declarative Base and Base Model
 
-All entities in the database inherit from `BaseModel` (defined in [base_model.py](../../src/core/persistence/base_model.py)), which is an abstract class built on SQLAlchemy's declarative mapping system.
+All entities in the database inherit from `BaseModel` (defined in [base_model.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/persistence/base_model.py)), which is an abstract class built on SQLAlchemy's declarative mapping system.
 
 ```python
 class BaseModel(Base):
@@ -46,8 +46,8 @@ class BaseModel(Base):
 In a vertical-slices modular monolith, domains often reference each other (e.g., a `Chat` has a relationship with a `Character`, which in turn has a relationship with `Lorebook`). Placing ORM models directly inside domain folders can cause circular import issues.
 
 To resolve this:
-- All ORM database models are stored in [src/core/persistence/models/](../../src/core/persistence/models/) as separate modules (e.g., `character.py`, `chat.py`, `provider.py`).
-- They are imported and re-exported from [src/core/persistence/models/__init__.py](../../src/core/persistence/models/__init__.py).
+- All ORM database models are stored in [src/core/persistence/models/](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/persistence/models/) as separate modules (e.g., `character.py`, `chat.py`, `provider.py`).
+- They are imported and re-exported from [src/core/persistence/models/__init__.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/persistence/models/__init__.py).
 - Individual domain packages expose files like `models.py` which simply act as pass-through imports to the centralized persistence directory, preventing circular reference paths.
 
 ---

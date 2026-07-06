@@ -79,7 +79,7 @@ Fragments are injected dynamically relative to the core components:
 
 ## 4. Prompt Construction Orchestration (`PromptBuilder`)
 
-The prompt construction pipeline is owned by [PromptBuilder](../../src/prompt_template/prompt_builder.py):
+The prompt construction pipeline is owned by [PromptBuilder](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/prompt_template/prompt_builder.py):
 
 ```mermaid
 graph TD
