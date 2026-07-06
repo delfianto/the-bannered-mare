@@ -1,4 +1,4 @@
-# LLM Provider System Comparison: SillyTavern v1.17.0 vs Candlekeep Core
+# LLM Provider System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
 ## 1. Provider Count and Scope
 
@@ -15,7 +15,7 @@ Supports ~40+ distinct provider integrations split across two independent subsys
   Featherless, HuggingFace, Generic).
 - **Dedicated backends**: KoboldAI, NovelAI, AI Horde (separate endpoint files).
 
-### Candlekeep Core
+### The Bannered Mare
 
 Supports 7 provider types via `ProviderType` enum:
 
@@ -36,7 +36,7 @@ are OpenAI-compatible.
 ### Comparison
 
 SillyTavern covers a far wider surface area, including legacy text-completion backends,
-niche aggregators, and self-hosted inference engines. Candlekeep targets the major
+niche aggregators, and self-hosted inference engines. The Bannered Mare targets the major
 cloud providers and local inference (Ollama), delegating long-tail provider access to
 OpenRouter. Both systems treat OpenAI-compatible APIs as a shared baseline.
 
@@ -64,7 +64,7 @@ Handler functions are standalone async functions that receive the raw Express
 auth, payload building, HTTP call, streaming/non-streaming response handling, and
 error handling.
 
-### Candlekeep Core: Adapter Pattern with Gateway
+### The Bannered Mare: Adapter Pattern with Gateway
 
 The system is split into three layers:
 
@@ -86,7 +86,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                    | SillyTavern                                          | Candlekeep Core                                    |
+| Aspect                    | SillyTavern                                          | The Bannered Mare                                    |
 |---------------------------|------------------------------------------------------|----------------------------------------------------|
 | Dispatch mechanism        | Switch statement + if/else chain                     | Registry dict lookup + polymorphic adapter          |
 | Request/response coupling | Handler owns HTTP call + response parsing            | Adapter transforms data; Gateway owns HTTP          |
@@ -114,7 +114,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Reverse proxy**: Nearly every cloud provider supports a `reverse_proxy` URL
   override with `proxy_password` as the credential.
 
-### Candlekeep Core
+### The Bannered Mare
 
 - **Storage**: Environment variables. Each `ProviderConfig` declares an `env_var_name`
   (e.g., `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`). Custom providers store their env var
@@ -132,7 +132,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                | SillyTavern                              | Candlekeep Core                          |
+| Aspect                | SillyTavern                              | The Bannered Mare                          |
 |-----------------------|------------------------------------------|------------------------------------------|
 | Key storage           | JSON file with rotation/masking          | Environment variables                    |
 | Key count             | 40+ named secrets                        | 7 (one per ProviderConfig)               |
@@ -157,7 +157,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **No cascade**: Parameters are sent as-is from the frontend. The frontend UI manages
   defaults, presets, and overrides.
 
-### Candlekeep Core
+### The Bannered Mare
 
 - **Model as configured endpoint**: A `Model` entry is not a 1:1 mapping to an upstream
   model. The same upstream model (identified by `model_identifier`) can have multiple
@@ -186,7 +186,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                     | SillyTavern                           | Candlekeep Core                                |
+| Aspect                     | SillyTavern                           | The Bannered Mare                                |
 |----------------------------|---------------------------------------|------------------------------------------------|
 | Model configuration        | One model = one config                | Configured endpoint (N configs per upstream model via `template_id`) |
 | Default management         | Frontend-side presets                 | Server-side three-tier cascade                 |
@@ -209,7 +209,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
   Gemini's `responseContent` parts).
 - **No typed response model**: Normalized responses are plain JS objects.
 
-### Candlekeep Core
+### The Bannered Mare
 
 - **Target format**: Three typed dataclasses:
   - `CompletionResponse`: `content: str`, `finish_reason: str`, `usage: TokenUsage`,
@@ -230,7 +230,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                   | SillyTavern                               | Candlekeep Core                            |
+| Aspect                   | SillyTavern                               | The Bannered Mare                            |
 |--------------------------|-------------------------------------------|--------------------------------------------|
 | Canonical type           | Plain JS object (OAI shape)               | Typed dataclasses                          |
 | Finish reason mapping    | Ad-hoc per handler                        | Explicit maps per adapter                  |
@@ -254,7 +254,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Header-sent safety**: All handlers check `response.headersSent` before sending
   error responses to avoid crashes during active streams.
 
-### Candlekeep Core
+### The Bannered Mare
 
 - **Mechanism**: `ProviderGateway.chat_completion_stream()` uses `httpx.AsyncClient`
   with `client.stream("POST", ...)`. The gateway iterates `response.aiter_lines()`,
@@ -274,7 +274,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                  | SillyTavern                                | Candlekeep Core                              |
+| Aspect                  | SillyTavern                                | The Bannered Mare                              |
 |-------------------------|--------------------------------------------|----------------------------------------------|
 | Streaming transport     | Direct SSE pipe (transparent proxy)        | Parsed SSE -> typed StreamChunk generator    |
 | Per-line parsing        | Client-side (frontend)                     | Server-side (adapter `parse_stream_line`)    |
@@ -301,7 +301,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Cacheable detection**: `isOpenRouterModelCacheable()` queries the OpenRouter
   `/models` API to check for `pricing.input_cache_write`.
 
-### Candlekeep Core
+### The Bannered Mare
 
 - **Anthropic caching**: `AnthropicAdapter.build_payload()` wraps the system prompt
   (assembled from the template + fragment system, not stored on the Model entity) in a
@@ -327,7 +327,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                   | SillyTavern                              | Candlekeep Core                           |
+| Aspect                   | SillyTavern                              | The Bannered Mare                           |
 |--------------------------|------------------------------------------|-------------------------------------------|
 | Anthropic system caching | Supported with configurable TTL          | Supported (ephemeral, no TTL config)      |
 | Depth-based caching      | Configurable breakpoint depth            | Not implemented                           |
@@ -358,7 +358,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Response extraction**: Provider-specific. Claude thinking blocks, Gemini thought
   parts, DeepSeek `reasoning_content` fields.
 
-### Candlekeep Core
+### The Bannered Mare
 
 - **Anthropic**: `AnthropicAdapter.build_payload()` passes through a `thinking` dict
   from parameters when `thinking.type == 'enabled'`. No model-name detection or
@@ -380,7 +380,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                     | SillyTavern                                | Candlekeep Core                              |
+| Aspect                     | SillyTavern                                | The Bannered Mare                              |
 |----------------------------|--------------------------------------------|----------------------------------------------|
 | Thinking mode activation   | Model-name string matching per provider    | Parameter cascade from ModelFamily/Preset     |
 | Adaptive thinking          | Opus 4.6+ detection with effort levels     | Pass-through via parameters dict              |
@@ -406,7 +406,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Header-sent guard**: All handlers check `response.headersSent` before sending
   error responses.
 
-### Candlekeep Core
+### The Bannered Mare
 
 - **Typed exception hierarchy**: `ProviderException` base class with four subclasses:
   - `ProviderAuthError` (HTTP 401)
@@ -424,7 +424,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ### Comparison
 
-| Aspect                 | SillyTavern                                | Candlekeep Core                             |
+| Aspect                 | SillyTavern                                | The Bannered Mare                             |
 |------------------------|--------------------------------------------|---------------------------------------------|
 | Error typing           | Plain objects with `error: true` flag      | Typed exception hierarchy                   |
 | Status code mapping    | Mostly flattened to 500/502                | Preserved (401, 429, 400, timeout)          |
@@ -436,7 +436,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 10. Summary Table
 
-| Dimension                | SillyTavern v1.17.0                        | Candlekeep Core                             |
+| Dimension                | SillyTavern v1.17.0                        | The Bannered Mare                             |
 |--------------------------|--------------------------------------------|---------------------------------------------|
 | Provider count           | ~40+ (23 chat + 15 text + 3 dedicated)     | 7 types, 4 adapter classes                  |
 | Architecture             | Switch/if-else in monolithic handlers      | Adapter pattern + Gateway                   |

@@ -1,4 +1,4 @@
-# Code Structure Comparison: SillyTavern v1.17.0 vs Candlekeep Core v0.1.5
+# Code Structure Comparison: SillyTavern v1.17.0 vs The Bannered Mare v0.1.5
 
 A side-by-side engineering analysis of how each project organizes its codebase,
 manages module boundaries, and enforces structural discipline. This is a neutral
@@ -9,7 +9,7 @@ constraints (community-driven JS monolith vs. greenfield Python backend).
 
 ## 1. Codebase Scale
 
-| Metric | SillyTavern | Candlekeep Core |
+| Metric | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Primary language | JavaScript (ESM) | Python 3.14 |
 | Total source LoC | ~185,000 | ~12,200 |
@@ -21,13 +21,13 @@ constraints (community-driven JS monolith vs. greenfield Python backend).
 | Dev dependencies | 24 | 10 |
 
 SillyTavern is roughly 15x larger by line count. It is a full-stack application
-(Express backend + jQuery SPA frontend), while Candlekeep Core is a headless
+(Express backend + jQuery SPA frontend), while The Bannered Mare is a headless
 API backend only. Comparing raw LoC is therefore misleading without noting that
-~141,000 of ST's lines are frontend code with no Candlekeep equivalent.
+~141,000 of ST's lines are frontend code with no Bannered Mare equivalent.
 
 Backend-only comparison: ST's `src/` is ~31,700 lines across ~80 files.
-Candlekeep's `src/` is ~12,600 lines across ~167 files. The file count is
-higher in Candlekeep despite having roughly one-third the code, reflecting
+The Bannered Mare's `src/` is ~12,600 lines across ~167 files. The file count is
+higher in The Bannered Mare despite having roughly one-third the code, reflecting
 its vertical-slice module structure (many small files vs. fewer large ones).
 
 ---
@@ -55,10 +55,10 @@ SillyTavern/
 └── docker/                # Docker configs
 ```
 
-### Candlekeep Core
+### The Bannered Mare
 
 ```
-candlekeep-core/
+backend/
 ├── src/
 │   ├── main.py            # Entry point (101 lines)
 │   ├── core/              # Shared kernel: config, persistence (incl. models/), logging, utils
@@ -83,7 +83,7 @@ candlekeep-core/
 ```
 
 **Key difference:** SillyTavern's backend is a flat directory with functional
-grouping (`endpoints/`, `middleware/`, `vectors/`). Candlekeep uses vertical
+grouping (`endpoints/`, `middleware/`, `vectors/`). The Bannered Mare uses vertical
 slices where each domain is a self-contained package with a consistent internal
 structure.
 
@@ -93,7 +93,7 @@ structure.
 
 ### 3.1 Domain Module Structure
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Pattern | One file per domain (`endpoints/characters.js`) | One package per domain (`character/`) |
 | Internal layers | None -- handler functions inline validation, logic, and I/O | 3 layers: `router.py` / `service.py` / `repository.py` |
@@ -101,7 +101,7 @@ structure.
 | ORM models | N/A (filesystem storage) | `models.py` per module (re-exports from `core/persistence/models/`) |
 | Dependency wiring | Implicit via Express `req` object | Explicit `dependencies.py` with FastAPI `Depends` |
 
-A typical Candlekeep domain module contains 7-8 files:
+A typical The Bannered Mare domain module contains 7-8 files:
 
 ```
 character/
@@ -123,7 +123,7 @@ endpoints/characters.js  # 1,543 lines: routes, validation, file I/O, logic
 
 ### 3.2 Shared Infrastructure
 
-| Component | SillyTavern | Candlekeep Core |
+| Component | SillyTavern | The Bannered Mare |
 |-----------|------------|-----------------|
 | Utility hub | `src/util.js` (1,565 lines, 40+ exports) | `src/core/utils/` (6 files, ~530 lines total) |
 | Constants/Enums | `src/constants.js` (558 lines) | `src/core/persistence/enums.py` (50 lines) |
@@ -132,7 +132,7 @@ endpoints/characters.js  # 1,543 lines: routes, validation, file I/O, logic
 | Base patterns | None (each endpoint is standalone) | `BaseRepository` (225 lines), `BaseModel` (47 lines) |
 
 ST's `util.js` is the universal dependency -- imported by nearly every file in
-the project. Candlekeep splits equivalent functionality into focused utility
+the project. The Bannered Mare splits equivalent functionality into focused utility
 modules (`storage.py`, `template.py`, `tokenizer.py`, `validators.py`,
 `reasoning.py`), each under 180 lines.
 
@@ -142,7 +142,7 @@ modules (`storage.py`, `template.py`, `tokenizer.py`, `validators.py`,
 
 ### 4.1 Size Distribution
 
-| Range | SillyTavern (backend) | Candlekeep Core |
+| Range | SillyTavern (backend) | The Bannered Mare |
 |-------|----------------------|-----------------|
 | > 2,000 lines | 1 file (`chat-completions.js`: 2,683) | 0 files |
 | 1,000-2,000 lines | 5 files | 0 files |
@@ -162,7 +162,7 @@ modules (`storage.py`, `template.py`, `tokenizer.py`, `validators.py`,
 | `characters.js` | 1,543 |
 | `users.js` | 1,100 |
 
-**Candlekeep Core (top 5):**
+**The Bannered Mare (top 5):**
 
 | File | Lines |
 |------|------:|
@@ -174,7 +174,7 @@ modules (`storage.py`, `template.py`, `tokenizer.py`, `validators.py`,
 
 The former largest file (`core/persistence/models.py`, 788 lines) has been
 split into 10 per-domain modules under `core/persistence/models/` (largest:
-`prompt.py` at 149 lines). Candlekeep's largest file is now a service file at
+`prompt.py` at 149 lines). The Bannered Mare's largest file is now a service file at
 527 lines -- smaller than ST's smallest "large" endpoint file. The trade-off
 is more files to navigate (~167 source files vs. ~80 in ST's backend).
 
@@ -182,7 +182,7 @@ is more files to navigate (~167 source files vs. ~80 in ST's backend).
 
 Excluding `__init__.py` files:
 - **SillyTavern backend:** ~250-350 lines (estimated from distribution)
-- **Candlekeep Core:** ~80-100 lines
+- **The Bannered Mare:** ~80-100 lines
 
 ---
 
@@ -204,7 +204,7 @@ users.js  <--  [endpoints that need user dirs]
 - Frontend has bidirectional dependencies: `script.js` imports from `openai.js`
   and vice versa.
 
-**Candlekeep:** Layered DAG with strict direction.
+**The Bannered Mare:** Layered DAG with strict direction.
 
 ```
 router.py  -->  service.py  -->  repository.py  -->  core/persistence/
@@ -222,7 +222,7 @@ dependencies.py   schemas.py
 
 ### 5.2 Cross-Module Coupling
 
-| Pattern | SillyTavern | Candlekeep Core |
+| Pattern | SillyTavern | The Bannered Mare |
 |---------|------------|-----------------|
 | Circular imports | Present in frontend (`script.js` <-> `openai.js`, etc.) | Blocked by tooling (`reportImportCycles`) |
 | Cross-domain imports | Some (`characters.js` -> `worldinfo.js`) | None between domain modules |
@@ -234,7 +234,7 @@ dependencies.py   schemas.py
 
 ## 6. Type System
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Language typing | Dynamic (JS) with opt-in checking | Static (Python with strict type checker) |
 | Type checking tool | TypeScript language service via `checkJs: true` | `basedpyright` (standard mode) |
@@ -245,14 +245,14 @@ dependencies.py   schemas.py
 | Runtime type safety | None (JSDoc is erased) | Pydantic enforces types at API boundaries |
 
 SillyTavern's JSDoc approach provides editor tooling (autocomplete, hover info)
-without a compilation step. Candlekeep's approach catches type errors at build
+without a compilation step. The Bannered Mare's approach catches type errors at build
 time via `basedpyright` and at runtime via Pydantic validation on every request.
 
 ---
 
 ## 7. Data Persistence Architecture
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Storage model | Flat files on disk (JSON, JSONL, PNG) | PostgreSQL via SQLAlchemy 2.0 |
 | Query capability | `fs.readFile` + in-memory filtering | SQL with ORM query builder |
@@ -263,7 +263,7 @@ time via `basedpyright` and at runtime via Pydantic validation on every request.
 | Async I/O | Sync file operations in Express handlers | Sync for most domains, async (`asyncpg`) for chat messages |
 
 SillyTavern's filesystem storage means zero database setup and simple backups
-(copy the `data/` folder). Candlekeep's relational model enables structured
+(copy the `data/` folder). The Bannered Mare's relational model enables structured
 queries, referential integrity, and concurrent access at the cost of requiring
 a running PostgreSQL instance.
 
@@ -271,7 +271,7 @@ a running PostgreSQL instance.
 
 ## 8. Testing
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Framework | Jest (unit) + Playwright (E2E) | pytest + pytest-asyncio |
 | Test files | ~14 | ~35 |
@@ -282,10 +282,10 @@ a running PostgreSQL instance.
 | Test fixtures | Minimal | 401-line `conftest.py` with SQLite-based session fixtures |
 | Test/source ratio | ~2.7% of source size | ~46% of source size |
 
-The test-to-source ratio difference is striking: Candlekeep has nearly as many
+The test-to-source ratio difference is striking: The Bannered Mare has nearly as many
 test lines as source lines, while ST's tests cover a small fraction of its
 codebase. This partly reflects project maturity (ST accumulated code faster
-than tests; Candlekeep is writing tests alongside features) and partly reflects
+than tests; The Bannered Mare is writing tests alongside features) and partly reflects
 the testability difference between layered architecture (injectable services)
 and co-located handler logic (requires full server for testing).
 
@@ -295,7 +295,7 @@ and co-located handler logic (requires full server for testing).
 for the macro engine. No unit tests for API endpoints, character parsing, chat
 operations, or provider logic.
 
-**Candlekeep:** Mirrors `src/` structure. Each domain has its own test
+**The Bannered Mare:** Mirrors `src/` structure. Each domain has its own test
 directory with service-layer tests. Additional top-level test files for
 streaming and async operations.
 
@@ -322,7 +322,7 @@ tests/
 
 ## 9. Build and Configuration
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Package management | npm (`package.json`) | uv/pip (`pyproject.toml`) |
 | Build step | Webpack bundles `lib.js` at startup | None (Python runs source directly) |
@@ -335,7 +335,7 @@ tests/
 | CI/runtime targets | Node >= 20, experimental Deno/Bun | Python >= 3.14, Uvicorn ASGI server |
 
 SillyTavern's config system is more sophisticated out of necessity -- it
-supports multi-user deployments with per-user config migration. Candlekeep's
+supports multi-user deployments with per-user config migration. The Bannered Mare's
 Pydantic Settings approach is simpler but handles the single-user local
 deployment case cleanly, with nested config via `__` delimiter in env vars.
 
@@ -346,7 +346,7 @@ deployment case cleanly, with nested config via `__` delimiter in env vars.
 Both projects face the same core problem: normalizing requests and responses
 across 10+ LLM provider APIs. They solve it very differently.
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Pattern | Procedural converter functions | OOP adapter pattern (ABC) |
 | Central file | `chat-completions.js` (2,683 lines) + `prompt-converters.js` (1,445 lines) | `provider/adapters/base.py` (99 lines) |
@@ -358,7 +358,7 @@ across 10+ LLM provider APIs. They solve it very differently.
 
 SillyTavern's approach concentrates all provider logic in two large files,
 making it easy to see all providers at once but harder to modify one without
-risk of affecting others. Candlekeep separates the transport layer
+risk of affecting others. The Bannered Mare separates the transport layer
 (`ProviderGateway`) from the format translation layer (adapter classes),
 at the cost of more indirection.
 
@@ -366,7 +366,7 @@ at the cost of more indirection.
 
 ## 11. Entry Point and Startup
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Entry point | `server.js` (18 lines) -> `server-main.js` (466 lines) | `main.py` (101 lines) |
 | Startup pattern | Promise chain waterfall (10 `.then()` calls) | FastAPI lifespan context manager |
@@ -380,7 +380,7 @@ at the cost of more indirection.
 
 ## 12. Summary of Structural Trade-offs
 
-| Dimension | SillyTavern's approach | Candlekeep's approach |
+| Dimension | SillyTavern's approach | The Bannered Mare's approach |
 |-----------|----------------------|----------------------|
 | Organization | Flat, functional grouping | Deep, vertical slices |
 | File granularity | Fewer, larger files | Many small, focused files |
@@ -395,7 +395,7 @@ at the cost of more indirection.
 
 Neither approach is universally superior. ST's flat structure enabled rapid
 feature accumulation by a distributed community of contributors who could work
-on isolated endpoint files. Candlekeep's layered structure enforces consistency
+on isolated endpoint files. The Bannered Mare's layered structure enforces consistency
 and testability at the cost of more boilerplate per feature. The architectures
 reflect their contexts: a mature community project vs. a greenfield system
 designed with the benefit of hindsight.
@@ -404,6 +404,6 @@ designed with the benefit of hindsight.
 
 **Tool & Version Info**
 - SillyTavern: v1.17.0
-- Candlekeep Core: v0.1.5
+- The Bannered Mare: v0.1.5
 - Author: Claude Opus 4.6 (1M context)
 - Date: 2026-04-07

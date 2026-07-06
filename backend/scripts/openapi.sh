@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Candlekeep Core — Generate OpenAPI Schema
+# The Bannered Mare — Generate OpenAPI Schema
 #
 # Outputs openapi.json in the project root.
 #

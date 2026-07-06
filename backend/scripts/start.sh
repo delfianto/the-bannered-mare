@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Candlekeep Core — Start Server
+# The Bannered Mare — Start Server
 #
 # Usage:
 #   ./scripts/start.sh              # Development (auto-reload)
@@ -29,10 +29,10 @@ HOST="${API_HOST:-$(grep -E '^API_HOST=' .env 2>/dev/null | cut -d= -f2- || echo
 PORT="${API_PORT:-$(grep -E '^API_PORT=' .env 2>/dev/null | cut -d= -f2- || echo '8000')}"
 
 if [ "${1:-}" = "--prod" ]; then
-  echo "Starting Candlekeep Core (production) on $HOST:$PORT"
+  echo "Starting The Bannered Mare (production) on $HOST:$PORT"
   exec $UVICORN src.main:app --host "$HOST" --port "$PORT" --workers 4
 else
-  echo "Starting Candlekeep Core (development) on $HOST:$PORT"
+  echo "Starting The Bannered Mare (development) on $HOST:$PORT"
   echo "Demo UI: http://localhost:$PORT/demo"
   echo "API docs: http://localhost:$PORT/docs"
   exec $UVICORN src.main:app --host "$HOST" --port "$PORT" --reload

@@ -1,6 +1,6 @@
-# Candlekeep Core: Characters, Personas, and Asset Storage
+# The Bannered Mare: Characters, Personas, and Asset Storage
 
-Candlekeep Core supports complex roleplay settings by managing Character cards (non-player characters that the LLM roleplays as), User Personas (profiles representing the user within the chat context), and local media assets (avatars and thumbnails).
+The Bannered Mare supports complex roleplay settings by managing Character cards (non-player characters that the LLM roleplays as), User Personas (profiles representing the user within the chat context), and local media assets (avatars and thumbnails).
 
 ---
 
@@ -42,7 +42,7 @@ storage/
 └── temp/                      # Temp folder for file processing and uploads
 ```
 
-Startup directories are verified and initialized by `ensure_storage_directories` in [storage.py](file:///srv/project/personal/candlekeep-core/src/core/utils/storage.py).
+Startup directories are verified and initialized by `ensure_storage_directories` in [storage.py](../../src/core/utils/storage.py).
 
 ---
 

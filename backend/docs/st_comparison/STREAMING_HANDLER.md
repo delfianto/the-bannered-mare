@@ -1,7 +1,7 @@
-# Streaming Architecture Comparison: SillyTavern v1.17.0 vs Candlekeep Core
+# Streaming Architecture Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
 Side-by-side analysis of how each system handles SSE streaming from provider
-APIs to the consumer (browser frontend in ST, API client in Candlekeep).
+APIs to the consumer (browser frontend in ST, API client in The Bannered Mare).
 
 ---
 
@@ -25,9 +25,9 @@ SSE events before piping.
 **Implication:** The backend is trivially simple (one function serves all
 providers), but the frontend must contain a complete multi-provider parser.
 
-### Candlekeep Core: Adapter-Parsed Typed Events
+### The Bannered Mare: Adapter-Parsed Typed Events
 
-Candlekeep parses the stream server-side and emits a uniform typed event
+The Bannered Mare parses the stream server-side and emits a uniform typed event
 protocol. The pipeline has three layers:
 
 ```
@@ -61,7 +61,7 @@ layer.
 
 ### Summary
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Backend transformation | None (raw pipe) | Full parse + normalization |
 | Provider parsing location | Frontend (JS) | Backend (Python adapters) |
@@ -87,7 +87,7 @@ A separate `getStreamingReply()` function in `openai.js` performs a parallel
 extraction keyed by `chat_completion_source` enum rather than by JSON structure.
 These two functions partially overlap in responsibility.
 
-### Candlekeep Core: Polymorphic Adapter Methods
+### The Bannered Mare: Polymorphic Adapter Methods
 
 Each provider has its own adapter class implementing `parse_stream_line()`:
 
@@ -104,7 +104,7 @@ adapter is active.
 
 ### Summary
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Dispatch mechanism | JSON structure sniffing + enum switch | Polymorphic class per provider |
 | Number of parsing codepaths | ~15 (7 main + 8 OpenAI sub-paths) | 4 adapter classes |
@@ -131,7 +131,7 @@ ST implements abort at both frontend and backend:
 Special case: KoboldCpp requires an explicit `POST /api/extra/abort` HTTP call
 before aborting the controller.
 
-### Candlekeep Core: Disconnection Polling
+### The Bannered Mare: Disconnection Polling
 
 The router checks `request.is_disconnected()` on each event iteration:
 
@@ -152,7 +152,7 @@ the generator checks between events rather than interrupting mid-chunk.
 
 ### Summary
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Frontend abort | `AbortController.abort()` | Client closes connection |
 | Backend abort | Socket `close` -> `controller.abort()` | `request.is_disconnected()` polling |
@@ -182,7 +182,7 @@ Reasoning is handled across three independent layers:
    model detection (o1, o3, etc.), and reasoning signature storage for
    OpenRouter Claude models.
 
-### Candlekeep Core: Two-Level Reasoning Pipeline
+### The Bannered Mare: Two-Level Reasoning Pipeline
 
 1. **Adapter layer** (`parse_stream_line`): Each adapter extracts reasoning into
    `StreamChunk.reasoning`:
@@ -201,7 +201,7 @@ Reasoning is handled across three independent layers:
 
 ### Summary
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Provider-specific extraction | Per-provider in frontend JS | Per-adapter `parse_stream_line()` |
 | Think-tag auto-parsing | Configurable prefix/suffix in ReasoningHandler | `parse_reasoning_tags()` with `<think>`/`</think>` default |
@@ -229,7 +229,7 @@ TPS (tokens per second) is calculated from wall-clock time and the client-side
 token count. This approach works uniformly across all providers but produces
 approximate counts.
 
-### Candlekeep Core: Provider-Reported Usage with Fallback
+### The Bannered Mare: Provider-Reported Usage with Fallback
 
 Each adapter extracts `TokenUsage` from stream data when the provider includes
 it:
@@ -267,7 +267,7 @@ counts via structured logging.
 
 ### Summary
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Primary source | Client-side tokenizer | Provider-reported `usage` objects |
 | Fallback | None (tokenizer only) | Local tokenizer when provider omits usage |
@@ -296,9 +296,9 @@ Additionally, `stream_fade_in` uses `morphdom` (DOM diffing) with
 `Intl.Segmenter` to create word-level `<span>` elements with CSS opacity
 transitions.
 
-### Candlekeep Core: Not Implemented (Backend Design)
+### The Bannered Mare: Not Implemented (Backend Design)
 
-Candlekeep Core is a headless API server. It emits raw `StreamEvent` objects
+The Bannered Mare is a headless API server. It emits raw `StreamEvent` objects
 over SSE without any rendering-level transformation. Smooth streaming, character
 splitting, and animation delays are the responsibility of whatever frontend
 client consumes the API.
@@ -309,7 +309,7 @@ at the client's discretion.
 
 ### Summary
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Implementation | Built-in TransformStream | Not applicable (headless API) |
 | Granularity | Per-character with punctuation-aware delays | Chunk-level events |
@@ -341,7 +341,7 @@ accumulated. The partial result is returned rather than discarded.
 **Smooth streaming:** Unrecognized event formats in `SmoothEventSourceStream`
 pass through the raw event unmodified rather than crashing the stream.
 
-### Candlekeep Core: Structured Error Events
+### The Bannered Mare: Structured Error Events
 
 **Gateway layer:** `ProviderGateway` catches `httpx.HTTPStatusError` and maps
 status codes to a typed exception hierarchy:
@@ -373,7 +373,7 @@ final error event before closing the stream.
 
 ### Summary
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Error format to client | Raw provider error JSON (passthrough) | `StreamEvent(type="error", code="...", message="...")` |
 | Error classification | Client-side heuristic parsing | Backend exception hierarchy with typed codes |
@@ -396,7 +396,7 @@ final error event before closing the stream.
                                   [JSONL -> SSE transcoder]
 
 
-                    Candlekeep Core
+                    The Bannered Mare
                     ===============
                     
   Provider API  ──(SSE bytes)──>  httpx async lines
@@ -414,7 +414,7 @@ final error event before closing the stream.
 
 ### Architectural Trade-offs
 
-| Dimension | SillyTavern | Candlekeep Core |
+| Dimension | SillyTavern | The Bannered Mare |
 |-----------|-------------|-----------------|
 | Backend complexity | Minimal (pipe + abort) | Higher (parse + normalize + persist) |
 | Client complexity | High (full provider parser) | Low (single event schema) |
@@ -428,6 +428,6 @@ final error event before closing the stream.
 | Abort mechanism | Signal-based (immediate) | Polling-based (cooperative) |
 
 ST optimizes for a monolithic browser application where the backend is a thin
-relay and the frontend owns all intelligence. Candlekeep optimizes for a
+relay and the frontend owns all intelligence. The Bannered Mare optimizes for a
 decoupled API server where the backend owns provider abstraction, persistence,
 and error classification, exposing a clean contract to any client.

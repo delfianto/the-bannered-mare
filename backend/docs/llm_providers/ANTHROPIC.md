@@ -73,7 +73,7 @@ anthropic-version: 2023-06-01
 | Version header | Not required | **Required**: `anthropic-version: 2023-06-01` |
 | Beta features | Not applicable | `anthropic-beta` header enables features |
 
-**Impact on Candlekeep:** The `build_headers()` method in `AnthropicAdapter` must produce
+**Impact on The Bannered Mare:** The `build_headers()` method in `AnthropicAdapter` must produce
 completely different headers than `OpenAIAdapter`.
 
 ---
@@ -787,7 +787,7 @@ Response includes cache-specific token counts:
 }
 ```
 
-### 10.4 Relevance to Candlekeep
+### 10.4 Relevance to The Bannered Mare
 
 System prompts + character descriptions are repeated identically across messages in the same
 chat. Prompt caching could reduce costs by 90% for these repeated prefixes. The adapter should
@@ -825,7 +825,7 @@ Same body as `/v1/messages` but without generating a response:
 }
 ```
 
-### Relevance to Candlekeep
+### Relevance to The Bannered Mare
 
 This enables **accurate** token counting for Anthropic models without relying on tiktoken
 estimates. The `TokenizerService` could use this endpoint for Claude models, providing exact
@@ -1291,9 +1291,9 @@ class AnthropicAdapter(ProviderAdapter):
 | `api_error` | 500 | Internal error |
 | `overloaded_error` | 529 | API overloaded |
 
-### Mapping to Candlekeep Exceptions
+### Mapping to The Bannered Mare Exceptions
 
-| Anthropic Error | Candlekeep Exception |
+| Anthropic Error | The Bannered Mare Exception |
 |---|---|
 | `authentication_error` (401) | `ProviderAuthError` |
 | `rate_limit_error` (429) | `ProviderRateLimitError` |

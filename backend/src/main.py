@@ -1,4 +1,4 @@
-"""Candlekeep Core - FastAPI Application Entry Point"""
+"""The Bannered Mare - FastAPI Application Entry Point"""
 
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -52,7 +52,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="Candlekeep Core",
+    title="The Bannered Mare",
     description="FastAPI backend for RP platform with character cards and chat management",
     version="0.2.5",
     lifespan=lifespan,
@@ -93,7 +93,7 @@ app.include_router(health_router)
 def root():
     """Root endpoint"""
     return {
-        "message": "Candlekeep Core API",
+        "message": "The Bannered Mare API",
         "version": "0.1.0",
         "docs": "/docs",
         "redoc": "/redoc",

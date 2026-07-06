@@ -4,7 +4,7 @@
 > vLLM OpenAI-compatible server docs, KoboldCpp API (expose.h + koboldcpp_api),
 > TabbyAPI source (endpoints/, common/sampling.py)
 >
-> **Goal:** Define what Candlekeep must support to integrate with local inference backends,
+> **Goal:** Define what The Bannered Mare must support to integrate with local inference backends,
 > complementing the cloud provider analysis in OPENAI.md and ANTHROPIC.md.
 
 ---
@@ -34,7 +34,7 @@
 - **Custom models** -- fine-tuned, merged, or quantized checkpoints that no cloud
   provider hosts.
 - **No rate limits** -- throughput is bounded only by hardware, not by tier quotas.
-- **Candlekeep explicitly targets local model integration** as a first-class path.
+- **The Bannered Mare explicitly targets local model integration** as a first-class path.
   The CLAUDE.md project instructions name Ollama and vLLM as example backends.
 
 ### 1.2 Two API Paradigms
@@ -755,7 +755,7 @@ appropriate chat/instruct template for the loaded model.
 | KoboldCpp | `POST /v1/chat/completions` | Model metadata |
 | TabbyAPI | `POST /v1/chat/completions` | Jinja2 template (HuggingFace-compatible) |
 
-### 7.4 Recommendation for Candlekeep
+### 7.4 Recommendation for The Bannered Mare
 
 1. **Phase 1:** Support OpenAI-compatible chat completion (`/v1/chat/completions`).
    This works with ALL modern backends using the same adapter logic.
@@ -1023,7 +1023,7 @@ _adapters = {
 - Add `POST /v1/completions` support to `LocalOpenAIAdapter`.
 - Build instruct formatting layer that converts `CompletionRequest.messages` to a
   single prompt string using model-specific templates.
-- This is the bridge between Candlekeep's internal `ChatMessage` format and the
+- This is the bridge between The Bannered Mare's internal `ChatMessage` format and the
   text completion API.
 
 ### Phase 4: Extra Sampling Parameters

@@ -2,7 +2,7 @@
 
 > **Sources:** Ollama OpenAPI spec v0.1.0 (`ollama/ollama`, `main` branch), official docs
 > **Endpoints:** Native API (`/api/*`) + OpenAI-compatible API (`/v1/*`)
-> **Goal:** Define what Candlekeep must implement to support Ollama as a local model
+> **Goal:** Define what The Bannered Mare must implement to support Ollama as a local model
 > provider, and how the OllamaAdapter integrates into the multi-provider architecture
 > defined in the OpenAI analysis (Sections 12 and 14).
 
@@ -39,7 +39,7 @@ the user's own hardware (CPU/GPU). No cloud dependency, no usage costs, no rate 
 | **Native API** | `/api/*` | Ollama-specific JSON | NDJSON (newline-delimited JSON) | Full feature access, model management |
 | **OpenAI-compatible API** | `/v1/*` | OpenAI-compatible JSON | SSE (`text/event-stream`) | Drop-in replacement for OpenAI clients |
 
-**Key Insight for Candlekeep:** The OpenAI-compatible endpoint handles chat completions
+**Key Insight for The Bannered Mare:** The OpenAI-compatible endpoint handles chat completions
 with the same request/response shape as OpenAI. The native API is needed exclusively
 for model management operations (list, pull, show, delete). This means the OllamaAdapter
 for chat can largely reuse OpenAI adapter logic.
@@ -110,7 +110,7 @@ None.
 ```
 
 **Critical:** `stream` defaults to **`true`**. This is the OPPOSITE of OpenAI where
-`stream` defaults to `false`. Candlekeep must explicitly set `stream: false` for
+`stream` defaults to `false`. The Bannered Mare must explicitly set `stream: false` for
 non-streaming requests to the native API.
 
 ### 3.2 The `options` Object -- Generation Parameters
@@ -210,9 +210,9 @@ Controls how long a model stays loaded in GPU/CPU memory after a request.
 - `"-1"` or `-1`: Keep loaded indefinitely
 - Duration strings: `"10m"`, `"1h"`, `"30s"`
 
-**Relevance for Candlekeep:** For roleplay sessions, setting `keep_alive` to a longer
+**Relevance for The Bannered Mare:** For roleplay sessions, setting `keep_alive` to a longer
 duration (e.g. `"30m"` or `"-1"`) avoids the latency of reloading the model between
-messages. This should be configurable per-provider in Candlekeep settings.
+messages. This should be configurable per-provider in The Bannered Mare settings.
 
 ### 3.4 The `format` Parameter -- Structured Outputs
 
@@ -431,7 +431,7 @@ When `think: true`, chunks alternate between `thinking` and `content` fields:
 
 **Endpoint:** `POST /v1/chat/completions`
 
-This is the recommended endpoint for Candlekeep chat completions. It speaks the
+This is the recommended endpoint for The Bannered Mare chat completions. It speaks the
 OpenAI protocol, which means the OpenAI adapter logic can be largely reused.
 
 ### 6.1 Supported Features
@@ -591,7 +591,7 @@ Also available as OpenAI-compatible: `GET /v1/models` (returns OpenAI-format mod
 ```
 
 **Key field:** `capabilities` -- tells us if a model supports vision, tool calling, etc.
-Useful for Candlekeep to auto-detect model features.
+Useful for The Bannered Mare to auto-detect model features.
 
 ### 7.3 POST /api/pull -- Download Model
 
@@ -622,7 +622,7 @@ Useful for Candlekeep to auto-detect model features.
 ### 7.5 POST /api/generate -- Text Completion (non-chat)
 
 Similar to `/api/chat` but for single-turn text completion without message history.
-Not directly relevant for Candlekeep's chat-based architecture.
+Not directly relevant for The Bannered Mare's chat-based architecture.
 
 ### 7.6 GET /api/ps -- Running Models
 
@@ -644,7 +644,7 @@ Lists models currently loaded in memory:
 }
 ```
 
-**Useful for Candlekeep:** Can check if a model is already loaded before sending a
+**Useful for The Bannered Mare:** Can check if a model is already loaded before sending a
 request, and display VRAM usage to the user.
 
 ### 7.7 POST /api/embed -- Embeddings
@@ -716,7 +716,7 @@ request, and display VRAM usage to the user.
    within the `keep_alive` window are fast.
 
 5. **No content filtering.** Ollama models have no built-in content filter. The
-   `content_filter` finish reason never occurs. This is relevant for Candlekeep's
+   `content_filter` finish reason never occurs. This is relevant for The Bannered Mare's
    roleplay use case where content filtering would be undesirable.
 
 ---
@@ -852,7 +852,7 @@ async def parse_ndjson_stream(
 
 ### 10.1 Auto-Discovery via GET /api/tags
 
-Ollama can report all locally available models. This is critical for Candlekeep's
+Ollama can report all locally available models. This is critical for The Bannered Mare's
 UX -- users should see which models are available without manual configuration.
 
 ```python
@@ -882,7 +882,7 @@ The `capabilities` field in the show response indicates what a model can do:
 {"capabilities": ["completion", "vision", "tools"]}
 ```
 
-This allows Candlekeep to:
+This allows The Bannered Mare to:
 - Only show vision models when image input is needed
 - Only offer tool calling for models that support it
 - Filter models by capability in the UI

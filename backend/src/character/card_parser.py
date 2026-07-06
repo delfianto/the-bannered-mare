@@ -76,7 +76,7 @@ def _read_png_text_chunks(data: bytes) -> dict[str, str]:
 def _parse_v2_data(data: dict[str, Any]) -> ParsedCard:
     """Parse V2 'data' object into a ParsedCard."""
     exts = data.get("extensions", {})
-    ck_ext = exts.get("candlekeep", {})
+    ck_ext = exts.get("bannered_mare", {})
     cp_ext = exts.get("chara_personal_details", {})
 
     species = ck_ext.get("species") or exts.get("species") or cp_ext.get("species") or ""
@@ -174,7 +174,7 @@ def card_to_v2_dict(card: ParsedCard) -> dict[str, Any]:
         extensions["age"] = card.age
 
     if ck_data:
-        extensions["candlekeep"] = ck_data
+        extensions["bannered_mare"] = ck_data
 
     res = {
         "spec": "chara_card_v2",

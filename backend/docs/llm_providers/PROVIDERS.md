@@ -1,13 +1,13 @@
 # API Provider Integration — Gap Analysis
 
-> **Scope:** How SillyTavern integrates 25+ LLM API providers vs Candlekeep Core's current
+> **Scope:** How SillyTavern integrates 25+ LLM API providers vs The Bannered Mare's current
 > abstraction layer. Focus on architectural patterns, not 1:1 feature parity.
 
 ---
 
 ## Table of Contents
 
-1. [Candlekeep Core — Current Architecture](#1-candlekeep-core-current-architecture)
+1. [The Bannered Mare — Current Architecture](#1-the-bannered-mare--current-architecture)
 2. [SillyTavern — Provider Landscape](#2-sillytavern-provider-landscape)
 3. [Provider Format Differences](#3-provider-format-differences)
 4. [Gap Analysis](#4-gap-analysis)
@@ -15,7 +15,7 @@
 
 ---
 
-## 1. Candlekeep Core — Current Architecture
+## 1. The Bannered Mare — Current Architecture
 
 ### Provider System
 
@@ -36,7 +36,7 @@
 - `Model` can override with instance-level parameters
 - `_get_effective_parameters()` merges family defaults + model overrides
 
-**Key Insight:** Candlekeep assumes every provider speaks OpenAI protocol. This works for
+**Key Insight:** The Bannered Mare assumes every provider speaks OpenAI protocol. This works for
 Ollama, vLLM, OpenRouter, and LiteLLM proxies — but breaks for native Anthropic, Gemini,
 and Cohere APIs.
 
@@ -147,7 +147,7 @@ Per-provider parameter filtering:
 
 ## 4. Gap Analysis
 
-### What Candlekeep Has (Strong Foundation)
+### What The Bannered Mare Has (Strong Foundation)
 
 | Area | Status |
 |------|--------|

@@ -1,6 +1,6 @@
-# Candlekeep Core: Prompt Construction & Template System
+# The Bannered Mare: Prompt Construction & Template System
 
-Candlekeep Core features a modular prompt construction engine that dynamically compiles structured prompts from presets, templates, character contexts, lore entries, and reusable instruction blocks (fragments).
+The Bannered Mare features a modular prompt construction engine that dynamically compiles structured prompts from presets, templates, character contexts, lore entries, and reusable instruction blocks (fragments).
 
 ---
 
@@ -79,7 +79,7 @@ Fragments are injected dynamically relative to the core components:
 
 ## 4. Prompt Construction Orchestration (`PromptBuilder`)
 
-The prompt construction pipeline is owned by [PromptBuilder](file:///srv/project/personal/candlekeep-core/src/prompt_template/prompt_builder.py):
+The prompt construction pipeline is owned by [PromptBuilder](../../src/prompt_template/prompt_builder.py):
 
 ```mermaid
 graph TD

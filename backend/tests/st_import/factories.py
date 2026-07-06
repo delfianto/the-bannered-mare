@@ -12,7 +12,7 @@ from src.prompt_template.repository import PromptTemplateRepository
 from src.st_import.service import STImportService
 from starlette.datastructures import Headers
 
-# Identifiers that resolve to Candlekeep components.
+# Identifiers that resolve to The Bannered Mare components.
 MARKERS = (
     "charDescription",
     "charPersonality",

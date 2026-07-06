@@ -1,7 +1,7 @@
 # LLM Provider API Reference
 
 > **Disclaimer:** These documents were created as implementation guidelines for building
-> Candlekeep Core's multi-provider adapter architecture, authored with the assistance of
+> The Bannered Mare's multi-provider adapter architecture, authored with the assistance of
 > Claude Opus 4.6. Each document attempts to capture the full API specification — endpoints,
 > authentication, request/response schemas, streaming formats, parameter allowlists, and
 > provider-specific features.
@@ -57,6 +57,6 @@
 ## Tool & Version Info
 
 - **Author:** Claude Opus 4.6 (1M context)
-- **Purpose:** Implementation reference for Candlekeep Core's `ProviderAdapter` system
+- **Purpose:** Implementation reference for The Bannered Mare's `ProviderAdapter` system
 - **Initial creation:** 2026-04-06
 - **Last updated:** 2026-04-07

@@ -80,7 +80,7 @@ and is typically used for Vertex AI, not the AI Studio API.
 | OAuth support | No | No | Yes (alternative) |
 | Key prefix | `sk-...` | `sk-ant-...` | `AIza...` |
 
-**Impact on Candlekeep:** The `GeminiAdapter.build_headers()` method produces minimal headers
+**Impact on The Bannered Mare:** The `GeminiAdapter.build_headers()` method produces minimal headers
 (just `Content-Type`). The API key is appended to the URL instead. This means `build_url()`
 must accept the API key or the adapter must override the HTTP call to append the query param.
 
@@ -614,13 +614,13 @@ Every candidate in the response includes safety ratings:
 
 HarmProbability values: `NEGLIGIBLE`, `LOW`, `MEDIUM`, `HIGH`.
 
-### 8.5 Relevance to Candlekeep
+### 8.5 Relevance to The Bannered Mare
 
 For roleplay sessions, users will likely want to set `BLOCK_NONE` or `BLOCK_ONLY_HIGH` for
 most categories (especially `SEXUALLY_EXPLICIT` and `DANGEROUS_CONTENT`) to avoid overzealous
 filtering. The adapter should support passing safety settings via `CompletionRequest.extra`.
 
-Default safety settings for Candlekeep RP use:
+Default safety settings for The Bannered Mare RP use:
 
 ```python
 DEFAULT_RP_SAFETY_SETTINGS = [
@@ -822,7 +822,7 @@ POST /v1beta/cachedContents?key={API_KEY}
 | Reference | Implicit (matching prefix) | Explicit resource name |
 | API call | Same endpoint | Separate create + reference |
 
-### 10.3 Relevance to Candlekeep
+### 10.3 Relevance to The Bannered Mare
 
 System prompts + character contexts are repeated across an entire chat session. Gemini's
 cached content could significantly reduce costs. The adapter should support creating and
@@ -1410,9 +1410,9 @@ class GeminiAdapter(ProviderAdapter):
 | 500 | `INTERNAL` | Server error |
 | 503 | `UNAVAILABLE` | Service temporarily unavailable |
 
-### Mapping to Candlekeep Exceptions
+### Mapping to The Bannered Mare Exceptions
 
-| Gemini Error | Candlekeep Exception |
+| Gemini Error | The Bannered Mare Exception |
 |---|---|
 | `UNAUTHENTICATED` (401) | `ProviderAuthError` |
 | `RESOURCE_EXHAUSTED` (429) | `ProviderRateLimitError` |

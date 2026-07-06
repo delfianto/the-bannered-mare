@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Candlekeep Core — Database Initialization Script
+# The Bannered Mare — Database Initialization Script
 #
 # Creates the database, installs extensions, runs migrations, and optionally
 # seeds data. Designed to run once before first application start, or in a
@@ -86,7 +86,7 @@ done
 # --- Check prerequisites ---
 command -v psql >/dev/null 2>&1 || error "psql not found. Install postgresql-client."
 
-info "Candlekeep Core — Database Initialization"
+info "The Bannered Mare — Database Initialization"
 echo ""
 info "Configuration:"
 echo "  Host:       $PG_HOST:$PG_PORT"

@@ -1,6 +1,6 @@
 # xAI Grok API — Deep Analysis
 
-> **Scope:** Complete xAI Chat Completions API specification for Candlekeep Core's
+> **Scope:** Complete xAI Chat Completions API specification for The Bannered Mare's
 > multi-provider adapter architecture. Covers authentication, request/response schemas,
 > streaming, tool calling, reasoning models, and all current Grok model variants.
 
@@ -19,7 +19,7 @@
 9. [Reasoning Models](#9-reasoning-models)
 10. [Model Catalog](#10-model-catalog)
 11. [Discontinuities with OpenAI](#11-discontinuities-with-openai)
-12. [Current Candlekeep Implementation](#12-current-candlekeep-implementation)
+12. [Current The Bannered Mare Implementation](#12-current-the-bannered-mare-implementation)
 13. [Adapter Recommendations](#13-adapter-recommendations)
 
 ---
@@ -40,7 +40,7 @@ client = OpenAI(
 
 xAI also offers a newer **Responses API** (`/v1/responses`) positioned as the primary
 interface going forward. However, Chat Completions remains fully supported and is the
-correct target for Candlekeep's adapter pattern.
+correct target for The Bannered Mare's adapter pattern.
 
 ---
 
@@ -427,7 +427,7 @@ Despite being OpenAI-compatible, these differences matter for a provider adapter
 
 ---
 
-## 12. Current Candlekeep Implementation
+## 12. Current The Bannered Mare Implementation
 
 ### Fixture State
 

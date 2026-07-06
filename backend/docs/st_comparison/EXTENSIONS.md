@@ -1,12 +1,12 @@
-# Extension & Plugin Systems -- SillyTavern v1.17.0 vs Candlekeep Core
+# Extension & Plugin Systems -- SillyTavern v1.17.0 vs The Bannered Mare
 
 ## Table of Contents
 
 1. [Fundamental Architectural Difference](#1-fundamental-architectural-difference)
 2. [SillyTavern's Extension Ecosystem](#2-sillytaverns-extension-ecosystem)
-3. [Candlekeep Core's Extensibility Model](#3-candlekeep-cores-extensibility-model)
+3. [The Bannered Mare's Extensibility Model](#3-the-bannered-mares-extensibility-model)
 4. [Feature-by-Feature Comparison](#4-feature-by-feature-comparison)
-5. [How ST Extension Capabilities Map to Candlekeep](#5-how-st-extension-capabilities-map-to-candlekeep)
+5. [How ST Extension Capabilities Map to The Bannered Mare](#5-how-st-extension-capabilities-map-to-the-bannered-mare)
 6. [Provider Extensibility](#6-provider-extensibility)
 7. [Prompt Pipeline Extensibility](#7-prompt-pipeline-extensibility)
 8. [Message Processing Extensibility](#8-message-processing-extensibility)
@@ -18,9 +18,9 @@
 
 ## 1. Fundamental Architectural Difference
 
-This is the most structurally different area between the two systems. SillyTavern is a self-contained application with a full plugin runtime. Candlekeep Core is a headless API server with no plugin system at all.
+This is the most structurally different area between the two systems. SillyTavern is a self-contained application with a full plugin runtime. The Bannered Mare is a headless API server with no plugin system at all.
 
-| Aspect | SillyTavern v1.17.0 | Candlekeep Core |
+| Aspect | SillyTavern v1.17.0 | The Bannered Mare |
 |---|---|---|
 | **Application type** | Monolithic app (Node.js server + browser client) | Headless REST/SSE API (FastAPI) |
 | **Extension mechanism** | Two plugin runtimes (server + frontend) | None. Extensibility through the API surface. |
@@ -33,7 +33,7 @@ This is the most structurally different area between the two systems. SillyTaver
 The difference is not a gap in capability -- it reflects two different answers to the question "where does customization logic live?"
 
 - **SillyTavern:** Customization lives inside the application. Extensions modify behavior at runtime through hooks, interceptors, and event handlers.
-- **Candlekeep Core:** Customization lives in the client. The API exposes every primitive (characters, presets, templates, lore, providers, models) as CRUD endpoints. A frontend or automation script composes these primitives however it wants.
+- **The Bannered Mare:** Customization lives in the client. The API exposes every primitive (characters, presets, templates, lore, providers, models) as CRUD endpoints. A frontend or automation script composes these primitives however it wants.
 
 ---
 
@@ -89,9 +89,9 @@ Security is minimal: extensions run with full browser context access, no sandbox
 
 ---
 
-## 3. Candlekeep Core's Extensibility Model
+## 3. The Bannered Mare's Extensibility Model
 
-Candlekeep Core has no plugin loader, no extension directory, no event bus, and no hook system. This is a deliberate architectural choice, not an omission.
+The Bannered Mare has no plugin loader, no extension directory, no event bus, and no hook system. This is a deliberate architectural choice, not an omission.
 
 ### 3.1 API-First Extensibility
 
@@ -112,11 +112,11 @@ The system exposes 12 resource routers, each providing full CRUD:
 | Health | `/health` | Readiness checks |
 | Admin Logs | `/admin/logs` | HTTP, LLM audit, and error log querying with aggregation |
 
-Any behavior that ST achieves through an extension, a Candlekeep client can achieve by calling these endpoints in the right sequence. The "extension logic" lives in the client, not the server.
+Any behavior that ST achieves through an extension, a Bannered Mare client can achieve by calling these endpoints in the right sequence. The "extension logic" lives in the client, not the server.
 
 ### 3.2 Composable Primitives
 
-Several of ST's built-in extensions map directly to first-class Candlekeep API resources:
+Several of ST's built-in extensions map directly to first-class The Bannered Mare API resources:
 
 - **Connection Manager** (ST extension) maps to the Providers, Models, and Presets APIs. A client can switch a chat's model, preset, or persona with a single PUT to `/api/chats/{id}`.
 - **Summarize / Memory** (ST extension) has no built-in equivalent, but a client can implement summarization by reading chat history via the messages API, calling an LLM through any provider, and storing the result (e.g., as a lore entry or system prompt update).
@@ -124,7 +124,7 @@ Several of ST's built-in extensions map directly to first-class Candlekeep API r
 
 ### 3.3 Where Extensibility Points Do Exist
 
-While Candlekeep has no plugin system, it does have internal extensibility patterns:
+While The Bannered Mare has no plugin system, it does have internal extensibility patterns:
 
 **Provider Adapter Registry** (`src/provider/adapters/__init__.py`):
 A typed registry mapping `ProviderType` enums to adapter classes. Adding a new provider requires adding an adapter class implementing `ProviderAdapter` (5 abstract methods) and registering it in `_REGISTRY`. This is compile-time extensibility, not runtime.
@@ -145,7 +145,7 @@ CORS and request logging middleware are registered at startup. Adding new middle
 
 ## 4. Feature-by-Feature Comparison
 
-| Capability | SillyTavern | Candlekeep Core |
+| Capability | SillyTavern | The Bannered Mare |
 |---|---|---|
 | **Plugin runtime** | Two (server + frontend) | None |
 | **Plugin lifecycle hooks** | 8 (2 server + 6 frontend) | N/A |
@@ -168,15 +168,15 @@ CORS and request logging middleware are registered at startup. Adding new middle
 
 ---
 
-## 5. How ST Extension Capabilities Map to Candlekeep
+## 5. How ST Extension Capabilities Map to The Bannered Mare
 
 ### 5.1 Capabilities That Map to API Primitives
 
-These ST extension features have direct Candlekeep API equivalents:
+These ST extension features have direct The Bannered Mare API equivalents:
 
 **Connection Manager** --> Provider/Model/Preset/Chat APIs
 
-ST's Connection Manager extension saves and restores "profiles" of 14 settings (API, model, preset, proxy, tokenizer, etc.) via slash command execution. In Candlekeep, this same workflow is:
+ST's Connection Manager extension saves and restores "profiles" of 14 settings (API, model, preset, proxy, tokenizer, etc.) via slash command execution. In The Bannered Mare, this same workflow is:
 
 ```
 PUT /api/chats/{id}  { "model_id": "...", "preset_id": "...", "persona_id": "..." }
@@ -186,10 +186,10 @@ One API call replaces the entire profile-switching mechanism. The client decides
 
 **Memory/Summarize** --> Client-side orchestration
 
-ST's Memory extension monitors message count/word count thresholds, calls an LLM to generate a summary, and injects it into the prompt via `setExtensionPrompt()`. A Candlekeep client can replicate this:
+ST's Memory extension monitors message count/word count thresholds, calls an LLM to generate a summary, and injects it into the prompt via `setExtensionPrompt()`. A The Bannered Mare client can replicate this:
 
 1. `GET /api/chats/{id}/messages` -- read history
-2. Call any LLM (through Candlekeep or directly) with a summarization prompt
+2. Call any LLM (through The Bannered Mare or directly) with a summarization prompt
 3. Store the summary as a lore entry (`POST /api/lorebooks/{id}/entries`) with `constant: true` and appropriate insertion position
 
 The trigger logic (message count thresholds, word count gates) lives in the client.
@@ -209,7 +209,7 @@ These ST extension features have no server-side equivalent and must be implement
 | Token Counter | Client uses tokenization estimates from message responses or a local tokenizer |
 | Character Expressions | Client-side sprite rendering based on message sentiment |
 
-### 5.3 Capabilities Outside Candlekeep's Scope
+### 5.3 Capabilities Outside The Bannered Mare's Scope
 
 These ST extensions cover domains that a headless chat API does not address:
 
@@ -231,7 +231,7 @@ These are not "missing features" -- they represent different scope decisions. A 
 
 ST supports 40+ providers through a combination of server-side endpoint modules and client-side format conversion. Adding a provider involves modifying multiple files across both server and client code. The provider list is hardcoded in `src/constants.js` and switching requires frontend UI interaction.
 
-### Candlekeep Core
+### The Bannered Mare
 
 Providers are database-managed entities with a typed adapter system:
 
@@ -251,7 +251,7 @@ The adapter abstraction (`ProviderAdapter`) defines 5 methods: `build_url`, `bui
 
 The `ProviderType.CUSTOM` entry with `OpenAIAdapter` as the fallback means any OpenAI-compatible API (LM Studio, text-generation-webui, etc.) can be configured through the API without any code changes -- just register a new provider with the custom type and its base URL.
 
-**Trade-off:** ST supports more providers out of the box. Candlekeep's adapter pattern is more uniform but requires a code change for genuinely new API formats.
+**Trade-off:** ST supports more providers out of the box. The Bannered Mare's adapter pattern is more uniform but requires a code change for genuinely new API formats.
 
 ---
 
@@ -263,7 +263,7 @@ Extensions inject into the prompt pipeline via `setExtensionPrompt(name, content
 
 This creates a powerful but complex prompt assembly pipeline where the final prompt is the result of many layered transformations from independent extensions.
 
-### Candlekeep Core
+### The Bannered Mare
 
 The prompt pipeline is assembled by `PromptBuilder` using four inputs:
 1. **System template** -- Jinja2 template from the active prompt template
@@ -275,7 +275,7 @@ There are no runtime interceptors or hooks. The pipeline is deterministic: given
 
 A client that needs regex-style transformations or pre-generation interception must implement that logic before calling the send/stream endpoints.
 
-**Trade-off:** ST's pipeline is more flexible at runtime -- extensions can modify prompts in ways the core developers did not anticipate. Candlekeep's pipeline is more predictable -- the prompt is a pure function of its configured inputs, making it easier to debug and reproduce.
+**Trade-off:** ST's pipeline is more flexible at runtime -- extensions can modify prompts in ways the core developers did not anticipate. The Bannered Mare's pipeline is more predictable -- the prompt is a pure function of its configured inputs, making it easier to debug and reproduce.
 
 ---
 
@@ -291,13 +291,13 @@ Messages pass through multiple processing stages:
 
 Extensions can transform messages at any stage, and the order of transformations is controlled by loading order and event subscription priority.
 
-### Candlekeep Core
+### The Bannered Mare
 
 Messages are stored and retrieved without transformation. The API returns message content exactly as received from the LLM (after optional `<think>` tag parsing for reasoning content). The template engine applies Jinja2 variable substitution at prompt assembly time, but message content itself is not modified.
 
 If a client needs to display transformed messages (e.g., with regex replacements, markdown rendering, or custom formatting), it applies those transforms after fetching from the API.
 
-**Trade-off:** ST's message processing pipeline is richer and enables features like automatic regex replacement and expression detection without client code. Candlekeep's approach keeps the server as a clean data store -- the message in the database is the message the LLM produced, with no server-side mutations, making it simpler to audit and replay conversations.
+**Trade-off:** ST's message processing pipeline is richer and enables features like automatic regex replacement and expression detection without client code. The Bannered Mare's approach keeps the server as a clean data store -- the message in the database is the message the LLM produced, with no server-side mutations, making it simpler to audit and replay conversations.
 
 ---
 
@@ -309,13 +309,13 @@ A custom `EventEmitter` with 103 named event types covering application lifecycl
 
 Built-in extensions collectively register 42 event handlers across 25 event types.
 
-### Candlekeep Core
+### The Bannered Mare
 
 No event system. The application is request-response with SSE streaming for chat completions. Server-Sent Events during streaming emit 6 typed event types: `start`, `text`, `reasoning`, `usage`, `done`, `error`. These are stream protocol events, not an application event bus.
 
 There is no mechanism for one part of the server to react to events from another part. Each request is handled by a single router -> service -> repository call chain.
 
-**Trade-off:** ST's event system enables reactive, loosely-coupled extension behavior (e.g., the Memory extension reacting to `CHARACTER_MESSAGE_RENDERED` to trigger summarization). Candlekeep's lack of an event system means less implicit behavior and no ordering-dependent side effects, but also means features like auto-summarization cannot be triggered server-side.
+**Trade-off:** ST's event system enables reactive, loosely-coupled extension behavior (e.g., the Memory extension reacting to `CHARACTER_MESSAGE_RENDERED` to trigger summarization). The Bannered Mare's lack of an event system means less implicit behavior and no ordering-dependent side effects, but also means features like auto-summarization cannot be triggered server-side.
 
 ---
 
@@ -330,17 +330,17 @@ Third-party developers can:
 - Declare dependencies on other extensions and ST Extras API modules
 - Use lifecycle hooks for install/update/delete operations
 
-### Candlekeep Core
+### The Bannered Mare
 
 Third-party developers can:
 - Build any frontend against the REST/SSE API (OpenAPI spec available)
 - Build automation scripts that compose API calls for custom workflows
-- Build sidecar services that consume Candlekeep's API for features like TTS, image gen, or RAG
+- Build sidecar services that consume The Bannered Mare's API for features like TTS, image gen, or RAG
 - Register custom OpenAI-compatible providers through the API without code changes
 
 The integration boundary is HTTP. There is no way to inject code into the server at runtime.
 
-**Trade-off:** ST offers deeper integration -- extensions can modify internal behavior in ways the API surface alone cannot express. Candlekeep offers cleaner boundaries -- the server's behavior is fully defined by its own code and database state, never by third-party code running inside it. This makes the server more predictable and easier to secure, but means the client must implement any "smart" behavior that ST would handle via extensions.
+**Trade-off:** ST offers deeper integration -- extensions can modify internal behavior in ways the API surface alone cannot express. The Bannered Mare offers cleaner boundaries -- the server's behavior is fully defined by its own code and database state, never by third-party code running inside it. This makes the server more predictable and easier to secure, but means the client must implement any "smart" behavior that ST would handle via extensions.
 
 ---
 
@@ -360,14 +360,14 @@ The integration boundary is HTTP. There is no way to inject code into the server
 3. **Security surface** -- Extensions run with full access to browser context and application state. No sandboxing, no capability model, no code review gate.
 4. **Debugging difficulty** -- When something goes wrong in the prompt or message pipeline, the cause could be any of N active extensions, processed in priority order with regex transforms at 6 stages.
 
-### What Candlekeep Core Gains from No Extensions
+### What The Bannered Mare Gains from No Extensions
 
 1. **Predictability** -- Given a set of inputs (template, lore, messages, preset, model), the system always produces the same prompt. No hidden side effects from extensions.
 2. **Security** -- No third-party code runs inside the server. The attack surface is the API boundary, which is validated by Pydantic schemas.
 3. **Debuggability** -- Every prompt is a deterministic function of database state. If a prompt is wrong, the cause is in the template, lore entries, or message history -- all of which are inspectable via the API.
 4. **Client freedom** -- Any frontend technology (web, mobile, CLI, automation) can build on the API. The server does not assume a browser environment.
 
-### What Candlekeep Core Pays for No Extensions
+### What The Bannered Mare Pays for No Extensions
 
 1. **Client burden** -- Features that ST handles with built-in extensions (regex, summarization, translation, connection profiles) must be implemented by every client independently.
 2. **No shared ecosystem** -- There is no mechanism for community-contributed server-side features. Contributions must be PRs to the core codebase.
@@ -378,15 +378,15 @@ The integration boundary is HTTP. There is no way to inject code into the server
 
 SillyTavern optimizes for **feature completeness in a single application**. Everything a user needs for AI roleplay -- chat, TTS, image generation, regex processing, summarization, vector search -- is available as extensions within one running instance.
 
-Candlekeep Core optimizes for **a clean API contract with client autonomy**. The server handles what a server should handle (persistence, LLM routing, prompt assembly, streaming) and leaves everything else to the client layer. This is a bet that the right abstraction boundary is HTTP, not an in-process plugin API.
+The Bannered Mare optimizes for **a clean API contract with client autonomy**. The server handles what a server should handle (persistence, LLM routing, prompt assembly, streaming) and leaves everything else to the client layer. This is a bet that the right abstraction boundary is HTTP, not an in-process plugin API.
 
-Neither approach is inherently superior. The right choice depends on whether the deployment is a "batteries-included local app" (ST's model) or a "backend service powering diverse frontends" (Candlekeep's model).
+Neither approach is inherently superior. The right choice depends on whether the deployment is a "batteries-included local app" (ST's model) or a "backend service powering diverse frontends" (The Bannered Mare's model).
 
 ---
 
 ## Summary Statistics
 
-| Metric | SillyTavern | Candlekeep Core |
+| Metric | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Extension loader code | ~2,627 lines | 0 lines |
 | Plugin runtimes | 2 (server + frontend) | 0 |

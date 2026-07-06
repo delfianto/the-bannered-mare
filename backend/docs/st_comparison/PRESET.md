@@ -1,22 +1,22 @@
-# Presets: SillyTavern vs. Candlekeep
+# Presets: SillyTavern vs. The Bannered Mare
 
-Candlekeep can **import** SillyTavern (ST) chat-completion presets, but it does not
+The Bannered Mare can **import** SillyTavern (ST) chat-completion presets, but it does not
 model them the way ST does. This document explains what an ST preset is, how
-Candlekeep represents the same ideas, and exactly what the importer
+The Bannered Mare represents the same ideas, and exactly what the importer
 (`POST /api/presets/import`) does with each part.
 
-> See also: the sibling `PROMPTING.md` (ST↔Candlekeep prompt-system comparison) and
+> See also: the sibling `PROMPTING.md` (ST↔The Bannered Mare prompt-system comparison) and
 > `docs/st_analysis/PRESET.md` (deeper ST preset-format analysis). This file is the
 > **comparison + import contract**.
 
 ## TL;DR
 
 - An ST "preset" bundles **two unrelated concerns** in one file: sampler settings
-  and a prompt-assembly recipe. Candlekeep keeps them as **separate** first-class
+  and a prompt-assembly recipe. The Bannered Mare keeps them as **separate** first-class
   objects (`Preset` vs. `PromptTemplate` + fragments).
 - The importer **splits** an ST preset accordingly, is faithful where the models
   line up, and **emits warnings** for everything that doesn't.
-- Candlekeep is intentionally **not 1:1 with ST**. It keeps ST's one genuinely
+- The Bannered Mare is intentionally **not 1:1 with ST**. It keeps ST's one genuinely
   valuable idea — depth-anchored injection — and drops the GPT-3.5-era machinery
   (marker placeholders, per-prompt role juggling, format-string plumbing) that
   modern long-context models don't need.
@@ -46,13 +46,13 @@ Notes: ST presets have **no `name`** — the name is the filename. The same JSON
 shape is reused by ST for *non-presets* (regex scripts, character cards); the
 importer detects and rejects those.
 
-## How Candlekeep models the same ideas
+## How The Bannered Mare models the same ideas
 
-| ST concept | Candlekeep home | Notes |
+| ST concept | The Bannered Mare home | Notes |
 |---|---|---|
-| Sampler block | `Preset.parameters` (JSON) | A Candlekeep `Preset` is **only** samplers. |
+| Sampler block | `Preset.parameters` (JSON) | A The Bannered Mare `Preset` is **only** samplers. |
 | `main` system prompt | `PromptTemplate.system_template` (Jinja2) | The base instruction. |
-| Markers (charDescription, scenario, chatHistory, worldInfo…) | `PromptTemplate.component_order` + `components_enabled` | Candlekeep **generates** this content from the Character / Persona / lore at build time; markers just toggle and order components. |
+| Markers (charDescription, scenario, chatHistory, worldInfo…) | `PromptTemplate.component_order` + `components_enabled` | The Bannered Mare **generates** this content from the Character / Persona / lore at build time; markers just toggle and order components. |
 | Built-in & custom content prompts | `PromptFragment` + `TemplateFragment` | Reusable blocks attached to a template at a position. |
 | `injection_position` / `injection_depth` | `TemplateFragment.position` + `depth` | RELATIVE → `after_system`/`pre_history`/`post_history`; ABSOLUTE → `at_depth` + `depth`. |
 | `prompt_order[].enabled` | included / skipped at import | Disabled entries don't transfer. |
@@ -86,20 +86,20 @@ only warns.
 - Sampler values (`openai_max_tokens` → `max_tokens`).
 - `main` → system prompt.
 - **Depth-anchored prompts** (`injection_position: 1`) → `at_depth` + `depth` — the
-  one ST mechanism Candlekeep fully embraces.
+  one ST mechanism The Bannered Mare fully embraces.
 - Enable/disable toggles; custom-prompt content and ordering relative to chat history.
 
 **Approximated**
-- ST's fine-grained ordering between markers collapses onto Candlekeep's coarse
+- ST's fine-grained ordering between markers collapses onto Bannered Mare's coarse
   four-slot fragment positions (`after_system` / `pre_history` / `post_history` /
   `at_depth`).
 - `charDescription` + `charPersonality` both fold into one `character_context` component.
 
 **Dropped (with a warning)**
-- **Prompt roles** — Candlekeep fragments are system-only, so ST `user`/`assistant`
+- **Prompt roles** — The Bannered Mare fragments are system-only, so ST `user`/`assistant`
   prompts import as system fragments. (Community presets use these heavily for CoT.)
 - **Format / nudge strings** (`scenario_format`, `wi_format`, `new_chat_prompt`, …) —
-  Candlekeep renders these concerns inside its own templates.
+  The Bannered Mare renders these concerns inside its own templates.
 - `forbid_overrides`, `injection_order`, and connection/model/proxy fields.
 
 ## Why the differences
@@ -107,16 +107,16 @@ only warns.
 ST's prompt manager grew up in the GPT-3.5 era of 4–8K context, where every token
 was contested — hence marker placeholders, aggressive per-prompt ordering, role
 juggling, and format-string plumbing to wedge structure into tiny windows.
-Candlekeep targets modern 256K–1M context models, so it:
+The Bannered Mare targets modern 256K–1M context models, so it:
 
 - **Separates samplers from prompt structure** — they change independently;
   bundling them was an ST UI convenience, not a data model.
 - **Generates character / persona / lore content itself** rather than treating them
   as orderable prompt slots — fewer moving parts, no marker bookkeeping.
 - **Keeps depth injection** — putting a short instruction *near the generation point*
-  (N messages from the end) is the most reliable anti-drift lever, and Candlekeep
+  (N messages from the end) is the most reliable anti-drift lever, and The Bannered Mare
   uses the same mechanism for both activated lore and drift-reminder fragments.
 
 The net effect: importing an ST preset preserves the creator's **intent** — base
 instruction, custom CoT/style fragments, depth reminders, and samplers — re-expressed
-in Candlekeep's leaner model, with a warnings list naming precisely what didn't carry over.
+in The Bannered Mare's leaner model, with a warnings list naming precisely what didn't carry over.

@@ -1,6 +1,6 @@
-"""Map a parsed SillyTavern preset onto a Candlekeep import plan (pure, no DB).
+"""Map a parsed SillyTavern preset onto a Bannered Mare import plan (pure, no DB).
 
-ST bundles samplers + a prompt structure in one preset; Candlekeep splits these
+ST bundles samplers + a prompt structure in one preset; The Bannered Mare splits these
 into ``Preset`` (samplers) and ``PromptTemplate`` + fragments (prompt structure).
 The mapping is faithful where the models allow and records ``warnings`` for the
 rest (lost roles, dropped format strings, unknown markers, etc.).
@@ -12,7 +12,7 @@ from typing import Any
 from src.core.persistence import DEFAULT_COMPONENT_ORDER
 from src.st_import.schemas import STPreset, STPrompt, STPromptOrder
 
-# ST marker identifier -> Candlekeep prompt component.
+# ST marker identifier -> The Bannered Mare prompt component.
 _MARKER_TO_COMPONENT: dict[str, str] = {
     "charDescription": "character_context",
     "charPersonality": "character_context",
@@ -31,7 +31,7 @@ _BUILTIN_FRAGMENT_TYPES: dict[str, str] = {
     "enhanceDefinitions": "instruction",
 }
 
-# ST sampler key -> Preset.parameters key (renamed where Candlekeep differs).
+# ST sampler key -> Preset.parameters key (renamed where The Bannered Mare differs).
 _SAMPLER_KEYS: dict[str, str] = {
     "temperature": "temperature",
     "top_p": "top_p",
@@ -133,7 +133,7 @@ def _select_global_order(
 
 
 def build_import_plan(preset: STPreset, base_name: str) -> ImportPlan:
-    """Map a parsed preset to a Candlekeep ``ImportPlan`` (names are pre-collision)."""
+    """Map a parsed preset to a Bannered Mare ``ImportPlan`` (names are pre-collision)."""
     warnings: list[str] = []
 
     prompts_by_id: dict[str, STPrompt] = {}
@@ -215,7 +215,7 @@ def build_import_plan(preset: STPreset, base_name: str) -> ImportPlan:
         if prompt.role and prompt.role != "system":
             warnings.append(
                 f"Prompt '{prompt.name or ident}' has role '{prompt.role}'; imported as a "
-                "system fragment (Candlekeep fragments are system-only)."
+                "system fragment (The Bannered Mare fragments are system-only)."
             )
 
         name = (prompt.name or ident).strip() or ident
@@ -251,7 +251,7 @@ def build_import_plan(preset: STPreset, base_name: str) -> ImportPlan:
     dropped = [k for k in _FORMAT_STRING_KEYS if getattr(preset, k, None)]
     if dropped:
         warnings.append(
-            "Dropped ST format/nudge strings with no Candlekeep equivalent: " + ", ".join(dropped)
+            "Dropped ST format/nudge strings with no Bannered Mare equivalent: " + ", ".join(dropped)
         )
 
     profile = ProfileSpec(
@@ -296,7 +296,7 @@ def _build_preset_spec(preset: STPreset, base_name: str, warnings: list[str]) ->
             params[ck_key] = value
 
     if preset.openai_max_context is not None:
-        warnings.append("ST 'openai_max_context' is not enforced by Candlekeep; dropped.")
+        warnings.append("ST 'openai_max_context' is not enforced by The Bannered Mare; dropped.")
 
     if not params:
         warnings.append("No sampler settings found; created a prompt template only.")

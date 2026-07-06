@@ -1,4 +1,4 @@
-# Candlekeep Core vs SillyTavern — Engineering Comparison
+# The Bannered Mare vs SillyTavern — Engineering Comparison
 
 > **Important:** These documents are **not** a "this is good, that is bad" comparison.
 > There is no judgment of quality or superiority here. This is a purely technical,
@@ -11,7 +11,7 @@
 > feature-rich application (~185,000 lines of code, 40+ LLM providers, a full extension
 > ecosystem) that serves thousands of users daily. The breadth and depth of what the ST
 > team has accomplished — largely as an open-source, community-driven effort — deserves
-> genuine respect and recognition. Candlekeep Core exists because ST proved what features
+> genuine respect and recognition. The Bannered Mare exists because ST proved what features
 > matter. These comparison documents exist because ST's codebase is worth studying.
 >
 > **On methodology.** The ST codebase is massive. It is simply too much for one person to
@@ -47,7 +47,7 @@
 
 | Document | Scope |
 |----------|-------|
-| [EXTENSIONS.md](EXTENSIONS.md) | ST's two-layer plugin runtime vs Candlekeep's API-first extensibility model |
+| [EXTENSIONS.md](EXTENSIONS.md) | ST's two-layer plugin runtime vs The Bannered Mare's API-first extensibility model |
 | [SLASH_COMMANDS.md](SLASH_COMMANDS.md) | STscript command system vs headless REST API, automation models |
 | [TOOL_CALLING.md](TOOL_CALLING.md) | Function calling support, provider translation, execution loop, token budgeting |
 | [TAGS_STATS_DATA.md](TAGS_STATS_DATA.md) | Tag models, search/filtering, statistics tracking, data integrity approaches |
@@ -63,7 +63,7 @@
 
 ## Tool & Version Info
 
-- **Candlekeep Core:** v0.1.5 (at time of comparison)
+- **The Bannered Mare:** v0.1.5 (at time of comparison)
 - **SillyTavern:** v1.17.0 (at time of comparison)
 - **Author:** Claude Opus 4.6 (1M context)
 - **Date:** 2026-04-07

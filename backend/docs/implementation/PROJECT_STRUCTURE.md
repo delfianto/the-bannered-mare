@@ -1,6 +1,6 @@
-# Candlekeep Core: Project Structure and Architectural Pattern
+# The Bannered Mare: Project Structure and Architectural Pattern
 
-Candlekeep Core is designed as a **Modular Monolith** (or Vertical Slices) architecture. Instead of separating the codebase into globally layered folders (such as all controllers in one place and all models in another), logic is organized around **domains** (features). Each domain is fully encapsulated within its own folder, making the system highly cohesive, easy to navigate, and modular.
+The Bannered Mare is designed as a **Modular Monolith** (or Vertical Slices) architecture. Instead of separating the codebase into globally layered folders (such as all controllers in one place and all models in another), logic is organized around **domains** (features). Each domain is fully encapsulated within its own folder, making the system highly cohesive, easy to navigate, and modular.
 
 ---
 
@@ -9,7 +9,7 @@ Candlekeep Core is designed as a **Modular Monolith** (or Vertical Slices) archi
 The codebase is organized as follows:
 
 ```text
-candlekeep-core/
+backend/
 ├── alembic/                  # Database schema migrations (Alembic auto-managed)
 ├── docs/                     # Documentation folder
 │   ├── implementation/       # Detailed backend architecture documents (this folder)

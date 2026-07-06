@@ -1,9 +1,9 @@
-"""Base exceptions for the Candlekeep application"""
+"""Base exceptions for the Bannered Mare application"""
 
 from typing import Any
 
 
-class CandlekeepException(Exception):
+class BanneredMareException(Exception):
     """Base exception for all application-specific errors"""
 
     def __init__(self, message: str, detail: Any | None = None):
@@ -12,7 +12,7 @@ class CandlekeepException(Exception):
         self.detail = detail
 
 
-class ProviderException(CandlekeepException):
+class ProviderException(BanneredMareException):
     """Exception raised for errors from AI providers"""
 
     def __init__(self, message: str, status_code: int | None = None, detail: Any | None = None):

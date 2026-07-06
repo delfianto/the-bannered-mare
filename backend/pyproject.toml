@@ -1,5 +1,5 @@
 [project]
-name = "candlekeep"
+name = "bannered-mare-backend"
 version = "0.2.5"
 requires-python = ">=3.14"
 license = "AGPL-3.0-or-later"

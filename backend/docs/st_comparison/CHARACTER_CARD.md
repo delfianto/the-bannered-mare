@@ -1,8 +1,8 @@
-# Character Card System Comparison: SillyTavern v1.17.0 vs Candlekeep Core
+# Character Card System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
 > Comparison date: 2026-04-07
 > ST analysis source: `docs/st_analysis/CHARACTER_CARD.md`
-> Candlekeep source: `src/character/` module
+> The Bannered Mare source: `src/character/` module
 
 ---
 
@@ -20,7 +20,7 @@ Supports three specification versions via `TavernCardValidator.js`:
 
 Validation order is V1 -> V2 -> V3, returning the first match. A V2 card passes V1 validation since V2's top level mirrors V1 fields.
 
-### Candlekeep Core
+### The Bannered Mare
 
 Supports two specification versions in `card_parser.py`:
 
@@ -33,7 +33,7 @@ Detection is V2-first: if `spec` and `data` exist, or if `data` is a dict, parse
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | V1 support | Yes | Yes (including Pygmalion field names) |
 | V2 support | Yes, strict validation | Yes, permissive parsing |
@@ -43,7 +43,7 @@ Detection is V2-first: if `spec` and `data` exist, or if `data` is a dict, parse
 | BYAF support | Yes (Backyard AI) | No |
 | YAML import | Yes | No |
 
-Candlekeep Core's parser is deliberately lenient -- it accepts partial cards without error. ST's validator rejects cards missing required fields but still has fallback paths (V1 -> V2 -> V3 cascade).
+The Bannered Mare's parser is deliberately lenient -- it accepts partial cards without error. ST's validator rejects cards missing required fields but still has fallback paths (V1 -> V2 -> V3 cascade).
 
 ---
 
@@ -65,7 +65,7 @@ File-based, no database. The PNG file is both the avatar image and the data stor
 - Atomic writes via `write-file-atomic` to prevent corruption.
 - V1 and V2 fields are dual-written at both the top level and inside `data.*` for backward compatibility.
 
-### Candlekeep Core
+### The Bannered Mare
 
 PostgreSQL database with filesystem for binary assets only.
 
@@ -92,7 +92,7 @@ characters table (PostgreSQL):
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Primary store | Filesystem (PNG files) | PostgreSQL |
 | Identity scheme | Filename string | NanoID (12-char) |
@@ -102,7 +102,7 @@ characters table (PostgreSQL):
 | Query capability | Full file scan + in-memory filter | SQL with indexes, pagination, filtering |
 | Migration path | Manual file manipulation | Alembic migrations |
 
-The fundamental difference: ST treats the PNG as a self-contained document, while Candlekeep normalizes data into relational columns. ST's approach is simpler for single-user desktop use; Candlekeep's enables structured queries and referential integrity.
+The fundamental difference: ST treats the PNG as a self-contained document, while The Bannered Mare normalizes data into relational columns. ST's approach is simpler for single-user desktop use; The Bannered Mare's enables structured queries and referential integrity.
 
 ---
 
@@ -126,7 +126,7 @@ JSON import handles three sub-formats: V2/V3 (has `spec`), V1 (has `name`), and 
 
 Private fields (`fav`, `chat`) are stripped on export.
 
-### Candlekeep Core
+### The Bannered Mare
 
 **Import formats (2):**
 
@@ -143,7 +143,7 @@ No field stripping on export -- all persisted fields are included.
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Import formats | 6 (PNG, JSON, YAML, CharX, BYAF) | 2 (PNG, JSON) |
 | Export formats | 2 (PNG, JSON) | 2 (PNG, JSON) |
@@ -153,7 +153,7 @@ No field stripping on export -- all persisted fields are included.
 | Export sanitization | Strips `fav`, `chat` | No stripping (no private metadata stored) |
 | Export spec version | V2 (also writes V3 copy in PNG) | V2 only |
 
-ST's broader import support reflects its role as a community hub tool that must interoperate with many character sources. Candlekeep covers the two dominant exchange formats (PNG cards from Chub/community, raw JSON).
+ST's broader import support reflects its role as a community hub tool that must interoperate with many character sources. The Bannered Mare covers the two dominant exchange formats (PNG cards from Chub/community, raw JSON).
 
 ---
 
@@ -172,7 +172,7 @@ Uses `png-chunks-extract` + `png-chunk-text` + custom `src/png/encode.js` for ch
 
 **Read process:** Prefer `ccv3` chunk if present; fall back to `chara` chunk. Case-insensitive keyword matching.
 
-### Candlekeep Core
+### The Bannered Mare
 
 Manual PNG chunk parsing in `card_parser.py` using `struct` and `zlib` (no third-party PNG libraries for chunk handling; `Pillow` used only for image operations).
 
@@ -191,7 +191,7 @@ Manual PNG chunk parsing in `card_parser.py` using `struct` and `zlib` (no third
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | PNG library | `png-chunks-extract` + custom encoder | Manual `struct`/`zlib` parsing |
 | tEXt chunks written | `chara` (V2) + `ccv3` (V3) | `chara` (V2) only |
@@ -201,7 +201,7 @@ Manual PNG chunk parsing in `card_parser.py` using `struct` and `zlib` (no third
 | Error on missing chunk | Throws `Error('No PNG metadata.')` | Raises `ValueError` |
 | Placeholder image | Default avatar file (`ai4.png`) | 1x1 transparent RGBA |
 
-Candlekeep's manual parser is lightweight but does not handle `ccv3` (V3) chunks and does not do case-insensitive matching. ST's approach is more defensive with its case-insensitive lookups and dual-chunk strategy.
+The Bannered Mare's manual parser is lightweight but does not handle `ccv3` (V3) chunks and does not do case-insensitive matching. ST's approach is more defensive with its case-insensitive lookups and dual-chunk strategy.
 
 ---
 
@@ -209,14 +209,14 @@ Candlekeep's manual parser is lightweight but does not handle `ccv3` (V3) chunks
 
 ### V2 Spec to Internal Representation
 
-| V2 `data.*` Field | SillyTavern Internal | Candlekeep DB Column | Notes |
+| V2 `data.*` Field | SillyTavern Internal | The Bannered Mare DB Column | Notes |
 |--------------------|---------------------|---------------------|-------|
 | `name` | `name` + `data.name` (dual-write) | `name` VARCHAR(100) | ST dual-writes to V1 top-level and V2 `data.*` |
 | `description` | `description` + `data.description` | `description` TEXT | |
 | `personality` | `personality` + `data.personality` | `personality` TEXT | |
 | `scenario` | `scenario` + `data.scenario` | `scenario` TEXT | |
-| `first_mes` | `first_mes` + `data.first_mes` | `first_message` TEXT | Candlekeep renames to `first_message` |
-| `mes_example` | `mes_example` + `data.mes_example` | `example_dialogues` ARRAY | Candlekeep converts single string to `list[str]` |
+| `first_mes` | `first_mes` + `data.first_mes` | `first_message` TEXT | The Bannered Mare renames to `first_message` |
+| `mes_example` | `mes_example` + `data.mes_example` | `example_dialogues` ARRAY | The Bannered Mare converts single string to `list[str]` |
 | `creator_notes` | `creatorcomment` (V1) + `data.creator_notes` | `creator_notes` TEXT | ST uses different V1 field name |
 | `system_prompt` | `data.system_prompt` | `system_prompt` TEXT | |
 | `post_history_instructions` | `data.post_history_instructions` | `post_history_instructions` TEXT | |
@@ -224,10 +224,10 @@ Candlekeep's manual parser is lightweight but does not handle `ccv3` (V3) chunks
 | `tags` | `tags` (V1) + `data.tags` | `tags` ARRAY | |
 | `creator` | `data.creator` | `creator` VARCHAR(100) | |
 | `character_version` | `data.character_version` | `character_version` VARCHAR(100) | |
-| `extensions` | `data.extensions` (open namespace) | Not persisted directly | Candlekeep has `ParsedCard.extensions` but does not store it in DB |
+| `extensions` | `data.extensions` (open namespace) | Not persisted directly | The Bannered Mare has `ParsedCard.extensions` but does not store it in DB |
 | `character_book` | `data.character_book` | Separate `lorebooks` table | See section 7 |
 
-### ST-Only Fields (No Candlekeep Equivalent)
+### ST-Only Fields (No The Bannered Mare Equivalent)
 
 | Field | Type | Purpose |
 |-------|------|---------|
@@ -242,7 +242,7 @@ Candlekeep's manual parser is lightweight but does not handle `ccv3` (V3) chunks
 | `data.extensions.depth_prompt` | object | Character-specific depth prompt |
 | `data.extensions.regex_scripts` | array | Per-character regex scripts |
 
-### Candlekeep-Only Fields (No ST Equivalent)
+### The Bannered Mare-Only Fields (No ST Equivalent)
 
 | Column | Type | Purpose |
 |--------|------|---------|
@@ -256,7 +256,7 @@ Candlekeep's manual parser is lightweight but does not handle `ccv3` (V3) chunks
 
 ### Import Field Mapping
 
-On import (`service.import_card`), Candlekeep maps `ParsedCard` to the `Character` model:
+On import (`service.import_card`), The Bannered Mare maps `ParsedCard` to the `Character` model:
 
 - `card.example_dialogues` (single string in V2) is wrapped in a single-element list: `[card.example_dialogues]`.
 - Empty strings are converted to `None` for nullable columns.
@@ -286,7 +286,7 @@ The avatar IS the character file. Changing the avatar means rewriting the PNG wi
 | Sprites support | Yes (expression images in character subdirectory) |
 | Avatar-only edit | Dedicated endpoint (`POST /edit-avatar`) |
 
-### Candlekeep Core
+### The Bannered Mare
 
 Avatar is decoupled from character data. Stored as a separate file with a DB reference.
 
@@ -307,7 +307,7 @@ Avatar is decoupled from character data. Stored as a separate file with a DB ref
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Avatar-data coupling | Same file | Separate files + DB columns |
 | Sprites/expressions | Yes | No |
@@ -343,7 +343,7 @@ Each entry has 8 spec fields (`keys`, `secondary_keys`, `comment`, `content`, `c
 - On import, the embedded `character_book` is extracted and available for use.
 - World Info and character book share the same data model but use different field names (mapped via `convertWorldInfoToCharacterBook`).
 
-### Candlekeep Core
+### The Bannered Mare
 
 Lorebooks are a separate database entity with a foreign key relationship to characters.
 
@@ -371,7 +371,7 @@ lore_entries table:
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Storage location | Embedded in character JSON (`data.character_book`) | Separate `lorebooks` + `lore_entries` tables |
 | Portability | Travels with the character card | Must be exported/imported separately |
@@ -385,7 +385,7 @@ lore_entries table:
 | Match targets | 6 configurable targets (persona, character desc, personality, etc.) | Not implemented |
 | Regex matching | Via ST extensions | `use_regex` column on `lore_entries` |
 
-Candlekeep's lorebook schema covers the core activation model (keys, secondary keys, position, depth, priority) but omits ST's advanced features (probability, stickiness, cooldown, group scoring, multi-target matching). The critical gap for interoperability is that character book data is not round-tripped through import/export.
+The Bannered Mare's lorebook schema covers the core activation model (keys, secondary keys, position, depth, priority) but omits ST's advanced features (probability, stickiness, cooldown, group scoring, multi-target matching). The critical gap for interoperability is that character book data is not round-tripped through import/export.
 
 ---
 
@@ -409,7 +409,7 @@ Two-tier caching strategy driven by the cost of parsing PNG metadata on every re
 
 **Shallow loading:** When `performance.lazyLoadCharacters` is enabled, the list endpoint returns only display fields. Full data loaded on demand.
 
-### Candlekeep Core
+### The Bannered Mare
 
 No application-level caching layer. PostgreSQL handles query caching internally.
 
@@ -420,7 +420,7 @@ No application-level caching layer. PostgreSQL handles query caching internally.
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Application cache | Two-tier (memory + disk) | None |
 | Cache necessity | High (PNG parsing is expensive) | Low (database queries are indexed) |
@@ -429,7 +429,7 @@ No application-level caching layer. PostgreSQL handles query caching internally.
 | Thumbnail caching | On-demand generation + cache | Pre-generated on upload |
 | Scalability bottleneck | File I/O + PNG parsing | Standard DB query performance |
 
-ST needs caching because reading character data requires PNG binary parsing on every access. Candlekeep's relational storage eliminates this need -- indexed SQL queries serve the same purpose without an application cache layer. If Candlekeep's character count grows large, standard database optimization (indexes, connection pooling) applies rather than custom caching.
+ST needs caching because reading character data requires PNG binary parsing on every access. The Bannered Mare's relational storage eliminates this need -- indexed SQL queries serve the same purpose without an application cache layer. If The Bannered Mare's character count grows large, standard database optimization (indexes, connection pooling) applies rather than custom caching.
 
 ---
 
@@ -456,7 +456,7 @@ Express router with POST-based RPC-style endpoints:
 
 All endpoints use POST regardless of semantics. Character identification is by avatar filename in the request body.
 
-### Candlekeep Core
+### The Bannered Mare
 
 FastAPI router with RESTful resource-oriented endpoints:
 
@@ -477,7 +477,7 @@ Uses proper HTTP methods, path-based resource identification, Pydantic response 
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Style | RPC (all POST) | RESTful |
 | Resource identification | Avatar filename in body | NanoID in URL path |
@@ -494,7 +494,7 @@ Uses proper HTTP methods, path-based resource identification, Pydantic response 
 
 ## 10. Summary of Architectural Differences
 
-| Dimension | SillyTavern | Candlekeep Core |
+| Dimension | SillyTavern | The Bannered Mare |
 |-----------|-------------|-----------------|
 | Architecture | File-based monolith (Express + filesystem) | Modular monolith (FastAPI + PostgreSQL + filesystem) |
 | Data model | JSON blob embedded in PNG | Relational columns with typed constraints |
