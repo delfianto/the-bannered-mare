@@ -6,7 +6,7 @@ structure faithfully — only the prompt *text* is made up (and silly) — so th
 folder doubles as a readable, runnable reference for the ST preset format.
 
 > Real community presets live (gitignored) under `refs/preset/`. The ST↔The Bannered Mare
-> mapping is documented in `docs/st_comparison/PRESET.md`.
+> mapping is documented in `../../../docs/sillytavern/comparison/presets.md`.
 
 ## The structure, by example
 
