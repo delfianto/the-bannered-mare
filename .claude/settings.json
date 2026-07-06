@@ -117,7 +117,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-git-write.sh",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/git-push-guard.sh",
             "timeout": 5
           }
         ]
@@ -129,12 +129,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/ruff-fix.sh",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/be-linter.sh",
             "timeout": 30
           },
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/format-fix.sh",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/fe-linter.sh",
             "timeout": 30
           }
         ]
@@ -145,12 +145,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/basedpyright-check.sh",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/be-typecheck.sh",
             "timeout": 120
           },
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck.sh",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/fe-typecheck.sh",
             "timeout": 180
           }
         ]
