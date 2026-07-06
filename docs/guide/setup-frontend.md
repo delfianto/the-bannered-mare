@@ -6,7 +6,7 @@ title: Frontend Setup
 
 The web client for The Bannered Mare — an AI-powered platform for local Roleplay sessions using LLMs. Built as a fast, strictly typed Vue 3 SPA with a warm literary fantasy aesthetic (amber/gold, Cinzel headings, parchment tones).
 
-Talks to [the backend](setup-backend), a FastAPI service, via a typed `openapi-fetch` client.
+Talks to [the backend](/guide/setup-backend), a FastAPI service, via a typed `openapi-fetch` client.
 
 ## Tech Stack
 
