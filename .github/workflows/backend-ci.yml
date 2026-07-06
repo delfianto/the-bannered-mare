@@ -1,0 +1,105 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/backend-ci.yml"]
+  pull_request:
+    paths: ["backend/**", ".github/workflows/backend-ci.yml"]
+  workflow_dispatch:
+
+# Cancel superseded runs for the same branch/PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: backend
+
+env:
+  # Tests disable the audit writer themselves, but make the intent explicit in CI.
+  LOGGING__AUDIT_ENABLED: "false"
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.14"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev
+      - name: Check formatting
+        run: uv run ruff format --check .
+      - name: Lint
+        run: uv run ruff check --output-format=github .
+
+  typecheck:
+    name: Type check (basedpyright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.14"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev
+      - name: Type check
+        run: uv run basedpyright
+
+  test:
+    name: Tests (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.14"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev
+      - name: Run tests
+        run: uv run pytest
+
+  integration:
+    name: Integration (Postgres + VectorChord)
+    runs-on: ubuntu-latest
+    env:
+      # VectorChord container = Postgres 18 + vchord (on pgvector), matching production parity.
+      DATABASE_URL: postgresql://banneredmare:banneredmare@localhost:5432/banneredmare
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.14"
+      - name: Install dependencies
+        run: uv sync --locked --extra dev
+      - name: Start VectorChord (Postgres + pgvector) via docker
+        run: |
+          docker run -d --name vchord -p 5432:5432 \
+            -e POSTGRES_USER=banneredmare \
+            -e POSTGRES_PASSWORD=banneredmare \
+            -e POSTGRES_DB=banneredmare \
+            docker.io/tensorchord/vchord-postgres:pg18-v1.1.1
+      - name: Wait for Postgres to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec vchord pg_isready -U banneredmare -d banneredmare; then
+              echo "postgres ready"; exit 0
+            fi
+            echo "waiting for postgres ($i)..."; sleep 2
+          done
+          echo "postgres did not become ready"; docker logs vchord; exit 1
+      - name: Apply migrations
+        run: uv run alembic upgrade head
+      - name: Run Postgres integration tests
+        run: uv run pytest -m postgres
