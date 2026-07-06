@@ -1,7 +1,7 @@
-# Candlekeep Core: Project Context & Guidelines
+# The Bannered Mare: Project Context & Guidelines
 
 ## Project Overview
-Candlekeep Core is a high-performance FastAPI backend designed for a roleplay (RP) platform. It manages character cards (NPCs), user personas, chat sessions, and multi-provider LLM integrations.
+The Bannered Mare is a high-performance FastAPI backend designed for a roleplay (RP) platform. It manages character cards (NPCs), user personas, chat sessions, and multi-provider LLM integrations.
 
 ### Core Technologies
 - **Framework:** FastAPI (Python 3.14)

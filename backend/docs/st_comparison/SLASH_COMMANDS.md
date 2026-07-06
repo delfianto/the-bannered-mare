@@ -1,16 +1,16 @@
-# Command & Scripting Systems -- SillyTavern v1.17.0 vs Candlekeep Core
+# Command & Scripting Systems -- SillyTavern v1.17.0 vs The Bannered Mare
 
-This document compares SillyTavern's slash command / STscript system with Candlekeep Core's approach to user-facing automation and programmability. The comparison is honest about a fundamental architectural difference: SillyTavern is an interactive application with a chat input bar where users type commands directly; Candlekeep Core is a headless API backend that exposes functionality through HTTP endpoints. These are different paradigms solving different problems, and neither approach is wrong.
+This document compares SillyTavern's slash command / STscript system with The Bannered Mare's approach to user-facing automation and programmability. The comparison is honest about a fundamental architectural difference: SillyTavern is an interactive application with a chat input bar where users type commands directly; The Bannered Mare is a headless API backend that exposes functionality through HTTP endpoints. These are different paradigms solving different problems, and neither approach is wrong.
 
 ---
 
-## 1. Does Candlekeep Core Have a Command System?
+## 1. Does The Bannered Mare Have a Command System?
 
-No. Candlekeep Core has no slash commands, no scripting language, no macro system, no command registry, and no command parser. There is nothing in the codebase analogous to STscript.
+No. The Bannered Mare has no slash commands, no scripting language, no macro system, no command registry, and no command parser. There is nothing in the codebase analogous to STscript.
 
-This is not an oversight or a gap -- it is a direct consequence of the architectural split. Candlekeep Core is a backend API. It has no user-facing text input. It has no chat bar where a user could type `/send Hello`. Every operation is performed through typed REST endpoints consumed by a frontend client.
+This is not an oversight or a gap -- it is a direct consequence of the architectural split. The Bannered Mare is a backend API. It has no user-facing text input. It has no chat bar where a user could type `/send Hello`. Every operation is performed through typed REST endpoints consumed by a frontend client.
 
-The ST equivalent of "switching a model" is `/model gpt-4o`. The Candlekeep equivalent is `PUT /api/chats/{id}` with `{"model_id": "..."}` in the request body. Both accomplish the same thing. The interface is different.
+The ST equivalent of "switching a model" is `/model gpt-4o`. The The Bannered Mare equivalent is `PUT /api/chats/{id}` with `{"model_id": "..."}` in the request body. Both accomplish the same thing. The interface is different.
 
 ---
 
@@ -60,13 +60,13 @@ The system is architecturally a **command-line shell embedded in a GUI**. The ch
 
 ---
 
-## 3. What Candlekeep Core Has Instead
+## 3. What The Bannered Mare Has Instead
 
-Candlekeep Core does not need a command language because it exposes the same operations through a different interface. Here is how each category of ST command maps to Candlekeep's API surface.
+The Bannered Mare does not need a command language because it exposes the same operations through a different interface. Here is how each category of ST command maps to The Bannered Mare's API surface.
 
 ### 3.1 REST Endpoints as the "Command Interface"
 
-| ST Command Category | Candlekeep Equivalent | Interface |
+| ST Command Category | The Bannered Mare Equivalent | Interface |
 |--------------------|-----------------------|-----------|
 | `/send`, `/sys`, `/sendas` | `POST /api/chats/{id}/messages` | JSON body with `role` and `content` |
 | `/regenerate`, `/continue` | `POST /api/chats/{id}/messages?regenerate=true` | Query parameter |
@@ -82,13 +82,13 @@ Candlekeep Core does not need a command language because it exposes the same ope
 | Lorebook activation | Automatic via `ActivationEngine` | No manual command needed |
 | Prompt injection | `PromptBuilder.build_api_messages()` | Template-driven, not ad-hoc |
 
-The pattern is consistent: what ST exposes as imperative commands (`/verb object`), Candlekeep exposes as declarative resources (`METHOD /resource/{id}`).
+The pattern is consistent: what ST exposes as imperative commands (`/verb object`), The Bannered Mare exposes as declarative resources (`METHOD /resource/{id}`).
 
 ### 3.2 Template System (Jinja2 vs ST Macros)
 
 SillyTavern uses a custom macro substitution system with `{{getvar::name}}`, `{{char}}`, `{{user}}`, `{{pipe}}`, and dozens of other macro patterns. These are resolved by regex replacement during command execution and prompt assembly.
 
-Candlekeep Core uses Jinja2 templates with a fixed set of context variables:
+The Bannered Mare uses Jinja2 templates with a fixed set of context variables:
 
 ```
 {{char}}          -- Character name
@@ -102,7 +102,7 @@ Candlekeep Core uses Jinja2 templates with a fixed set of context variables:
 {{chat_title}}    -- Chat title
 ```
 
-Candlekeep's template system is intentionally narrower. There is no variable storage, no `{{pipe}}`, no `{{getvar::*}}`. Templates are rendered once during prompt assembly by `TemplateService.render()`, not iteratively during command execution. The trade-off is clear: ST's macros are more powerful and flexible; Candlekeep's templates are more predictable and easier to reason about.
+The Bannered Mare's template system is intentionally narrower. There is no variable storage, no `{{pipe}}`, no `{{getvar::*}}`. Templates are rendered once during prompt assembly by `TemplateService.render()`, not iteratively during command execution. The trade-off is clear: ST's macros are more powerful and flexible; The Bannered Mare's templates are more predictable and easier to reason about.
 
 ### 3.3 Prompt Assembly (Declarative vs Imperative)
 
@@ -113,13 +113,13 @@ In ST, users can imperatively manipulate the prompt mid-session:
 /flushinject myLore
 ```
 
-In Candlekeep, prompt assembly is fully declarative. The `PromptBuilder` reads the template's `component_order` and `components_enabled` configuration, assembles components in the specified order, applies the token budget, and injects activated lore entries at their configured positions. There is no way for a user to inject arbitrary text into the prompt at runtime via the API.
+In The Bannered Mare, prompt assembly is fully declarative. The `PromptBuilder` reads the template's `component_order` and `components_enabled` configuration, assembles components in the specified order, applies the token budget, and injects activated lore entries at their configured positions. There is no way for a user to inject arbitrary text into the prompt at runtime via the API.
 
-The equivalent of `/inject` in Candlekeep is creating a lore entry with the desired `InsertionPosition` and keywords that will activate when relevant. This is more constrained but also more auditable -- the prompt's content is always traceable to configured data, not runtime commands.
+The equivalent of `/inject` in The Bannered Mare is creating a lore entry with the desired `InsertionPosition` and keywords that will activate when relevant. This is more constrained but also more auditable -- the prompt's content is always traceable to configured data, not runtime commands.
 
 ### 3.4 Parameter Control
 
-ST's `/instruct name` and `/context name` commands switch presets at runtime during a scripted sequence. Candlekeep achieves this through its Preset system:
+ST's `/instruct name` and `/context name` commands switch presets at runtime during a scripted sequence. The Bannered Mare achieves this through its Preset system:
 
 - Presets are stored as named parameter sets (temperature, top_p, etc.) in the database.
 - A chat session references a preset via foreign key.
@@ -128,11 +128,11 @@ ST's `/instruct name` and `/context name` commands switch presets at runtime dur
 
 ---
 
-## 4. What Candlekeep Core Cannot Do (That ST Can)
+## 4. What The Bannered Mare Cannot Do (That ST Can)
 
-These are capabilities that exist in STscript with no current Candlekeep equivalent:
+These are capabilities that exist in STscript with no current The Bannered Mare equivalent:
 
-| Capability | ST Implementation | Candlekeep Status |
+| Capability | ST Implementation | The Bannered Mare Status |
 |-----------|-------------------|-------------------|
 | **User-defined scripting** | STscript closures, variables, flow control | Not applicable -- no UI layer |
 | **Chained operations** | Pipe-based composition (`/cmd1 | /cmd2 | /cmd3`) | N/A for a REST API |
@@ -146,15 +146,15 @@ These are capabilities that exist in STscript with no current Candlekeep equival
 | **Dynamic autocomplete** | Parser-driven suggestions with enum providers | N/A -- no text input |
 | **Variable persistence** | Chat-local and global variables | No runtime variable storage |
 
-The "N/A" entries are not missing features. They are capabilities that belong in a frontend application, not a backend API. A future Candlekeep frontend could implement its own scripting layer that calls the REST API, but that scripting layer would live in the client, not the server.
+The "N/A" entries are not missing features. They are capabilities that belong in a frontend application, not a backend API. A future The Bannered Mare frontend could implement its own scripting layer that calls the REST API, but that scripting layer would live in the client, not the server.
 
 ---
 
-## 5. What Candlekeep Core Has (That ST Doesn't)
+## 5. What The Bannered Mare Has (That ST Doesn't)
 
 The headless API architecture provides capabilities that ST's monolithic approach does not:
 
-| Capability | Candlekeep Implementation | ST Equivalent |
+| Capability | The Bannered Mare Implementation | ST Equivalent |
 |-----------|---------------------------|---------------|
 | **Multi-client support** | Any HTTP client can consume the API | Single browser tab |
 | **Typed request/response contracts** | Pydantic schemas with validation | None -- commands accept arbitrary strings |
@@ -174,11 +174,11 @@ This comparison boils down to one fundamental design decision:
 
 **SillyTavern is a complete application.** It owns the UI, the business logic, and the data layer. Users interact directly with the system through the chat input. The slash command system exists because users need a way to perform complex operations within that single interface. STscript grew organically to meet that need -- from simple shortcuts to a full programming language.
 
-**Candlekeep Core is a backend service.** It owns the business logic and the data layer, but not the UI. Users interact through a client application that makes API calls. There is no need for a command language because the API itself is the command interface. Each endpoint is a "command" with typed parameters and typed responses.
+**The Bannered Mare is a backend service.** It owns the business logic and the data layer, but not the UI. Users interact through a client application that makes API calls. There is no need for a command language because the API itself is the command interface. Each endpoint is a "command" with typed parameters and typed responses.
 
 The trade-offs are symmetric:
 
-| | SillyTavern | Candlekeep Core |
+| | SillyTavern | The Bannered Mare |
 |-|-------------|-----------------|
 | **User power** | High -- users can script arbitrary sequences | Low -- limited to what the API exposes |
 | **Predictability** | Lower -- runtime scripts can modify state in unexpected ways | Higher -- all state changes go through validated API endpoints |
@@ -186,13 +186,13 @@ The trade-offs are symmetric:
 | **Extension model** | Extensions register commands into the global registry | Future extensions would be new API modules (routers + services) |
 | **Frontend flexibility** | Tightly coupled to ST's UI | Any client can connect -- web app, mobile app, CLI tool, another service |
 
-Neither approach is superior. ST's command system is a genuine engineering achievement that enables sophisticated user workflows within a single application. Candlekeep's API-first design trades user-facing scriptability for client flexibility and operational simplicity. The "missing" command system in Candlekeep is an intentional absence, not a gap to be filled.
+Neither approach is superior. ST's command system is a genuine engineering achievement that enables sophisticated user workflows within a single application. The Bannered Mare's API-first design trades user-facing scriptability for client flexibility and operational simplicity. The "missing" command system in The Bannered Mare is an intentional absence, not a gap to be filled.
 
 ---
 
-## 7. If Candlekeep Ever Needed Automation
+## 7. If The Bannered Mare Ever Needed Automation
 
-If future requirements demanded server-side automation (batch operations, scheduled tasks, webhook-triggered sequences), the Candlekeep approach would not be a command language. It would likely be:
+If future requirements demanded server-side automation (batch operations, scheduled tasks, webhook-triggered sequences), the The Bannered Mare approach would not be a command language. It would likely be:
 
 1. **Webhook / event endpoints** -- external systems POST to trigger actions.
 2. **Background task queues** -- Celery or similar for deferred multi-step operations.

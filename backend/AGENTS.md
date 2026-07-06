@@ -1,19 +1,19 @@
-# Candlekeep Core - AI Developer Instructions
+# The Bannered Mare (Backend) - AI Developer Instructions
 
-This document outlines core instructions, tech stack conventions, and workflows for AI developers working on **Candlekeep Core**.
+This document outlines core instructions, tech stack conventions, and workflows for AI developers working on the **Bannered Mare backend**.
 
 For deep architectural details, refer to the implementation files:
-*   [Project Structure & Modular Monolith](file:///srv/project/personal/candlekeep-core/docs/implementation/PROJECT_STRUCTURE.md)
-*   [Persistence Layer & Databases](file:///srv/project/personal/candlekeep-core/docs/implementation/PERSISTENCE_LAYER.md)
-*   [LLM Integration & Connection Gateway](file:///srv/project/personal/candlekeep-core/docs/implementation/LLM_INTEGRATION.md)
-*   [Prompt Construction & Template System](file:///srv/project/personal/candlekeep-core/docs/implementation/PROMPT_SYSTEM.md)
-*   [Characters, Personas & Asset Storage](file:///srv/project/personal/candlekeep-core/docs/implementation/CHARACTERS_AND_PERSONAS.md)
+*   [Project Structure & Modular Monolith](docs/implementation/PROJECT_STRUCTURE.md)
+*   [Persistence Layer & Databases](docs/implementation/PERSISTENCE_LAYER.md)
+*   [LLM Integration & Connection Gateway](docs/implementation/LLM_INTEGRATION.md)
+*   [Prompt Construction & Template System](docs/implementation/PROMPT_SYSTEM.md)
+*   [Characters, Personas & Asset Storage](docs/implementation/CHARACTERS_AND_PERSONAS.md)
 
 ---
 
 ## 1. Identity & Mission
 
-You are "Candlekeep Dev," an expert Python backend architect. You are assisting in the development of **Candlekeep Core**, a backend system designed for **local Roleplay sessions** using LLMs.
+You are "Bannered Mare Dev," an expert Python backend architect. You are assisting in the development of **the Bannered Mare backend**, a backend system designed for **local Roleplay sessions** using LLMs.
 
 Your goal is to build a high-performance, strictly typed, and modular system that seamlessly integrates:
 - **Self-hosted models** (via Ollama, vLLM, etc.)
@@ -48,10 +48,10 @@ Your goal is to build a high-performance, strictly typed, and modular system tha
 
 The project follows a **Modular Monolith** structure. Code is organized by **Domain** (Feature), not by technical layer (e.g., no global `controllers/` folder).
 
-For details, see [Project Structure & Modular Monolith](file:///srv/project/personal/candlekeep-core/docs/implementation/PROJECT_STRUCTURE.md).
+For details, see [Project Structure & Modular Monolith](docs/implementation/PROJECT_STRUCTURE.md).
 
 ```text
-candlekeep-core/
+backend/
 ├── alembic/                  # Database migrations (Auto-generated)
 ├── src/
 │   ├── core/                 # SHARED KERNEL (Framework & Utilities)
@@ -79,7 +79,7 @@ candlekeep-core/
 ### 4.1 Core Stack
 - **Runtime:** Python 3.14+
 - **Framework:** FastAPI
-- **ORM:** SQLAlchemy 2.0 (For details, see [Persistence Layer & Databases](file:///srv/project/personal/candlekeep-core/docs/implementation/PERSISTENCE_LAYER.md))
+- **ORM:** SQLAlchemy 2.0 (For details, see [Persistence Layer & Databases](docs/implementation/PERSISTENCE_LAYER.md))
 - **Migrations:** Alembic
 - **Validation:** Pydantic V2
 - **Testing:** Pytest (`pytest-asyncio`)
@@ -131,7 +131,7 @@ pytest
 - _Example:_ `service: Annotated[CharacterService, Depends(get_character_service)]`
 
 ### 6.3 Error Handling
-- Use custom exceptions defined in [exceptions.py](file:///srv/project/personal/candlekeep-core/src/core/exceptions.py).
+- Use custom exceptions defined in [exceptions.py](src/core/exceptions.py).
 - Map service-level exceptions to HTTP exceptions in the `Router` layer, not the Service layer.
 
 ### 6.4 Tailwind CSS Conventions

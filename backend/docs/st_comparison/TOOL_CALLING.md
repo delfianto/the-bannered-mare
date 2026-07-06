@@ -1,14 +1,14 @@
-# Tool Calling / Function Calling -- ST v1.17.0 vs Candlekeep Core
+# Tool Calling / Function Calling -- ST v1.17.0 vs The Bannered Mare
 
 ## Overview
 
-This document compares tool calling (function calling) support between SillyTavern v1.17.0 and Candlekeep Core. SillyTavern has a mature, full-featured tool calling system. Candlekeep Core has partial parameter-level plumbing but no tool calling implementation.
+This document compares tool calling (function calling) support between SillyTavern v1.17.0 and The Bannered Mare. SillyTavern has a mature, full-featured tool calling system. The Bannered Mare has partial parameter-level plumbing but no tool calling implementation.
 
 ---
 
 ## 1. Capability Matrix
 
-| Capability | SillyTavern v1.17.0 | Candlekeep Core |
+| Capability | SillyTavern v1.17.0 | The Bannered Mare |
 |---|---|---|
 | Tool definition registration | Yes (`ToolManager` class, `ToolDefinition` objects) | No |
 | Tool schema format | OpenAI function calling JSON Schema | N/A |
@@ -72,7 +72,7 @@ Tool schema definitions are serialized and their token count is reserved from th
 
 ---
 
-## 3. What Candlekeep Core Has
+## 3. What The Bannered Mare Has
 
 ### 3.1 Parameter Allowlists
 
@@ -103,7 +103,7 @@ _STOP_REASON_MAP: dict[str, str] = {
 }
 ```
 
-This mapping exists in the response parser, meaning Candlekeep will correctly report when Anthropic signals a tool-use stop. However, nothing in the system currently acts on this finish reason.
+This mapping exists in the response parser, meaning The Bannered Mare will correctly report when Anthropic signals a tool-use stop. However, nothing in the system currently acts on this finish reason.
 
 ### 3.3 Gemini Malformed Function Call Handling
 
@@ -150,7 +150,7 @@ This metadata is stored in the database and queryable, but is not referenced by 
 | `CompletionResponse` has no `tool_calls` field | Blocking | Dataclass only carries `content`, `finish_reason`, `usage`, `reasoning`, `raw` |
 | `StreamChunk` has no `tool_calls` field | Blocking | Only `content`, `reasoning`, `finish_reason`, `usage` |
 | No tool call parsing in any response parser | Blocking | OpenAI `choices[].message.tool_calls`, Anthropic `tool_use` blocks, Gemini `functionCall` parts -- all ignored |
-| No streaming tool call delta assembly | Blocking | ST implements incremental assembly across 4 formats; Candlekeep has no equivalent |
+| No streaming tool call delta assembly | Blocking | ST implements incremental assembly across 4 formats; The Bannered Mare has no equivalent |
 | `tool_use` finish reason mapped but unused | Informational | Anthropic adapter correctly maps it; nothing consumes it |
 
 ### 4.3 Execution-Side Gaps
@@ -167,7 +167,7 @@ This metadata is stored in the database and queryable, but is not referenced by 
 
 ## 5. Existing Infrastructure That Helps
 
-Despite the gaps, several Candlekeep design decisions reduce the effort required to add tool calling:
+Despite the gaps, several The Bannered Mare design decisions reduce the effort required to add tool calling:
 
 1. **Adapter pattern with per-provider `build_payload`**: Each adapter already selectively extracts parameters. Adding tool translation to `AnthropicAdapter.build_payload` and `GeminiAdapter.build_payload` follows the established pattern.
 
@@ -185,7 +185,7 @@ Despite the gaps, several Candlekeep design decisions reduce the effort required
 
 ## 6. Architectural Differences
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Tool registration | Frontend `ToolManager` class with static registry | N/A (would be a backend service/registry) |
 | Tool invocation | Browser-side async functions | Would be server-side (Python async) |
@@ -196,7 +196,7 @@ Despite the gaps, several Candlekeep design decisions reduce the effort required
 | UI feedback | Toast notifications, collapsible HTML | N/A (headless backend; frontend responsibility) |
 | Structured output via tools | Claude forced tool call fallback | Not needed (Anthropic SDK handles natively when needed) |
 
-The fundamental difference: SillyTavern's tool system is split across frontend (registration, invocation, UI) and backend (provider translation). Candlekeep Core, as a headless backend, would own the entire pipeline server-side -- registration, translation, invocation, and loop orchestration.
+The fundamental difference: SillyTavern's tool system is split across frontend (registration, invocation, UI) and backend (provider translation). The Bannered Mare, as a headless backend, would own the entire pipeline server-side -- registration, translation, invocation, and loop orchestration.
 
 ---
 
@@ -204,7 +204,7 @@ The fundamental difference: SillyTavern's tool system is split across frontend (
 
 SillyTavern v1.17.0 has a complete tool calling pipeline: registration, provider-specific request translation, multi-format response parsing, execution, and a recursive agentic loop with token budgeting. It supports 26 providers and handles 4 distinct streaming formats.
 
-Candlekeep Core has parameter-level plumbing (OpenAI adapter allowlists `tools`/`tool_choice`/`parallel_tool_calls`, Anthropic adapter maps the `tool_use` stop reason, model families flag `supports_function_calling` in metadata) but no functional tool calling system. The adapter architecture is well-suited for adding provider-specific tool translation, and the `CompletionResponse.raw` field provides an interim escape hatch for reading tool calls from raw provider responses.
+The Bannered Mare has parameter-level plumbing (OpenAI adapter allowlists `tools`/`tool_choice`/`parallel_tool_calls`, Anthropic adapter maps the `tool_use` stop reason, model families flag `supports_function_calling` in metadata) but no functional tool calling system. The adapter architecture is well-suited for adding provider-specific tool translation, and the `CompletionResponse.raw` field provides an interim escape hatch for reading tool calls from raw provider responses.
 
 ---
 
@@ -217,7 +217,7 @@ Candlekeep Core has parameter-level plumbing (OpenAI adapter allowlists `tools`/
 - `src/endpoints/backends/chat-completions.js` -- Provider-specific tool payload translation
 - `src/prompt-converters.js` -- Message format conversion for tool roles
 
-**Candlekeep Core:**
+**The Bannered Mare:**
 - `src/provider/adapters/openai.py` -- `_OPENAI_PARAMS` allowlist (lines 14-34)
 - `src/provider/adapters/anthropic.py` -- `_STOP_REASON_MAP` with `tool_use` (line 13-18)
 - `src/provider/adapters/gemini.py` -- `_FINISH_REASON_MAP` with `MALFORMED_FUNCTION_CALL` (line 14-24)

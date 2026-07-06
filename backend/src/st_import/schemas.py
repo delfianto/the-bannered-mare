@@ -75,7 +75,7 @@ class STPreset(BaseModel):
     prompts: list[STPrompt] = Field(default_factory=list)
     prompt_order: list[STPromptOrder] = Field(default_factory=list)
 
-    # Format / nudge strings (no Candlekeep equivalent; tracked for warnings).
+    # Format / nudge strings (no Bannered Mare equivalent; tracked for warnings).
     scenario_format: str | None = None
     personality_format: str | None = None
     wi_format: str | None = None

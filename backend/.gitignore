@@ -33,7 +33,7 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# --- Candlekeep Core specific ---
+# --- The Bannered Mare specific ---
 
 # Storage - user-uploaded files (keep directory structure)
 storage/characters/*

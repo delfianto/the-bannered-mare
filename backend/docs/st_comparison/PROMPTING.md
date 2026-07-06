@@ -1,4 +1,4 @@
-# Prompting System Comparison: SillyTavern v1.17.0 vs Candlekeep Core
+# Prompting System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
 ## 1. Architecture Overview
 
@@ -10,7 +10,7 @@ Key files: `openai.js` (6996 lines), `PromptManager.js` (2144 lines), `macros.js
 
 Total complexity: ~12,000 lines of JavaScript across the prompt assembly path.
 
-### Candlekeep Core
+### The Bannered Mare
 
 The prompting system is a **server-side monolithic pipeline**. A single `PromptBuilder` class (`prompt_builder.py`, ~220 lines) constructs the message array from database-persisted `PromptTemplate` configuration. Provider-specific formatting is handled by a separate `ProviderAdapter` hierarchy that transforms the canonical OpenAI-format messages into each provider's native format.
 
@@ -39,7 +39,7 @@ The pipeline is a multi-phase orchestration with several handoff points:
 
 The pipeline supports a `CHAT_COMPLETION_PROMPT_READY` event hook, allowing extensions to modify the assembled prompt before it is sent.
 
-### Candlekeep Core
+### The Bannered Mare
 
 The pipeline is a single-method orchestration in `PromptBuilder.build_api_messages()`:
 
@@ -55,7 +55,7 @@ There is no event system or extension hook mechanism.
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Execution context | Client-side (browser JS) | Server-side (Python) |
 | Assembly steps | 5+ phases with reserve/free budgeting | Single-pass iterate-and-append |
@@ -88,7 +88,7 @@ The default component order has 12 slots, managed as an array of `{identifier, e
 
 Users can fully reorder via drag-and-drop UI. Per-character overrides are stored alongside a global fallback (dummy character ID `100001`). The order is a UI-editable array stored in `serviceSettings.prompt_order`.
 
-### Candlekeep Core
+### The Bannered Mare
 
 The default component order has 11 slots, stored as a JSON column on the `PromptTemplate` model:
 
@@ -122,7 +122,7 @@ Each component also has a boolean toggle in `DEFAULT_COMPONENTS_ENABLED`. Templa
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Number of default slots | 12 (incl. hardcoded nsfw + jailbreak) | 11 fixed slots (incl. RAG context) + fragments at 3 injection points |
 | Instruction slot approach | Dedicated named slots (`nsfw`, `jailbreak`) | User-defined fragments attached to any template |
@@ -149,7 +149,7 @@ Two template engines coexist:
 
 **Handlebars for story strings:** The text-completion context template uses Handlebars (`{{#if field}}...{{/if}}`) for conditional assembly. Compiled via `Handlebars.compile()` with `noEscape: true`.
 
-### Candlekeep Core
+### The Bannered Mare
 
 Single engine: **Jinja2** via `TemplateService` (`core/utils/template.py`). The environment is configured with:
 - `autoescape=False` (no HTML escaping)
@@ -159,7 +159,7 @@ Templates are rendered from string (`env.from_string()`), not from filesystem. T
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Engine count | 2 (legacy regex + experimental parser) + Handlebars | 1 (Jinja2) |
 | Syntax | `{{macro}}` (custom), `{{#if}}` (Handlebars) | `{{ variable }}`, `{% if %}` (Jinja2 standard) |
@@ -188,7 +188,7 @@ Templates are rendered from string (`env.from_string()`), not from filesystem. T
 
 Macros are evaluated at assembly time in `preparePrompt()` via `substituteParams()`. The evaluation order matters -- phase 1 macros (instruct sequences) run before phase 2 (environment variables) and phase 3 (chat state, date/time).
 
-### Candlekeep Core
+### The Bannered Mare
 
 10 built-in variables exposed via `TemplateService._build_variables()`:
 
@@ -201,7 +201,7 @@ All variables are evaluated in a single pass by Jinja2's native rendering. There
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Variable count | 60+ | 10 |
 | Chat state access | Yes (`lastMessage`, IDs, swipe tracking) | No |
@@ -228,7 +228,7 @@ A dedicated `TokenHandler` + `ChatCompletion` budget system:
 6. **Token counting:** Asynchronous, server-side tokenizer endpoint. Per-message token counts are computed on `Message` creation. Images add 85+ tokens; video uses 263 tokens/second.
 7. **Category tracking:** Counts tracked per category (prompt, bias, nudge, jailbreak, examples, conversation).
 
-### Candlekeep Core
+### The Bannered Mare
 
 A simpler budget system in `PromptBuilder._build_chat_history()`:
 
@@ -240,7 +240,7 @@ A simpler budget system in `PromptBuilder._build_chat_history()`:
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Budget scope | Entire prompt (all components) | Chat history only |
 | Budget source | `max_context - max_response_tokens` | `template.max_history_tokens` (default 4096) |
@@ -267,7 +267,7 @@ Additionally, entries can use **absolute (depth) injection** to place content at
 
 World Info activation is handled by a separate keyword-scanning system (not covered in the prompting analysis, but the injection points are wired through the `PromptManager` and `populationInjectionPrompts()`).
 
-### Candlekeep Core
+### The Bannered Mare
 
 Lore activation is handled by a dedicated `activation_engine.py`:
 
@@ -283,7 +283,7 @@ The `PromptBuilder` groups activated entries by position and routes them to the 
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Activation engine | External (World Info extension) | Built-in (`activation_engine.py`) |
 | Keyword matching | Separate system (not in prompt pipeline) | Primary + secondary keys with configurable logic |
@@ -313,7 +313,7 @@ Instruct mode wraps messages with model-specific prefix/suffix sequences for tex
 
 Instruct mode also exposes macros (`{{instructInput}}`, `{{instructOutput}}`, etc.) that can be used inside other templates.
 
-### Candlekeep Core
+### The Bannered Mare
 
 There is no instruct mode implementation. All provider communication uses the Chat Completions API format (structured `{role, content}` messages). The `ProviderAdapter` hierarchy handles the structural transformation:
 
@@ -326,7 +326,7 @@ Text completion API support (raw prompt string) is not implemented.
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Instruct mode | Full implementation (15+ config properties) | Not implemented |
 | Text completion API | Supported (via instruct wrapping + `convertTextCompletionPrompt`) | Not supported |
@@ -352,7 +352,7 @@ Character cards can override `main` and `jailbreak` via their `system_prompt` an
 
 These slots are fixed -- adding a new instruction category (e.g., a writing-style directive) requires repurposing one of the existing three slots or using an extension's injection point.
 
-### Candlekeep Core
+### The Bannered Mare
 
 One fixed template slot plus a composable **Prompt Fragment Library**:
 
@@ -392,7 +392,7 @@ The `post_history_instructions` field on the Character model provides an additio
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Instruction architecture | 3 hardcoded slots (main, nsfw, jailbreak) | 1 fixed slot (system) + N user-defined fragments |
 | Adding new instruction categories | Requires repurposing an existing slot or extension | Create a new fragment and attach it |
@@ -423,7 +423,7 @@ All prompts are assembled into OpenAI ChatML format client-side, then converted 
 
 Post-processing also includes `squashSystemMessages()` which merges consecutive system messages into one.
 
-### Candlekeep Core
+### The Bannered Mare
 
 The `ProviderAdapter` hierarchy handles format transformation within `build_payload()`:
 
@@ -436,7 +436,7 @@ There is no message merging, role alternation enforcement, name prefixing, or po
 
 ### Comparison
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Conversion architecture | Centralized converter functions | Per-provider adapter classes |
 | Dedicated provider converters | 6 (Anthropic, Gemini, Cohere, Mistral, xAI, Generic) | 4 (Anthropic, Gemini, OpenAI, Ollama) |
@@ -453,9 +453,9 @@ There is no message merging, role alternation enforcement, name prefixing, or po
 
 ## 11. Summary of Maturity Gaps
 
-The following table summarizes features present in SillyTavern that are not yet implemented in Candlekeep Core, and vice versa.
+The following table summarizes features present in SillyTavern that are not yet implemented in The Bannered Mare, and vice versa.
 
-### Features in SillyTavern not in Candlekeep Core
+### Features in SillyTavern not in The Bannered Mare
 
 | Feature | Impact |
 |---|---|
@@ -472,7 +472,7 @@ The following table summarizes features present in SillyTavern that are not yet 
 | Image/video token estimation | No multimodal token awareness |
 | Chat template auto-detection | No automatic instruct preset selection |
 
-### Features in Candlekeep Core not in SillyTavern
+### Features in The Bannered Mare not in SillyTavern
 
 | Feature | Impact |
 |---|---|

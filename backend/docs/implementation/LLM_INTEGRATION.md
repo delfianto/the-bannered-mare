@@ -1,6 +1,6 @@
-# Candlekeep Core: LLM Integration and Connection Architecture
+# The Bannered Mare: LLM Integration and Connection Architecture
 
-Candlekeep Core supports multi-provider LLM integrations (both cloud APIs like OpenAI and Anthropic, and local APIs like Ollama and LM Studio). This architecture uses a stateless adapters pattern coordinated by a centralized gateway, separating connection configurations from API transport mechanics.
+The Bannered Mare supports multi-provider LLM integrations (both cloud APIs like OpenAI and Anthropic, and local APIs like Ollama and LM Studio). This architecture uses a stateless adapters pattern coordinated by a centralized gateway, separating connection configurations from API transport mechanics.
 
 ---
 
@@ -16,7 +16,7 @@ Three core database models define LLM connectivity:
 
 ## 2. Stateless Adapter Pattern
 
-To prevent duplicate API transportation logic, Candlekeep employs a stateless adapter pattern. The abstract class `ProviderAdapter` (defined in [base.py](file:///srv/project/personal/candlekeep-core/src/provider/adapters/base.py)) exposes five core hooks:
+To prevent duplicate API transportation logic, The Bannered Mare employs a stateless adapter pattern. The abstract class `ProviderAdapter` (defined in [base.py](../../src/provider/adapters/base.py)) exposes five core hooks:
 
 *   `build_url`: Assembles the full API endpoint URL.
 *   `build_headers`: Assembles authentication headers (API keys, custom agents, org headers).
@@ -35,7 +35,7 @@ To prevent duplicate API transportation logic, Candlekeep employs a stateless ad
 
 ## 3. Centralized Gateway (`ProviderGateway`)
 
-The `ProviderGateway` (defined in [gateway.py](file:///srv/project/personal/candlekeep-core/src/provider/gateway.py)) is the execution coordinator. Unlike adapters, it is stateful and owns the actual asynchronous HTTP connection (`httpx.AsyncClient`), handles timeouts, and maps connection failures to normalized internal exceptions:
+The `ProviderGateway` (defined in [gateway.py](../../src/provider/gateway.py)) is the execution coordinator. Unlike adapters, it is stateful and owns the actual asynchronous HTTP connection (`httpx.AsyncClient`), handles timeouts, and maps connection failures to normalized internal exceptions:
 
 ```mermaid
 graph LR
@@ -61,8 +61,8 @@ The gateway catches standard HTTP status codes and maps them to clean system exc
 
 ## 4. Model Discovery and Syncing
 
-To simplify connecting local backends, Candlekeep features auto-discovery of models:
+To simplify connecting local backends, The Bannered Mare features auto-discovery of models:
 
-*   **ModelDiscoveryClient** ([discovery.py](file:///srv/project/personal/candlekeep-core/src/provider/discovery.py)): Queries provider API listing endpoints (such as LM Studio's `/v1/models` or Ollama's `/api/tags`) and translates them into normalized list items.
-*   **ModelListCache** ([model_cache.py](file:///srv/project/personal/candlekeep-core/src/provider/model_cache.py)): Memory-based cache to avoid querying network backends excessively when browsing available models.
+*   **ModelDiscoveryClient** ([discovery.py](../../src/provider/discovery.py)): Queries provider API listing endpoints (such as LM Studio's `/v1/models` or Ollama's `/api/tags`) and translates them into normalized list items.
+*   **ModelListCache** ([model_cache.py](../../src/provider/model_cache.py)): Memory-based cache to avoid querying network backends excessively when browsing available models.
 *   **Model Synchronizer**: Merges discovered models with the database, creating new `Model` entries automatically while preserving user modifications to existing models.

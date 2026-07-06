@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Candlekeep Core",
+    "title": "The Bannered Mare",
     "description": "FastAPI backend for RP platform with character cards and chat management",
     "version": "0.2.5"
   },
@@ -5121,7 +5121,7 @@
           "data-bank"
         ],
         "summary": "Create Entry",
-        "description": "Create a new data bank entry",
+        "description": "Create a new data bank entry (indexed for RAG when enabled).",
         "operationId": "create_entry_api_data_bank__post",
         "requestBody": {
           "required": true,
@@ -5204,7 +5204,7 @@
           "data-bank"
         ],
         "summary": "Update Entry",
-        "description": "Update data bank entry",
+        "description": "Update a data bank entry (re-indexed for RAG when enabled).",
         "operationId": "update_entry_api_data_bank__entry_id__put",
         "parameters": [
           {
@@ -5255,7 +5255,7 @@
           "data-bank"
         ],
         "summary": "Delete Entry",
-        "description": "Delete data bank entry",
+        "description": "Delete a data bank entry and purge its embeddings.",
         "operationId": "delete_entry_api_data_bank__entry_id__delete",
         "parameters": [
           {

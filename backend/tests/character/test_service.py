@@ -412,7 +412,7 @@ class TestCharacterService:
                 "data": {
                     "name": "Custom Elf",
                     "extensions": {
-                        "candlekeep": {
+                        "bannered_mare": {
                             "species": "Altmer",
                             "gender": "female",
                             "age": "130",
@@ -437,9 +437,9 @@ class TestCharacterService:
         json_str = service.export_as_json(character.id)
         exported = json.loads(json_str)
 
-        assert exported["data"]["extensions"]["candlekeep"]["species"] == "Altmer"
-        assert exported["data"]["extensions"]["candlekeep"]["gender"] == "female"
-        assert exported["data"]["extensions"]["candlekeep"]["age"] == "130"
+        assert exported["data"]["extensions"]["bannered_mare"]["species"] == "Altmer"
+        assert exported["data"]["extensions"]["bannered_mare"]["gender"] == "female"
+        assert exported["data"]["extensions"]["bannered_mare"]["age"] == "130"
         assert exported["data"]["extensions"]["species"] == "Altmer"
         assert exported["data"]["extensions"]["gender"] == "female"
         assert exported["data"]["extensions"]["age"] == "130"

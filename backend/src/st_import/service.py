@@ -1,4 +1,4 @@
-"""Application service: import a SillyTavern preset into Candlekeep entities.
+"""Application service: import a SillyTavern preset into The Bannered Mare entities.
 
 Persists via repositories directly (not the domain services) so the whole import
 is one transaction, the ``at_depth`` depth can be set on join rows, and ST-specific

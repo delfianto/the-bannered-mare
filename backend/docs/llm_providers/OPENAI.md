@@ -2,7 +2,7 @@
 
 > **Source:** OpenAI OpenAPI spec v2.3.0 (`openai/openai-openapi`, `manual_spec` branch)
 > **Endpoint:** `POST /v1/chat/completions`
-> **Goal:** Define what Candlekeep must implement to fully support the OpenAI API, and
+> **Goal:** Define what The Bannered Mare must implement to fully support the OpenAI API, and
 > architect it so Anthropic, Google Gemini, and OpenRouter can be added modularly.
 
 ---
@@ -18,7 +18,7 @@
 7. [Tool Calling](#7-tool-calling)
 8. [Response Formats (Structured Output)](#8-response-formats)
 9. [Models Endpoint](#9-models-endpoint)
-10. [What Candlekeep Currently Implements](#10-current-implementation)
+10. [What The Bannered Mare Currently Implements](#10-current-implementation)
 11. [Gap Analysis](#11-gap-analysis)
 12. [Multi-Provider Architecture Design](#12-multi-provider-architecture)
 13. [OpenAI Adapter — Implementation Spec](#13-openai-adapter-spec)
@@ -51,7 +51,7 @@ Authorization: Bearer sk-...
 - Organization header optional: `OpenAI-Organization: org-...`
 - Project header optional: `OpenAI-Project: proj-...`
 
-**For Candlekeep:** API keys are stored as environment variable names in the Provider model.
+**For The Bannered Mare:** API keys are stored as environment variable names in the Provider model.
 The current `ProviderClient` reads the key via `provider.get_api_key()`. This pattern works.
 
 ---
@@ -449,7 +449,7 @@ Chunk 5: delta = {}, finish_reason = "tool_calls"
 Note: `arguments` is a **string** (JSON-encoded), not an object. The model may produce invalid
 JSON — callers must validate.
 
-### 7.4 Relevance to Candlekeep
+### 7.4 Relevance to The Bannered Mare
 
 Tool calling is **not needed for core roleplay** but enables:
 - Web search integration
@@ -502,7 +502,7 @@ Forces valid JSON output. Requires "JSON" mentioned in system/user message.
 
 **Structured Outputs** — model output guaranteed to match the provided JSON Schema.
 
-### 8.4 Relevance to Candlekeep
+### 8.4 Relevance to The Bannered Mare
 
 Response format control is useful for:
 - Parsing structured RP actions (separate narration from dialogue)
@@ -537,10 +537,10 @@ Response:
 }
 ```
 
-### 9.2 Relevance to Candlekeep
+### 9.2 Relevance to The Bannered Mare
 
 This endpoint enables **auto-discovery** of available models. Instead of manually seeding
-model definitions, Candlekeep could query the provider's model list and present available
+model definitions, The Bannered Mare could query the provider's model list and present available
 options. This is particularly useful for:
 - Ollama (models change as users pull/remove them)
 - OpenRouter (aggregates hundreds of models)
@@ -548,7 +548,7 @@ options. This is particularly useful for:
 
 ---
 
-## 10. Current Candlekeep Implementation
+## 10. Current The Bannered Mare Implementation
 
 ### 10.1 What `ProviderClient` Does Now
 
@@ -647,7 +647,7 @@ class ProviderClient:
 
 ### 12.1 The Problem
 
-Candlekeep currently has ONE client that assumes ALL providers speak the OpenAI protocol.
+The Bannered Mare currently has ONE client that assumes ALL providers speak the OpenAI protocol.
 This is fundamentally broken because:
 
 | Provider | Endpoint | Message Format | Auth | Key Differences |

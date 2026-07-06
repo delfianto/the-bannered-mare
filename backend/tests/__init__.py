@@ -1,1 +1,1 @@
-"""Test package for Candlekeep Core"""
+"""Test package for The Bannered Mare"""

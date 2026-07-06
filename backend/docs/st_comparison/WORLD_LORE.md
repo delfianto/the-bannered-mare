@@ -1,9 +1,9 @@
-# World Lore System Comparison: SillyTavern v1.17.0 vs Candlekeep Core
+# World Lore System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
 > SillyTavern source: `public/scripts/world-info.js` (6,273 lines, client-side) +
 > `src/endpoints/worldinfo.js` (158 lines, file CRUD)
 >
-> Candlekeep source: `src/lore/activation_engine.py`, `src/lore/service.py`,
+> The Bannered Mare source: `src/lore/activation_engine.py`, `src/lore/service.py`,
 > `src/lore/repository.py`, `src/lore/router.py`, `src/lore/schemas.py`,
 > `src/core/persistence/models.py`, `src/core/persistence/enums.py`
 
@@ -14,25 +14,25 @@
 ### 1.1 Structural Overview
 
 SillyTavern entries carry 35+ fields, accumulated over years of feature additions.
-Candlekeep entries carry 18 persisted fields, covering the core activation and insertion
+The Bannered Mare entries carry 18 persisted fields, covering the core activation and insertion
 mechanics while omitting several ST-specific extensions.
 
-| Category | SillyTavern | Candlekeep | Notes |
+| Category | SillyTavern | The Bannered Mare | Notes |
 |---|---|---|---|
 | Primary keys | `key: string[]` | `keys: list[str]` | Equivalent. Both support comma-separated or array-based keywords. |
 | Secondary keys | `keysecondary: string[]` | `secondary_keys: list[str]` | Equivalent. |
 | Secondary logic | `selectiveLogic: enum(0-3)` | `secondary_logic: SecondaryLogic` | Same four modes: AND_ANY, AND_ALL, NOT_ANY, NOT_ALL. |
-| Content | `content: string` | `content: str` | ST supports macro substitution (`{{char}}`, etc.) and decorator lines (`@@activate`). Candlekeep stores raw text. |
-| Display name | `comment: string` | `name: str` | ST calls it "comment/memo"; Candlekeep uses a required `name` field with max 200 chars. |
-| Enabled/disabled | `disable: boolean` | `enabled: boolean` | Inverted polarity. ST defaults `disable=false`; Candlekeep defaults `enabled=True`. |
+| Content | `content: string` | `content: str` | ST supports macro substitution (`{{char}}`, etc.) and decorator lines (`@@activate`). The Bannered Mare stores raw text. |
+| Display name | `comment: string` | `name: str` | ST calls it "comment/memo"; The Bannered Mare uses a required `name` field with max 200 chars. |
+| Enabled/disabled | `disable: boolean` | `enabled: boolean` | Inverted polarity. ST defaults `disable=false`; The Bannered Mare defaults `enabled=True`. |
 | Constant | `constant: boolean` | `constant: bool` | Equivalent. Both bypass keyword scanning when true. |
-| Regex matching | Inline `/pattern/flags` in key strings | `use_regex: bool` column | ST detects regex syntax per-key. Candlekeep applies a model-level toggle that makes all keys on the entry behave as regex patterns. |
-| Case sensitivity | `caseSensitive: boolean?` (nullable, falls back to global) | `case_sensitive: bool` (default False) | ST supports per-entry nullable with global fallback. Candlekeep stores a concrete boolean per entry with no global override. |
+| Regex matching | Inline `/pattern/flags` in key strings | `use_regex: bool` column | ST detects regex syntax per-key. The Bannered Mare applies a model-level toggle that makes all keys on the entry behave as regex patterns. |
+| Case sensitivity | `caseSensitive: boolean?` (nullable, falls back to global) | `case_sensitive: bool` (default False) | ST supports per-entry nullable with global fallback. The Bannered Mare stores a concrete boolean per entry with no global override. |
 | Whole-word matching | `matchWholeWords: boolean?` (nullable, falls back to global) | `match_whole_words: bool` (default False) | Same nullable-vs-concrete distinction as case sensitivity. |
-| Position | `position: enum(0-7)` | `position: InsertionPosition` | ST has 8 positions. Candlekeep has 4. See Section 4. |
+| Position | `position: enum(0-7)` | `position: InsertionPosition` | ST has 8 positions. The Bannered Mare has 4. See Section 4. |
 | Depth | `depth: number` | `depth: int` | Both default to 4. Used with at-depth insertion. |
-| Role | `role: enum(0-2)` | `role: MessageRole` | ST uses integer enum (0=System,1=User,2=Assistant). Candlekeep uses string enum (`system`, `user`, `assistant`). |
-| Priority/order | `order: number` | `priority: int` + `order: int` | ST uses a single `order` field for both insertion priority and display ordering. Candlekeep separates these: `priority` (higher = inserted first, default 100) and `order` (display ordering, default 0). |
+| Role | `role: enum(0-2)` | `role: MessageRole` | ST uses integer enum (0=System,1=User,2=Assistant). The Bannered Mare uses string enum (`system`, `user`, `assistant`). |
+| Priority/order | `order: number` | `priority: int` + `order: int` | ST uses a single `order` field for both insertion priority and display ordering. The Bannered Mare separates these: `priority` (higher = inserted first, default 100) and `order` (display ordering, default 0). |
 | Scan depth | `scanDepth: number?` | `scan_depth: int?` | Both support per-entry override. |
 | Ignore budget | `ignoreBudget: boolean` | `ignore_budget: bool` | Equivalent. |
 | Probability | `probability: number`, `useProbability: boolean` | -- | Not implemented. |
@@ -41,7 +41,7 @@ mechanics while omitting several ST-specific extensions.
 | Automation | `automationId: string` | -- | Not implemented. |
 | Outlet name | `outletName: string` | -- | Not implemented (no outlet position). |
 
-### 1.2 Fields Present in Candlekeep but Absent in SillyTavern
+### 1.2 Fields Present in The Bannered Mare but Absent in SillyTavern
 
 | Field | Purpose |
 |---|---|
@@ -51,7 +51,7 @@ mechanics while omitting several ST-specific extensions.
 
 ### 1.3 Data Storage
 
-| Aspect | SillyTavern | Candlekeep |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Persistence | Flat JSON files in a `worlds/` directory. One file per lorebook. | PostgreSQL via SQLAlchemy ORM. Lorebooks and entries are separate tables with FK relationships. |
 | Write semantics | Full-file overwrite on every save (`JSON.stringify` + `write-file-atomic`). | Row-level updates through repository pattern. |
@@ -64,7 +64,7 @@ mechanics while omitting several ST-specific extensions.
 
 ### 2.1 Architecture
 
-| Aspect | SillyTavern | Candlekeep |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Runtime | Client-side browser (async JavaScript). | Server-side Python (synchronous). |
 | Entry point | `checkWorldInfo()` -- async function, ~500 lines. | `activate_entries()` -- pure function, ~50 lines. |
@@ -87,7 +87,7 @@ Both systems follow the same two-stage pattern:
 - Default: `String.includes()` substring match.
 - Supports macro expansion on keys via `substituteParams()` before matching.
 
-**Candlekeep implementation** (`_match_keyword()` and `_match_regex()`):
+**The Bannered Mare implementation** (`_match_keyword()` and `_match_regex()`):
 - Regex mode controlled by `entry.use_regex` boolean (applies to all keys on the entry).
 - Whole-word matching uses `\b` word boundaries via `re.escape()` + `re.search()`.
 - Default: `re.escape()` + `re.search()` for substring matching.
@@ -97,14 +97,14 @@ Both systems follow the same two-stage pattern:
 
 Both systems handle constants identically: constant entries skip keyword scanning and are
 unconditionally included. In SillyTavern, `@@activate` decorators in content provide an
-alternative way to achieve the same effect. Candlekeep has no decorator system.
+alternative way to achieve the same effect. The Bannered Mare has no decorator system.
 
 ### 2.4 Priority and Budget Enforcement Order
 
 Both systems sort activated entries by priority (descending) before applying the token
 budget. Higher-priority entries are guaranteed budget allocation first.
 
-In Candlekeep, entries with `priority < 0` are excluded entirely during budget enforcement
+In The Bannered Mare, entries with `priority < 0` are excluded entirely during budget enforcement
 (treated as disabled for budget purposes). SillyTavern has no equivalent negative-priority
 cutoff.
 
@@ -126,15 +126,15 @@ ST's `WorldInfoBuffer` class maintains four internal layers:
 Per-entry flags (`matchPersonaDescription`, `matchCharacterDescription`, etc.) control
 which global scan sources are included for that specific entry.
 
-### 3.2 Candlekeep: Flat String
+### 3.2 The Bannered Mare: Flat String
 
-Candlekeep passes a single `scan_text: str` parameter to `activate_entries()`. The caller
+The Bannered Mare passes a single `scan_text: str` parameter to `activate_entries()`. The caller
 (`LoreService.get_activated_entries()`) is responsible for constructing this string from
 chat messages and character context before calling the engine.
 
 ### 3.3 Comparison
 
-| Aspect | SillyTavern | Candlekeep |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Buffer structure | Multi-layer with depth indexing | Flat pre-built string |
 | Per-entry scan sources | 6 boolean flags to include character/persona fields | No per-entry source control; all sources pre-merged by caller |
@@ -148,7 +148,7 @@ chat messages and character context before calling the engine.
 
 ### 4.1 Position Map
 
-| ST Position | ST Value | Candlekeep Equivalent | CK Enum Value |
+| ST Position | ST Value | The Bannered Mare Equivalent | CK Enum Value |
 |---|---|---|---|
 | Before Character Definitions | `0` (before) | `BEFORE_CHARACTER` | `before_character` |
 | After Character Definitions | `1` (after) | `AFTER_CHARACTER` | `after_character` |
@@ -161,21 +161,21 @@ chat messages and character context before calling the engine.
 
 ### 4.2 Analysis
 
-Candlekeep implements 4 of ST's 8 positions. The omissions:
+The Bannered Mare implements 4 of ST's 8 positions. The omissions:
 
 - **Author's Note positions (ANTop/ANBottom)**: ST's Author's Note is a separate system
-  prompt component. Candlekeep's prompt template system (`PromptTemplate.component_order`)
+  prompt component. The Bannered Mare's prompt template system (`PromptTemplate.component_order`)
   handles prompt section ordering differently and does not have a dedicated Author's Note
   component.
 - **After Example Messages (EMBottom)**: Only "before examples" is supported. Adding a
   symmetric "after" position would be straightforward.
 - **Named Outlet**: ST's outlet system allows lore content to be referenced via
   `{{outlet::Name}}` macros anywhere in the prompt template. This requires a macro/template
-  engine that Candlekeep does not currently implement.
+  engine that The Bannered Mare does not currently implement.
 
 ### 4.3 Prompt Integration
 
-Candlekeep's `PromptTemplate` model defines a `component_order` list that includes three
+The Bannered Mare's `PromptTemplate` model defines a `component_order` list that includes three
 world lore slots: `world_lore_before_character`, `world_lore_after_character`, and
 `world_lore_before_examples`. The service method `get_entries_by_position()` groups
 activated entries by `InsertionPosition`, returning a dict keyed by position enum for the
@@ -191,7 +191,7 @@ are inserted as discrete messages at the specified chat history depth.
 
 ### 5.1 Budget Calculation
 
-| Aspect | SillyTavern | Candlekeep |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Input | Percentage of max context (`world_info_budget`, default 25%) capped by `world_info_budget_cap`. | Absolute token count passed as `token_budget` parameter. |
 | Minimum | Always at least 1 token. | `0` means unlimited (no budget enforcement). |
@@ -199,7 +199,7 @@ are inserted as discrete messages at the specified chat history depth.
 
 ### 5.2 Budget Enforcement
 
-| Aspect | SillyTavern | Candlekeep |
+| Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Enforcement point | After probability roll, before adding to activated set. | After sorting by priority, during budget accumulation loop. |
 | `ignoreBudget` handling | Entry bypasses budget check entirely; scan continues past overflow. | Field exists on the data model but is NOT consumed by `activate_entries()` -- the engine treats all entries equally during budget enforcement. This is a known gap (noted in a code comment). |
@@ -209,7 +209,7 @@ are inserted as discrete messages at the specified chat history depth.
 ### 5.3 Token Counting
 
 Both systems delegate token counting to a tokenizer service. SillyTavern uses
-`getTokenCountAsync()` (async, likely tiktoken-based). Candlekeep uses a synchronous
+`getTokenCountAsync()` (async, likely tiktoken-based). The Bannered Mare uses a synchronous
 `TokenizerService.count_tokens()` method.
 
 ---
@@ -235,7 +235,7 @@ Control fields per entry:
 Infinite loop prevention: max recursion steps, budget exhaustion, no-new-entries termination,
 `preventRecursion` flag.
 
-### 6.2 Candlekeep: Not Implemented
+### 6.2 The Bannered Mare: Not Implemented
 
 `activate_entries()` performs a single pass. There is no recursion buffer, no multi-pass
 loop, and no scan state machine. The entry model has no fields for recursion control
@@ -246,7 +246,7 @@ loop, and no scan state machine. The entry model has no fields for recursion con
 Recursive scanning is one of ST's most powerful features for complex world-building (e.g.,
 mentioning a faction name triggers a faction entry, whose content mentions a leader name,
 triggering the leader's entry). It is also one of the most complex to implement correctly
-and a common source of performance issues in large lorebooks. Candlekeep's single-pass
+and a common source of performance issues in large lorebooks. The Bannered Mare's single-pass
 design is simpler and more predictable but cannot express entry chaining.
 
 ---
@@ -266,7 +266,7 @@ ST's `filterByInclusionGroups()` provides mutual exclusion within named groups:
   4. Priority override (`groupOverride=true` wins unconditionally).
   5. Weighted random selection using `groupWeight`.
 
-### 7.2 Candlekeep: Not Implemented
+### 7.2 The Bannered Mare: Not Implemented
 
 The entry model has no `group`, `groupOverride`, `groupWeight`, or `useGroupScoring`
 fields. All matching entries activate independently with no mutual exclusion constraints.
@@ -294,7 +294,7 @@ Three timed effect types, tracked in `chat_metadata.timedWorldInfo`:
 
 State is persisted per-chat and survives page reloads.
 
-### 8.2 Candlekeep: Not Implemented
+### 8.2 The Bannered Mare: Not Implemented
 
 No `sticky`, `cooldown`, or `delay` fields on the entry model. No timed effect state
 tracking. All entries are evaluated purely against the current scan text on every request.
@@ -303,7 +303,7 @@ tracking. All entries are evaluated purely against the current scan text on ever
 
 Timed effects enable dynamic storytelling mechanics (e.g., a curse that persists for 5
 messages, a cooldown on weather changes, lore that only appears after the story progresses).
-These require per-chat state tracking, which adds persistence complexity. Candlekeep's
+These require per-chat state tracking, which adds persistence complexity. The Bannered Mare's
 stateless activation model is simpler to reason about but cannot express temporal entry
 behavior.
 
@@ -324,9 +324,9 @@ behavior.
 
 Original Character Book data is preserved as `originalData` for round-trip fidelity.
 
-### 9.2 Candlekeep: API-Only
+### 9.2 The Bannered Mare: API-Only
 
-Candlekeep provides a RESTful CRUD API (`POST /api/lorebooks`, `POST /api/lorebooks/{id}/entries`)
+The Bannered Mare provides a RESTful CRUD API (`POST /api/lorebooks`, `POST /api/lorebooks/{id}/entries`)
 with Pydantic schema validation. There is no file import endpoint and no format converters.
 
 Import of external lorebook formats would need to be handled by a client application or a
@@ -336,13 +336,13 @@ schemas.
 ### 9.3 Assessment
 
 ST's multi-format import is critical for its role as a community platform where users share
-character cards with embedded lorebooks across different tools. As a backend API, Candlekeep
+character cards with embedded lorebooks across different tools. As a backend API, The Bannered Mare
 delegates import concerns to its consumers but would benefit from a Character Card V2
 import endpoint to enable direct card ingestion.
 
 ---
 
-## 10. Additional Features in SillyTavern Not Present in Candlekeep
+## 10. Additional Features in SillyTavern Not Present in The Bannered Mare
 
 | Feature | Description | Complexity to Add |
 |---|---|---|
@@ -352,7 +352,7 @@ import endpoint to enable direct card ingestion.
 | Character filter | Per-entry include/exclude list for specific characters or tags. | Medium -- add `character_filter` JSON field, evaluate during activation. |
 | Scan target flags | 6 boolean flags to include character description, personality, persona, scenario, etc. in per-entry scan. | Medium -- requires refactoring scan buffer from flat string to structured source. |
 | Macro substitution | `{{char}}`, `{{user}}`, etc. expanded in keys and content at activation time. | Medium -- requires a template engine for lore content. |
-| Lore sources | Four distinct sources (chat, persona, character, global) with configurable priority ordering. | Medium -- Candlekeep has character + global. Chat-bound and persona-bound lorebooks would need schema additions. |
+| Lore sources | Four distinct sources (chat, persona, character, global) with configurable priority ordering. | Medium -- The Bannered Mare has character + global. Chat-bound and persona-bound lorebooks would need schema additions. |
 | Insertion strategy | Global setting for character-first vs global-first vs interleaved entry ordering. | Low -- add configuration and sort logic. |
 | Event system | Hooks at scan-done, entries-loaded, settings-changed. | Medium -- depends on broader event architecture. |
 | Group scoring | Score entries by key match count for group winner selection. | Medium -- requires groups feature first. |
@@ -363,7 +363,7 @@ import endpoint to enable direct card ingestion.
 
 ## 11. Architectural Differences Summary
 
-| Dimension | SillyTavern | Candlekeep |
+| Dimension | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Engine location | Client-side (browser JavaScript) | Server-side (Python) |
 | Persistence | JSON files (filesystem) | PostgreSQL (relational) |
@@ -378,9 +378,9 @@ import endpoint to enable direct card ingestion.
 
 ---
 
-## 12. Candlekeep Design Strengths
+## 12. The Bannered Mare Design Strengths
 
-Despite the smaller feature surface, Candlekeep's implementation has several engineering
+Despite the smaller feature surface, The Bannered Mare's implementation has several engineering
 advantages:
 
 1. **Separation of concerns**: Activation logic (`activation_engine.py`) is a pure function

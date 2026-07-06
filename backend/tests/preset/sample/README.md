@@ -5,7 +5,7 @@ Hand-authored, **SFW parody** SillyTavern chat-completion presets used by the
 structure faithfully — only the prompt *text* is made up (and silly) — so this
 folder doubles as a readable, runnable reference for the ST preset format.
 
-> Real community presets live (gitignored) under `refs/preset/`. The ST↔Candlekeep
+> Real community presets live (gitignored) under `refs/preset/`. The ST↔The Bannered Mare
 > mapping is documented in `docs/st_comparison/PRESET.md`.
 
 ## The structure, by example
@@ -18,7 +18,7 @@ An ST chat-completion preset is one JSON object:
   "temperature": 0.9, "top_p": 0.95, "openai_max_tokens": 800, "seed": -1,
   // (optional, ignored on import) connection config
   "chat_completion_source": "openai", "openai_model": "gpt-4o",
-  // (optional) format / nudge strings — no Candlekeep home, dropped with a warning
+  // (optional) format / nudge strings — no Bannered Mare home, dropped with a warning
   "scenario_format": "{{scenario}}", "new_chat_prompt": "[...]",
 
   // the prompt library: markers, built-ins, and custom prompts
@@ -44,7 +44,7 @@ An ST chat-completion preset is one JSON object:
 ```
 
 Three prompt kinds:
-- **markers** (`marker: true`, no `content`) — placeholders for content Candlekeep
+- **markers** (`marker: true`, no `content`) — placeholders for content The Bannered Mare
   generates itself (character, scenario, lore, chat history, examples);
 - **built-ins** (`system_prompt: true`) — `main` (the system prompt), `nsfw`,
   `jailbreak`, `enhanceDefinitions`;

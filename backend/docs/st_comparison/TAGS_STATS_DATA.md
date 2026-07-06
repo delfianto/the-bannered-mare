@@ -1,6 +1,6 @@
 # Tags, Stats, and Data Integrity -- Engineering Comparison
 
-This document compares how SillyTavern v1.17.0 and Candlekeep Core approach tag management, statistics tracking, search/filtering, and data integrity. The analysis covers current implementations as of April 2026.
+This document compares how SillyTavern v1.17.0 and The Bannered Mare approach tag management, statistics tracking, search/filtering, and data integrity. The analysis covers current implementations as of April 2026.
 
 **Reference material:** [docs/st_analysis/TAGS_STATS_DATA.md](../st_analysis/TAGS_STATS_DATA.md)
 
@@ -17,7 +17,7 @@ tags: Tag[]                         -- all tag definitions
 tag_map: { [entityKey]: tagId[] }   -- entity-to-tag assignments
 ```
 
-**Candlekeep Core** stores tags as a PostgreSQL array column directly on the `characters` table:
+**The Bannered Mare** stores tags as a PostgreSQL array column directly on the `characters` table:
 
 ```python
 tags: Mapped[list[str] | None] = mapped_column(
@@ -30,7 +30,7 @@ The `StringList` type resolves to `postgresql.ARRAY(String)` in production and `
 
 ### 1.2 Comparison Table
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Storage location | `settings.json` (client-side) | `characters.tags` column (PostgreSQL) |
 | Tag identity | UUID-keyed objects with metadata | Plain strings, no registry |
@@ -51,9 +51,9 @@ The `StringList` type resolves to `postgresql.ARRAY(String)` in production and `
 
 SillyTavern's tag system is a full-featured organizational tool with ~2,850 lines of dedicated code. Tags have their own identity, visual configuration, and can serve as navigational containers (folders). The trade-off is complexity: tags and their assignments live in two separate structures that must be synchronized, and the server has no awareness of tags at all -- everything is client-side.
 
-Candlekeep's tags are deliberately minimal. Plain strings on a database column give transactional safety (tags cannot drift out of sync with the character they belong to, since they are part of the same row) but offer no cross-entity tag management. There is no way to rename a tag globally, view all characters sharing a tag, or assign colors. The current design treats tags as metadata annotations rather than a first-class organizational system.
+The Bannered Mare's tags are deliberately minimal. Plain strings on a database column give transactional safety (tags cannot drift out of sync with the character they belong to, since they are part of the same row) but offer no cross-entity tag management. There is no way to rename a tag globally, view all characters sharing a tag, or assign colors. The current design treats tags as metadata annotations rather than a first-class organizational system.
 
-A future evolution path for Candlekeep would be a normalized tag table (`id`, `name`, `color`, etc.) with a many-to-many join table to characters and any other taggable entities. This would preserve relational integrity while enabling the richer feature set ST provides.
+A future evolution path for The Bannered Mare would be a normalized tag table (`id`, `name`, `color`, etc.) with a many-to-many join table to characters and any other taggable entities. This would preserve relational integrity while enabling the richer feature set ST provides.
 
 ---
 
@@ -72,9 +72,9 @@ Key characteristics:
 - **Fallback** to plain case-insensitive substring matching when fuzzy search is disabled
 - **Filter state persistence** across page reloads via browser storage
 
-### 2.2 Candlekeep Core Approach
+### 2.2 The Bannered Mare Approach
 
-Candlekeep handles filtering server-side through the `BaseRepository._apply_filters()` method, which translates query parameters into SQLAlchemy `WHERE` clauses. The character list endpoint (`GET /api/characters`) accepts filter parameters via `CharacterFilterParams`:
+The Bannered Mare handles filtering server-side through the `BaseRepository._apply_filters()` method, which translates query parameters into SQLAlchemy `WHERE` clauses. The character list endpoint (`GET /api/characters`) accepts filter parameters via `CharacterFilterParams`:
 
 ```python
 class CharacterFilterParams(BaseModel):
@@ -88,7 +88,7 @@ The `_apply_filters` method supports nine operators: `eq`, `ne`, `gt`, `lt`, `ge
 
 ### 2.3 Comparison Table
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Execution location | Client-side (browser) | Server-side (PostgreSQL) |
 | Search engine | Fuse.js (fuzzy matching) | SQL `ILIKE` (substring matching) |
@@ -106,7 +106,7 @@ The `_apply_filters` method supports nine operators: `eq`, `ne`, `gt`, `lt`, `ge
 
 ST's client-side search is powerful for small-to-medium collections: fuzzy matching, weighted relevance, and instant UI updates without network round-trips. The cost is that the entire dataset must be loaded into browser memory, and search performance is bounded by JavaScript execution speed.
 
-Candlekeep's server-side filtering is more scalable -- PostgreSQL handles large datasets efficiently -- but currently offers much less search sophistication. There is no fuzzy matching, no relevance scoring, and no multi-field weighted search. The `ILIKE` operator on an array column is functional but limited: it matches against the serialized representation rather than individual array elements.
+The Bannered Mare's server-side filtering is more scalable -- PostgreSQL handles large datasets efficiently -- but currently offers much less search sophistication. There is no fuzzy matching, no relevance scoring, and no multi-field weighted search. The `ILIKE` operator on an array column is functional but limited: it matches against the serialized representation rather than individual array elements.
 
 PostgreSQL offers paths to close this gap without reimplementing a client-side search engine: `pg_trgm` for trigram-based fuzzy matching, `GIN` indexes on array columns for efficient tag containment queries (`@>` operator), and full-text search with `tsvector`/`tsquery` for weighted multi-field search.
 
@@ -136,9 +136,9 @@ Stats are updated via two paths:
 
 Persistence uses a 5-minute auto-save interval with dirty tracking and atomic file writes (`write-file-atomic`).
 
-### 3.2 Candlekeep Core Approach
+### 3.2 The Bannered Mare Approach
 
-Candlekeep does not implement character-level RP statistics (word counts, message counts, generation times). Instead, it tracks **LLM usage statistics** through the admin logging system.
+The Bannered Mare does not implement character-level RP statistics (word counts, message counts, generation times). Instead, it tracks **LLM usage statistics** through the admin logging system.
 
 The `MongoLogger` records every LLM API call to a `llm_audit` collection in MongoDB with fields including: provider, model, prompt/completion/total tokens, latency, status (success/error), and estimated cost. The admin endpoint `GET /admin/logs/llm/stats` runs a MongoDB aggregation pipeline that groups by provider+model and computes:
 
@@ -152,7 +152,7 @@ HTTP request logs (`http_logs`) and application errors (`error_logs`) are also s
 
 ### 3.3 Comparison Table
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Stat scope | Per-character RP metrics | Per-provider/model operational metrics |
 | What is tracked | Word counts, message counts, swipes, gen time, chat size | Tokens, latency, cost, success rate, errors |
@@ -166,13 +166,13 @@ HTTP request logs (`http_logs`) and application errors (`error_logs`) are also s
 
 ### 3.4 Design Trade-offs
 
-These are fundamentally different metrics for different audiences. ST's stats answer user-facing questions: "How much have I chatted with this character? How many words has the AI generated?" Candlekeep's stats answer operational questions: "How many tokens am I consuming? What is the error rate? How much is this costing?"
+These are fundamentally different metrics for different audiences. ST's stats answer user-facing questions: "How much have I chatted with this character? How many words has the AI generated?" The Bannered Mare's stats answer operational questions: "How many tokens am I consuming? What is the error rate? How much is this costing?"
 
 ST's dual-path approach (real-time + batch rebuild) is pragmatic for file-based storage. The real-time path can drift if the browser crashes, but the batch rebuild provides an authoritative recalculation. The downside is that the rebuild must parse every message in every chat file, which becomes slow for large histories.
 
-Candlekeep's approach of logging each LLM call independently to MongoDB avoids the drift problem entirely -- each event is recorded at the time it happens, and aggregation is a read-only query over the recorded data. However, it does not capture RP-specific metrics like word counts or swipe counts. Those would need to be derived from the message data already stored in PostgreSQL, which is straightforward (the `messages` and `message_alternatives` tables contain all the raw data) but not yet implemented.
+The Bannered Mare's approach of logging each LLM call independently to MongoDB avoids the drift problem entirely -- each event is recorded at the time it happens, and aggregation is a read-only query over the recorded data. However, it does not capture RP-specific metrics like word counts or swipe counts. Those would need to be derived from the message data already stored in PostgreSQL, which is straightforward (the `messages` and `message_alternatives` tables contain all the raw data) but not yet implemented.
 
-A per-character stats view for Candlekeep could be built entirely from existing data using SQL aggregation over the `messages` table joined to `chats` and `characters`, without any additional storage.
+A per-character stats view for The Bannered Mare could be built entirely from existing data using SQL aggregation over the `messages` table joined to `chats` and `characters`, without any additional storage.
 
 ---
 
@@ -200,9 +200,9 @@ Detection works by cross-referencing the filesystem against parsed chat files: t
 
 Separately, the tag system has its own "Prune" feature that removes tags with zero assignments and `tag_map` entries pointing to deleted entities. And the stats system can be rebuilt from chat files via `recreateStats` to purge entries for deleted characters.
 
-### 4.2 Candlekeep Core: Relational Integrity
+### 4.2 The Bannered Mare: Relational Integrity
 
-Candlekeep delegates data integrity to PostgreSQL's relational constraint system. The schema uses foreign keys with explicit `ON DELETE` behaviors:
+The Bannered Mare delegates data integrity to PostgreSQL's relational constraint system. The schema uses foreign keys with explicit `ON DELETE` behaviors:
 
 | Relationship | Constraint | Effect |
 |-------------|-----------|--------|
@@ -224,7 +224,7 @@ SQLAlchemy ORM relationships use `cascade="all, delete-orphan"` on the Python si
 
 ### 4.3 Comparison Table
 
-| Aspect | SillyTavern | Candlekeep Core |
+| Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Primary integrity mechanism | Post-hoc scanning (Data Maid) | Preventive constraints (foreign keys) |
 | When integrity is enforced | On-demand (user triggers scan) | At write time (every INSERT/UPDATE/DELETE) |
@@ -241,9 +241,9 @@ SQLAlchemy ORM relationships use `cascade="all, delete-orphan"` on the Python si
 
 ST's file-based architecture means data integrity is fundamentally an application-level concern. When a character is deleted, the chat files, thumbnails, tag references, and stat entries must each be cleaned up by separate code paths. If any step fails or is skipped, orphans accumulate. The Data Maid exists precisely because this is a known, expected condition -- it provides a controlled way to detect and resolve the inevitable drift between filesystem state and application state.
 
-Candlekeep's relational model pushes most integrity concerns down to the database engine. Foreign keys with `CASCADE` and `SET NULL` behaviors guarantee that deleting a character atomically removes all associated chats, messages, alternatives, and lorebooks in a single transaction. There is no possibility of orphaned chat records pointing to a deleted character, because the database will not allow the inconsistency to exist.
+The Bannered Mare's relational model pushes most integrity concerns down to the database engine. Foreign keys with `CASCADE` and `SET NULL` behaviors guarantee that deleting a character atomically removes all associated chats, messages, alternatives, and lorebooks in a single transaction. There is no possibility of orphaned chat records pointing to a deleted character, because the database will not allow the inconsistency to exist.
 
-The one gap in Candlekeep's approach is the filesystem. Avatar images and thumbnails live on disk, outside the database transaction. If the application crashes after the database deletion completes but before `delete_character_files()` finishes, orphaned image files could remain. This is a much smaller surface area than ST's full-filesystem integrity problem, but it is not zero. A periodic cleanup job that cross-references the `characters/` storage directory against the `characters` table would close this gap.
+The one gap in The Bannered Mare's approach is the filesystem. Avatar images and thumbnails live on disk, outside the database transaction. If the application crashes after the database deletion completes but before `delete_character_files()` finishes, orphaned image files could remain. This is a much smaller surface area than ST's full-filesystem integrity problem, but it is not zero. A periodic cleanup job that cross-references the `characters/` storage directory against the `characters` table would close this gap.
 
 ---
 
@@ -256,7 +256,7 @@ The one gap in Candlekeep's approach is the filesystem. Avatar images and thumbn
 - **Data Maid + Tags:** Independent. Tag cleanup is handled by the tag system's Prune feature, not the Data Maid.
 - **Data Maid + Stats:** Independent. Stats for deleted characters persist in `stats.json` until a manual `recreateStats` rebuild is triggered.
 
-### 5.2 Candlekeep Core
+### 5.2 The Bannered Mare
 
 - **Tags + Search:** The `tags__ilike` filter parameter enables searching by tag content, but tags are not integrated into a broader multi-field search.
 - **Tags + Stats:** LLM stats are grouped by provider/model, not by character or tag. No cross-referencing exists.
@@ -267,7 +267,7 @@ The one gap in Candlekeep's approach is the filesystem. Avatar images and thumbn
 
 ## 6. Summary of Key Differences
 
-| Dimension | SillyTavern | Candlekeep Core |
+| Dimension | SillyTavern | The Bannered Mare |
 |-----------|-------------|-----------------|
 | **Tag architecture** | First-class entities with UUID identity, colors, folders, bulk ops | Plain string annotations on the character column |
 | **Search model** | Client-side fuzzy search with weighted multi-field indexing | Server-side SQL filtering with `ILIKE` operators |
@@ -276,4 +276,4 @@ The one gap in Candlekeep's approach is the filesystem. Avatar images and thumbn
 | **Orphan risk** | Inherent to file-based architecture; mitigated by scanning tools | Minimal for relational data; small gap for filesystem assets |
 | **Complexity** | ~4,500 lines across tags, stats, and data maid | ~50 lines (tag column + filter params); stats via existing logging infrastructure |
 
-The fundamental architectural difference shapes every aspect: SillyTavern's file-based storage requires sophisticated application-level tooling to maintain consistency, while Candlekeep's relational database handles most consistency guarantees structurally. Conversely, SillyTavern's tag and stats systems are far more feature-complete for end-user workflows, while Candlekeep's current implementations are minimal and focused on operational concerns.
+The fundamental architectural difference shapes every aspect: SillyTavern's file-based storage requires sophisticated application-level tooling to maintain consistency, while The Bannered Mare's relational database handles most consistency guarantees structurally. Conversely, SillyTavern's tag and stats systems are far more feature-complete for end-user workflows, while The Bannered Mare's current implementations are minimal and focused on operational concerns.

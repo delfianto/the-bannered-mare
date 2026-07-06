@@ -1,7 +1,7 @@
-# RAG Pipeline -- SillyTavern v1.17.0 vs Candlekeep Core
+# RAG Pipeline -- SillyTavern v1.17.0 vs The Bannered Mare
 
 This document compares RAG (Retrieval-Augmented Generation) capabilities between
-SillyTavern v1.17.0 and Candlekeep Core. Both systems now have functional RAG
+SillyTavern v1.17.0 and The Bannered Mare. Both systems now have functional RAG
 pipelines, though with different architectural foundations and scope.
 
 Source analysis: `docs/st_analysis/RAG_PIPELINE.md`
@@ -10,7 +10,7 @@ Source analysis: `docs/st_analysis/RAG_PIPELINE.md`
 
 ## 1. High-Level Status
 
-| Capability | SillyTavern v1.17.0 | Candlekeep Core |
+| Capability | SillyTavern v1.17.0 | The Bannered Mare |
 |------------|---------------------|-----------------|
 | Vector database | Vectra (file-system JSON) | PostgreSQL + pgvector (upgradeable to vchord) |
 | Embedding providers | 19 sources (local + cloud) | 2 adapters (Ollama + OpenAI-compatible) |
@@ -39,9 +39,9 @@ vector index that stores collections as directories of JSON files on disk.
 
 No support for external vector databases (Pinecone, Chroma, Weaviate, pgvector, etc.).
 
-### Candlekeep Core
+### The Bannered Mare
 
-Candlekeep uses **pgvector**, the PostgreSQL vector extension, storing embeddings
+The Bannered Mare uses **pgvector**, the PostgreSQL vector extension, storing embeddings
 directly in the same database as all other application data.
 
 - Table: `embeddings` (SQLAlchemy model at `src/core/persistence/models/rag.py`)
@@ -66,7 +66,7 @@ The pgvector approach has several structural advantages over Vectra:
 
 ### Comparison
 
-| Aspect | ST (Vectra) | Candlekeep (pgvector) |
+| Aspect | ST (Vectra) | The Bannered Mare (pgvector) |
 |--------|-------------|----------------------|
 | Storage format | JSON files on disk | PostgreSQL rows |
 | Scaling | Single-user local files | Connection-pooled database |
@@ -96,7 +96,7 @@ Notable details:
 - Cohere passes `input_type` for asymmetric embeddings (search_query vs. search_document)
 - Two providers compute embeddings in-browser and send pre-computed vectors to backend
 
-### Candlekeep Core
+### The Bannered Mare
 
 Two embedding adapters in `EmbeddingService` (`src/rag/embedding_service.py`):
 
@@ -123,7 +123,7 @@ Batching: 10 items per batch for both adapters (constant `BATCH_SIZE` in
 
 ### Comparison
 
-| Aspect | ST | Candlekeep |
+| Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Named providers | 19 | 2 (Ollama + OpenAI-compatible) |
 | Effective provider coverage | 19 | Most of the same providers via OpenAI-compatible adapter |
@@ -133,8 +133,8 @@ Batching: 10 items per batch for both adapters (constant `BATCH_SIZE` in
 | Provider-specific quirks | Handled per-adapter (9 backend files) | Minimal -- two clean adapters |
 
 The breadth gap is real but narrow in practice: most of ST's 19 sources use the
-OpenAI-compatible protocol, which Candlekeep's single OpenAI adapter already handles.
-The main gap is the lack of a zero-config local option -- Candlekeep requires either
+OpenAI-compatible protocol, which The Bannered Mare's single OpenAI adapter already handles.
+The main gap is the lack of a zero-config local option -- The Bannered Mare requires either
 Ollama or an API key, while ST can run ONNX embeddings in-process with no setup.
 
 ---
@@ -165,7 +165,7 @@ Max file size: 350 MB.
 
 Optional: translate files to English before chunking (via Chat Translation extension).
 
-### Candlekeep Core
+### The Bannered Mare
 
 **Document ingestion is text-only.** Data Bank entries are created via the REST API
 with plain text content -- there is no file upload or format conversion pipeline.
@@ -184,7 +184,7 @@ Configurable parameters (via `RAGSettings`):
 
 ### Comparison
 
-| Aspect | ST | Candlekeep |
+| Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | File format support | 10+ formats (PDF, EPUB, DOCX, etc.) | Text-only (no file processing) |
 | Chunking algorithm | Recursive delimiter-based | Recursive delimiter-based |
@@ -194,9 +194,9 @@ Configurable parameters (via `RAGSettings`):
 | Translation before chunking | Yes (optional) | No |
 
 The chunking algorithms are functionally equivalent. ST's sentence-boundary trimming
-on overlaps is slightly more sophisticated, while Candlekeep's `. ` delimiter
+on overlaps is slightly more sophisticated, while The Bannered Mare's `. ` delimiter
 provides a sentence-aware split step that ST lacks. The significant gap is document
-ingestion: Candlekeep cannot process binary file formats.
+ingestion: The Bannered Mare cannot process binary file formats.
 
 ---
 
@@ -223,7 +223,7 @@ Ingestion sources:
 Files can be individually enabled/disabled without deletion. Managed via slash commands
 (`/db`, `/db-list`, `/db-get`, `/db-add`, `/db-update`, `/db-delete`, `/db-search`, etc.).
 
-### Candlekeep Core
+### The Bannered Mare
 
 Three-tier Data Bank with the same scoping model, implemented as a relational entity:
 
@@ -253,7 +253,7 @@ wiki scraping, or YouTube transcript extraction.
 
 ### Comparison
 
-| Aspect | ST | Candlekeep |
+| Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Scope tiers | 3 (global, character, chat) | 3 (global, character, chat) |
 | Storage | JSON settings files | PostgreSQL with foreign keys |
@@ -262,7 +262,7 @@ wiki scraping, or YouTube transcript extraction.
 | Cascade delete on parent removal | No (orphaned metadata) | Yes (FK `ON DELETE CASCADE`) |
 | Pydantic validation on input | No (JS object) | Yes (`DataBankCreate` schema) |
 
-The scoping model is equivalent. Candlekeep's relational storage provides referential
+The scoping model is equivalent. The Bannered Mare's relational storage provides referential
 integrity (cascade deletes, indexed foreign keys) that ST's JSON-in-settings approach
 lacks. ST has far richer ingestion sources.
 
@@ -291,7 +291,7 @@ Configurable parameters:
 - `protect`: last N messages exempt from rearrangement (default 5)
 - `score_threshold`: cosine similarity cutoff (default 0.25)
 
-### Candlekeep Core
+### The Bannered Mare
 
 Message vectorization via `RetrievalService.vectorize_message()`
 (`src/rag/retrieval_service.py`):
@@ -315,7 +315,7 @@ Configuration (`RAGSettings` in `src/core/config.py`):
 
 ### Comparison
 
-| Aspect | ST | Candlekeep |
+| Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Dedup strategy | Hash-based (string hash) | Hash-based (SHA-256 truncated to 64 bits) |
 | Orphan cleanup | Deletes vectors for removed messages | `delete_by_source` available, not auto-triggered |
@@ -327,7 +327,7 @@ Configuration (`RAGSettings` in `src/core/config.py`):
 
 Both systems use hash-based dedup to avoid re-embedding unchanged messages.
 ST's implementation is more mature with summarization, message chunking, and
-protected-message handling. Candlekeep's version covers the core embed-store-retrieve
+protected-message handling. The Bannered Mare's version covers the core embed-store-retrieve
 loop.
 
 ---
@@ -356,7 +356,7 @@ Two injection channels:
 Injection position is configurable: before main prompt, after main prompt, or
 in-chat at a specific depth. Role configurable for Data Bank (system/user/assistant).
 
-### Candlekeep Core
+### The Bannered Mare
 
 RAG results are integrated into the prompt via the `rag_context` component in
 `PromptBuilder.build_api_messages()` (`src/prompt_template/prompt_builder.py`).
@@ -380,7 +380,7 @@ Additionally, manual semantic search is exposed via the REST API:
 
 ### Comparison
 
-| Aspect | ST | Candlekeep |
+| Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Injection channels | 2 (chat memory + Data Bank, separate templates) | 1 (unified `rag_context` component) |
 | Injection position | Configurable (before/after main prompt, in-chat at depth) | Configurable via template component ordering |
@@ -390,7 +390,7 @@ Additionally, manual semantic search is exposed via the REST API:
 | Manual search API | `/db-search` slash command | `POST /api/rag/search` REST endpoint |
 
 ST's injection system is more configurable (per-channel templates, role selection,
-depth control). Candlekeep's approach is simpler -- a single prompt component in the
+depth control). The Bannered Mare's approach is simpler -- a single prompt component in the
 template pipeline -- but benefits from the template system's existing component ordering
 and enable/disable mechanism.
 
@@ -412,7 +412,7 @@ World Info" is checked:
 This runs alongside the standard keyword activation -- semantic matches supplement
 keyword matches rather than replacing them.
 
-### Candlekeep Core
+### The Bannered Mare
 
 Keyword/regex activation only. The lore activation engine
 (`src/lore/activation_engine.py`) implements:
@@ -442,7 +442,7 @@ Extensive settings object with ~40 parameters covering:
 - Summarization (enable, source, prompt)
 - Runtime slash commands for threshold, query count, max entries, and feature toggles
 
-### Candlekeep Core
+### The Bannered Mare
 
 Two Pydantic settings models in `src/core/config.py`:
 
@@ -471,7 +471,7 @@ Runtime status endpoint: `GET /api/rag/status` returns the active configuration.
 
 ### Comparison
 
-| Aspect | ST | Candlekeep |
+| Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Total parameters | ~40 | ~12 |
 | Per-provider model config | Yes (13 provider-specific model fields) | Single `model` field |
@@ -481,7 +481,7 @@ Runtime status endpoint: `GET /api/rag/status` returns the active configuration.
 | Configuration method | JSON settings file + slash commands | Environment variables + Pydantic validation |
 | Type validation | JavaScript runtime checks | Pydantic model validation at startup |
 
-Candlekeep's configuration surface is smaller because the feature set is smaller.
+The Bannered Mare's configuration surface is smaller because the feature set is smaller.
 The Pydantic-based approach provides startup-time validation and type safety that
 ST's plain JSON settings do not.
 
@@ -508,7 +508,7 @@ ST's plain JSON settings do not.
 | Chat vectorization maturity | Summarization, message chunking, protected messages |
 | Injection configurability | Per-channel templates, role selection, depth control |
 
-### Where Candlekeep Core Leads
+### Where The Bannered Mare Leads
 
 | Area | Detail |
 |------|--------|

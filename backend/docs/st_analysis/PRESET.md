@@ -155,22 +155,22 @@ A robust importer should sniff the shape and reject/redirect non-preset files ra
 
 ---
 
-## 7. Comparison with Candlekeep & bridge approach
+## 7. Comparison with The Bannered Mare & bridge approach
 
-Candlekeep splits what ST bundles into **one** preset across **two** concerns:
+The Bannered Mare splits what ST bundles into **one** preset across **two** concerns:
 
-| ST concept | Candlekeep equivalent | Gap |
+| ST concept | The Bannered Mare equivalent | Gap |
 |---|---|---|
 | Sampler block (temperature, top_p, max_tokens, source…) | `Preset.parameters` (JSON) — `src/core/persistence/models/preset.py`; schema `src/preset/schemas.py` | Direct-ish: map ST sampler keys → `parameters`. Only present in *full* ST presets. |
-| `prompts[]` + `prompt_order` + format strings + markers | Prompt-assembly layer: `PromptTemplate` + `prompt_fragments` / `template_fragments` tables (Jinja2 prompt construction) | **Structural mismatch** — Candlekeep's `Preset` models *only samplers*; the ST prompt system maps to templates/fragments, not to `Preset`. |
+| `prompts[]` + `prompt_order` + format strings + markers | Prompt-assembly layer: `PromptTemplate` + `prompt_fragments` / `template_fragments` tables (Jinja2 prompt construction) | **Structural mismatch** — The Bannered Mare's `Preset` models *only samplers*; the ST prompt system maps to templates/fragments, not to `Preset`. |
 
 **Implication for the bridge:** a Freaky Frankenstein (prompts-only) preset has **no sampler data** and maps **entirely onto the prompt-template/fragment side**, not onto `Preset`. A faithful import needs to:
 
 1. **Type-sniff** the JSON (§1) and reject regex/card files.
 2. Translate each `prompts[]` entry → a prompt fragment (`identifier`, `role`, `content`, `injection_position`/`injection_depth`, `enabled`).
 3. Translate `prompt_order[100001].order` → the fragment ordering + enabled flags (the authoritative toggles).
-4. Map the **8 markers** to Candlekeep's own assembly slots (char description / persona / world-info / examples / chat history). This is the hard part — it requires Candlekeep's prompt builder to expose the same insertion points; markers without a target slot must be dropped or stubbed.
+4. Map the **8 markers** to The Bannered Mare's own assembly slots (char description / persona / world-info / examples / chat history). This is the hard part — it requires The Bannered Mare's prompt builder to expose the same insertion points; markers without a target slot must be dropped or stubbed.
 5. Carry the format strings (`scenario_format`, `wi_format`, nudges) into the corresponding template config.
-6. If a *full* preset, additionally map the sampler block → a `Preset.parameters` row (and reconcile `chat_completion_source` against the provider/model, which Candlekeep models separately).
+6. If a *full* preset, additionally map the sampler block → a `Preset.parameters` row (and reconcile `chat_completion_source` against the provider/model, which The Bannered Mare models separately).
 
 Recommended first milestone: a read-only **importer + validator** that parses a Chat Completion preset, classifies each prompt (marker / system / custom), resolves the `prompt_order`, and emits a normalized intermediate structure — *before* committing to the storage mapping. The marker→slot mapping (step 4) is the design decision that gates a truly faithful bridge.

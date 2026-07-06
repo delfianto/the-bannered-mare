@@ -1,10 +1,10 @@
-# Candlekeep Core
+# The Bannered Mare — Backend
 
 A headless backend for local AI roleplay sessions, inspired by [SillyTavern](https://github.com/SillyTavern/SillyTavern).
 
 ## What This Is
 
-Candlekeep Core is a Python/FastAPI backend that handles everything an RP frontend needs:
+The Bannered Mare backend is a Python/FastAPI backend that handles everything an RP frontend needs:
 connecting to LLM providers, managing characters, building prompts, streaming responses,
 tracking world lore, and retrieving relevant context via semantic search. It exposes a
 clean REST API that any frontend — web, desktop, or mobile — can consume.
@@ -12,14 +12,14 @@ clean REST API that any frontend — web, desktop, or mobile — can consume.
 This project exists because of SillyTavern. ST proved what features matter for AI roleplay
 and built the de facto standard that thousands of users rely on daily. The ST developers
 deserve enormous credit for creating and maintaining such a feature-rich application as an
-open-source, community-driven effort. Candlekeep Core draws heavily from their design
+open-source, community-driven effort. The Bannered Mare draws heavily from their design
 decisions and feature set.
 
 ## What This Is Not
 
 This is **not** a 1:1 clone of SillyTavern. The two projects are architecturally very different:
 
-| | SillyTavern | Candlekeep Core |
+| | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Architecture | Monolithic SPA (Express backend + jQuery frontend) | Headless backend API (FastAPI) |
 | Frontend | Built-in, tightly coupled | None — bring your own |
@@ -30,8 +30,8 @@ This is **not** a 1:1 clone of SillyTavern. The two projects are architecturally
 Features that are deliberately **not** implemented:
 
 - **Group chats** — Extremely complex (turn strategies, multi-character prompt assembly, talkativeness weighting) with high risk of getting wrong. Single-character RP is the focus.
-- **Slash command scripting** — ST has a full scripting language (STscript) for power users. Candlekeep is an API — automation happens through HTTP calls, not an embedded scripting runtime.
-- **Extension/plugin system** — ST needs plugins because it's a monolith. Candlekeep's extensibility comes from the API itself — build what you need in your frontend.
+- **Slash command scripting** — ST has a full scripting language (STscript) for power users. The Bannered Mare is an API — automation happens through HTTP calls, not an embedded scripting runtime.
+- **Extension/plugin system** — ST needs plugins because it's a monolith. The Bannered Mare's extensibility comes from the API itself — build what you need in your frontend.
 - **Smooth streaming** — Character-level typing delays are a frontend concern, not a backend one.
 - **File attachment processing** — Document processing (PDF, EPUB, etc.) in chat is a niche feature better handled by specialized tools. The Data Bank accepts text directly.
 
@@ -92,7 +92,7 @@ are in the [`docs/`](docs/) directory.
 
 ## License
 
-[AGPL-3.0-or-later](LICENSE) — Same license as SillyTavern, as this project includes
+[AGPL-3.0-or-later](../LICENSE) — Same license as SillyTavern, as this project includes
 derivative work inspired by their implementation.
 
 ## Acknowledgments

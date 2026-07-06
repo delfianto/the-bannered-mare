@@ -1,12 +1,12 @@
-# Candlekeep Core: Persistence Layer Architecture
+# The Bannered Mare: Persistence Layer Architecture
 
-The persistence layer of Candlekeep Core manages relational data storage, schema migrations, and entity lifecycles using PostgreSQL in production and SQLite in test environments. It relies on SQLAlchemy 2.0 and Alembic.
+The persistence layer of The Bannered Mare manages relational data storage, schema migrations, and entity lifecycles using PostgreSQL in production and SQLite in test environments. It relies on SQLAlchemy 2.0 and Alembic.
 
 ---
 
 ## 1. Declarative Base and Base Model
 
-All entities in the database inherit from `BaseModel` (defined in [base_model.py](file:///srv/project/personal/candlekeep-core/src/core/persistence/base_model.py)), which is an abstract class built on SQLAlchemy's declarative mapping system.
+All entities in the database inherit from `BaseModel` (defined in [base_model.py](../../src/core/persistence/base_model.py)), which is an abstract class built on SQLAlchemy's declarative mapping system.
 
 ```python
 class BaseModel(Base):
@@ -36,7 +36,7 @@ class BaseModel(Base):
 ```
 
 ### Key Design Decisions
-- **12-Character Nanoids**: Instead of standard auto-incrementing integers or bulky UUIDs, Candlekeep uses 12-character Nanoids as primary keys. They are compact, URL-safe, and secure against enumeration attacks.
+- **12-Character Nanoids**: Instead of standard auto-incrementing integers or bulky UUIDs, The Bannered Mare uses 12-character Nanoids as primary keys. They are compact, URL-safe, and secure against enumeration attacks.
 - **Timezones**: All timestamps are stored with timezone support enabled (`DateTime(timezone=True)`) and default to timezone-aware UTC datetime objects.
 
 ---
@@ -46,15 +46,15 @@ class BaseModel(Base):
 In a vertical-slices modular monolith, domains often reference each other (e.g., a `Chat` has a relationship with a `Character`, which in turn has a relationship with `Lorebook`). Placing ORM models directly inside domain folders can cause circular import issues.
 
 To resolve this:
-- All ORM database models are stored in [src/core/persistence/models/](file:///srv/project/personal/candlekeep-core/src/core/persistence/models/) as separate modules (e.g., `character.py`, `chat.py`, `provider.py`).
-- They are imported and re-exported from [src/core/persistence/models/__init__.py](file:///srv/project/personal/candlekeep-core/src/core/persistence/models/__init__.py).
+- All ORM database models are stored in [src/core/persistence/models/](../../src/core/persistence/models/) as separate modules (e.g., `character.py`, `chat.py`, `provider.py`).
+- They are imported and re-exported from [src/core/persistence/models/__init__.py](../../src/core/persistence/models/__init__.py).
 - Individual domain packages expose files like `models.py` which simply act as pass-through imports to the centralized persistence directory, preventing circular reference paths.
 
 ---
 
 ## 3. Asynchronous vs. Synchronous Operations
 
-Candlekeep implements a **mixed-mode** synchronization policy to balance simplicity and performance:
+The Bannered Mare implements a **mixed-mode** synchronization policy to balance simplicity and performance:
 
 1. **Asynchronous (Async) Operations**:
    - **Constraint**: Database interactions involving chat messages (which are highly concurrent, read/write heavy, and tied to real-time LLM streaming) **must be asynchronous**.

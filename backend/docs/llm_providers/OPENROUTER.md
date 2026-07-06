@@ -16,7 +16,7 @@
 4. [Response Schema — OpenAI + Extensions](#4-response-schema)
 5. [Streaming](#5-streaming)
 6. [Models Endpoint](#6-models-endpoint)
-7. [Key Value Proposition for Candlekeep](#7-value-proposition)
+7. [Key Value Proposition for The Bannered Mare](#7-value-proposition)
 8. [Key Differences from OpenAI — Summary Table](#8-differences-from-openai)
 9. [OpenRouterAdapter Implementation Spec](#9-adapter-spec)
 10. [Mapping: Shared Types ↔ OpenRouter API](#10-type-mapping)
@@ -42,7 +42,7 @@ dozens of providers (OpenAI, Anthropic, Google, Meta, Mistral, Cohere, etc.) thr
 ### 1.1 How It Works
 
 ```
-Client (Candlekeep)
+Client (The Bannered Mare)
     │
     │  POST /api/v1/chat/completions
     │  Authorization: Bearer or-...
@@ -63,7 +63,7 @@ Client (Candlekeep)
 └──────────────┘
 ```
 
-### 1.2 Why This Matters for Candlekeep
+### 1.2 Why This Matters for The Bannered Mare
 
 OpenRouter is the **lowest-friction path** to multi-model support. Because it speaks the
 OpenAI protocol, the existing OpenAI adapter handles 90% of the work. The OpenRouterAdapter
@@ -93,8 +93,8 @@ Example:
 
 ```
 Authorization: Bearer or-v1-abc123...
-HTTP-Referer: https://candlekeep.app
-X-Title: Candlekeep
+HTTP-Referer: https://the-bannered-mare.app
+X-Title: The Bannered Mare
 Content-Type: application/json
 ```
 
@@ -104,10 +104,10 @@ Content-Type: application/json
   - They associate usage with your application on the OpenRouter dashboard
   - They contribute to the public model activity leaderboard
   - They help OpenRouter understand usage patterns
-- For Candlekeep, these should be **configurable** in the provider settings,
+- For The Bannered Mare, these should be **configurable** in the provider settings,
   defaulting to a sensible application name
 
-### 2.4 For Candlekeep
+### 2.4 For The Bannered Mare
 
 The Provider model already stores `api_key_env_var` for credential lookup. The extra headers
 (`HTTP-Referer`, `X-Title`) should be stored as part of the provider configuration or
@@ -195,7 +195,7 @@ These fields are **added by OpenRouter** and not part of the standard OpenAI spe
 - The response `model` field reflects which model actually served the request
 - This is transparent to the caller — the response format is identical
 
-**Relevance to Candlekeep:** This is extremely valuable for reliability. A roleplay
+**Relevance to The Bannered Mare:** This is extremely valuable for reliability. A roleplay
 session should not break because one provider has an outage. The UI could let users
 configure a fallback chain.
 
@@ -225,7 +225,7 @@ configure a fallback chain.
 | `provider.sort` | `string` | Sort providers by: `"price"`, `"throughput"`, `"latency"`. |
 | `provider.ignore` | `string[]` | Provider names to never route to. |
 
-**Relevance to Candlekeep:** Provider preferences give users fine-grained control:
+**Relevance to The Bannered Mare:** Provider preferences give users fine-grained control:
 - RP users who care about quality might prefer `"sort": "throughput"` or specific providers
 - Privacy-conscious users can set `"data_collection": "deny"`
 - Users can avoid specific providers they've had bad experiences with
@@ -376,7 +376,7 @@ OpenRouter uses standard HTTP error codes with an OpenAI-compatible error body:
 | 503 | Model overloaded or unavailable |
 
 **Key difference:** The `402 Payment Required` status is OpenRouter-specific (credit
-balance exhausted). Candlekeep should map this to a user-friendly "insufficient credits"
+balance exhausted). The Bannered Mare should map this to a user-friendly "insufficient credits"
 message.
 
 ---
@@ -416,7 +416,7 @@ The `stream_options: { include_usage: true }` parameter is supported, following
 the same behavior as OpenAI — an additional chunk with `usage` data is emitted after
 the final content chunk.
 
-### 5.4 Implications for Candlekeep
+### 5.4 Implications for The Bannered Mare
 
 Because streaming is identical to OpenAI, the existing `OpenAIAdapter.parse_stream_chunk()`
 method works **without modification**. The `OpenRouterAdapter` does not need to override
@@ -497,12 +497,12 @@ The models endpoint supports query parameters for filtering:
 |---|---|---|
 | `supported_parameters` | string | Filter by supported parameter (e.g., `tools`, `temperature`) |
 
-### 6.5 Relevance to Candlekeep
+### 6.5 Relevance to The Bannered Mare
 
-The models endpoint is **extremely valuable** for Candlekeep:
+The models endpoint is **extremely valuable** for The Bannered Mare:
 
 1. **Auto-discovery:** Instead of manually seeding model records in the database,
-   Candlekeep can query OpenRouter for available models and present them to users
+   The Bannered Mare can query OpenRouter for available models and present them to users
 2. **Pricing display:** The pricing data lets users see cost per token before selecting
    a model — important for users managing their OpenRouter credits
 3. **Context length:** Knowing the context window helps the PromptBuilder decide how
@@ -517,7 +517,7 @@ populate model selection dropdowns.
 
 ---
 
-## 7. Key Value Proposition for Candlekeep
+## 7. Key Value Proposition for The Bannered Mare
 
 ### 7.1 Single API Key, All Providers
 
@@ -537,7 +537,7 @@ User needs:
   - OpenRouter API key → for ALL of the above
 ```
 
-For self-hosted Candlekeep users, this dramatically simplifies setup. One key,
+For self-hosted The Bannered Mare users, this dramatically simplifies setup. One key,
 one provider configuration, access to everything.
 
 ### 7.2 Automatic Fallbacks
@@ -549,7 +549,7 @@ running even when individual providers have issues.
 ### 7.3 Cost Comparison
 
 The models endpoint provides pricing for every model, enabling a future "cost advisor"
-feature in Candlekeep that helps users pick the best model for their budget.
+feature in The Bannered Mare that helps users pick the best model for their budget.
 
 ### 7.4 Provider Competition
 
@@ -557,9 +557,9 @@ Multiple providers may serve the same model (e.g., `meta-llama/llama-3.1-70b-ins
 is available through many hosts). OpenRouter routes to the best available provider,
 and users can use the `provider` preferences to optimize for price, speed, or latency.
 
-### 7.5 No Translation Overhead for Candlekeep
+### 7.5 No Translation Overhead for The Bannered Mare
 
-Because OpenRouter speaks the OpenAI protocol, Candlekeep gets access to Anthropic,
+Because OpenRouter speaks the OpenAI protocol, The Bannered Mare gets access to Anthropic,
 Google, Meta, and dozens of other models **without implementing their native APIs**.
 The `OpenRouterAdapter` is a thin wrapper — the heavy lifting is already done by
 `OpenAIAdapter`.
@@ -638,7 +638,7 @@ def build_headers(self) -> dict[str, str]:
 The `_get_config()` method reads from the provider's configuration (stored in the
 Provider model's settings/metadata column). Fallback defaults:
 - `http_referer`: Application URL from app settings, or omitted
-- `x_title`: `"Candlekeep"` or the configured application name
+- `x_title`: `"The Bannered Mare"` or the configured application name
 
 ### 9.4 `build_payload()` Override
 
@@ -856,8 +856,8 @@ Ensure the Provider model can store OpenRouter-specific settings:
 |---|---|---|
 | API key | `api_key_env_var` (existing) | `"OPENROUTER_API_KEY"` |
 | Base URL | `base_url` (existing) | `"https://openrouter.ai/api/v1"` |
-| HTTP-Referer | Provider metadata/settings JSON | `"https://candlekeep.app"` |
-| X-Title | Provider metadata/settings JSON | `"Candlekeep"` |
+| HTTP-Referer | Provider metadata/settings JSON | `"https://the-bannered-mare.app"` |
+| X-Title | Provider metadata/settings JSON | `"The Bannered Mare"` |
 
 No schema changes needed if the Provider model already has a JSON settings column.
 
@@ -979,5 +979,5 @@ For reference when testing, these are representative model IDs:
 | User wants maximum privacy | Direct adapter | Data doesn't traverse OpenRouter |
 | User wants both cloud + local models | Both | OpenRouter for cloud, Ollama for local |
 
-For Candlekeep's typical use case (RP sessions with various cloud models), OpenRouter
+For The Bannered Mare's typical use case (RP sessions with various cloud models), OpenRouter
 is often the best default recommendation for new users.
