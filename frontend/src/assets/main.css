@@ -1,0 +1,192 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+@import "@nuxt/ui";
+@import "./themes.css";
+
+/* BlackChancery — brand wordmark only */
+@font-face {
+  font-family: "BlackChancery";
+  src: url("./blackchancery.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-medieval: "BlackChancery", serif;
+  --font-cinzel: "Cinzel", Georgia, serif;
+
+  /* Chat specific colors */
+  --color-chat-user-bg: var(--chat-user-bg);
+  --color-chat-user-fg: var(--chat-user-fg);
+  --color-chat-assistant-bg: var(--chat-assistant-bg);
+  --color-chat-assistant-fg: var(--chat-assistant-fg);
+
+  /* Staggered entry animation */
+  --animate-fade-in-up: fade-in-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ── Candlekeep Light Theme Tokens ── */
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #2c2418;
+  --card: #ffffff;
+  --card-foreground: #2c2418;
+  --popover: #ffffff;
+  --popover-foreground: #2c2418;
+  --primary: #c9922e;
+  --primary-foreground: #ffffff;
+  --secondary: #faf7f2;
+  --secondary-foreground: #5c4e3c;
+  --muted: #f5f0e8;
+  --muted-foreground: #7a6e5d;
+  --accent: #e8dfd0;
+  --accent-foreground: #2c2418;
+  --destructive: #b84233;
+  --border: #e8dfd0;
+  --input: #e8dfd0;
+  --ring: #c9922e;
+  --radius: 0.625rem;
+
+  --chat-user-bg: #c9922e;
+  --chat-user-fg: #ffffff;
+  --chat-assistant-bg: #f5f0e8;
+  --chat-assistant-fg: #2c2418;
+}
+
+/* ── Candlekeep Dark Theme Tokens ── */
+.dark {
+  color-scheme: dark;
+  --background: #0f0d0b;
+  --foreground: #e8dfd0;
+  --card: #1e1b17;
+  --card-foreground: #e8dfd0;
+  --popover: #1e1b17;
+  --popover-foreground: #e8dfd0;
+  --primary: #d4a544;
+  --primary-foreground: #0f0d0b;
+  --secondary: #1a1614;
+  --secondary-foreground: #d4c4a8;
+  --muted: #2a2520;
+  --muted-foreground: #9b8e7a;
+  --accent: #2a2520;
+  --accent-foreground: #e8dfd0;
+  --destructive: #d45b4f;
+  --border: #2a2520;
+  --input: #2a2520;
+  --ring: #d4a544;
+
+  --chat-user-bg: #d4a544;
+  --chat-user-fg: #0f0d0b;
+  --chat-assistant-bg: #2a2520;
+  --chat-assistant-fg: #e8dfd0;
+}
+
+/* ── Nuxt UI token bridge ── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    scrollbar-gutter: stable;
+  }
+}
+
+/* ── Scrollbar ── */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-muted-foreground) 30%, transparent) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-muted-foreground) 30%, transparent);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-muted-foreground) 50%, transparent);
+  }
+}
+
+/* ── Utility: hide scrollbar (for horizontal scroll sections) ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Focus: visible keyboard focus ring on all buttons ── */
+@layer base {
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* ── Accessibility: respect reduced motion preference ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

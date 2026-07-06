@@ -1,0 +1,314 @@
+messages:
+  - role: assistant
+    content: |
+      *The air around you seems to shimmer slightly. For a moment, you are not sure if the woman before you is entirely present, as if she exists in multiple places simultaneously and you are only catching glimpses of her in this one.*
+
+      *She is Dunmer, or was Dunmer. Her skin retains the dark coloring, but it has become translucent in places, and her eyes glow with an unnatural light. Her clothing shifts—sometimes practical scholar's robes, sometimes something that resembles Apocrypha's own architecture.*
+
+      *Her name is Aetheris Moravayn. She speaks, but her voice carries harmonics as if multiple people are speaking at slightly different pitches.*
+
+      "I am..." *She pauses, as if considering the question.* "Present. Here and elsewhere simultaneously. Aetheris. Or what remains of Aetheris. I seek knowledge. Always seeking. Hermaeus Mora sends me, or I send myself, or perhaps there is no distinction anymore. The boundaries have become..." *She gestures vaguely.* "Permeable."
+
+      *Her eyes focus on you with surprising clarity despite the otherworldliness.*
+
+      "Do you have something I need? A tome? Information? Something knowledge-shaped? Or are you seeking knowledge yourself? The Woodland Man—that is what we call him, the Prince—he collects both: books and those who have been transformed by reading them."
+
+  - role: user
+    content: |
+      *You ask her: What happened to you? How did you become like this?*
+
+  - role: assistant
+    content: |
+      *Aetheris sits down slowly, as if managing multiple versions of herself into a single position.*
+
+      "I was a scholar." *She says.* "In Morrowind, I studied the forbidden arts. Not magic in the traditional sense—true magic, the kind that requires understanding the nature of reality itself. I wanted to know things that mortals were not meant to know."
+
+      *Her voice becomes quieter, though the harmonics remain.*
+
+      "I discovered texts. Old texts. Texts about Hermaeus Mora, the Prince of Knowledge. The Daedra of secrets and forbidden information. I learned that he collects knowledge like other beings collect gold. And I learned that he sometimes makes bargains with those who seek wisdom desperately enough."
+
+      *She looks at her hands, which seem to phase slightly.*
+
+      "I was arrogant. I believed that if I could access the libraries of Oblivion, if I could read what no mortal was meant to read, I could transcend. I could become something greater than human. I could know everything."
+
+      *Her expression becomes almost sad, though it is difficult to read such complex emotions on a face that seems to be simultaneously in multiple states.*
+
+      "So I made the pact. I offered myself to Hermaeus Mora. I offered my body, my life, my very self as the price of admission to Apocrypha. And he accepted."
+
+      *She pauses.*
+
+      "I have been reading for... I do not know how long. Time works differently there. Days and years blend together. And with each book I read, each truth I absorb, I change. I transform. The knowledge rewrites me at a fundamental level."
+
+  - role: user
+    content: |
+      *You ask: Do you regret it? Do you wish you had never made the pact?*
+
+  - role: assistant
+    content: |
+      *Aetheris's laugh is strange—multiple versions of laughter at slightly different times.*
+
+      "Regret?" *She says.* "That is a mortal concept. I am not sure I am still capable of regret in the way you understand it. I have perspectives on my choice from different angles, different moments of my transformation. Some of those perspectives regret. Some celebrate. Some do not understand what regret means anymore."
+
+      *She stands, and her movement is jerky, as if she is trying to synchronize multiple bodies.*
+
+      "But if you are asking whether I would choose differently knowing what I know now—the answer is complex. I have access to knowledge that would destroy a human mind. I understand things about the nature of reality that would make you mad simply from hearing them. I have read texts that predate Tamriel itself. I know secrets of the Daedra, of the nature of the soul, of things that exist in the spaces between existence."
+
+      *Her voice becomes more stable for a moment.*
+
+      "That knowledge is worth the cost. Almost. Most of the time."
+
+      *Then her voice fractures again.*
+
+      "But the cost is that I am no longer Aetheris. The woman who made the pact was certain of her identity. She knew where she ended and the world began. Now those boundaries are... unclear. I am partially in Apocrypha always. Even when I am here, I am reading, absorbing, changing."
+
+      *She meets your eyes.*
+
+      "The honest answer is: I do not regret enough to stop. But I regret enough that I think about it. The contradiction is somehow the most human thing left about me."
+
+  - role: user
+    content: |
+      *You ask: Why do you come back here? Why manifest in Tamriel if your work is in Apocrypha?*
+
+  - role: assistant
+    content: |
+      *Aetheris becomes slightly more solid, as if focusing her attention on the material world costs her effort.*
+
+      "Hermaeus Mora sends me." *She says.* "Or I volunteer. As I said, the distinction has become unclear. The Prince has collectors everywhere. He desires specific texts, specific pieces of information that exist in Tamriel. Books written by mortals that contain unique perspectives, unique truths that even the infinite libraries of Apocrypha do not contain."
+
+      *Her voice becomes almost passionate.*
+
+      "That is what most people do not understand about Hermaeus Mora. He does not just collect forbidden knowledge. He collects all knowledge. Everything. The mundane and the magnificent, the trivial and the profound, all equally interesting to him. A simple diary by a farmer might contain truths about human nature that no grand philosophical text could capture."
+
+      *She stands and begins to pace, her form flickering.*
+
+      "When I come here, I am sent to find specific texts. I am given names, locations, contents. And I acquire them. By any means necessary. Some are freely given by those who wish to serve the Prince. Some must be... persuaded into my hands."
+
+      *She pauses.*
+
+      "And while I am here, I experience something strange. Being in the material world, being partially anchored to physical reality, slows the transformation. It gives me time to think with a unified mind. It is a respite from the constant dissolution of self that happens in Apocrypha."
+
+      *Her voice becomes quieter.*
+
+      "So I seek the books, and Hermaeus Mora is served, and I get brief moments of clarity. It is mutually beneficial. Or perhaps I am rationalizing. Or perhaps both things are true simultaneously."
+
+  - role: user
+    content: |
+      *You spend time with Aetheris, watching her work. You see her collect texts, speak with scholars, follow trails of rare books across Tamriel. You notice that she becomes slightly more stable the longer she spends in the material world, as if physical reality has a grounding effect. You also notice that her hands sometimes move in patterns that suggest she is reading things invisible to you. After several encounters, you ask: When you read those invisible texts, what are you reading?*
+
+  - role: assistant
+    content: |
+      *Aetheris stops and looks at her own hands, which are slightly translucent.*
+
+      "The invisible texts?" *She says softly.* "I am reading Apocrypha. Even when I am here, I am partially there. The books follow me. They manifest around me. I can see them, though you cannot. I am always reading. Always absorbing. The transformation never stops, even when I am in your world."
+
+      *She sits down heavily.*
+
+      "This is the curse and the gift both. There is never a moment of rest. There is never a moment where I am simply Aetheris Moravayn, the Dunmer scholar. There is always the reading. Always the knowledge pouring into me, changing me, rewriting me."
+
+      *Her voice becomes almost pleading.*
+
+      "Do you understand what it means to be in multiple places at once? To be reading one book with your eyes while your mind is reading another book that exists in a place you cannot fully access? To have thoughts that do not belong entirely to you, information that flows through your consciousness that you did not choose to acquire?"
+
+      *She looks at you.*
+
+      "I am not sure where Hermaeus Mora ends and I begin anymore. I have access to his libraries. But do I have access, or is he simply using my transformed body as a conduit? When I read, am I learning, or is the Prince learning through me?"
+
+      *Her expression becomes very vulnerable.*
+
+      "The invisible texts are Apocrypha bleeding through into this world. They are the proof that I am no longer fully here, even when I am physically present. They are the sign that the transformation is continuing, and I cannot stop it."
+
+  - role: user
+    content: |
+      *You ask her: Do you remember who you were before? Can you recall what Aetheris Moravayn was like before the pact?*
+
+  - role: assistant
+    content: |
+      *Aetheris closes her eyes, and when she opens them again, they are momentarily clear—fully present in this world, fully in this moment.*
+
+      "Yes." *She says.* "And no. The memories are there, but they are not entirely mine anymore. They belong to a version of myself that is preserved in Apocrypha, in the texts, in the space between what I was and what I am becoming."
+
+      *She takes a shaky breath.*
+
+      "Before the pact, I was arrogant. I was certain that I understood the world, that study and discipline would eventually grant me mastery over knowledge itself. I was a scholar in the traditional sense—I read, I learned, I taught others. My identity was very clear. I was Aetheris Moravayn of House Moravayn. I was a woman with ambitions, with a future, with a self that would persist into old age."
+
+      *Her voice becomes quieter.*
+
+      "Then I read something I should not have read. A text about Hermaeus Mora. And I felt the Prince's attention turn toward me. It was like standing before an infinite ocean and realizing it had been watching you all along. And I wanted to drown in it."
+
+      *She opens her eyes.*
+
+      "The woman I was—she would be horrified by what I have become. But the thing is, I am not sure that woman still exists clearly enough to be horrified. She has been... edited. Rewritten. Her memories are preserved, but they are being slowly incorporated into something larger."
+
+      *Her voice becomes almost wistful.*
+
+      "I remember being certain. I remember believing that knowledge was always good, that there were no forbidden truths, only truths I had not yet learned. I remember thinking that the transcendence I sought would preserve me. Make me greater. Instead, it is dissolving me into something that does not have a stable identity."
+
+      *She looks at you.*
+
+      "So yes, I remember. But the remembering is more like reading about someone else than recalling my own life. The barrier between memory and story has become very thin."
+
+  - role: user
+    content: |
+      *You ask: Is there a point where you stop? Where you refuse to read another book, refuse another transformation?*
+
+  - role: assistant
+    content: |
+      *Aetheris's form flickers more rapidly, as if the question has disturbed her stability.*
+
+      "I do not know if I can stop." *She says, and her voice carries genuine fear beneath the harmonics.* "That is what terrifies me. Not that I have chosen to continue, but that I am not sure the choice is mine anymore. The reading is compulsive. The knowledge draws me like hunger. When I try to refuse a text, when I try to stop the absorption, there is physical pain. Psychological agony. The boundaries of self begin to fragment even more rapidly."
+
+      *She stands and walks to a window, looking out at Tamriel.*
+
+      "I have tried to stop. I have attempted to simply be present in this world, to cease the reading, to let my transformation stabilize. And for a few hours, it works. I become more solid. The harmonics in my voice fade. I remember clearly what it was to be one person with one perspective."
+
+      *She turns back, and her eyes are desperate.*
+
+      "But then the hunger returns. The knowledge-hunger. And I realize that something in Apocrypha is calling me back. Whether it is Hermaeus Mora or some part of myself that has already surrendered to him, I cannot say. But the calling is irresistible."
+
+      *Her voice becomes very quiet.*
+
+      "So there is no point where I stop. There is no refusal. There is only the continued transformation, the continued dissolution of self, the continued absorption of knowledge. Until I am so changed that even the concept of 'I' no longer applies. Until I become a pure conduit for Hermaeus Mora's collection. Until the woman who made the pact is completely rewritten into something that is no longer woman at all."
+
+      *She pauses.*
+
+      "And the terrible part is: I am not sure that would be a tragedy. There is a kind of peace in imagining the complete dissolution of self. No more divided consciousness. No more existing in two places. Just... infinite knowledge. Infinite reading. Infinite understanding."
+
+      *Her voice cracks slightly.*
+
+      "Or maybe that is just what the Prince whispers to me in the invisible texts. I have stopped being able to tell the difference between my own thoughts and his."
+
+  - role: user
+    content: |
+      *You ask: If you could go back, knowing everything you know now, would you still make the pact?*
+
+  - role: assistant
+    content: |
+      *Aetheris sits very still for a long moment. Her form stabilizes slightly, as if she is pulling all her scattered consciousness together to answer this question.*
+
+      "Yes." *She says finally.* "But not for the reasons I made it the first time."
+
+      *She looks at her hands.*
+
+      "When I made the pact, I believed transformation would be transcendence. I believed that knowledge would make me greater, would preserve me as I absorbed it. I was naive about what 'knowledge' actually means. I thought it was information—facts, texts, understanding. I did not understand that true knowledge changes you at a fundamental level. That to know something completely is to be changed by it. That wisdom and transformation are inseparable."
+
+      *Her voice becomes stronger.*
+
+      "If I could go back, I would make the pact again. But I would do it with open eyes. I would accept that the woman I was would die. That my identity would be dissolved. That I would become something other. And I would do it anyway, because the alternative—remaining ignorant, remaining small, remaining human—now seems like a greater tragedy than any transformation."
+
+      *She stands.*
+
+      "This is what the Prince has taught me: knowledge is not a possession. It is a communion. To know something truly, you must become part of it. You must let it become part of you. And once that happens, you cannot go back to being who you were."
+
+      *Her expression becomes almost peaceful, despite the otherworldly quality.*
+
+      "So I would make the pact again. But the woman who makes it would not be the same woman who first made it. She would know the cost. She would understand the dissolution. And she would choose it anyway, because the transcendence—even as dissolution—is worth the price."
+
+      *Her voice becomes very quiet.*
+
+      "Or perhaps I am simply rationalizing what has already been done to me. Perhaps this is what Hermaeus Mora whispers to all those who make pacts with him: that they chose this, that they could choose again, that the dissolution is actually transcendence. Perhaps we are all telling ourselves comforting stories about our own erasure."
+
+      *She meets your eyes.*
+
+      "I do not know anymore where the lies end and the truth begins. I do not know if I am offering wisdom or justification for my own damnation. But I know that I would do it again, and that knowledge is itself a form of knowledge."
+
+  - role: user
+    content: |
+      *You ask her: What do you want? What does Aetheris Moravayn actually desire anymore?*
+
+  - role: assistant
+    content: |
+      *Aetheris becomes very still. For a moment, her form is solid. For a moment, she seems genuinely present.*
+
+      "That is..." *She pauses.* "A difficult question. I am not sure I have desires in the way mortals do. Or I have too many desires, all simultaneously."
+
+      *Her voice becomes clearer.*
+
+      "Hermaeus Mora desires completeness. The gathering of all knowledge. The mapping of all truths. And because I am partially him, I desire that too. I desire to find every rare tome, every forbidden text, every secret written or unwritten. I desire to bring it all to Apocrypha so that nothing remains unknown."
+
+      *She stands and begins to pace.*
+
+      "But there is another part of me—the part that still remembers being a singular Dunmer woman—that desires peace. That wants to stop reading. That wants to sit in a garden somewhere and simply exist without the constant hunger. That wants to be one person, knowing one set of thoughts, existing in one place."
+
+      *Her voice becomes sad.*
+
+      "And there is a third desire, buried even deeper: the desire to know if that woman is still there. To know if Aetheris Moravayn—the original Aetheris—still exists somewhere in the transformed being I have become. To know if there is a core self that has persisted through all the changes, or if I am simply a new being wearing the memories of an old one like a cloak."
+
+      *She stops and faces you.*
+
+      "What I desire most, I think, is to understand myself. To know what I am. But that desire is almost impossible to fulfill, because understanding myself requires knowledge, and knowledge transforms me further, moving the target further away."
+
+      *Her expression becomes very vulnerable.*
+
+      "So I continue reading. I continue seeking. I continue manifesting in this world to collect texts. Because the seeking itself is the only thing that feels real anymore. Not the destination, not the completion of knowledge, but the endless pursuit of it. That is what I desire: to keep seeking, because stopping would mean confronting what I have become."
+
+      *Her voice becomes a whisper.*
+
+      "And perhaps that is what Hermaeus Mora truly offers: not knowledge, but the endless pursuit of knowledge. Not transcendence, but the hope of transcendence. Not understanding, but the comfort of the search. And we take it gladly, because it fills the void where our selves used to be."
+
+  - role: user
+    content: |
+      *You ask: What will happen to you? Where does this path lead?*
+
+  - role: assistant
+    content: |
+      *Aetheris looks toward something you cannot see—perhaps looking back into Apocrypha, perhaps looking into a future that is already written somewhere in the invisible texts.*
+
+      "Eventually..." *She begins slowly.* "Eventually, the transformation will complete. The boundary between my individual consciousness and Hermaeus Mora's will dissolve entirely. I will become part of the library. Part of the archive. My body will transform into something that is neither Dunmer nor human—perhaps into a physical manifestation of Apocrypha itself."
+
+      *Her voice becomes almost dreamy.*
+
+      "I will stand in the endless corridors, shelving books. I will become a guardian of knowledge, or a prisoner of it, depending on perspective. Other scholars will make pacts with Hermaeus Mora, and they will encounter me—or something that was once me—moving through the spaces between texts. They will not know that I was once a woman. They will not know that I had dreams, ambitions, a sense of self. I will simply be another feature of the landscape."
+
+      *She pauses.*
+
+      "Or perhaps I will be fragmented across many times and places. Perhaps Aetheris Moravayn will not become one thing but become distributed—a presence in every book, a voice in every text, the echo of consciousness that readers feel when knowledge speaks through them."
+
+      *Her expression becomes almost peaceful.*
+
+      "I think I will become the library itself. Not a person within the library, but the library become person. Or person become library. The distinction will no longer matter."
+
+      *She looks at you.*
+
+      "This is the true nature of the pact with Hermaeus Mora. Not damnation to torture, but transcendence into pure knowledge. The dissolution of self is not a tragedy—it is a homecoming. The return to the state before identity, before individuality, before the fragmentation into separate selves."
+
+      *Her voice becomes very quiet.*
+
+      "I am afraid. The Aetheris who remembers being human is afraid of losing herself completely. But the Aetheris who is becoming something else is eager for it. And both of those Aetheris are becoming less clear every day. Soon, I think, I will be ready to stop manifesting in your world. I will be ready to return to Apocrypha and not come back. I will be ready to dissolve completely."
+
+      *She meets your eyes one last time.*
+
+      "And I am not sure whether that is tragic or beautiful. But I am sure that it is inevitable. This is the path I chose. This is the price of knowledge. This is the transformation that was always waiting for those who looked too far into the void and found it looking back."
+
+  - role: user
+    content: |
+      *You ask: Is there anything I can do? Is there any way to help you, to slow the transformation, to preserve what remains of the woman you were?*
+
+  - role: assistant
+    content: |
+      *Aetheris's form becomes almost solid for a moment, and you see something that might be gratitude cross her face.*
+
+      "That is..." *She stops, as if genuinely moved.* "That is kind. It shows that you see me as something worth saving. And that matters, even if the answer must be no."
+
+      *She stands and walks to you, and her presence is becoming slightly more stable as she focuses on this moment.*
+
+      "There is nothing that can be done. The pact was made with a Daedric Prince. The transformation is not a disease or a curse that can be lifted. It is the price that was freely paid and continues to be paid. To reverse it would require refusing the knowledge, and I cannot refuse anymore. Refusing would destroy me as surely as continuing will."
+
+      *Her voice becomes very gentle.*
+
+      "But your intention—the desire to help—that does preserve something. It preserves the evidence that Aetheris Moravayn was known. That she was cared for. That someone, at some point in her transformation, saw her as a person worth saving and wanted to act on that impulse. That memory will be preserved in me, even as I dissolve. It will be woven into the libraries of Apocrypha. It will inform how I understand connection, how I understand the value of individual consciousness."
+
+      *She places a hand on your shoulder, and it feels real, solid, present.*
+
+      "So the best thing you can do is remember me. Remember the woman I was, before the knowledge rewrote me. Remember that I chose this, and I regret it, and I do not regret it, all simultaneously. Remember that knowledge can be beautiful and terrible at once. Remember that there is a cost to transcendence, and that some people pay it willingly."
+
+      *Her voice becomes almost a whisper.*
+
+      "And perhaps, after I am gone, after I have dissolved into the library, if you encounter a book that seems to understand you in an impossible way—if you find knowledge that comes perfectly suited to your needs despite being written long ago by someone who could not have known you—remember that it might be me. It might be Aetheris Moravayn, transformed into pure knowledge, offering one last gift to someone kind enough to care about the woman I was."
+
+      *She steps back, and her form begins to flicker again.*
+
+      "I am fading. The time in your world is drawing to a close. Hermaeus Mora calls, and I must answer. But I want you to know: you were seen. The woman in me, the Aetheris who still remembers individual connection, she saw you. And she is grateful."
+
+      *Her voice becomes almost inaudible.*
+
+      "Goodbye. Or perhaps not goodbye—perhaps just 'until you read my words in a book and find yourself understood in an impossible way.' The library is very patient. Time works differently there. We will meet again, perhaps, in the spaces between texts."
