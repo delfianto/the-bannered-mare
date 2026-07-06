@@ -39,7 +39,7 @@
   }
 }
 
-/* ── Candlekeep Light Theme Tokens ── */
+/* ── The Bannered Mare Light Theme Tokens ── */
 :root {
   color-scheme: light;
   --background: #ffffff;
@@ -68,7 +68,7 @@
   --chat-assistant-fg: #2c2418;
 }
 
-/* ── Candlekeep Dark Theme Tokens ── */
+/* ── The Bannered Mare Dark Theme Tokens ── */
 .dark {
   color-scheme: dark;
   --background: #0f0d0b;

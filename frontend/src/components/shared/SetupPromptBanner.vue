@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useProfiles } from "@/composables/useProfiles";
 
-const DISMISS_KEY = "candlekeep:setup-dismissed";
+const DISMISS_KEY = "bannered-mare:setup-dismissed";
 
 const router = useRouter();
 const { profiles, loading } = useProfiles();

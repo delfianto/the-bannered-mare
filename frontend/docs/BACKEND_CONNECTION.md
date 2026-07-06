@@ -1,6 +1,6 @@
-# Candlekeep UI: Backend Integration and Streaming Client
+# The Bannered Mare: Backend Integration and Streaming Client
 
-Candlekeep UI connects to the FastAPI backend using a combination of a strongly-typed OpenAPI fetch client for standard CRUD queries, and a custom SSE streaming parser for real-time inference completions.
+The Bannered Mare connects to the FastAPI backend using a combination of a strongly-typed OpenAPI fetch client for standard CRUD queries, and a custom SSE streaming parser for real-time inference completions.
 
 ---
 
@@ -8,11 +8,11 @@ Candlekeep UI connects to the FastAPI backend using a combination of a strongly-
 
 The frontend ensures type safety across all network exchanges:
 
-- **Schema Compilation**: The API specification [schema.d.ts](file:///srv/project/personal/candlekeep-ui/src/api/schema.d.ts) is compiled directly from the backend's `openapi.json` contract via:
+- **Schema Compilation**: The API specification [schema.d.ts](../src/api/schema.d.ts) is compiled directly from the backend's `openapi.json` contract via:
   ```bash
   bun run api:gen
   ```
-- **Client Factory**: The client (defined in [client.ts](file:///srv/project/personal/candlekeep-ui/src/api/client.ts)) instantiates `openapi-fetch`, providing autocompletion and compile-time verification for path variables, query params, headers, and body structures.
+- **Client Factory**: The client (defined in [client.ts](../src/api/client.ts)) instantiates `openapi-fetch`, providing autocompletion and compile-time verification for path variables, query params, headers, and body structures.
 
 ### Standard Query Example
 
@@ -35,7 +35,7 @@ Standard JSON clients do not handle multi-part file payloads (such as Character 
 
 ## 3. Server-Side Streaming (SSE) Engine
 
-Real-time roleplay responses are processed via Server-Sent Events (SSE). The streaming client is implemented inside `useChatMessages` (defined in [useChatMessages.ts](file:///srv/project/personal/candlekeep-ui/src/composables/useChatMessages.ts)):
+Real-time roleplay responses are processed via Server-Sent Events (SSE). The streaming client is implemented inside `useChatMessages` (defined in [useChatMessages.ts](../src/composables/useChatMessages.ts)):
 
 ```mermaid
 graph TD

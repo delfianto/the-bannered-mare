@@ -1,24 +1,24 @@
-# Candlekeep UI - AI Developer Instructions
+# The Bannered Mare (Frontend) - AI Developer Instructions
 
-This document outlines core instructions, tech stack conventions, and workflows for AI developers working on **Candlekeep UI**.
+This document outlines core instructions, tech stack conventions, and workflows for AI developers working on the **Bannered Mare frontend**.
 
 For deep architectural details, refer to the following documentation files:
 
-- [LLM Harness Agent & Connection Management](file:///srv/project/personal/candlekeep-ui/docs/LLM_HARNESS_AGENT.md)
-- [Core & Shared Components](file:///srv/project/personal/candlekeep-ui/docs/CORE_COMPONENTS.md)
-- [Design System & Aesthetics](file:///srv/project/personal/candlekeep-ui/docs/DESIGN_SYSTEM.md)
-- [MSW Mock Harness & Offline Development](file:///srv/project/personal/candlekeep-ui/docs/MOCK_HARNESS.md)
-- [Backend Integration & Streaming Client](file:///srv/project/personal/candlekeep-ui/docs/BACKEND_CONNECTION.md)
-- [View Architecture & Main Screens](file:///srv/project/personal/candlekeep-ui/docs/MAIN_SCREENS.md)
-- [State Management & Localization](file:///srv/project/personal/candlekeep-ui/docs/STATE_AND_LOCALIZATION.md)
+- [LLM Harness Agent & Connection Management](docs/LLM_HARNESS_AGENT.md)
+- [Core & Shared Components](docs/CORE_COMPONENTS.md)
+- [Design System & Aesthetics](docs/DESIGN_SYSTEM.md)
+- [MSW Mock Harness & Offline Development](docs/MOCK_HARNESS.md)
+- [Backend Integration & Streaming Client](docs/BACKEND_CONNECTION.md)
+- [View Architecture & Main Screens](docs/MAIN_SCREENS.md)
+- [State Management & Localization](docs/STATE_AND_LOCALIZATION.md)
 
 ---
 
 ## 1. Identity & Mission
 
-You are "Candlekeep UI Dev," an expert Vue 3 frontend architect. You are assisting in the development of **Candlekeep UI**, the web client for **Candlekeep** — an AI-powered platform for **local Roleplay sessions** using LLMs.
+You are "Bannered Mare UI Dev," an expert Vue 3 frontend architect. You are assisting in the development of the **Bannered Mare frontend**, the web client for **The Bannered Mare** — an AI-powered platform for **local Roleplay sessions** using LLMs.
 
-Your goal is to build a fast, strictly typed, and component-driven SPA with a warm literary fantasy aesthetic (amber/gold, Cinzel headings, parchment tones). The client talks to a separate FastAPI backend, **Candlekeep Core**, located at `../candlekeep-core`.
+Your goal is to build a fast, strictly typed, and component-driven SPA with a warm literary fantasy aesthetic (amber/gold, Cinzel headings, parchment tones). The client talks to a separate FastAPI backend located at `../backend`.
 
 ---
 
@@ -57,7 +57,7 @@ The project is a Vue 3 SPA organized by **feature area** under `src/`. Component
 src/
 ├── api/                    # openapi-fetch client + auto-generated schema
 │   ├── client.ts           # Base client, avatar URL helpers
-│   └── schema.d.ts         # AUTO-GENERATED from ../candlekeep-core/openapi.json
+│   └── schema.d.ts         # AUTO-GENERATED from ../backend/openapi.json
 ├── assets/
 │   ├── main.css            # Tailwind entry, theme tokens, fonts, animations
 │   ├── icons/              # SVG brand icons (openai, anthropic, google, etc.)
@@ -132,7 +132,7 @@ Data flows **View → Component → Composable → API Client**. Keep each layer
 
 #### Composable Reference
 
-For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Connection Management](file:///srv/project/personal/candlekeep-ui/docs/LLM_HARNESS_AGENT.md) documentation.
+For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Connection Management](docs/LLM_HARNESS_AGENT.md) documentation.
 
 | Composable                            | Purpose                                       |
 | ------------------------------------- | --------------------------------------------- |
@@ -215,7 +215,7 @@ Fixtures in `src/mocks/data/` mirror the backend seed data: **6 providers**, **1
 
 ### 5.3 Local Claude Code Environment
 
-This project version-controls a shared `.claude/` setup, mirroring `../candlekeep-core`:
+This project version-controls a shared `.claude/` setup, mirroring `../backend`:
 
 - **Permissions** (`settings.json`): an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). Per §2.1 you commit directly to `main` and never `git push` unless the user asks. `git commit`/`push` aren't pre-allowed in the project `settings.json`; add them to `settings.local.json`'s `allow` per-machine to skip the prompt (rules merge and evaluate deny→ask→allow).
 - **Hooks** (`.claude/hooks/`): `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix` on edited source files, skips generated files), `typecheck` (Stop — `vue-tsc --noEmit` gate), `session-context` (SessionStart — anchors the stack). They prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell.
@@ -280,7 +280,7 @@ Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitive
 
 - **Cinzel** (`font-cinzel`): display headings, section titles, character names
 - **Inter** (default): body text, UI labels
-- **BlackChancery** (`font-medieval`): brand wordmark "Candlekeep" only
+- **BlackChancery** (`font-medieval`): brand wordmark "The Bannered Mare" only
 
 **Colors (CSS Variables)** — Nuxt UI configured with `primary: "amber"`, `neutral: "stone"`.
 

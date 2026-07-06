@@ -1,6 +1,6 @@
-# Candlekeep UI: View Architecture and Main Screens
+# The Bannered Mare: View Architecture and Main Screens
 
-The Candlekeep client is a Single Page Application (SPA) structured around vertical views mapping to specific core features of the roleplay application.
+The The Bannered Mare client is a Single Page Application (SPA) structured around vertical views mapping to specific core features of the roleplay application.
 
 ---
 

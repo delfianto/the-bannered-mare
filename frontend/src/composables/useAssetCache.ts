@@ -1,6 +1,6 @@
 import { ref, watchEffect, onScopeDispose, toValue, type MaybeRefOrGetter } from "vue";
 
-const CACHE_NAME = "candlekeep-assets-v1";
+const CACHE_NAME = "bannered-mare-assets-v1";
 
 interface RegistryEntry {
   blobUrl: string;

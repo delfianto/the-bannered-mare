@@ -1,8 +1,8 @@
-# Candlekeep UI
+# The Bannered Mare — Frontend
 
-The web client for **Candlekeep** — an AI-powered platform for local Roleplay sessions using LLMs. Built as a fast, strictly typed Vue 3 SPA with a warm literary fantasy aesthetic (amber/gold, Cinzel headings, parchment tones).
+The web client for **The Bannered Mare** — an AI-powered platform for local Roleplay sessions using LLMs. Built as a fast, strictly typed Vue 3 SPA with a warm literary fantasy aesthetic (amber/gold, Cinzel headings, parchment tones).
 
-Talks to [Candlekeep Core](https://github.com/delfianto/candlekeep-core), a FastAPI backend, via a typed `openapi-fetch` client.
+Talks to [the backend](../backend), a FastAPI service, via a typed `openapi-fetch` client.
 
 ## Tech Stack
 
