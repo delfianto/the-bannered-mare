@@ -29,6 +29,59 @@ The Bannered Mare's `src/` is ~12,600 lines across ~167 files. The file count is
 higher in The Bannered Mare despite having roughly one-third the code, reflecting
 its vertical-slice module structure (many small files vs. fewer large ones).
 
+The two codebases have fundamentally different shapes — a large full-stack monolith with a
+central god object versus a headless backend of small, uniform slices:
+
+<Figure tag="Figure 1" title="Two shapes at a glance" id="fig-shape-compare">
+<svg viewBox="0 0 760 430" role="img" aria-label="SillyTavern versus The Bannered Mare architecture" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="398" rx="14" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="398" rx="14" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <text x="196" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare v0.1.5</text>
+  <text x="196" y="64" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">full-stack JS monolith</text>
+  <text x="564" y="64" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">headless Python backend</text>
+  <rect x="44" y="80" width="304" height="92" rx="10" fill="var(--tbm-dgm-danger-soft)" stroke="var(--tbm-dgm-danger)"/>
+  <text x="196" y="103" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">jQuery SPA frontend</text>
+  <text x="196" y="123" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">script.js — 12,481-line god object</text>
+  <text x="196" y="140" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">201 JS modules · index.html 8,176 lines</text>
+  <text x="196" y="160" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">~141,000 LoC</text>
+  <rect x="44" y="188" width="304" height="150" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="196" y="211" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Express backend</text>
+  <text x="196" y="231" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">46 endpoint files — flat,</text>
+  <text x="196" y="247" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">one file per domain</text>
+  <text x="196" y="271" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">src/ ~31,700 LoC</text>
+  <text x="196" y="308" text-anchor="middle" font-size="11" font-weight="600" fill="var(--tbm-dgm-ink)">~185,000 LoC total</text>
+  <text x="196" y="326" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">96 deps · ~2.7% test ratio</text>
+  <text x="196" y="372" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">community-driven, grown over years</text>
+  <rect x="412" y="80" width="304" height="92" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
+  <text x="564" y="103" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Vue 3 SPA frontend</text>
+  <text x="564" y="123" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">typed components · Pinia · Nuxt UI</text>
+  <text x="564" y="143" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">separate repository</text>
+  <rect x="412" y="188" width="304" height="150" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+  <text x="564" y="209" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">FastAPI — modular monolith</text>
+  <g font-size="9.5" text-anchor="middle" fill="var(--tbm-dgm-ink)">
+    <rect x="426" y="220" width="80" height="22" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="466" y="235">character</text>
+    <rect x="514" y="220" width="80" height="22" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="554" y="235">chat</text>
+    <rect x="602" y="220" width="88" height="22" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="646" y="235">provider</text>
+    <rect x="426" y="248" width="80" height="22" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="466" y="263">prompt</text>
+    <rect x="514" y="248" width="80" height="22" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="554" y="263">rag</text>
+    <rect x="602" y="248" width="88" height="22" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="646" y="263">… + more</text>
+  </g>
+  <text x="564" y="292" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">each slice: router · service · repository</text>
+  <text x="564" y="316" text-anchor="middle" font-size="11" font-weight="600" fill="var(--tbm-dgm-ink)">~12,200 LoC (backend)</text>
+  <text x="564" y="334" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">19 deps · ~46% test ratio</text>
+  <text x="564" y="372" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">greenfield, uniform slices</text>
+</svg>
+<template #caption>
+
+**Grown vs. designed.** SillyTavern is ~15× larger by line count — a single full-stack repo
+whose frontend centres on one 12,481-line file. The Bannered Mare is a headless backend of many
+small, identically-shaped slices, with a far higher test ratio and a fraction of the
+dependencies. Neither is "wrong": they answer different constraints.
+
+</template>
+</Figure>
+
 
 ## 2. Top-Level Layout
 

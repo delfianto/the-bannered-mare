@@ -557,6 +557,50 @@ server.js
 
 ### 9.2 Frontend Dependency Flow
 
+The frontend has no dependency hierarchy so much as a gravitational centre. `script.js` is a
+12,481-line god object that both exports to and imports from most feature modules — the
+double-headed edges below are the coupling that makes any one module hard to change in
+isolation:
+
+<Figure tag="Figure 1" title="script.js — the bidirectional hub" id="fig-scriptjs-hub">
+<svg viewBox="0 0 720 460" role="img" aria-label="script.js as a bidirectionally coupled hub" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <g stroke="var(--tbm-dgm-danger)" stroke-width="1.6" fill="none" marker-start="url(#tbm-ah)" marker-end="url(#tbm-ah)">
+    <path d="M300 200 L188 80"/>
+    <path d="M420 200 L532 80"/>
+    <path d="M290 222 L164 228"/>
+    <path d="M430 222 L556 228"/>
+    <path d="M300 262 L188 382"/>
+    <path d="M420 262 L532 382"/>
+  </g>
+  <g font-size="11.5" text-anchor="middle">
+    <rect x="52" y="40" width="136" height="40" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="120" y="65" fill="var(--tbm-dgm-ink)">openai.js</text>
+    <rect x="532" y="40" width="136" height="40" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="600" y="65" fill="var(--tbm-dgm-ink)">world-info.js</text>
+    <rect x="24" y="208" width="140" height="40" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="94" y="233" fill="var(--tbm-dgm-ink)">group-chats.js</text>
+    <rect x="556" y="208" width="140" height="40" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="626" y="233" fill="var(--tbm-dgm-ink)">power-user.js</text>
+    <rect x="44" y="380" width="150" height="40" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="119" y="405" fill="var(--tbm-dgm-ink)">slash-commands.js</text>
+    <rect x="530" y="380" width="140" height="40" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="600" y="405" fill="var(--tbm-dgm-ink)">textgen-settings.js</text>
+  </g>
+  <rect x="286" y="196" width="148" height="72" rx="12" fill="var(--tbm-dgm-danger-soft)" stroke="var(--tbm-dgm-danger)"/>
+  <text x="360" y="222" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">script.js</text>
+  <text x="360" y="240" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">THE HUB · 12,481 lines</text>
+  <text x="360" y="255" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">217 exports · 74 imports</text>
+  <text x="360" y="446" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">…and 65+ more modules. Double-headed = bidirectional import (tight coupling).</text>
+</svg>
+<template #caption>
+
+**A hub, not a layer.** `openai.js` imports `Generate` from `script.js` while `script.js`
+imports `oai_settings` from `openai.js`; the same mutual dependency repeats across most modules.
+`events.js` (an EventEmitter with 103 event types) decouples *some* interactions, but shared
+mutable globals like `characters`, `chat`, and `chat_metadata` keep the coupling tight.
+
+</template>
+</Figure>
+
 ```
 public/script.js  (THE HUB: 217 exports, 74 local imports)
   ├── public/scripts/openai.js         (bidirectional: imports from script.js)

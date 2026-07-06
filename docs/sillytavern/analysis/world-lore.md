@@ -9,6 +9,55 @@ keyword scanning against the chat history, then inserted into specific positions
 the LLM prompt. The entire activation engine runs client-side in the browser; the server
 is a thin JSON file store.
 
+At a high level, every entry runs the same gauntlet each generation — bypassed only by
+`constant` entries, which are always on:
+
+<Figure tag="Figure 1" title="The lorebook activation gauntlet" id="fig-lore-activation">
+<svg viewBox="0 0 840 300" role="img" aria-label="World Info entry activation flow" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <g text-anchor="middle">
+    <rect x="20" y="110" width="150" height="80" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="95" y="140" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">WI entries</text>
+    <text x="95" y="158" font-size="10" fill="var(--tbm-dgm-ink-2)">keyed · constant ·</text>
+    <text x="95" y="172" font-size="10" fill="var(--tbm-dgm-ink-2)">vectorized</text>
+    <rect x="205" y="110" width="180" height="80" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="295" y="136" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Scan &amp; match</text>
+    <text x="295" y="154" font-size="10" fill="var(--tbm-dgm-ink-2)">keys vs recent chat ·</text>
+    <text x="295" y="168" font-size="10" fill="var(--tbm-dgm-ink-2)">secondary AND/NOT ·</text>
+    <text x="295" y="182" font-size="10" fill="var(--tbm-dgm-ink-2)">probability roll</text>
+    <rect x="420" y="110" width="180" height="80" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="510" y="140" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Order &amp; budget</text>
+    <text x="510" y="158" font-size="10" fill="var(--tbm-dgm-ink-2)">sort by order (desc) ·</text>
+    <text x="510" y="172" font-size="10" fill="var(--tbm-dgm-ink-2)">WI token budget</text>
+    <rect x="635" y="110" width="180" height="80" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="725" y="140" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Inject to prompt</text>
+    <text x="725" y="158" font-size="10" fill="var(--tbm-dgm-ink-2)">one of 8 positions</text>
+    <text x="725" y="172" font-size="10" fill="var(--tbm-dgm-ink-2)">before/after · @depth · …</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M170 150 L203 150"/>
+    <path d="M385 150 L418 150"/>
+    <path d="M600 150 L633 150"/>
+  </g>
+  <path d="M95 110 L95 40 L510 40 L510 108" stroke="var(--tbm-dgm-accent)" stroke-width="1.5" stroke-dasharray="5 4" fill="none" marker-end="url(#tbm-ah)"/>
+  <text x="300" y="32" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-accent)">constant = true → bypass scan, always on</text>
+  <path d="M250 190 C 250 250, 340 250, 340 192" stroke="var(--tbm-dgm-arrow)" stroke-width="1.4" stroke-dasharray="5 4" fill="none" marker-end="url(#tbm-ah)"/>
+  <text x="295" y="268" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">recursive scan — activated content can trigger more entries</text>
+</svg>
+<template #caption>
+
+**Match, prioritize, place.** Keyed entries must survive keyword matching, secondary AND/NOT
+logic, and a probability roll; survivors are sorted by `order` and trimmed to the WI token
+budget, then injected at one of eight positions. `constant` entries skip the scan entirely, and
+activated content can recursively trigger further entries.
+
+</template>
+</Figure>
+
 
 ## 1. Entry Data Model
 

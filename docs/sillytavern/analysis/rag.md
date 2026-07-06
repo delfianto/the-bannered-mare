@@ -23,7 +23,55 @@ SillyTavern's RAG system is implemented as a **built-in extension** called "Vect
 
 The extension hooks into prompt generation via the manifest's `generate_interceptor` mechanism.
 Before every LLM call, the framework calls `vectors_rearrangeChat(chat, contextSize, abort, type)`
-which triggers the full RAG pipeline.
+which triggers the full RAG pipeline:
+
+<Figure tag="Figure 1" title="The Vector Storage pipeline" id="fig-rag-pipeline">
+<svg viewBox="0 0 900 176" role="img" aria-label="SillyTavern RAG pipeline from sources to prompt injection" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <g text-anchor="middle">
+    <rect x="20" y="46" width="160" height="70" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="100" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Sources</text>
+    <text x="100" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">Data Bank files ·</text>
+    <text x="100" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">chat history</text>
+    <rect x="195" y="46" width="160" height="70" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="275" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Chunk &amp; embed</text>
+    <text x="275" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">9 providers or</text>
+    <text x="275" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">local ONNX</text>
+    <rect x="370" y="46" width="160" height="70" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
+    <text x="450" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Vectra index</text>
+    <text x="450" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">file-system</text>
+    <text x="450" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">vector DB</text>
+    <rect x="545" y="46" width="160" height="70" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="625" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Retrieve</text>
+    <text x="625" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">query top-K ·</text>
+    <text x="625" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">score threshold</text>
+    <rect x="720" y="46" width="160" height="70" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="800" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Inject</text>
+    <text x="800" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">matched chunks</text>
+    <text x="800" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">→ the prompt</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M180 81 L193 81"/>
+    <path d="M355 81 L368 81"/>
+    <path d="M530 81 L543 81"/>
+    <path d="M705 81 L718 81"/>
+  </g>
+  <text x="277" y="34" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-faint)">ingest (once)</text>
+  <text x="712" y="34" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-faint)">retrieve (every generation)</text>
+</svg>
+<template #caption>
+
+**Two phases, one index.** Sources are chunked, embedded, and stored in Vectra once; then before
+*every* generation `rearrangeChat` embeds the recent chat, queries the index for the top-K most
+similar chunks above a score threshold, and injects them into the prompt. Switching embedding
+source or model creates a *separate* index — there is no automatic migration.
+
+</template>
+</Figure>
 
 ```
 manifest.json:8  ->  "generate_interceptor": "vectors_rearrangeChat"
