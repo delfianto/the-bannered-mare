@@ -2,6 +2,8 @@
 
 An AI-powered platform for local roleplay sessions, inspired by [SillyTavern](https://github.com/SillyTavern/SillyTavern). Everyone plays Skyrim, and everyone knows this place.
 
+📖 **Documentation site:** https://delfianto.github.io/the-bannered-mare/ (source in [`docs/`](docs/))
+
 This is a monorepo containing both halves of the application:
 
 | Directory | What it is | Docs |

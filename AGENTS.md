@@ -19,6 +19,7 @@ Each half keeps its own `.claude/` config (permissions, hooks, skills) scoped to
 ```text
 the-bannered-mare/
 ├── backend/     # FastAPI backend — own AGENTS.md, .claude/, pyproject.toml
+├── docs/        # VitePress documentation site (deployed to GitHub Pages)
 ├── frontend/    # Vue 3 SPA — own AGENTS.md, .claude/, package.json
 ├── openapi.json # Shared API contract (generated from backend, consumed by frontend)
 ├── LICENSE      # AGPL-3.0-or-later, covers the whole repo

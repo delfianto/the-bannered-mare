@@ -3,11 +3,11 @@
 This document outlines core instructions, tech stack conventions, and workflows for AI developers working on the **Bannered Mare backend**.
 
 For deep architectural details, refer to the implementation files:
-*   [Project Structure & Modular Monolith](docs/implementation/PROJECT_STRUCTURE.md)
-*   [Persistence Layer & Databases](docs/implementation/PERSISTENCE_LAYER.md)
-*   [LLM Integration & Connection Gateway](docs/implementation/LLM_INTEGRATION.md)
-*   [Prompt Construction & Template System](docs/implementation/PROMPT_SYSTEM.md)
-*   [Characters, Personas & Asset Storage](docs/implementation/CHARACTERS_AND_PERSONAS.md)
+*   [Project Structure & Modular Monolith](../docs/architecture/backend/project-structure.md)
+*   [Persistence Layer & Databases](../docs/architecture/backend/persistence.md)
+*   [LLM Integration & Connection Gateway](../docs/architecture/backend/llm-integration.md)
+*   [Prompt Construction & Template System](../docs/architecture/backend/prompt-system.md)
+*   [Characters, Personas & Asset Storage](../docs/architecture/backend/characters-and-personas.md)
 
 ---
 
@@ -48,7 +48,7 @@ Your goal is to build a high-performance, strictly typed, and modular system tha
 
 The project follows a **Modular Monolith** structure. Code is organized by **Domain** (Feature), not by technical layer (e.g., no global `controllers/` folder).
 
-For details, see [Project Structure & Modular Monolith](docs/implementation/PROJECT_STRUCTURE.md).
+For details, see [Project Structure & Modular Monolith](../docs/architecture/backend/project-structure.md).
 
 ```text
 backend/
@@ -79,7 +79,7 @@ backend/
 ### 4.1 Core Stack
 - **Runtime:** Python 3.14+
 - **Framework:** FastAPI
-- **ORM:** SQLAlchemy 2.0 (For details, see [Persistence Layer & Databases](docs/implementation/PERSISTENCE_LAYER.md))
+- **ORM:** SQLAlchemy 2.0 (For details, see [Persistence Layer & Databases](../docs/architecture/backend/persistence.md))
 - **Migrations:** Alembic
 - **Validation:** Pydantic V2
 - **Testing:** Pytest (`pytest-asyncio`)

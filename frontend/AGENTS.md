@@ -4,13 +4,13 @@ This document outlines core instructions, tech stack conventions, and workflows 
 
 For deep architectural details, refer to the following documentation files:
 
-- [LLM Harness Agent & Connection Management](docs/LLM_HARNESS_AGENT.md)
-- [Core & Shared Components](docs/CORE_COMPONENTS.md)
-- [Design System & Aesthetics](docs/DESIGN_SYSTEM.md)
-- [MSW Mock Harness & Offline Development](docs/MOCK_HARNESS.md)
-- [Backend Integration & Streaming Client](docs/BACKEND_CONNECTION.md)
-- [View Architecture & Main Screens](docs/MAIN_SCREENS.md)
-- [State Management & Localization](docs/STATE_AND_LOCALIZATION.md)
+- [LLM Harness Agent & Connection Management](../docs/architecture/frontend/llm-harness.md)
+- [Core & Shared Components](../docs/architecture/frontend/core-components.md)
+- [Design System & Aesthetics](../docs/architecture/frontend/design-system.md)
+- [MSW Mock Harness & Offline Development](../docs/architecture/frontend/mock-harness.md)
+- [Backend Integration & Streaming Client](../docs/architecture/frontend/backend-connection.md)
+- [View Architecture & Main Screens](../docs/architecture/frontend/main-screens.md)
+- [State Management & Localization](../docs/architecture/frontend/state-and-localization.md)
 
 ---
 
@@ -132,7 +132,7 @@ Data flows **View → Component → Composable → API Client**. Keep each layer
 
 #### Composable Reference
 
-For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Connection Management](docs/LLM_HARNESS_AGENT.md) documentation.
+For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Connection Management](../docs/architecture/frontend/llm-harness.md) documentation.
 
 | Composable                            | Purpose                                       |
 | ------------------------------------- | --------------------------------------------- |
