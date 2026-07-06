@@ -34,7 +34,7 @@ Your goal is to build a fast, strictly typed, and component-driven SPA with a wa
 
 ### 2.2 API Schema & Mock Data
 
-- **Generated Schema is Read-Only:** `src/api/schema.d.ts` is auto-generated from the backend's `openapi.json`. **Never hand-edit it.** Regenerate with `bun run api:gen` when the backend contract changes.
+- **Generated Schema is Read-Only:** `src/api/schema.d.ts` is auto-generated from the root `openapi.json` (the backend's OpenAPI contract). **Never hand-edit it.** Regenerate with `bun run api:gen` when the backend contract changes.
 - **Typed Client Only:** Use the `openapi-fetch` client (`src/api/client.ts`) for API calls so requests are validated against the schema. Verify endpoint paths, params, and response shapes against `schema.d.ts` before coding.
 - **Keep Mocks in Sync:** MSW handlers (`src/mocks/handlers.ts`) and fixtures (`src/mocks/data/`) mirror the backend's seed data. When an endpoint or response shape changes, update the matching handler/fixture so mock mode stays faithful.
 - **FormData Exception:** For multipart mutations (character create/update), use `fetch()` directly — `openapi-fetch` does not handle multipart well.
@@ -57,7 +57,7 @@ The project is a Vue 3 SPA organized by **feature area** under `src/`. Component
 src/
 ├── api/                    # openapi-fetch client + auto-generated schema
 │   ├── client.ts           # Base client, avatar URL helpers
-│   └── schema.d.ts         # AUTO-GENERATED from ../backend/openapi.json
+│   └── schema.d.ts         # AUTO-GENERATED from ../openapi.json (repo root)
 ├── assets/
 │   ├── main.css            # Tailwind entry, theme tokens, fonts, animations
 │   ├── icons/              # SVG brand icons (openai, anthropic, google, etc.)
@@ -191,7 +191,7 @@ bun run typecheck            # Type-check only (vue-tsc --noEmit)
 bun run build                # FINAL GATE: vue-tsc -b && vp build
 
 # Schema
-bun run api:gen              # Regenerate schema.d.ts from backend openapi.json
+bun run api:gen              # Regenerate schema.d.ts from the root openapi.json
 ```
 
 `bun run build` (`vue-tsc -b && vp build`) is the authoritative check — strict Vue type-check followed by the production Rolldown build. A task is not done until it passes.

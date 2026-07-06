@@ -29,10 +29,10 @@ bun run dev --host           # proxies /api to localhost:8000
 
 ## Keeping the API Contract in Sync
 
-The frontend's `src/api/schema.d.ts` is generated from the backend's `openapi.json`, using a fixed relative path (`frontend/../backend/openapi.json`). Whenever the backend's API changes:
+The API contract lives at the repo root as `openapi.json` — the shared interface between the two halves. The frontend's `src/api/schema.d.ts` is generated from it using a fixed relative path (`frontend/../openapi.json`). Whenever the backend's API changes:
 
 ```bash
-cd backend && ./scripts/openapi.sh   # regenerate backend/openapi.json
+cd backend && ./scripts/openapi.sh   # regenerate ./openapi.json at the repo root
 cd ../frontend && bun run api:gen    # regenerate frontend/src/api/schema.d.ts
 ```
 
