@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { architectureSidebar } from './sidebar.architecture'
 import { guideSidebar } from './sidebar.guide'
+import { providersSidebar } from './sidebar.providers'
 
 export default defineConfig({
   title: 'The Bannered Mare',
@@ -13,10 +14,12 @@ export default defineConfig({
     nav: [
       { text: 'Guide', link: '/guide/' },
       { text: 'Architecture', link: '/architecture/' },
+      { text: 'LLM Providers', link: '/providers/' },
     ],
     sidebar: {
       '/guide/': guideSidebar,
       '/architecture/': architectureSidebar,
+      '/providers/': providersSidebar,
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/delfianto/the-bannered-mare' },
