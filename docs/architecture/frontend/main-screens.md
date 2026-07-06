@@ -1,6 +1,7 @@
-# The Bannered Mare: View Architecture and Main Screens
+# Main Screens
 
-The The Bannered Mare client is a Single Page Application (SPA) structured around vertical views mapping to specific core features of the roleplay application.
+The client is a single-page application (SPA) organized around a handful of top-level views,
+each mapping to a core feature of the roleplay app.
 
 
 ## 1. Home Dashboard (`HomeView.vue`)

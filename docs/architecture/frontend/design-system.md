@@ -1,6 +1,8 @@
-# The Bannered Mare: Design System and Aesthetics
+# Design System
 
-The Bannered Mare is built with a warm, literary fantasy aesthetic designed to emulate parchment, walnut ink, and medieval library tones. This design system is built using CSS variables, custom typography, Tailwind CSS v4, and Nuxt UI v4 token configurations.
+The Bannered Mare wears a warm, literary fantasy aesthetic — parchment, walnut ink, and
+medieval-library tones. The system is built from CSS variables, custom typography, Tailwind
+CSS v4, and Nuxt UI v4 token configuration.
 
 
 ## 1. Color Palette Tokens
@@ -40,7 +42,7 @@ The interface theme state is synchronized using a singleton composable:
 
 - **Theming Composable**: `useTheme()` maintains a shared `isDark` boolean reference.
 - **Persistence**: Saves state in the client's `localStorage` as `"theme:is-dark"`.
-- **DOM Injection**: Appends or removes the `.dark` class directly on the HTML document root tag $\langle\text{html}\rangle$, allowing Tailwind dark selectors to activate instantly.
+- **DOM Injection**: Appends or removes the `.dark` class directly on the `<html>` document root, so Tailwind's dark selectors activate instantly.
 
 
 ## 4. UI Transitions and Animations

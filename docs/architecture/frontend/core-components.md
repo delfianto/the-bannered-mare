@@ -1,6 +1,7 @@
-# The Bannered Mare: Core & Shared Components
+# Core Components
 
-This document outlines the frontend component architecture of the The Bannered Mare. The application uses Vue 3 components styled with Tailwind CSS and Nuxt UI v4 primitives.
+This page outlines The Bannered Mare's frontend component architecture — Vue 3 components
+styled with Tailwind CSS and Nuxt UI v4 primitives.
 
 
 ## 1. App Shell and Navigation Layout
@@ -31,11 +32,11 @@ This document outlines the frontend component architecture of the The Bannered M
 
 - **Role**: A recursive component designed to dynamically render input controls based on JSON schema definitions.
 - **Recursive Schemas**: Maps different parameter types automatically:
-  - **Boolean** $\rightarrow$ Checkbox or toggle.
-  - **Enum** $\rightarrow$ Dropdown selector.
-  - **Number / Integer** $\rightarrow$ Slider or numeric input field with min/max bounds.
-  - **String** $\rightarrow$ Text area or input field.
-  - **List / Object** $\rightarrow$ Nested recursive calls to self.
+  - **Boolean** → checkbox or toggle.
+  - **Enum** → dropdown selector.
+  - **Number / Integer** → slider or numeric input with min/max bounds.
+  - **String** → text area or input field.
+  - **List / Object** → nested recursive calls to itself.
 
 
 ## 4. Chat Input Elements
