@@ -18,11 +18,9 @@ for the server-sent event (SSE) stream that carries live completions.
       <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
     </marker>
   </defs>
-
   <!-- Actor -->
   <rect x="350" y="14" width="200" height="38" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
   <text x="450" y="38" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">👤 User · Web browser</text>
-
   <!-- ===== Frontend tier ===== -->
   <rect x="110" y="82" width="680" height="150" rx="14" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)" stroke-opacity=".55" stroke-dasharray="5 4"/>
   <text x="126" y="106" font-size="12" font-weight="700" letter-spacing=".08em" fill="var(--tbm-dgm-frontend)">FRONTEND · Vue 3 single-page app</text>
@@ -39,7 +37,6 @@ for the server-sent event (SSE) stream that carries live completions.
     <text x="707" y="155" font-size="10" fill="var(--tbm-dgm-ink-2)">harness</text>
   </g>
   <text x="126" y="212" font-size="11" fill="var(--tbm-dgm-faint)">Vue 3.5 · Nuxt UI v4 · TypeScript · Vite · vue-i18n · custom SSE stream parser</text>
-
   <!-- ===== Backend tier ===== -->
   <rect x="70" y="272" width="760" height="170" rx="14" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)" stroke-opacity=".55" stroke-dasharray="5 4"/>
   <text x="86" y="296" font-size="12" font-weight="700" letter-spacing=".08em" fill="var(--tbm-dgm-backend)">BACKEND · FastAPI modular monolith · Python 3.14</text>
@@ -55,14 +52,12 @@ for the server-sent event (SSE) stream that carries live completions.
   <rect x="86" y="374" width="728" height="52" rx="9" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
   <text x="450" y="400" text-anchor="middle" font-size="12" font-weight="600" fill="var(--tbm-dgm-ink)">Core kernel</text>
   <text x="450" y="416" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">config · persistence (SQLAlchemy 2.0) · structured logging · exception handlers</text>
-
   <!-- ===== Data + Providers tier ===== -->
   <rect x="70" y="486" width="350" height="128" rx="14" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)" stroke-opacity=".55" stroke-dasharray="5 4"/>
   <text x="86" y="510" font-size="12" font-weight="700" letter-spacing=".05em" fill="var(--tbm-dgm-data)">🗄  PostgreSQL + pgvector</text>
   <text x="86" y="540" font-size="11.5" fill="var(--tbm-dgm-ink)">Persistence — sessions, characters, messages</text>
   <text x="86" y="562" font-size="11.5" fill="var(--tbm-dgm-ink)">Vector embeddings — RAG retrieval</text>
   <text x="86" y="590" font-size="10.5" fill="var(--tbm-dgm-faint)">One store, one owner: the backend</text>
-
   <rect x="480" y="486" width="350" height="128" rx="14" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)" stroke-opacity=".55" stroke-dasharray="5 4"/>
   <text x="496" y="510" font-size="12" font-weight="700" letter-spacing=".05em" fill="var(--tbm-dgm-provider)">🔌  LLM Providers</text>
   <g font-size="10.5" text-anchor="middle" fill="var(--tbm-dgm-ink)">
@@ -74,7 +69,6 @@ for the server-sent event (SSE) stream that carries live completions.
     <rect x="602" y="556" width="68" height="26" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="636" y="573">Ollama</text>
     <rect x="678" y="556" width="136" height="26" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="746" y="573">Local backends</text>
   </g>
-
   <!-- ===== Connective arrows ===== -->
   <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
     <path d="M450 52 L450 80"/>

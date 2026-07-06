@@ -67,24 +67,19 @@ the temp copy removed — so a failed upload can't leave a half-written avatar i
     <rect x="30" y="44" width="230" height="64" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
     <text x="145" y="72" font-weight="700" fill="var(--tbm-dgm-ink)">1 · User uploads image</text>
     <text x="145" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">multipart form upload</text>
-
     <rect x="295" y="44" width="230" height="64" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <text x="410" y="72" font-weight="700" fill="var(--tbm-dgm-ink)">2 · Write to storage/temp</text>
     <text x="410" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">staging area</text>
-
     <rect x="560" y="44" width="230" height="64" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <text x="675" y="72" font-weight="700" fill="var(--tbm-dgm-ink)">3 · Verify / format</text>
     <text x="675" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">Pillow → PNG / JPEG</text>
-
     <!-- Row 2 -->
     <rect x="560" y="160" width="230" height="64" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <text x="675" y="188" font-weight="700" fill="var(--tbm-dgm-ink)">4 · Generate thumbnail</text>
     <text x="675" y="206" font-size="10.5" fill="var(--tbm-dgm-ink-2)">Pillow · max 150×150</text>
-
     <rect x="295" y="160" width="230" height="64" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
     <text x="410" y="185" font-weight="700" fill="var(--tbm-dgm-ink)">5 · Save both</text>
     <text x="410" y="203" font-size="10.5" fill="var(--tbm-dgm-ink-2)">storage/characters/{id}/</text>
-
     <rect x="30" y="160" width="230" height="64" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border)" stroke-dasharray="5 4"/>
     <text x="145" y="188" font-weight="700" fill="var(--tbm-dgm-ink)">6 · Delete temp files</text>
     <text x="145" y="206" font-size="10.5" fill="var(--tbm-dgm-ink-2)">cleanup</text>
