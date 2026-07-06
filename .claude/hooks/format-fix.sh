@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# PostToolUse(Edit|Write|MultiEdit): auto-format and lint-fix the edited file
-# through the Vite+ (vp) toolchain. Silent and non-blocking.
+# PostToolUse(Edit|Write|MultiEdit): auto-format and lint-fix edited *frontend*
+# source files through the Vite+ (vp) toolchain. Path-scoped to frontend/ so it
+# stays inert for the backend and docs halves when Claude runs from the repo
+# root. Silent and non-blocking.
 set -euo pipefail
 
 input=$(cat)
@@ -8,6 +10,12 @@ file=$(printf '%s' "$input" | python3 -c "import sys,json;print(json.load(sys.st
 
 [ -n "$file" ] || exit 0
 [ -f "$file" ] || exit 0
+
+# Only frontend files (absolute or repo-relative path).
+case "$file" in
+  */frontend/*|frontend/*) ;;
+  *) exit 0 ;;
+esac
 
 # Never reformat generated / declaration files.
 case "$file" in
@@ -21,7 +29,7 @@ case "$file" in
   *) exit 0 ;;
 esac
 
-cd "${CLAUDE_PROJECT_DIR:-$(pwd)}" || exit 0
+cd "${CLAUDE_PROJECT_DIR:-$(pwd)}/frontend" || exit 0
 
 # Hooks run in a fresh shell that doesn't source the interactive profile;
 # make sure the vp binary is reachable before using it.

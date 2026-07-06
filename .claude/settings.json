@@ -1,10 +1,18 @@
 {
   "permissions": {
     "allow": [
+      "Bash(.venv/bin/alembic revision:*)",
+      "Bash(.venv/bin/basedpyright:*)",
+      "Bash(.venv/bin/pytest:*)",
+      "Bash(.venv/bin/python -m pytest:*)",
+      "Bash(.venv/bin/ruff check:*)",
+      "Bash(.venv/bin/ruff format:*)",
       "Bash(./node_modules/.bin/oxlint:*)",
       "Bash(./node_modules/.bin/vue-tsc:*)",
       "Bash(VITE_USE_MOCKS=true VITE_DEBUG_REQUEST=true bun run dev:*)",
       "Bash(VITE_USE_MOCKS=true bun run dev:*)",
+      "Bash(alembic revision:*)",
+      "Bash(basedpyright:*)",
       "Bash(bun add:*)",
       "Bash(bun install:*)",
       "Bash(bun remove:*)",
@@ -12,6 +20,7 @@
       "Bash(bunx:*)",
       "Bash(cat:*)",
       "Bash(cd:*)",
+      "Bash(command -v *)",
       "Bash(curl -X GET *)",
       "Bash(echo:*)",
       "Bash(export PATH=*)",
@@ -34,8 +43,10 @@
       "Bash(gh search:*)",
       "Bash(gh workflow list:*)",
       "Bash(gh workflow view:*)",
+      "Bash(git add *)",
       "Bash(git add:*)",
       "Bash(git branch:*)",
+      "Bash(git commit *)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
@@ -49,10 +60,22 @@
       "Bash(node:*)",
       "Bash(oxfmt:*)",
       "Bash(oxlint:*)",
+      "Bash(pytest:*)",
+      "Bash(python -m pytest:*)",
       "Bash(rg:*)",
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
       "Bash(superdesign:*)",
       "Bash(tail:*)",
       "Bash(tree:*)",
+      "Bash(uv add:*)",
+      "Bash(uv lock:*)",
+      "Bash(uv remove:*)",
+      "Bash(uv run alembic revision:*)",
+      "Bash(uv run basedpyright:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(uv sync:*)",
       "Bash(vite:*)",
       "Bash(vp:*)",
       "Bash(vue-tsc:*)",
@@ -88,10 +111,27 @@
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/block-git-write.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/ruff-fix.sh",
+            "timeout": 30
+          },
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/format-fix.sh",
@@ -103,6 +143,11 @@
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/basedpyright-check.sh",
+            "timeout": 120
+          },
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck.sh",
@@ -122,6 +167,11 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "logfire@claude-plugins-official": true,
+    "42crunch-api-security-testing@claude-plugins-official": true
   },
   "enabledMcpjsonServers": ["nuxt-ui"]
 }
