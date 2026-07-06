@@ -2,7 +2,6 @@
 
 The frontend of The Bannered Mare integrates with the backend's multi-provider LLM system via an inference and connection management harness. This system allows users to define credentials, inspect active services, sync available models, load/unload local files, and tune parameters dynamically.
 
----
 
 ## 1. Architectural Role
 
@@ -24,7 +23,6 @@ It manages:
 - **Dynamic Loading/Unloading**: Explicitly spinning up or unloading model weights on local nodes (LM Studio).
 - **Inference Parameter Overrides**: Providing key-value editors to set defaults on model families or session presets.
 
----
 
 ## 2. The `useProvider` Composable
 
@@ -59,7 +57,6 @@ export function useProvider() {
 - **`loadModel(id, identifier)`**: Tells the local provider (such as LM Studio) to load the specified model weights into memory.
 - **`unloadModel(id, identifier)`**: Tells the local provider to release the model weights from memory.
 
----
 
 ## 3. UI Components and Views
 

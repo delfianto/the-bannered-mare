@@ -6,7 +6,6 @@
 > provider, and how the OllamaAdapter integrates into the multi-provider architecture
 > defined in the OpenAI analysis (Sections 12 and 14).
 
----
 
 ## Table of Contents
 
@@ -23,7 +22,6 @@
 11. [Mapping: Shared Types to Ollama API](#11-mapping-shared-types-to-ollama-api)
 12. [Implementation Plan](#12-implementation-plan)
 
----
 
 ## 1. API Overview
 
@@ -44,7 +42,6 @@ with the same request/response shape as OpenAI. The native API is needed exclusi
 for model management operations (list, pull, show, delete). This means the OllamaAdapter
 for chat can largely reuse OpenAI adapter logic.
 
----
 
 ## 2. Authentication
 
@@ -61,7 +58,6 @@ None.
 **Adapter Impact:** `build_headers()` returns an empty dict (or minimal
 `Content-Type: application/json`). No secrets to manage.
 
----
 
 ## 3. Native Chat API
 
@@ -304,7 +300,6 @@ This differs from OpenAI's content-parts approach. The native API uses a flat `i
 array, not structured content parts. The OpenAI-compatible endpoint, however, accepts
 the standard OpenAI multipart content format.
 
----
 
 ## 4. Native Response Format
 
@@ -379,7 +374,6 @@ TokenUsage(
 Ollama does not have explicit `"length"` or `"content_filter"` done reasons.
 The adapter must infer `LENGTH` when the generation was truncated by `num_predict`.
 
----
 
 ## 5. Native Streaming -- NDJSON
 
@@ -425,7 +419,6 @@ When `think: true`, chunks alternate between `thinking` and `content` fields:
 {"message": {"content": " is 42."}, "done": true, ...}
 ```
 
----
 
 ## 6. OpenAI-Compatible API
 
@@ -535,7 +528,6 @@ To control context size, you must either:
 This is a notable gap. For roleplay sessions with long context requirements, the
 native API or pre-configured models may be necessary.
 
----
 
 ## 7. Model Management Endpoints
 
@@ -669,7 +661,6 @@ request, and display VRAM usage to the user.
 {"version": "0.6.2"}
 ```
 
----
 
 ## 8. Key Differences from OpenAI
 
@@ -719,7 +710,6 @@ request, and display VRAM usage to the user.
    `content_filter` finish reason never occurs. This is relevant for The Bannered Mare's
    roleplay use case where content filtering would be undesirable.
 
----
 
 ## 9. OllamaAdapter Implementation Spec
 
@@ -846,7 +836,6 @@ async def parse_ndjson_stream(
         yield json.loads(line)
 ```
 
----
 
 ## 10. Model Discovery
 
@@ -919,7 +908,6 @@ Tag defaults to `latest` if omitted.
 Note: `owned_by` defaults to `"library"` for Ollama Hub models, or the namespace
 for custom models.
 
----
 
 ## 11. Mapping: Shared Types to Ollama API
 
@@ -1065,7 +1053,6 @@ request = CompletionRequest(
 )
 ```
 
----
 
 ## 12. Implementation Plan
 
@@ -1142,7 +1129,6 @@ request = CompletionRequest(
     - VRAM usage from /api/ps
 ```
 
----
 
 ## Appendix A: Quick Reference -- Endpoint Cheat Sheet
 

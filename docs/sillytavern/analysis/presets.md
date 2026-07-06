@@ -4,7 +4,6 @@
 > Source: `/st/` (SillyTavern) + the example files in `/preset/`
 > Purpose: understand the "Freaky Frankenstein"-style preset JSONs so we can build an import/compatibility bridge.
 
----
 
 ## 1. What's actually in the `preset/` drop
 
@@ -18,7 +17,6 @@ The folder is a grab-bag of **three unrelated SillyTavern artifact types** — o
 
 Empirically every Freaky Frankenstein file in the drop is a **prompts-only** Chat Completion preset: exactly 11 top-level keys, no sampler fields. ST presets *can* also carry samplers (temperature, top_p, max_tokens, `chat_completion_source`, …); these creators stripped them so users keep their own sampling. An importer must treat the sampler block as **optional**.
 
----
 
 ## 2. Chat Completion preset structure
 
@@ -89,7 +87,6 @@ Each entry is a prompt *definition*. Maps to the `Prompt` class at `st/public/sc
 - `character_id` scopes the order. ST's chat-completion manager uses `promptOrder: { strategy: 'global', dummyId: 100001 }` (`openai.js:687`), so **`100001` is the global/default order** applied to every character. (Per-character overrides would appear as additional array entries keyed by real character ids.)
 - An identifier present in `prompts[]` but absent from `order` is simply not assembled.
 
----
 
 ## 3. How ST reads & assembles a preset
 
@@ -116,7 +113,6 @@ Key references:
 - **PromptManager wiring:** `openai.js:666` `setupChatCompletionPromptManager` → `new PromptManager()` (`:673`), `defaultPrompts` (`:681`), global order `dummyId 100001` (`:687`).
 - **Assembly:** `openai.js:1358` `preparePromptsForChatCompletion`; markers added at `:1203-1206` (`worldInfoBefore`/`worldInfoAfter`/`charDescription`), `chatHistory` MessageCollection at `:877/:881`, `dialogueExamples` at `:1093`.
 
----
 
 ## 4. Why this design (and the legacy it replaced)
 
@@ -128,7 +124,6 @@ The modular model exists because RP prompt engineering needs:
 - **Markers for dynamic content** — the preset can't contain the character/chat/world-info (those come from the session), so markers reserve the *slot* and ST fills it at assembly. This is the crux of the format.
 - **Depth injection** — `injection_position:1` + `injection_depth` lets a fragment be injected N messages deep into the chat (e.g. a "jailbreak at depth 4") rather than in the static preamble.
 
----
 
 ## 5. The marker set (what ST substitutes)
 
@@ -144,7 +139,6 @@ The modular model exists because RP prompt engineering needs:
 
 Markers have **no `content`**; their entry only carries `identifier`, `name`, `system_prompt:true`, `marker:true`. They are pure ordering anchors.
 
----
 
 ## 6. The other two artifact types (for the importer's type-detector)
 
@@ -153,7 +147,6 @@ Markers have **no `content`**; their entry only carries `identifier`, `name`, `s
 
 A robust importer should sniff the shape and reject/redirect non-preset files rather than coercing them.
 
----
 
 ## 7. Comparison with The Bannered Mare & bridge approach
 

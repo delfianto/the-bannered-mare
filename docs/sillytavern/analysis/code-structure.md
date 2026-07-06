@@ -4,7 +4,6 @@ An in-depth analysis of SillyTavern's codebase organization, architecture patter
 and code metrics. All paths are relative to the SillyTavern project root unless
 stated otherwise.
 
----
 
 ## 1. Top-Level Organization
 
@@ -37,7 +36,6 @@ The project is an **ESM-native Node.js application** (`"type": "module"` in
 package.json). It targets Node >= 20 and also advertises experimental Deno and Bun
 support through dedicated npm scripts.
 
----
 
 ## 2. Backend Architecture (`src/`)
 
@@ -177,7 +175,6 @@ modern `/api/characters/create` equivalents using HTTP 308 redirects.
 | `src/server-events.js` | Node EventEmitter-based server event bus |
 | `src/plugin-loader.js` | Server plugin discovery, loading, and auto-update |
 
----
 
 ## 3. Frontend Architecture (`public/`)
 
@@ -329,7 +326,6 @@ application's global state as a stable API surface for extensions. It imports fr
 `script.js` and re-exports a curated set of functions and variables. This is the
 recommended way for extensions to interact with the core.
 
----
 
 ## 4. Middleware Stack (`src/middleware/`)
 
@@ -365,7 +361,6 @@ The middleware is applied in `server-main.js` in this order:
 15. `requireLoginMiddleware` (authentication gate for all `/api/*` routes)
 16. `multer` (file uploads) + `multerMonkeyPatch`
 
----
 
 ## 5. Configuration System
 
@@ -405,7 +400,6 @@ Performance-sensitive data uses `MemoryLimitedMap` (an LRU cache with configurab
 byte-size limit, defaulting to 100MB) and a `DiskCache` class backed by
 `node-persist` for character data.
 
----
 
 ## 6. Type System
 
@@ -453,7 +447,6 @@ Two separate configs:
 Both enable type checking on plain `.js` files through the TypeScript language
 service.
 
----
 
 ## 7. Build System
 
@@ -488,7 +481,6 @@ application code itself. The `<script type="module">` in `index.html` loads
 "postinstall": "node post-install.js"
 ```
 
----
 
 ## 8. Code Metrics Summary
 
@@ -531,7 +523,6 @@ application code itself. The `<script type="module">` in `index.html` loads
   ws (WebSocket), archiver, yaml, lodash, chalk, handlebars, showdown (markdown),
   highlight.js, fuse.js, morphdom, chevrotain (parser), dompurify
 
----
 
 ## 9. Dependency Graph and Coupling Patterns
 
@@ -602,7 +593,6 @@ except for conceptual duplication:
 export const TEXTGEN_TYPES = { ... };
 ```
 
----
 
 ## 10. Testing Infrastructure
 
@@ -642,7 +632,6 @@ fraction of the 185,000-line codebase. Most tests focus on the macro engine
 - Provider-specific prompt conversion
 - Any frontend UI logic beyond macros
 
----
 
 ## 11. Internationalization
 
@@ -653,7 +642,6 @@ HTML elements using `data-i18n` attributes and processed at render time.
 Supported locales: ar-sa, de-de, en, es-es, fr-fr, is-is, it-it, ja-jp, ko-kr,
 nl-nl, pt-pt, ru-ru, th-th, uk-ua, vi-vn, zh-cn, zh-tw.
 
----
 
 ## 12. Key Architectural Patterns
 

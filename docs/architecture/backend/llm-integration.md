@@ -2,7 +2,6 @@
 
 The Bannered Mare supports multi-provider LLM integrations (both cloud APIs like OpenAI and Anthropic, and local APIs like Ollama and LM Studio). This architecture uses a stateless adapters pattern coordinated by a centralized gateway, separating connection configurations from API transport mechanics.
 
----
 
 ## 1. Provider, Model, and ModelFamily
 
@@ -12,7 +11,6 @@ Three core database models define LLM connectivity:
 2. **ModelFamily**: Grouping of similar models defining default parameters (temperature, frequency penalty, etc.) and configuration parameters like prompt structure templates.
 3. **Model**: A concrete, selectable LLM model (e.g., `gpt-4o` or `llama3`) linked to a specific Provider and ModelFamily. It inherits parameters from its family and supports individual overrides.
 
----
 
 ## 2. Stateless Adapter Pattern
 
@@ -31,7 +29,6 @@ To prevent duplicate API transportation logic, The Bannered Mare employs a state
 *   **Ollama**: Interacts with local Ollama `/api/chat` endpoints.
 *   **LM Studio**: Direct mapping to LM Studio endpoints.
 
----
 
 ## 3. Centralized Gateway (`ProviderGateway`)
 
@@ -57,7 +54,6 @@ The gateway catches standard HTTP status codes and maps them to clean system exc
 *   `400` $\rightarrow$ `ProviderInvalidRequestError`
 *   Other exceptions $\rightarrow$ `ProviderException`
 
----
 
 ## 4. Model Discovery and Syncing
 

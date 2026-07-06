@@ -6,7 +6,6 @@
 > what the `OpenRouterAdapter` must handle, and how it maps to the shared
 > `CompletionRequest`/`CompletionResponse` types defined in `analysis/OPENAI.md`.
 
----
 
 ## Table of Contents
 
@@ -22,7 +21,6 @@
 10. [Mapping: Shared Types ↔ OpenRouter API](#10-type-mapping)
 11. [Implementation Plan](#11-implementation-plan)
 
----
 
 ## 1. API Overview
 
@@ -69,7 +67,6 @@ OpenRouter is the **lowest-friction path** to multi-model support. Because it sp
 OpenAI protocol, the existing OpenAI adapter handles 90% of the work. The OpenRouterAdapter
 is a **thin subclass** — not a separate implementation.
 
----
 
 ## 2. Authentication & Extra Headers
 
@@ -114,7 +111,6 @@ The Provider model already stores `api_key_env_var` for credential lookup. The e
 drawn from application settings. The `OpenRouterAdapter.build_headers()` override handles
 injecting them.
 
----
 
 ## 3. Request Schema — OpenAI + Extensions
 
@@ -299,7 +295,6 @@ Suffixes may indicate variants:
 }
 ```
 
----
 
 ## 4. Response Schema — OpenAI + Extensions
 
@@ -379,7 +374,6 @@ OpenRouter uses standard HTTP error codes with an OpenAI-compatible error body:
 balance exhausted). The Bannered Mare should map this to a user-friendly "insufficient credits"
 message.
 
----
 
 ## 5. Streaming
 
@@ -423,7 +417,6 @@ method works **without modification**. The `OpenRouterAdapter` does not need to 
 any streaming logic. The only difference is that chunk `id` fields use the `gen-` prefix
 and `model` may reflect a fallback model.
 
----
 
 ## 6. Models Endpoint
 
@@ -515,7 +508,6 @@ The models endpoint is **extremely valuable** for The Bannered Mare:
 This endpoint should be exposed as a service method that the frontend can call to
 populate model selection dropdowns.
 
----
 
 ## 7. Key Value Proposition for The Bannered Mare
 
@@ -564,7 +556,6 @@ Google, Meta, and dozens of other models **without implementing their native API
 The `OpenRouterAdapter` is a thin wrapper — the heavy lifting is already done by
 `OpenAIAdapter`.
 
----
 
 ## 8. Key Differences from OpenAI — Summary Table
 
@@ -587,7 +578,6 @@ The `OpenRouterAdapter` is a thin wrapper — the heavy lifting is already done 
 **Bottom line:** 3 things to override: `base_url`, `build_headers()`, and error mapping.
 Everything else is inherited from `OpenAIAdapter`.
 
----
 
 ## 9. OpenRouterAdapter Implementation Spec
 
@@ -738,7 +728,6 @@ The following methods are **inherited as-is** from `OpenAIAdapter`:
 
 This is the primary advantage of OpenRouter: ~90% code reuse with `OpenAIAdapter`.
 
----
 
 ## 10. Mapping: Shared Types ↔ OpenRouter API
 
@@ -822,7 +811,6 @@ extra = {
 }
 ```
 
----
 
 ## 11. Implementation Plan
 
@@ -941,7 +929,6 @@ This is the lightest adapter in the entire multi-provider system, which is exact
 point — OpenRouter's OpenAI compatibility means minimal engineering effort for maximum
 model coverage.
 
----
 
 ## Appendix A: OpenRouter Model ID Examples
 
@@ -962,7 +949,6 @@ For reference when testing, these are representative model IDs:
 | `qwen/qwen-2.5-72b-instruct` | Alibaba | Qwen 2.5 |
 | `meta-llama/llama-3.1-8b-instruct:free` | Meta (hosted) | Free tier variant |
 
----
 
 ## Appendix B: Quick Decision Matrix
 

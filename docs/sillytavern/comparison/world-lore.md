@@ -7,7 +7,6 @@
 > `src/lore/repository.py`, `src/lore/router.py`, `src/lore/schemas.py`,
 > `src/core/persistence/models.py`, `src/core/persistence/enums.py`
 
----
 
 ## 1. Entry Data Model
 
@@ -58,7 +57,6 @@ mechanics while omitting several ST-specific extensions.
 | Entry identity | Integer `uid` scoped to the lorebook file. | NanoID string, globally unique. |
 | Caching | `StructuredCloneMap` with clone-on-get. | SQLAlchemy session identity map. |
 
----
 
 ## 2. Activation Engine
 
@@ -108,7 +106,6 @@ In The Bannered Mare, entries with `priority < 0` are excluded entirely during b
 (treated as disabled for budget purposes). SillyTavern has no equivalent negative-priority
 cutoff.
 
----
 
 ## 3. Scan Buffer
 
@@ -142,7 +139,6 @@ chat messages and character context before calling the engine.
 | Recursion buffer | Dedicated layer, populated across passes | Not applicable (single-pass) |
 | Extension injections | Separate `injectBuffer` for extension content | Not applicable |
 
----
 
 ## 4. Insertion Positions
 
@@ -185,7 +181,6 @@ SillyTavern assembles lore into position-specific strings (`worldInfoBefore`,
 `worldInfoAfter`, etc.) that are injected during prompt construction. AT_DEPTH entries
 are inserted as discrete messages at the specified chat history depth.
 
----
 
 ## 5. Token Budget
 
@@ -212,7 +207,6 @@ Both systems delegate token counting to a tokenizer service. SillyTavern uses
 `getTokenCountAsync()` (async, likely tiktoken-based). The Bannered Mare uses a synchronous
 `TokenizerService.count_tokens()` method.
 
----
 
 ## 6. Recursive Scanning
 
@@ -249,7 +243,6 @@ triggering the leader's entry). It is also one of the most complex to implement 
 and a common source of performance issues in large lorebooks. The Bannered Mare's single-pass
 design is simpler and more predictable but cannot express entry chaining.
 
----
 
 ## 7. Group / Mutual Exclusion
 
@@ -278,7 +271,6 @@ or "only one faction reputation level at a time." Without it, users must manuall
 ensure conflicting entries have non-overlapping keywords or use secondary keys for
 exclusion logic.
 
----
 
 ## 8. Timed Effects
 
@@ -307,7 +299,6 @@ These require per-chat state tracking, which adds persistence complexity. The Ba
 stateless activation model is simpler to reason about but cannot express temporal entry
 behavior.
 
----
 
 ## 9. Import Formats
 
@@ -340,7 +331,6 @@ character cards with embedded lorebooks across different tools. As a backend API
 delegates import concerns to its consumers but would benefit from a Character Card V2
 import endpoint to enable direct card ingestion.
 
----
 
 ## 10. Additional Features in SillyTavern Not Present in The Bannered Mare
 
@@ -359,7 +349,6 @@ import endpoint to enable direct card ingestion.
 | Named outlets | Lore injected via `{{outlet::Name}}` macros in prompt templates. | High -- requires macro/template engine integration. |
 | Min activations | Auto-extend scan depth until N entries activate. | Medium -- requires multi-pass scan buffer with depth control. |
 
----
 
 ## 11. Architectural Differences Summary
 
@@ -376,7 +365,6 @@ import endpoint to enable direct card ingestion.
 | Import formats | 5 (native, NovelAI, Agnai, Risu, Character Book V2) + PNG extraction | None (API-only) |
 | Type safety | Runtime JavaScript (no type checking) | SQLAlchemy models + Pydantic schemas + BasedPyright strict mode |
 
----
 
 ## 12. The Bannered Mare Design Strengths
 

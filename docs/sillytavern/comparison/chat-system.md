@@ -3,7 +3,6 @@
 > Engineering comparison of the two systems' chat architectures.
 > SillyTavern analysis based on commit `1695f8e`; The Bannered Mare based on current `develop` branch.
 
----
 
 ## 1. Chat Storage
 
@@ -18,7 +17,6 @@
 
 **Observations.** SillyTavern's file-based approach maximizes portability -- a chat is a single self-contained file that can be copied, backed up, or shared trivially. The Bannered Mare trades that for queryability and concurrent-write safety inherent in a relational database. SillyTavern's full-state saves are simple but scale poorly with conversation length. The Bannered Mare's row-level persistence avoids this but requires a running database process.
 
----
 
 ## 2. Message Data Model
 
@@ -69,7 +67,6 @@ updated_at         datetime     Auto-updated
 
 **Observations.** SillyTavern's `extra` bag provides unlimited extensibility at the cost of schema discipline -- any plugin or feature can attach arbitrary data without coordination. The Bannered Mare's strict column schema enforces data integrity and enables typed queries but requires explicit migrations for every new field. SillyTavern's per-message provider tracking is useful for chats where the user switches models mid-conversation; The Bannered Mare currently tracks the model at the session level only.
 
----
 
 ## 3. Swipes / Alternatives
 
@@ -115,7 +112,6 @@ On first regeneration, the original content is preserved as ordinal 0 before the
 
 **Observations.** SillyTavern's inline approach is simpler for its JSONL-file model -- everything travels as one unit. The parallel-array structure with manual sync functions is fragile but avoids joins. The Bannered Mare's normalized table design is cleaner relationally but currently stores less metadata per alternative. The loss of per-alternative provider/model information means The Bannered Mare cannot show which model generated each alternative.
 
----
 
 ## 4. Message Editing
 
@@ -153,7 +149,6 @@ The service (`edit_message`) validates the message exists in the chat, updates t
 | **Message reordering** | Supported (swap in array + DOM) | Not supported |
 | **Tainted flag** | Marks chat as edited, affecting overswipe behavior | No equivalent metadata |
 
----
 
 ## 5. Regeneration
 
@@ -196,7 +191,6 @@ The service (`regenerate` / `regenerate_stream`):
 | **Group regeneration** | Deletes all messages from the last `gen_id` batch, then re-generates | Not applicable (no group chat support) |
 | **Prompt construction** | Sends the full chat context; the swipe position determines what is included | Explicitly filters out the last assistant message before building the prompt |
 
----
 
 ## 6. Branching and Bookmarks
 
@@ -223,7 +217,6 @@ Storage is via file duplication -- each branch/checkpoint is a fully independent
 
 **Observations.** Branching is straightforward to implement with SillyTavern's file-based model -- copy the file, truncate, done. In a relational model, branching would require either duplicating message rows (expensive, breaks referential identity) or implementing a tree/DAG structure on the messages table (e.g., a `parent_message_id` column or a separate `branches` table). This is a non-trivial design decision that The Bannered Mare has not yet addressed.
 
----
 
 ## 7. Group Chats
 
@@ -250,7 +243,6 @@ Full multi-character group chat support:
 
 **Observations.** Group chats require substantial architectural additions: a many-to-many relationship between chats and characters, a turn-ordering system, multi-character prompt assembly, and per-turn speaker attribution on messages. SillyTavern's activation strategies (especially NATURAL with talkativeness rolls) represent significant game-design logic that goes beyond basic chat infrastructure.
 
----
 
 ## 8. Personas
 
@@ -301,7 +293,6 @@ Prompt injection is handled by the `PromptBuilder`, which inserts the persona de
 
 **Observations.** SillyTavern's persona system is more flexible in terms of binding and prompt injection control. The Bannered Mare's database-backed approach provides better CRUD ergonomics and queryability but currently lacks the multi-level lock resolution and per-persona injection configuration.
 
----
 
 ## 9. Presets (Generation Parameters)
 
@@ -336,7 +327,6 @@ The `Chat` model has a `preset_id` FK. The `ProviderGateway` receives `preset_pa
 
 **Observations.** SillyTavern's per-API-type presets capture the reality that different providers accept different parameters. The Bannered Mare's generic JSON approach is more flexible but shifts the burden of parameter compatibility to the gateway layer and model family metadata.
 
----
 
 ## 10. File Attachments
 
@@ -362,7 +352,6 @@ Three attachment scopes: GLOBAL, CHARACTER, CHAT.
 
 **Observations.** File attachments are a substantial feature involving storage management, text extraction, multimodal prompt construction (for vision models), and scope-based access control. For The Bannered Mare, implementing this would require a new `attachments` table, a file storage service, and integration with the prompt builder to inject attachment content or references into the API call.
 
----
 
 ## 11. Import / Export
 
@@ -388,7 +377,6 @@ All formats are normalized to the standard `ChatMessage` structure on import.
 
 **Observations.** Import/export is important for interoperability with the broader RP tool ecosystem. The Bannered Mare's relational model means export would require serializing joined data (chat + messages + alternatives + character metadata) into a portable format. Import would need format detection and mapping logic similar to SillyTavern's. Supporting at least JSONL and the Character Card V2 chat format would provide baseline interoperability.
 
----
 
 ## 12. Prompt Construction
 
@@ -419,7 +407,6 @@ The `PromptBuilder` service constructs prompts server-side using the `PromptTemp
 | **Lore injection** | World Info with position/depth controls | Lore activation engine with `InsertionPosition` enum and depth-based injection |
 | **Template resolution** | Single active preset per API type | Chain: Chat -> Model -> default template; model selection can auto-resolve the template |
 
----
 
 ## 13. Summary Matrix
 

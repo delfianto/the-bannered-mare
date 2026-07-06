@@ -2,7 +2,6 @@
 
 The Bannered Mare features a modular prompt construction engine that dynamically compiles structured prompts from presets, templates, character contexts, lore entries, and reusable instruction blocks (fragments).
 
----
 
 ## 1. Core Models and Relationships
 
@@ -42,7 +41,6 @@ classDiagram
 3. **PromptFragment**: Reusable instructions (jailbreaks, formatting constraints, writing guidelines) written in Jinja2.
 4. **TemplateFragment**: Join entity assigning fragments to templates, setting injection locations (`position`), ordering (`ordinal`), and history injection depths (`depth`).
 
----
 
 ## 2. Component Order & Toggles
 
@@ -64,7 +62,6 @@ Prompts are assembled by ordering modular sections based on the template's `comp
 
 Each component can be globally toggled on or off per template via `components_enabled`.
 
----
 
 ## 3. Fragment Injection Positions
 
@@ -75,7 +72,6 @@ Fragments are injected dynamically relative to the core components:
 *   **`post_history`**: Injected immediately after the chat history.
 *   **`at_depth`**: Injected directly into the chat history stream at a specified index (e.g., 4 messages from the end). Used for persistent style instructions and drift prevention reminders.
 
----
 
 ## 4. Prompt Construction Orchestration (`PromptBuilder`)
 

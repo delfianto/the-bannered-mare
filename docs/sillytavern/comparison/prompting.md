@@ -18,7 +18,6 @@ Key files: `prompt_builder.py`, `core/utils/template.py` (~115 lines), `core/per
 
 Total complexity: ~800 lines of Python across the prompt assembly path.
 
----
 
 ## 2. Prompt Assembly Pipeline
 
@@ -63,7 +62,6 @@ There is no event system or extension hook mechanism.
 | Continue/impersonate modes | Dedicated handling with budget reservations | Not implemented |
 | Group chat support | Group nudge, multi-character handling | Not implemented |
 
----
 
 ## 3. Component Ordering
 
@@ -135,7 +133,6 @@ Each component also has a boolean toggle in `DEFAULT_COMPONENTS_ENABLED`. Templa
 | Lore insertion points | 2 (before/after character) | 3 (before character, after character, before examples) |
 | Fragment reusability | N/A (presets are monolithic) | Same fragment attachable to multiple templates |
 
----
 
 ## 4. Template Engine
 
@@ -168,7 +165,6 @@ Templates are rendered from string (`env.from_string()`), not from filesystem. T
 | Validation | None (fails silently or at render time) | `validate_template()` before save |
 | Escaping | Disabled | Disabled |
 
----
 
 ## 5. Macro / Variable System
 
@@ -212,7 +208,6 @@ All variables are evaluated in a single pass by Jinja2's native rendering. There
 | Override tracking | `{{original}}` macro | Not applicable |
 | Extensibility | Register new macros via `MacroRegistry` | Extend `_build_variables()` or add Jinja2 globals |
 
----
 
 ## 6. Token Budgeting
 
@@ -252,7 +247,6 @@ A simpler budget system in `PromptBuilder._build_chat_history()`:
 | Category tracking | Yes (7 categories) | No |
 | Image/video token estimation | Yes | No |
 
----
 
 ## 7. Lore / World Info Injection
 
@@ -297,7 +291,6 @@ The `PromptBuilder` groups activated entries by position and routes them to the 
 | Case sensitivity | Via World Info system | Per-entry `case_sensitive` flag |
 | Whole-word matching | Via World Info system | Per-entry `match_whole_words` flag |
 
----
 
 ## 8. Instruct Mode
 
@@ -334,7 +327,6 @@ Text completion API support (raw prompt string) is not implemented.
 | Template auto-detection | Yes (regex, hash matching) | Not applicable |
 | Per-role sequence customization | Yes (input/output/system, with first/last overrides) | Not applicable |
 
----
 
 ## 9. Instruction Slots and Prompt Fragments
 
@@ -406,7 +398,6 @@ The `post_history_instructions` field on the Character model provides an additio
 | Story string (text completion) | Handlebars template | Not applicable (no text completion support) |
 | Fragment types / categorization | N/A | 5 types: `system`, `nsfw`, `jailbreak`, `instruction`, `context` |
 
----
 
 ## 10. Provider-Specific Formatting
 
@@ -449,7 +440,6 @@ There is no message merging, role alternation enforcement, name prefixing, or po
 | Image handling | Yes (format conversion per provider) | Not implemented |
 | Prompt caching | Yes (Anthropic depth-based) | Yes (Anthropic ephemeral cache_control) |
 
----
 
 ## 11. Summary of Maturity Gaps
 

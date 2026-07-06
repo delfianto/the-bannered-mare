@@ -2,7 +2,6 @@
 
 This document analyzes SillyTavern's tag management, statistics tracking, data integrity checking ("Data Maid"), and local search/filtering systems. All file paths are relative to the SillyTavern repository root.
 
----
 
 ## 1. Tags System
 
@@ -199,7 +198,6 @@ Five slash commands are registered for scripting/automation (tags.js:2322-2594):
 
 `applyCharacterTagsToMessageDivs()` (tags.js:2605-2674) iterates chat message DOM elements and decorates them with `data-char-tags` and `data-char-tag-{normalized-name}` attributes. This enables CSS-based styling of messages by character tag. Tag names are normalized by stripping diacritics, special characters, and converting to lowercase kebab-case.
 
----
 
 ## 2. Tag Filtering System
 
@@ -307,7 +305,6 @@ Filter states persist across page reloads using `accountStorage` (a wrapper arou
 
 Restoration happens in `restoreSavedTagFilters()` (tags.js:2763-2799) and `loadFilterStatesForContext()` (tags.js:1396-1438).
 
----
 
 ## 3. Search System (Local Character/Entity Search)
 
@@ -420,7 +417,6 @@ The `FilterHelper` maintains a `scoreCache` (`Map<FilterType, Map<string|number,
 
 Caches are cleared on each call to `applyFilters()` by default.
 
----
 
 ## 4. Statistics Tracking
 
@@ -529,7 +525,6 @@ Both render as popup dialogs via `createHtml()` (stats.js:101-130). Generation t
 
 A debug function `refreshStats` is registered to allow manual full-rebuild from the UI.
 
----
 
 ## 5. Data Maid (Data Integrity Checker)
 
@@ -627,7 +622,6 @@ Category descriptions warn users about potentially destructive actions (data-mai
 - Thumbnails: "Thumbnails for missing or deleted [entity type]"
 - Backups: "Automatically generated [type] backups"
 
----
 
 ## 6. Relationships Between Systems
 
@@ -647,7 +641,6 @@ The Data Maid does not clean up orphaned tag references (tags pointing to delete
 
 The Data Maid does not scan or clean up the `stats.json` file. Stats for deleted characters remain in the file until a manual `recreateStats` is triggered, which rebuilds from existing chat files only.
 
----
 
 ## 7. Key Design Observations
 

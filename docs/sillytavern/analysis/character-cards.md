@@ -3,7 +3,6 @@
 > Analysis date: 2026-04-07
 > Source: `/st/` (SillyTavern v1.17.0)
 
----
 
 ## 1. Card Specification Versions
 
@@ -118,7 +117,6 @@ validate() {
 
 This means a V2 card would also pass V1 validation (since V2's top-level mirrors V1 fields via `readFromV2`). The validator returns the first match.
 
----
 
 ## 2. PNG Metadata Encoding
 
@@ -211,7 +209,6 @@ export const read = (image) => {
 
 `src/png/encode.js` is a minimal reimplementation of `png-chunks-encode` (MIT-licensed). It writes the PNG magic bytes (`89 50 4E 47 0D 0A 1A 0A`) followed by each chunk in standard PNG format: 4-byte length, 4-byte name, data, 4-byte CRC32 (using the `crc` npm package).
 
----
 
 ## 3. Character CRUD Operations
 
@@ -302,7 +299,6 @@ Deep-merges the request body with the existing character data. After merging, va
 
 File-level copy using `fs.copyFileSync`. Generates a unique name by appending `_N` suffixes. No data parsing involved.
 
----
 
 ## 4. Import System
 
@@ -435,7 +431,6 @@ static replaceMacros(str) {
 }
 ```
 
----
 
 ## 5. Export System
 
@@ -470,7 +465,6 @@ function unsetPrivateFields(char) {
 }
 ```
 
----
 
 ## 6. Character Data Model
 
@@ -568,7 +562,6 @@ If a V2 extension field is missing, ST backfills defaults:
 - `talkativeness` -> `0.5`
 - `fav` -> `false`
 
----
 
 ## 7. V2 Extensions System
 
@@ -643,7 +636,6 @@ if (data.extensions) {
 }
 ```
 
----
 
 ## 8. Character Book (Embedded Lorebook)
 
@@ -734,7 +726,6 @@ if (data.world) {
 
 The conversion maps ST's internal World Info field names to the V2 character book spec (e.g., `entry.key` -> `keys`, `entry.disable` -> `!enabled`, `entry.position == 0` -> `'before_char'`).
 
----
 
 ## 9. Avatar Management
 
@@ -800,7 +791,6 @@ Character sprites (expression/emotion images) are stored in `{user_data}/charact
 - Imported from CharX format (assets with type `emotion` or `expression`)
 - File naming uses hyphens for sprites (e.g., `happy.png`, `angry.png`) so ST's expression label extraction regex works
 
----
 
 ## 10. Caching Architecture
 
@@ -886,7 +876,6 @@ const toShallow = (character) => ({
 
 Full character data is then fetched on demand via the `/get` endpoint.
 
----
 
 ## 11. File-Based Storage Design
 
@@ -927,7 +916,6 @@ const chatsDirectory = path.join(directories.chats, item.replace('.png', ''));
 
 All file writes use `write-file-atomic` (via `writeFileAtomicSync`) to prevent corruption from interrupted writes. This is important since the PNG file is both the avatar image and the data store.
 
----
 
 ## 12. CharX Format Deep Dive
 
@@ -985,7 +973,6 @@ function findZipStart(buffer) {
 }
 ```
 
----
 
 ## 13. Key Implementation Files
 

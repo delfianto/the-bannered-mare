@@ -2,7 +2,6 @@
 
 This document outlines the frontend component architecture of the The Bannered Mare. The application uses Vue 3 components styled with Tailwind CSS and Nuxt UI v4 primitives.
 
----
 
 ## 1. App Shell and Navigation Layout
 
@@ -15,7 +14,6 @@ This document outlines the frontend component architecture of the The Bannered M
   - Hosts the **Profile Picker** allowing users to switch active profile settings.
   - Hosts the **Theme Switcher** (toggled via a custom toggle div).
 
----
 
 ## 2. Text and Markdown Rendering
 
@@ -26,7 +24,6 @@ This document outlines the frontend component architecture of the The Bannered M
 - **Security Sanitization**: Wraps HTML outputs in `dompurify` (`DOMPurify.sanitize`) to shield the client from XSS injection vulnerabilities.
 - **Reasoning Display**: Supports collapsing sections to display chain-of-thought/reasoning output blocks from reasoning models.
 
----
 
 ## 3. Specialized Parameter Input Handlers
 
@@ -40,7 +37,6 @@ This document outlines the frontend component architecture of the The Bannered M
   - **String** $\rightarrow$ Text area or input field.
   - **List / Object** $\rightarrow$ Nested recursive calls to self.
 
----
 
 ## 4. Chat Input Elements
 
@@ -52,7 +48,6 @@ This document outlines the frontend component architecture of the The Bannered M
   - **Fantasy Aesthetic**: Styled with cream borders, warm box shadows, and transition effects.
   - **Key Bindings**: Submits on `Enter` (unless `Shift+Enter` is pressed for a newline).
 
----
 
 ## 5. Modals and Action Banners
 

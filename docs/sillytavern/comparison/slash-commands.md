@@ -2,7 +2,6 @@
 
 This document compares SillyTavern's slash command / STscript system with The Bannered Mare's approach to user-facing automation and programmability. The comparison is honest about a fundamental architectural difference: SillyTavern is an interactive application with a chat input bar where users type commands directly; The Bannered Mare is a headless API backend that exposes functionality through HTTP endpoints. These are different paradigms solving different problems, and neither approach is wrong.
 
----
 
 ## 1. Does The Bannered Mare Have a Command System?
 
@@ -12,7 +11,6 @@ This is not an oversight or a gap -- it is a direct consequence of the architect
 
 The ST equivalent of "switching a model" is `/model gpt-4o`. The The Bannered Mare equivalent is `PUT /api/chats/{id}` with `{"model_id": "..."}` in the request body. Both accomplish the same thing. The interface is different.
 
----
 
 ## 2. SillyTavern's STscript -- What It Is
 
@@ -58,7 +56,6 @@ The system is architecturally a **command-line shell embedded in a GUI**. The ch
 
 **Error handling**: Parser errors include line/column numbers and visual `^^^^^` pointers. Execution errors wrap callback failures with position context. The chat input shows a progress bar during execution with CSS-class-based status indicators.
 
----
 
 ## 3. What The Bannered Mare Has Instead
 
@@ -126,7 +123,6 @@ ST's `/instruct name` and `/context name` commands switch presets at runtime dur
 - The `ProviderGateway._get_effective_parameters()` method merges parameters in order: ModelFamily defaults, Model overrides, Preset overrides.
 - Switching presets means updating the chat's preset reference via `PUT /api/chats/{id}`.
 
----
 
 ## 4. What The Bannered Mare Cannot Do (That ST Can)
 
@@ -148,7 +144,6 @@ These are capabilities that exist in STscript with no current The Bannered Mare 
 
 The "N/A" entries are not missing features. They are capabilities that belong in a frontend application, not a backend API. A future The Bannered Mare frontend could implement its own scripting layer that calls the REST API, but that scripting layer would live in the client, not the server.
 
----
 
 ## 5. What The Bannered Mare Has (That ST Doesn't)
 
@@ -166,7 +161,6 @@ The headless API architecture provides capabilities that ST's monolithic approac
 | **Audit logging** | MongoDB-backed HTTP and LLM call logging | Browser console |
 | **Lore activation engine** | Keyword/regex matching with primary + secondary logic, token budgeting | Similar (World Info), but triggered manually via commands too |
 
----
 
 ## 6. The Architectural Trade-off
 
@@ -188,7 +182,6 @@ The trade-offs are symmetric:
 
 Neither approach is superior. ST's command system is a genuine engineering achievement that enables sophisticated user workflows within a single application. The Bannered Mare's API-first design trades user-facing scriptability for client flexibility and operational simplicity. The "missing" command system in The Bannered Mare is an intentional absence, not a gap to be filled.
 
----
 
 ## 7. If The Bannered Mare Ever Needed Automation
 

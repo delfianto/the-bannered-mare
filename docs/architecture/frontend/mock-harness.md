@@ -2,7 +2,6 @@
 
 To facilitate offline testing and rapid frontend development, The Bannered Mare features an integrated mock network harness powered by **Mock Service Worker (MSW)**.
 
----
 
 ## 1. How the Mock Harness Works
 
@@ -19,7 +18,6 @@ graph LR
 
 This ensures the rest of the application remains fully unaware of the mocking, using standard HTTP fetch requests and headers.
 
----
 
 ## 2. Activation Controls
 
@@ -40,7 +38,6 @@ In [vite.config.ts](https://github.com/delfianto/the-bannered-mare/blob/main/fro
 - **If `false`**: Proxies `/api` network requests to the real FastAPI backend running at `http://localhost:8000`.
 - **If `true`**: Disables the proxy backend target entirely, delegating intercept duties to MSW.
 
----
 
 ## 3. Directory Layout
 

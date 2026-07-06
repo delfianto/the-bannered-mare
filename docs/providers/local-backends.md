@@ -7,7 +7,6 @@
 > **Goal:** Define what The Bannered Mare must support to integrate with local inference backends,
 > complementing the cloud provider analysis in OPENAI.md and ANTHROPIC.md.
 
----
 
 ## Table of Contents
 
@@ -23,7 +22,6 @@
 10. [Adapter Strategy](#10-adapter-strategy)
 11. [Implementation Plan](#11-implementation-plan)
 
----
 
 ## 1. Overview -- Why Local Backends Matter
 
@@ -61,7 +59,6 @@ llama.cpp) also retain a native text-completion API with richer parameter sets.
 
 > Ollama is excluded here -- it has its own dedicated analysis document.
 
----
 
 ## 2. llama.cpp Server
 
@@ -202,7 +199,6 @@ These endpoints use a different request/response shape from OpenAI.
 - **Per-request LoRA** -- hot-swap LoRA adapters with scaling per request.
 - **Anthropic Messages API** -- also supports `/v1/messages` endpoint.
 
----
 
 ## 3. Text Generation WebUI (OOBA)
 
@@ -330,7 +326,6 @@ OOBA's real power is its extensive sampler set, all passable alongside OpenAI pa
 - **Optional API key** -- via `--api-key` flag.
 - **Tool/function calling** -- supported via model Jinja2 templates.
 
----
 
 ## 4. vLLM
 
@@ -431,7 +426,6 @@ Alternative constrained generation via extra params:
   params plus min_p and repetition_penalty.
 - **`model` param matters** -- unlike OOBA, vLLM routes to loaded models.
 
----
 
 ## 5. KoboldCpp
 
@@ -559,7 +553,6 @@ The extra KoboldCpp sampling parameters can also be passed.
 - **Generation abort** -- `POST /api/extra/abort` to cancel in-progress generation.
 - **Tool call support** -- available via `tool_call_fix` flag for bracket handling.
 
----
 
 ## 6. TabbyAPI
 
@@ -711,7 +704,6 @@ TabbyAPI has extensive model/LoRA/template management:
   management endpoints, though TabbyAPI supports inline model loading.
 - **Multi-LoRA** -- load multiple LoRAs with independent scaling.
 
----
 
 ## 7. Text Completion vs Chat Completion
 
@@ -765,7 +757,6 @@ appropriate chat/instruct template for the loaded model.
 3. **Phase 3:** Add native KoboldAI API support (`/api/v1/generate`) for direct
    SillyTavern-style backends if needed.
 
----
 
 ## 8. Compatibility Matrix
 
@@ -825,7 +816,6 @@ appropriate chat/instruct template for the loaded model.
 | Abort generation | No | No | No | `/api/extra/abort` | `/api/extra/abort` |
 | Template management | `/apply-template` | Via params | No | No | Yes (admin API) |
 
----
 
 ## 9. Extra Sampling Parameters (Not in OpenAI)
 
@@ -879,7 +869,6 @@ They are critical for RP quality tuning.
 | **`sampler_priority`** | Array of sampler name strings or pipe-delimited string | OOBA |
 | Sampler override presets | YAML files with force/additive options | TabbyAPI |
 
----
 
 ## 10. Adapter Strategy
 
@@ -989,7 +978,6 @@ _adapters = {
 | Response parsing | Standard OpenAI | Standard OpenAI (+ optional extra fields) |
 | Error handling | HTTP 4xx/5xx with OpenAI error shape | Varies; best-effort parsing |
 
----
 
 ## 11. Implementation Plan
 

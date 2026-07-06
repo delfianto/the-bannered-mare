@@ -2,7 +2,6 @@
 
 This document explains the global state management patterns, persistence layers, data type mappings, and internationalization (i18n) setup inside The Bannered Mare.
 
----
 
 ## 1. Global State Management (Pinia)
 
@@ -15,7 +14,6 @@ App-wide state that crosses multiple feature layers is managed using **Pinia** (
   - `parameterDocs`: Stores parameter tooltips and detailed help data fetched from `/api/model-families/parameter-docs`.
   - `providers`: Stores the sorted list of active LLM provider connections fetched from `/api/providers`.
 
----
 
 ## 2. Shared State and local Persistence (Composables)
 
@@ -24,7 +22,6 @@ For UI states (such as active theme or sidebar view toggles), the application us
 - **`useTheme()`**: Manages the `isDark` state, saving it to `localStorage` under key `"theme:is-dark"`.
 - **`useSidebar()`**: Manages the collapsed/expanded state of the main navigation drawer, saving it to `localStorage` under key `"sidebar:collapsed"`.
 
----
 
 ## 3. Data Types and Mappings (`src/types/`)
 
@@ -36,7 +33,6 @@ The Bannered Mare combines backend DTO schemas with frontend-specific types:
   - `MoodChip` (used in chat UI to customize dialogue triggers).
   - `LorebookEntry` (used in character card construction forms).
 
----
 
 ## 4. Internationalization (i18n)
 

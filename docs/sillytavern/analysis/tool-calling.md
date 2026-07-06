@@ -14,7 +14,6 @@ SillyTavern implements a full-featured tool calling (function calling) system th
 | `src/endpoints/backends/chat-completions.js` | Backend proxy -- translates tools for each provider API |
 | `src/prompt-converters.js` | Message format conversion -- tool_calls/tool messages per provider |
 
----
 
 ## 1. Tool Registration
 
@@ -88,7 +87,6 @@ toFunctionOpenAI() {
 
 This OpenAI format is the single internal representation. Provider-specific translations happen server-side.
 
----
 
 ## 2. Built-in Tools
 
@@ -128,7 +126,6 @@ This tool is conditionally registered based on `extension_settings.sd.function_t
 
 SillyTavern ships with no other built-in function tools. All additional tools come from extensions or user-defined slash commands.
 
----
 
 ## 3. Provider Integration
 
@@ -234,7 +231,6 @@ bodyParams['tool_choice'] = request.body.tool_choice;
 
 The `flattenSchema()` function (`src/util.js:1424-1472`) resolves `$ref` / `$defs` references in JSON schemas and strips unsupported keys for Google APIs (`default`, `additionalProperties`, `exclusiveMinimum`, `propertyNames`). It also removes the `$schema` key from the top level.
 
----
 
 ## 4. Message Format Conversion for Tool Calls
 
@@ -311,7 +307,6 @@ The post-processing mode names indicate tool support:
 | `STRICT_TOOLS` | Yes |
 | `SINGLE` | No |
 
----
 
 ## 5. Execution Flow
 
@@ -416,7 +411,6 @@ For each tool call in the response:
 6. If the tool is `stealth`, push name to `result.stealthCalls` (no chat message, no follow-up).
 7. Otherwise, create a `ToolInvocation` object with `id`, `displayName`, `name`, `parameters`, `result`, `signature`, and `reasoning`.
 
----
 
 ## 6. Multi-turn Tool Use (Agentic Loop)
 
@@ -510,7 +504,6 @@ const shouldStopGeneration = (!invocationResult.invocations.length && shouldDele
     || invocationResult.stealthCalls.length;
 ```
 
----
 
 ## 7. Parsing Tool Calls from Diverse Response Formats
 
@@ -546,7 +539,6 @@ A recursive merge function (lines 564-598) that concatenates string fields, recu
 
 OpenRouter reasoning signatures are extracted from `choice.message.reasoning_details` and attached to the corresponding tool call (lines 726-732).
 
----
 
 ## 8. Structured Output via Forced Tool Calls
 
@@ -573,7 +565,6 @@ This appends a tool with the JSON schema as `input_schema` and forces the LLM to
 
 Most other providers (OpenAI, DeepSeek, AI21, etc.) use native `response_format: { type: 'json_schema', json_schema: { ... } }` for structured output, not tool forcing.
 
----
 
 ## 9. Tool Call UI
 
@@ -642,7 +633,6 @@ await eventSource.emit(event_types.TOOL_CALLS_RENDERED, invocations);
 - `TOOL_CALLS_PERFORMED`: fired after invocations complete but before the message is added to the DOM.
 - `TOOL_CALLS_RENDERED`: fired after the message is rendered in the chat.
 
----
 
 ## 10. Extension Tools API
 
@@ -700,7 +690,6 @@ function closureToFunction(action, convertResult) {
 
 The `assignNestedVariables` helper (lines 61-73) recursively flattens nested parameters into dot-notation scope variables (e.g., `arg.address.city`).
 
----
 
 ## 11. Error Handling
 
@@ -775,7 +764,6 @@ try {
 }
 ```
 
----
 
 ## 12. Token Management
 
@@ -828,7 +816,6 @@ The token budget is consumed in this order:
 3. Chat history messages including tool call/result pairs (newest first)
 4. Dialogue examples (lowest priority, may be dropped)
 
----
 
 ## 13. Provider-Specific Signature and Reasoning Handling
 
@@ -871,7 +858,6 @@ export function addReasoningContentToToolCalls(messages) {
 }
 ```
 
----
 
 ## 14. Architecture Summary
 
@@ -913,7 +899,6 @@ export function addReasoningContentToToolCalls(messages) {
    -> cycle continues until RECURSE_LIMIT (5) or LLM stops calling tools
 ```
 
----
 
 ## 15. Key Metrics
 

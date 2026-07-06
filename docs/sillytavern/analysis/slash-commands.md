@@ -2,7 +2,6 @@
 
 SillyTavern ships a full-fledged scripting language called **STscript** built on top of its slash command infrastructure. What began as simple `/command arg` shortcuts has evolved into a Turing-complete system with closures, lexical scoping, piped execution, flow control, a debugger, and syntax highlighting. This analysis covers the architecture end-to-end.
 
----
 
 ## 1. Command Registry
 
@@ -83,7 +82,6 @@ Across the entire codebase, `SlashCommandParser.addCommandObject()` is called **
 
 After accounting for aliases and the parser's own internal commands (`/`, `#`, `breakpoint`, `break`, `parser-flag`), the system ships with approximately **200+ unique command names**.
 
----
 
 ## 2. Argument System
 
@@ -127,7 +125,6 @@ Both support:
 
 Named arguments are parsed first (anything matching `/^\w+=/`), then the remaining text becomes the unnamed argument. The `splitUnnamedArgument` flag causes it to be split on whitespace into an array, with `splitUnnamedArgumentCount` controlling how many splits occur.
 
----
 
 ## 3. Parser Architecture
 
@@ -216,7 +213,6 @@ export const PARSER_FLAG = {
 
 The parser registers an `stscript` language with highlight.js (lines 200-461), providing full syntax highlighting for closures, commands, named arguments, macros, pipes, comments, and variables. This is used in the QR editor and command browser.
 
----
 
 ## 4. Execution Engine
 
@@ -310,7 +306,6 @@ The `SlashCommandAbortController` (35 lines) provides:
 
 The closure checks `testAbortController()` and `testPaused()` between each command step.
 
----
 
 ## 5. Variable System
 
@@ -399,7 +394,6 @@ The full set of registered variable commands from `variables.js`:
 | `/flushglobalvar name` | Delete global variable |
 | `/listvar` | List all variables |
 
----
 
 ## 6. Flow Control
 
@@ -480,7 +474,6 @@ Closures can be serialized to strings for persistence in variables:
 /closure-deserialize {{getvar::myClosure}} | /let fn {{pipe}} | /:fn
 ```
 
----
 
 ## 7. Built-in Command Categories
 
@@ -616,7 +609,6 @@ All in `variables.js`: `/add`, `/sub`, `/mul`, `/div`, `/mod`, `/pow`, `/sin`, `
 | `/help` | Show help page |
 | `/reroll-pick` | Reroll `{{pick}}` macro choices |
 
----
 
 ## 8. Autocomplete System
 
@@ -681,7 +673,6 @@ The `SlashCommandCommonEnumsProvider.js` exports a `commonEnumProviders` object 
 - `numbersAndVariables` -- numbers plus variable names
 - `types` -- type conversion options
 
----
 
 ## 9. Quick Reply Integration
 
@@ -754,7 +745,6 @@ When a QR's button is clicked or its label is used in `/run SetName.QRLabel`, th
 - A built-in debugger with step, step-into, step-out, and breakpoint support.
 - A progress bar and execution result display.
 
----
 
 ## 10. Extension Integration
 
@@ -808,7 +798,6 @@ globalThis.qrEnumProviderExecutables = localEnumProviders.qrExecutables;
 globalThis.executeQuickReplyByName = ...;
 ```
 
----
 
 ## 11. Debugger
 
@@ -835,7 +824,6 @@ Supported operations:
 
 Breakpoints are set with `/breakpoint` in the script text. The debugger integrates with the QR editor UI, showing the current execution position, resolved arguments, and pipe value.
 
----
 
 ## 12. Error Handling
 
@@ -890,7 +878,6 @@ export class SlashCommandClosureResult {
 }
 ```
 
----
 
 ## 13. Return Value Routing
 
@@ -915,7 +902,6 @@ The `SlashCommandReturnHelper` (SlashCommandReturnHelper.js, 82 lines) standardi
 | `console` | Log to browser console |
 | `none` | Discard the value |
 
----
 
 ## 14. Summary of Key Design Patterns
 

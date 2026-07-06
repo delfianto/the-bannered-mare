@@ -3,7 +3,6 @@
 > Analysis based on reading the SillyTavern source code at commit `1695f8e`.
 > All file paths are relative to the SillyTavern repository root.
 
----
 
 ## 1. Chat Storage Format
 
@@ -93,7 +92,6 @@ if (chatJSON.length > 0) {
 
 The server reads the entire file, splits on newlines, parses each line as JSON, and returns the array. The client strips the header element before populating the in-memory `chat` array.
 
----
 
 ## 2. Chat CRUD Operations
 
@@ -161,7 +159,6 @@ The save path includes an integrity mechanism (`src/endpoints/chats.js:316-335`,
 
 This prevents data loss from concurrent edits across browser tabs.
 
----
 
 ## 3. Message Data Model
 
@@ -221,7 +218,6 @@ interface BaseMessageExtra {
 
 The `MessageTimestamp` type can be a string, number, or Date. In practice, `send_date` is stored as an ISO 8601 string or a formatted datetime string from `getMessageTimeStamp()`.
 
----
 
 ## 4. Message Swipes (Alternatives)
 
@@ -321,7 +317,6 @@ export const SWIPE_SOURCE = {
 };
 ```
 
----
 
 ## 5. Message Editing
 
@@ -388,7 +383,6 @@ The `deleteMessage()` function (`public/script.js:1616`) supports two modes:
 1. **Delete entire message**: Removes the message from the `chat` array and DOM.
 2. **Delete single swipe**: If the message has multiple swipes and the user is on the last message, the user can choose to delete only the current swipe rather than the whole message.
 
----
 
 ## 6. Regeneration
 
@@ -432,7 +426,6 @@ async function regenerateGroup() {
 
 The `gen_id` is a `Date.now()` timestamp assigned at the start of each group generation batch, so all messages from the same turn share the same ID.
 
----
 
 ## 7. Chat Branching and Bookmarks
 
@@ -497,7 +490,6 @@ The bookmark system also includes `convertSoloToGroupChat()` (`public/scripts/bo
 2. Cloning all chat messages, adding `force_avatar`, `original_avatar`, and `extra.gen_id` fields.
 3. Saving as a group chat JSONL file.
 
----
 
 ## 8. Group Chats
 
@@ -609,7 +601,6 @@ The `generateGroupWrapper()` function (`public/scripts/group-chats.js:945-1092`)
 
 For swipes and continues, the system uses `activateSwipe()` (line 1130), which finds the character who sent the last non-user message by checking `original_avatar`.
 
----
 
 ## 9. Chat Import/Export
 
@@ -647,7 +638,6 @@ Export (`POST /api/chats/export`, line 604) supports two modes:
 - **JSONL**: Raw file download (the native format).
 - **Plaintext**: Formatted as `Name: Message\n\n` pairs, with system messages filtered out and `extra.display_text` used when available.
 
----
 
 ## 10. Chat Backup System
 
@@ -697,7 +687,6 @@ Defined in `src/endpoints/backups.js`:
 | POST | `/api/backups/chat/delete` | Delete a specific backup file |
 | POST | `/api/backups/chat/download` | Download a backup file |
 
----
 
 ## 11. Persona System
 
@@ -765,7 +754,6 @@ When a chat is opened (`loadPersonaForCurrentChat()`, line 1441):
 
 When `power_user.persona_auto_lock` is enabled, selecting a persona automatically sets `chat_metadata.persona` to lock it to the current chat (`public/scripts/personas.js:839, 874-876`).
 
----
 
 ## 12. File Attachments in Chat
 
@@ -851,7 +839,6 @@ Attachments are stored at three scopes (`ATTACHMENT_SOURCE` in `public/scripts/c
 - **CHARACTER**: Tied to a specific character.
 - **CHAT**: Tied to the current chat (stored in `extra.files[]` on messages).
 
----
 
 ## 13. Summary of Key Architectural Patterns
 

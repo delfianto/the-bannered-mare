@@ -9,7 +9,6 @@ keyword scanning against the chat history, then inserted into specific positions
 the LLM prompt. The entire activation engine runs client-side in the browser; the server
 is a thin JSON file store.
 
----
 
 ## 1. Entry Data Model
 
@@ -128,7 +127,6 @@ These are not part of `newWorldInfoEntryDefinition` but are added at runtime:
 | `decorators` | `string[]` | Parsed from content prefix lines (`@@activate`, `@@dont_activate`). Stripped from content before injection. |
 | `displayIndex` | `number` | Visual ordering in the editor UI. |
 
----
 
 ## 2. Activation Engine (`checkWorldInfo`)
 
@@ -220,7 +218,6 @@ Parsed from content prefix lines at `parseDecorators()` (line 4522):
 - `@@dont_activate` -- suppresses the entry unconditionally.
 - `@@@decorator` -- escaped decorator (the leading `@` is stripped, treated as content).
 
----
 
 ## 3. Scan Buffer Construction
 
@@ -269,7 +266,6 @@ the start of the buffer text.
   increment extends the scan range by one additional message deeper into history.
 - **startDepth** (`#startDepth`): Normally 0. Could be offset if needed.
 
----
 
 ## 4. Insertion Positions
 
@@ -309,7 +305,6 @@ Entries are sorted descending by `order` (line 5066: `sort((a, b) => b.order - a
 then assembled via `unshift()`. This means within each position bucket, higher-order
 entries appear earlier (closer to the top) in the output text.
 
----
 
 ## 5. Token Budget
 
@@ -352,7 +347,6 @@ if (!entry.ignoreBudget && (textToScanTokens + (await getTokenCountAsync(newCont
 When `world_info_overflow_alert` is enabled, a toast warning is shown to the user when the
 budget is reached (line 4929).
 
----
 
 ## 6. Recursive Scanning
 
@@ -420,7 +414,6 @@ When `world_info_min_activations > 0` and fewer entries have activated than the 
 - Crucially, the recursion buffer is NOT included in `MIN_ACTIVATIONS` scans (line 323),
   preventing activated entry content from influencing deeper scans.
 
----
 
 ## 7. Group / Mutual Exclusion
 
@@ -473,7 +466,6 @@ order:
    const rollValue = Math.random() * totalWeight;
    ```
 
----
 
 ## 8. Timed Effects
 
@@ -525,7 +517,6 @@ The `protected` flag prevents removal of an effect if the chat hasn't advanced (
 Effects with non-matching hashes (entry was modified) or expired intervals are cleaned up
 each evaluation pass.
 
----
 
 ## 9. Import / Export
 
@@ -593,7 +584,6 @@ When importing a Character Book, the original `characterBook` object is preserve
 `deleteWIOriginalDataValue()` (lines 2676, 2694) keep this in sync when entries are
 modified, allowing round-trip fidelity when re-exporting to Character Card format.
 
----
 
 ## 10. Backend CRUD (`src/endpoints/worldinfo.js`)
 
@@ -631,7 +621,6 @@ All routes are mounted under `/api/worldinfo/`:
   full lorebook, not incremental patches. Uses `JSON.stringify(data, null, 4)` for
   human-readable formatting.
 
----
 
 ## 11. Global Settings
 
@@ -672,7 +661,6 @@ Chat lore and persona lore always sort before both groups (line 4495):
 entries = [...chatLore.sort(sortFn), ...personaLore.sort(sortFn), ...entries];
 ```
 
----
 
 ## 12. Lore Sources
 
@@ -690,7 +678,6 @@ Deduplication: If a lorebook is already activated via a higher-priority source, 
 skipped in lower-priority sources (e.g., if a character's world is also globally selected,
 it won't be loaded twice).
 
----
 
 ## 13. Event System Integration
 
@@ -706,7 +693,6 @@ The WI engine emits events at key points:
 The `WORLDINFO_SCAN_DONE` event is particularly powerful -- listeners can modify the
 scan state, budget, and delay levels mid-scan, enabling extension-driven behavior.
 
----
 
 ## 14. Caching
 
@@ -722,7 +708,6 @@ export const worldInfoCache = new StructuredCloneMap({ cloneOnGet: true, cloneOn
   data after calling `saveWorldInfo()`.
 - The cache is populated by `loadWorldInfo()` and updated by `saveWorldInfo()`.
 
----
 
 ## 15. Complexity Metrics
 

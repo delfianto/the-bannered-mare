@@ -6,7 +6,6 @@ pipelines, though with different architectural foundations and scope.
 
 Source analysis: `docs/st_analysis/RAG_PIPELINE.md`
 
----
 
 ## 1. High-Level Status
 
@@ -22,7 +21,6 @@ Source analysis: `docs/st_analysis/RAG_PIPELINE.md`
 | Prompt injection of RAG results | Two channels (chat memory + Data Bank) via extension prompts | Single `rag_context` component in prompt builder |
 | Pipeline execution | Client-side (browser JavaScript) | Server-side (Python async service layer) |
 
----
 
 ## 2. Vector Storage
 
@@ -75,7 +73,6 @@ The pgvector approach has several structural advantages over Vectra:
 | Backup/migration | Manual file copy | Standard database backup tooling |
 | Cross-model migration | None (separate dirs per model) | Delete + re-embed (tracked by `model_name`) |
 
----
 
 ## 3. Embedding Providers
 
@@ -137,7 +134,6 @@ OpenAI-compatible protocol, which The Bannered Mare's single OpenAI adapter alre
 The main gap is the lack of a zero-config local option -- The Bannered Mare requires either
 Ollama or an API key, while ST can run ONNX embeddings in-process with no setup.
 
----
 
 ## 4. Document Processing and Text Chunking
 
@@ -198,7 +194,6 @@ on overlaps is slightly more sophisticated, while The Bannered Mare's `. ` delim
 provides a sentence-aware split step that ST lacks. The significant gap is document
 ingestion: The Bannered Mare cannot process binary file formats.
 
----
 
 ## 5. Data Bank (Knowledge Base)
 
@@ -266,7 +261,6 @@ The scoping model is equivalent. The Bannered Mare's relational storage provides
 integrity (cascade deletes, indexed foreign keys) that ST's JSON-in-settings approach
 lacks. ST has far richer ingestion sources.
 
----
 
 ## 6. Chat Vectorization
 
@@ -330,7 +324,6 @@ ST's implementation is more mature with summarization, message chunking, and
 protected-message handling. The Bannered Mare's version covers the core embed-store-retrieve
 loop.
 
----
 
 ## 7. Query Pipeline and Prompt Injection
 
@@ -394,7 +387,6 @@ depth control). The Bannered Mare's approach is simpler -- a single prompt compo
 template pipeline -- but benefits from the template system's existing component ordering
 and enable/disable mechanism.
 
----
 
 ## 8. World Info Vector Activation
 
@@ -427,7 +419,6 @@ change -- vectorize lore entries into the existing `embeddings` table with
 `source_type='lore'`, query during activation, merge results with keyword matches.
 The activation engine itself would not need reworking.
 
----
 
 ## 9. Configuration Surface
 
@@ -485,7 +476,6 @@ The Bannered Mare's configuration surface is smaller because the feature set is 
 The Pydantic-based approach provides startup-time validation and type safety that
 ST's plain JSON settings do not.
 
----
 
 ## 10. Summary
 

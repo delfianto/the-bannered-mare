@@ -6,7 +6,6 @@
 > must handle, and how it maps to the shared `CompletionRequest`/`CompletionResponse` types
 > defined in `analysis/OPENAI.md`.
 
----
 
 ## Table of Contents
 
@@ -26,7 +25,6 @@
 14. [Mapping: Shared Types ↔ Anthropic API](#14-type-mapping)
 15. [Implementation Plan](#15-implementation-plan)
 
----
 
 ## 1. API Overview
 
@@ -44,7 +42,6 @@
 **The Anthropic API is NOT OpenAI-compatible.** Every layer (auth, request shape, response shape,
 streaming protocol) differs. A unified "OpenAI-compatible" client will not work.
 
----
 
 ## 2. Authentication
 
@@ -76,7 +73,6 @@ anthropic-version: 2023-06-01
 **Impact on The Bannered Mare:** The `build_headers()` method in `AnthropicAdapter` must produce
 completely different headers than `OpenAIAdapter`.
 
----
 
 ## 3. Request Schema
 
@@ -168,7 +164,6 @@ completely different headers than `OpenAIAdapter`.
 | `inference_geo` | Geographic region for inference. |
 | `container` | Container reuse for code execution tools. |
 
----
 
 ## 4. System Prompt — The Critical Difference
 
@@ -229,7 +224,6 @@ The `build_payload()` method must:
 3. Remove them from the `messages` array
 4. Ensure remaining messages alternate `user`/`assistant`
 
----
 
 ## 5. Message Format & Content Blocks
 
@@ -297,7 +291,6 @@ The response `content` array contains these block types:
 | File input | `file` type | `document` type |
 | Tool results | `role: "tool"` message | `type: "tool_result"` content block inside `user` message |
 
----
 
 ## 6. Response Schema — Fundamentally Different Structure
 
@@ -373,7 +366,6 @@ The response `content` array contains these block types:
 | Cache write | Not applicable | `usage.cache_creation_input_tokens` |
 | Reasoning tokens | `usage.completion_tokens_details.reasoning_tokens` | Not broken out (included in `output_tokens`) |
 
----
 
 ## 7. Streaming — Event-Based, Not Line-Based
 
@@ -520,7 +512,6 @@ data: {"choices":[{"delta":{"content":"Hello"}}]}
 The SSE parser must handle the `event:` prefix to determine the event type.
 The `data:` line contains the JSON payload.
 
----
 
 ## 8. Extended Thinking
 
@@ -591,7 +582,6 @@ Or alternatively, use `output_config.effort`:
 The adapter should support both mechanisms. `thinking` gives direct budget control;
 `output_config.effort` is simpler.
 
----
 
 ## 9. Tool Calling — Different Shape
 
@@ -731,7 +721,6 @@ These are specified by type, not name:
 {"type": "web_search_20250305"}
 ```
 
----
 
 ## 10. Prompt Caching
 
@@ -793,7 +782,6 @@ System prompts + character descriptions are repeated identically across messages
 chat. Prompt caching could reduce costs by 90% for these repeated prefixes. The adapter should
 support adding `cache_control` to the system prompt and initial context blocks.
 
----
 
 ## 11. Token Counting Endpoint
 
@@ -834,7 +822,6 @@ counts for:
 - World info budget enforcement
 - History truncation decisions
 
----
 
 ## 12. Key Differences from OpenAI — Summary Table
 
@@ -868,7 +855,6 @@ counts for:
 | **Cache control** | Not supported | `cache_control` on blocks | Anthropic-only |
 | **Token counting API** | Not available | `POST /v1/messages/count_tokens` | Anthropic-only |
 
----
 
 ## 13. AnthropicAdapter Implementation Spec
 
@@ -1128,7 +1114,6 @@ class AnthropicAdapter(ProviderAdapter):
         )
 ```
 
----
 
 ## 14. Mapping: Shared Types to Anthropic API
 
@@ -1185,7 +1170,6 @@ class AnthropicAdapter(ProviderAdapter):
 | `message_delta.usage.output_tokens` | `usage.completion_tokens` | Combine with stored input_tokens |
 | `message_stop` | *(stream end)* | Break iteration |
 
----
 
 ## 15. Implementation Plan
 
@@ -1263,7 +1247,6 @@ class AnthropicAdapter(ProviderAdapter):
     - Expose via extra field on CompletionRequest
 ```
 
----
 
 ## Appendix: Anthropic Error Responses
 

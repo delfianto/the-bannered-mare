@@ -13,7 +13,6 @@ Key files:
 - `public/scripts/power-user.js` -- Context templates and story string rendering
 - `src/prompt-converters.js` (1445 lines) -- Server-side provider-specific format conversion
 
----
 
 ## 1. Prompt Assembly Pipeline
 
@@ -108,7 +107,6 @@ This is the function that actually fills the `ChatCompletion` object with messag
 
 The `pin_examples` setting controls whether dialogue examples are added before or after chat history. If pinned, examples are always included (budget permitting); otherwise, chat history gets priority.
 
----
 
 ## 2. Prompt Manager
 
@@ -180,7 +178,6 @@ Two modes of injection:
 - **RELATIVE (0)**: The prompt is placed at its position in the prompt ordering list, among other relative prompts. This means it appears in the "system prompt" area.
 - **ABSOLUTE (1)**: The prompt is injected into the chat history at a specific depth. Depth 0 means just before the last message, depth 4 means 4 messages from the end. This is used for Author's Note-style injections.
 
----
 
 ## 3. Macro / Template Engine
 
@@ -275,7 +272,6 @@ The story string template (used for text completion APIs and context templates) 
 
 This is compiled via `Handlebars.compile(storyString, { noEscape: true })` in `renderStoryString()` (`power-user.js`, line 2254). The compiled template receives a `params` object with character fields, then the output is further processed through `substituteParams()` for macro expansion.
 
----
 
 ## 4. System Prompt Construction
 
@@ -309,7 +305,6 @@ if (systemPromptOverride && systemPrompt && systemPrompt.forbid_overrides !== tr
 
 When overridden, the `{{original}}` macro inside the replacement prompt resolves to the original preset's main prompt content.
 
----
 
 ## 5. Component Ordering
 
@@ -354,7 +349,6 @@ Users can fully reorder all prompts via the Prompt Manager UI. They can:
 - Set role (system/user/assistant) for any prompt
 - Filter prompts by generation type trigger (e.g., only activate during "normal" or "impersonate")
 
----
 
 ## 6. Token Budget Management
 
@@ -420,7 +414,6 @@ static async createAsync(role, content, identifier) {
 
 Images add token overhead: 85 tokens per image by default, or calculated based on resolution. Videos use Gemini's estimate of 263 tokens/second.
 
----
 
 ## 7. Instruct Mode
 
@@ -486,7 +479,6 @@ Instruct mode registers macros (line 673-784) that expose all sequence values:
 {{chatSeparator}}                            -- Context template example separator
 ```
 
----
 
 ## 8. Context Templates
 
@@ -538,7 +530,6 @@ SillyTavern can auto-detect the appropriate instruct/context template from the m
 
 The `autoSelectInstructPreset()` function (line 236) matches the model ID against activation regexes or bound context templates and auto-selects the correct preset.
 
----
 
 ## 9. Author's Note / Depth Prompts
 
@@ -581,7 +572,6 @@ The injection order determines priority. Within the same depth:
 - Prompts are grouped by role (`system`, `user`, `assistant`)
 - Extension prompts at the default order (100) are merged with depth-specific prompts
 
----
 
 ## 10. Provider-Specific Formatting
 
@@ -655,7 +645,6 @@ When `oai_settings.squash_system_messages` is enabled, the `ChatCompletion.squas
 
 Messages with identifiers `newMainChat`, `newChat`, and `groupNudge` are excluded from squashing.
 
----
 
 ## 11. Data Flow Summary
 
@@ -712,7 +701,6 @@ Character Card + Chat History + World Info + Extensions
                     Provider API
 ```
 
----
 
 ## 12. Key Design Observations
 
