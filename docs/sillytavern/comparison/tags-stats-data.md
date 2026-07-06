@@ -2,7 +2,7 @@
 
 This document compares how SillyTavern v1.17.0 and The Bannered Mare approach tag management, statistics tracking, search/filtering, and data integrity. The analysis covers current implementations as of April 2026.
 
-**Reference material:** [docs/st_analysis/TAGS_STATS_DATA.md](../st_analysis/TAGS_STATS_DATA.md)
+**Reference material:** [docs/st_analysis/TAGS_STATS_DATA.md](/sillytavern/analysis/tags-stats-data)
 
 ---
 

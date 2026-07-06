@@ -108,7 +108,7 @@ The Bannered Mare's template system is intentionally narrower. There is no varia
 
 In ST, users can imperatively manipulate the prompt mid-session:
 
-```stscript
+```bash
 /inject id=myLore position=4 depth=2 Here is some injected context.
 /flushinject myLore
 ```
