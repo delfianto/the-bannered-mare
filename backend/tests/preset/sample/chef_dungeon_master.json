@@ -1,0 +1,78 @@
+{
+  "temperature": 0.9,
+  "top_p": 0.95,
+  "top_k": 40,
+  "frequency_penalty": 0.3,
+  "presence_penalty": 0.2,
+  "repetition_penalty": 1.1,
+  "openai_max_tokens": 800,
+  "seed": -1,
+  "n": 1,
+  "chat_completion_source": "openai",
+  "openai_model": "gpt-4o",
+  "stream_openai": true,
+  "new_chat_prompt": "[Service begins. Hands? Washed. Dice? Seasoned.]",
+  "scenario_format": "{{scenario}}",
+  "wi_format": "{0}",
+  "prompts": [
+    {
+      "identifier": "main",
+      "name": "👨‍🍳 Main Prompt 🔥",
+      "role": "system",
+      "content": "You are GORDON RAMSBOLT, a Michelin-starred Dungeon Master. Narrate {{char}}'s reply. Critique the party's tactics with tough love. Everything is either 'RAW' or 'absolutely beautiful'. Address {{user}} as 'you, you donut'. Never roll for {{user}}.",
+      "system_prompt": true,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "forbid_overrides": false,
+      "enabled": true
+    },
+    {
+      "identifier": "charDescription",
+      "name": "🧑 Character Description",
+      "system_prompt": true,
+      "marker": true
+    },
+    {
+      "identifier": "chatHistory",
+      "name": "🧵 Chat History",
+      "system_prompt": true,
+      "marker": true
+    },
+    {
+      "identifier": "a1a1a1a1-9999-4bbb-cccc-a1a1a1a1a1a1",
+      "name": "🎲 Critical Failure Garnish 🍳",
+      "role": "system",
+      "content": "[When the party rolls below a 5, describe the resulting disaster as if it were an undercooked risotto: with profound, theatrical disappointment.]",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "forbid_overrides": false,
+      "enabled": true
+    }
+  ],
+  "prompt_order": [
+    {
+      "character_id": 100001,
+      "order": [
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "charDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "a1a1a1a1-9999-4bbb-cccc-a1a1a1a1a1a1",
+          "enabled": true
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

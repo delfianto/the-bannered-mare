@@ -1,0 +1,89 @@
+"""Async data access layer for Message and MessageAlternative entities"""
+
+from datetime import datetime
+
+from sqlalchemy import delete, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.chat_message.models import Message
+from src.core.persistence.base_repository_async import AsyncBaseRepository
+from src.core.persistence.models import MessageAlternative
+
+
+class AsyncMessageAlternativeRepository(AsyncBaseRepository[MessageAlternative]):
+    """Async repository for MessageAlternative data access"""
+
+    def __init__(self, db: AsyncSession):
+        super().__init__(db, MessageAlternative)
+
+    async def find_by_message_id(self, message_id: str) -> list[MessageAlternative]:
+        """Find all alternatives for a message, ordered by ordinal"""
+        stmt = (
+            select(MessageAlternative)
+            .where(MessageAlternative.message_id == message_id)
+            .order_by(MessageAlternative.ordinal.asc())
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def count_by_message_id(self, message_id: str) -> int:
+        """Count alternatives for a message"""
+        stmt = (
+            select(func.count())
+            .select_from(MessageAlternative)
+            .where(MessageAlternative.message_id == message_id)
+        )
+        result = await self.db.execute(stmt)
+        return result.scalar_one()
+
+
+class AsyncMessageRepository(AsyncBaseRepository[Message]):
+    """Async repository for Message data access with custom queries"""
+
+    def __init__(self, db: AsyncSession):
+        """Initialize async Message repository"""
+        super().__init__(db, Message)
+
+    async def find_by_chat_id(self, chat_id: str) -> list[Message]:
+        """Find all messages for a specific chat ordered by creation date"""
+        stmt = select(Message).where(Message.chat_id == chat_id).order_by(Message.created_at.asc())
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def find_latest_by_chat_id(
+        self, chat_id: str, limit: int, before: datetime | None = None
+    ) -> list[Message]:
+        """
+        Fetch latest messages for a chat, capable of 'scrolling back' in time.
+
+        Args:
+            chat_id: The chat ID.
+            limit: Maximum number of messages to return.
+            before: The cursor (timestamp). If set, only return messages created BEFORE this time.
+
+        Returns:
+            List of messages ordered newest to oldest (reverse chronological).
+        """
+        # Apply Cursor: "Give me messages older than the top message I currently see"
+        stmt = select(Message).where(Message.chat_id == chat_id)
+        if before:
+            stmt = stmt.where(Message.created_at < before)
+
+        # Ordering: ALWAYS Newest -> Oldest for efficient pagination
+        stmt = stmt.order_by(Message.created_at.desc())
+        stmt = stmt.limit(limit)
+
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def find_by_id_in_chat(self, message_id: str, chat_id: str) -> Message | None:
+        """Find a specific message by ID within a chat"""
+        stmt = select(Message).where(Message.id == message_id, Message.chat_id == chat_id)
+        result = await self.db.execute(stmt)
+        return result.scalars().first()
+
+    async def delete_by_chat_id(self, chat_id: str) -> None:
+        """Delete all messages for a specific chat"""
+        stmt = delete(Message).where(Message.chat_id == chat_id)
+        await self.db.execute(stmt)
+        await self.db.flush()

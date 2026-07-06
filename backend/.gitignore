@@ -1,0 +1,55 @@
+# Python bytecode
+__pycache__/
+*.py[codz]
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+
+# Virtual environment & secrets
+.venv/
+.env
+.envrc
+
+# Tests & coverage (pytest, coverage)
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Tooling caches (ruff)
+.ruff_cache/
+
+# Logs
+*.log
+
+# Editors / IDEs
+.idea/
+.vscode/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# --- Candlekeep Core specific ---
+
+# Storage - user-uploaded files (keep directory structure)
+storage/characters/*
+storage/temp/*
+!storage/characters/.gitkeep
+!storage/temp/.gitkeep
+
+# Stray local SQLite/DB files (Postgres is the real database)
+*.db
+*.sqlite
+
+# Local reference material (presets, ST source, etc.), kept locally only
+refs/
+
+# Claude Code: track shared project config (settings.json + hooks),
+# ignore personal permissions and machine-local skills
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
