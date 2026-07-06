@@ -407,7 +407,7 @@ The variable system in `variables.js` registers full flow control primitives.
 
 ### 6.1 Conditionals (`/if`)
 
-```stscript
+```bash
 /if left=score right=10 rule=gte "/speak You win"
 /if left=score right=10 rule=gte {: /speak You win :} else={: /speak Try again :}
 ```
@@ -418,7 +418,7 @@ The `else` is a named argument accepting a closure or subcommand. Both branches 
 
 ### 6.2 While Loops (`/while`)
 
-```stscript
+```bash
 /setvar key=i 0 | /while left=i right=10 rule=lte "/addvar key=i 1"
 ```
 
@@ -428,7 +428,7 @@ The `else` is a named argument accepting a closure or subcommand. Both branches 
 
 ### 6.3 Counted Loops (`/times`)
 
-```stscript
+```bash
 /times 5 "/echo {{timesIndex}}"
 ```
 
@@ -444,7 +444,7 @@ The `else` is a named argument accepting a closure or subcommand. Both branches 
 
 Closures can be assigned to variables, passed as arguments, and called dynamically:
 
-```stscript
+```bash
 /let myFunc {: x=1 /echo x is {{var::x}} :}
 /:myFunc x=hello
 ```
@@ -457,7 +457,7 @@ The `/:` shorthand (run shorthand) parses to the `run` command. The `/run` callb
 
 Closures support declared parameters and can be immediately invoked with `()`:
 
-```stscript
+```bash
 {: x=default /echo {{var::x}} :}(x=actual)
 ```
 
@@ -465,7 +465,7 @@ Closures support declared parameters and can be immediately invoked with `()`:
 
 The `/import` command (QR SlashCommandHandler, line 680) allows importing named closures from other Quick Replies:
 
-```stscript
+```bash
 /import from=MySet.MyQR myFunction as localName
 ```
 
@@ -475,7 +475,7 @@ It parses the target QR's message, finds `/let` or `/var` declarations whose val
 
 Closures can be serialized to strings for persistence in variables:
 
-```stscript
+```bash
 /closure-serialize {: /echo hello :} | /setvar key=myClosure
 /closure-deserialize {{getvar::myClosure}} | /let fn {{pipe}} | /:fn
 ```
