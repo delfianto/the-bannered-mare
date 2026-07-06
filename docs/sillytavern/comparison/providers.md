@@ -1,5 +1,38 @@
 # LLM Provider System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
+The two systems reach the same providers by opposite means — a big branching dispatcher versus
+a small adapter interface:
+
+<Figure tag="Figure 1" title="if/else dispatch vs the adapter pattern" id="fig-cmp-providers">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare provider architecture" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Dispatch — switch + if/else, one ~2,700-line file</text>
+    <text x="40" y="122">Coverage — ~40+ providers across 2 subsystems</text>
+    <text x="40" y="154">Abstraction — none; a branch per provider</text>
+    <text x="40" y="186">Text vs chat — a second, separate dispatch file</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Widest surface area, most coupling</text>
+    <text x="408" y="90">Dispatch — ProviderGateway selects an adapter</text>
+    <text x="408" y="122">Coverage — 7 types via 4 adapter classes</text>
+    <text x="408" y="154">Abstraction — one ProviderAdapter interface</text>
+    <text x="408" y="186">Reuse — xAI/OpenRouter/Custom → OpenAIAdapter</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Fewer providers, uniform shape</text>
+  </g>
+</svg>
+<template #caption>
+
+**Same baseline, opposite structure.** Both treat OpenAI-compatible APIs as the common
+denominator, but SillyTavern dispatches through one large branching file while The Bannered Mare
+routes every call through a small, uniform `ProviderAdapter` interface.
+
+</template>
+</Figure>
+
 ## 1. Provider Count and Scope
 
 ### SillyTavern

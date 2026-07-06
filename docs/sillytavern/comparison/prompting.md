@@ -1,5 +1,38 @@
 # Prompting System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
+Both assemble a prompt within a token budget, but one is a large client-server pipeline and the
+other a small server-side pass:
+
+<Figure tag="Figure 1" title="~12,000 lines client+server vs ~800 lines server-side" id="fig-cmp-prompting">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare prompting pipeline" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Runs — client (browser) + server format-convert</text>
+    <text x="40" y="122">Size — ~12,000 lines of JavaScript</text>
+    <text x="40" y="154">Assembly — 5+ phases, reserve/free budgeting</text>
+    <text x="40" y="186">Extend — CHAT_COMPLETION_PROMPT_READY hook</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Powerful, many handoff points</text>
+    <text x="408" y="90">Runs — server-side (Python)</text>
+    <text x="408" y="122">Size — ~800 lines</text>
+    <text x="408" y="154">Assembly — single-pass iterate-and-append</text>
+    <text x="408" y="186">Extend — none; DB-configured order + fragments</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Compact, one orchestration method</text>
+  </g>
+</svg>
+<template #caption>
+
+**Fifteen-to-one on line count.** SillyTavern's assembly spans the browser and server with a
+multi-phase reserve/free budget and an extension hook; The Bannered Mare does it in one
+server-side `PromptBuilder` pass driven by a database-stored `component_order`.
+
+</template>
+</Figure>
+
 ## 1. Architecture Overview
 
 ### SillyTavern

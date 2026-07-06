@@ -21,6 +21,49 @@ The Bannered Mare represents the same ideas, and exactly what the importer
   (marker placeholders, per-prompt role juggling, format-string plumbing) that
   modern long-context models don't need.
 
+The importer's core job is a split: one ST preset bundles two unrelated concerns that
+The Bannered Mare models as separate first-class objects.
+
+<Figure tag="Figure 1" title="One preset file → two objects" id="fig-cmp-presets">
+<svg viewBox="0 0 760 280" role="img" aria-label="Importing an ST preset splits it into a Preset and a PromptTemplate" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <rect x="24" y="36" width="300" height="208" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="36" width="300" height="40" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="56" width="300" height="20" fill="var(--tbm-dgm-provider-soft)"/>
+  <text x="174" y="61" text-anchor="middle" font-size="12.5" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern preset — one file</text>
+  <rect x="44" y="90" width="260" height="60" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="174" y="112" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--tbm-dgm-ink)">Sampler block</text>
+  <text x="174" y="130" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">temperature · top_p · penalties · max_tokens</text>
+  <rect x="44" y="162" width="260" height="66" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="174" y="184" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--tbm-dgm-ink)">prompts[] + prompt_order[]</text>
+  <text x="174" y="202" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">assembly recipe —</text>
+  <text x="174" y="216" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">markers · built-ins · custom</text>
+  <rect x="470" y="66" width="266" height="66" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
+  <text x="603" y="94" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Preset</text>
+  <text x="603" y="112" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">sampler settings, first-class</text>
+  <rect x="470" y="160" width="266" height="76" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+  <text x="603" y="186" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">PromptTemplate + fragments</text>
+  <text x="603" y="204" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">component_order + attached fragments</text>
+  <text x="603" y="220" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">keeps depth-anchored injection</text>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M304 120 L468 99"/>
+    <path d="M304 195 L468 198"/>
+  </g>
+  <text x="392" y="104" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-faint)">split on import</text>
+</svg>
+<template #caption>
+
+**Unbundle, then map.** `POST /api/presets/import` separates the sampler block (→ a `Preset`)
+from the prompt-assembly recipe (→ a `PromptTemplate` plus fragments), staying faithful where the
+models line up and emitting warnings where they don't. It keeps ST's depth-anchored injection and
+drops the marker/role plumbing modern long-context models don't need.
+
+</template>
+</Figure>
+
 ## What an ST chat-completion preset is
 
 A single JSON file carrying (all optional unless noted):

@@ -5,6 +5,39 @@
 > The Bannered Mare source: `src/character/` module
 
 
+Both read the same card ecosystem, but differ on how many specs they cover and how strictly they
+validate:
+
+<Figure tag="Figure 1" title="Strict 3-spec validation vs permissive 2-spec parsing" id="fig-cmp-cards">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare character cards" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Specs — V1 · V2 · V3</text>
+    <text x="40" y="122">Validation — strict (presence + type checks)</text>
+    <text x="40" y="154">Order — try V1 → V2 → V3, first match wins</text>
+    <text x="40" y="186">Storage — PNG tEXt chunk (chara / ccv3)</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Broader specs, reports errors</text>
+    <text x="408" y="90">Specs — V1 · V2 (+ Pygmalion field names)</text>
+    <text x="408" y="122">Validation — permissive (.get with defaults)</text>
+    <text x="408" y="154">Detection — V2-first, else fall back to V1</text>
+    <text x="408" y="186">Storage — DB model + local asset files</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Fewer specs, lenient import</text>
+  </g>
+</svg>
+<template #caption>
+
+**Strict-and-broad vs lenient-and-focused.** SillyTavern validates V1/V2/V3 with type checks and
+error reporting; The Bannered Mare parses V1/V2 permissively (filling missing fields with
+defaults) and also accepts legacy Pygmalion field names.
+
+</template>
+</Figure>
+
 ## 1. Card Specification Support
 
 ### SillyTavern

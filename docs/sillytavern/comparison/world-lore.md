@@ -8,6 +8,40 @@
 > `src/core/persistence/models.py`, `src/core/persistence/enums.py`
 
 
+The Bannered Mare keeps the core activation mechanics and trims the long tail of ST-specific
+fields accumulated over the years:
+
+<Figure tag="Figure 1" title="35+ fields / 8 positions vs 18 fields / 4 positions" id="fig-cmp-lore">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare world lore" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Fields — 35+ per entry</text>
+    <text x="40" y="122">Positions — 8 insertion positions</text>
+    <text x="40" y="154">Engine — client-side (6,273 lines)</text>
+    <text x="40" y="186">Extras — probability · triggers · vectorized · outlets</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Years of accreted options</text>
+    <text x="408" y="90">Fields — 18 persisted</text>
+    <text x="408" y="122">Positions — 4 insertion positions</text>
+    <text x="408" y="154">Engine — server-side activation_engine</text>
+    <text x="408" y="186">Extras — split priority + order fields</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Core mechanics, trimmed surface</text>
+  </g>
+</svg>
+<template #caption>
+
+**Same idea, fewer knobs.** Keys, secondary logic, constant entries, depth, and budget are
+equivalent on both sides; The Bannered Mare omits ST extras like per-entry probability, trigger
+filters, vectorized activation, and outlets, and splits ST's single `order` into `priority` +
+`order`.
+
+</template>
+</Figure>
+
 ## 1. Entry Data Model
 
 ### 1.1 Structural Overview

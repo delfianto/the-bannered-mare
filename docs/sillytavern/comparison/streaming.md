@@ -4,6 +4,39 @@ Side-by-side analysis of how each system handles SSE streaming from provider
 APIs to the consumer (browser frontend in ST, API client in The Bannered Mare).
 
 
+The split is where parsing happens — SillyTavern forwards raw bytes and parses in the browser;
+The Bannered Mare parses server-side into a typed event protocol:
+
+<Figure tag="Figure 1" title="Byte proxy vs typed event pipeline" id="fig-cmp-streaming">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare streaming" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Backend — transparent byte pipe, zero transform</text>
+    <text x="40" y="122">Parsing — in the frontend, per provider</text>
+    <text x="40" y="154">Output — raw provider SSE bytes</text>
+    <text x="40" y="186">Ollama — JSONL transcoded to SSE</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Trivial backend, heavy frontend parser</text>
+    <text x="408" y="90">Backend — adapter.parse_stream_line → StreamChunk</text>
+    <text x="408" y="122">Parsing — server-side, normalized</text>
+    <text x="408" y="154">Output — typed StreamEvents (6 types)</text>
+    <text x="408" y="186">Ollama — same adapter path as the rest</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Uniform typed protocol to the client</text>
+  </g>
+</svg>
+<template #caption>
+
+**Who parses the stream.** SillyTavern's backend is one pass-through function and the browser
+owns all provider parsing; The Bannered Mare parses each provider server-side into a fixed
+`StreamEvent` protocol (`start · text · reasoning · usage · done · error`).
+
+</template>
+</Figure>
+
 ## 1. Stream Proxy vs Typed Event Pipeline
 
 ### SillyTavern: Transparent Byte Proxy

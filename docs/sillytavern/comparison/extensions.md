@@ -15,6 +15,38 @@
 11. [Trade-off Analysis](#11-trade-off-analysis)
 
 
+The systems answer one question differently — *where does customization logic live?*
+
+<Figure tag="Figure 1" title="Customization in the app vs in the client" id="fig-cmp-extensions">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern plugins vs The Bannered Mare API extensibility" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Lives — inside the application</text>
+    <text x="40" y="122">Mechanism — 2 plugin runtimes (server + frontend)</text>
+    <text x="40" y="154">Hooks — 103 event types, interceptors</text>
+    <text x="40" y="186">Distribution — git install / update / branch</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">14 built-in + unlimited third-party</text>
+    <text x="408" y="90">Lives — in the client</text>
+    <text x="408" y="122">Mechanism — compose CRUD API primitives</text>
+    <text x="408" y="154">Hooks — none (no plugin runtime)</text>
+    <text x="408" y="186">Distribution — n/a; the API is the surface</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">0 plugins by design</text>
+  </g>
+</svg>
+<template #caption>
+
+**Two homes for behavior.** SillyTavern runs extension code inside the app via hooks, events, and
+interceptors; The Bannered Mare exposes every primitive as a CRUD endpoint and lets a client or
+automation script compose them — so customization lives outside the server.
+
+</template>
+</Figure>
+
 ## 1. Fundamental Architectural Difference
 
 This is the most structurally different area between the two systems. SillyTavern is a self-contained application with a full plugin runtime. The Bannered Mare is a headless API server with no plugin system at all.
