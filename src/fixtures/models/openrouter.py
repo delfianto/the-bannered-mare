@@ -1,4 +1,11 @@
-"""OpenRouter model seed data."""
+"""OpenRouter model seed data.
+
+Only a small curated subset is `enabled` by default — the models known to be
+strong for roleplay, plus the free-tier models (no cost to leave around). The
+rest are seeded as disabled "extras": they cost nothing sitting in the table
+and save the user from adding them by hand if they want to experiment, since
+they're all hosted (no local download either way).
+"""
 
 from src.fixtures.models._types import ModelSeedData
 
@@ -13,28 +20,18 @@ _LLAMA_RP = {
     "repetition_penalty": 1.05,
 }
 
+# Shared RP sampler for TheDrummer's Mistral-based finetunes (Nemo 12B / Small 24B
+# lineage) — mirrors the mistral/mistral-nemo & mistral/mistral-small family contract.
+_MISTRAL_RP = {
+    "max_tokens": 4096,
+    "temperature": 0.9,
+    "top_p": 0.92,
+    "top_k": 65,
+    "repeat_penalty": 1.1,
+}
+
 OPENROUTER_MODELS: list[ModelSeedData] = [
-    # Llama 3 RP finetunes & merges (-> llama3 family)
-    {
-        "name": "Sao10K Euryale 70B v2.1 (L3)",
-        "model_identifier": "sao10k/l3-euryale-70b",
-        "openrouter_identifier": "sao10k/l3-euryale-70b",
-        "family_identifier": "meta/llama-3",
-        "provider_type": "openrouter",
-        "parameters": {**_LLAMA_RP},
-        "enabled": True,
-        "use_openrouter": True,
-    },
-    {
-        "name": "Sao10K Euryale 70B v2.2 (L3.1)",
-        "model_identifier": "sao10k/l3.1-euryale-70b",
-        "openrouter_identifier": "sao10k/l3.1-euryale-70b",
-        "family_identifier": "meta/llama-3",
-        "provider_type": "openrouter",
-        "parameters": {**_LLAMA_RP},
-        "enabled": True,
-        "use_openrouter": True,
-    },
+    # Sao10K (-> llama3 family) — curated RP favorites, enabled by default.
     {
         "name": "Sao10K Euryale 70B v2.3 (L3.3)",
         "model_identifier": "sao10k/l3.3-euryale-70b",
@@ -46,29 +43,9 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "use_openrouter": True,
     },
     {
-        "name": "NeverSleep Lumimaid 70B (L3.1)",
-        "model_identifier": "neversleep/llama-3.1-lumimaid-70b",
-        "openrouter_identifier": "neversleep/llama-3.1-lumimaid-70b",
-        "family_identifier": "meta/llama-3",
-        "provider_type": "openrouter",
-        "parameters": {**_LLAMA_RP},
-        "enabled": True,
-        "use_openrouter": True,
-    },
-    {
-        "name": "TheDrummer Anubis 70B (L3.3)",
-        "model_identifier": "thedrummer/anubis-70b-v1.1",
-        "openrouter_identifier": "thedrummer/anubis-70b-v1.1",
-        "family_identifier": "meta/llama-3",
-        "provider_type": "openrouter",
-        "parameters": {**_LLAMA_RP},
-        "enabled": True,
-        "use_openrouter": True,
-    },
-    {
-        "name": "Nous Hermes 3 70B (L3.1)",
-        "model_identifier": "nousresearch/hermes-3-llama-3.1-70b",
-        "openrouter_identifier": "nousresearch/hermes-3-llama-3.1-70b",
+        "name": "Sao10K Hanami X1 70B (L3.1)",
+        "model_identifier": "sao10k/l3.1-70b-hanami-x1",
+        "openrouter_identifier": "sao10k/l3.1-70b-hanami-x1",
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
@@ -85,7 +62,91 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": True,
         "use_openrouter": True,
     },
-    # DeepSeek
+    # TheDrummer — Llama/Nemotron lineage (-> llama3 family), curated, enabled.
+    {
+        "name": "TheDrummer Valkyrie 49B v1",
+        "model_identifier": "thedrummer/valkyrie-49b-v1",
+        "openrouter_identifier": "thedrummer/valkyrie-49b-v1",
+        "family_identifier": "meta/llama-3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    # TheDrummer — Mistral lineage (-> mistral-nemo / mistral-small families),
+    # curated, enabled by default.
+    {
+        "name": "TheDrummer Cydonia 24B v4.1",
+        "model_identifier": "thedrummer/cydonia-24b-v4.1",
+        "openrouter_identifier": "thedrummer/cydonia-24b-v4.1",
+        "family_identifier": "mistral/mistral-small",
+        "provider_type": "openrouter",
+        "parameters": {**_MISTRAL_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "TheDrummer Skyfall 36B v2",
+        "model_identifier": "thedrummer/skyfall-36b-v2",
+        "openrouter_identifier": "thedrummer/skyfall-36b-v2",
+        "family_identifier": "mistral/mistral-small",
+        "provider_type": "openrouter",
+        "parameters": {**_MISTRAL_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "TheDrummer UnslopNemo 12B",
+        "model_identifier": "thedrummer/unslopnemo-12b",
+        "openrouter_identifier": "thedrummer/unslopnemo-12b",
+        "family_identifier": "mistral/mistral-nemo",
+        "provider_type": "openrouter",
+        "parameters": {**_MISTRAL_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    {
+        "name": "TheDrummer Rocinante 12B",
+        "model_identifier": "thedrummer/rocinante-12b",
+        "openrouter_identifier": "thedrummer/rocinante-12b",
+        "family_identifier": "mistral/mistral-nemo",
+        "provider_type": "openrouter",
+        "parameters": {**_MISTRAL_RP},
+        "enabled": True,
+        "use_openrouter": True,
+    },
+    # Other Llama 3 RP finetunes & merges — extras, disabled by default.
+    {
+        "name": "NeverSleep Lumimaid 70B (L3.1)",
+        "model_identifier": "neversleep/llama-3.1-lumimaid-70b",
+        "openrouter_identifier": "neversleep/llama-3.1-lumimaid-70b",
+        "family_identifier": "meta/llama-3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": False,
+        "use_openrouter": True,
+    },
+    {
+        "name": "TheDrummer Anubis 70B (L3.3)",
+        "model_identifier": "thedrummer/anubis-70b-v1.1",
+        "openrouter_identifier": "thedrummer/anubis-70b-v1.1",
+        "family_identifier": "meta/llama-3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": False,
+        "use_openrouter": True,
+    },
+    {
+        "name": "Nous Hermes 3 70B (L3.1)",
+        "model_identifier": "nousresearch/hermes-3-llama-3.1-70b",
+        "openrouter_identifier": "nousresearch/hermes-3-llama-3.1-70b",
+        "family_identifier": "meta/llama-3",
+        "provider_type": "openrouter",
+        "parameters": {**_LLAMA_RP},
+        "enabled": False,
+        "use_openrouter": True,
+    },
+    # DeepSeek — curated flagships enabled; older/reasoning variants are extras.
     {
         "name": "DeepSeek V4 Pro",
         "model_identifier": "deepseek/deepseek-v4-pro",
@@ -123,7 +184,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "deepseek/deepseek-v3",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -134,10 +195,10 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "deepseek/deepseek-r1",
         "provider_type": "openrouter",
         "parameters": {"max_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
-    # GLM (Zhipu)
+    # GLM (Zhipu) — extras, disabled by default.
     {
         "name": "GLM 5.1",
         "model_identifier": "z-ai/glm-5.1",
@@ -145,7 +206,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "zai/glm-5",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -155,7 +216,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "zai/glm-5",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -165,7 +226,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "zai/glm-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -175,7 +236,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "zai/glm-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -185,10 +246,10 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "zai/glm-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
-    # MiniMax
+    # MiniMax — extras, disabled by default.
     {
         "name": "MiniMax M3",
         "model_identifier": "minimax/minimax-m3",
@@ -196,7 +257,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "minimax/minimax-m3",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -206,7 +267,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "minimax/minimax-m2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "top_k": 40, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -216,10 +277,10 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "minimax/minimax-m2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "top_k": 40, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
-    # Kimi (Moonshot)
+    # Kimi (Moonshot) — extras, disabled by default.
     {
         "name": "Moonshot Kimi K2.6",
         "model_identifier": "moonshotai/kimi-k2.6",
@@ -227,7 +288,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "moonshot/kimi-k2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -237,7 +298,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "moonshot/kimi-k2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
     {
@@ -247,10 +308,10 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "moonshot/kimi-k2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
         "use_openrouter": True,
     },
-    # Misc
+    # Misc free models — curated, enabled by default.
     {
         "name": "Arcee Trinity Large (Free)",
         "model_identifier": "arcee-ai/trinity-large-preview:free",
@@ -261,17 +322,8 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": True,
         "use_openrouter": True,
     },
-    {
-        "name": "Qwen 3.6 Plus (Free)",
-        "model_identifier": "qwen/qwen3.6-plus:free",
-        "openrouter_identifier": "qwen/qwen3.6-plus:free",
-        "family_identifier": "openrouter/misc",
-        "provider_type": "openrouter",
-        "parameters": {"temperature": 0.8, "top_p": 0.9, "max_tokens": 4096},
-        "enabled": True,
-        "use_openrouter": True,
-    },
-    # Xiaomi MiMo (-> mimo-v2.5 family)
+    # Qwen 3.6 Plus (Free) removed — no longer a free-tier model on OpenRouter.
+    # Xiaomi MiMo (-> mimo-v2.5 family) — curated, enabled by default.
     {
         "name": "Xiaomi MiMo V2.5",
         "model_identifier": "xiaomi/mimo-v2.5",
@@ -299,7 +351,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": True,
         "use_openrouter": True,
     },
-    # Poolside Laguna (Free)
+    # Poolside Laguna (Free) — curated, enabled by default.
     {
         "name": "Poolside Laguna M.1 (Free)",
         "model_identifier": "poolside/laguna-m.1:free",
@@ -320,7 +372,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": True,
         "use_openrouter": True,
     },
-    # Google Gemma (Free)
+    # Google Gemma (Free) — curated, enabled by default.
     {
         "name": "Gemma 4 31B IT (Free)",
         "model_identifier": "google/gemma-4-31b-it:free",
