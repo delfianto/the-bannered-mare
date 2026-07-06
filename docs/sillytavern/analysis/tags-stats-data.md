@@ -46,7 +46,55 @@ function newTag(tagName) {
 
 ### 1.2 Storage Architecture
 
-Two global structures hold all tag data:
+Two global structures hold all tag data — a flat list of tag definitions, and a map that links
+each entity to the tag IDs it carries:
+
+<Figure tag="Figure 1" title="Entities → tag_map → tags[]" id="fig-tag-map">
+<svg viewBox="0 0 760 260" role="img" aria-label="Tag map indirection between entities and tag definitions" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <rect x="20" y="40" width="196" height="150" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="118" y="62" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Entities</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink-2)">
+    <text x="36" y="92">Alice.png</text><text x="200" y="92" text-anchor="end" fill="var(--tbm-dgm-faint)">character avatar</text>
+    <text x="36" y="122">Bob.png</text><text x="200" y="122" text-anchor="end" fill="var(--tbm-dgm-faint)">character avatar</text>
+    <text x="36" y="152">group_7f3a</text><text x="200" y="152" text-anchor="end" fill="var(--tbm-dgm-faint)">group id</text>
+  </g>
+  <rect x="276" y="40" width="230" height="150" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="391" y="62" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">tag_map</text>
+  <text x="391" y="78" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-faint)">entityKey → tag IDs</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink-2)">
+    <text x="292" y="104">"Alice.png": [t1, t3]</text>
+    <text x="292" y="132">"Bob.png": [t1]</text>
+    <text x="292" y="160">"group_7f3a": [t2]</text>
+  </g>
+  <rect x="566" y="40" width="176" height="150" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+  <text x="654" y="62" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">tags[]</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink-2)">
+    <text x="582" y="92">t1 · name, color</text>
+    <text x="582" y="122">t2 · name, color</text>
+    <text x="582" y="152">t3 · name, color</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M216 115 L274 115"/>
+    <path d="M506 115 L564 115"/>
+  </g>
+  <text x="245" y="108" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">keyed by</text>
+  <text x="245" y="119" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">avatar/id</text>
+  <text x="535" y="108" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">by tag id</text>
+  <text x="380" y="222" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">Both structures live in settings.json — client-side only, no dedicated server endpoint.</text>
+</svg>
+<template #caption>
+
+**Indirection by ID.** An entity never stores tag objects; `tag_map` maps its key (a character's
+avatar filename or a group's id) to an array of tag IDs, which resolve against the flat `tags[]`
+definitions. Deleting a tag means removing its ID from `tags[]` and every `tag_map` entry.
+
+</template>
+</Figure>
 
 | Structure | Type | Description |
 |---|---|---|

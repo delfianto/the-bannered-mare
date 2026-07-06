@@ -2,6 +2,54 @@
 
 SillyTavern ships a full-fledged scripting language called **STscript** built on top of its slash command infrastructure. What began as simple `/command arg` shortcuts has evolved into a Turing-complete system with closures, lexical scoping, piped execution, flow control, a debugger, and syntax highlighting. This analysis covers the architecture end-to-end.
 
+Every script travels the same path — from source text, through a recursive-descent parser, into
+a tree of closures that the execution engine runs left to right:
+
+<Figure tag="Figure 1" title="How STscript runs" id="fig-stscript-pipeline">
+<svg viewBox="0 0 900 190" role="img" aria-label="STscript parse and execution pipeline" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <g text-anchor="middle">
+    <rect x="20" y="40" width="160" height="76" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="100" y="70" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">STscript source</text>
+    <text x="100" y="90" font-size="10" fill="var(--tbm-dgm-ink-2)">/gen  |  /echo</text>
+    <text x="100" y="105" font-size="10" fill="var(--tbm-dgm-ink-2)">named + unnamed args</text>
+    <rect x="195" y="40" width="160" height="76" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="275" y="70" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Parser</text>
+    <text x="275" y="90" font-size="10" fill="var(--tbm-dgm-ink-2)">recursive descent ·</text>
+    <text x="275" y="105" font-size="10" fill="var(--tbm-dgm-ink-2)">SlashCommandParser</text>
+    <rect x="370" y="40" width="160" height="76" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="450" y="70" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Closure AST</text>
+    <text x="450" y="90" font-size="10" fill="var(--tbm-dgm-ink-2)">SlashCommandClosure ·</text>
+    <text x="450" y="105" font-size="10" fill="var(--tbm-dgm-ink-2)">Executor nodes</text>
+    <rect x="545" y="40" width="160" height="76" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="625" y="70" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Execution engine</text>
+    <text x="625" y="90" font-size="10" fill="var(--tbm-dgm-ink-2)">run left → right ·</text>
+    <text x="625" y="105" font-size="10" fill="var(--tbm-dgm-ink-2)">scoped variables</text>
+    <rect x="720" y="40" width="160" height="76" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
+    <text x="800" y="74" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Result</text>
+    <text x="800" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">string or closure</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M180 78 L193 78"/>
+    <path d="M355 78 L368 78"/>
+    <path d="M530 78 L543 78"/>
+    <path d="M705 78 L718 78"/>
+  </g>
+  <text x="450" y="150" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">A single | pipes the previous command's result into the next; a double || breaks the pipe. Nested {:…:} closures parse recursively.</text>
+</svg>
+<template #caption>
+
+**A real language, not string macros.** The hand-written recursive-descent parser turns source
+into an AST of `SlashCommandClosure`s holding `SlashCommandExecutor` nodes; the engine then
+executes them with lexical scoping and pipes. `286` commands are registered across `33` files.
+
+</template>
+</Figure>
+
 
 ## 1. Command Registry
 

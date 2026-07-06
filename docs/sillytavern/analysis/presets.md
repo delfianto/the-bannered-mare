@@ -20,6 +20,60 @@ Empirically every Freaky Frankenstein file in the drop is a **prompts-only** Cha
 
 ## 2. Chat Completion preset structure
 
+The two arrays are the heart of a preset: a library of prompt definitions, and a per-character
+order that references them by identifier and toggles each on or off:
+
+<Figure tag="Figure 1" title="prompts[] library + prompt_order[]" id="fig-preset-structure">
+<svg viewBox="0 0 760 330" role="img" aria-label="Preset prompts library and prompt order" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <rect x="24" y="40" width="330" height="240" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="189" y="63" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">prompts[] — the library</text>
+  <g text-anchor="middle">
+    <rect x="40" y="78" width="298" height="58" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-provider)"/>
+    <text x="189" y="98" font-size="11" font-weight="700" fill="var(--tbm-dgm-ink)">Markers (marker:true, no content)</text>
+    <text x="189" y="115" font-size="9.5" fill="var(--tbm-dgm-ink-2)">worldInfoBefore · charDescription ·</text>
+    <text x="189" y="128" font-size="9.5" fill="var(--tbm-dgm-ink-2)">chatHistory · dialogueExamples · …</text>
+    <rect x="40" y="144" width="298" height="58" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="189" y="164" font-size="11" font-weight="700" fill="var(--tbm-dgm-ink)">Built-in system (system_prompt:true)</text>
+    <text x="189" y="181" font-size="9.5" fill="var(--tbm-dgm-ink-2)">main · nsfw · jailbreak ·</text>
+    <text x="189" y="194" font-size="9.5" fill="var(--tbm-dgm-ink-2)">enhanceDefinitions</text>
+    <rect x="40" y="210" width="298" height="58" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="189" y="230" font-size="11" font-weight="700" fill="var(--tbm-dgm-ink)">Custom (keyed by UUID)</text>
+    <text x="189" y="247" font-size="9.5" fill="var(--tbm-dgm-ink-2)">CoT blocks · anti-slop rules ·</text>
+    <text x="189" y="260" font-size="9.5" fill="var(--tbm-dgm-ink-2)">POV toggles · …</text>
+  </g>
+  <rect x="430" y="40" width="306" height="150" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="583" y="63" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">prompt_order[] — per character</text>
+  <g font-size="10" fill="var(--tbm-dgm-ink-2)">
+    <text x="446" y="90">identifier: "main"          · enabled ✓</text>
+    <text x="446" y="116">identifier: "chatHistory"   · enabled ✓</text>
+    <text x="446" y="142">identifier: "uuid-9f2…"     · enabled ✕</text>
+  </g>
+  <text x="583" y="172" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-faint)">ordering + the authoritative on/off toggle</text>
+  <rect x="430" y="230" width="306" height="50" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+  <text x="583" y="252" text-anchor="middle" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Assembled prompt</text>
+  <text x="583" y="269" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-ink-2)">enabled entries, in order, markers filled live</text>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M430 112 L356 112"/>
+    <path d="M583 190 L583 228"/>
+  </g>
+  <text x="393" y="104" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">look up by</text>
+  <text x="393" y="115" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">identifier</text>
+</svg>
+<template #caption>
+
+**A library plus an order.** `prompts[]` holds every definition — markers, built-in system
+prompts, and the creator's custom fragments — while `prompt_order[]` lists identifiers with the
+authoritative enabled flag. Assembly walks the order, keeps the enabled entries, and fills
+markers with live content.
+
+</template>
+</Figure>
+
 ### 2.1 Top-level keys (the prompts-only subset)
 
 The 9 string fields are "utility prompts" / format templates; the two arrays are the actual prompt system.
