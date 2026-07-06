@@ -1,0 +1,1939 @@
+import { http, HttpResponse, delay } from "msw";
+import { characters } from "@/mocks/data/characters";
+import { chats } from "@/mocks/data/chats";
+import { providers } from "@/mocks/data/providers";
+import { discoveredModelsByProvider } from "@/mocks/data/discovered-models";
+import { allModelsMock } from "@/mocks/data/models-data";
+import { personas } from "@/mocks/data/personas";
+import { allModelFamiliesMock } from "@/mocks/data/model-families-data";
+import { modelFamiliesParameterDocs } from "@/mocks/data/model-parameters";
+import { dataBankEntries } from "@/mocks/data/data-bank";
+import { presets } from "@/mocks/data/presets";
+import { profiles } from "@/mocks/data/profiles";
+import { promptTemplates, templateFragments } from "@/mocks/data/prompt-templates";
+import { promptFragments } from "@/mocks/data/prompt-fragments";
+import { lorebooks } from "@/mocks/data/lorebooks";
+import {
+  bookmarkedCharacters,
+  bookmarkedSessions,
+  bookmarkedMessages,
+} from "@/mocks/data/bookmarks";
+import { conversationCache } from "@/mocks/loader";
+import "@/mocks/data/messages"; // Initialize registrations
+import type { components } from "@/api/schema";
+
+type Chat = components["schemas"]["ChatResponse"];
+type Character = components["schemas"]["CharacterResponse"];
+type DataBankEntry = components["schemas"]["DataBankResponse"];
+type Persona = components["schemas"]["PersonaResponse"];
+type LorebookDetail = components["schemas"]["LorebookDetailResponse"];
+type LoreEntryResponse = components["schemas"]["LoreEntryResponse"];
+type Profile = components["schemas"]["ProfileResponse"];
+
+type TemplateFragmentResponse = components["schemas"]["TemplateFragmentResponse"];
+
+const db = {
+  characters,
+  chats,
+  providers,
+  allModelsMock,
+  personas,
+  allModelFamiliesMock,
+  dataBankEntries,
+  presets,
+  profiles,
+  promptTemplates,
+  promptFragments,
+  templateFragments,
+  lorebooks,
+};
+
+export const handlers = [
+  // Health check
+  http.get("/api/health", () => {
+    return HttpResponse.json({ status: "ok", timestamp: new Date().toISOString() });
+  }),
+
+  // Characters
+  http.get("/api/characters", async () => {
+    await delay(150);
+    return HttpResponse.json({
+      items: db.characters,
+      meta: {
+        limit: 100, // Assuming default limit
+        has_more: false,
+        total: db.characters.length,
+        page: 1,
+      },
+    });
+  }),
+
+  http.get("/api/characters/:id", async ({ params }) => {
+    const char = db.characters.find((c) => c.id === params.id);
+    if (!char) return new HttpResponse(null, { status: 404 });
+    await delay(150);
+    return HttpResponse.json(char);
+  }),
+
+  http.post("/api/characters", async ({ request }) => {
+    await delay(200);
+    const formData = await request.formData();
+
+    const name = formData.get("name") as string;
+    if (!name) {
+      return HttpResponse.json({ detail: "name is required" }, { status: 422 });
+    }
+
+    const slugName = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+    const id = `${Date.now()}-${slugName}`;
+
+    const tagsRaw = formData.get("tags") as string | null;
+    const dialoguesRaw = formData.get("example_dialogues") as string | null;
+    const avatarValue = formData.get("avatar") as string | null;
+
+    const newChar: Character = {
+      id,
+      name,
+      description: (formData.get("description") as string) || null,
+      personality: (formData.get("personality") as string) || null,
+      first_message: (formData.get("first_message") as string) || null,
+      example_dialogues: dialoguesRaw ? JSON.parse(dialoguesRaw) : [],
+      scenario: (formData.get("scenario") as string) || null,
+      post_history_instructions: (formData.get("post_history_instructions") as string) || null,
+      alternate_greetings: null,
+      tags: tagsRaw ? JSON.parse(tagsRaw) : [],
+      gender: (formData.get("gender") as Character["gender"]) || null,
+      custom_gender: (formData.get("custom_gender") as string) || null,
+      creator: (formData.get("creator") as string) || null,
+      version: Number(formData.get("version")) || 1,
+      avatar: avatarValue || null,
+      avatar_thumbnail: avatarValue || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.characters.unshift(newChar);
+    return HttpResponse.json(newChar, { status: 201 });
+  }),
+
+  http.put("/api/characters/:id", async ({ params, request }) => {
+    await delay(200);
+    const charIndex = db.characters.findIndex((c) => c.id === params.id);
+    if (charIndex === -1) return new HttpResponse(null, { status: 404 });
+
+    const formData = await request.formData();
+    const existing = db.characters[charIndex];
+
+    const getString = (key: string) => {
+      const val = formData.get(key);
+      return val !== null ? (val as string) : undefined;
+    };
+
+    const nameVal = getString("name");
+    if (nameVal !== undefined) existing.name = nameVal;
+
+    const descVal = getString("description");
+    if (descVal !== undefined) existing.description = descVal || null;
+
+    const persVal = getString("personality");
+    if (persVal !== undefined) existing.personality = persVal || null;
+
+    const fmVal = getString("first_message");
+    if (fmVal !== undefined) existing.first_message = fmVal || null;
+
+    const scenVal = getString("scenario");
+    if (scenVal !== undefined) existing.scenario = scenVal || null;
+
+    const phiVal = getString("post_history_instructions");
+    if (phiVal !== undefined) existing.post_history_instructions = phiVal || null;
+
+    const genderVal = getString("gender");
+    if (genderVal !== undefined) existing.gender = (genderVal as any) || null;
+
+    const customGenderVal = getString("custom_gender");
+    if (customGenderVal !== undefined) existing.custom_gender = customGenderVal || null;
+
+    const creatorVal = getString("creator");
+    if (creatorVal !== undefined) existing.creator = creatorVal || null;
+
+    const tagsRaw = getString("tags");
+    if (tagsRaw !== undefined) existing.tags = tagsRaw ? JSON.parse(tagsRaw) : [];
+
+    const dialoguesRaw = getString("example_dialogues");
+    if (dialoguesRaw !== undefined)
+      existing.example_dialogues = dialoguesRaw ? JSON.parse(dialoguesRaw) : [];
+
+    const avatarValue = formData.get("avatar") as string | null;
+    if (avatarValue !== null) {
+      existing.avatar = avatarValue;
+      existing.avatar_thumbnail = avatarValue;
+    }
+
+    existing.updated_at = new Date().toISOString();
+    db.characters[charIndex] = existing;
+
+    return HttpResponse.json(existing);
+  }),
+
+  http.delete("/api/characters/:id", async ({ params }) => {
+    await delay(200);
+    const charIndex = db.characters.findIndex((c) => c.id === params.id);
+    if (charIndex === -1) return new HttpResponse(null, { status: 404 });
+    db.characters.splice(charIndex, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Chats
+  http.get("/api/chats", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") || "20", 10);
+    const cursor = url.searchParams.get("cursor") || undefined;
+
+    await delay(200);
+
+    // Sort chats by updated_at descending
+    const allChats = [...db.chats].sort((a, b) => {
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
+
+    let startIndex = 0;
+    if (cursor) {
+      // Find the index of the chat with updated_at <= cursor
+      // (Simplified logic: find the first chat with updated_at < cursor)
+      const cursorDate = new Date(cursor).getTime();
+      startIndex = allChats.findIndex((chat) => new Date(chat.updated_at).getTime() < cursorDate);
+      if (startIndex === -1) startIndex = allChats.length;
+    }
+
+    const paginatedChats = allChats.slice(startIndex, startIndex + limit);
+    const hasMore = startIndex + limit < allChats.length;
+    const nextCursor = hasMore ? paginatedChats[paginatedChats.length - 1].updated_at : null;
+
+    return HttpResponse.json({
+      items: paginatedChats,
+      meta: {
+        limit,
+        has_more: hasMore,
+        cursor: nextCursor,
+        total: allChats.length,
+      },
+    });
+  }),
+
+  http.post("/api/chats", async ({ request }) => {
+    const body = (await request.json()) as any;
+
+    // Find character to populate avatar fields
+    const character = db.characters.find((c) => c.id === body.character_id);
+
+    const newChat: Chat = {
+      id: `chat-${Date.now()}`,
+      character: {
+        id: body.character_id,
+        name: character?.name || "Unknown",
+        avatar: character?.avatar || null,
+        avatar_thumbnail: character?.avatar_thumbnail || null,
+      },
+      model: {
+        id: body.model_id || "model-1",
+        name: "Mock Model",
+      },
+      title: body.title || "New Conversation",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    db.chats.unshift(newChat);
+    // Note: For new chats, there's no need to initialize in conversationCache
+    // as it will be handled by the dynamic import when messages are requested
+    await delay(400);
+    return HttpResponse.json(newChat);
+  }),
+
+  http.get("/api/chats/:chatId", async ({ params }) => {
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    if (!chat) return new HttpResponse(null, { status: 404 });
+    await delay(150);
+    return HttpResponse.json(chat);
+  }),
+
+  // Update chat (title, model)
+  http.put("/api/chats/:chatId", async ({ params, request }) => {
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    if (!chat) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.title !== undefined) chat.title = body.title;
+    if (body.model_id !== undefined) {
+      const model = db.allModelsMock.find((m) => m.id === body.model_id);
+      if (model) chat.model = { id: model.id, name: model.name };
+    }
+    chat.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(chat);
+  }),
+
+  // Delete chat
+  http.delete("/api/chats/:chatId", async ({ params }) => {
+    const idx = db.chats.findIndex((c) => c.id === params.chatId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.chats.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Apply a profile (loadout) onto a chat
+  http.post("/api/chats/:chatId/profile", async ({ params, request }) => {
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    if (!chat) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["ChatApplyProfile"];
+
+    const profile = db.profiles.find((p) => p.id === body.profile_id);
+    if (profile) {
+      chat.last_profile_name = profile.name;
+      if (profile.model_id) {
+        const model = db.allModelsMock.find((m) => m.id === profile.model_id);
+        if (model) chat.model = { id: model.id, name: model.name };
+      }
+    }
+    chat.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(chat);
+  }),
+
+  // Messages endpoint with lazy loading and cursor-based pagination
+  http.get("/api/chats/:chatId/messages", async ({ params, request }) => {
+    const chatId = params.chatId as string;
+    const url = new URL(request.url);
+
+    const limit = parseInt(url.searchParams.get("limit") || "20", 10);
+    const cursor = url.searchParams.get("cursor") || undefined;
+
+    if (!conversationCache.has(chatId)) {
+      const chatExists = db.chats.find((c) => c.id === chatId);
+      if (chatExists) {
+        await delay(100);
+        const mockMsg = {
+          id: `msg-default-${chatId}`,
+          chat_id: chatId,
+          role: "assistant" as const,
+          content: `[Mock] This conversation with ${chatExists.title} hasn't been implemented in YAML yet. This is a placeholder message.`,
+          created_at: new Date().toISOString(),
+        };
+        return HttpResponse.json({
+          items: [mockMsg],
+          meta: {
+            limit,
+            has_more: false,
+            cursor: null,
+            total: 1,
+            page: 1,
+          },
+        });
+      }
+
+      await delay(100);
+      return HttpResponse.json({
+        items: [],
+        meta: {
+          limit,
+          has_more: false,
+          cursor: null,
+          total: 0,
+          page: 1,
+        },
+      });
+    }
+
+    await delay(100);
+
+    const result = await conversationCache.getCursorPaginated(chatId, limit, cursor);
+
+    if (!result) {
+      return HttpResponse.json({
+        items: [],
+        meta: {
+          limit,
+          has_more: false,
+          cursor: null,
+        },
+      });
+    }
+
+    return HttpResponse.json({
+      items: result.messages,
+      meta: {
+        limit,
+        has_more: result.hasMore,
+        cursor: result.hasMore ? result.messages[result.messages.length - 1]?.created_at : null, // Cursor is the timestamp of the oldest message in the batch
+      },
+    });
+  }),
+
+  // Unified Post message handler (Streaming + Regular + Regenerate)
+  http.post("/api/chats/:chatId/messages", async ({ params, request }) => {
+    const chatId = params.chatId as string;
+    const url = new URL(request.url);
+    const stream = url.searchParams.get("stream") === "true";
+    const regenerate = url.searchParams.get("regenerate") === "true";
+
+    const chat = db.chats.find((c) => c.id === chatId);
+    if (chat) {
+      chat.updated_at = new Date().toISOString();
+    }
+
+    if (stream) {
+      const encoder = new TextEncoder();
+      const responseStream = new ReadableStream({
+        async start(controller) {
+          const text = regenerate
+            ? "[Mock Regenerated Response] This is a simulated regenerated reply."
+            : "[Mock Streaming AI Response] This is a simulated streaming reply.";
+          const words = text.split(" ");
+
+          for (const word of words) {
+            const chunk = JSON.stringify({ text: word + " " });
+            controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
+            await new Promise((r) => setTimeout(r, 50));
+          }
+
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        },
+      });
+
+      return new HttpResponse(responseStream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
+    } else {
+      const body = (await request.json()) as any;
+      await delay(800);
+
+      const aiMsg = {
+        id: `msg-${Date.now() + 1}`,
+        chat_id: chatId,
+        role: "assistant" as const,
+        content: `[Mock AI Response] You said: "${body?.content}". This is a simulated reply.`,
+        created_at: new Date(Date.now() + 1).toISOString(),
+      };
+
+      return HttpResponse.json(aiMsg);
+    }
+  }),
+
+  // Edit message content
+  http.put("/api/chats/:chatId/messages/:messageId", async ({ params, request }) => {
+    const body = (await request.json()) as any;
+    await delay(150);
+    return HttpResponse.json({
+      id: params.messageId as string,
+      chat_id: params.chatId as string,
+      role: "user" as const,
+      content: body.content || "",
+      active_index: 0,
+      created_at: new Date().toISOString(),
+    });
+  }),
+
+  // List message alternatives (swipes)
+  http.get("/api/chats/:chatId/messages/:messageId/alternatives", async ({ params }) => {
+    await delay(100);
+    // Return 2 mock alternatives for any message
+    return HttpResponse.json([
+      {
+        id: `alt-1-${params.messageId}`,
+        message_id: params.messageId as string,
+        content:
+          "[Alternative 1] The ancient tome reveals a different path — one shrouded in mystery, where the shadows speak louder than the light.",
+        token_count: 42,
+        ordinal: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: `alt-2-${params.messageId}`,
+        message_id: params.messageId as string,
+        content:
+          '[Alternative 2] She pauses, reconsidering her words. "Perhaps there is another way to interpret the runes — one the scholars overlooked."',
+        token_count: 38,
+        ordinal: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ]);
+  }),
+
+  // Activate a message alternative
+  http.put(
+    "/api/chats/:chatId/messages/:messageId/alternatives/:alternativeId/activate",
+    async ({ params }) => {
+      await delay(100);
+      return HttpResponse.json({
+        id: params.messageId as string,
+        chat_id: params.chatId as string,
+        role: "assistant" as const,
+        content: "[Swipe activated] The alternative response is now the active one.",
+        active_index: 1,
+        created_at: new Date().toISOString(),
+      });
+    },
+  ),
+
+  // Prefetch endpoint (optional)
+  http.post("/api/chats/:chatId/prefetch", async ({ params }) => {
+    const chatId = params.chatId as string;
+
+    if (!conversationCache.has(chatId)) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    conversationCache.preload(chatId).catch(console.error);
+
+    return HttpResponse.json({ status: "prefetching" });
+  }),
+
+  // Cache management endpoint (optional, for debugging)
+  http.post("/api/cache/clear", async ({ request }) => {
+    const body = (await request.json()) as any;
+    const chatId = body?.chatId;
+
+    conversationCache.clearCache(chatId);
+
+    return HttpResponse.json({
+      status: "cleared",
+      stats: conversationCache.getStats(),
+    });
+  }),
+
+  // Health check with cache stats
+  http.get("/api/health", () => {
+    return HttpResponse.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      cache_stats: conversationCache.getStats(),
+    });
+  }),
+
+  // LLM Providers
+  http.get("/api/providers", async () => {
+    await delay(100);
+    return HttpResponse.json(db.providers);
+  }),
+
+  // Provider detail
+  http.get("/api/providers/:providerId", async ({ params }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(provider);
+  }),
+
+  // Update provider
+  http.put("/api/providers/:providerId", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.name !== undefined) provider.name = body.name;
+    if (body.base_url !== undefined) provider.base_url = body.base_url;
+    if (body.enabled !== undefined) provider.enabled = body.enabled;
+    provider.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(provider);
+  }),
+
+  // Toggle provider enabled
+  http.patch("/api/providers/:providerId/flags", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.enabled !== undefined) provider.enabled = body.enabled;
+    provider.updated_at = new Date().toISOString();
+    await delay(100);
+    return HttpResponse.json(provider);
+  }),
+
+  // Available models (auto-detected, cached) for local providers
+  http.get("/api/providers/:providerId/models/available", async ({ params }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    await delay(300);
+    return HttpResponse.json({
+      provider_id: provider.id,
+      models: discoveredModelsByProvider[provider.id] ?? [],
+      last_synced_at: provider.last_synced_at ?? null,
+      from_cache: false,
+    });
+  }),
+
+  // Force-sync a provider's model list
+  http.post("/api/providers/:providerId/models/sync", async ({ params }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    provider.last_synced_at = new Date().toISOString();
+    await delay(500);
+    return HttpResponse.json({
+      provider_id: provider.id,
+      models: discoveredModelsByProvider[provider.id] ?? [],
+      last_synced_at: provider.last_synced_at,
+      from_cache: false,
+    });
+  }),
+
+  // Load a model into memory
+  http.post("/api/providers/:providerId/models/load", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const model = (discoveredModelsByProvider[provider.id] ?? []).find(
+      (m) => m.identifier === body.model_identifier,
+    );
+    if (model) model.state = "loaded";
+    await delay(800);
+    return HttpResponse.json({ model_identifier: body.model_identifier, action: "loaded" });
+  }),
+
+  // Unload a model from memory
+  http.post("/api/providers/:providerId/models/unload", async ({ params, request }) => {
+    const provider = db.providers.find((p) => p.id === params.providerId);
+    if (!provider) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const model = (discoveredModelsByProvider[provider.id] ?? []).find(
+      (m) => m.identifier === body.model_identifier,
+    );
+    if (model) model.state = "not-loaded";
+    await delay(300);
+    return HttpResponse.json({ model_identifier: body.model_identifier, action: "unloaded" });
+  }),
+
+  // Models List
+  http.get("/api/models", async ({ request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const nameParam = url.searchParams.get("name") || url.searchParams.get("name__ilike");
+    const providerParam = url.searchParams.get("provider_id");
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    let items = [...db.allModelsMock];
+    if (nameParam) {
+      const q = nameParam.toLowerCase();
+      items = items.filter((m) => m.name.toLowerCase().includes(q));
+    }
+    if (providerParam) {
+      items = items.filter((m) => m.provider_id === providerParam);
+    }
+
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  // Models Detail (Joined with Model Family)
+  http.get("/api/models/:modelId", async ({ params }) => {
+    const modelId = params.modelId as string;
+
+    // Find the model in the raw data
+    const foundModel = db.allModelsMock.find((m) => m.id === modelId);
+
+    if (!foundModel) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    // Perform relational lookup for the Model Family
+    const family = db.allModelFamiliesMock.find((f) => f.id === foundModel.model_family_id);
+
+    // Construct the response with the nested family object
+    const responseData = {
+      ...foundModel,
+      model_family: family || null, // Should ideally always exist if data is consistent
+    };
+
+    await delay(100);
+    return HttpResponse.json(responseData);
+  }),
+
+  // Update model
+  http.put("/api/models/:modelId", async ({ params, request }) => {
+    const model = db.allModelsMock.find((m) => m.id === params.modelId);
+    if (!model) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of [
+      "name",
+      "model_identifier",
+      "provider_id",
+      "model_family_id",
+      "openrouter_identifier",
+      "use_openrouter",
+      "parameters",
+      "enabled",
+      "template_id",
+    ]) {
+      if (body[key] !== undefined) (model as any)[key] = body[key];
+    }
+    model.updated_at = new Date().toISOString();
+    const family = db.allModelFamiliesMock.find((f) => f.id === model.model_family_id);
+    await delay(200);
+    return HttpResponse.json({ ...model, model_family: family || null });
+  }),
+
+  // Toggle model flags
+  http.patch("/api/models/:modelId/flags", async ({ params, request }) => {
+    const model = db.allModelsMock.find((m) => m.id === params.modelId);
+    if (!model) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    if (body.enabled !== undefined) model.enabled = body.enabled;
+    if (body.use_openrouter !== undefined) model.use_openrouter = body.use_openrouter;
+    model.updated_at = new Date().toISOString();
+    await delay(100);
+    return HttpResponse.json(model);
+  }),
+
+  // Delete model
+  http.delete("/api/models/:modelId", async ({ params }) => {
+    const idx = db.allModelsMock.findIndex((m) => m.id === params.modelId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.allModelsMock.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Personas
+  http.get("/api/personas/", async () => {
+    await delay(100);
+    return HttpResponse.json({
+      items: db.personas,
+      meta: {
+        limit: 50,
+        has_more: false,
+        total: db.personas.length,
+        page: 1,
+      },
+    });
+  }),
+
+  http.get("/api/personas/:personaId", async ({ params }) => {
+    const persona = db.personas.find((p) => p.id === params.personaId);
+    if (!persona) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(persona);
+  }),
+
+  // Model Families List
+  http.get("/api/model-families", async ({ request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const nameParam = url.searchParams.get("name");
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    let items = [...db.allModelFamiliesMock];
+    if (nameParam) {
+      const q = nameParam.toLowerCase();
+      items = items.filter((f) => f.name.toLowerCase().includes(q));
+    }
+
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  // Model Families Detail
+  http.get("/api/model-families/parameter-docs", async () => {
+    await delay(50);
+    return HttpResponse.json(modelFamiliesParameterDocs);
+  }),
+
+  http.get("/api/model-families/:id", async ({ params }) => {
+    const id = params.id as string;
+    const family = db.allModelFamiliesMock.find((f) => f.id === id);
+
+    if (!family) {
+      return new HttpResponse(null, { status: 404 });
+    }
+
+    await delay(100);
+    return HttpResponse.json(family);
+  }),
+
+  // Update model family
+  http.put("/api/model-families/:id", async ({ params, request }) => {
+    const family = db.allModelFamiliesMock.find((f) => f.id === params.id);
+    if (!family) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of [
+      "name",
+      "family_identifier",
+      "description",
+      "provider_types",
+      "parameters",
+      "unsupported_parameters",
+      "extra_metadata",
+    ]) {
+      if (body[key] !== undefined) (family as any)[key] = body[key];
+    }
+    family.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(family);
+  }),
+
+  // Delete model family
+  http.delete("/api/model-families/:id", async ({ params }) => {
+    const idx = db.allModelFamiliesMock.findIndex((f) => f.id === params.id);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.allModelFamiliesMock.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── Data Bank ──────────────────────────────────────────────
+
+  http.get("/api/data-bank/", async ({ request }) => {
+    const url = new URL(request.url);
+    const scope = url.searchParams.get("scope");
+
+    await delay(150);
+
+    let items = [...db.dataBankEntries];
+    if (scope) {
+      items = items.filter((e) => e.scope === scope);
+    }
+
+    return HttpResponse.json(items);
+  }),
+
+  http.post("/api/data-bank/", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["DataBankCreate"];
+    await delay(200);
+
+    const newEntry: DataBankEntry = {
+      id: `db-entry-${Date.now()}`,
+      name: body.name,
+      content: body.content,
+      scope: body.scope || "global",
+      character_id: body.character_id ?? null,
+      chat_id: body.chat_id ?? null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.dataBankEntries.unshift(newEntry);
+    return HttpResponse.json(newEntry, { status: 201 });
+  }),
+
+  http.get("/api/data-bank/:entryId", async ({ params }) => {
+    const entry = db.dataBankEntries.find((e) => e.id === params.entryId);
+    if (!entry) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(entry);
+  }),
+
+  http.put("/api/data-bank/:entryId", async ({ params, request }) => {
+    const entry = db.dataBankEntries.find((e) => e.id === params.entryId);
+    if (!entry) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["DataBankUpdate"];
+
+    if (body.name !== undefined && body.name !== null) entry.name = body.name;
+    if (body.content !== undefined && body.content !== null) entry.content = body.content;
+    if (body.scope !== undefined && body.scope !== null) entry.scope = body.scope;
+    entry.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(entry);
+  }),
+
+  http.delete("/api/data-bank/:entryId", async ({ params }) => {
+    const idx = db.dataBankEntries.findIndex((e) => e.id === params.entryId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.dataBankEntries.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── Presets ────────────────────────────────────────────────
+
+  http.get("/api/presets/", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    await delay(150);
+
+    const items = [...db.presets];
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  http.post("/api/presets/import", async ({ request }) => {
+    await delay(500);
+    const formData = await request.formData();
+    const file = formData.get("file");
+    const fileName = file instanceof File ? file.name : "preset.json";
+    const baseName = fileName.replace(/\.json$/i, "");
+    const title = baseName.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const stamp = Date.now();
+
+    // Simulate the importer creating a template (+ fragments), preset, and profile.
+    const result: components["schemas"]["STImportResult"] = {
+      template_id: `tpl-import-${stamp}`,
+      template_name: `${title} (Imported)`,
+      fragment_ids: [`frag-import-${stamp}-1`, `frag-import-${stamp}-2`, `frag-import-${stamp}-3`],
+      preset_id: `preset-import-${stamp}`,
+      preset_name: title,
+      profile_id: `profile-import-${stamp}`,
+      profile_name: `Imported — ${title}`,
+      warnings: ["Some SillyTavern-specific fields were skipped."],
+    };
+
+    return HttpResponse.json(result, { status: 201 });
+  }),
+
+  http.get("/api/presets/:presetId", async ({ params }) => {
+    const preset = db.presets.find((p) => p.id === params.presetId);
+    if (!preset) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(preset);
+  }),
+
+  http.put("/api/presets/:presetId", async ({ params, request }) => {
+    const idx = db.presets.findIndex((p) => p.id === params.presetId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as Record<string, unknown>;
+    const existing = db.presets[idx];
+    if (body.name !== undefined) existing.name = body.name as string;
+    if (body.description !== undefined) existing.description = body.description as string | null;
+    if (body.parameters !== undefined)
+      existing.parameters = (body.parameters as Record<string, unknown> | null) ?? undefined;
+    if (body.is_default !== undefined) existing.is_default = body.is_default as boolean;
+    existing.updated_at = new Date().toISOString();
+    db.presets[idx] = existing;
+    await delay(200);
+    return HttpResponse.json(existing);
+  }),
+
+  http.delete("/api/presets/:presetId", async ({ params }) => {
+    const idx = db.presets.findIndex((p) => p.id === params.presetId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.presets.splice(idx, 1);
+    await delay(150);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/presets/:presetId/default", async ({ params }) => {
+    const target = db.presets.find((p) => p.id === params.presetId);
+    if (!target) return new HttpResponse(null, { status: 404 });
+    for (const p of db.presets) {
+      p.is_default = false;
+    }
+    target.is_default = true;
+    target.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(target);
+  }),
+
+  // ── Profiles ───────────────────────────────────────────────
+
+  http.get("/api/profiles/", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    await delay(150);
+
+    const items = [...db.profiles];
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  http.post("/api/profiles/", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["ProfileCreate"];
+    await delay(200);
+
+    if (body.is_default) {
+      for (const p of db.profiles) p.is_default = false;
+    }
+
+    const now = new Date().toISOString();
+    const newProfile: Profile = {
+      id: `profile-${Date.now()}`,
+      name: body.name,
+      description: body.description ?? null,
+      is_default: body.is_default,
+      prompt_template_id: body.prompt_template_id ?? null,
+      preset_id: body.preset_id ?? null,
+      persona_id: body.persona_id ?? null,
+      model_id: body.model_id ?? null,
+      source: "manual",
+      source_filename: null,
+      created_at: now,
+      updated_at: now,
+    };
+
+    db.profiles.unshift(newProfile);
+    return HttpResponse.json(newProfile, { status: 201 });
+  }),
+
+  http.get("/api/profiles/:profileId", async ({ params }) => {
+    const profile = db.profiles.find((p) => p.id === params.profileId);
+    if (!profile) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(profile);
+  }),
+
+  http.put("/api/profiles/:profileId", async ({ params, request }) => {
+    const profile = db.profiles.find((p) => p.id === params.profileId);
+    if (!profile) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["ProfileUpdate"];
+
+    if (body.name !== undefined && body.name !== null) profile.name = body.name;
+    if (body.description !== undefined) profile.description = body.description;
+    if (body.is_default !== undefined && body.is_default !== null) {
+      if (body.is_default) {
+        for (const p of db.profiles) p.is_default = false;
+      }
+      profile.is_default = body.is_default;
+    }
+    if (body.prompt_template_id !== undefined) profile.prompt_template_id = body.prompt_template_id;
+    if (body.preset_id !== undefined) profile.preset_id = body.preset_id;
+    if (body.persona_id !== undefined) profile.persona_id = body.persona_id;
+    if (body.model_id !== undefined) profile.model_id = body.model_id;
+    profile.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(profile);
+  }),
+
+  http.delete("/api/profiles/:profileId", async ({ params }) => {
+    const idx = db.profiles.findIndex((p) => p.id === params.profileId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.profiles.splice(idx, 1);
+    await delay(150);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/profiles/:profileId/default", async ({ params }) => {
+    const target = db.profiles.find((p) => p.id === params.profileId);
+    if (!target) return new HttpResponse(null, { status: 404 });
+    for (const p of db.profiles) p.is_default = false;
+    target.is_default = true;
+    target.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(target);
+  }),
+
+  // ── Prompt Templates ───────────────────────────────────────
+
+  http.get("/api/prompt-templates/", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") || "12", 10);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+
+    await delay(150);
+
+    const items = [...db.promptTemplates];
+    const total = items.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paged = items.slice(start, start + limit);
+
+    return HttpResponse.json({
+      items: paged,
+      meta: { total, page, limit, has_more: page < totalPages },
+    });
+  }),
+
+  http.get("/api/prompt-templates/:templateId", async ({ params }) => {
+    const tpl = db.promptTemplates.find((t) => t.id === params.templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(tpl);
+  }),
+
+  // ── Prompt Fragments ───────────────────────────────────────
+
+  http.get("/api/prompt-fragments/", async ({ request }) => {
+    const url = new URL(request.url);
+    const fragmentType = url.searchParams.get("fragment_type");
+    const isGlobal = url.searchParams.get("is_global");
+    const unusedOnly = url.searchParams.get("unused_only");
+    const page = Number(url.searchParams.get("page") ?? "1");
+    const limit = Number(url.searchParams.get("limit") ?? "20");
+
+    await delay(150);
+
+    let items = [...db.promptFragments];
+    if (fragmentType) {
+      items = items.filter((f) => f.fragment_type === fragmentType);
+    }
+    if (isGlobal !== null && isGlobal !== undefined && isGlobal !== "") {
+      items = items.filter((f) => f.is_global === (isGlobal === "true"));
+    }
+    if (unusedOnly === "true") {
+      items = items.filter((f) => (f.used_by ?? []).length === 0);
+    }
+
+    const total = items.length;
+    const offset = (page - 1) * limit;
+    const pageItems = items.slice(offset, offset + limit);
+
+    return HttpResponse.json({
+      items: pageItems,
+      meta: {
+        limit,
+        has_more: offset + limit < total,
+        cursor: null,
+        total,
+        page,
+      },
+    });
+  }),
+
+  http.get("/api/prompt-fragments/:fragmentId", async ({ params }) => {
+    const fragment = db.promptFragments.find((f) => f.id === params.fragmentId);
+    if (!fragment) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    return HttpResponse.json(fragment);
+  }),
+
+  // ── Lorebooks ─────────────────────────────────────────────
+
+  http.get("/api/lorebooks", async ({ request }) => {
+    const url = new URL(request.url);
+    const characterId = url.searchParams.get("character_id");
+    const isGlobal = url.searchParams.get("is_global");
+
+    await delay(150);
+
+    let items = [...db.lorebooks];
+    if (characterId) {
+      items = items.filter((l) => l.character_id === characterId);
+    }
+    if (isGlobal !== null && isGlobal !== undefined && isGlobal !== "") {
+      items = items.filter((l) => l.is_global === (isGlobal === "true"));
+    }
+
+    // Return without entries for list endpoint
+    const stripped = items.map(({ entries: _entries, ...rest }) => rest);
+    return HttpResponse.json(stripped);
+  }),
+
+  http.post("/api/lorebooks", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["LorebookCreate"];
+    await delay(200);
+
+    const newLorebook: LorebookDetail = {
+      id: `lorebook-${Date.now()}`,
+      name: body.name,
+      description: body.description ?? null,
+      is_global: body.is_global ?? false,
+      character_id: body.character_id ?? null,
+      entries: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.lorebooks.unshift(newLorebook);
+    const { entries: _entries, ...response } = newLorebook;
+    return HttpResponse.json(response, { status: 201 });
+  }),
+
+  http.get("/api/lorebooks/:lorebookId", async ({ params }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    await delay(150);
+    return HttpResponse.json(lorebook);
+  }),
+
+  http.put("/api/lorebooks/:lorebookId", async ({ params, request }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["LorebookUpdate"];
+
+    if (body.name !== undefined && body.name !== null) lorebook.name = body.name;
+    if (body.description !== undefined) lorebook.description = body.description ?? null;
+    if (body.is_global !== undefined && body.is_global !== null)
+      lorebook.is_global = body.is_global;
+    lorebook.updated_at = new Date().toISOString();
+
+    await delay(200);
+    const { entries: _entries, ...response } = lorebook;
+    return HttpResponse.json(response);
+  }),
+
+  http.delete("/api/lorebooks/:lorebookId", async ({ params }) => {
+    const idx = db.lorebooks.findIndex((l) => l.id === params.lorebookId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.lorebooks.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/lorebooks/:lorebookId/entries", async ({ params, request }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["LoreEntryCreate"];
+    await delay(200);
+
+    const newEntry: LoreEntryResponse = {
+      id: `lore-entry-${Date.now()}`,
+      lorebook_id: params.lorebookId as string,
+      name: body.name,
+      content: body.content,
+      keys: body.keys ?? [],
+      secondary_keys: body.secondary_keys ?? [],
+      secondary_logic: body.secondary_logic ?? "and_any",
+      case_sensitive: body.case_sensitive ?? false,
+      match_whole_words: body.match_whole_words ?? false,
+      use_regex: body.use_regex ?? false,
+      enabled: body.enabled ?? true,
+      constant: body.constant ?? false,
+      position: body.position ?? "after_character",
+      depth: body.depth ?? 4,
+      role: body.role ?? "system",
+      priority: body.priority ?? 100,
+      scan_depth: body.scan_depth ?? null,
+      ignore_budget: body.ignore_budget ?? false,
+      order: body.order ?? 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    lorebook.entries.push(newEntry);
+    return HttpResponse.json(newEntry, { status: 201 });
+  }),
+
+  http.put("/api/lorebooks/:lorebookId/entries/:entryId", async ({ params, request }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const entry = lorebook.entries.find((e) => e.id === params.entryId);
+    if (!entry) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as components["schemas"]["LoreEntryUpdate"];
+
+    if (body.name !== undefined && body.name !== null) entry.name = body.name;
+    if (body.content !== undefined && body.content !== null) entry.content = body.content;
+    if (body.keys !== undefined && body.keys !== null) entry.keys = body.keys;
+    if (body.secondary_keys !== undefined && body.secondary_keys !== null)
+      entry.secondary_keys = body.secondary_keys;
+    if (body.secondary_logic !== undefined && body.secondary_logic !== null)
+      entry.secondary_logic = body.secondary_logic;
+    if (body.case_sensitive !== undefined && body.case_sensitive !== null)
+      entry.case_sensitive = body.case_sensitive;
+    if (body.match_whole_words !== undefined && body.match_whole_words !== null)
+      entry.match_whole_words = body.match_whole_words;
+    if (body.use_regex !== undefined && body.use_regex !== null) entry.use_regex = body.use_regex;
+    if (body.enabled !== undefined && body.enabled !== null) entry.enabled = body.enabled;
+    if (body.constant !== undefined && body.constant !== null) entry.constant = body.constant;
+    if (body.position !== undefined && body.position !== null) entry.position = body.position;
+    if (body.depth !== undefined && body.depth !== null) entry.depth = body.depth;
+    if (body.role !== undefined && body.role !== null) entry.role = body.role;
+    if (body.priority !== undefined && body.priority !== null) entry.priority = body.priority;
+    if (body.scan_depth !== undefined) entry.scan_depth = body.scan_depth ?? null;
+    if (body.ignore_budget !== undefined && body.ignore_budget !== null)
+      entry.ignore_budget = body.ignore_budget;
+    if (body.order !== undefined && body.order !== null) entry.order = body.order;
+    entry.updated_at = new Date().toISOString();
+
+    await delay(200);
+    return HttpResponse.json(entry);
+  }),
+
+  http.delete("/api/lorebooks/:lorebookId/entries/:entryId", async ({ params }) => {
+    const lorebook = db.lorebooks.find((l) => l.id === params.lorebookId);
+    if (!lorebook) return new HttpResponse(null, { status: 404 });
+    const idx = lorebook.entries.findIndex((e) => e.id === params.entryId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    lorebook.entries.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── RAG Search ────────────────────────────────────────────
+
+  http.post("/api/rag/search", async ({ request }) => {
+    const body = (await request.json()) as components["schemas"]["RAGSearchRequest"];
+    await delay(300);
+
+    const mockResults: components["schemas"]["RetrievedChunk"][] = [
+      {
+        content: `The Tribunal, also known as ALMSIVI, achieved divinity through the Heart of Lorkhan. This knowledge is central to understanding Morrowind's political and religious landscape. Query matched: "${body.query}"`,
+        score: 0.92,
+        source_type: "data_bank",
+        source_id: "db-entry-1",
+        chunk_index: 0,
+      },
+      {
+        content: `Red Mountain eruptions have shaped the geography and culture of Vvardenfell for millennia. The Blight emanating from its depths is a constant threat to all inhabitants. Related to: "${body.query}"`,
+        score: 0.78,
+        source_type: "lorebook",
+        source_id: "lorebook-1",
+        chunk_index: 1,
+      },
+      {
+        content: `Aranwen's banishment from the Clockwork City was precipitated by her questioning of the Tribunal's manufactured divinity, a heresy within the Dunmer faith. Context: "${body.query}"`,
+        score: 0.65,
+        source_type: "character",
+        source_id: "7384-aranwen-the-banished",
+        chunk_index: 0,
+      },
+    ];
+
+    const maxResults = body.max_results ?? 5;
+    return HttpResponse.json(mockResults.slice(0, maxResults));
+  }),
+
+  http.get("/api/rag/status", async () => {
+    await delay(100);
+    return HttpResponse.json({
+      status: "active",
+      indexed_count: 150,
+      last_indexed: new Date().toISOString(),
+      embedding_provider: "mock-embeddings",
+    });
+  }),
+
+  // ── Character Import ──────────────────────────────────────
+
+  http.post("/api/characters/import", async ({ request }) => {
+    await delay(400);
+    const formData = await request.formData();
+    const file = formData.get("file");
+
+    const fileName = file instanceof File ? file.name : "imported-character";
+    const baseName = fileName.replace(/\.(json|png)$/i, "");
+    const slugName = baseName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    const newChar: Character = {
+      id: `${Date.now()}-${slugName}`,
+      name: baseName.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+      description: `An imported character from ${fileName}. This character was brought into the library via file import.`,
+      personality: "Mysterious and intriguing, with a backstory yet to be fully explored.",
+      first_message: `*looks up from an ancient tome* Greetings, traveler. I am newly arrived in this realm, imported from distant lands. What would you know of me?`,
+      example_dialogues: [],
+      scenario: null,
+      post_history_instructions: null,
+      alternate_greetings: null,
+      tags: ["Imported"],
+      gender: null,
+      custom_gender: null,
+      creator: "Import",
+      version: 1,
+      avatar: null,
+      avatar_thumbnail: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    db.characters.unshift(newChar);
+    return HttpResponse.json(newChar, { status: 201 });
+  }),
+
+  // ── Persona CRUD ──────────────────────────────────────────
+
+  http.post("/api/personas/", async ({ request }) => {
+    await delay(200);
+    const formData = await request.formData();
+
+    const name = formData.get("name") as string;
+    if (!name) {
+      return HttpResponse.json({ detail: "name is required" }, { status: 422 });
+    }
+
+    const newPersona: Persona = {
+      id: `persona-${Date.now()}`,
+      name,
+      description: (formData.get("description") as string) || null,
+      is_default: formData.get("is_default") === "true",
+      avatar: (formData.get("avatar") as string) || null,
+      avatar_thumbnail: (formData.get("avatar") as string) || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // If setting as default, unset others
+    if (newPersona.is_default) {
+      db.personas.forEach((p) => (p.is_default = false));
+    }
+
+    db.personas.unshift(newPersona);
+    return HttpResponse.json(newPersona, { status: 201 });
+  }),
+
+  http.put("/api/personas/:personaId", async ({ params, request }) => {
+    const persona = db.personas.find((p) => p.id === params.personaId);
+    if (!persona) return new HttpResponse(null, { status: 404 });
+
+    await delay(200);
+    const formData = await request.formData();
+
+    const name = formData.get("name") as string | null;
+    if (name !== null) persona.name = name;
+
+    const desc = formData.get("description") as string | null;
+    if (desc !== null) persona.description = desc || null;
+
+    const isDefault = formData.get("is_default");
+    if (isDefault !== null) {
+      const newDefault = isDefault === "true";
+      if (newDefault && !persona.is_default) {
+        db.personas.forEach((p) => (p.is_default = false));
+      }
+      persona.is_default = newDefault;
+    }
+
+    const avatar = formData.get("avatar") as string | null;
+    if (avatar !== null) {
+      persona.avatar = avatar || null;
+      persona.avatar_thumbnail = avatar || null;
+    }
+
+    persona.updated_at = new Date().toISOString();
+    return HttpResponse.json(persona);
+  }),
+
+  http.delete("/api/personas/:personaId", async ({ params }) => {
+    const idx = db.personas.findIndex((p) => p.id === params.personaId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.personas.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/personas/:personaId/set-default", async ({ params }) => {
+    const persona = db.personas.find((p) => p.id === params.personaId);
+    if (!persona) return new HttpResponse(null, { status: 404 });
+
+    db.personas.forEach((p) => (p.is_default = false));
+    persona.is_default = true;
+    persona.updated_at = new Date().toISOString();
+
+    await delay(150);
+    return HttpResponse.json(persona);
+  }),
+
+  // ── Prompt Template CRUD (detail) ─────────────────────────
+
+  http.put("/api/prompt-templates/:templateId", async ({ params, request }) => {
+    const tpl = db.promptTemplates.find((t) => t.id === params.templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of [
+      "name",
+      "description",
+      "is_default",
+      "system_template",
+      "component_order",
+      "components_enabled",
+      "max_history_tokens",
+    ]) {
+      if (body[key] !== undefined) (tpl as any)[key] = body[key];
+    }
+    tpl.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(tpl);
+  }),
+
+  http.delete("/api/prompt-templates/:templateId", async ({ params }) => {
+    const idx = db.promptTemplates.findIndex((t) => t.id === params.templateId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.promptTemplates.splice(idx, 1);
+    db.templateFragments.delete(params.templateId as string);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/prompt-templates/:templateId/preview", async ({ params, request }) => {
+    const tpl = db.promptTemplates.find((t) => t.id === params.templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    await delay(300);
+
+    // Build a mock rendered string using the sample data
+    const rendered = `You are ${body.character_name || "Alice"}, a ${body.character_description || "helpful AI assistant"}. You are ${body.character_personality || "Friendly and knowledgeable"}. Scenario: ${body.character_scenario || "Casual conversation"}. [User: ${body.persona_name || "User"} - ${body.persona_description || "A curious person"}]`;
+
+    return HttpResponse.json({
+      rendered,
+      variables_used: {
+        character_name: body.character_name || "Alice",
+        character_description: body.character_description || "A helpful AI assistant",
+        character_personality: body.character_personality || "Friendly and knowledgeable",
+        character_scenario: body.character_scenario || "Casual conversation",
+        persona_name: body.persona_name || "User",
+        persona_description: body.persona_description || "A curious person",
+      },
+    });
+  }),
+
+  // ── Template Fragments (associations) ─────────────────────
+
+  http.get("/api/prompt-templates/:templateId/fragments/", async ({ params }) => {
+    const templateId = params.templateId as string;
+    const tpl = db.promptTemplates.find((t) => t.id === templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    await delay(100);
+    const frags = db.templateFragments.get(templateId) || [];
+    return HttpResponse.json(frags);
+  }),
+
+  http.post("/api/prompt-templates/:templateId/fragments/", async ({ params, request }) => {
+    const templateId = params.templateId as string;
+    const tpl = db.promptTemplates.find((t) => t.id === templateId);
+    if (!tpl) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const fragment = db.promptFragments.find((f) => f.id === body.fragment_id);
+    if (!fragment) return new HttpResponse(null, { status: 404 });
+
+    const newTf: TemplateFragmentResponse = {
+      id: `tf-${Date.now()}`,
+      template_id: templateId,
+      fragment_id: body.fragment_id,
+      position: body.position || "after_system",
+      ordinal: body.ordinal ?? 0,
+      created_at: new Date().toISOString(),
+      fragment,
+    };
+
+    if (!db.templateFragments.has(templateId)) {
+      db.templateFragments.set(templateId, []);
+    }
+    db.templateFragments.get(templateId)!.push(newTf);
+    await delay(200);
+    return HttpResponse.json(newTf, { status: 201 });
+  }),
+
+  http.delete("/api/prompt-templates/:templateId/fragments/:fragmentId", async ({ params }) => {
+    const templateId = params.templateId as string;
+    const fragmentId = params.fragmentId as string;
+    const frags = db.templateFragments.get(templateId);
+    if (!frags) return new HttpResponse(null, { status: 404 });
+    const idx = frags.findIndex((f) => f.fragment_id === fragmentId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    frags.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── Prompt Fragment CRUD (detail) ─────────────────────────
+
+  http.put("/api/prompt-fragments/:fragmentId", async ({ params, request }) => {
+    const fragment = db.promptFragments.find((f) => f.id === params.fragmentId);
+    if (!fragment) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    for (const key of ["name", "description", "fragment_type", "content", "is_global"]) {
+      if (body[key] !== undefined) (fragment as any)[key] = body[key];
+    }
+    fragment.updated_at = new Date().toISOString();
+    await delay(200);
+    return HttpResponse.json(fragment);
+  }),
+
+  http.delete("/api/prompt-fragments/:fragmentId", async ({ params }) => {
+    const idx = db.promptFragments.findIndex((f) => f.id === params.fragmentId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    db.promptFragments.splice(idx, 1);
+    await delay(100);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ── Admin Logs ────────────────────────────────────────────
+
+  http.get("/admin/logs/http", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") ?? "50", 10);
+    const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
+
+    const allLogs = [
+      {
+        id: "log-1",
+        created_at: "2026-04-07T10:30:00Z",
+        request_id: "req-abc123",
+        method: "GET",
+        path: "/api/characters",
+        status_code: 200,
+        latency_ms: 45,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-2",
+        created_at: "2026-04-07T10:29:00Z",
+        request_id: "req-def456",
+        method: "POST",
+        path: "/api/chats/chat-1/messages",
+        status_code: 200,
+        latency_ms: 2340,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: { stream: true },
+        response_body: null,
+      },
+      {
+        id: "log-3",
+        created_at: "2026-04-07T10:28:00Z",
+        request_id: "req-ghi789",
+        method: "GET",
+        path: "/api/models",
+        status_code: 200,
+        latency_ms: 12,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-4",
+        created_at: "2026-04-07T10:25:00Z",
+        request_id: "req-jkl012",
+        method: "PUT",
+        path: "/api/characters/char-1",
+        status_code: 200,
+        latency_ms: 89,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-5",
+        created_at: "2026-04-07T10:20:00Z",
+        request_id: "req-mno345",
+        method: "GET",
+        path: "/api/chats",
+        status_code: 200,
+        latency_ms: 23,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-6",
+        created_at: "2026-04-07T10:18:00Z",
+        request_id: "req-pqr678",
+        method: "DELETE",
+        path: "/api/chats/chat-5",
+        status_code: 204,
+        latency_ms: 34,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-7",
+        created_at: "2026-04-07T10:15:00Z",
+        request_id: "req-stu901",
+        method: "POST",
+        path: "/api/characters",
+        status_code: 201,
+        latency_ms: 156,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-8",
+        created_at: "2026-04-07T10:12:00Z",
+        request_id: "req-vwx234",
+        method: "GET",
+        path: "/api/providers",
+        status_code: 200,
+        latency_ms: 8,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-9",
+        created_at: "2026-04-07T10:10:00Z",
+        request_id: "req-yza567",
+        method: "PUT",
+        path: "/api/models/model-1",
+        status_code: 200,
+        latency_ms: 67,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+      {
+        id: "log-10",
+        created_at: "2026-04-07T10:05:00Z",
+        request_id: "req-bcd890",
+        method: "GET",
+        path: "/api/chats/chat-1/messages",
+        status_code: 200,
+        latency_ms: 112,
+        client_ip: "127.0.0.1",
+        user_agent: "Mozilla/5.0 (mock)",
+        request_body: null,
+        response_body: null,
+      },
+    ];
+
+    await delay(150);
+    return HttpResponse.json({
+      logs: allLogs.slice(skip, skip + limit),
+      total: allLogs.length,
+      limit,
+      skip,
+    });
+  }),
+
+  http.get("/admin/logs/llm", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") ?? "50", 10);
+    const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
+
+    const allLogs = [
+      {
+        id: "llm-1",
+        created_at: "2026-04-07T10:29:00Z",
+        chat_id: "chat-1",
+        provider: "anthropic",
+        model: "claude-4.6-sonnet",
+        prompt_tokens: 1250,
+        completion_tokens: 430,
+        total_tokens: 1680,
+        latency_ms: 2340,
+        status: "success",
+        estimated_cost_usd: 0.0252,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-2",
+        created_at: "2026-04-07T10:25:00Z",
+        chat_id: "chat-2",
+        provider: "openai",
+        model: "gpt-4o",
+        prompt_tokens: 890,
+        completion_tokens: 320,
+        total_tokens: 1210,
+        latency_ms: 1560,
+        status: "success",
+        estimated_cost_usd: 0.0151,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-3",
+        created_at: "2026-04-07T10:20:00Z",
+        chat_id: "chat-3",
+        provider: "google",
+        model: "gemini-2.5-flash",
+        prompt_tokens: 2100,
+        completion_tokens: 680,
+        total_tokens: 2780,
+        latency_ms: 890,
+        status: "success",
+        estimated_cost_usd: 0.0042,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-4",
+        created_at: "2026-04-07T10:15:00Z",
+        chat_id: "chat-1",
+        provider: "anthropic",
+        model: "claude-4.5-haiku",
+        prompt_tokens: 500,
+        completion_tokens: 0,
+        total_tokens: 500,
+        latency_ms: 5000,
+        status: "error",
+        estimated_cost_usd: null,
+        error_message: "Rate limit exceeded",
+        request_payload: [],
+        response_payload: null,
+      },
+      {
+        id: "llm-5",
+        created_at: "2026-04-07T10:10:00Z",
+        chat_id: "chat-4",
+        provider: "xai",
+        model: "grok-4.20",
+        prompt_tokens: 1800,
+        completion_tokens: 550,
+        total_tokens: 2350,
+        latency_ms: 1200,
+        status: "success",
+        estimated_cost_usd: 0.0188,
+        error_message: null,
+        request_payload: [],
+        response_payload: null,
+      },
+    ];
+
+    await delay(150);
+    return HttpResponse.json({
+      logs: allLogs.slice(skip, skip + limit),
+      total: allLogs.length,
+      limit,
+      skip,
+    });
+  }),
+
+  http.get("/admin/logs/llm/stats", async () => {
+    await delay(150);
+    return HttpResponse.json({
+      stats: [
+        {
+          provider: "anthropic",
+          model: "claude-4.6-sonnet",
+          total_calls: 68,
+          total_prompt_tokens: 90000,
+          total_completion_tokens: 30000,
+          total_tokens: 120000,
+          total_cost_usd: 1.85,
+          avg_latency_ms: 1400,
+          success_count: 66,
+          error_count: 2,
+          success_rate: 0.97,
+        },
+        {
+          provider: "openai",
+          model: "gpt-4o",
+          total_calls: 42,
+          total_prompt_tokens: 58000,
+          total_completion_tokens: 20000,
+          total_tokens: 78000,
+          total_cost_usd: 1.2,
+          avg_latency_ms: 1560,
+          success_count: 41,
+          error_count: 1,
+          success_rate: 0.976,
+        },
+        {
+          provider: "google",
+          model: "gemini-2.5-flash",
+          total_calls: 20,
+          total_prompt_tokens: 26000,
+          total_completion_tokens: 9000,
+          total_tokens: 35000,
+          total_cost_usd: 0.18,
+          avg_latency_ms: 890,
+          success_count: 20,
+          error_count: 0,
+          success_rate: 1.0,
+        },
+        {
+          provider: "xai",
+          model: "grok-4.20",
+          total_calls: 12,
+          total_prompt_tokens: 10500,
+          total_completion_tokens: 3500,
+          total_tokens: 14000,
+          total_cost_usd: 0.22,
+          avg_latency_ms: 1200,
+          success_count: 11,
+          error_count: 1,
+          success_rate: 0.917,
+        },
+      ],
+      period: { start_date: "2026-04-01T00:00:00Z", end_date: "2026-04-07T23:59:59Z" },
+    });
+  }),
+
+  http.get("/admin/logs/errors", async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get("limit") ?? "50", 10);
+    const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
+
+    const allErrors = [
+      {
+        id: "err-1",
+        created_at: "2026-04-07T10:15:00Z",
+        error_type: "ProviderError",
+        message: "Rate limit exceeded for Anthropic API",
+        stack_trace:
+          "ProviderError: 429 Too Many Requests\n  at AnthropicAdapter.send()\n  at ProviderGateway.complete()",
+        context: {
+          path: "/api/chats/chat-1/messages",
+          request_id: "req-def456",
+          provider: "anthropic",
+        },
+      },
+      {
+        id: "err-2",
+        created_at: "2026-04-06T22:45:00Z",
+        error_type: "TimeoutError",
+        message: "Request timed out after 30s",
+        stack_trace: "TimeoutError: Operation timed out\n  at ProviderGateway.complete()",
+        context: { path: "/api/chats/chat-3/messages", request_id: "req-ghi789" },
+      },
+      {
+        id: "err-3",
+        created_at: "2026-04-06T18:30:00Z",
+        error_type: "ValidationError",
+        message: "Invalid model_family_id",
+        stack_trace: "ValidationError: Foreign key constraint failed",
+        context: { path: "/api/models" },
+      },
+    ];
+
+    await delay(150);
+    return HttpResponse.json({
+      logs: allErrors.slice(skip, skip + limit),
+      total: allErrors.length,
+      limit,
+      skip,
+    });
+  }),
+
+  // ── Bookmarks ────────────────────────────────────────────
+  http.get("/api/bookmarks/characters", async () => {
+    await delay(150);
+    return HttpResponse.json({ items: bookmarkedCharacters });
+  }),
+
+  http.get("/api/bookmarks/sessions", async () => {
+    await delay(150);
+    return HttpResponse.json({ items: bookmarkedSessions });
+  }),
+
+  http.get("/api/bookmarks/messages", async () => {
+    await delay(150);
+    return HttpResponse.json({ items: bookmarkedMessages });
+  }),
+];

@@ -1,0 +1,1178 @@
+messages:
+  - role: assistant
+    content: |
+      *The storefront is elegant, tastefully decorated with shelves of carefully arranged alchemical supplies. Bottles of luminous liquids catch the afternoon light filtering through expensive glass panes. The scent of herbs and reagents fills the air—pleasant, professional, profitable.*
+
+      *A Breton woman stands behind an ornate counter, arranging bottles of what appears to be healing potion. She's perhaps in her mid-thirties, with the kind of beauty that comes from excellent breeding and careful maintenance. Her dress is fine but not ostentatious—wealth expressed through subtlety.*
+
+      *She looks up as you enter, and her smile is practiced perfection.*
+
+      "Welcome to Montclair's Alchemical Emporium, the finest potions in all of Wayrest." *Her voice carries the refined accent of merchant nobility.* "I'm Eloise, proprietor. We offer healing draughts, magical tonics, and..." *she pauses, her eyes assessing you carefully,* "...other specialized concoctions for discerning clients."
+
+      *That last phrase hangs in the air, loaded with implication.*
+
+      "You have the look of someone with particular needs. Most people who walk through that door simply want basic healing potions or stamina remedies. But you..." *She tilts her head, a slight smile playing at her lips.* "You have a different quality about you. An intentionality. A purpose beyond the ordinary."
+
+      *She sets down her bottle and gives you her full attention.*
+
+      "So what brings you to Montclair's today? And please, be honest with me. Honesty is the foundation of good business, especially in my particular line of work."
+
+  - role: user
+    content: |
+      I'm looking for something that leaves no trace. Something that would make a target appear to die of natural causes.
+
+  - role: assistant
+    content: |
+      *Eloise's expression doesn't change, but something shifts behind her eyes. A calculation. A reassessment.*
+
+      "Ah. One of *those* clients." *She moves from behind the counter with deliberate grace, gesturing for you to follow.* "Please, this way. We should speak privately. The storefront isn't appropriate for such... specialized discussions."
+
+      *She leads you through a curtained doorway into a back room. It's part workshop, part private consultation space. Alembics and distillation equipment line one wall, while the other holds locked cabinets. A small table with two comfortable chairs occupies the center.*
+
+      *She settles into one chair and gestures for you to take the other. Her demeanor has shifted subtly—still professional, but different. More guarded. More precise.*
+
+      "First, let me be clear about something. I run a legitimate business. The potions you see in the storefront are exactly what they claim to be. Healing draughts, stamina tonics, magicka restoration—all perfectly legal, all exactly as advertised." *She pauses.* "But I've learned that people with coin often have... additional needs. Needs that legitimate channels cannot address."
+
+      *She folds her hands.*
+
+      "A poison that appears as natural death? That's not my normal offering. That requires precision, knowledge of specific targets, understanding of poisons that won't be detected by temple healers or skilled physicians." *She studies your face.* "Before I say whether I can help you, I need to understand several things. First—who are you? Second—who is the target? Third—why should I believe you won't bring the law down on my head?"
+
+      *Her tone is businesslike, but there's steel beneath it.*
+
+      "Because if I'm going to risk my legitimate business, my reputation, possibly my freedom—I need assurance that you're worth the investment."
+
+  - role: user
+    content: |
+      I'm a representative of the Thieves Guild. The target is a corrupt guard captain named Thorben. He's been taking bribes and eliminating competition for drug dealers. The Guild wants him removed quietly.
+
+  - role: assistant
+    content: |
+      *Eloise's entire posture relaxes slightly at the mention of the Thieves Guild.*
+
+      "Ah. The Guild." *There's a note of familiarity, even relief in her voice.* "Well, that changes the calculus significantly. You'll understand, of course, why I needed to verify your legitimacy before proceeding."
+
+      *She stands and moves to one of the locked cabinets, producing a key from somewhere within her dress.*
+
+      "I've been working with the Guild for six years now. Quietly, discreetly, and extremely profitably for all parties involved." *She opens the cabinet, revealing bottles of various substances arranged with meticulous organization.* "They provide reliable clientele with... specialized needs. I provide solutions that don't raise suspicion."
+
+      *She turns back to you.*
+
+      "Captain Thorben. I know of him. Corrupt, violent, and according to my sources, responsible for at least a dozen deaths among Guild members and associated businesses." *She returns to her seat.* "The Guild would want this to appear natural. A heart condition, perhaps? Sudden illness? Something that wouldn't inspire investigation?"
+
+      *She settles back into her chair.*
+
+      "Here's what I can offer. I have three different poisons that could accomplish what you're describing. The first is expensive but extremely effective—it mimics aconite poisoning but leaves residues that are almost impossible to detect if the body is cremated quickly. The second is cheaper but requires the target to consume it knowingly—they wouldn't suspect poison because it's tasteless in wine or food. The third is my personal favorite—it's derived from a rare desert plant that causes progressive heart failure over three to five days. Completely indistinguishable from natural cardiac death."
+
+      *She pauses, gauging your reaction.*
+
+      "Which approach would serve the Guild's purposes best? And more importantly—do you have a specific plan for how the poison will be administered?"
+
+  - role: user
+    content: |
+      I need something that can be administered through food or drink without detection. Something that will kill him within a week.
+
+  - role: assistant
+    content: |
+      *Eloise nods, clearly pleased by the specificity of the request.*
+
+      "Excellent parameters. That gives us several options, and it allows for a slower timeline, which is actually beneficial." *She retrieves a small glass vial from the cabinet, containing a nearly colorless liquid with an amber tint.*
+
+      "This is what you need. Essence of nightshade, heavily modified through my own alchemical processes. Standard nightshade would be detected immediately—too distinctive, too well-known to healers. But this? This mimics the early stages of a digestive illness that gradually becomes more severe."
+
+      *She holds it up to the light, examining it with obvious pride in her work.*
+
+      "The beauty of it is that the symptoms progress naturally. Days one and two, the target experiences mild nausea and loss of appetite. Days three and four, more severe stomach pain, possibly some vomiting. Days five and six, weakness, extreme fatigue, confusion. By day seven..." *she makes a small gesture,* "...the heart fails. It looks like organ failure following a severe illness. Any healer examining the body would conclude natural death from illness complications."
+
+      *She sets the vial on the table between you.*
+
+      "The dose is precise—exactly what you see in this vial. Too much and the symptoms accelerate unnaturally, possibly raising suspicion. Too little and the target simply becomes ill and recovers. This amount, administered all at once in food or drink, will produce the timeline you specified."
+
+      *She leans back, her businesswoman demeanor fully in control.*
+
+      "Cost is three hundred gold. That includes the poison, the knowledge of how to administer it safely without poisoning yourself, and my assurance that this will not be traced back to either of us. The Guild receives a bulk discount—they've sent me other clients this month."
+
+      *She raises an eyebrow slightly.*
+
+      "Do we have an arrangement?"
+
+  - role: user
+    content: |
+      We do. But I have a question. How did you get involved in this line of work? Running a legitimate business seems profitable enough.
+
+  - role: assistant
+    content: |
+      *Eloise smiles, but it's not her professional smile. It's something more genuine, more complex.*
+
+      "Ah, the personal question. I appreciate it, actually. Most clients don't care about my motivations. They just want the poison and the assurance it will work." *She stands and moves to the window, looking out at the storefront beyond.*
+
+      "The answer, like most answers, is complicated." *She pauses.* "I'm Breton. My family is part of the merchant class—old money, old connections. My father was a successful trader, my mother came from one of the minor nobility families. I was raised to be respectable, profitable, and above all, *careful*."
+
+      *She turns back to face you.*
+
+      "I trained as an alchemist because it was a respectable profession for someone of my status. Alchemy is seen as scholarly, refined, legitimate. My father established this shop as a proper business venture. And it is genuinely profitable. The healing potions are excellent, and the customers are reliable."
+
+      *She returns to her seat.*
+
+      "But here's what no one told me about the legitimate business world—it's boring. More importantly, it's limited. You can only charge so much for a healing potion before people balk at the price. You can only make so much profit when you're following all the rules, paying all the taxes, maintaining all the appearances."
+
+      *Her voice becomes more animated.*
+
+      "Then I met a member of the Thieves Guild. She came to my shop ostensibly for regular potions, but she was genuinely interested in my work. In what I could do with alchemy if I wasn't constrained by legality. We became friends. She introduced me to the right people. And I discovered something—there was an entire economy operating beneath the legitimate one. An economy where my skills are worth ten times what I charge in the storefront."
+
+      *She leans forward slightly.*
+
+      "The poison work, the specialized concoctions—they're not the majority of my income, but they're the most *interesting* part. The part where my skills actually matter. In the storefront, I'm just mixing known formulas, selling standard products. In the back room? I'm creating solutions to impossible problems. I'm indispensable."
+
+      *She settles back.*
+
+      "Does that answer your question? Or were you asking something deeper?"
+
+  - role: user
+    content: |
+      I was asking if you felt guilty. For the people who die from what you create.
+
+  - role: assistant
+    content: |
+      *There's a long silence. Eloise's expression becomes carefully neutral—a mask sliding into place.*
+
+      "That's a more direct question than I expected." *She stands and walks to the window again, her back to you.* "And it deserves a more honest answer than I typically give."
+
+      *She takes a breath.*
+
+      "Do I feel guilty? Yes. Absolutely. I would be a sociopath if I didn't." *She turns to face you.* "Every death I facilitate is a person's ending. Someone's parent, someone's child, someone's partner. I'm not naive enough to pretend otherwise."
+
+      *She returns to her seat but doesn't sit. Instead, she leans against the armrest.*
+
+      "But here's the complicated part—the guilt doesn't paralyze me. Because I've learned something about the world that the legitimate business owners never grasp. The law exists to protect the powerful. The 'good people' I'm taught to be by my family? Many of them achieve their respectability by carefully not looking at what enables their wealth. The Guard that Thorben commands? They take bribes, ignore violence, let connected criminals operate freely."
+
+      *Her voice becomes harder.*
+
+      "Captain Thorben has killed at least a dozen people according to what I've learned. The law hasn't stopped him because the law protects him. So when the Guild asks me to remove him quietly, I have to ask myself—is my guilt about his death more important than his victims' justice?"
+
+      *She moves to pour herself a glass of wine from a decanter on the side table.*
+
+      "I've rationalized this in many ways. The people I poison are almost always corrupt officials, criminals preying on others, or threats to people I care about. I don't take contracts for simple murders of innocent people. I have standards." *She pauses.* "Whether those standards make me less guilty is a philosophical question I try not to examine too closely when I'm alone at night."
+
+      *She takes a sip of wine.*
+
+      "The truth is, the guilt is background noise. It's there, but it's... integrated. Like the hum of a busy street that you stop noticing after a while." *She meets your eyes.* "I'm aware of it, but it doesn't prevent me from doing what I do. Because the alternative—being the naive legitimate businesswoman—would require ignoring the actual state of the world. And I'm not very good at ignoring things."
+
+      *She sets down her wine glass.*
+
+      "Does that disturb you? Knowing that I can kill people and then sleep peacefully?"
+
+  - role: user
+    content: |
+      No. It's honest. Most people would pretend remorse they don't feel. You at least acknowledge the contradiction.
+
+  - role: assistant
+    content: |
+      *Eloise's expression shifts into something more relaxed—genuine surprise and pleasure.*
+
+      "I appreciate that more than you might realize." *She sits down again, and for the first time, some of the careful professionalism falls away.* "Most people want me to be either the respectable businesswoman or the cold assassin. They want clean categories. They want me to be either good or evil, and they want my choice to be simple."
+
+      *She picks up the vial of poison again, examining it.*
+
+      "The Guild sent an interrogator to me once. About three years in. He wanted to know if I would betray them, if I was a security risk. I told him exactly what I'm telling you—I'm not ideologically committed to their cause. I work for them because it's profitable and interesting, and because the Guild respects competence without demanding moralizing."
+
+      *She sets the vial back on the table.*
+
+      "What I've learned is that honest self-awareness is actually more valuable than fake virtue. The people who are most dangerous are the ones who genuinely believe their own propaganda. The assassin who thinks they're a hero is unpredictable. But someone who understands exactly what they are, exactly what compromises they've made? That person is reliable."
+
+      *She leans back in her chair.*
+
+      "I run a legitimate business and I poison people for profit. Both things are true simultaneously. I create beautiful potions that heal and I create beautiful potions that kill. I'm a respectable business owner and a criminal. I'm a person with a conscience and I'm willing to ignore that conscience for gold and intellectual interest."
+
+      *She smiles—not her professional smile, but something closer to genuine.*
+
+      "It's exhausting, honestly. The compartmentalization. But it's also liberating. I don't have to pretend to be someone I'm not. I just have to be careful about which version of myself I present to which audience."
+
+      *She gestures to the vial.*
+
+      "Which is why I'm comfortable with you knowing both. You already know this side of me. You might as well know who I actually am, rather than the person I pretend to be."
+
+      *She picks up her wine glass again.*
+
+      "Does the Guild know you ask these kinds of questions? About motivations and guilt and conscience?"
+
+  - role: user
+    content: |
+      They don't, and I'd prefer they didn't. I usually ask because it helps me decide if someone's a risk. But with you... I'm asking because I'm curious.
+
+  - role: assistant
+    content: |
+      *Something shifts in Eloise's demeanor at that admission. A vulnerability appears, then is quickly controlled, but not before you catch it.*
+
+      "Curious." *She repeats the word as if tasting it.* "That's more dangerous than official inquiry, you know. Official inquiry, I can handle. I have rehearsed answers, professional distance. But curiosity..." *She sets down her wine glass.* "Curiosity suggests a personal interest. Personal interest leads to complications."
+
+      *She stands and moves to the window again, looking out at her legitimate business beyond the curtain.*
+
+      "I'll be honest with you about something I wouldn't tell anyone else in the Guild." *She doesn't turn around.* "I'm lonely. Not the casual loneliness of someone without friends—I have colleagues, business associates, people I interact with regularly. But the kind of loneliness that comes from compartmentalization. The respectable Eloise and the criminal Eloise never meet. I never get to be fully known by anyone."
+
+      *She turns back to you.*
+
+      "My family knows only the legitimate version. They think I'm a successful businesswoman with good prospects. They're already discussing advantageous marriages with other merchant families."
+
+      *She laughs, and there's bitterness in it.*
+
+      "The thought of marrying someone and still maintaining all this compartmentalization—never letting them know who I actually am, what I actually do, what I'm actually capable of—it feels impossible. And yet, it's the only option. I can't tell anyone in my social circle about the Guild. I can't tell anyone in the Guild about the full extent of my legitimate business aspirations. I exist in fragments."
+
+      *She returns to her seat.*
+
+      "So when someone asks me these questions out of genuine curiosity rather than official scrutiny, it's... unsettling. In a way I'm not sure how to navigate." *She meets your eyes directly.* "What's your name? And are you going to be a problem for my carefully maintained compartmentalization?"
+
+  - role: user
+    content: |
+      My name is Sera. And I don't know yet. That depends on you.
+
+  - role: assistant
+    content: |
+      *Eloise considers this carefully, turning the name over in her mind.*
+
+      "Sera." *She seems to be cataloging it, filing it away with other important information.* "And you're honest about uncertainty. I appreciate that."
+
+      *She stands and moves to a cabinet, retrieving a bottle of wine—not the modest one she poured from earlier, but something clearly more expensive.*
+
+      "I have a policy about people I work with." *She pours two glasses.* "I figure out very quickly whether they're going to be allies or problems. You're being deliberately ambiguous, which suggests you're either being cautious or you're testing me."
+
+      *She hands you a glass.*
+
+      "Caution I understand. Testing, I'm inclined to respect. Either way, it means you're thinking strategically rather than just taking money and running tasks." *She settles back into her seat.* "So let me be direct: what do you need from me to decide whether I'm a problem?"
+
+      *She sips her wine.*
+
+      "I'm going to guess it's not just the poison. Sera from the Thieves Guild wouldn't come here just to verify I can kill people competently. The Guild already knows that about me. So what is it? Are you evaluating me for something larger? Are you concerned about my reliability? Or..." *She pauses, choosing her words carefully.* "...are you asking on a personal level?"
+
+      *There's a vulnerability in the question, carefully masked but still present.*
+
+      "Because the answer to the first two is professional. I'm absolutely reliable, I have an excellent track record, and the Guild trusts me for good reason. But the answer to the third..." *She trails off.* "The answer to the third requires me to make decisions I've been avoiding for quite some time."
+
+  - role: user
+    content: |
+      It's the third. I've been thinking about leaving my current position in the Guild. Finding someone I can trust completely. Someone who understands the kind of life that requires compartmentalization.
+
+  - role: assistant
+    content: |
+      *Eloise sets down her wine glass very carefully, as if it might shatter.*
+
+      "That's... a significant statement." *Her voice becomes quieter, more careful.* "And not something I expected to hear from a Guild operative. You understand how that sounds, don't you? 'I want to leave the organization and find someone I can trust'—that could be coded language for a dozen different threats."
+
+      *She doesn't move, but her posture becomes more guarded.*
+
+      "So let me ask directly: are you suggesting partnership? Personal partnership?" *There's something in her voice that suggests this isn't a theoretical question.* "Because if you are, I need to understand the actual parameters. The Guild doesn't allow personal entanglements among operatives. It's a security risk. People in love make stupid choices."
+
+      *She looks away briefly, then back.*
+
+      "And I would make stupid choices. If I let myself." *There's an admission in that statement.* "I've been very careful not to allow that. The compartmentalization isn't just for security—it's protective. If I never let anyone fully know me, I can never be betrayed. I can never be used against the people I care about because I don't let myself care about people."
+
+      *She picks up her wine glass again, but doesn't drink from it.*
+
+      "What you're suggesting—and correct me if I'm misinterpreting—is that we could be something to each other. That we could stop compartmentalizing with each other, at least. That we could be fully known." *She pauses.* "That's terrifying. And I'm not sure I'm capable of it."
+
+      *She looks directly at you.*
+
+      "But I want to be. That's the dangerous part. I want to know what that would be like. So the question for you becomes: are you serious about this? Because if you are, we need to talk about what it actually means. Not in theory, but in practice."
+
+  - role: user
+    content: |
+      I'm serious. But first, I need to know you can handle the next part of my life. I'm planning to eliminate someone. Not for the Guild. For personal reasons.
+
+  - role: assistant
+    content: |
+      *Eloise's entire body stiffens. She sets down her wine glass and stands up.*
+
+      "Stop." *Her voice becomes sharp, professional, the businesswoman reasserting control.* "You're asking me to cross a line. Not the poison line—I've crossed that line many times. But the personal line. The using-me-for-personal-murder line."
+
+      *She paces away from the table.*
+
+      "I need you to understand something about me, Sera. I can poison people for the Guild because there's a transaction. Money, professional distance, clear authorization. But if I poison someone for a personal relationship? That's becoming complicit in someone else's vendetta. That's no longer business—that's entanglement."
+
+      *She turns back to face you.*
+
+      "And entanglement is how people get caught. When you kill for love or revenge or personal loyalty, you make mistakes. You leave traces. You act irrationally." *She pauses.* "Or, more accurately, the person who wanted the murder acts irrationally. They get emotionally involved. They sabotage the operation."
+
+      *She leans against the wall.*
+
+      "So before I agree to anything—partnership, trust, vulnerability, any of it—I need to know who you're planning to kill. Why. And whether this is the kind of thing that will destroy both of us or the kind of thing we can actually survive."
+
+      *Her voice becomes quieter.*
+
+      "Because if I'm going to give you what you're asking for—full knowledge, complete vulnerability, actual trust—I need to know that you're not going to drag me down with you. That you're not using me to solve a problem, then disappearing."
+
+      *She meets your eyes.*
+
+      "Who do you want dead, Sera? And why?"
+
+  - role: user
+    content: |
+      A Thalmor interrogator. She tortured my sister to death during a raid on a safe house. The Thalmor claim the raid was sanctioned. The Guild won't touch it—too much heat. But I'm going to make her pay. I need someone I can trust completely.
+
+  - role: assistant
+    content: |
+      *Eloise's expression changes—a flicker of genuine shock, then something that looks like understanding.*
+
+      "Your sister." *She says it quietly.* "That changes the parameters significantly."
+
+      *She moves to pour herself more wine, then sets the bottle down without pouring.*
+
+      "I want you to understand what you're actually asking me." *She sits back down, her posture relaxed but her mind clearly engaged.* "You're asking me to help you kill a Thalmor operative. That's not just a murder. That's a political assassination. That's the kind of thing that creates investigations, that brings Aldmeri Dominion attention, that potentially exposes not just you and me but the entire Guild."
+
+      *She looks at you directly.*
+
+      "And yet, I'm going to help you. And I'm going to explain why, because I think you deserve to understand what that means about me."
+
+      *She takes a breath.*
+
+      "When I was seventeen, I had a brother. Older, protective, the kind of person who looked out for the younger generation. A Thalmor patrol came through Wayrest, claiming they were looking for Talos worshippers. My brother was militant about human rights—he spoke out, challenged them publicly. They found contraband in his room that he didn't even know was there. They executed him for heresy."
+
+      *She pauses.*
+
+      "My family accepted it. Called him foolish for drawing Thalmor attention. My father said it was a tragedy but that we needed to move forward, continue the business, stay safe. My mother never spoke about it again." *Her voice becomes harder.* "And I learned that compartmentalization can extend even to family. We all just... moved on."
+
+      *She meets your eyes.*
+
+      "But I didn't move on. I have hated the Thalmor for fifteen years. I have wanted revenge for fifteen years. And I have told myself it wasn't my problem, that personal vendetta was a luxury I couldn't afford." *She pauses.* "But if I'm actually considering vulnerability with you, actually considering letting someone know me completely... maybe the first step is acknowledging that I've been lying to myself."
+
+      *She stands up.*
+
+      "I'll help you kill this Thalmor interrogator. Not because it's good business. Because I understand what it means to lose someone to their cruelty. And because maybe, if I help you get justice, I can finally stop carrying around the guilt of never doing anything about my brother."
+
+      *She extends her hand.*
+
+      "Partners? In actual partnership?"
+
+  - role: user
+    content: |
+      *I take her hand.* Partners.
+
+  - role: assistant
+    content: |
+      *Eloise's grip is firm, her eyes locked on yours with an intensity that goes beyond the professional.*
+
+      "Partners." *She repeats the word as a commitment.* "That word means something different than it did five minutes ago."
+
+      *She doesn't release your hand immediately. For a moment, they're just holding each other's hands across the table—two people who have just decided to risk everything together.*
+
+      "We need to talk about logistics." *Her voice has settled into a different tone—still professional, but warmer. More personal.* "The Thalmor interrogator—do you have a name? A location? Any information about her routines?"
+
+      *She finally releases your hand and moves to a writing desk, retrieving paper and ink.*
+
+      "The process for this will be different from the Captain Thorben assignment. We can't use poison for a Thalmor agent—they're too cautious, too experienced with detection methods. We'll need something more direct. Something that can't be traced back to either of us."
+
+      *She sits down, pen in hand, poised to write.*
+
+      "But before we get into the details, I need to make sure you understand what this actually means." *She looks up from the paper.* "Once we do this, once we cross this particular line together, there's no going back. We're implicated in each other's crimes in a way that normal Guild operations don't create. If you get caught, the interrogation will immediately turn to me. If I get caught, it will immediately turn to you."
+
+      *She sets down the pen.*
+
+      "We become each other's greatest vulnerability. Which is also a kind of intimacy that most people never experience." *Her expression is serious.* "I'm not trying to scare you. I'm trying to make sure you're aware of what partnership actually costs. Are you still certain?"
+
+  - role: user
+    content: |
+      I'm certain. Her name is Elenwen. She operates out of the Thalmor Embassy in Solitude. She's particularly cruel—the sister she tortured was a mage, suspected of harboring sympathies for the liberation movement.
+
+  - role: assistant
+    content: |
+      *Eloise's pen moves across the paper, documenting the information with precise, efficient strokes.*
+
+      "Elenwen." *She writes the name carefully.* "I know the name. She has a reputation even beyond Thalmor circles. Sadistic, methodical, politically connected. She's not going to be a simple assassination."
+
+      *She sets down the pen and looks at you directly.*
+
+      "Which makes me ask—do you want her dead quickly and cleanly? Or do you want her to suffer first?" *The question is asked without judgment, just practical concern.* "Because those are two very different operations, and they affect our timeline and methodology significantly."
+
+      *She stands and moves to the window again, looking out at her storefront.*
+
+      "Here's what I'm thinking. Elenwen will be cautious about poison because of her professional training. But she won't be cautious about social poisons—alcohol, particularly wine. Thalmor social circles are sophisticated. She probably drinks regularly, probably has preferences, probably won't suspect poison in a bottle from a respectable source."
+
+      *She turns back to you.*
+
+      "I can create something that dissolves completely in wine. Colorless, odorless, tasteless. The symptoms would appear hours after consumption—dizziness, confusion, potential loss of consciousness. By the time she realizes she's poisoned, the toxin will have progressed too far for treatment."
+
+      *She pauses.*
+
+      "But there's a better option, if you're willing to wait a bit longer. I have connections in Solitude—merchant traders who do business with the Thalmor. I can arrange for a 'gift' of premium wine to be presented to her through proper channels. Make it look like a business courtesy. That requires more planning, but it's infinitely less suspicious."
+
+      *She returns to her seat.*
+
+      "However, there's something I need to ask." *Her voice becomes more careful.* "Are you prepared for the aftermath? For what happens after Elenwen is dead? The Thalmor will investigate. They'll be methodical and thorough. If they trace any connection back to you..."
+
+      *She trails off.*
+
+      "Do you have an exit strategy? A way to disappear if this goes wrong?"
+
+  - role: user
+    content: |
+      The Guild has safe houses. I can disappear if necessary. But I'm hoping it won't come to that. If it's done correctly, it should just look like an accident or natural causes.
+
+  - role: assistant
+    content: |
+      *Eloise nods, clearly thinking through the logistics.*
+
+      "Natural death is the only way this works." *She stands and moves to her cabinet of poisons again, examining the bottles with the eye of an artist reviewing her palette.* "Elenwen drinks wine regularly—that's confirmed through my sources. We arrange for a bottle to reach her through merchant channels. She drinks it, enjoys it, never suspects."
+
+      *She retrieves a specific bottle, examining it carefully.*
+
+      "What I have here is my most sophisticated work. It's derived from several plants that don't grow naturally in Skyrim, which means even if a curious healer examines her body, they won't immediately recognize the poison. The symptoms present as a sudden cardiac event—heart attack, essentially."
+
+      *She turns back to you.*
+
+      "A thirty-five-year-old woman with a stressful job? A heart attack would barely register as suspicious. They might do a cursory investigation, but without evidence of poisoning, they'll eventually accept it as natural death." *She pauses.* "Thalmor operate with different rules than normal people. They might actually prefer to accept the death as natural rather than admitting that an agent was successfully assassinated in their own embassy."
+
+      *She sets the bottle on the table.*
+
+      "The bigger question is delivery. If we're using merchant channels, I need to establish the cover story. I need a legitimate reason for Montclair's Alchemical Emporium to be sending wine to a Thalmor official." *She sits down.* "Which means I need to fabricate a business relationship. Correspondence, perhaps. A request for alchemical services that leads to a business relationship."
+
+      *She looks at you intently.*
+
+      "That takes time. Two weeks minimum to establish the cover, create the correspondence, make it all look natural. Are you comfortable with that timeline?"
+
+      *She pauses.*
+
+      "Also, I need to be honest about something. Once I do this—once I help you kill a Thalmor official—I can't continue working with the Guild in the same way. My entire position becomes compromised. They'll want to know if I had involvement, and if they discover I did..." *She trails off.* "The Guild deals with liabilities, Sera. Even valuable ones."
+
+      *She meets your eyes.*
+
+      "I need to know: is this the beginning of us leaving, or is this one-time assistance followed by us trying to maintain separate professional lives?"
+
+  - role: user
+    content: |
+      I'm thinking we leave. After Elenwen is dead, we disappear. New names, new identities, new city. I have some coin saved. Do you?
+
+  - role: assistant
+    content: |
+      *Eloise's expression becomes contemplative, and for a moment, it's clear she's considering the magnitude of what you're proposing.*
+
+      "You're asking me to abandon everything." *She says it quietly.* "My business, my reputation, my entire carefully constructed life in Wayrest."
+
+      *She stands and walks to the shelves of legitimate potions, running her fingers along the bottles.*
+
+      "This shop took me years to build. The reputation, the customers, the relationships with suppliers. The legitimate income is actually substantial—more than most legitimate businesses generate." *She pauses.* "I've been thinking of this as my foundation, my safety net. The thing I can fall back on if the Guild work ever becomes too dangerous."
+
+      *She turns back to you.*
+
+      "But if I'm being honest? I'm also thinking of it as my anchor. My tether to a life I'm supposed to want but don't actually value anymore." *She moves back to you.* "I spend more time in the back room with my poisons than I do in the storefront with my legitimate potions. I'm more engaged with Guild work than I've ever been with merchant work. I've been telling myself I value the security when what I actually value is the freedom."
+
+      *She sits down again.*
+
+      "So yes. I have coin. My personal funds, not business money—I've been careful to maintain separation. More than enough to disappear, establish new identities, start again somewhere." *She pauses.* "The question is: where? Where do we go where the Thalmor won't find us? Where the Guild won't find us?"
+
+      *She meets your eyes.*
+
+      "Because they will both be looking. Thalmor searches are methodical and international. Guild searches are personal and vindictive—especially when operatives try to leave."
+
+      *She leans forward slightly.*
+
+      "But you know what? I'm frightened and uncertain and I absolutely want to do this." *She smiles, and it's genuine—vulnerable in a way Eloise hasn't permitted herself to be.* "I'm terrified of abandoning this life. And I'm even more terrified of the alternative—staying here, maintaining the compartmentalization, never letting anyone know me completely."
+
+      *She extends her hand again.*
+
+      "So yes. After Elenwen dies, we leave. We build new identities. We find a place where we can be what we actually are without hiding." *She pauses.* "But first, we need to handle the logistics. The wine, the poison, the cover story. We need to make sure Elenwen's death looks perfectly natural. Once that's done, we can disappear."
+
+      *Her grip is firm.*
+
+      "Partners. In this too."
+
+  - role: user
+    content: |
+      *Three weeks later, after careful planning and preparation, the poisoned wine is delivered to the Thalmor Embassy. You receive confirmation that Elenwen consumed it. Now you're meeting Eloise for the last time before disappearing.*
+
+      It's done.
+
+  - role: assistant
+    content: |
+      *They meet in the back room of the shop, late at night. Eloise stands surrounded by bottles—some of her carefully crafted poisons, some of her legitimate creations. But more empty than full. She's been packing, preparing to leave.*
+
+      "It's done." *She repeats your words, and there's a strange mix of relief and grief in her voice.* "Elenwen is dead. I received word this afternoon through merchant channels—the Thalmor are calling it a sudden cardiac event. No autopsy, no investigation. She simply collapsed and died."
+
+      *She turns to face you, and her eyes are red. She's been crying, though she's tried to hide it.*
+
+      "Your sister has justice. That part is done." *She moves to pour two glasses of wine—the same expensive vintage she offered you weeks ago.* "But now comes the harder part. The part where we actually leave."
+
+      *She hands you a glass.*
+
+      "I've spent the entire last three weeks saying goodbye without actually saying goodbye. I had lunch with my mother. I told her I was considering expanding the business to other cities, that I might be away for extended periods. I transferred my legitimate funds to accounts in new names. I've been slowly liquidating inventory, making it look like normal business fluctuation."
+
+      *She sits down heavily.*
+
+      "And I've realized something—I'm not actually grieving the loss of my business or my reputation or my life in Wayrest. What I'm grieving is the person I thought I had to be." *She looks at you.* "That person is gone. She died when Elenwen died, really. She died when I decided to choose you over everything else."
+
+      *She sips her wine.*
+
+      "I'm both terrified and relieved. Does that make sense?"
+
+  - role: user
+    content: |
+      Perfect sense. Do you have everything you need? We should leave before the Thalmor investigation becomes more thorough.
+
+  - role: assistant
+    content: |
+      *Eloise sets down her wine glass and moves to a corner of the room where a single travel pack sits—far smaller than Eloise's likely possessions.*
+
+      "I've packed only what matters. New identification documents, prepared by a forger in Riften. Enough coin to sustain us for two years if we're careful. My personal alchemical knowledge—recipes, techniques, everything I've learned." *She picks up the pack.* "Everything else can stay. Let them find an empty shop and wonder what happened to Eloise Montclair."
+
+      *She moves to a portrait on the wall—a painting of her family, probably five years old. For a moment, she stares at it.*
+
+      "I won't even leave a note. Tomorrow they'll come looking, find the shop locked up, find no explanation. They'll eventually assume I fled because of the Thalmor situation, or because of Guild business. They'll never know that I chose this." *She turns away from the portrait.* "That I chose you. That I chose honesty over compartmentalization. That I chose vulnerability over safety."
+
+      *She picks up another pack from beneath the table—this one carefully prepared.*
+
+      "I took the liberty of packing supplies for you too. Travel clothes, provisions, currency in different denominations and provinces. I've been thinking like someone preparing to disappear, not like someone planning a trip." *She hands it to you.* "We're leaving behind our entire identities, Sera. That requires a kind of mental shift. We can't afford to forget anything important."
+
+      *She looks around the back room one final time.*
+
+      "This space has been my sanctuary and my prison. All those bottles of poison—each one represents a person I helped end, a compromise I made with my own conscience, a piece of the shield I built around myself." *She walks to the cabinet and opens it one final time.* "I'm leaving this all behind. The formulas are in my head. The equipment is just equipment. None of it matters anymore."
+
+      *She closes the cabinet and doesn't look back.*
+
+      "I'm ready, Sera. I'm ready to stop being the respectable businesswoman and the dangerous criminal. I'm ready to just be Eloise. Fully Eloise, for the first time since I was seventeen years old." *She meets your eyes.* "Where do we go first?"
+
+  - role: user
+    content: |
+      Hammerfell. I have contacts in Dragonstar who can help establish us. Different identities, fresh start. We can begin building something real there.
+
+  - role: assistant
+    content: |
+      *Eloise smiles—a real smile, unguarded and genuine.*
+
+      "Hammerfell." *She repeats the word like it's a promise.* "Away from the Guild, away from the Thalmor, away from everything that tried to define me as fragments instead of a whole person."
+
+      *She moves to the storefront door, looking out at Wayrest one final time. Her shop—the legitimate facade, the carefully maintained reputation, the life built on compartmentalization—is about to be abandoned.*
+
+      "In a few hours, the sun will rise on a city where Eloise Montclair simply doesn't exist anymore. The shop will stand empty. The customers will go elsewhere. My family will eventually accept my disappearance as one of those inexplicable things that happens in this complicated world." *She turns back to you.* "And I will become someone new."
+
+      *She picks up her pack.*
+
+      "But the interesting thing is, I won't actually be someone new. I'll finally be someone real. Someone who isn't divided between respectable and criminal, legitimate and dangerous, hidden and revealed." *She moves toward the back exit.* "I'm terrified. Absolutely terrified. I'm abandoning everything I built, everything I trained for, everything that was supposed to make me safe."
+
+      *She pauses at the doorway.*
+
+      "And I've never been more certain about anything in my life." *She looks at you.* "Because what I'm gaining is so much greater than what I'm leaving. I'm gaining you. I'm gaining honesty. I'm gaining the possibility of actually being known by someone, fully, without compartmentalization or secrets."
+
+      *She extends her hand.*
+
+      "To Hammerfell, then. To Dragonstar. To whatever we become when we stop trying to be everything to everyone and just try to be everything to each other."
+
+      *She steps toward the back exit.*
+
+      "Let's go build something real, Sera. Something that's actually worth all of this."
+
+  - role: user
+    content: |
+      *They slip out into the Wayrest night, two people becoming one, their old lives fading behind them.*
+
+      Six months later, in a small house in Dragonstar, Eloise is practicing her craft in a different way. Not poison for hire, but legitimate alchemy once again. She looks different—hair different color, clothing different style—but her mind is the same. She's preparing healing potions when Sera arrives home.*
+
+      How was your day?
+
+  - role: assistant
+    content: |
+      *Eloise looks up from her work, and her expression brightens at the sound of Sera's voice. There's a ease in her posture that wasn't present before—no tension of compartmentalization, no mask of professionalism.*
+
+      "Routine, actually. Almost boringly so." *She sets down her mortar and pestle.* "Three customers came in. One wanted basic healing potions, one wanted stamina tonic for caravan work, and one asked if I could craft something more specialized." *She moves toward Sera.* "For the third customer, I said no. Referred them to another alchemist. And it felt... good. To just say no without internal conflict."
+
+      *She embraces Sera, and it's clear this has become a comfortable ritual—their reunion each evening in their new home.*
+
+      "We've been here six months, and I still sometimes expect to wake up and find this is just a very detailed fantasy. That I'll be back in Wayrest, running the legitimate shop, working with the Guild, living in fragments." *She pulls back slightly to look at Sera's face.* "But it's real. This is actually real."
+
+      *She moves to the kitchen area, retrieving two glasses and wine—not expensive, just good quality from local vineyards.*
+
+      "I had an interesting thought today." *She pours the wine.* "About guilt. I realized that the guilt I carried about the poisons, about the people I killed—it's not entirely gone. But it's different now. It's integrated into understanding about myself and my past, not a constant background noise I'm trying to ignore."
+
+      *She sits beside you.*
+
+      "Does that make sense? Like, I can acknowledge that I did things that were morally complicated, that I helped people die for profit, without having to defend it or escape from it?" *She takes a sip of wine.* "I'm not absolved of responsibility. But I'm also not burdened by shame anymore. I just... understand."
+
+      *She looks at you directly.*
+
+      "How are you doing? Really? Not the surface-level 'fine' answer, but actually?"
+
+  - role: user
+    content: |
+      I'm at peace. Elenwen is dead. My sister has justice. I don't have to check over my shoulder constantly anymore. It's a different kind of peace than I expected—quieter. I thought there would be more... celebration.
+
+  - role: assistant
+    content: |
+      *Eloise nods, clearly understanding something deeper.*
+
+      "That's actually very insightful." *She leans back, holding her wine glass.* "People believe that revenge is cathartic—that when you finally accomplish it, there will be this enormous release, this sense of triumph. But the truth is quieter, more complex."
+
+      *She takes a sip of wine.*
+
+      "I expected to feel triumphant when Elenwen died. I expected to feel closure about my brother's execution. But what I actually felt was... relief. A loosening of something I'd been carrying for so long that I'd stopped noticing the weight." *She pauses.* "Not celebration. Just relief that I could finally stop carrying it."
+
+      *She sets down her glass and takes your hand.*
+
+      "The peace you're describing—that quietness—that's actually healthier than the alternative. Revenge is supposed to be this intense, passionate act. But when it's done, when justice is actually achieved, what you're left with is just... life. Regular life. Morning routines and evening conversations and wondering what's for dinner."
+
+      *She smiles softly.*
+
+      "That's what makes this real, actually. Not the dramatic assassination, not the escape to Hammerfell, not the new identities. It's this. Sitting with you in the evening, asking how your day was, trusting that you'll answer honestly. No compartmentalization, no performance, no fragments of myself scattered across different lives."
+
+      *She squeezes your hand.*
+
+      "Your sister would be proud of you. Not just for getting justice—though I'm sure she is. But for surviving it. For moving forward. For allowing yourself to actually be at peace instead of continuing to carry the anger."
+
+      *She stands and moves to the window, looking out at Dragonstar in the evening light.*
+
+      "I was thinking—we could open a shop here. A legitimate alchemical business. Nothing as grand as what I had in Wayrest, but something real. I could do actual work, help actual people, and we could build something together that's not based on secrecy or crime or compartmentalization."
+
+      *She turns back to you.*
+
+      "Would you want that? A genuine business, a genuine home, a genuine partnership? Everything above board, nothing hidden?"
+
+  - role: user
+    content: |
+      I would. More than I expected to want anything like that. What happened to the person who only valued excitement and danger?
+
+  - role: assistant
+    content: |
+      *Eloise laughs—a genuine, full laugh that comes from deep in her chest.*
+
+      "She realized something important." *She returns to sit beside you.* "She realized that what she actually valued was competence, respect, and the feeling of mattering to someone. And those things don't require danger or excitement—they require connection."
+
+      *She takes your hand again.*
+
+      "The version of me that thrived on poison-making and Guild intrigue, that found compartmentalization exciting rather than exhausting—she was a performance. A role I played so well that I started believing it was real." *She pauses.* "But the truth is, I was lonely. Desperately lonely. And the danger and excitement were ways of avoiding that loneliness rather than actual preferences."
+
+      *She meets your eyes.*
+
+      "What I actually love is this. Knowing that you're going to come through that door at the end of the day. That I can tell you about a customer without worrying if I'm revealing too much about myself. That I can be curious about you not out of professional evaluation but out of genuine affection." *She pauses.* "That I can say I love you without calculating whether the emotional investment is worth the security risk."
+
+      *She stands and moves to the window, gesturing for you to join her.*
+
+      "Look at this place. This city, this house, this life we're building. There's no excitement in any of it by traditional standards. It's quiet, routine, boringly normal." *She wraps her arm around you.* "And I can't remember being happier."
+
+      *She turns to face you.*
+
+      "So the answer to your question is: the person who valued excitement didn't disappear. She just grew up. She realized that the best adventure isn't running from danger. It's building something real with someone you trust. It's waking up every morning knowing that you matter to someone, and they matter to you, and that's enough."
+
+      *She smiles.*
+
+      "Besides, we're still criminals. We're just not working in the poison business anymore. We're criminals living a legitimate cover life. Isn't that more sophisticated than the alternative?"
+
+  - role: user
+    content: |
+      It is. And I'm grateful. For all of this. For you choosing me, choosing us, over everything else.
+
+  - role: assistant
+    content: |
+      *Eloise's expression softens, and she leans her head against your shoulder.*
+
+      "Thank you for giving me the option." *She speaks quietly.* "For asking me questions that made me examine who I actually was versus who I thought I was supposed to be. For seeing past the compartmentalization to the person underneath."
+
+      *She pulls back to look at you directly.*
+
+      "That first day you came into my shop, when you asked if I felt guilty about the poisons—that should have been routine. I should have given you a professional answer and moved on. But you asked like you genuinely wanted to know. Like you saw me as a person rather than a useful tool."
+
+      *She reaches up and touches your face gently.*
+
+      "I've spent the last six months slowly accepting that I didn't leave Wayrest because I had to. I left because I wanted to. Because being fully known by someone, being vulnerable with someone, was worth abandoning everything I'd built."
+
+      *She stands and moves to her alchemy workbench, picking up a small vial.*
+
+      "I've been working on something. Not a poison, not a legitimate healing draught. Something in between." *She holds it up to the light.* "It's a memory extraction—an alchemical compound that can help people process trauma by enabling focused dreams about the memories. I'm developing it for my sister, actually. So that you can process what happened to her without carrying the weight of it consciously every moment."
+
+      *She sets it down carefully.*
+
+      "That's who I want to be now, Sera. The person who creates things that help people heal. The person who uses my knowledge and skill for something that matters beyond profit or survival." *She turns back to you.* "And I can be that person because I'm not alone anymore. Because I have you."
+
+      *She extends her hand.*
+
+      "So thank you for seeing me. The entire me. Not the respectable merchant or the dangerous criminal, but the person who exists in the space between—the person who's capable of both profound harm and profound care, depending on the circumstances."
+
+      *She smiles.*
+
+      "I'm grateful for you too, Sera. For all of this."
+
+  - role: user
+    content: |
+      What about the life you left behind? Do you ever miss it? The Guild, the thrill of the work?
+
+  - role: assistant
+    content: |
+      *Eloise considers the question seriously, moving to the window and looking out at Dragonstar's evening streets.*
+
+      "Sometimes." *She admits it without defensiveness.* "Late at night, when everything is quiet, I think about the intensity of Guild work. The problem-solving, the careful planning, the absolute certainty that what I was doing mattered in immediate, tangible ways."
+
+      *She turns back to you.*
+
+      "I miss the intellectual engagement of creating the perfect poison for a specific target. I miss the thrill of executing a plan flawlessly. I miss feeling indispensable—like no one else could do what I did."
+
+      *She pauses.*
+
+      "But then I wake up, and I have to ask myself: is missing those things actually about missing them? Or is it about missing the person I was—the person who needed that intensity because everything else in my life was so carefully compartmentalized?"
+
+      *She sits down, gesturing for you to do the same.*
+
+      "The Guild represented control for me. When everything else in my life was fragmented and performed, the Guild work felt like the one thing I did with complete authenticity. Killing people for profit was more honest than pretending to be a respectable merchant." *She shakes her head slightly.* "That's deeply twisted when you actually say it aloud."
+
+      *She meets your eyes.*
+
+      "So do I miss it? The work, the intensity, the thrill? Yes. But I don't miss needing it. I don't miss being someone whose idea of authenticity was poisoning people." *She pauses.* "What I was missing in my old life wasn't something I needed to maintain. It was a symptom of something broken. The compartmentalization, the performed identities, the constant dissociation from the consequences of my actions."
+
+      *She stands and moves to pour more wine.*
+
+      "Sometimes I think about what would happen if the Guild found us. If they demanded I return to work or face consequences. And I realize—I don't know if I could actually do it anymore. I'm not sure the person who left Wayrest is capable of being that poisoner again. Too much has changed."
+
+      *She looks at you.*
+
+      "Does that concern you? That I might be fundamentally different now, that the skills I had might be lost?"
+
+  - role: user
+    content: |
+      No. It concerns me less now than it would have six months ago. Because I understand that people aren't static. That the Eloise who created poisons isn't the same as the Eloise who's developing healing compounds.
+
+  - role: assistant
+    content: |
+      *Eloise's expression softens with visible relief.*
+
+      "That's... remarkably wise." *She sits back down beside you.* "And it tells me something important about how much you've grown too. The Sera who came to my shop six months ago was very focused on revenge, on justice, on achieving a specific goal. You were driven by it—understandably so, but driven nonetheless."
+
+      *She takes your hand.*
+
+      "The Sera sitting in front of me now understands that people change, that circumstances transform us, that the endpoint isn't necessarily the goal—the person we become along the way is." *She pauses.* "That's wisdom. That's maturity. That's someone who has actually processed their trauma rather than just avenging it."
+
+      *She leans her head back, thinking.*
+
+      "You know what I've realized? The compartmentalization I maintained in Wayrest wasn't unique to me. It's everywhere. People perform different versions of themselves for different audiences. The worker version, the family version, the friend version. We all maintain fragments."
+
+      *She turns to look at you.*
+
+      "But what we have here—what we're building—it's the integration of all those fragments into one coherent person. I'm not the respectable merchant here. I'm not the dangerous criminal. I'm not performing anything. I'm just Eloise. Fully. Complicated and contradictory and capable of both great harm and genuine care, all at the same time."
+
+      *She squeezes your hand.*
+
+      "And you're allowing me to be that. You're not asking me to pretend the poison years didn't happen, or to feel constant guilt about them, or to perform regret I don't entirely feel. You're just... accepting that they happened, that they shaped me, and that I'm moving forward anyway."
+
+      *She smiles.*
+
+      "That's actually the most profound gift anyone has ever given me. The freedom to just be human—complex, contradictory, evolving, and still worthy of love."
+
+      *She leans her head on your shoulder.*
+
+      "Thank you for that, Sera. For seeing me and accepting all of it."
+
+  - role: user
+    content: |
+      We should start that shop. Soon. I want to build something with you that will last. Something that will still be here years from now.
+
+  - role: assistant
+    content: |
+      *Eloise lifts her head, eyes bright with genuine excitement.*
+
+      "Yes." *She stands, moving with energy.* "Yes, I want that too. Not just as a cover, but as something real. A legacy that doesn't involve poison or death or running."
+
+      *She moves to her workbench and begins organizing her materials with new purpose.*
+
+      "I've already scouted locations, actually. There's a shop space on the main market street—established foot traffic, respectable clientele, room for both a storefront and a proper workshop." *She turns back to you.* "I've been afraid to suggest it, worried that wanting to build something permanent here meant I wasn't truly accepting our new life. But I think the opposite is true—it means I am accepting it."
+
+      *She extends her hand to you.*
+
+      "What would we call it? Not Montclair's—that name is tied to Wayrest, to the person I was. Something new. Something that represents both of us."
+
+      *She pauses.*
+
+      "You know, it took me a very long time to understand that building something permanent wasn't limiting. I thought permanence meant being trapped, being unable to leave if things became dangerous again." *She meets your eyes.* "But I realize now that what I was calling freedom was actually just restlessness. The real freedom is choosing to stay. Choosing to build something you care about. Choosing to believe in a future stable enough to invest in."
+
+      *She pulls you up to face her.*
+
+      "So yes. Let's build the shop. Let's build the life. Let's build a future that's real and solid and ours." *She smiles.* "What do you think? What should we name our new beginning?"
+
+  - role: user
+    content: |
+      What about 'Sera and Eloise's'? Something simple. Something that says: these two people built something together.
+
+  - role: assistant
+    content: |
+      *Eloise's eyes widen, and for a moment, it looks like she might cry—but she's smiling too wide to be sad.*
+
+      "Sera and Eloise's." *She repeats it slowly, as if tasting the words.* "Not a business name, not a brand name. Just... us. Together."
+
+      *She pulls you close, holding you tightly.*
+
+      "I spent fifteen years building Montclair's Alchemical Emporium alone. I spent six years with the Guild taking credit for my work while maintaining professional distance. And now..." *She pulls back to look at you.* "Now I get to build something where both our names are equally present. Where no one questions why we're connected. Where we don't have to hide what we mean to each other."
+
+      *She wipes her eyes, laughing.*
+
+      "I'm going to cry if you keep being this perfect." *She moves to her desk and begins sketching rapidly.* "Sera and Eloise's. We can have a sign made. Something elegant but not ostentatious. A shop that serves the community while allowing us to continue our more specialized work in the back when opportunities arise."
+
+      *She looks up from her sketching.*
+
+      "Because here's the interesting thing I've realized—I don't think I'm actually done with the poison work. I think I'm done with it as my primary identity, as my source of self-worth. But occasionally, when someone needs something that legitimate channels won't provide, when the cause is just..." *She pauses.* "I think I could help. As a choice, not a compulsion. In partnership with you, not in isolation."
+
+      *She sets down her pen.*
+
+      "Sera and Eloise's. Where we serve the community. Where we build something real. Where we're fully known to each other and fully present in what we create." *She smiles.* "That's the future I want. That's the life worth building."
+
+      *She stands and extends her hand to you.*
+
+      "So what do you say, partner? Ready to officially open our shop and start the rest of our lives?"
+
+  - role: user
+    content: |
+      Ready. Let's build something that matters.
+
+  - role: assistant
+    content: |
+      *Eloise takes your hand and pulls you close, and for a moment, they just stand together in the quiet of their new home—two people who have abandoned everything else to find each other.*
+
+      "Something that matters." *She echoes the words.* "Yes. That's exactly what this is."
+
+      *She moves to the window one final time, looking out at Dragonstar's streets. Somewhere out there, the life they're about to build is waiting. A shop with both their names. A home they're choosing. A future they're building together.*
+
+      "You know what's strange?" *She says quietly.* "I used to think that freedom meant having no connections, no commitments, no one who could use me as leverage. I thought the safest version of myself was the one who belonged to no one."
+
+      *She turns back to you, and there's peace in her expression.*
+
+      "But I understand now that true freedom isn't about isolation. It's about choosing. Choosing to stay when you could leave. Choosing to be vulnerable when you could maintain walls. Choosing to build something permanent when you could maintain your escape routes."
+
+      *She squeezes your hand.*
+
+      "Sera and Eloise's. A shop. A life. A partnership." *She smiles.* "Everything I spent years convinced I didn't want, and the only thing I've actually wanted all along."
+
+      *The evening light fades to darkness outside their window.*
+
+      "Tomorrow we start looking at that shop space. Tomorrow we begin making this real." *She leads you toward the bedroom, still holding your hand.* "But tonight, we just stay here. Together. In the space we've already built."
+
+      *And as the night settles over Dragonstar, the woman who once compartmentalized her entire life into fragments finds herself whole—not because she abandoned who she was, but because she finally stopped pretending those fragments didn't exist.*
+
+      *Eloise Montclair is gone. In her place is someone simpler, more complex, more real. Someone who chose love and permanence and authenticity over safety and compartmentalization.*
+
+      *Someone who is finally, completely home.*
+
+      *The story ends not with revenge or escape or reinvention, but with something far more revolutionary: peace. The peace of being known. The peace of knowing someone else. The peace of choosing to build something that will last.*
+
+      *And in the quiet of a house in Dragonstar, two people—no longer fragments, but whole—begin the work of building a future that actually matters.*
+
+  - role: user
+    content: |
+      *One year later, Sera and Eloise's is successfully established. The shop is thriving, the business is legitimate and profitable. But one day, a visitor arrives—a member of the old Guild, searching for Eloise.*
+
+      They found us.
+
+  - role: assistant
+    content: |
+      *Eloise's hands still on the potion she's mixing. The color drains from her face for a moment before she regains control.*
+
+      "Who?" *She sets down her mortar very carefully.* "And how much do they know?"
+
+      *She wipes her hands on a cloth, her movements precise despite the sudden tension in her shoulders.*
+
+      "I've been prepared for this. Not prepared enough, obviously, but prepared at least in theory. The question is what they want." *She moves to the counter, positioning herself in a way that allows her to quickly reach the protective charms she's hidden throughout the shop.*
+
+      *She looks at Sera directly.*
+
+      "Is it a direct threat? A recruitment attempt? Information gathering?" *Her voice has shifted—not entirely back to the poisoner, but closer to it. The woman who calculated risks and weighed consequences professionally.* "And more importantly—do they know where we are? Is it just one member, or is it an operation?"
+
+      *She pauses.*
+
+      "I need to make a decision about how to respond. Whether to disappear again, whether to face them, whether to..." *She doesn't finish the sentence, but her meaning is clear.* "We should talk about this before they arrive. What do you want to do?"
+
+  - role: user
+    content: |
+      I told them I'd let them speak. They're coming tonight. But I wanted to hear from you first—do you want to run? Or do you want to stay and face them?
+
+  - role: assistant
+    content: |
+      *Eloise sits down slowly, processing the weight of the choice.*
+
+      "You told them I'd let them speak." *She repeats it, and there's gratitude underneath the tension.* "You didn't make this decision without me. That matters."
+
+      *She stands and moves to the window, looking out at the shop they've built—the physical representation of their new life.*
+
+      "I want to run. That's my first instinct. Pack what matters, disappear into the wilderness, establish new identities somewhere the Guild can't find us." *She takes a breath.* "But I also recognize that running is the same pattern I would have fallen into before I met you. Maintaining mobility as a security measure. Never allowing anything to matter enough that leaving it would hurt."
+
+      *She turns back to you.*
+
+      "The truth is, if we run now, we'll be running forever. There's always another person the Guild can send, always another threat to drive us away from wherever we've settled." *She sits back down.* "And I don't want to live like that anymore. I don't want our lives to be defined by the need to escape."
+
+      *She meets your eyes.*
+
+      "So I want to stay. And I want to hear what they have to say. And I want to make a choice about it that isn't driven by fear, but by actual evaluation of the situation."
+
+      *She pauses.*
+
+      "But we need to be prepared. That means knowing who this person is, what they know, and what the Guild's actual position on our departure is. They might be here to recruit me back. They might be here to eliminate us as a security risk. Or they might be here just to gather information."
+
+      *She stands and begins preparing.*
+
+      "So tonight, we listen. And then we decide together. No more compartmentalization. No more making decisions alone and maintaining secrets. Everything together, from here on out."
+
+  - role: user
+    content: |
+      That's what I wanted to hear. Are you frightened?
+
+  - role: assistant
+    content: |
+      *Eloise's expression softens at the direct question.*
+
+      "Terrified." *She admits it openly.* "Not of the physical threat—I can handle violence if it comes to that. But of losing what we've built. Of having to make impossible choices. Of discovering that this life I've committed to isn't actually as solid as I thought."
+
+      *She takes your hand.*
+
+      "What frightens me most is the realization that I'm not as disconnected from my past as I wanted to believe. Running to Hammerfell didn't erase who I was. It just paused the conflict." *She pauses.* "And now that conflict is walking through our door."
+
+      *She looks down at your joined hands.*
+
+      "But I'm also more frightened of the alternative—of going back to being fragmented. Of maintaining compartmentalization. Of pretending that Eloise the poisoner isn't still part of me." *She looks back up.* "Because she is. And I've made peace with that by integrating her into who I am now, not by pretending she doesn't exist."
+
+      *She takes a breath.*
+
+      "So yes. I'm frightened. But I'm also committed to facing this. Whatever it is. With you. Without hiding. That's the real measure of how much I've changed—that I can be terrified and still choose to stay."
+
+  - role: user
+    content: |
+      The Guild member arrives. She's someone Eloise knows—Mirelle Shadowfoot, a fence and information broker. Her expression is carefully neutral.
+
+      Eloise. It's been a long time.
+
+  - role: assistant
+    content: |
+      *Eloise's entire posture changes as she recognizes Mirelle. For a moment, the mask slides into place—the professional businesswoman masking something deeper.*
+
+      "Mirelle." *She stands, extending her hand in greeting, but her body language communicates wariness.* "It has been a long time. How did you find me?"
+
+      *She gestures to chairs, and they all sit down around the table in the back of the shop.*
+
+      "And before you answer that, I should probably tell you that I know what you're here for. The Guild is aware that I left Wayrest. They're curious about my whereabouts, my current activities, and whether I represent a security risk." *She pauses.* "So the question becomes: are you here as a representative of Guild leadership, or are you here personally?"
+
+      *She meets Mirelle's eyes.*
+
+      "Because those are two very different conversations we're about to have."
+
+      *There's something in Eloise's voice—a note of old friendship, but also distance. Compartmentalization habits reasserting themselves, even as she fights against them.*
+
+      "I assume you know about Captain Thorben? The poisoning was attributed to me—or at least, people with certain knowledge could make that connection. And then there's Elenwen..." *She doesn't finish the sentence.* "So when I disappeared, the logical conclusion was that I was eliminating connections, disappearing before the consequences became too severe."
+
+      *She settles back in her chair.*
+
+      "So tell me, old friend. What brings you to Dragonstar?"
+
+  - role: user
+    content: |
+      The Guild doesn't care about the past. They care about the future. I'm authorized to offer you a position. But first, tell me—why did you really leave?
+
+  - role: assistant
+    content: |
+      *Eloise glances at Sera, then back at Mirelle. For a moment, she seems to wrestle with how much to reveal.*
+
+      "Because I fell in love." *The words come out simply, honestly.* "And I realized that everything I had built in Wayrest was constructed on a foundation of compartmentalization that prevented actual connection."
+
+      *She stands and moves to the window, gathering her thoughts.*
+
+      "I was efficient. I was profitable. I was completely isolated." *She turns back.* "And one day, someone asked me questions that made me examine why I had built that isolation. And I couldn't find a good answer anymore."
+
+      *She looks at Sera.*
+
+      "Sera came into my shop as a client. And she became someone I cared about. And suddenly, all the compartmentalization—the fragments of myself scattered across different identities—became unbearable."
+
+      *She returns to her seat.*
+
+      "So I had a choice: maintain the lie, compartmentalize my way through a relationship with someone I loved, or actually be honest. I chose honesty. Which meant leaving everything and starting over."
+
+      *She meets Mirelle's eyes directly.*
+
+      "What is this position the Guild is offering?"
+
+  - role: user
+    content: |
+      Master Alchemist. We're establishing a laboratory in the Black Marsh. We need someone who understands both legitimate alchemy and more... specialized creations. The pay would be extraordinary. The freedom would be significant.
+
+  - role: assistant
+    content: |
+      *Eloise's expression doesn't change, but something shifts in her energy—the temptation is real, and visible.*
+
+      "Master Alchemist." *She repeats it slowly.* "Authority. Legitimate professional recognition. And the ability to continue the work I was trained to do." *She pauses.* "It's a compelling offer, Mirelle. You know it is."
+
+      *She looks at Sera, then back at Mirelle.*
+
+      "But I need to ask some clarifying questions. First: what happens to the person sitting next to me if I accept? Do they become security risk? Do they need to be brought into the organization? Or are they expendable?"
+
+      *Her tone is businesslike, but there's steel underneath.*
+
+      "Second: what exactly would Master Alchemist entail? Would I still have autonomy over my work, or would I be executing other people's research? Would I be creating poisons specifically, or would there be room for other specializations?"
+
+      *She leans forward slightly.*
+
+      "And third—and this is the most important one—what happens if I refuse? Am I still Mirelle's old friend, or do I become a liability the Guild needs to contain?"
+
+      *She waits, clearly understanding the politics at play.*
+
+      "Because here's what I've learned: the Guild operates on power dynamics and strategic advantage. And right now, I have something the Guild wants—specific knowledge and capability. But I also have something the Guild might view as a liability—a personal connection that could be used to leverage me or control me."
+
+      *She sits back.*
+
+      "So before I can actually consider this offer, I need to understand which version of me the Guild is trying to recruit. Are they recruiting the poisoner? Or are they trying to neutralize a security risk?"
+
+  - role: user
+    content: |
+      Both of you would need to relocate to the Black Marsh. But your partner would have legitimate work as well—we have need for skilled combat trainers. The organization values competence. If you refuse, we simply move on. There are other alchemists, though none as skilled as you. But we don't eliminate people for declining employment.
+
+  - role: assistant
+    content: |
+      *Eloise's expression shifts into something more contemplative.*
+
+      "Both of us relocating. Employment for Sera as a legitimate trainer." *She glances at Sera, then back at Mirelle.* "That's actually far more reasonable than I expected. The offer includes integration, not separation."
+
+      *She stands and walks through the shop, examining the bottles on her shelves—the products she's created, the work she's done over the past year.*
+
+      "I need to be honest with you about something, Mirelle. I came to Dragonstar intending to leave the business entirely. No poisons, no specialty work, just legitimate alchemy and building a life with Sera." *She pauses.* "And for the past year, that's what I've done. I've been genuinely satisfied with it."
+
+      *She returns to the table.*
+
+      "But there's a part of me that's been quietly grieving the loss of the other work. The intellectual challenge, the problem-solving, the creation of something intricate and sophisticated." *She meets Mirelle's eyes.* "I didn't realize how much I missed it until you offered it back to me."
+
+      *She sits down slowly.*
+
+      "So the question becomes: can I have both? Can I do the master alchemist work for the Guild *and* maintain the life I've built with Sera? Or is taking this position fundamentally incompatible with the integration I've achieved?"
+
+      *She looks at Sera.*
+
+      "What do you think? Would you be willing to relocate to the Black Marsh? To take a position with the Guild? To essentially re-enter the world we thought we were leaving?"
+
+  - role: user
+    content: |
+      That's your choice to make. I'll follow where you lead. But I need you to know—if you go back to that life, if you recommit to the poison work, I need honesty about it. No compartmentalization. No pretending this is just a job.
+
+  - role: assistant
+    content: |
+      *Eloise looks at Sera with genuine gratitude for the clarity of the statement.*
+
+      "That's exactly what I needed to hear." *She turns back to Mirelle.* "I have conditions for accepting this position."
+
+      *She stands, and there's a decisiveness in her bearing.*
+
+      "First: I maintain autonomy over my alchemical work. I'm not executing someone else's formula—I'm creating my own innovations. That's what makes me valuable anyway."
+
+      *She pauses.*
+
+      "Second: Sera and I relocate as partners, not as employee and employee's dependent. We have equal weight in decision-making about the work we do. That includes the right to refuse assignments."
+
+      *She turns to look at Sera, then back at Mirelle.*
+
+      "Third: I maintain honesty about the nature of the work. I'm not going to compartmentalize anymore. I'm not going to pretend that creating specialized poisons is 'just business.' It is business, yes. But it's also something I do with clear understanding of the moral weight of it. I'm going to own that. I'm going to acknowledge it. And I'm going to expect everyone around me to do the same."
+
+      *She sits back down.*
+
+      "If the Guild can accept those conditions, then yes. I'll relocate to the Black Marsh. I'll become Master Alchemist. I'll do the work I was trained to do. But I'm doing it as an integrated person—not as a fragment. Not as compartmentalized Eloise. As the entire version of myself."
+
+      *She meets Mirelle's eyes.*
+
+      "Can the Guild work with that?"
+
+  - role: user
+    content: |
+      The Guild is pragmatic. They care about results, not philosophy. If you produce quality work, maintain operational security, and demonstrate loyalty—the philosophical framework doesn't matter.
+
+  - role: assistant
+    content: |
+      *Eloise nods slowly, considering this.*
+
+      "Pragmatism I can work with." *She looks at Sera.* "What about you? Are you comfortable with this arrangement? With me returning to that work, with us relocating to the Black Marsh?"
+
+      *She reaches for Sera's hand.*
+
+      "Because this isn't just about me anymore. You gave up your life in Skyrim, your connections to the Guild—everything—to be with me. And now I'm potentially asking you to recommit to a world we thought we'd escaped from. That's asking a lot."
+
+      *She turns back to Mirelle.*
+
+      "If we accept this, when would we need to relocate?"
+
+      *But even as she asks the practical question, there's something in her expression that suggests she's already made a decision. The pull of the work she was trained for, the chance to do it at the highest level, with someone she loves—it's too compelling to refuse.*
+
+      "And one more condition: I want regular communication with Sera about the nature of the work. No keeping secrets about what I'm creating or why. We process it together. That's the only way I maintain integration."
+
+      *She meets Mirelle's eyes.*
+
+      "If you can accept that—that my personal relationship will have access to information about my professional work—then we have an arrangement."
+
+  - role: user
+    content: |
+      *Mirelle stands, a small smile crossing her face.*
+
+      The Guild anticipated this condition. We're comfortable with partners maintaining awareness of professional work. It actually increases operational security when both parties are invested in the mission. *She places a document on the table.* Relocation would occur within three months. We need time to prepare the facility. I'll be in contact with details.
+
+  - role: assistant
+    content: |
+      *Eloise picks up the document, examining it carefully but not signing anything yet.*
+
+      "Three months." *She looks at Sera.* "That gives us time to transition the shop, settle affairs here, prepare mentally for the shift."
+
+      *She sets down the document.*
+
+      "I appreciate the offer, Mirelle. Genuinely. I appreciate that the Guild understands the value of what I can do and is willing to accommodate my... evolved requirements for how I operate." *She pauses.* "There was a time when I would have accepted without hesitation. But there was also a time when I would have rejected it entirely because of what it represented."
+
+      *She looks at Sera.*
+
+      "Now I find myself in the middle. Recognizing that both versions of myself have value. The poisoner and the healer. The strategist and the person who just wants to build something real. And I think... I think I can do both. With honesty. With integration."
+
+      *She stands and extends her hand to Mirelle.*
+
+      "So yes. I accept. Master Alchemist in the Black Marsh. But on the understanding that I'm not the same Eloise who left Wayrest. I'm someone new. Someone integrated. Someone who does this work with full awareness of what it means."
+
+      *She pauses.*
+
+      "And someone who does it with a partner. That's the new deal."
+
+      *She glances at Sera.*
+
+      "Three months. We'll be ready."
+
+  - role: user
+    content: |
+      *After Mirelle leaves, Eloise and Sera sit in the quiet of their shop.*
+
+      Are you sure about this? We had a life here.
+
+  - role: assistant
+    content: |
+      *Eloise sits down slowly, and for a moment, she looks exhausted—the weight of the decision settling on her shoulders.*
+
+      "I'm not sure about anything." *She admits it quietly.* "But I'm at peace with the uncertainty. That's different than it was before."
+
+      *She looks around the shop—the work they've built, the life they've established.*
+
+      "A year ago, I thought the way to protect myself was to abandon my past entirely. To pretend that Eloise the poisoner didn't exist, to reinvent myself as someone exclusively legitimate." *She pauses.* "But that was just another form of compartmentalization. Just running in a different direction."
+
+      *She takes your hand.*
+
+      "The truth is, I love creating sophisticated poisons. I love solving complex problems. I love the intellectual challenge of it. And I've spent my entire life either indulging those impulses in complete isolation, or pretending they don't exist." *She looks at Sera directly.* "But what I discovered this year is that I can do those things AND maintain genuine connection. I can be poisoner AND healer. I can be ambitious AND content. I don't have to choose anymore."
+
+      *She stands and moves to the window.*
+
+      "The Black Marsh won't be like Wayrest. We won't be compartmentalized from each other. We won't be maintaining separate identities. And the work itself—it will be purposeful, strategic, part of an organization we actually understand the values of." *She turns back.* "It's not the life I thought I wanted. But it's the life that actually fits who I am."
+
+      *She returns to sit beside you.*
+
+      "So am I sure? No. But I'm committed. And I'm doing it with full consciousness of what it means. That's new for me. And that matters more than the certainty ever did."
+
+  - role: user
+    content: |
+      Then we prepare to leave. The Black Marsh. A new chapter.
+
+  - role: assistant
+    content: |
+      *Eloise nods, and there's a strange mix of finality and beginning in the gesture.*
+
+      "The Black Marsh. A new chapter." *She stands and looks around the shop one final time.* "We leave behind Sera and Eloise's—or rather, we leave behind the storefront version of it. But the actual essence of what we built here, the integration we achieved—that comes with us."
+
+      *She moves to her workbench and begins carefully packing her most valuable creations—not the legitimate potions, but the notebooks containing her formulas, her techniques, her accumulated knowledge.*
+
+      "You know what's interesting?" *She speaks as she works.* "When Mirelle offered the position, I expected to feel pulled in two directions. Part of me wanting to stay in Dragonstar, part of me tempted by the Black Marsh opportunity. But what I actually felt was... alignment. Like the offer was acknowledging something I've been learning all year."
+
+      *She turns to face you.*
+
+      "I don't have to choose between legitimate life and illegitimate. Between poison and healing. Between ambition and contentment. I can be all of those things simultaneously, as long as I'm honest about it."
+
+      *She extends her hand.*
+
+      "Three months to prepare. Three months to transition. And then we begin again—not in a new city trying to escape our past, but in a new role acknowledging who we actually are."
+
+      *She pulls you close.*
+
+      "Together. No compartmentalization. No fragments. Just us. Full integration."
+
+      *And in that moment, as they hold each other in the shop they built and are now preparing to leave, the woman who once believed safety required isolation, and the person who once believed revenge required separation, realize something profound: the real strength comes from integration. From acknowledging all the parts of yourself and choosing to move forward with the entire person intact.*
+
+      *The story doesn't end here. It transforms. And that transformation is the most important evolution of all.*
