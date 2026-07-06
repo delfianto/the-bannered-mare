@@ -4,6 +4,67 @@
 
 SillyTavern's prompting system is a client-side prompt assembly pipeline that constructs chat completion API messages from character data, user prompts, and various injection points. The prompt is assembled in the browser via JavaScript classes (`ChatCompletion`, `Message`, `MessageCollection`, `PromptManager`), macro-expanded with a rich template engine, and then converted server-side to provider-specific formats before being sent to the API.
 
+The assembly runs almost entirely in the browser; only the final format translation happens on
+the server:
+
+<Figure tag="Figure 1" title="The prompt assembly pipeline" id="fig-prompt-assembly">
+<svg viewBox="0 0 640 522" role="img" aria-label="SillyTavern prompt assembly pipeline" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <g font-size="12">
+    <rect x="40" y="16" width="560" height="54" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
+    <circle cx="68" cy="43" r="13" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-frontend)"/><text x="68" y="47" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-frontend)">1</text>
+    <text x="92" y="40" font-weight="700" fill="var(--tbm-dgm-ink)">Generate()</text>
+    <text x="92" y="58" font-size="10.5" fill="var(--tbm-dgm-ink-2)">assembly entry point · script.js</text>
+    <rect x="40" y="86" width="560" height="54" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <circle cx="68" cy="113" r="13" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/><text x="68" y="117" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-frontend)">2</text>
+    <text x="92" y="110" font-weight="700" fill="var(--tbm-dgm-ink)">prepareOpenAIMessages()</text>
+    <text x="92" y="128" font-size="10.5" fill="var(--tbm-dgm-ink-2)">new ChatCompletion · budget = context_max − response_max</text>
+    <rect x="40" y="156" width="560" height="54" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <circle cx="68" cy="183" r="13" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/><text x="68" y="187" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-frontend)">3</text>
+    <text x="92" y="180" font-weight="700" fill="var(--tbm-dgm-ink)">preparePromptsForChatCompletion()</text>
+    <text x="92" y="198" font-size="10.5" fill="var(--tbm-dgm-ink-2)">merge system prompts with the PromptManager order</text>
+    <rect x="40" y="226" width="560" height="54" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <circle cx="68" cy="253" r="13" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/><text x="68" y="257" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-frontend)">4</text>
+    <text x="92" y="250" font-weight="700" fill="var(--tbm-dgm-ink)">populateChatCompletion()</text>
+    <text x="92" y="268" font-size="10.5" fill="var(--tbm-dgm-ink-2)">fill messages until the token budget is spent</text>
+    <rect x="40" y="296" width="560" height="54" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <circle cx="68" cy="323" r="13" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/><text x="68" y="327" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-frontend)">5</text>
+    <text x="92" y="320" font-weight="700" fill="var(--tbm-dgm-ink)">squash system messages</text>
+    <text x="92" y="338" font-size="10.5" fill="var(--tbm-dgm-ink-2)">emit CHAT_COMPLETION_PROMPT_READY</text>
+    <rect x="40" y="366" width="560" height="54" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <circle cx="68" cy="393" r="13" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/><text x="68" y="397" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-frontend)">6</text>
+    <text x="92" y="390" font-weight="700" fill="var(--tbm-dgm-ink)">getChat()</text>
+    <text x="92" y="408" font-size="10.5" fill="var(--tbm-dgm-ink-2)">→ flat message array</text>
+    <rect x="40" y="450" width="560" height="56" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <circle cx="68" cy="478" r="13" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)"/><text x="68" y="482" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">7</text>
+    <text x="92" y="474" font-weight="700" fill="var(--tbm-dgm-ink)">server · prompt-converters.js</text>
+    <text x="92" y="492" font-size="10.5" fill="var(--tbm-dgm-ink-2)">translate flat array → provider-specific format → API</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.5" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M320 70 L320 84"/>
+    <path d="M320 140 L320 154"/>
+    <path d="M320 210 L320 224"/>
+    <path d="M320 280 L320 294"/>
+    <path d="M320 350 L320 364"/>
+    <path d="M320 420 L320 448"/>
+  </g>
+  <line x1="40" y1="435" x2="600" y2="435" stroke="var(--tbm-dgm-border)" stroke-dasharray="4 4"/>
+  <text x="596" y="431" text-anchor="end" font-size="9.5" fill="var(--tbm-dgm-faint)">browser ↑   server ↓</text>
+</svg>
+<template #caption>
+
+**Assembled in the browser, translated on the server.** Steps 1–6 build a single flat message
+array within a token budget entirely client-side; only step 7 (`prompt-converters.js`) reshapes
+that array into each provider's wire format. The `PromptManager` order in step 3 is what lets
+users reorder and toggle prompt sections per character.
+
+</template>
+</Figure>
+
 Key files:
 - `public/scripts/openai.js` (6996 lines) -- Core prompt assembly pipeline and ChatCompletion class
 - `public/scripts/PromptManager.js` (2144 lines) -- Prompt ordering, UI, and per-character configuration

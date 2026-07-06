@@ -19,6 +19,53 @@ common OpenAI-like shape before returning it.
   ~2 700-line file (`src/endpoints/backends/chat-completions.js`).
 
 
+SillyTavern routes every provider through one large backend file, branching on a source
+identifier rather than a per-provider abstraction layer:
+
+<Figure tag="Figure 1" title="One file, branch per provider" id="fig-provider-routing">
+<svg viewBox="0 0 720 428" role="img" aria-label="SillyTavern provider routing architecture" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <rect x="200" y="16" width="320" height="54" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
+  <text x="360" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Browser — unified payload</text>
+  <text x="360" y="58" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">chat_completion_source: "claude" | "openai" | …</text>
+  <rect x="180" y="106" width="360" height="66" rx="10" fill="var(--tbm-dgm-danger-soft)" stroke="var(--tbm-dgm-danger)"/>
+  <text x="360" y="132" text-anchor="middle" font-size="12.5" font-weight="800" fill="var(--tbm-dgm-ink)">chat-completions.js · ~2,700 lines</text>
+  <text x="360" y="151" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">routes by if/else on the source id</text>
+  <text x="360" y="166" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">no provider abstraction layer</text>
+  <rect x="36" y="216" width="316" height="76" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="194" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Dedicated handlers</text>
+  <text x="194" y="259" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">sendClaudeRequest · sendCohereRequest</text>
+  <text x="194" y="275" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">sendDeepSeekRequest · sendXaiRequest · …</text>
+  <rect x="368" y="216" width="316" height="76" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="526" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Shared OAI-compat path</text>
+  <text x="526" y="259" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">openai · openrouter · groq</text>
+  <text x="526" y="275" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">perplexity · custom · …</text>
+  <rect x="200" y="330" width="320" height="56" rx="10" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
+  <text x="360" y="354" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Upstream provider APIs</text>
+  <text x="360" y="372" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">23 chat-completion providers · response normalised on return</text>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M360 70 L360 104"/>
+    <path d="M300 172 L200 214"/>
+    <path d="M420 172 L520 214"/>
+    <path d="M194 292 L300 328"/>
+    <path d="M526 292 L420 328"/>
+  </g>
+  <text x="360" y="410" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-faint)">Text Completions are a separate subsystem: Ollama · vLLM · KoboldCpp · TabbyAPI · …</text>
+</svg>
+<template #caption>
+
+**Branching, not abstraction.** A single ~2,700-line file dispatches on
+`chat_completion_source`: some providers get a dedicated `send*Request` handler, the rest share
+one OpenAI-compatible path. Contrast this with The Bannered Mare's uniform `ProviderAdapter`
+interface — see the [Comparison](/sillytavern/comparison/providers).
+
+</template>
+</Figure>
+
 ## 1. Provider Registry
 
 ### 1.1 Chat Completion Sources (CHAT_COMPLETION_SOURCES)

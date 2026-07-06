@@ -42,6 +42,39 @@ export const USER_DIRECTORY_TEMPLATE = Object.freeze({
 
 Every chat file follows this structure:
 
+<Figure tag="Figure 1" title="One conversation = one JSONL file" id="fig-jsonl-anatomy">
+<svg viewBox="0 0 720 288" role="img" aria-label="Chat JSONL file structure" style="font-family:var(--vp-font-family-base)">
+  <rect x="28" y="28" width="392" height="236" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="224" y="50" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">&lt;chat_name&gt;.jsonl</text>
+  <rect x="44" y="64" width="360" height="48" rx="7" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)"/>
+  <text x="58" y="84" font-size="11" font-weight="700" fill="var(--tbm-dgm-ink)">Line 0 — header</text>
+  <text x="58" y="101" font-size="10" fill="var(--tbm-dgm-ink-2)">{ chat_metadata: { tainted, integrity, persona, … } }</text>
+  <g font-size="10">
+    <rect x="44" y="120" width="360" height="30" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border)"/>
+    <text x="58" y="139" fill="var(--tbm-dgm-ink-2)">Line 1 — message  { name, is_user, mes, send_date, swipes… }</text>
+    <rect x="44" y="156" width="360" height="30" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border)"/>
+    <text x="58" y="175" fill="var(--tbm-dgm-ink-2)">Line 2 — message</text>
+    <text x="224" y="203" text-anchor="middle" fill="var(--tbm-dgm-faint)">⋮</text>
+    <rect x="44" y="212" width="360" height="30" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border)"/>
+    <text x="58" y="231" fill="var(--tbm-dgm-ink-2)">Line N — message</text>
+  </g>
+  <g font-size="11" fill="var(--tbm-dgm-ink-2)">
+    <text x="452" y="88">One JSON object per line (JSONL).</text>
+    <text x="452" y="140">Header holds chat-level metadata</text>
+    <text x="452" y="156">only — no message content.</text>
+    <text x="452" y="208">Each message: role, text,</text>
+    <text x="452" y="224">timestamps, and swipe variants.</text>
+  </g>
+</svg>
+<template #caption>
+
+**Append-only, line by line.** The first line is a header carrying `chat_metadata`; every line
+after it is one message object. Storing as JSONL means a new message is a single appended line,
+and the header is read without parsing the whole conversation.
+
+</template>
+</Figure>
+
 - **Line 0 (Header):** A metadata-only object with no message content.
 - **Lines 1..N (Messages):** One message object per line.
 
