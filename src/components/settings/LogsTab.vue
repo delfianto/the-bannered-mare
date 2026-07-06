@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
 import type { components } from "@/api/schema";
+import LogDetailModal from "@/components/settings/LogDetailModal.vue";
 
 const { t } = useI18n();
 
@@ -21,7 +22,20 @@ const httpLogs = ref<HttpLog[]>([]);
 const llmLogs = ref<LlmLog[]>([]);
 const llmStats = ref<LlmStats | null>(null);
 const errorLogs = ref<ErrorLog[]>([]);
-const expandedErrors = ref<Set<string>>(new Set());
+
+type LogKind = "http" | "llm" | "error";
+const selectedKind = ref<LogKind | null>(null);
+const selectedLog = ref<HttpLog | LlmLog | ErrorLog | null>(null);
+
+function openLog(kind: LogKind, log: HttpLog | LlmLog | ErrorLog) {
+  selectedKind.value = kind;
+  selectedLog.value = log;
+}
+
+function closeLog() {
+  selectedKind.value = null;
+  selectedLog.value = null;
+}
 
 // ── Formatting helpers ─────────────────────────────────────
 function formatTokens(n: number): string {
@@ -148,14 +162,6 @@ async function fetchAll() {
   }
 }
 
-function toggleError(id: string) {
-  if (expandedErrors.value.has(id)) {
-    expandedErrors.value.delete(id);
-  } else {
-    expandedErrors.value.add(id);
-  }
-}
-
 onMounted(fetchAll);
 </script>
 
@@ -257,10 +263,12 @@ onMounted(fetchAll);
         <div v-if="!httpLogs.length" class="py-8 text-center text-sm text-muted-foreground">
           {{ $t("settings.logs.noHttpLogs") }}
         </div>
-        <div
+        <button
           v-for="log in httpLogs"
           :key="log.id"
-          class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-4 py-3"
+          type="button"
+          class="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40"
+          @click="openLog('http', log)"
         >
           <!-- Method -->
           <span
@@ -298,7 +306,7 @@ onMounted(fetchAll);
 
           <!-- Timestamp -->
           <span class="text-xs text-muted-foreground">{{ formatTimestamp(log.created_at) }}</span>
-        </div>
+        </button>
       </section>
 
       <!-- LLM Logs -->
@@ -306,10 +314,12 @@ onMounted(fetchAll);
         <div v-if="!llmLogs.length" class="py-8 text-center text-sm text-muted-foreground">
           {{ $t("settings.logs.noLlmLogs") }}
         </div>
-        <div
+        <button
           v-for="log in llmLogs"
           :key="log.id"
-          class="rounded-lg border border-border/30 bg-muted/10 px-4 py-3"
+          type="button"
+          class="w-full rounded-lg border border-border/30 bg-muted/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40"
+          @click="openLog('llm', log)"
         >
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <!-- Provider -->
@@ -360,7 +370,7 @@ onMounted(fetchAll);
           <p v-if="log.error_message" class="mt-1.5 text-xs text-red-500">
             {{ log.error_message }}
           </p>
-        </div>
+        </button>
       </section>
 
       <!-- Error Logs -->
@@ -368,54 +378,37 @@ onMounted(fetchAll);
         <div v-if="!errorLogs.length" class="py-8 text-center text-sm text-muted-foreground">
           {{ $t("settings.logs.noErrorLogs") }}
         </div>
-        <div
+        <button
           v-for="err in errorLogs"
           :key="err.id"
-          class="rounded-lg border border-border/30 bg-muted/10 px-4 py-3"
+          type="button"
+          class="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40"
+          @click="openLog('error', err)"
         >
-          <button
-            class="flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-left"
-            @click="toggleError(err.id)"
+          <!-- Error type -->
+          <span
+            class="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-medium tracking-wide text-red-500 uppercase"
           >
-            <!-- Error type -->
-            <span
-              class="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-medium tracking-wide text-red-500 uppercase"
-            >
-              {{ err.error_type }}
-            </span>
+            {{ err.error_type }}
+          </span>
 
-            <!-- Message -->
-            <span class="text-sm text-foreground">{{ err.message }}</span>
+          <!-- Message -->
+          <span class="truncate text-sm text-foreground">{{ err.message }}</span>
 
-            <!-- Spacer -->
-            <span class="flex-1" />
+          <!-- Spacer -->
+          <span class="flex-1" />
 
-            <!-- Timestamp -->
-            <span class="text-xs text-muted-foreground">{{ formatTimestamp(err.created_at) }}</span>
-
-            <!-- Expand indicator -->
-            <UIcon
-              name="i-lucide-chevron-down"
-              class="size-3.5 text-muted-foreground transition-transform duration-200"
-              :class="expandedErrors.has(err.id) ? 'rotate-180' : ''"
-            />
-          </button>
-
-          <!-- Stack trace + context (expandable) -->
-          <div v-if="expandedErrors.has(err.id)" class="mt-3 space-y-2">
-            <pre
-              v-if="err.stack_trace"
-              class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-              >{{ err.stack_trace }}</pre
-            >
-            <pre
-              v-if="Object.keys(err.context).length"
-              class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-              >{{ JSON.stringify(err.context, null, 2) }}</pre
-            >
-          </div>
-        </div>
+          <!-- Timestamp -->
+          <span class="text-xs text-muted-foreground">{{ formatTimestamp(err.created_at) }}</span>
+        </button>
       </section>
     </template>
+
+    <LogDetailModal
+      :show="selectedKind !== null"
+      :kind="selectedKind"
+      :log="selectedLog"
+      @close="closeLog"
+    />
   </div>
 </template>

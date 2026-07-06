@@ -17,6 +17,7 @@
     "goBack": "Revenir",
     "edit": "Modifier",
     "copy": "Copier",
+    "copied": "Copié !",
     "search": "Rechercher",
     "noResults": "Aucun résultat trouvé",
     "selected": "{count} sélectionné(s)"
@@ -368,7 +369,22 @@
       "errorLogs": "Journaux d'erreurs",
       "noHttpLogs": "Aucun journal HTTP trouvé.",
       "noLlmLogs": "Aucun journal LLM trouvé.",
-      "noErrorLogs": "Aucun journal d'erreurs trouvé."
+      "noErrorLogs": "Aucun journal d'erreurs trouvé.",
+      "httpDetails": "Requête HTTP",
+      "llmDetails": "Appel LLM",
+      "errorDetails": "Erreur",
+      "request": "Requête",
+      "response": "Réponse",
+      "requestBody": "Corps de la requête",
+      "responseBody": "Corps de la réponse",
+      "notCaptured": "Non capturé",
+      "notCapturedHint": "Activez LOGGING__LOG_REQUEST_BODY / LOGGING__LOG_RESPONSE_BODY pour capturer les corps HTTP.",
+      "rawJson": "JSON brut",
+      "reasoning": "Raisonnement",
+      "usage": "Utilisation",
+      "finishReason": "Motif de fin",
+      "stackTrace": "Pile d'appels",
+      "context": "Contexte"
     },
     "about": {
       "craftedBy": "Conçu avec soin par",

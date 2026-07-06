@@ -17,6 +17,7 @@
     "goBack": "Zurückgehen",
     "edit": "Bearbeiten",
     "copy": "Kopieren",
+    "copied": "Kopiert!",
     "search": "Suchen",
     "noResults": "Keine Ergebnisse gefunden",
     "selected": "{count} ausgewählt"
@@ -368,7 +369,22 @@
       "errorLogs": "Fehlerprotokolle",
       "noHttpLogs": "Keine HTTP-Protokolle gefunden.",
       "noLlmLogs": "Keine LLM-Protokolle gefunden.",
-      "noErrorLogs": "Keine Fehlerprotokolle gefunden."
+      "noErrorLogs": "Keine Fehlerprotokolle gefunden.",
+      "httpDetails": "HTTP-Anfrage",
+      "llmDetails": "LLM-Aufruf",
+      "errorDetails": "Fehler",
+      "request": "Anfrage",
+      "response": "Antwort",
+      "requestBody": "Anfrage-Body",
+      "responseBody": "Antwort-Body",
+      "notCaptured": "Nicht erfasst",
+      "notCapturedHint": "Aktiviere LOGGING__LOG_REQUEST_BODY / LOGGING__LOG_RESPONSE_BODY, um HTTP-Bodies zu erfassen.",
+      "rawJson": "Rohes JSON",
+      "reasoning": "Reasoning",
+      "usage": "Nutzung",
+      "finishReason": "Abschlussgrund",
+      "stackTrace": "Stacktrace",
+      "context": "Kontext"
     },
     "about": {
       "craftedBy": "Mit Sorgfalt erstellt von",

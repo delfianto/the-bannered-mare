@@ -17,6 +17,7 @@
     "goBack": "Go Back",
     "edit": "Edit",
     "copy": "Copy",
+    "copied": "Copied!",
     "search": "Search",
     "noResults": "No results found",
     "selected": "{count} selected"
@@ -492,7 +493,22 @@
       "errorLogs": "Error Logs",
       "noHttpLogs": "No HTTP logs found.",
       "noLlmLogs": "No LLM logs found.",
-      "noErrorLogs": "No error logs found."
+      "noErrorLogs": "No error logs found.",
+      "httpDetails": "HTTP Request",
+      "llmDetails": "LLM Call",
+      "errorDetails": "Error",
+      "request": "Request",
+      "response": "Response",
+      "requestBody": "Request Body",
+      "responseBody": "Response Body",
+      "notCaptured": "Not captured",
+      "notCapturedHint": "Enable LOGGING__LOG_REQUEST_BODY / LOGGING__LOG_RESPONSE_BODY to capture HTTP bodies.",
+      "rawJson": "Raw JSON",
+      "reasoning": "Reasoning",
+      "usage": "Usage",
+      "finishReason": "Finish reason",
+      "stackTrace": "Stack Trace",
+      "context": "Context"
     },
     "about": {
       "craftedBy": "Crafted with care by",
