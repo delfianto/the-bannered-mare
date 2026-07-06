@@ -2,17 +2,20 @@
 layout: home
 hero:
   name: The Bannered Mare
-  text: AI-powered local roleplay sessions
-  tagline: A self-hostable platform inspired by SillyTavern — providers, characters, prompts, RAG, and streaming.
+  text: Technical Reference
+  tagline: How a self-hostable, SillyTavern-inspired roleplay platform is built and run — architecture, LLM providers, the prompt system, RAG, and streaming, plus the SillyTavern study it draws from.
   actions:
     - theme: brand
       text: Get Started
       link: /guide/
     - theme: alt
+      text: Explore the Architecture
+      link: /architecture/
+    - theme: alt
       text: View on GitHub
       link: https://github.com/delfianto/the-bannered-mare
 features:
-  - title: Guide
+  - title: Getting Started
     details: Install and run both halves — the FastAPI backend and the Vue 3 frontend.
     link: /guide/
   - title: Architecture
