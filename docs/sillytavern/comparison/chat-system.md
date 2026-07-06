@@ -4,6 +4,38 @@
 > SillyTavern analysis based on commit `1695f8e`; The Bannered Mare based on current `develop` branch.
 
 
+The core divergence is the store itself — portable files versus a relational database:
+
+<Figure tag="Figure 1" title="JSONL files vs a relational database" id="fig-cmp-chat">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare chat storage" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Storage — JSONL file per conversation</text>
+    <text x="40" y="122">IDs — filename + array index (no stable ID)</text>
+    <text x="40" y="154">Writes — full-state overwrite each save</text>
+    <text x="40" y="186">Query — read &amp; parse whole files</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Maximally portable, scales poorly</text>
+    <text x="408" y="90">Storage — PostgreSQL (SQLAlchemy 2.0)</text>
+    <text x="408" y="122">IDs — NanoID primary keys</text>
+    <text x="408" y="154">Writes — incremental INSERT / UPDATE</text>
+    <text x="408" y="186">Query — indexed SQL, row locking</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Queryable + concurrent-write safe</text>
+  </g>
+</svg>
+<template #caption>
+
+**Portability vs queryability.** A SillyTavern chat is one self-contained file you can copy or
+share, rewritten wholesale on every save; The Bannered Mare persists each message as a row,
+trading portability for indexed queries and safe concurrent writes.
+
+</template>
+</Figure>
+
 ## 1. Chat Storage
 
 | Aspect | SillyTavern | The Bannered Mare |

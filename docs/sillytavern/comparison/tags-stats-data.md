@@ -5,6 +5,39 @@ This document compares how SillyTavern v1.17.0 and The Bannered Mare approach ta
 **Reference material:** [docs/st_analysis/TAGS_STATS_DATA.md](/sillytavern/analysis/tags-stats-data)
 
 
+Tags capture the systems' broader philosophy — a rich client-side registry versus a plain column
+on the row:
+
+<Figure tag="Figure 1" title="Tag registry + map vs a string column" id="fig-cmp-tags">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare tags" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Model — tags[] registry + tag_map index</text>
+    <text x="40" y="122">Identity — UUID objects with metadata</text>
+    <text x="40" y="154">Storage — settings.json (client-side)</text>
+    <text x="40" y="186">Extras — colors · folders · sort order</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Characters + groups</text>
+    <text x="408" y="90">Model — plain string array on the row</text>
+    <text x="408" y="122">Identity — plain strings, no registry</text>
+    <text x="408" y="154">Storage — characters.tags (PostgreSQL)</text>
+    <text x="408" y="186">Extras — none (just strings)</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Characters only (currently)</text>
+  </g>
+</svg>
+<template #caption>
+
+**Registry vs column.** SillyTavern keeps a separate tag registry plus a `tag_map` index (with
+colors, folders, and sort order) client-side; The Bannered Mare stores tags as a plain string
+array directly on the `characters` row — no IDs, no metadata.
+
+</template>
+</Figure>
+
 ## 1. Tag System
 
 ### 1.1 Data Model

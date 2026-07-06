@@ -3,6 +3,39 @@
 This document compares SillyTavern's slash command / STscript system with The Bannered Mare's approach to user-facing automation and programmability. The comparison is honest about a fundamental architectural difference: SillyTavern is an interactive application with a chat input bar where users type commands directly; The Bannered Mare is a headless API backend that exposes functionality through HTTP endpoints. These are different paradigms solving different problems, and neither approach is wrong.
 
 
+This is a paradigm difference, not a feature gap: the same operations are reached through a
+chat-bar scripting language on one side and typed HTTP endpoints on the other:
+
+<Figure tag="Figure 1" title="STscript REPL vs REST endpoints" id="fig-cmp-commands">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern STscript vs The Bannered Mare REST" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Interface — STscript in the chat bar (a REPL)</text>
+    <text x="40" y="122">Power — Turing-complete, ~200+ commands</text>
+    <text x="40" y="154">Blocks — closures · pipes · flow control</text>
+    <text x="40" y="186">Switch model — /model gpt-4o</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">A shell embedded in the GUI</text>
+    <text x="408" y="90">Interface — typed REST / SSE endpoints</text>
+    <text x="408" y="122">Power — CRUD primitives, composed by the client</text>
+    <text x="408" y="154">Blocks — HTTP verbs + JSON bodies</text>
+    <text x="408" y="186">Switch model — PUT /api/chats/{id}</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">No command system (headless API)</text>
+  </g>
+</svg>
+<template #caption>
+
+**Same goal, different surface.** SillyTavern is an interactive app whose chat bar doubles as a
+programmable REPL; The Bannered Mare is a headless backend, so the equivalent of `/model gpt-4o`
+is a typed request against `/api/chats/{id}`.
+
+</template>
+</Figure>
+
 ## 1. Does The Bannered Mare Have a Command System?
 
 No. The Bannered Mare has no slash commands, no scripting language, no macro system, no command registry, and no command parser. There is nothing in the codebase analogous to STscript.

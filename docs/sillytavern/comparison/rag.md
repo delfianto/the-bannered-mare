@@ -7,6 +7,39 @@ pipelines, though with different architectural foundations and scope.
 Source analysis: `docs/st_analysis/RAG_PIPELINE.md`
 
 
+Both now have working RAG, but on different foundations — a file-system index versus the
+application's own database:
+
+<Figure tag="Figure 1" title="Vectra files vs pgvector in Postgres" id="fig-cmp-rag">
+<svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare RAG" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-provider-soft)"/><rect x="24" y="36" width="344" height="24" fill="var(--tbm-dgm-provider-soft)"/>
+  <rect x="392" y="16" width="344" height="44" rx="12" fill="var(--tbm-dgm-backend-soft)"/><rect x="392" y="36" width="344" height="24" fill="var(--tbm-dgm-backend-soft)"/>
+  <text x="196" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
+  <text x="564" y="44" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink)">
+    <text x="40" y="90">Store — Vectra (file-system JSON index)</text>
+    <text x="40" y="122">Embeddings — 19 sources (local + cloud)</text>
+    <text x="40" y="154">Ingestion — PDF · HTML · EPUB · DOCX · …</text>
+    <text x="40" y="186">Runs — client-side (browser)</text>
+    <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Broad ingestion, portable files</text>
+    <text x="408" y="90">Store — PostgreSQL + pgvector</text>
+    <text x="408" y="122">Embeddings — 2 adapters (Ollama · OpenAI)</text>
+    <text x="408" y="154">Ingestion — text (Data Bank manual entry)</text>
+    <text x="408" y="186">Runs — server-side async service</text>
+    <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">One store for data + vectors</text>
+  </g>
+</svg>
+<template #caption>
+
+**Same three-tier Data Bank, different substrate.** SillyTavern indexes into per-source Vectra
+directories on disk; The Bannered Mare keeps embeddings in the same PostgreSQL database as
+everything else, so a single query can span messages and Data Bank entries.
+
+</template>
+</Figure>
+
 ## 1. High-Level Status
 
 | Capability | SillyTavern v1.17.0 | The Bannered Mare |
