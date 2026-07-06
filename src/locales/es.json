@@ -17,6 +17,7 @@
     "goBack": "Volver",
     "edit": "Editar",
     "copy": "Copiar",
+    "copied": "¡Copiado!",
     "search": "Buscar",
     "noResults": "No se encontraron resultados",
     "selected": "{count} seleccionado(s)"
@@ -368,7 +369,22 @@
       "errorLogs": "Registros de errores",
       "noHttpLogs": "No se encontraron registros HTTP.",
       "noLlmLogs": "No se encontraron registros LLM.",
-      "noErrorLogs": "No se encontraron registros de errores."
+      "noErrorLogs": "No se encontraron registros de errores.",
+      "httpDetails": "Solicitud HTTP",
+      "llmDetails": "Llamada LLM",
+      "errorDetails": "Error",
+      "request": "Solicitud",
+      "response": "Respuesta",
+      "requestBody": "Cuerpo de la solicitud",
+      "responseBody": "Cuerpo de la respuesta",
+      "notCaptured": "No capturado",
+      "notCapturedHint": "Habilita LOGGING__LOG_REQUEST_BODY / LOGGING__LOG_RESPONSE_BODY para capturar cuerpos HTTP.",
+      "rawJson": "JSON en bruto",
+      "reasoning": "Razonamiento",
+      "usage": "Uso",
+      "finishReason": "Motivo de finalización",
+      "stackTrace": "Stack Trace",
+      "context": "Contexto"
     },
     "about": {
       "craftedBy": "Creado con cariño por",
