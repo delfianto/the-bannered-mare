@@ -12,7 +12,6 @@
 > or perpetually accurate representation. **Always consult the official provider documentation
 > for the most up-to-date information before making implementation decisions.**
 
----
 
 ## Documents
 
@@ -39,7 +38,6 @@
 |----------|-------------|---------|
 | [PROVIDERS.md](/providers/landscape) | Provider landscape overview and gap analysis | 2026-04-06 |
 
----
 
 ## Official Documentation Links
 
@@ -52,7 +50,6 @@
 | OpenRouter | https://openrouter.ai/docs |
 | Ollama | https://github.com/ollama/ollama/blob/main/docs/api.md |
 
----
 
 ## Tool & Version Info
 

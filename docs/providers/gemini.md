@@ -6,7 +6,6 @@
 > must handle, and how it maps to the shared `CompletionRequest`/`CompletionResponse` types
 > defined in `analysis/OPENAI.md`.
 
----
 
 ## Table of Contents
 
@@ -26,7 +25,6 @@
 14. [Mapping: Shared Types to Gemini API](#14-type-mapping)
 15. [Implementation Plan](#15-implementation-plan)
 
----
 
 ## 1. API Overview
 
@@ -47,7 +45,6 @@ shape, authentication, and streaming protocol all differ. Model is in the URL pa
 are "contents" with "parts", the assistant role is "model", and generation parameters are
 wrapped in a `generationConfig` object.
 
----
 
 ## 2. Authentication
 
@@ -84,7 +81,6 @@ and is typically used for Vertex AI, not the AI Studio API.
 (just `Content-Type`). The API key is appended to the URL instead. This means `build_url()`
 must accept the API key or the adapter must override the HTTP call to append the query param.
 
----
 
 ## 3. Request Schema
 
@@ -173,7 +169,6 @@ generation parameters inside a `generationConfig` object:
 | `generationConfig.audioTimestamp` | Audio timestamp support. |
 | `systemInstruction` | System prompt as Content object (with parts). |
 
----
 
 ## 4. System Instruction — Separate Field (Like Anthropic)
 
@@ -228,7 +223,6 @@ The `build_payload()` method must:
 3. Remove them from the `contents` array
 4. Map remaining messages to Gemini's `contents` format (role + parts)
 
----
 
 ## 5. Message Format — Contents with Parts
 
@@ -312,7 +306,6 @@ No `system`, `developer`, `tool`, or `function` roles in the `contents` array.
 }
 ```
 
----
 
 ## 6. Response Schema — Candidates Array
 
@@ -413,7 +406,6 @@ No `system`, `developer`, `tool`, or `function` roles in the `contents` array.
 | Cached tokens | `usage.prompt_tokens_details.cached_tokens` | `usage.cache_read_input_tokens` | `usageMetadata.cachedContentTokenCount` |
 | Reasoning tokens | `usage.completion_tokens_details.reasoning_tokens` | Not broken out | `usageMetadata.thoughtsTokenCount` (Gemini 2.5) |
 
----
 
 ## 7. Streaming — streamGenerateContent
 
@@ -544,7 +536,6 @@ async def complete_stream(self, request: CompletionRequest) -> AsyncIterator[Com
         )
 ```
 
----
 
 ## 8. Safety Settings — Unique to Gemini
 
@@ -632,7 +623,6 @@ DEFAULT_RP_SAFETY_SETTINGS = [
 ]
 ```
 
----
 
 ## 9. Tool Calling — Different Shape
 
@@ -778,7 +768,6 @@ Gemini offers built-in tools specified by type:
 
 These are placed directly in the `tools` array alongside `functionDeclarations`.
 
----
 
 ## 10. Context Caching
 
@@ -828,7 +817,6 @@ System prompts + character contexts are repeated across an entire chat session. 
 cached content could significantly reduce costs. The adapter should support creating and
 referencing cached content via `CompletionRequest.extra["cached_content"]`.
 
----
 
 ## 11. Token Counting Endpoint
 
@@ -866,7 +854,6 @@ POST /v1beta/models/{model}:countTokens?key={API_KEY}
 | **Anthropic** | `POST /v1/messages/count_tokens` | Server-side, returns `input_tokens` |
 | **Gemini** | `POST /v1beta/models/{model}:countTokens` | Server-side, returns `totalTokens` |
 
----
 
 ## 12. Key Differences from OpenAI — Summary Table
 
@@ -911,7 +898,6 @@ POST /v1beta/models/{model}:countTokens?key={API_KEY}
 | **Token counting API** | Not available | `POST /v1beta/models/{model}:countTokens` | Gemini-specific |
 | **Naming convention** | snake_case | camelCase | Case conversion everywhere |
 
----
 
 ## 13. GeminiAdapter Implementation Spec
 
@@ -1239,7 +1225,6 @@ class GeminiAdapter(ProviderAdapter):
         )
 ```
 
----
 
 ## 14. Mapping: Shared Types to Gemini API
 
@@ -1298,7 +1283,6 @@ class GeminiAdapter(ProviderAdapter):
 | `usageMetadata` (on final chunk) | `usage` | Rename fields, only emit on finish |
 | *(stream end)* | *(iteration end)* | No explicit signal — stream closes |
 
----
 
 ## 15. Implementation Plan
 
@@ -1381,7 +1365,6 @@ class GeminiAdapter(ProviderAdapter):
     - Integrate with PromptBuilder budget calculations
 ```
 
----
 
 ## Appendix A: Gemini Error Responses
 
@@ -1420,7 +1403,6 @@ class GeminiAdapter(ProviderAdapter):
 | `NOT_FOUND` (404) | `ProviderModelNotFoundError` |
 | `INTERNAL` (500) / `UNAVAILABLE` (503) | `ProviderServerError` |
 
----
 
 ## Appendix B: Gemini Model Names
 
@@ -1433,7 +1415,6 @@ class GeminiAdapter(ProviderAdapter):
 
 Model names are used directly in the URL path: `/v1beta/models/gemini-2.5-flash:generateContent`.
 
----
 
 ## Appendix C: Complete Request/Response Examples
 

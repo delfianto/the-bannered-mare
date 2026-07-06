@@ -4,7 +4,6 @@
 > ST analysis source: `docs/st_analysis/CHARACTER_CARD.md`
 > The Bannered Mare source: `src/character/` module
 
----
 
 ## 1. Card Specification Support
 
@@ -45,7 +44,6 @@ Detection is V2-first: if `spec` and `data` exist, or if `data` is a dict, parse
 
 The Bannered Mare's parser is deliberately lenient -- it accepts partial cards without error. ST's validator rejects cards missing required fields but still has fallback paths (V1 -> V2 -> V3 cascade).
 
----
 
 ## 2. Storage Model
 
@@ -104,7 +102,6 @@ characters table (PostgreSQL):
 
 The fundamental difference: ST treats the PNG as a self-contained document, while The Bannered Mare normalizes data into relational columns. ST's approach is simpler for single-user desktop use; The Bannered Mare's enables structured queries and referential integrity.
 
----
 
 ## 3. Import/Export Formats
 
@@ -155,7 +152,6 @@ No field stripping on export -- all persisted fields are included.
 
 ST's broader import support reflects its role as a community hub tool that must interoperate with many character sources. The Bannered Mare covers the two dominant exchange formats (PNG cards from Chub/community, raw JSON).
 
----
 
 ## 4. PNG Metadata Handling
 
@@ -203,7 +199,6 @@ Manual PNG chunk parsing in `card_parser.py` using `struct` and `zlib` (no third
 
 The Bannered Mare's manual parser is lightweight but does not handle `ccv3` (V3) chunks and does not do case-insensitive matching. ST's approach is more defensive with its case-insensitive lookups and dual-chunk strategy.
 
----
 
 ## 5. Field Mapping
 
@@ -265,7 +260,6 @@ On import (`service.import_card`), The Bannered Mare maps `ParsedCard` to the `C
 
 ST's `readFromV2` hoists V2 data fields to V1 top-level fields and backfills defaults for missing extension fields (`talkativeness` -> 0.5, `fav` -> false).
 
----
 
 ## 6. Avatar Management
 
@@ -318,7 +312,6 @@ Avatar is decoupled from character data. Stored as a separate file with a DB ref
 | Upload validation | Minimal (Jimp handles errors) | Extension, size, integrity, dimension checks |
 | On import from PNG | PNG file becomes the avatar | PNG file saved as avatar via `save_character_avatar` |
 
----
 
 ## 7. Character Book / Lorebook Integration
 
@@ -387,7 +380,6 @@ lore_entries table:
 
 The Bannered Mare's lorebook schema covers the core activation model (keys, secondary keys, position, depth, priority) but omits ST's advanced features (probability, stickiness, cooldown, group scoring, multi-target matching). The critical gap for interoperability is that character book data is not round-tripped through import/export.
 
----
 
 ## 8. Caching
 
@@ -431,7 +423,6 @@ No application-level caching layer. PostgreSQL handles query caching internally.
 
 ST needs caching because reading character data requires PNG binary parsing on every access. The Bannered Mare's relational storage eliminates this need -- indexed SQL queries serve the same purpose without an application cache layer. If The Bannered Mare's character count grows large, standard database optimization (indexes, connection pooling) applies rather than custom caching.
 
----
 
 ## 9. API Design
 
@@ -490,7 +481,6 @@ Uses proper HTTP methods, path-based resource identification, Pydantic response 
 | Duplicate | Dedicated endpoint | Not supported |
 | Rename | Dedicated endpoint | Part of update (change `name` field) |
 
----
 
 ## 10. Summary of Architectural Differences
 

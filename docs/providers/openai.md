@@ -5,7 +5,6 @@
 > **Goal:** Define what The Bannered Mare must implement to fully support the OpenAI API, and
 > architect it so Anthropic, Google Gemini, and OpenRouter can be added modularly.
 
----
 
 ## Table of Contents
 
@@ -25,7 +24,6 @@
 14. [Shared Abstractions (Provider-Agnostic)](#14-shared-abstractions)
 15. [Implementation Plan](#15-implementation-plan)
 
----
 
 ## 1. API Overview
 
@@ -39,7 +37,6 @@ and reasoning models.
 
 **Auth:** Bearer token via `Authorization: Bearer <API_KEY>` header.
 
----
 
 ## 2. Authentication
 
@@ -54,7 +51,6 @@ Authorization: Bearer sk-...
 **For The Bannered Mare:** API keys are stored as environment variable names in the Provider model.
 The current `ProviderClient` reads the key via `provider.get_api_key()`. This pattern works.
 
----
 
 ## 3. Request Schema
 
@@ -135,7 +131,6 @@ The `CreateChatCompletionRequest` is composed from two schemas:
 |---|---|---|
 | `web_search_options` | object | Enable web search tool. Properties: `user_location` (object with `type: "approximate"`, `approximate`: lat/lng/etc), `search_context_size` (enum). |
 
----
 
 ## 4. Message Types
 
@@ -225,7 +220,6 @@ Result of a tool/function call. Must reference the `tool_call_id` from the assis
 
 Deprecated in favor of tool messages. Included for backwards compatibility.
 
----
 
 ## 5. Response Schema
 
@@ -322,7 +316,6 @@ Deprecated in favor of tool messages. Included for backwards compatibility.
 | `completion_tokens_details.accepted_prediction_tokens` | integer | no | Predicted tokens used |
 | `completion_tokens_details.rejected_prediction_tokens` | integer | no | Predicted tokens rejected |
 
----
 
 ## 6. Streaming Schema
 
@@ -391,7 +384,6 @@ Chunk 4: delta = {tool_calls: [{index: 0, function: {arguments: '":"NYC"}'}}]}
 Chunk 5: delta = {}, finish_reason = "tool_calls"
 ```
 
----
 
 ## 7. Tool Calling
 
@@ -459,7 +451,6 @@ Tool calling is **not needed for core roleplay** but enables:
 
 Lower priority, but the architecture should not prevent adding it later.
 
----
 
 ## 8. Response Formats
 
@@ -511,7 +502,6 @@ Response format control is useful for:
 
 Not critical for MVP but the architecture should support passing it through.
 
----
 
 ## 9. Models Endpoint
 
@@ -546,7 +536,6 @@ options. This is particularly useful for:
 - OpenRouter (aggregates hundreds of models)
 - Custom providers (unknown model lineup)
 
----
 
 ## 10. Current The Bannered Mare Implementation
 
@@ -604,7 +593,6 @@ class ProviderClient:
 | **Timeout too short** | 60 seconds | Some models (o3) take minutes for complex reasoning |
 | **Single client per request** | Creates new `httpx.AsyncClient` per call | Should reuse connections |
 
----
 
 ## 11. Gap Analysis
 
@@ -641,7 +629,6 @@ class ProviderClient:
 | 18 | No `service_tier` | P3 | Billing optimization |
 | 19 | No `web_search_options` | P3 | New feature |
 
----
 
 ## 12. Multi-Provider Architecture Design
 
@@ -855,7 +842,6 @@ class ProviderGateway:
             yield chunk
 ```
 
----
 
 ## 13. OpenAI Adapter — Implementation Spec
 
@@ -1064,7 +1050,6 @@ Providers that need entirely separate adapters:
 - **Anthropic** — different payload, auth, and response format
 - **Google Gemini** — completely different API structure
 
----
 
 ## 14. Shared Abstractions (Provider-Agnostic)
 
@@ -1189,7 +1174,6 @@ class ToolCallChunk:
     arguments_delta: str | None = None
 ```
 
----
 
 ## 15. Implementation Plan
 
@@ -1279,7 +1263,6 @@ class ToolCallChunk:
     - Store actual usage data
 ```
 
----
 
 ## Appendix: OpenAI Parameter Quick Reference
 

@@ -2,7 +2,6 @@
 
 The The Bannered Mare client is a Single Page Application (SPA) structured around vertical views mapping to specific core features of the roleplay application.
 
----
 
 ## 1. Home Dashboard (`HomeView.vue`)
 
@@ -11,7 +10,6 @@ The The Bannered Mare client is a Single Page Application (SPA) structured aroun
   - **Recent Activity**: Displays grid cards of recently accessed characters and active chat sessions.
   - **Quick Start**: Allows users to instantly create a new character or jump back into their latest story.
 
----
 
 ## 2. Chat Workspace (`ChatView.vue`)
 
@@ -21,7 +19,6 @@ The The Bannered Mare client is a Single Page Application (SPA) structured aroun
   - **Interactive Messaging**: Supports editing user messages, deleting blocks, regenerating AI responses, and swiping through alternative greetings or response paths.
   - **Context Drawer**: Sidebar drawer hosting quick session configurations (e.g., changing templates, active presets, or selecting user personas on the fly).
 
----
 
 ## 3. Characters Library (`CharactersView.vue`)
 
@@ -31,7 +28,6 @@ The The Bannered Mare client is a Single Page Application (SPA) structured aroun
   - **Card Imports**: Supports dragging and dropping PNG character cards (extracting embedded Exif metadata) or JSON files to import profiles.
   - **Detail Inspector**: Expands to view tags, version info, description overrides, and custom system templates.
 
----
 
 ## 4. Connections Manager (`ConnectionsView.vue`)
 
@@ -43,7 +39,6 @@ The The Bannered Mare client is a Single Page Application (SPA) structured aroun
   - **Templates & Presets**: Order prompt components, set Jinja2 templates, and configure temperature/penalty parameters.
   - **Prompt Fragments**: Create reusable instructions (jailbreaks, formatting rules) to inject at target depths.
 
----
 
 ## 5. Memory View (`MemoryView.vue`)
 
@@ -52,7 +47,6 @@ The The Bannered Mare client is a Single Page Application (SPA) structured aroun
   - **Data Bank Entries**: Lists text files and memory fragments stored in the RAG database.
   - **Retriever Testing**: Provides test inputs to run vector matching, returning matches annotated with similarity scores to test context activation.
 
----
 
 ## 6. Setup Wizard (`SetupWizardView.vue`)
 

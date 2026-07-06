@@ -2,7 +2,6 @@
 
 The persistence layer of The Bannered Mare manages relational data storage, schema migrations, and entity lifecycles using PostgreSQL in production and SQLite in test environments. It relies on SQLAlchemy 2.0 and Alembic.
 
----
 
 ## 1. Declarative Base and Base Model
 
@@ -39,7 +38,6 @@ class BaseModel(Base):
 - **12-Character Nanoids**: Instead of standard auto-incrementing integers or bulky UUIDs, The Bannered Mare uses 12-character Nanoids as primary keys. They are compact, URL-safe, and secure against enumeration attacks.
 - **Timezones**: All timestamps are stored with timezone support enabled (`DateTime(timezone=True)`) and default to timezone-aware UTC datetime objects.
 
----
 
 ## 2. Preventing Circular Imports (Centralized Model Definitions)
 
@@ -50,7 +48,6 @@ To resolve this:
 - They are imported and re-exported from [src/core/persistence/models/__init__.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/persistence/models/__init__.py).
 - Individual domain packages expose files like `models.py` which simply act as pass-through imports to the centralized persistence directory, preventing circular reference paths.
 
----
 
 ## 3. Asynchronous vs. Synchronous Operations
 
@@ -64,7 +61,6 @@ The Bannered Mare implements a **mixed-mode** synchronization policy to balance 
    - **Constraint**: All other operations (metadata updates, character configuration, provider management, presets, etc.) are synchronous.
    - **Implementation**: Uses standard `psycopg` blocking driver calls inside a synchronous SQLAlchemy session to avoid async overhead and keep the code simple.
 
----
 
 ## 4. Repository Pattern
 
@@ -85,7 +81,6 @@ class CharacterRepository(BaseRepository[Character]):
         ).all()
 ```
 
----
 
 ## 5. Schema Migrations (Alembic)
 

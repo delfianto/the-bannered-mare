@@ -3,7 +3,6 @@
 Side-by-side analysis of how each system handles SSE streaming from provider
 APIs to the consumer (browser frontend in ST, API client in The Bannered Mare).
 
----
 
 ## 1. Stream Proxy vs Typed Event Pipeline
 
@@ -69,7 +68,6 @@ layer.
 | Event format to client | Raw provider SSE | `{"type": "text", "content": "..."}` |
 | Intermediate types | None | `StreamChunk` -> `StreamEvent` |
 
----
 
 ## 2. Provider-Specific Stream Parsing
 
@@ -112,7 +110,6 @@ adapter is active.
 | Extensibility | Add branches to if/else chain | Add new adapter class |
 | Ollama handling | Custom JSONL-to-SSE transcoder | Inherits OpenAI adapter (Ollama serves `/v1/`) |
 
----
 
 ## 3. Abort / Cancellation Mechanism
 
@@ -160,7 +157,6 @@ the generator checks between events rather than interrupting mid-chunk.
 | Abort granularity | Immediate (signal-based) | Between events (cooperative) |
 | Special provider handling | KoboldCpp explicit abort endpoint | None |
 
----
 
 ## 4. Reasoning / Thinking Content
 
@@ -211,7 +207,6 @@ Reasoning is handled across three independent layers:
 | Client receives | Raw reasoning text (client renders) | `{"type":"reasoning","content":"..."}` events |
 | Persistence | `chat[messageId].extra.reasoning_duration` | `Message.reasoning_content` column |
 
----
 
 ## 5. Token Usage from Streams
 
@@ -275,7 +270,6 @@ counts via structured logging.
 | Usage event to client | None (computed post-stream) | `StreamEvent(type="usage", ...)` |
 | Token drift monitoring | Not tracked | Structured log comparing estimate vs actual |
 
----
 
 ## 6. Smooth Streaming
 
@@ -316,7 +310,6 @@ at the client's discretion.
 | Configuration | Speed slider (1-100), toggle, no-think option | N/A (client responsibility) |
 | DOM rendering | morphdom + CSS fade-in | N/A |
 
----
 
 ## 7. Error Handling
 
@@ -381,7 +374,6 @@ final error event before closing the stream.
 | HTTP status forwarding | Yes (except 401 -> 400) | Mapped to typed exceptions before stream starts |
 | Error during stream | Arrives as raw SSE data | Arrives as structured error event |
 
----
 
 ## 8. Overall Architecture Comparison
 

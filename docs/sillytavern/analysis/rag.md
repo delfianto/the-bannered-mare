@@ -6,7 +6,6 @@ covering vector storage, embedding providers, document processing, the Data Bank
 
 Source revision: SillyTavern v1.17.0, tag `1.17.0`.
 
----
 
 ## 1. Architecture Overview
 
@@ -30,7 +29,6 @@ which triggers the full RAG pipeline.
 manifest.json:8  ->  "generate_interceptor": "vectors_rearrangeChat"
 ```
 
----
 
 ## 2. Vector Storage Backend
 
@@ -99,7 +97,6 @@ If a `SyntaxError` is caught during any vector operation, the backend assumes th
 index is corrupted. It deletes the index and redirects the request (HTTP 307) to retry with
 `?regenerated=true` to prevent infinite loops (`src/endpoints/vectors.js`, lines 432-453).
 
----
 
 ## 3. Embedding Providers
 
@@ -206,7 +203,6 @@ The Cohere provider is the only one that passes an `isQuery` boolean to differen
 `input_type: 'search_query'` and `input_type: 'search_document'` (`src/vectors/cohere-vectors.js`,
 line 30). This follows Cohere's API requirement for asymmetric embeddings.
 
----
 
 ## 4. Document Processing
 
@@ -307,7 +303,6 @@ if (settings.translate_files && typeof globalThis.translate === 'function') {
 }
 ```
 
----
 
 ## 5. Data Bank
 
@@ -393,7 +388,6 @@ The vectors extension adds search-specific commands:
 | `/db-purge` | Purge vector indexes for all Data Bank attachments |
 | `/db-search <query>` | Search Data Bank with optional threshold, count, source, return format |
 
----
 
 ## 6. Chat Vectorization ("Smart Context")
 
@@ -445,7 +439,6 @@ Limit yourself to 250 words or less. Your response should include nothing but th
 Summaries are cached in-memory (`cachedSummaries` Map) keyed by message hash to avoid
 re-summarizing unchanged messages.
 
----
 
 ## 7. Query Pipeline
 
@@ -543,7 +536,6 @@ Default threshold: **0.25** (configurable 0.0 to 1.0 in steps of 0.05).
 For multi-collection queries (Data Bank), results from all collections are merged, sorted by
 descending score, filtered by threshold, then truncated to top K.
 
----
 
 ## 8. Prompt Injection
 
@@ -600,7 +592,6 @@ to the message text itself** rather than using the extension prompt system:
 message.mes = `${allFileChunks.join('\n\n')}\n\n${message.mes}`;
 ```
 
----
 
 ## 9. World Info Vector Integration
 
@@ -623,7 +614,6 @@ semantic search to activate relevant entries regardless of keyword matching.
   only entries with the "vectorized" (chain link) status marker are eligible.
 - **Max entries**: Maximum number of WI entries to activate (default 5).
 
----
 
 ## 10. Settings & Configuration
 
@@ -707,7 +697,6 @@ const settings = {
 | `/vector-files-state [bool]` | Get/set file vectorization enabled |
 | `/vector-worldinfo-state [bool]` | Get/set WI vectorization enabled |
 
----
 
 ## 11. Backend API Surface
 
@@ -726,7 +715,6 @@ All endpoints are mounted at `/api/vector/` via the Express router in `src/endpo
 All endpoints accept the embedding `source` and source-specific settings in the request body
 (model name, API URL, etc.) via `getSourceSettings()`.
 
----
 
 ## 12. Key Design Observations
 

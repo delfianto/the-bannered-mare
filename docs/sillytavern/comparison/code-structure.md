@@ -5,7 +5,6 @@ manages module boundaries, and enforces structural discipline. This is a neutral
 comparison -- both approaches have legitimate trade-offs shaped by different
 constraints (community-driven JS monolith vs. greenfield Python backend).
 
----
 
 ## 1. Codebase Scale
 
@@ -30,7 +29,6 @@ The Bannered Mare's `src/` is ~12,600 lines across ~167 files. The file count is
 higher in The Bannered Mare despite having roughly one-third the code, reflecting
 its vertical-slice module structure (many small files vs. fewer large ones).
 
----
 
 ## 2. Top-Level Layout
 
@@ -87,7 +85,6 @@ grouping (`endpoints/`, `middleware/`, `vectors/`). The Bannered Mare uses verti
 slices where each domain is a self-contained package with a consistent internal
 structure.
 
----
 
 ## 3. Module Organization
 
@@ -136,7 +133,6 @@ the project. The Bannered Mare splits equivalent functionality into focused util
 modules (`storage.py`, `template.py`, `tokenizer.py`, `validators.py`,
 `reasoning.py`), each under 180 lines.
 
----
 
 ## 4. File Size Discipline
 
@@ -184,7 +180,6 @@ Excluding `__init__.py` files:
 - **SillyTavern backend:** ~250-350 lines (estimated from distribution)
 - **The Bannered Mare:** ~80-100 lines
 
----
 
 ## 5. Dependency Patterns
 
@@ -230,7 +225,6 @@ dependencies.py   schemas.py
 | Event-based decoupling | `EventEmitter` with 103 event types (frontend) | Not used (direct service calls) |
 | God objects | `script.js` (12,481 lines, 217 exports) | None -- largest module export list is ~10 symbols |
 
----
 
 ## 6. Type System
 
@@ -248,7 +242,6 @@ SillyTavern's JSDoc approach provides editor tooling (autocomplete, hover info)
 without a compilation step. The Bannered Mare's approach catches type errors at build
 time via `basedpyright` and at runtime via Pydantic validation on every request.
 
----
 
 ## 7. Data Persistence Architecture
 
@@ -267,7 +260,6 @@ SillyTavern's filesystem storage means zero database setup and simple backups
 queries, referential integrity, and concurrent access at the cost of requiring
 a running PostgreSQL instance.
 
----
 
 ## 8. Testing
 
@@ -318,7 +310,6 @@ tests/
 ├── ...
 ```
 
----
 
 ## 9. Build and Configuration
 
@@ -339,7 +330,6 @@ supports multi-user deployments with per-user config migration. The Bannered Mar
 Pydantic Settings approach is simpler but handles the single-user local
 deployment case cleanly, with nested config via `__` delimiter in env vars.
 
----
 
 ## 10. Provider Adapter Architecture
 
@@ -362,7 +352,6 @@ risk of affecting others. The Bannered Mare separates the transport layer
 (`ProviderGateway`) from the format translation layer (adapter classes),
 at the cost of more indirection.
 
----
 
 ## 11. Entry Point and Startup
 
@@ -376,7 +365,6 @@ at the cost of more indirection.
 | Database init | N/A (filesystem) | `seed_database()` loads fixture data on startup |
 | Startup LoC | ~900 across 2 files | ~101 in 1 file |
 
----
 
 ## 12. Summary of Structural Trade-offs
 

@@ -2,7 +2,6 @@
 
 The Bannered Mare supports complex roleplay settings by managing Character cards (non-player characters that the LLM roleplays as), User Personas (profiles representing the user within the chat context), and local media assets (avatars and thumbnails).
 
----
 
 ## 1. Character Cards (V2 Spec Compatible)
 
@@ -14,7 +13,6 @@ The `Character` entity represents a fully loaded character profile. It is compat
 *   **Example Dialogues (`example_dialogues`)**: Structured exchanges illustrating the character's speaking patterns, phrasing, and behavior. These are injected into the prompt context dynamically.
 *   **Tags & Classification**: String arrays supporting tags, species, age, gender (with customized text mappings for non-binary classifications), and creator attribution metadata.
 
----
 
 ## 2. User Personas
 
@@ -22,7 +20,6 @@ The `Persona` model defines the profile of the user participating in the chat se
 *   **Name & Description**: Contains the name and detail description of the user's roleplay alias.
 *   **Prompt Integration**: If a persona is active in a chat, its details are injected into the compiled prompt under the `persona` component, informing the LLM of who it is interacting with.
 
----
 
 ## 3. Storage and Asset Directory Layout
 
@@ -44,7 +41,6 @@ storage/
 
 Startup directories are verified and initialized by `ensure_storage_directories` in [storage.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/utils/storage.py).
 
----
 
 ## 4. Image Processing & Thumbnail Generation
 

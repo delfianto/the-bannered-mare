@@ -14,7 +14,6 @@
 10. [Third-Party Integration Surface](#10-third-party-integration-surface)
 11. [Trade-off Analysis](#11-trade-off-analysis)
 
----
 
 ## 1. Fundamental Architectural Difference
 
@@ -35,7 +34,6 @@ The difference is not a gap in capability -- it reflects two different answers t
 - **SillyTavern:** Customization lives inside the application. Extensions modify behavior at runtime through hooks, interceptors, and event handlers.
 - **The Bannered Mare:** Customization lives in the client. The API exposes every primitive (characters, presets, templates, lore, providers, models) as CRUD endpoints. A frontend or automation script composes these primitives however it wants.
 
----
 
 ## 2. SillyTavern's Extension Ecosystem
 
@@ -87,7 +85,6 @@ Third-party extensions install via git clone and have identical capabilities to 
 
 Security is minimal: extensions run with full browser context access, no sandboxing, no capability restrictions. The primary guard is user trust.
 
----
 
 ## 3. The Bannered Mare's Extensibility Model
 
@@ -141,7 +138,6 @@ Three-layer parameter merging: ModelFamily defaults, Model overrides, Preset ove
 **FastAPI Middleware** (`src/main.py`):
 CORS and request logging middleware are registered at startup. Adding new middleware requires a code change.
 
----
 
 ## 4. Feature-by-Feature Comparison
 
@@ -166,7 +162,6 @@ CORS and request logging middleware are registered at startup. Adding new middle
 | **Provider addition** | Server-side adapter code | Adapter class + registry entry (code change) |
 | **Custom parameters** | Per-preset extension fields | Preset parameters (JSON) + model family parameter schemas |
 
----
 
 ## 5. How ST Extension Capabilities Map to The Bannered Mare
 
@@ -223,7 +218,6 @@ These ST extensions cover domains that a headless chat API does not address:
 
 These are not "missing features" -- they represent different scope decisions. A headless API handles text-based LLM interactions. Multimedia, voice synthesis, and vector search are adjacent systems that a client or sidecar service would integrate independently.
 
----
 
 ## 6. Provider Extensibility
 
@@ -253,7 +247,6 @@ The `ProviderType.CUSTOM` entry with `OpenAIAdapter` as the fallback means any O
 
 **Trade-off:** ST supports more providers out of the box. The Bannered Mare's adapter pattern is more uniform but requires a code change for genuinely new API formats.
 
----
 
 ## 7. Prompt Pipeline Extensibility
 
@@ -277,7 +270,6 @@ A client that needs regex-style transformations or pre-generation interception m
 
 **Trade-off:** ST's pipeline is more flexible at runtime -- extensions can modify prompts in ways the core developers did not anticipate. The Bannered Mare's pipeline is more predictable -- the prompt is a pure function of its configured inputs, making it easier to debug and reproduce.
 
----
 
 ## 8. Message Processing Extensibility
 
@@ -299,7 +291,6 @@ If a client needs to display transformed messages (e.g., with regex replacements
 
 **Trade-off:** ST's message processing pipeline is richer and enables features like automatic regex replacement and expression detection without client code. The Bannered Mare's approach keeps the server as a clean data store -- the message in the database is the message the LLM produced, with no server-side mutations, making it simpler to audit and replay conversations.
 
----
 
 ## 9. Event Systems
 
@@ -317,7 +308,6 @@ There is no mechanism for one part of the server to react to events from another
 
 **Trade-off:** ST's event system enables reactive, loosely-coupled extension behavior (e.g., the Memory extension reacting to `CHARACTER_MESSAGE_RENDERED` to trigger summarization). The Bannered Mare's lack of an event system means less implicit behavior and no ordering-dependent side effects, but also means features like auto-summarization cannot be triggered server-side.
 
----
 
 ## 10. Third-Party Integration Surface
 
@@ -342,7 +332,6 @@ The integration boundary is HTTP. There is no way to inject code into the server
 
 **Trade-off:** ST offers deeper integration -- extensions can modify internal behavior in ways the API surface alone cannot express. The Bannered Mare offers cleaner boundaries -- the server's behavior is fully defined by its own code and database state, never by third-party code running inside it. This makes the server more predictable and easier to secure, but means the client must implement any "smart" behavior that ST would handle via extensions.
 
----
 
 ## 11. Trade-off Analysis
 
@@ -382,7 +371,6 @@ The Bannered Mare optimizes for **a clean API contract with client autonomy**. T
 
 Neither approach is inherently superior. The right choice depends on whether the deployment is a "batteries-included local app" (ST's model) or a "backend service powering diverse frontends" (The Bannered Mare's model).
 
----
 
 ## Summary Statistics
 

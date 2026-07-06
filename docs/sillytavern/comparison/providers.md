@@ -40,7 +40,6 @@ niche aggregators, and self-hosted inference engines. The Bannered Mare targets 
 cloud providers and local inference (Ollama), delegating long-tail provider access to
 OpenRouter. Both systems treat OpenAI-compatible APIs as a shared baseline.
 
----
 
 ## 2. Architecture Pattern
 
@@ -95,7 +94,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Subsystem count           | Two (chat completions + text completions)            | One unified chat completions path                   |
 | State in handlers         | Handlers receive mutable `(req, res)` pair           | Adapters are stateless; Gateway holds config        |
 
----
 
 ## 3. Authentication Handling
 
@@ -140,7 +138,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Reverse proxy support | Built-in per provider                    | Via base_url override on Provider model  |
 | Vertex AI auth        | Full JWT/OAuth2 flow                     | Not implemented (Google AI Studio only)  |
 
----
 
 ## 4. Parameter Management
 
@@ -195,7 +192,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Parameter schema storage   | Not stored server-side                | `ModelFamily.parameters` JSON column           |
 | Unsupported tracking       | Not tracked                           | `ModelFamily.unsupported_parameters` column    |
 
----
 
 ## 5. Response Normalization
 
@@ -237,7 +233,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Raw response access      | Preserved as extra fields                 | Stored in `CompletionResponse.raw`         |
 | Type safety              | None (dynamic JS objects)                 | Full (dataclass fields)                    |
 
----
 
 ## 6. Streaming
 
@@ -281,7 +276,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Abort mechanism         | AbortController on socket close            | httpx context manager (implicit on scope exit)|
 | Chunk type              | Raw SSE text                               | Typed `StreamChunk` dataclass                |
 
----
 
 ## 7. Prompt Caching
 
@@ -335,7 +329,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | OpenRouter cache detect  | Runtime query to `/models` API           | Not implemented                           |
 | Multi-provider tracking  | Anthropic only                           | Anthropic, OpenAI/xAI, Gemini            |
 
----
 
 ## 8. Reasoning / Extended Thinking Support
 
@@ -389,7 +382,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Streaming reasoning        | Provider-specific handling                  | All adapters yield `StreamChunk.reasoning`    |
 | Provider coverage          | Claude, Gemini, DeepSeek, xAI, Moonshot, Z.AI, OpenRouter | Claude, Gemini, OpenAI-compat (xAI, DeepSeek via OpenRouter) |
 
----
 
 ## 9. Error Handling
 
@@ -432,7 +424,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Rate limit detection   | Special-cased for OAI path                 | HTTP 429 -> `ProviderRateLimitError`        |
 | Abort/cancel           | AbortController per handler                | httpx async context manager                 |
 
----
 
 ## 10. Summary Table
 

@@ -3,7 +3,6 @@
 > **Scope:** How SillyTavern integrates 25+ LLM API providers vs The Bannered Mare's current
 > abstraction layer. Focus on architectural patterns, not 1:1 feature parity.
 
----
 
 ## Table of Contents
 
@@ -13,7 +12,6 @@
 4. [Gap Analysis](#4-gap-analysis)
 5. [Reimagined Architecture](#5-reimagined-architecture)
 
----
 
 ## 1. The Bannered Mare — Current Architecture
 
@@ -40,7 +38,6 @@
 Ollama, vLLM, OpenRouter, and LiteLLM proxies — but breaks for native Anthropic, Gemini,
 and Cohere APIs.
 
----
 
 ## 2. SillyTavern — Provider Landscape
 
@@ -102,7 +99,6 @@ Per-provider parameter filtering:
 - `OPENROUTER_KEYS`: 18 params
 - `AZURE_OPENAI_KEYS`: 17 params
 
----
 
 ## 3. Provider Format Differences
 
@@ -143,7 +139,6 @@ Per-provider parameter filtering:
 - `HTTP-Referer` and `X-Title` tracking headers
 - Fallback routing
 
----
 
 ## 4. Gap Analysis
 
@@ -172,7 +167,6 @@ Per-provider parameter filtering:
 | **No streaming format adaptation** — Only parses OpenAI SSE format | Anthropic and Gemini stream differently | High |
 | **No multi-value API key rotation** | Single key per provider, no fallback | Low |
 
----
 
 ## 5. Reimagined Architecture
 

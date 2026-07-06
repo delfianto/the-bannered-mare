@@ -3,7 +3,6 @@
 Analysis of the full streaming pipeline: provider API to backend proxy to SSE to
 frontend parser to UI rendering.
 
----
 
 ## 1. Backend Stream Proxy
 
@@ -93,7 +92,6 @@ async function parseOllamaStream(jsonStream, request, response) {
 This converts each Ollama JSON frame into an OpenAI-compatible SSE event with
 `choices[0].text` and `choices[0].thinking`, then emits a `[DONE]` sentinel.
 
----
 
 ## 2. Abort Mechanism
 
@@ -159,7 +157,6 @@ called (line 3768), which calls `this.abortController.abort()`. This aborts the
 frontend fetch, which closes the HTTP connection, which triggers the backend
 socket `close` handler, which aborts the upstream provider request.
 
----
 
 ## 3. Frontend SSE Parser
 
@@ -214,7 +211,6 @@ while (true) {
 }
 ```
 
----
 
 ## 4. Provider-Specific Stream Parsing
 
@@ -272,7 +268,6 @@ dispatch is by `chat_completion_source`:
 | `MISTRALAI` | array content joined | `delta.content[0].thinking[0].text` |
 | Generic/Custom/etc. | `choices[0].delta.content` or `.message.content` or `.text` | `delta.reasoning_content` or `delta.reasoning` |
 
----
 
 ## 5. Reasoning / Thinking Content
 
@@ -320,7 +315,6 @@ For OpenRouter Claude models, encrypted reasoning signatures are extracted from
 `state.signature`. Gemini uses `thoughtSignature` on content parts. These are
 persisted to `message.extra.reasoning_signature` for multi-turn context.
 
----
 
 ## 6. Smooth Streaming
 
@@ -384,7 +378,6 @@ export function getEventSourceStream() {
 }
 ```
 
----
 
 ## 7. Token Usage from Streams
 
@@ -413,7 +406,6 @@ The generation timer (`formatGenerationTimer`, `script.js` lines 2666-2689)
 computes TPS as `tokenCount / seconds` using the client-side token count and
 wall-clock elapsed time.
 
----
 
 ## 8. Stream Error Handling
 
@@ -498,7 +490,6 @@ If `parseStreamData` throws for an unrecognized format, the raw event is passed
 through unmodified. Errors from non-primary swipes (`NOT_PRIMARY`) are silently
 swallowed.
 
----
 
 ## 9. Text Completion Streaming
 
@@ -545,7 +536,6 @@ Key differences from chat completions:
 - Logprobs have a dedicated `parseTextgenLogprobs` function (lines 1352-1401)
   with specific handling for KoboldCpp, TabbyAPI, vLLM, Aphrodite, llama.cpp
 
----
 
 ## 10. Frontend Stream Consumer
 
@@ -643,7 +633,6 @@ export function applyStreamFadeIn(messageTextElement, htmlContent) {
 
 This is applied to both the main message text and reasoning content.
 
----
 
 ## 11. Streaming Settings
 
@@ -688,7 +677,6 @@ export function isStreamingEnabled() {
 Additionally, `quiet` type generations always disable streaming regardless of
 settings.
 
----
 
 ## 12. Architecture Summary
 

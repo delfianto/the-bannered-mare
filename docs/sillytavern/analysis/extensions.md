@@ -14,7 +14,6 @@
 10. [Event System Integration](#10-event-system-integration)
 11. [Third-Party Extension Ecosystem](#11-third-party-extension-ecosystem)
 
----
 
 ## 1. Extension Architecture Overview
 
@@ -33,7 +32,6 @@ SillyTavern has two fundamentally different extension systems that serve differe
 
 The server plugin system is opt-in and security-gated. Frontend extensions are the primary mechanism and are always active unless individually disabled.
 
----
 
 ## 2. Server Plugins
 
@@ -139,7 +137,6 @@ if (loadedPlugins.has(id)) {
 }
 ```
 
----
 
 ## 3. Frontend Extensions
 
@@ -300,7 +297,6 @@ Extensions also have access to:
 - `writeExtensionField(characterId, key, value)` -- Writes to a character's `data.extensions` object
 - `extension_settings` -- Direct access to the per-extension settings namespace
 
----
 
 ## 4. Built-in Extensions Catalog
 
@@ -332,7 +328,6 @@ Additionally, `public/scripts/extensions/shared.js` (~31KB) provides cross-exten
 - **Vectors** loads last (`loading_order: 100`) to ensure all other extensions have registered their data
 - Both **stable-diffusion** and **vectors** use `generate_interceptor` to hook into the generation pipeline
 
----
 
 ## 5. Extension Settings Persistence
 
@@ -438,7 +433,6 @@ if (saveToMessage && context.chat.length) {
 
 Extensions can write to character data via `writeExtensionField()` (extensions.js:1768-1808), which persists to `character.data.extensions.{key}` and syncs to the server via `/api/characters/merge-attributes`.
 
----
 
 ## 6. Deep Dive: Regex Scripts
 
@@ -573,7 +567,6 @@ eventSource.on(event_types.PRESET_CHANGED, checkPresetEmbeddedRegexScripts);
 eventSource.on(event_types.PRESET_DELETED, purgePresetEmbeddedRegexScripts);
 ```
 
----
 
 ## 7. Deep Dive: Memory / Summarization
 
@@ -726,7 +719,6 @@ for (const event of [event_types.MESSAGE_DELETED, event_types.MESSAGE_UPDATED, e
 
 The `makeLast` call ensures the memory extension processes `CHARACTER_MESSAGE_RENDERED` after all other handlers -- important so the message is fully rendered before summarization considers it.
 
----
 
 ## 8. Deep Dive: Connection Manager
 
@@ -839,7 +831,6 @@ static abort() {
 }
 ```
 
----
 
 ## 9. Git-Based Extension Management
 
@@ -934,7 +925,6 @@ All git operations use a 5-minute block timeout:
 const OPTIONS = Object.freeze({ timeout: { block: 5 * 60 * 1000 } });
 ```
 
----
 
 ## 10. Event System Integration
 
@@ -1053,7 +1043,6 @@ eventSource.on(event_types.CHAT_CHANGED, (...args) =>
     executeIfReadyElseQueue(onChatChanged, args));
 ```
 
----
 
 ## 11. Third-Party Extension Ecosystem
 
@@ -1131,7 +1120,6 @@ SillyTavern has minimal security barriers for third-party extensions:
 - Global extension management requires admin privileges
 - The UI warns: "Make sure you know exactly what they do, and only install plugins from trusted sources!"
 
----
 
 ## Summary Statistics
 

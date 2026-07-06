@@ -2,7 +2,6 @@
 
 The Bannered Mare is designed as a **Modular Monolith** (or Vertical Slices) architecture. Instead of separating the codebase into globally layered folders (such as all controllers in one place and all models in another), logic is organized around **domains** (features). Each domain is fully encapsulated within its own folder, making the system highly cohesive, easy to navigate, and modular.
 
----
 
 ## 1. Directory Structure Atlas
 
@@ -30,7 +29,6 @@ backend/
 └── alembic.ini               # Alembic configuration
 ```
 
----
 
 ## 2. Shared Kernel (`src/core/`)
 
@@ -45,7 +43,6 @@ Defines the base system exceptions (e.g., `EntityNotFoundError`, `ValidationErro
 ### Persistence Foundation (`persistence/`)
 Initializes the SQLAlchemy asynchronous and synchronous engine and manages request-scoped database sessions. Contains the `BaseRepository` abstract class which implements common CRUD logic.
 
----
 
 ## 3. Vertical Slices Pattern
 
@@ -75,7 +72,6 @@ graph TD
 4. **Dependencies (`dependencies.py`)**:
    - Manages FastAPI `Depends` factories, providing clean dependency injection (DI) of repositories, services, and scoped database sessions into routers.
 
----
 
 ## 4. Initialization and Seeding (`src/main.py`)
 

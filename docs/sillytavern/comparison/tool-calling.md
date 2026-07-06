@@ -4,7 +4,6 @@
 
 This document compares tool calling (function calling) support between SillyTavern v1.17.0 and The Bannered Mare. SillyTavern has a mature, full-featured tool calling system. The Bannered Mare has partial parameter-level plumbing but no tool calling implementation.
 
----
 
 ## 1. Capability Matrix
 
@@ -25,7 +24,6 @@ This document compares tool calling (function calling) support between SillyTave
 | Extension/plugin tool registration API | Yes (context API + slash commands) | No |
 | Tool call UI (toast, collapsible details) | Yes | N/A (no frontend) |
 
----
 
 ## 2. What SillyTavern Has
 
@@ -70,7 +68,6 @@ After parsing tool calls from a response, ST:
 
 Tool schema definitions are serialized and their token count is reserved from the context budget before chat history is added. This guarantees tool overhead never causes context overflow.
 
----
 
 ## 3. What The Bannered Mare Has
 
@@ -129,7 +126,6 @@ This metadata is stored in the database and queryable, but is not referenced by 
 - **Gemini adapter**: Does not extract tool parameters. Does not translate to `function_declarations` or `functionCallingConfig`. Does not parse `functionCall` parts from responses.
 - **All adapters**: `CompletionResponse` and `StreamChunk` have no fields for tool call data. Response parsers extract only text content, reasoning, finish reason, and usage.
 
----
 
 ## 4. Gap Analysis
 
@@ -163,7 +159,6 @@ This metadata is stored in the database and queryable, but is not referenced by 
 | No tool result message format | Blocking | No construction of `{role: "tool", content: ..., tool_call_id: ...}` messages |
 | No token budget for tools | Significant | No pre-allocation of context window space for tool schemas |
 
----
 
 ## 5. Existing Infrastructure That Helps
 
@@ -181,7 +176,6 @@ Despite the gaps, several The Bannered Mare design decisions reduce the effort r
 
 6. **Stateless adapter design**: Adapters are pure data transformers with no HTTP logic. Adding tool payload construction is a contained change per adapter, with no gateway modifications required for the request side.
 
----
 
 ## 6. Architectural Differences
 
@@ -198,7 +192,6 @@ Despite the gaps, several The Bannered Mare design decisions reduce the effort r
 
 The fundamental difference: SillyTavern's tool system is split across frontend (registration, invocation, UI) and backend (provider translation). The Bannered Mare, as a headless backend, would own the entire pipeline server-side -- registration, translation, invocation, and loop orchestration.
 
----
 
 ## 7. Summary
 
@@ -206,7 +199,6 @@ SillyTavern v1.17.0 has a complete tool calling pipeline: registration, provider
 
 The Bannered Mare has parameter-level plumbing (OpenAI adapter allowlists `tools`/`tool_choice`/`parallel_tool_calls`, Anthropic adapter maps the `tool_use` stop reason, model families flag `supports_function_calling` in metadata) but no functional tool calling system. The adapter architecture is well-suited for adding provider-specific tool translation, and the `CompletionResponse.raw` field provides an interim escape hatch for reading tool calls from raw provider responses.
 
----
 
 ## Source References
 

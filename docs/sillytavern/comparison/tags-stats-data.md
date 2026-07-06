@@ -4,7 +4,6 @@ This document compares how SillyTavern v1.17.0 and The Bannered Mare approach ta
 
 **Reference material:** [docs/st_analysis/TAGS_STATS_DATA.md](/sillytavern/analysis/tags-stats-data)
 
----
 
 ## 1. Tag System
 
@@ -55,7 +54,6 @@ The Bannered Mare's tags are deliberately minimal. Plain strings on a database c
 
 A future evolution path for The Bannered Mare would be a normalized tag table (`id`, `name`, `color`, etc.) with a many-to-many join table to characters and any other taggable entities. This would preserve relational integrity while enabling the richer feature set ST provides.
 
----
 
 ## 2. Search and Filtering
 
@@ -110,7 +108,6 @@ The Bannered Mare's server-side filtering is more scalable -- PostgreSQL handles
 
 PostgreSQL offers paths to close this gap without reimplementing a client-side search engine: `pg_trgm` for trigram-based fuzzy matching, `GIN` indexes on array columns for efficient tag containment queries (`@>` operator), and full-text search with `tsvector`/`tsquery` for weighted multi-field search.
 
----
 
 ## 3. Statistics Tracking
 
@@ -174,7 +171,6 @@ The Bannered Mare's approach of logging each LLM call independently to MongoDB a
 
 A per-character stats view for The Bannered Mare could be built entirely from existing data using SQL aggregation over the `messages` table joined to `chats` and `characters`, without any additional storage.
 
----
 
 ## 4. Data Integrity
 
@@ -245,7 +241,6 @@ The Bannered Mare's relational model pushes most integrity concerns down to the 
 
 The one gap in The Bannered Mare's approach is the filesystem. Avatar images and thumbnails live on disk, outside the database transaction. If the application crashes after the database deletion completes but before `delete_character_files()` finishes, orphaned image files could remain. This is a much smaller surface area than ST's full-filesystem integrity problem, but it is not zero. A periodic cleanup job that cross-references the `characters/` storage directory against the `characters` table would close this gap.
 
----
 
 ## 5. Cross-System Integration
 
@@ -263,7 +258,6 @@ The one gap in The Bannered Mare's approach is the filesystem. Avatar images and
 - **Data Integrity + Tags:** Tags are part of the character row. Deleting a character deletes its tags atomically.
 - **Data Integrity + Stats:** LLM audit logs in MongoDB are independent of relational data. Character deletion does not affect audit logs, which expire via TTL.
 
----
 
 ## 6. Summary of Key Differences
 

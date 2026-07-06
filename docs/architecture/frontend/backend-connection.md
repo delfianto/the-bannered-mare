@@ -2,7 +2,6 @@
 
 The Bannered Mare connects to the FastAPI backend using a combination of a strongly-typed OpenAPI fetch client for standard CRUD queries, and a custom SSE streaming parser for real-time inference completions.
 
----
 
 ## 1. Type-Safe Client (`openapi-fetch`)
 
@@ -22,7 +21,6 @@ const { data, error } = await client.GET("/api/providers/{provider_id}", {
 });
 ```
 
----
 
 ## 2. Handling File Uploads (FormData)
 
@@ -31,7 +29,6 @@ Standard JSON clients do not handle multi-part file payloads (such as Character 
 - Constructs a `FormData` object containing the file binary and metadata parameters.
 - Sends a standard POST/PUT request without setting a manual `Content-Type` header (allowing the browser to append the boundary boundary tags automatically).
 
----
 
 ## 3. Server-Side Streaming (SSE) Engine
 

@@ -18,7 +18,6 @@ common OpenAI-like shape before returning it.
 - All auth, routing, prompt conversion, and response normalisation live in a single
   ~2 700-line file (`src/endpoints/backends/chat-completions.js`).
 
----
 
 ## 1. Provider Registry
 
@@ -88,7 +87,6 @@ Additionally, ST has dedicated endpoint files for:
 
 **Grand total: ~40+ distinct provider integrations across both subsystems.**
 
----
 
 ## 2. Backend Request Handlers
 
@@ -150,7 +148,6 @@ Each dedicated handler follows the same structural pattern:
 9. If non-streaming: parse JSON, wrap into OAI format, send response
 10. Catch errors and return 500
 
----
 
 ## 3. Prompt Converters
 
@@ -206,7 +203,6 @@ Several functions apply prompt caching annotations to messages:
 - `calculateGoogleBudgetTokens()` -- Maps effort levels to Gemini thinking budgets,
   with distinct functions for Flash, Flash Lite, Pro, Gemini 3 Flash, and Gemini 3 Pro.
 
----
 
 ## 4. Authentication
 
@@ -283,7 +279,6 @@ Vertex AI supports three authentication modes:
    (`getAccessToken()`), then uses `Authorization: Bearer <token>`.
 3. **Proxy** -- Uses `reverse_proxy` URL with `proxy_password` as Bearer token.
 
----
 
 ## 5. Parameter Management
 
@@ -331,7 +326,6 @@ Provider-specific additions:
 - **Cohere**: `k` (top_k), `p` (top_p), `safety_mode`, `documents`
 - **Azure OpenAI**: `reasoning_effort`, `max_completion_tokens`
 
----
 
 ## 6. Response Normalisation
 
@@ -373,7 +367,6 @@ chunk into SSE `data: {...}\n\n` format via `parseOllamaStream()`.
 - **AI21 / MistralAI**: Already OAI-format; forwarded as-is.
 - **Cohere V2**: Returns its own format; forwarded directly (client handles parsing).
 
----
 
 ## 7. Error Handling
 
@@ -450,7 +443,6 @@ All handlers check `response.headersSent` before attempting to send error respon
 preventing the "headers already sent" crash that would occur if streaming had already
 started.
 
----
 
 ## 8. Provider-Specific Features
 
@@ -606,7 +598,6 @@ Handled in the shared OAI-compat path (lines 2162-2179).
   `excludeKeysByYaml()`).
 - **No auth requirement**: Key is optional.
 
----
 
 ## 9. Text Completion Backends
 
@@ -677,7 +668,6 @@ Uses the original KoboldAI generation API with parameters like `rep_pen`,
 `/extra/generate/stream` and explicit abort via `/extra/abort`. Includes a retry loop
 with up to 50 attempts for queue-based generation.
 
----
 
 ## 10. Model Management
 
@@ -734,7 +724,6 @@ detection:
 | Moonshot     | Filter by `supports_image_in`                                   |
 | OpenRouter   | Filter by `architecture.input_modalities.includes('image')`     |
 
----
 
 ## 11. Additional Headers System
 
@@ -759,7 +748,6 @@ Additionally, `requestOverrides` from config allows host-based header injection:
 const overrideHeaders = requestOverrides?.find(e => e.hosts?.includes(urlHost))?.headers;
 ```
 
----
 
 ## 12. Quantitative Summary
 
@@ -780,7 +768,6 @@ const overrideHeaders = requestOverrides?.find(e => e.hosts?.includes(urlHost))?
 | Lines in secrets.js                      | 642    |
 | Total lines across core LLM files       | ~6 224 |
 
----
 
 ## 13. Key File Reference
 

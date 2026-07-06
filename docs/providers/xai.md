@@ -4,7 +4,6 @@
 > multi-provider adapter architecture. Covers authentication, request/response schemas,
 > streaming, tool calling, reasoning models, and all current Grok model variants.
 
----
 
 ## Table of Contents
 
@@ -22,7 +21,6 @@
 12. [Current The Bannered Mare Implementation](#12-current-the-bannered-mare-implementation)
 13. [Adapter Recommendations](#13-adapter-recommendations)
 
----
 
 ## 1. API Overview
 
@@ -42,7 +40,6 @@ xAI also offers a newer **Responses API** (`/v1/responses`) positioned as the pr
 interface going forward. However, Chat Completions remains fully supported and is the
 correct target for The Bannered Mare's adapter pattern.
 
----
 
 ## 2. Authentication
 
@@ -54,7 +51,6 @@ correct target for The Bannered Mare's adapter pattern.
 
 Same Bearer token pattern as OpenAI — no special headers required.
 
----
 
 ## 3. Endpoints
 
@@ -69,7 +65,6 @@ Same Bearer token pattern as OpenAI — no special headers required.
 | GET | `/v1/chat/deferred-completion/{request_id}` | Poll async/deferred results |
 | GET | `/v1/models` | List available models |
 
----
 
 ## 4. Request Schema
 
@@ -107,7 +102,6 @@ Same Bearer token pattern as OpenAI — no special headers required.
 - `logit_bias` — Listed in schema but explicitly unsupported
 - `search_parameters` — **Retired** Jan 2026; replaced by server-side tools
 
----
 
 ## 5. Message Format
 
@@ -136,7 +130,6 @@ Standard OpenAI message format:
 
 Image detail levels: `"auto"` (default), `"low"`, `"high"`. Max 20 MiB. Formats: JPEG, PNG.
 
----
 
 ## 6. Response Schema
 
@@ -194,7 +187,6 @@ Image detail levels: `"auto"` (default), `"low"`, `"high"`. Max 20 MiB. Formats:
 | `"end_turn"` | Model decided to end |
 | `"tool_calls"` | Model invoked a tool |
 
----
 
 ## 7. Streaming
 
@@ -218,7 +210,6 @@ data: [DONE]
 - **Timeout warning:** Reasoning models can think for extended periods before producing
   output. Set client timeout to **3600+ seconds** for reasoning model streams.
 
----
 
 ## 8. Tool Calling & Server-Side Tools
 
@@ -291,7 +282,6 @@ Server-side and client-side tools can be mixed in the same request.
 
 `allowed_domains` and `excluded_domains` are mutually exclusive. Max 5 domains each.
 
----
 
 ## 9. Reasoning Models
 
@@ -323,7 +313,6 @@ These parameters **error** when sent to reasoning variants:
 - `grok-4` reasoning models: Encrypted reasoning (accessible via Responses API)
 - `usage.reasoning_tokens`: Token count consumed by reasoning
 
----
 
 ## 10. Model Catalog
 
@@ -389,7 +378,6 @@ Tiers based on cumulative spend since Jan 1, 2026 (never downgrade):
 
 Top-tier limits for grok-4.20 and grok-4-1-fast: 10,000,000 TPM, 1,800 RPM.
 
----
 
 ## 11. Discontinuities with OpenAI
 
@@ -425,7 +413,6 @@ Despite being OpenAI-compatible, these differences matter for a provider adapter
 4. **Streaming tool calls:** Don't attempt to accumulate tool call arguments across
    chunks — they arrive complete in a single delta.
 
----
 
 ## 12. Current The Bannered Mare Implementation
 
@@ -460,7 +447,6 @@ However:
 - No timeout override for reasoning models
 - Does not parse `reasoning_content`, `citations`, or xAI-specific usage fields
 
----
 
 ## 13. Adapter Recommendations
 
