@@ -11,11 +11,6 @@ The codebase is organized as follows:
 ```text
 backend/
 ├── alembic/                  # Database schema migrations (Alembic auto-managed)
-├── docs/                     # Documentation folder
-│   ├── implementation/       # Detailed backend architecture documents (this folder)
-│   ├── llm_providers/        # LLM integration specifications
-│   ├── st_analysis/          # SillyTavern codebase features analysis
-│   └── st_comparison/        # SillyTavern design comparisons
 ├── src/                      # Source directory
 │   ├── core/                 # Shared Kernel (Cross-cutting infrastructure)
 │   │   ├── config.py         # Application configuration & Environment variable loading
