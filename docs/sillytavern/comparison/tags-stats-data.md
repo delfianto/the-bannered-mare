@@ -1,4 +1,4 @@
-# Tags, Stats, and Data Integrity -- Engineering Comparison
+# Tags, Stats, and Data Integrity — Engineering Comparison
 
 This document compares how SillyTavern v1.17.0 and The Bannered Mare approach tag management, statistics tracking, search/filtering, and data integrity. The analysis covers current implementations as of April 2026.
 

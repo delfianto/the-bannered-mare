@@ -23,7 +23,7 @@
 11. [Implementation Plan](#11-implementation-plan)
 
 
-## 1. Overview -- Why Local Backends Matter
+## 1. Overview — Why Local Backends Matter
 
 ### 1.1 The Case for Self-Hosted Models
 
@@ -233,7 +233,7 @@ logit_bias, logprobs, top_logprobs, max_tokens, max_completion_tokens, n,
 stop, stream, stream_options, tools, tool_choice, user
 ```
 
-#### Extra Parameters -- Sampling (GenerationOptions mixin)
+#### Extra Parameters — Sampling (GenerationOptions mixin)
 
 OOBA's real power is its extensive sampler set, all passable alongside OpenAI params:
 
@@ -285,7 +285,7 @@ OOBA's real power is its extensive sampler set, all passable alongside OpenAI pa
 | `truncation_length` | int | Override context truncation |
 | `auto_max_new_tokens` | bool | Auto-calculate max new tokens |
 
-#### Extra Parameters -- Chat Mode
+#### Extra Parameters — Chat Mode
 
 | Parameter | Type | Description |
 |---|---|---|

@@ -1,4 +1,4 @@
-# Tool Calling / Function Calling -- ST v1.17.0 vs The Bannered Mare
+# Tool Calling / Function Calling — ST v1.17.0 vs The Bannered Mare
 
 ## Overview
 

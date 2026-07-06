@@ -1,4 +1,4 @@
-# RAG Pipeline -- SillyTavern v1.17.0 vs The Bannered Mare
+# RAG Pipeline — SillyTavern v1.17.0 vs The Bannered Mare
 
 This document compares RAG (Retrieval-Augmented Generation) capabilities between
 SillyTavern v1.17.0 and The Bannered Mare. Both systems now have functional RAG

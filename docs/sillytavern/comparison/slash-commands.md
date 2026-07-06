@@ -1,4 +1,4 @@
-# Command & Scripting Systems -- SillyTavern v1.17.0 vs The Bannered Mare
+# Command & Scripting Systems — SillyTavern v1.17.0 vs The Bannered Mare
 
 This document compares SillyTavern's slash command / STscript system with The Bannered Mare's approach to user-facing automation and programmability. The comparison is honest about a fundamental architectural difference: SillyTavern is an interactive application with a chat input bar where users type commands directly; The Bannered Mare is a headless API backend that exposes functionality through HTTP endpoints. These are different paradigms solving different problems, and neither approach is wrong.
 
@@ -12,7 +12,7 @@ This is not an oversight or a gap -- it is a direct consequence of the architect
 The ST equivalent of "switching a model" is `/model gpt-4o`. The The Bannered Mare equivalent is `PUT /api/chats/{id}` with `{"model_id": "..."}` in the request body. Both accomplish the same thing. The interface is different.
 
 
-## 2. SillyTavern's STscript -- What It Is
+## 2. SillyTavern's STscript — What It Is
 
 STscript is a Turing-complete scripting language embedded in SillyTavern's chat input. It started as simple `/command arg` shortcuts and grew into a full programming environment. Key facts:
 

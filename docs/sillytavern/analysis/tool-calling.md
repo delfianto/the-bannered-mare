@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Tool Calling / Function Calling System
+# SillyTavern v1.17.0 — Tool Calling / Function Calling System
 
 ## Overview
 
@@ -159,7 +159,7 @@ Tool calls also require the `function_calling` UI toggle to be enabled and the p
 
 The frontend always sends tools in OpenAI format. The backend (`src/endpoints/backends/chat-completions.js`) translates for each provider:
 
-#### Claude (Anthropic) -- lines 263-285
+#### Claude (Anthropic) — lines 263-285
 
 ```js
 requestBody.tools = request.body.tools
@@ -175,7 +175,7 @@ requestBody.tool_choice = { type: request.body.tool_choice }; // e.g. { type: 'a
 
 Claude uses `input_schema` instead of `parameters`, and wraps `tool_choice` in an object with a `type` field.
 
-#### Google Gemini / Vertex AI -- lines 513-536
+#### Google Gemini / Vertex AI — lines 513-536
 
 ```js
 const functionDeclarations = [];
@@ -202,11 +202,11 @@ Gemini uses `function_declarations` inside a `tools` array. The `tool_choice` is
 | `'auto'` | `'AUTO'` |
 | `{ function: { name } }` | `{ mode: 'ANY', allowedFunctionNames: [name] }` |
 
-#### MistralAI -- lines 854-857
+#### MistralAI — lines 854-857
 
 Tools are passed through directly in OpenAI format. MistralAI tool call IDs are sanitized with SHA-512 hashing truncated to 9 chars (prompt-converters.js line 711).
 
-#### Cohere -- lines 930-937
+#### Cohere — lines 930-937
 
 Tools are passed through in OpenAI format. The `$schema` key is stripped from parameters. In prompt conversion, Cohere requires special handling: if an assistant message has `tool_calls`, a text content primer is injected (prompt-converters.js lines 394-401):
 
@@ -214,11 +214,11 @@ Tools are passed through in OpenAI format. The `$schema` key is stripped from pa
 msg.content = `I'm going to call a tool for that: ${msg.tool_calls.map(tc => tc?.function?.name).join(', ')}`;
 ```
 
-#### DeepSeek -- lines 1036-1047
+#### DeepSeek — lines 1036-1047
 
 Tools are passed in OpenAI format. Empty `required` arrays are deleted (DeepSeek rejects them). A separate prompt converter function adds a dummy `reasoning_content: ''` field to messages with `tool_calls` (prompt-converters.js lines 1371-1383).
 
-#### OpenAI / OpenRouter / Groq / AI21 / xAI / Custom / Others -- lines 2357-2360
+#### OpenAI / OpenRouter / Groq / AI21 / xAI / Custom / Others — lines 2357-2360
 
 Most providers pass tools straight through in OpenAI format:
 

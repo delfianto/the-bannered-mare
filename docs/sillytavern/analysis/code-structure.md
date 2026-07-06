@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Code Structure Analysis
+# SillyTavern v1.17.0 — Code Structure Analysis
 
 An in-depth analysis of SillyTavern's codebase organization, architecture patterns,
 and code metrics. All paths are relative to the SillyTavern project root unless

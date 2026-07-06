@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- LLM Provider Integration System
+# SillyTavern v1.17.0 — LLM Provider Integration System
 
 ## Overview
 

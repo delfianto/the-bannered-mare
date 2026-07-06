@@ -1,4 +1,4 @@
-# Extension & Plugin Systems -- SillyTavern v1.17.0 vs The Bannered Mare
+# Extension & Plugin Systems — SillyTavern v1.17.0 vs The Bannered Mare
 
 ## Table of Contents
 

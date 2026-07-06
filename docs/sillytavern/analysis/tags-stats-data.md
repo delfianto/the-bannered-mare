@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Tags, Stats, and Data Integrity Systems
+# SillyTavern v1.17.0 — Tags, Stats, and Data Integrity Systems
 
 This document analyzes SillyTavern's tag management, statistics tracking, data integrity checking ("Data Maid"), and local search/filtering systems. All file paths are relative to the SillyTavern repository root.
 

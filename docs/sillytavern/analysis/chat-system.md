@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Chat System Analysis
+# SillyTavern v1.17.0 — Chat System Analysis
 
 > Analysis based on reading the SillyTavern source code at commit `1695f8e`.
 > All file paths are relative to the SillyTavern repository root.
