@@ -3,12 +3,16 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useModels } from "@/composables/useModels";
+import { useModel } from "@/composables/useModel";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
+import { useAppToast } from "@/composables/useToast";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
 const { t } = useI18n();
 const router = useRouter();
+const { toggleFlags } = useModel();
+const toast = useAppToast();
 
 const {
   models,
@@ -97,6 +101,25 @@ const columns: DataTableColumn[] = [
 
 function openModel(row: any) {
   router.push(`/settings/models/${row.id}`);
+}
+
+const togglingIds = ref<Set<string>>(new Set());
+
+async function handleToggleEnabled(row: any, event: Event) {
+  event.stopPropagation();
+  if (togglingIds.value.has(row.id)) return;
+
+  const previous = row.enabled;
+  row.enabled = !previous;
+  togglingIds.value.add(row.id);
+  try {
+    await toggleFlags(row.id, { enabled: row.enabled });
+  } catch {
+    row.enabled = previous;
+    toast.error("Failed to update model");
+  } finally {
+    togglingIds.value.delete(row.id);
+  }
 }
 </script>
 
@@ -210,15 +233,24 @@ function openModel(row: any) {
         <template #cell-provider="{ row }">{{ providerNameFor(row.provider_id) }}</template>
         <template #cell-family="{ row }">{{ familyNameFor(row.model_family_id) }}</template>
         <template #cell-status="{ row }">
-          <span
-            v-if="row.enabled"
-            class="inline-flex items-center gap-1.5 text-xs text-emerald-500"
+          <button
+            role="switch"
+            :aria-checked="row.enabled"
+            :aria-label="row.enabled ? 'Disable model' : 'Enable model'"
+            class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="togglingIds.has(row.id)"
+            @click="handleToggleEnabled(row, $event)"
           >
-            <span class="size-1.5 rounded-full bg-emerald-500" />Enabled
-          </span>
-          <span v-else class="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span class="size-1.5 rounded-full bg-red-400" />Disabled
-          </span>
+            <div
+              class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
+              :class="row.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
+            >
+              <span
+                class="size-4 rounded-full shadow-sm transition-transform duration-300"
+                :class="row.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+              />
+            </div>
+          </button>
         </template>
       </DataTable>
     </div>
