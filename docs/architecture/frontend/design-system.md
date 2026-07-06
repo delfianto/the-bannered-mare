@@ -6,7 +6,7 @@ The Bannered Mare is built with a warm, literary fantasy aesthetic designed to e
 
 ## 1. Color Palette Tokens
 
-The primary theme uses **Amber** (`primary`) and **Stone** (`neutral`) color settings. Custom CSS colors are defined in [main.css](../src/assets/main.css):
+The primary theme uses **Amber** (`primary`) and **Stone** (`neutral`) color settings. Custom CSS colors are defined in [main.css](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/assets/main.css):
 
 | Mode      | Token      | Value                       | Visual Role                      |
 | :-------- | :--------- | :-------------------------- | :------------------------------- |

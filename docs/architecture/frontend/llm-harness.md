@@ -28,7 +28,7 @@ It manages:
 
 ## 2. The `useProvider` Composable
 
-State and orchestration for the connection manager are encapsulated within `useProvider` (defined in [useProvider.ts](../src/composables/useProvider.ts)):
+State and orchestration for the connection manager are encapsulated within `useProvider` (defined in [useProvider.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/composables/useProvider.ts)):
 
 ```typescript
 export function useProvider() {
@@ -67,7 +67,7 @@ LLM configuration is presented through modular tabs and dedicated views:
 
 ### Provider Details View (`ProviderView.vue`)
 
-Located at [ProviderView.vue](../src/views/settings/ProviderView.vue), this page is the central hub for:
+Located at [ProviderView.vue](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/views/settings/ProviderView.vue), this page is the central hub for:
 
 - Changing API keys, environment variable names, and endpoints.
 - Verifying the connection status.

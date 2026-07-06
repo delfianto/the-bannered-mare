@@ -42,7 +42,7 @@ storage/
 └── temp/                      # Temp folder for file processing and uploads
 ```
 
-Startup directories are verified and initialized by `ensure_storage_directories` in [storage.py](../../src/core/utils/storage.py).
+Startup directories are verified and initialized by `ensure_storage_directories` in [storage.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/utils/storage.py).
 
 ---
 
