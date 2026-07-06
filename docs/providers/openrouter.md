@@ -1,4 +1,4 @@
-# OpenRouter API — Deep Analysis for Multi-Provider Architecture
+# OpenRouter API
 
 > **Source:** OpenRouter API documentation (openrouter.ai/docs), observed API behavior
 > **Base URL:** `https://openrouter.ai/api/v1`
@@ -39,27 +39,41 @@ dozens of providers (OpenAI, Anthropic, Google, Meta, Mistral, Cohere, etc.) thr
 
 ### 1.1 How It Works
 
-```
-Client (The Bannered Mare)
-    │
-    │  POST /api/v1/chat/completions
-    │  Authorization: Bearer or-...
-    │  model: "anthropic/claude-sonnet-4"
-    │
-    ▼
-┌──────────────┐
-│  OpenRouter   │  ← Translates to provider-native format
-│  Proxy Layer  │  ← Handles auth with downstream provider
-│               │  ← Manages rate limits, retries, fallbacks
-└──────┬───────┘
-       │
-       ▼
-┌──────────────┐
-│ Anthropic API│  ← Receives native Anthropic API call
-│ (or OpenAI,  │
-│  Google, etc)│
-└──────────────┘
-```
+<Figure tag="Figure 1" title="OpenRouter as a routing proxy" id="fig-openrouter-proxy">
+<svg viewBox="0 0 720 400" role="img" aria-label="OpenRouter proxy routing to a downstream provider" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <rect x="210" y="16" width="300" height="76" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
+  <text x="360" y="42" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Client — The Bannered Mare</text>
+  <text x="360" y="61" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">POST /api/v1/chat/completions</text>
+  <text x="360" y="78" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">model: "anthropic/claude-sonnet-4"</text>
+  <rect x="200" y="150" width="320" height="96" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+  <text x="360" y="176" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">OpenRouter proxy layer</text>
+  <text x="360" y="197" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">translates to provider-native format</text>
+  <text x="360" y="214" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">handles downstream auth</text>
+  <text x="360" y="231" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">rate limits · retries · fallbacks</text>
+  <rect x="240" y="304" width="240" height="76" rx="10" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
+  <text x="360" y="332" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Anthropic API</text>
+  <text x="360" y="351" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">— or OpenAI, Google, Mistral, …</text>
+  <text x="360" y="368" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">receives a native provider call</text>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M360 92 L360 148"/>
+    <path d="M360 246 L360 302"/>
+  </g>
+  <text x="372" y="124" font-size="10" fill="var(--tbm-dgm-ink-2)">one key</text>
+  <text x="372" y="278" font-size="10" fill="var(--tbm-dgm-ink-2)">native call</text>
+</svg>
+<template #caption>
+
+**One endpoint, many providers behind it.** The client always speaks the OpenAI-shaped
+OpenRouter API with a single key; OpenRouter translates each request to the downstream provider
+named by the model prefix and manages that provider's auth, limits, and fallbacks.
+
+</template>
+</Figure>
 
 ### 1.2 Why This Matters for The Bannered Mare
 

@@ -1,4 +1,4 @@
-# xAI Grok API — Deep Analysis
+# xAI Grok API
 
 > **Scope:** Complete xAI Chat Completions API specification for The Bannered Mare's
 > multi-provider adapter architecture. Covers authentication, request/response schemas,

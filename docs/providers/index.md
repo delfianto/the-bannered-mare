@@ -1,59 +1,54 @@
 # LLM Providers
 
-> **Disclaimer:** These documents were created as implementation guidelines for building
-> The Bannered Mare's multi-provider adapter architecture, authored with the assistance of
-> Claude Opus 4.6. Each document attempts to capture the full API specification — endpoints,
-> authentication, request/response schemas, streaming formats, parameter allowlists, and
-> provider-specific features.
->
-> **This information is subject to change.** LLM providers frequently add, deprecate, and
-> modify models, parameters, and API behavior. We've done our best to represent the latest
-> information as of each document's creation date, but this is by no means a 100% complete
-> or perpetually accurate representation. **Always consult the official provider documentation
-> for the most up-to-date information before making implementation decisions.**
+This section is the API reference behind The Bannered Mare's multi-provider adapter system.
+Each page captures one provider's full surface — endpoints, authentication, request/response
+schemas, streaming format, parameter allowlists, and provider-specific features — as the
+implementation contract each `ProviderAdapter` must satisfy. Start with the
+[Landscape & Gap Analysis](/providers/landscape) for the cross-provider view, then drill into a
+specific provider.
 
+::: warning Accuracy & provenance
+These pages were authored as implementation guidelines (with the assistance of Claude Opus 4.6)
+and represent each provider's API **as of its creation date** below. Providers frequently add,
+deprecate, and change models, parameters, and behavior. Always consult the official
+documentation before making implementation decisions.
+:::
 
-## Documents
+## Cloud Providers
 
-### Cloud Providers
-
-| Document | Provider | Created |
+| Provider | Coverage | Created |
 |----------|----------|---------|
-| [OPENAI.md](/providers/openai) | OpenAI Chat Completions API (GPT-4o, o1/o3, etc.) | 2026-04-06 |
-| [ANTHROPIC.md](/providers/anthropic) | Anthropic Messages API (Claude 4.x family) | 2026-04-06 |
-| [GEMINI.md](/providers/gemini) | Google Gemini API (Gemini 2.x family) | 2026-04-06 |
-| [XAI.md](/providers/xai) | xAI Grok API (Grok 4.10/4.20 family) | 2026-04-07 |
-| [OPENROUTER.md](/providers/openrouter) | OpenRouter unified API (multi-provider routing) | 2026-04-06 |
+| [OpenAI](/providers/openai) | Chat Completions API (GPT-4o, o1/o3, …) | 2026-04-06 |
+| [Anthropic](/providers/anthropic) | Messages API (Claude 4.x family) | 2026-04-06 |
+| [Google Gemini](/providers/gemini) | Gemini API (Gemini 2.x family) | 2026-04-06 |
+| [xAI](/providers/xai) | Grok API (Grok 4.10 / 4.20 family) | 2026-04-07 |
+| [OpenRouter](/providers/openrouter) | Unified API (multi-provider routing) | 2026-04-06 |
 
-### Local / Self-Hosted
+## Local / Self-Hosted
 
-| Document | Provider | Created |
+| Provider | Coverage | Created |
 |----------|----------|---------|
-| [OLLAMA.md](/providers/ollama) | Ollama API (native + OpenAI-compatible endpoints) | 2026-04-06 |
-| [LOCAL_BACKENDS.md](/providers/local-backends) | llama.cpp, Oobabooga, vLLM, KoboldCpp, TabbyAPI | 2026-04-06 |
+| [Ollama](/providers/ollama) | Native + OpenAI-compatible endpoints | 2026-04-06 |
+| [Local Backends](/providers/local-backends) | llama.cpp · Oobabooga · vLLM · KoboldCpp · TabbyAPI | 2026-04-06 |
 
-### Overview
+## Cross-Provider
 
-| Document | Description | Created |
-|----------|-------------|---------|
-| [PROVIDERS.md](/providers/landscape) | Provider landscape overview and gap analysis | 2026-04-06 |
+| Page | Description | Created |
+|------|-------------|---------|
+| [Landscape & Gap Analysis](/providers/landscape) | Where the providers agree and diverge, and what the adapter layer must reconcile | 2026-04-06 |
 
-
-## Official Documentation Links
+## Official Documentation
 
 | Provider | Documentation |
 |----------|---------------|
-| OpenAI | https://platform.openai.com/docs/api-reference |
-| Anthropic | https://docs.anthropic.com/en/api |
-| Google Gemini | https://ai.google.dev/api |
-| xAI | https://docs.x.ai/api |
-| OpenRouter | https://openrouter.ai/docs |
-| Ollama | https://github.com/ollama/ollama/blob/main/docs/api.md |
+| OpenAI | <https://platform.openai.com/docs/api-reference> |
+| Anthropic | <https://docs.anthropic.com/en/api> |
+| Google Gemini | <https://ai.google.dev/api> |
+| xAI | <https://docs.x.ai/api> |
+| OpenRouter | <https://openrouter.ai/docs> |
+| Ollama | <https://github.com/ollama/ollama/blob/main/docs/api.md> |
 
+---
 
-## Tool & Version Info
-
-- **Author:** Claude Opus 4.6 (1M context)
-- **Purpose:** Implementation reference for The Bannered Mare's `ProviderAdapter` system
-- **Initial creation:** 2026-04-06
-- **Last updated:** 2026-04-07
+*Reference for The Bannered Mare's `ProviderAdapter` system. Initial creation 2026-04-06; last
+updated 2026-04-07.*

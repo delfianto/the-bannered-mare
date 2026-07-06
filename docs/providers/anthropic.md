@@ -1,4 +1,4 @@
-# Anthropic Messages API — Deep Analysis for Multi-Provider Architecture
+# Anthropic Messages API
 
 > **Source:** Anthropic API docs (platform.claude.com), OpenAPI spec, Python SDK API reference
 > **Endpoint:** `POST /v1/messages`

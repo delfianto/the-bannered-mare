@@ -1,4 +1,4 @@
-# Ollama API -- Deep Analysis for Multi-Provider Architecture
+# Ollama API
 
 > **Sources:** Ollama OpenAPI spec v0.1.0 (`ollama/ollama`, `main` branch), official docs
 > **Endpoints:** Native API (`/api/*`) + OpenAI-compatible API (`/v1/*`)
