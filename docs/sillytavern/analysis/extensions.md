@@ -19,6 +19,42 @@
 
 SillyTavern has two fundamentally different extension systems that serve different layers of the application:
 
+<Figure tag="Figure 1" title="Two extension systems, two layers" id="fig-extension-systems">
+<svg viewBox="0 0 760 316" role="img" aria-label="Server plugins versus frontend extensions" style="font-family:var(--vp-font-family-base)">
+  <rect x="24" y="16" width="344" height="284" rx="14" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="284" rx="14" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="24" y="16" width="344" height="52" rx="14" fill="var(--tbm-dgm-backend-soft)"/>
+  <rect x="24" y="40" width="344" height="28" fill="var(--tbm-dgm-backend-soft)"/>
+  <rect x="392" y="16" width="344" height="52" rx="14" fill="var(--tbm-dgm-frontend-soft)"/>
+  <rect x="392" y="40" width="344" height="28" fill="var(--tbm-dgm-frontend-soft)"/>
+  <text x="196" y="40" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">Server Plugins</text>
+  <text x="196" y="58" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">opt-in · security-gated</text>
+  <text x="564" y="40" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">Frontend Extensions</text>
+  <text x="564" y="58" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">the primary mechanism · on by default</text>
+  <g font-size="11">
+    <text x="44" y="98" font-weight="700" fill="var(--tbm-dgm-ink-2)">Runtime</text><text x="44" y="114" fill="var(--tbm-dgm-ink)">Node.js (Express backend)</text>
+    <text x="44" y="142" font-weight="700" fill="var(--tbm-dgm-ink-2)">Location</text><text x="44" y="158" fill="var(--tbm-dgm-ink)">./plugins/ (server root)</text>
+    <text x="44" y="186" font-weight="700" fill="var(--tbm-dgm-ink-2)">Loaded</text><text x="44" y="202" fill="var(--tbm-dgm-ink)">at server startup</text>
+    <text x="44" y="230" font-weight="700" fill="var(--tbm-dgm-ink-2)">Toggle</text><text x="44" y="246" fill="var(--tbm-dgm-ink)">enableServerPlugins (default off)</text>
+    <text x="44" y="274" font-weight="700" fill="var(--tbm-dgm-ink-2)">Scope</text><text x="44" y="290" fill="var(--tbm-dgm-ink)">Express router · server-side work</text>
+  </g>
+  <g font-size="11">
+    <text x="412" y="98" font-weight="700" fill="var(--tbm-dgm-ink-2)">Runtime</text><text x="412" y="114" fill="var(--tbm-dgm-ink)">Browser (client-side JS)</text>
+    <text x="412" y="142" font-weight="700" fill="var(--tbm-dgm-ink-2)">Location</text><text x="412" y="158" fill="var(--tbm-dgm-ink)">public/scripts/extensions/</text>
+    <text x="412" y="186" font-weight="700" fill="var(--tbm-dgm-ink-2)">Loaded</text><text x="412" y="202" fill="var(--tbm-dgm-ink)">at page load, after settings</text>
+    <text x="412" y="230" font-weight="700" fill="var(--tbm-dgm-ink-2)">Toggle</text><text x="412" y="246" fill="var(--tbm-dgm-ink)">disabledExtensions[] array</text>
+    <text x="412" y="274" font-weight="700" fill="var(--tbm-dgm-ink-2)">Scope</text><text x="412" y="290" fill="var(--tbm-dgm-ink)">UI · prompt manipulation · events</text>
+  </g>
+</svg>
+<template #caption>
+
+**Different layers, different rules.** Server plugins add Express routes and run in Node, but are
+off unless explicitly enabled. Frontend extensions run in the browser, hook into UI, prompt
+assembly, and the event bus, and are the primary — always-on — extension path.
+
+</template>
+</Figure>
+
 | Aspect | Server Plugins | Frontend Extensions |
 |---|---|---|
 | **Location** | `./plugins/` directory (server root) | `public/scripts/extensions/` |
