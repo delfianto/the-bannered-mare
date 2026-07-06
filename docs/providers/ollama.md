@@ -109,7 +109,7 @@ None.
 `stream` defaults to `false`. The Bannered Mare must explicitly set `stream: false` for
 non-streaming requests to the native API.
 
-### 3.2 The `options` Object -- Generation Parameters
+### 3.2 The `options` Object — Generation Parameters
 
 Unlike OpenAI where generation params are top-level fields, Ollama nests them inside
 an `options` object. This is the single most important structural difference.
@@ -210,7 +210,7 @@ Controls how long a model stays loaded in GPU/CPU memory after a request.
 duration (e.g. `"30m"` or `"-1"`) avoids the latency of reloading the model between
 messages. This should be configurable per-provider in The Bannered Mare settings.
 
-### 3.4 The `format` Parameter -- Structured Outputs
+### 3.4 The `format` Parameter — Structured Outputs
 
 Two modes:
 
@@ -233,7 +233,7 @@ Provides a full JSON schema, constraining the model output to match the schema.
 This is more powerful than OpenAI's basic `json_object` mode and closer to OpenAI's
 `json_schema` response format.
 
-### 3.5 The `think` Parameter -- Reasoning/Thinking Models
+### 3.5 The `think` Parameter — Reasoning/Thinking Models
 
 Controls whether thinking-capable models (e.g. QwQ, DeepSeek-R1) emit their
 reasoning trace.
@@ -375,7 +375,7 @@ Ollama does not have explicit `"length"` or `"content_filter"` done reasons.
 The adapter must infer `LENGTH` when the generation was truncated by `num_predict`.
 
 
-## 5. Native Streaming -- NDJSON
+## 5. Native Streaming — NDJSON
 
 **Format:** Newline-Delimited JSON (NDJSON), NOT Server-Sent Events (SSE).
 
@@ -533,7 +533,7 @@ native API or pre-configured models may be necessary.
 
 These endpoints have NO OpenAI equivalent and must use the native API directly.
 
-### 7.1 GET /api/tags -- List Local Models
+### 7.1 GET /api/tags — List Local Models
 
 ```json
 // Response
@@ -559,7 +559,7 @@ These endpoints have NO OpenAI equivalent and must use the native API directly.
 
 Also available as OpenAI-compatible: `GET /v1/models` (returns OpenAI-format model list).
 
-### 7.2 POST /api/show -- Model Information
+### 7.2 POST /api/show — Model Information
 
 ```json
 // Request
@@ -585,7 +585,7 @@ Also available as OpenAI-compatible: `GET /v1/models` (returns OpenAI-format mod
 **Key field:** `capabilities` -- tells us if a model supports vision, tool calling, etc.
 Useful for The Bannered Mare to auto-detect model features.
 
-### 7.3 POST /api/pull -- Download Model
+### 7.3 POST /api/pull — Download Model
 
 ```json
 // Request
@@ -602,7 +602,7 @@ Useful for The Bannered Mare to auto-detect model features.
 {"status": "success"}
 ```
 
-### 7.4 DELETE /api/delete -- Remove Model
+### 7.4 DELETE /api/delete — Remove Model
 
 ```json
 // Request
@@ -611,12 +611,12 @@ Useful for The Bannered Mare to auto-detect model features.
 // Response: 200 OK (empty) or 404 Not Found
 ```
 
-### 7.5 POST /api/generate -- Text Completion (non-chat)
+### 7.5 POST /api/generate — Text Completion (non-chat)
 
 Similar to `/api/chat` but for single-turn text completion without message history.
 Not directly relevant for The Bannered Mare's chat-based architecture.
 
-### 7.6 GET /api/ps -- Running Models
+### 7.6 GET /api/ps — Running Models
 
 Lists models currently loaded in memory:
 
@@ -639,7 +639,7 @@ Lists models currently loaded in memory:
 **Useful for The Bannered Mare:** Can check if a model is already loaded before sending a
 request, and display VRAM usage to the user.
 
-### 7.7 POST /api/embed -- Embeddings
+### 7.7 POST /api/embed — Embeddings
 
 ```json
 // Request
@@ -1130,7 +1130,7 @@ request = CompletionRequest(
 ```
 
 
-## Appendix A: Quick Reference -- Endpoint Cheat Sheet
+## Appendix A: Quick Reference — Endpoint Cheat Sheet
 
 | Operation | Method | Path | Body |
 |---|---|---|---|
@@ -1147,7 +1147,7 @@ request = CompletionRequest(
 | Embeddings (OpenAI) | POST | `/v1/embeddings` | OpenAI format |
 | Version | GET | `/api/version` | -- |
 
-## Appendix B: Quick Reference -- Parameter Name Mapping
+## Appendix B: Quick Reference — Parameter Name Mapping
 
 | Shared / OpenAI Name | Ollama Native Name | Placement |
 |---|---|---|

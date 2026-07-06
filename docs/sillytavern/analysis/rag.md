@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- RAG Pipeline Analysis
+# SillyTavern v1.17.0 — RAG Pipeline Analysis
 
 This document analyzes SillyTavern's complete RAG (Retrieval-Augmented Generation) pipeline,
 covering vector storage, embedding providers, document processing, the Data Bank, Smart Context
@@ -32,7 +32,7 @@ manifest.json:8  ->  "generate_interceptor": "vectors_rearrangeChat"
 
 ## 2. Vector Storage Backend
 
-### 2.1 Vectra -- The Only Vector Database
+### 2.1 Vectra — The Only Vector Database
 
 SillyTavern uses exactly **one** vector database engine: **Vectra** (`vectra` npm package, `^0.2.2`).
 There is no support for Pinecone, Chroma, Weaviate, pgvector, or any other external vector DB.

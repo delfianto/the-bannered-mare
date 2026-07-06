@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Slash Command System Analysis
+# SillyTavern v1.17.0 — Slash Command System Analysis
 
 SillyTavern ships a full-fledged scripting language called **STscript** built on top of its slash command infrastructure. What began as simple `/command arg` shortcuts has evolved into a Turing-complete system with closures, lexical scoping, piped execution, flow control, a debugger, and syntax highlighting. This analysis covers the architecture end-to-end.
 

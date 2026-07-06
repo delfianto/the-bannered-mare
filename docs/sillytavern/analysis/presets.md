@@ -1,4 +1,4 @@
-# SillyTavern -- Chat Completion Preset System Analysis
+# SillyTavern — Chat Completion Preset System Analysis
 
 > Analysis date: 2026-06-11
 > Source: `/st/` (SillyTavern) + the example files in `/preset/`

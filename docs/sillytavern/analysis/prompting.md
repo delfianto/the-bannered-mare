@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Prompting System Analysis
+# SillyTavern v1.17.0 — Prompting System Analysis
 
 ## Executive Summary
 

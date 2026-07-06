@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Streaming Handler Architecture
+# SillyTavern v1.17.0 — Streaming Handler Architecture
 
 Analysis of the full streaming pipeline: provider API to backend proxy to SSE to
 frontend parser to UI rendering.

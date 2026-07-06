@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- World Lore (World Info / Lorebook) System Analysis
+# SillyTavern v1.17.0 — World Lore (World Info / Lorebook) System Analysis
 
 > Source: `public/scripts/world-info.js` (6,273 lines, client-side engine)
 > Backend: `src/endpoints/worldinfo.js` (158 lines, file CRUD)

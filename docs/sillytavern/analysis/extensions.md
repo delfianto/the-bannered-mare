@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Extension & Plugin System Analysis
+# SillyTavern v1.17.0 — Extension & Plugin System Analysis
 
 ## Table of Contents
 

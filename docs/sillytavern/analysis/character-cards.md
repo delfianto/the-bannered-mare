@@ -1,4 +1,4 @@
-# SillyTavern v1.17.0 -- Character Card System Analysis
+# SillyTavern v1.17.0 — Character Card System Analysis
 
 > Analysis date: 2026-04-07
 > Source: `/st/` (SillyTavern v1.17.0)
@@ -216,7 +216,7 @@ export const read = (image) => {
 
 All character endpoints are mounted on an Express router. Characters are identified by their PNG filename (e.g., `MyCharacter.png`), which acts as both avatar and data container.
 
-### 3.1 Create -- `POST /create`
+### 3.1 Create — `POST /create`
 
 1. Sanitize `ch_name` using `sanitize-filename`
 2. Format data into V2 spec via `charaFormatData()`
@@ -251,7 +251,7 @@ router.post('/create', getFileNameValidationFunction('file_name'), async functio
 - Takes `avatar_url` in body (e.g., `MyCharacter.png`)
 - Returns full character data (never shallow)
 
-### 3.3 Update -- `POST /edit`
+### 3.3 Update — `POST /edit`
 
 1. Re-format the incoming data via `charaFormatData()`
 2. Preserve the existing `chat` and `create_date` fields
@@ -259,14 +259,14 @@ router.post('/create', getFileNameValidationFunction('file_name'), async functio
 4. Write the updated JSON into the (possibly new) PNG
 5. On avatar change: invalidate the thumbnail cache and bust the HTTP cache
 
-### 3.4 Edit Avatar Only -- `POST /edit-avatar`
+### 3.4 Edit Avatar Only — `POST /edit-avatar`
 
 Replaces only the avatar image while preserving the existing character data:
 1. Read the existing character data from the PNG
 2. Write it back into the new uploaded image
 3. Invalidate thumbnail and HTTP caches
 
-### 3.5 Edit Attribute -- `POST /edit-attribute`
+### 3.5 Edit Attribute — `POST /edit-attribute`
 
 Surgically updates a single field on both the V1 top-level and `data.*` sub-object:
 ```js
@@ -275,18 +275,18 @@ char.data[request.body.field] = request.body.value;
 ```
 Rejects edits to the `json_data` field.
 
-### 3.6 Merge Attributes -- `POST /merge-attributes`
+### 3.6 Merge Attributes — `POST /merge-attributes`
 
 Deep-merges the request body with the existing character data. After merging, validates against `TavernCardValidator` (accepts V1, V2, or V3). This is the only CRUD endpoint that performs post-write validation.
 
-### 3.7 Delete -- `POST /delete`
+### 3.7 Delete — `POST /delete`
 
 1. Validate and sanitize the avatar URL
 2. Delete the PNG file with `fs.unlinkSync`
 3. Invalidate the thumbnail
 4. If `delete_chats == true`, recursively remove the chats directory
 
-### 3.8 Rename -- `POST /rename`
+### 3.8 Rename — `POST /rename`
 
 1. Read existing character data
 2. Update the `data.name` and `name` fields
@@ -295,7 +295,7 @@ Deep-merges the request body with the existing character data. After merging, va
 5. Delete the old PNG file
 6. Return the new avatar filename
 
-### 3.9 Duplicate -- `POST /duplicate`
+### 3.9 Duplicate — `POST /duplicate`
 
 File-level copy using `fs.copyFileSync`. Generates a unique name by appending `_N` suffixes. No data parsing involved.
 
