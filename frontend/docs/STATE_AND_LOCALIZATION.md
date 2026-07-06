@@ -1,12 +1,12 @@
-# Candlekeep UI: State Management and Localization
+# The Bannered Mare: State Management and Localization
 
-This document explains the global state management patterns, persistence layers, data type mappings, and internationalization (i18n) setup inside Candlekeep UI.
+This document explains the global state management patterns, persistence layers, data type mappings, and internationalization (i18n) setup inside The Bannered Mare.
 
 ---
 
 ## 1. Global State Management (Pinia)
 
-App-wide state that crosses multiple feature layers is managed using **Pinia** (defined in [src/stores/](file:///srv/project/personal/candlekeep-ui/src/stores/)):
+App-wide state that crosses multiple feature layers is managed using **Pinia** (defined in [src/stores/](../src/stores/)):
 
 ### `useSettingsStore`
 
@@ -28,7 +28,7 @@ For UI states (such as active theme or sidebar view toggles), the application us
 
 ## 3. Data Types and Mappings (`src/types/`)
 
-Candlekeep UI combines backend DTO schemas with frontend-specific types:
+The Bannered Mare combines backend DTO schemas with frontend-specific types:
 
 - **API Types**: Imported directly from `src/api/schema.d.ts` (e.g., `components["schemas"]["ChatResponse"]`).
 - **Frontend Types**:
@@ -42,7 +42,7 @@ Candlekeep UI combines backend DTO schemas with frontend-specific types:
 
 The application supports multiple languages using `vue-i18n` (initialized in `src/i18n.ts`):
 
-- **Translation Catalogs**: Stored as JSON files in [src/locales/](file:///srv/project/personal/candlekeep-ui/src/locales/):
+- **Translation Catalogs**: Stored as JSON files in [src/locales/](../src/locales/):
   - `en.json` (English - authoritative key mapping reference)
   - `de.json` (German)
   - `es.json` (Spanish)

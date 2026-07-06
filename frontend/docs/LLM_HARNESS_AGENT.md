@@ -1,6 +1,6 @@
-# Candlekeep UI: LLM Harness Agent and Connection Management
+# The Bannered Mare: LLM Harness Agent and Connection Management
 
-The frontend of Candlekeep Core integrates with the backend's multi-provider LLM system via an inference and connection management harness. This system allows users to define credentials, inspect active services, sync available models, load/unload local files, and tune parameters dynamically.
+The frontend of The Bannered Mare integrates with the backend's multi-provider LLM system via an inference and connection management harness. This system allows users to define credentials, inspect active services, sync available models, load/unload local files, and tune parameters dynamically.
 
 ---
 
@@ -28,7 +28,7 @@ It manages:
 
 ## 2. The `useProvider` Composable
 
-State and orchestration for the connection manager are encapsulated within `useProvider` (defined in [useProvider.ts](file:///srv/project/personal/candlekeep-ui/src/composables/useProvider.ts)):
+State and orchestration for the connection manager are encapsulated within `useProvider` (defined in [useProvider.ts](../src/composables/useProvider.ts)):
 
 ```typescript
 export function useProvider() {
@@ -67,7 +67,7 @@ LLM configuration is presented through modular tabs and dedicated views:
 
 ### Provider Details View (`ProviderView.vue`)
 
-Located at [ProviderView.vue](file:///srv/project/personal/candlekeep-ui/src/views/settings/ProviderView.vue), this page is the central hub for:
+Located at [ProviderView.vue](../src/views/settings/ProviderView.vue), this page is the central hub for:
 
 - Changing API keys, environment variable names, and endpoints.
 - Verifying the connection status.

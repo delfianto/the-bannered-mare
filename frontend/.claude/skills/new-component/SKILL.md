@@ -1,6 +1,6 @@
 ---
 name: new-component
-description: Scaffold a Vue 3 SFC that follows Candlekeep UI conventions — script setup + TypeScript, Nuxt UI primitives, and the project's design-system classes. Use when creating a new component under src/components/ or a routed view under src/views/.
+description: Scaffold a Vue 3 SFC that follows The Bannered Mare's frontend conventions — script setup + TypeScript, Nuxt UI primitives, and the project's design-system classes. Use when creating a new component under src/components/ or a routed view under src/views/.
 ---
 
 Create a component that matches the house style so it looks and behaves like the rest of the app.

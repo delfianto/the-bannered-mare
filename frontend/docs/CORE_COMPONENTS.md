@@ -1,6 +1,6 @@
-# Candlekeep UI: Core & Shared Components
+# The Bannered Mare: Core & Shared Components
 
-This document outlines the frontend component architecture of the Candlekeep UI. The application uses Vue 3 components styled with Tailwind CSS and Nuxt UI v4 primitives.
+This document outlines the frontend component architecture of the The Bannered Mare. The application uses Vue 3 components styled with Tailwind CSS and Nuxt UI v4 primitives.
 
 ---
 
@@ -11,7 +11,7 @@ This document outlines the frontend component architecture of the Candlekeep UI.
 - **Role**: Manages the core screen structure, sidebar drawer, and responsive view containers.
 - **Sidebar Actions**:
   - Exposes main application navigation tabs (Chat, Library, Memory, Connections, Admin Logs).
-  - Features the **Brand Wordmark** ("Candlekeep") using the `font-medieval` (BlackChancery) font.
+  - Features the **Brand Wordmark** ("The Bannered Mare") using the `font-medieval` (BlackChancery) font.
   - Hosts the **Profile Picker** allowing users to switch active profile settings.
   - Hosts the **Theme Switcher** (toggled via a custom toggle div).
 

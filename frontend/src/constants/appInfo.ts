@@ -1,9 +1,9 @@
 export const APP_INFO = {
-  name: "Candlekeep",
+  name: "The Bannered Mare",
   description:
-    "A dedicated sanctuary for your AI-powered roleplaying adventures. Chronicle your journeys, forge new worlds, and breathe life into your characters.",
+    "A rowdy tavern for your AI-powered roleplaying adventures. Trade tales, forge new worlds, and bring your characters to life.",
   version: "0.1.0-ALPHA",
-  license: "GPL-3.0 License",
-  github: "https://github.com/delfianto/candlekeep-ui",
+  license: "AGPL-3.0-or-later",
+  github: "https://github.com/delfianto/the-bannered-mare",
   author: "A Very Happy Cat",
 };

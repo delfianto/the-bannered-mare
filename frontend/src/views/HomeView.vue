@@ -43,7 +43,7 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
         <div class="flex flex-1 animate-fade-in-up flex-col" style="animation-delay: 80ms">
           <EmptyState
             icon="i-lucide-sparkles"
-            title="Welcome to Candlekeep"
+            title="Welcome to The Bannered Mare"
             description="Start your journey by creating your first character loadout, or import characters from SillyTavern."
             action-label="Create Your First Character"
             @action="router.push('/characters/create')"

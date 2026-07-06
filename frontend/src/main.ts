@@ -76,4 +76,4 @@ prepareApp().then(() => {
   app.mount("#app");
 });
 
-console.log("Candlekeep initialized...");
+console.log("The Bannered Mare initialized...");

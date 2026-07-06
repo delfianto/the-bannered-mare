@@ -1,12 +1,12 @@
-# Candlekeep UI: Design System and Aesthetics
+# The Bannered Mare: Design System and Aesthetics
 
-Candlekeep UI is built with a warm, literary fantasy aesthetic designed to emulate parchment, walnut ink, and medieval library tones. This design system is built using CSS variables, custom typography, Tailwind CSS v4, and Nuxt UI v4 token configurations.
+The Bannered Mare is built with a warm, literary fantasy aesthetic designed to emulate parchment, walnut ink, and medieval library tones. This design system is built using CSS variables, custom typography, Tailwind CSS v4, and Nuxt UI v4 token configurations.
 
 ---
 
 ## 1. Color Palette Tokens
 
-The primary theme uses **Amber** (`primary`) and **Stone** (`neutral`) color settings. Custom CSS colors are defined in [main.css](file:///srv/project/personal/candlekeep-ui/src/assets/main.css):
+The primary theme uses **Amber** (`primary`) and **Stone** (`neutral`) color settings. Custom CSS colors are defined in [main.css](../src/assets/main.css):
 
 | Mode      | Token      | Value                       | Visual Role                      |
 | :-------- | :--------- | :-------------------------- | :------------------------------- |
@@ -33,7 +33,7 @@ Three core font families are integrated:
    - **Usage**: Standard interface text, settings toggles, and code parameters.
 3. **BlackChancery** (`.font-medieval`):
    - **Role**: Script calligraphy medieval typeface.
-   - **Usage**: Reserved exclusively for the main brand wordmark logo "Candlekeep".
+   - **Usage**: Reserved exclusively for the main brand wordmark logo "The Bannered Mare".
 
 ---
 
