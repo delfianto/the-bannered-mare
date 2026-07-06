@@ -1,4 +1,4 @@
-# LLM Provider API Reference
+# LLM Providers
 
 > **Disclaimer:** These documents were created as implementation guidelines for building
 > The Bannered Mare's multi-provider adapter architecture, authored with the assistance of
@@ -20,24 +20,24 @@
 
 | Document | Provider | Created |
 |----------|----------|---------|
-| [OPENAI.md](OPENAI.md) | OpenAI Chat Completions API (GPT-4o, o1/o3, etc.) | 2026-04-06 |
-| [ANTHROPIC.md](ANTHROPIC.md) | Anthropic Messages API (Claude 4.x family) | 2026-04-06 |
-| [GEMINI.md](GEMINI.md) | Google Gemini API (Gemini 2.x family) | 2026-04-06 |
-| [XAI.md](XAI.md) | xAI Grok API (Grok 4.10/4.20 family) | 2026-04-07 |
-| [OPENROUTER.md](OPENROUTER.md) | OpenRouter unified API (multi-provider routing) | 2026-04-06 |
+| [OPENAI.md](/providers/openai) | OpenAI Chat Completions API (GPT-4o, o1/o3, etc.) | 2026-04-06 |
+| [ANTHROPIC.md](/providers/anthropic) | Anthropic Messages API (Claude 4.x family) | 2026-04-06 |
+| [GEMINI.md](/providers/gemini) | Google Gemini API (Gemini 2.x family) | 2026-04-06 |
+| [XAI.md](/providers/xai) | xAI Grok API (Grok 4.10/4.20 family) | 2026-04-07 |
+| [OPENROUTER.md](/providers/openrouter) | OpenRouter unified API (multi-provider routing) | 2026-04-06 |
 
 ### Local / Self-Hosted
 
 | Document | Provider | Created |
 |----------|----------|---------|
-| [OLLAMA.md](OLLAMA.md) | Ollama API (native + OpenAI-compatible endpoints) | 2026-04-06 |
-| [LOCAL_BACKENDS.md](LOCAL_BACKENDS.md) | llama.cpp, Oobabooga, vLLM, KoboldCpp, TabbyAPI | 2026-04-06 |
+| [OLLAMA.md](/providers/ollama) | Ollama API (native + OpenAI-compatible endpoints) | 2026-04-06 |
+| [LOCAL_BACKENDS.md](/providers/local-backends) | llama.cpp, Oobabooga, vLLM, KoboldCpp, TabbyAPI | 2026-04-06 |
 
 ### Overview
 
 | Document | Description | Created |
 |----------|-------------|---------|
-| [PROVIDERS.md](PROVIDERS.md) | Provider landscape overview and gap analysis | 2026-04-06 |
+| [PROVIDERS.md](/providers/landscape) | Provider landscape overview and gap analysis | 2026-04-06 |
 
 ---
 
