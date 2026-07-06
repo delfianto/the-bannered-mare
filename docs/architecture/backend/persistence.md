@@ -1,6 +1,10 @@
-# The Bannered Mare: Persistence Layer Architecture
+# Persistence Layer
 
-The persistence layer of The Bannered Mare manages relational data storage, schema migrations, and entity lifecycles using PostgreSQL in production and SQLite in test environments. It relies on SQLAlchemy 2.0 and Alembic.
+The persistence layer manages relational storage, schema migrations, and entity lifecycles.
+It runs on **PostgreSQL** in production and **SQLite** in tests, built on **SQLAlchemy 2.0**
+and **Alembic**. This page walks the layer from the bottom up: the base model every table
+shares, why models live centrally, the mixed async/sync policy, the repository pattern, and
+migrations.
 
 
 ## 1. Declarative Base and Base Model
