@@ -1,6 +1,7 @@
-# The Bannered Mare: State Management and Localization
+# State & Localization
 
-This document explains the global state management patterns, persistence layers, data type mappings, and internationalization (i18n) setup inside The Bannered Mare.
+This page covers the frontend's global state patterns, local persistence, data-type mappings,
+and internationalization (i18n) setup.
 
 
 ## 1. Global State Management (Pinia)
@@ -15,7 +16,7 @@ App-wide state that crosses multiple feature layers is managed using **Pinia** (
   - `providers`: Stores the sorted list of active LLM provider connections fetched from `/api/providers`.
 
 
-## 2. Shared State and local Persistence (Composables)
+## 2. Shared State and Local Persistence (Composables)
 
 For UI states (such as active theme or sidebar view toggles), the application uses module-level singleton refs returned by composables:
 
