@@ -3,7 +3,7 @@ name: sync-schema
 description: Regenerate the API types from the backend OpenAPI spec and report drift. Use when the backend contract may have changed, or before relying on API types — runs api:gen, diffs src/api/schema.d.ts, type-checks, and flags frontend usage that no longer matches the spec.
 ---
 
-Regenerate `src/api/schema.d.ts` from `../backend/openapi.json` and surface any drift between the frontend and the current backend contract.
+Regenerate `src/api/schema.d.ts` from `../openapi.json` (the shared contract at the repo root) and surface any drift between the frontend and the current backend contract.
 
 ## Steps
 

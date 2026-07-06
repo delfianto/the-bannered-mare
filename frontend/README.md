@@ -52,7 +52,7 @@ bun run typecheck            # Type-check only (vue-tsc --noEmit)
 bun run build                # FINAL GATE: vue-tsc -b && vp build
 
 # Schema
-bun run api:gen              # Regenerate src/api/schema.d.ts from backend openapi.json
+bun run api:gen              # Regenerate src/api/schema.d.ts from the root openapi.json
 ```
 
 `bun run build` is the authoritative quality gate — strict Vue type-check followed by the Rolldown production build.

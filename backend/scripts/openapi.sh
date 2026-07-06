@@ -2,18 +2,20 @@
 # =============================================================================
 # The Bannered Mare — Generate OpenAPI Schema
 #
-# Outputs openapi.json in the project root.
+# Outputs openapi.json at the repository root — the shared API contract the
+# frontend consumes via `bun run api:gen`.
 #
 # Usage:
-#   ./scripts/openapi.sh                    # Default: openapi.json
-#   ./scripts/openapi.sh docs/openapi.json  # Custom output path
+#   ./scripts/openapi.sh                    # Default: <repo-root>/openapi.json
+#   ./scripts/openapi.sh docs/openapi.json  # Custom path (relative to backend/)
 # =============================================================================
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-cd "$PROJECT_ROOT"
+BACKEND_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$BACKEND_ROOT"
 
 # Find python
 if [ -f ".venv/bin/python3" ]; then
@@ -25,7 +27,7 @@ else
   exit 1
 fi
 
-OUTPUT="${1:-openapi.json}"
+OUTPUT="${1:-$REPO_ROOT/openapi.json}"
 
 $PYTHON -c "
 from src.core.utils.openapi import generate_openapi_schema

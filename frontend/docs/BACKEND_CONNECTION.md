@@ -8,7 +8,7 @@ The Bannered Mare connects to the FastAPI backend using a combination of a stron
 
 The frontend ensures type safety across all network exchanges:
 
-- **Schema Compilation**: The API specification [schema.d.ts](../src/api/schema.d.ts) is compiled directly from the backend's `openapi.json` contract via:
+- **Schema Compilation**: The API specification [schema.d.ts](../src/api/schema.d.ts) is compiled directly from the root `openapi.json` contract via:
   ```bash
   bun run api:gen
   ```
