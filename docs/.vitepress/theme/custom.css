@@ -1,0 +1,218 @@
+/* ==========================================================================
+   The Bannered Mare docs — figure + diagram + lightbox styling.
+
+   Diagrams author against the `--tbm-dgm-*` palette below rather than hard
+   colours, so a single SVG renders correctly in both light and dark themes.
+   The palette is layered on top of VitePress's own `--vp-c-*` tokens.
+   ========================================================================== */
+
+:root {
+  --tbm-dgm-surface: var(--vp-c-bg);
+  --tbm-dgm-surface-2: var(--vp-c-bg-soft);
+  --tbm-dgm-surface-3: var(--vp-c-bg-alt);
+  --tbm-dgm-border: var(--vp-c-divider);
+  --tbm-dgm-border-strong: var(--vp-c-border);
+  --tbm-dgm-ink: var(--vp-c-text-1);
+  --tbm-dgm-ink-2: var(--vp-c-text-2);
+  --tbm-dgm-faint: var(--vp-c-text-3);
+  --tbm-dgm-arrow: var(--vp-c-text-3);
+
+  --tbm-dgm-brand: var(--vp-c-brand-1);
+  --tbm-dgm-brand-soft: var(--vp-c-brand-soft);
+
+  /* Semantic accents — tuned for light backgrounds. */
+  --tbm-dgm-frontend: #2563eb; /* blue  — the Vue SPA         */
+  --tbm-dgm-frontend-soft: #eff4ff;
+  --tbm-dgm-backend: #0891b2; /* cyan  — the FastAPI service */
+  --tbm-dgm-backend-soft: #e6f7fb;
+  --tbm-dgm-provider: #7c3aed; /* violet — external LLM APIs  */
+  --tbm-dgm-provider-soft: #f3ecff;
+  --tbm-dgm-data: #059669; /* green — persistence / RAG   */
+  --tbm-dgm-data-soft: #e7f7f0;
+  --tbm-dgm-accent: #d97706; /* amber — highlights / notes  */
+  --tbm-dgm-accent-soft: #fff3df;
+  --tbm-dgm-danger: #dc2626;
+  --tbm-dgm-danger-soft: #ffe9e6;
+}
+
+.dark {
+  /* Accents lift and their fills deepen so contrast holds on dark surfaces. */
+  --tbm-dgm-frontend: #60a5fa;
+  --tbm-dgm-frontend-soft: #16233b;
+  --tbm-dgm-backend: #22d3ee;
+  --tbm-dgm-backend-soft: #103a44;
+  --tbm-dgm-provider: #a78bfa;
+  --tbm-dgm-provider-soft: #251f3d;
+  --tbm-dgm-data: #34d399;
+  --tbm-dgm-data-soft: #123528;
+  --tbm-dgm-accent: #fbbf24;
+  --tbm-dgm-accent-soft: #33280c;
+  --tbm-dgm-danger: #f87171;
+  --tbm-dgm-danger-soft: #3a1a18;
+}
+
+/* ---------- Figure ---------- */
+.tbm-figure {
+  margin: 28px 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 14px;
+  background: var(--vp-c-bg-soft);
+  overflow: hidden;
+}
+
+.tbm-fig-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+  background: var(--vp-c-bg-alt);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.tbm-figtag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+}
+.tbm-fig-sep {
+  color: var(--vp-c-text-3);
+}
+
+.tbm-fig-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.tbm-fig-body svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.tbm-fig-cap {
+  padding: 12px 18px 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+  border-top: 1px dashed var(--vp-c-divider);
+}
+.tbm-fig-cap :is(strong, b) {
+  color: var(--vp-c-text-1);
+}
+
+/* ---------- Zoom affordance ---------- */
+.tbm-figure.tbm-zoomable {
+  position: relative;
+}
+.tbm-figure.tbm-zoomable .tbm-fig-body {
+  cursor: zoom-in;
+}
+.tbm-lb-expand {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-2);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.tbm-figure.tbm-zoomable:hover .tbm-lb-expand,
+.tbm-lb-expand:focus-visible {
+  opacity: 1;
+}
+.tbm-lb-expand:hover {
+  color: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+}
+
+/* ---------- Lightbox overlay ---------- */
+.tbm-lb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--vp-c-bg) 93%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.tbm-lb-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--vp-c-bg-elv);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+.tbm-lb-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+.tbm-lb-hint {
+  font-size: 12px;
+  color: var(--vp-c-text-3);
+  margin-right: auto;
+}
+.tbm-lb-btn {
+  min-width: 34px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font-size: 14px;
+  cursor: pointer;
+}
+.tbm-lb-btn:hover {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+}
+
+.tbm-lb-stage {
+  flex: 1;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+}
+.tbm-lb-stage.grabbing {
+  cursor: grabbing;
+}
+.tbm-lb-content {
+  transform-origin: center center;
+  transition: transform 0.05s linear;
+  will-change: transform;
+}
+.tbm-lb-content svg,
+.tbm-lb-content img {
+  max-width: none;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .tbm-lb-hint {
+    display: none;
+  }
+  .tbm-fig-body {
+    padding: 14px;
+  }
+}
