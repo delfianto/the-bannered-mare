@@ -3,6 +3,54 @@
 Analysis of the full streaming pipeline: provider API to backend proxy to SSE to
 frontend parser to UI rendering.
 
+The defining choice is that the backend is a *transparent* proxy — it forwards the provider's
+byte stream without parsing or reformatting it:
+
+<Figure tag="Figure 1" title="Provider → transparent proxy → UI" id="fig-stream-pipeline">
+<svg viewBox="0 0 900 196" role="img" aria-label="SillyTavern streaming pipeline" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <g text-anchor="middle">
+    <rect x="20" y="46" width="160" height="72" rx="10" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
+    <text x="100" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Provider API</text>
+    <text x="100" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">OpenAI · Claude ·</text>
+    <text x="100" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">Gemini · … (SSE)</text>
+    <rect x="215" y="46" width="180" height="72" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="305" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Backend proxy</text>
+    <text x="305" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">forwardFetchResponse()</text>
+    <text x="305" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">raw byte pipe · zero transform</text>
+    <rect x="430" y="46" width="150" height="72" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="505" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">SSE / HTTP</text>
+    <text x="505" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">data: {…}\n\n</text>
+    <text x="505" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">to the browser</text>
+    <rect x="615" y="46" width="150" height="72" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
+    <text x="690" y="76" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Frontend parser</text>
+    <text x="690" y="94" font-size="10" fill="var(--tbm-dgm-ink-2)">read chunks ·</text>
+    <text x="690" y="108" font-size="10" fill="var(--tbm-dgm-ink-2)">parse data:</text>
+    <rect x="800" y="46" width="90" height="72" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
+    <text x="845" y="80" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">UI</text>
+    <text x="845" y="98" font-size="10" fill="var(--tbm-dgm-ink-2)">tokens</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M180 82 L213 82"/>
+    <path d="M395 82 L428 82"/>
+    <path d="M580 82 L613 82"/>
+    <path d="M765 82 L798 82"/>
+  </g>
+  <text x="450" y="150" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">Ollama's JSONL is transcoded to SSE by parseOllamaStream(); the proxy maps 401 → 400 so the browser doesn't reset Basic auth.</text>
+</svg>
+<template #caption>
+
+**The backend moves bytes, not meaning.** `forwardFetchResponse()` pipes the provider's stream
+straight through with `Readable.pipe()` — no buffering, no reformatting — and tears down the
+upstream connection when the browser socket closes. All SSE parsing happens in the frontend.
+
+</template>
+</Figure>
+
 
 ## 1. Backend Stream Proxy
 

@@ -4,6 +4,56 @@
 
 SillyTavern implements a full-featured tool calling (function calling) system that allows LLMs to invoke registered tools, receive results, and continue generating with that context. The system is designed to work across multiple providers with provider-specific format translations handled transparently on the backend.
 
+The generation loop is recursive: the model may request a tool, the `ToolManager` runs it, the
+result is fed back, and generation repeats until the model returns a plain answer:
+
+<Figure tag="Figure 1" title="The tool-call recursion cycle" id="fig-tool-loop">
+<svg viewBox="0 0 660 470" role="img" aria-label="Tool calling recursion loop" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <g text-anchor="middle">
+    <rect x="200" y="16" width="260" height="46" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="330" y="44" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Register tools (ToolManager)</text>
+    <rect x="200" y="96" width="260" height="48" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="330" y="118" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Generate with tools</text>
+    <text x="330" y="134" font-size="10" fill="var(--tbm-dgm-ink-2)">data.tools · tool_choice = auto</text>
+    <rect x="470" y="188" width="170" height="48" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
+    <text x="555" y="210" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Final response</text>
+    <text x="555" y="226" font-size="10" fill="var(--tbm-dgm-ink-2)">no tool_call — done</text>
+    <rect x="170" y="278" width="320" height="46" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="330" y="306" font-size="12" fill="var(--tbm-dgm-ink)">ToolManager runs action(params)</text>
+    <rect x="170" y="352" width="320" height="46" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="330" y="380" font-size="12" fill="var(--tbm-dgm-ink)">Append result (role: tool) to messages</text>
+  </g>
+  <polygon points="330,158 404,192 330,226 256,192" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-accent)"/>
+  <text x="330" y="196" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--tbm-dgm-ink)">tool_call?</text>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M330 62 L330 94"/>
+    <path d="M330 144 L330 156"/>
+    <path d="M404 192 L468 192"/>
+    <path d="M330 226 L330 276"/>
+    <path d="M330 324 L330 350"/>
+    <path d="M170 375 L96 375 L96 120 L198 120"/>
+  </g>
+  <g font-size="10.5" fill="var(--tbm-dgm-ink-2)">
+    <text x="424" y="184">no</text>
+    <text x="342" y="250">yes</text>
+    <text x="84" y="248" text-anchor="middle" transform="rotate(-90 84 248)">generate again</text>
+  </g>
+</svg>
+<template #caption>
+
+**Recurse until there's nothing left to call.** `ToolManager.registerFunctionToolsOpenAI` sets
+`tool_choice = 'auto'`; if the model emits a `tool_call`, the manager runs the matching
+`action(params)`, appends the result as a `tool`-role message, and re-generates — looping until
+a response arrives with no tool call.
+
+</template>
+</Figure>
+
 **Key files:**
 
 | File | Role |
