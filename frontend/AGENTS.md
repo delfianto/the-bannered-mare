@@ -213,14 +213,14 @@ When `VITE_USE_MOCKS=true`, the Vite `/api` proxy is disabled so MSW's service w
 
 Fixtures in `src/mocks/data/` mirror the backend seed data: **6 providers**, **19 model families**, **34 models**, **20 characters** (Elder Scrolls themed, Unsplash portraits), **20 chats** with YAML conversation scenarios, **3 personas**, **3 presets**, **4 templates**, **3 fragments**, **5 data bank entries**.
 
-### 5.3 Local Claude Code Environment
+### 5.3 Claude Code Environment
 
-This project version-controls a shared `.claude/` setup, mirroring `../backend`:
+Claude Code config lives at the **repo root** `.claude/` — Claude Code loads `.claude/settings.json` only from the launch directory, so **launch it from the repo root** (a `frontend/.claude/settings.json` would be inert from there). Only frontend-specific **skills** remain under `frontend/.claude/skills/` (skills are discovered from subdirectories).
 
-- **Permissions** (`settings.json`): an `allow` list for low-friction tooling (`vp`, `bun`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). Per §2.1 you commit directly to `main` and never `git push` unless the user asks. `git commit`/`push` aren't pre-allowed in the project `settings.json`; add them to `settings.local.json`'s `allow` per-machine to skip the prompt (rules merge and evaluate deny→ask→allow).
-- **Hooks** (`.claude/hooks/`): `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix` on edited source files, skips generated files), `typecheck` (Stop — `vue-tsc --noEmit` gate), `session-context` (SessionStart — anchors the stack). They prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell.
-- **Skills** (`.claude/skills/`): `sync-schema`, `new-msw-handler`, `new-component`, `new-composable`, and the vendored `superdesign` — all tracked, so a fresh clone picks them up.
-- **MCP** (`.mcp.json`): the Nuxt UI MCP (`nuxt-ui` → `https://ui.nuxt.com/mcp`), pre-approved via `enabledMcpjsonServers`.
+- **Permissions** (root `.claude/settings.json`): a merged `allow` list for both halves' tooling (`vp`, `bun`, `uv`, `ruff`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). Per §2.1 you commit directly to `main` and never `git push` unless the user asks — a `block-git-write` PreToolUse hook enforces the push guard. `git commit`/`push` aren't pre-allowed; add them to `.claude/settings.local.json`'s `allow` per-machine to skip the prompt (rules evaluate deny→ask→allow).
+- **Hooks** (root `.claude/hooks/`): the frontend hooks are `format-fix` (PostToolUse — `vp fmt` + `vp lint --fix`, scoped to `frontend/*` source, skips generated files) and `typecheck` (Stop — `vue-tsc --noEmit` gate against `frontend/`); they prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell. Backend hooks (`ruff-fix`, `basedpyright-check`) sit alongside them and self-scope to `backend/`, and `session-context` (SessionStart) anchors both stacks.
+- **Skills** (`frontend/.claude/skills/`): `sync-schema`, `new-msw-handler`, `new-component`, `new-composable`, and the vendored `superdesign` — all tracked, so a fresh clone picks them up.
+- **MCP** (root `.mcp.json`): the Nuxt UI MCP (`nuxt-ui` → `https://ui.nuxt.com/mcp`), pre-approved via `enabledMcpjsonServers` in the root settings.
 
 Only `.claude/settings.local.json` (personal allowlist) is **gitignored**.
 

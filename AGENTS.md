@@ -5,7 +5,7 @@ This is a monorepo with two independent halves. This file only covers what spans
 - **`backend/`** — Python 3.14 / FastAPI / SQLAlchemy 2.0 / PostgreSQL + pgvector. Full instructions: [backend/AGENTS.md](backend/AGENTS.md).
 - **`frontend/`** — Vue 3.5 / TypeScript 6 / Nuxt UI v4 / Vite+. Full instructions: [frontend/AGENTS.md](frontend/AGENTS.md).
 
-Each half keeps its own `.claude/` config (permissions, hooks, skills) scoped to that directory — they are not merged. When working inside `backend/` or `frontend/`, that subdirectory's config and instructions apply.
+A single `.claude/` config at the **repo root** holds the merged permissions and path-scoped hooks for both halves. **Launch Claude Code from the repo root** so it loads — Claude Code reads `.claude/settings.json` only from the launch directory, not from subdirectories (unlike `CLAUDE.md`, which is hierarchical), so a `backend/.claude` or `frontend/.claude` settings file would be inert. Each hook self-guards to files of its own half (`ruff` only touches `backend/*.py`, `vp fmt` only `frontend/*`). Each half still keeps its own `AGENTS.md`/`CLAUDE.md` instructions, and the frontend keeps its own `.claude/skills/`.
 
 ## Cross-Cutting Rules
 
@@ -18,9 +18,11 @@ Each half keeps its own `.claude/` config (permissions, hooks, skills) scoped to
 
 ```text
 the-bannered-mare/
-├── backend/     # FastAPI backend — own AGENTS.md, .claude/, pyproject.toml
+├── .claude/     # Shared Claude Code config — merged permissions + path-scoped hooks
+├── .mcp.json    # Shared MCP servers (nuxt-ui)
+├── backend/     # FastAPI backend — own AGENTS.md, pyproject.toml
 ├── docs/        # VitePress documentation site (deployed to GitHub Pages)
-├── frontend/    # Vue 3 SPA — own AGENTS.md, .claude/, package.json
+├── frontend/    # Vue 3 SPA — own AGENTS.md, package.json, .claude/skills/
 ├── openapi.json # Shared API contract (generated from backend, consumed by frontend)
 ├── LICENSE      # AGPL-3.0-or-later, covers the whole repo
 └── README.md    # Overview + quick start for both halves

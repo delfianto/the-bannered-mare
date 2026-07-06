@@ -11,7 +11,7 @@ This is a monorepo containing both halves of the application:
 | [`backend/`](backend/) | Headless FastAPI backend — providers, characters, prompts, RAG, streaming | [backend/README.md](backend/README.md) / [backend/AGENTS.md](backend/AGENTS.md) |
 | [`frontend/`](frontend/) | Vue 3 SPA web client, talks to the backend via a typed `openapi-fetch` client | [frontend/README.md](frontend/README.md) / [frontend/AGENTS.md](frontend/AGENTS.md) |
 
-Each half keeps its own tech stack, its own `AGENTS.md`/`CLAUDE.md` with domain-specific instructions, and its own `.claude/` config (permissions, hooks, skills). This root file only covers what spans both.
+Each half keeps its own tech stack and its own `AGENTS.md`/`CLAUDE.md` with domain-specific instructions. A single `.claude/` config at the repo root holds the shared permissions and path-scoped hooks for both halves — launch Claude Code from the repo root so it loads. This root file only covers what spans both.
 
 ## Quick Start
 
