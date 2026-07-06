@@ -28,7 +28,6 @@ presets both attach to a `Chat`:
       <text x="54" y="170">max_history_tokens</text>
     </g>
   </g>
-
   <!-- TemplateFragment (join) -->
   <g>
     <rect x="310" y="60" width="196" height="120" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-provider)"/>
@@ -42,7 +41,6 @@ presets both attach to a `Chat`:
       <text x="324" y="154">depth</text>
     </g>
   </g>
-
   <!-- PromptFragment -->
   <g>
     <rect x="550" y="40" width="230" height="130" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)"/>
@@ -56,7 +54,6 @@ presets both attach to a `Chat`:
       <text x="564" y="150">is_global</text>
     </g>
   </g>
-
   <!-- Preset -->
   <g>
     <rect x="40" y="300" width="200" height="86" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-data)"/>
@@ -68,7 +65,6 @@ presets both attach to a `Chat`:
       <text x="54" y="372">parameters</text>
     </g>
   </g>
-
   <!-- Chat -->
   <g>
     <rect x="330" y="300" width="190" height="86" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
@@ -80,7 +76,6 @@ presets both attach to a `Chat`:
       <text x="344" y="372">preset_id · nullable</text>
     </g>
   </g>
-
   <!-- Relationships -->
   <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.4" fill="none">
     <path d="M274 118 L310 118"/>
@@ -164,35 +159,27 @@ budgeting and assembling the history before ordering everything into the final m
     <rect x="40" y="16" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="40" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="44" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">1</text>
     <text x="92" y="44" fill="var(--tbm-dgm-ink)" font-weight="600">Request completion</text>
-
     <rect x="40" y="84" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="108" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">2</text>
     <text x="92" y="112" fill="var(--tbm-dgm-ink)">Load template context — character, persona, chat</text>
-
     <rect x="40" y="152" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="176" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="180" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">3</text>
     <text x="92" y="180" fill="var(--tbm-dgm-ink)">Group activated lore by position</text>
-
     <rect x="40" y="220" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="244" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="248" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">4</text>
     <text x="92" y="248" fill="var(--tbm-dgm-ink)">Render system template (Jinja2)</text>
-
     <rect x="40" y="288" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="312" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="316" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">5</text>
     <text x="92" y="316" fill="var(--tbm-dgm-ink)">Assemble depth injections — AT_DEPTH lore + fragments</text>
-
     <rect x="40" y="356" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="380" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="384" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">6</text>
     <text x="92" y="384" fill="var(--tbm-dgm-ink)">Count tokens in reverse — build history within budget</text>
-
     <rect x="40" y="424" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="448" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="452" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">7</text>
     <text x="92" y="452" fill="var(--tbm-dgm-ink)">Splice depth injections into the history array</text>
-
     <rect x="40" y="492" width="480" height="48" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
     <circle cx="66" cy="516" r="13" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="66" y="520" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-backend)">8</text>
     <text x="92" y="520" fill="var(--tbm-dgm-ink)">Loop over component_order, append active elements</text>
-
     <rect x="40" y="560" width="480" height="48" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
     <circle cx="66" cy="584" r="13" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-data)"/><text x="66" y="588" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-data)">9</text>
     <text x="92" y="588" fill="var(--tbm-dgm-ink)" font-weight="600">Return final array of messages</text>

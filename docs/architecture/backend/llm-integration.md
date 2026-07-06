@@ -59,12 +59,10 @@ gateway, which selects the right adapter and drives the call:
       <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
     </marker>
   </defs>
-
   <!-- Caller -->
   <rect x="24" y="110" width="160" height="70" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
   <text x="104" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">Service /</text>
   <text x="104" y="158" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">chat job</text>
-
   <!-- Gateway -->
   <rect x="256" y="70" width="216" height="150" rx="12" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
   <text x="364" y="98" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">ProviderGateway</text>
@@ -74,7 +72,6 @@ gateway, which selects the right adapter and drives the call:
   <text x="364" y="168" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">timeouts · retries</text>
   <text x="364" y="186" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">exception normalization</text>
   <text x="364" y="204" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">parameter resolution</text>
-
   <!-- Adapter -->
   <rect x="544" y="28" width="196" height="110" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
   <text x="642" y="50" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">ProviderAdapter</text>
@@ -82,12 +79,10 @@ gateway, which selects the right adapter and drives the call:
   <text x="642" y="87" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">build_url · build_headers</text>
   <text x="642" y="103" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">build_payload</text>
   <text x="642" y="119" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">parse_response · parse_stream_line</text>
-
   <!-- Provider API -->
   <rect x="544" y="196" width="196" height="72" rx="10" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
   <text x="642" y="226" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Provider API endpoint</text>
   <text x="642" y="245" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">OpenAI · Anthropic · Gemini · Ollama · …</text>
-
   <!-- Arrows -->
   <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
     <path d="M184 145 L254 145"/>

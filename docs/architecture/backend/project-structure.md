@@ -74,35 +74,28 @@ providers:
       <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
     </marker>
   </defs>
-
   <rect x="250" y="18" width="220" height="40" rx="20" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
   <text x="360" y="43" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">HTTP request</text>
-
   <!-- Router -->
   <rect x="170" y="92" width="380" height="58" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
   <text x="360" y="116" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">router.py — API layer</text>
   <text x="360" y="135" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">routing · Pydantic DTO validation · JSON serialization</text>
-
   <!-- Service -->
   <rect x="170" y="182" width="380" height="58" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
   <text x="360" y="206" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">service.py — business layer</text>
   <text x="360" y="225" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">domain rules · multi-repository orchestration</text>
-
   <!-- Repository -->
   <rect x="170" y="272" width="380" height="58" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
   <text x="360" y="296" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">repository.py — data-access layer</text>
   <text x="360" y="315" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">SQLAlchemy CRUD &amp; query building</text>
-
   <!-- DB -->
   <rect x="230" y="362" width="260" height="54" rx="12" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
   <text x="360" y="386" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">PostgreSQL (prod)</text>
   <text x="360" y="404" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">SQLite (test)</text>
-
   <!-- External -->
   <rect x="576" y="182" width="128" height="58" rx="10" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
   <text x="640" y="206" text-anchor="middle" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">External LLM</text>
   <text x="640" y="224" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">providers</text>
-
   <!-- Arrows -->
   <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
     <path d="M360 58 L360 90"/>
