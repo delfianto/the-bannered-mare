@@ -1,10 +1,5 @@
 import { defineConfig } from 'vitepress'
-
-// Sidebar modules are registered by later tasks:
-//   import { guideSidebar } from './sidebar.guide'
-//   import { architectureSidebar } from './sidebar.architecture'
-//   import { providersSidebar } from './sidebar.providers'
-//   import { sillytavernSidebar } from './sidebar.sillytavern'
+import { guideSidebar } from './sidebar.guide'
 
 export default defineConfig({
   title: 'The Bannered Mare',
@@ -15,7 +10,9 @@ export default defineConfig({
   themeConfig: {
     search: { provider: 'local' },
     nav: [{ text: 'Guide', link: '/guide/' }],
-    sidebar: {},
+    sidebar: {
+      '/guide/': guideSidebar,
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/delfianto/the-bannered-mare' },
     ],
