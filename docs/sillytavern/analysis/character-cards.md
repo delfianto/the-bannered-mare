@@ -4,6 +4,53 @@
 > Source: `/st/` (SillyTavern v1.17.0)
 
 
+A SillyTavern character card is really a PNG image with the character's JSON smuggled into a
+text chunk — so one file is both the avatar and the full character definition:
+
+<Figure tag="Figure 1" title="A card is a PNG carrying JSON" id="fig-card-anatomy">
+<svg viewBox="0 0 640 340" role="img" aria-label="Character card PNG anatomy and decode flow" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tbm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/>
+    </marker>
+  </defs>
+  <rect x="24" y="44" width="252" height="256" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border-strong)"/>
+  <text x="150" y="66" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">character.png</text>
+  <g font-size="10.5" text-anchor="middle">
+    <rect x="40" y="80" width="220" height="26" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border)"/><text x="150" y="97" fill="var(--tbm-dgm-ink-2)">IHDR</text>
+    <rect x="40" y="112" width="220" height="26" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border)"/><text x="150" y="129" fill="var(--tbm-dgm-ink-2)">IDAT · image pixels</text>
+    <rect x="40" y="144" width="220" height="44" rx="6" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)"/><text x="150" y="162" font-weight="700" fill="var(--tbm-dgm-ink)">tEXt: chara</text><text x="150" y="179" fill="var(--tbm-dgm-ink-2)">= base64(card JSON) · V2</text>
+    <rect x="40" y="194" width="220" height="44" rx="6" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)"/><text x="150" y="212" font-weight="700" fill="var(--tbm-dgm-ink)">tEXt: ccv3</text><text x="150" y="229" fill="var(--tbm-dgm-ink-2)">= base64(card JSON) · V3</text>
+    <rect x="40" y="244" width="220" height="26" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border)"/><text x="150" y="261" fill="var(--tbm-dgm-ink-2)">IEND</text>
+  </g>
+  <text x="150" y="290" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-faint)">a .json card imports directly (no decode)</text>
+  <g text-anchor="middle">
+    <rect x="350" y="66" width="266" height="58" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="483" y="90" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Extract tEXt chunk</text>
+    <text x="483" y="108" font-size="10.5" fill="var(--tbm-dgm-ink-2)">base64 decode → JSON.parse</text>
+    <rect x="350" y="150" width="266" height="58" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="483" y="174" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">TavernCardValidator</text>
+    <text x="483" y="192" font-size="10.5" fill="var(--tbm-dgm-ink-2)">check spec + required fields · V1/V2/V3</text>
+    <rect x="350" y="234" width="266" height="52" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="483" y="265" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Normalized Character</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
+    <path d="M276 150 L348 95"/>
+    <path d="M483 124 L483 148"/>
+    <path d="M483 208 L483 232"/>
+  </g>
+  <text x="312" y="112" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-ink-2)">decode</text>
+</svg>
+<template #caption>
+
+**Avatar and data in one file.** Character JSON is base64-encoded into a PNG `tEXt` chunk —
+`chara` for V2, `ccv3` for V3 — inserted before `IEND`. On import the chunk is extracted,
+decoded, parsed, and run through `TavernCardValidator`, which checks the `spec`/`spec_version`
+envelope and required fields per version.
+
+</template>
+</Figure>
+
 ## 1. Card Specification Versions
 
 SillyTavern supports three character card specification versions: **V1**, **V2**, and **V3**. Validation is handled by `src/validator/TavernCardValidator.js`.
