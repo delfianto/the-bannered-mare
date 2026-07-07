@@ -1,8 +1,9 @@
 # Streaming Architecture Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
-Side-by-side analysis of how each system handles SSE streaming from provider
-APIs to the consumer (browser frontend in ST, API client in The Bannered Mare).
-
+How each system carries an SSE stream from the provider to the consumer (the browser
+frontend in SillyTavern, an API client in The Bannered Mare). This page assumes the
+[Streaming Analysis](/sillytavern/analysis/streaming) for how SillyTavern works internally,
+and focuses on where The Bannered Mare diverges and why.
 
 The split is where parsing happens — SillyTavern forwards raw bytes and parses in the browser;
 The Bannered Mare parses server-side into a typed event protocol:
@@ -39,28 +40,12 @@ owns all provider parsing; The Bannered Mare parses each provider server-side in
 
 ## 1. Stream Proxy vs Typed Event Pipeline
 
-### SillyTavern: Transparent Byte Proxy
+SillyTavern's backend is a transparent byte proxy — `forwardFetchResponse()` pipes raw
+provider bytes to the browser with zero transformation, so a complete multi-provider parser
+has to live in the frontend ([Analysis §1 ›](/sillytavern/analysis/streaming#_1-backend-stream-proxy)).
 
-ST's backend is a pass-through relay. `forwardFetchResponse()` uses Node's
-`Readable.pipe()` to forward the raw byte stream from the provider directly to
-the Express response with zero transformation:
-
-```
-Provider SSE bytes  -->  pipe()  -->  Browser
-```
-
-The backend never parses, validates, or restructures SSE data. All
-provider-specific parsing happens on the JavaScript frontend. The one exception
-is Ollama, where `parseOllamaStream()` transcodes JSONL into OpenAI-compatible
-SSE events before piping.
-
-**Implication:** The backend is trivially simple (one function serves all
-providers), but the frontend must contain a complete multi-provider parser.
-
-### The Bannered Mare: Adapter-Parsed Typed Events
-
-The Bannered Mare parses the stream server-side and emits a uniform typed event
-protocol. The pipeline has three layers:
+The Bannered Mare parses the stream **server-side** and emits a uniform typed event protocol.
+The pipeline has three layers:
 
 ```
 Provider SSE bytes
@@ -81,17 +66,10 @@ AsyncIterator[StreamEvent]     (typed: start, text, reasoning, usage, done, erro
 Router serializes to SSE:  data: {"type":"text","content":"Hello"}\n\n
 ```
 
-Every provider adapter implements `parse_stream_line()` that returns a
-`StreamChunk` or `None`. The service layer then maps chunks into a fixed
-`StreamEvent` protocol with six event types: `start`, `text`, `reasoning`,
-`usage`, `done`, `error`.
-
-**Implication:** The API client receives a single, provider-agnostic event
-format. The client never needs to know which provider is generating the response.
-The cost is that provider-specific parsing logic lives in the backend adapter
-layer.
-
-### Summary
+Every provider adapter implements `parse_stream_line()`, returning a `StreamChunk` or `None`;
+the service layer maps chunks into a fixed six-event protocol. The API client receives a
+single, provider-agnostic format and never needs to know which provider is generating — the
+cost is that provider-specific parsing lives in the backend adapter layer.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -101,26 +79,14 @@ layer.
 | Event format to client | Raw provider SSE | `{"type": "text", "content": "..."}` |
 | Intermediate types | None | `StreamChunk` -> `StreamEvent` |
 
-
 ## 2. Provider-Specific Stream Parsing
 
-### SillyTavern: Frontend Dispatch Chain
+SillyTavern dispatches in the frontend: `parseStreamData()` is a cascading if/else that
+sniffs JSON structure across seven providers (with eight OpenAI-compatible sub-paths), and a
+second `getStreamingReply()` extracts by `chat_completion_source` enum — two partially
+overlapping code paths ([Analysis §4 ›](/sillytavern/analysis/streaming#_4-provider-specific-stream-parsing)).
 
-`parseStreamData()` in `sse-stream.js` is a cascading if/else that checks JSON
-structure to determine the provider. It tests seven conditions in priority order
-(Cohere, Claude, Gemini, NovelAI/KoboldCpp, llama.cpp, OpenAI-compatible) and
-falls through to an exception for unknown formats. Within the OpenAI-compatible
-branch, there are eight sub-conditions for different content paths
-(`delta.content`, `delta.reasoning_content`, `delta.reasoning`, Mistral thinking
-arrays, etc.).
-
-A separate `getStreamingReply()` function in `openai.js` performs a parallel
-extraction keyed by `chat_completion_source` enum rather than by JSON structure.
-These two functions partially overlap in responsibility.
-
-### The Bannered Mare: Polymorphic Adapter Methods
-
-Each provider has its own adapter class implementing `parse_stream_line()`:
+The Bannered Mare gives each provider its own adapter class implementing `parse_stream_line()`:
 
 | Adapter | Class | Parsing strategy |
 |---------|-------|-----------------|
@@ -130,11 +96,8 @@ Each provider has its own adapter class implementing `parse_stream_line()`:
 | Ollama | `OllamaAdapter` | Inherits from `OpenAIAdapter` unchanged (Ollama's `/v1/chat/completions` is OpenAI-compatible) |
 | LM Studio | `LMStudioAdapter` | Inherits from `OpenAIAdapter` unchanged (LM Studio's `/v1/chat/completions` is OpenAI-compatible) |
 
-All five return the same `StreamChunk(content, reasoning, finish_reason, usage)`
-dataclass. The gateway layer iterates lines and delegates without knowing which
-adapter is active.
-
-### Summary
+All five return the same `StreamChunk(content, reasoning, finish_reason, usage)` dataclass;
+the gateway iterates lines and delegates without knowing which adapter is active.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -144,27 +107,15 @@ adapter is active.
 | Extensibility | Add branches to if/else chain | Add new adapter class |
 | Ollama handling | Custom JSONL-to-SSE transcoder | Inherits OpenAI adapter (Ollama serves `/v1/`) |
 
-
 ## 3. Abort / Cancellation Mechanism
 
-### SillyTavern: Two-Level AbortController Chain
+SillyTavern aborts signal-based at two levels: the frontend `StreamingProcessor` calls
+`AbortController.abort()` on Stop, and the Express socket's `close` event triggers a
+matching backend `controller.abort()` on the upstream fetch (KoboldCpp additionally needs an
+explicit `POST /api/extra/abort`) ([Analysis §2 ›](/sillytavern/analysis/streaming#_2-abort-mechanism)).
 
-ST implements abort at both frontend and backend:
-
-1. **Frontend:** `StreamingProcessor` creates an `AbortController`. The Stop
-   button calls `controller.abort()`, which terminates the `fetch()`.
-2. **Backend:** Each provider handler creates its own `AbortController`. When
-   the Express socket emits `close` (triggered by the frontend abort), the
-   handler calls `controller.abort()` on the upstream `fetch()` to the provider.
-3. **Stream teardown:** `forwardFetchResponse()` separately calls
-   `from.body.destroy()` on socket close.
-
-Special case: KoboldCpp requires an explicit `POST /api/extra/abort` HTTP call
-before aborting the controller.
-
-### The Bannered Mare: Disconnection Polling
-
-The router checks `request.is_disconnected()` on each event iteration:
+The Bannered Mare has no `AbortController` equivalent — cancellation is **cooperative**. The
+router checks `request.is_disconnected()` between events:
 
 ```python
 async for event in stream_iterator:
@@ -173,15 +124,9 @@ async for event in stream_iterator:
     yield f"data: {json.dumps(stream_event_to_dict(event))}\n\n"
 ```
 
-When disconnection is detected, the generator returns, which causes the
-`StreamingResponse` to end. The underlying `httpx` async stream context manager
-closes the HTTP connection to the provider as part of normal cleanup when the
-async iterator exits scope.
-
-There is no explicit `AbortController` equivalent. Cancellation is cooperative:
-the generator checks between events rather than interrupting mid-chunk.
-
-### Summary
+When the generator returns, the `StreamingResponse` ends and the `httpx` async stream context
+manager closes the upstream connection as part of normal cleanup. The trade-off: cancellation
+happens between events rather than interrupting mid-chunk.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -191,45 +136,28 @@ the generator checks between events rather than interrupting mid-chunk.
 | Abort granularity | Immediate (signal-based) | Between events (cooperative) |
 | Special provider handling | KoboldCpp explicit abort endpoint | None |
 
-
 ## 4. Reasoning / Thinking Content
 
-### SillyTavern: Three-Layer Reasoning System
+SillyTavern handles reasoning across three frontend layers: stream parsing flags per-chunk
+reasoning, `getStreamingReply()` accumulates it (gated by `show_thoughts`), and a
+`ReasoningHandler` state machine tracks duration, auto-parses think blocks, detects
+hidden-reasoning models (o1/o3), and stores reasoning signatures
+([Analysis §5 ›](/sillytavern/analysis/streaming#_5-reasoning-thinking-content)).
 
-Reasoning is handled across three independent layers:
+The Bannered Mare uses a two-level pipeline:
 
-1. **Stream parsing** (`parseStreamData`): Yields `{ reasoning: true }` flag per
-   chunk. Supports Claude `delta.thinking`, Gemini `thought: true` parts,
-   DeepSeek/xAI `reasoning_content`, OpenRouter `reasoning`, Mistral thinking
-   arrays.
+1. **Adapter layer** (`parse_stream_line`): each adapter extracts reasoning into
+   `StreamChunk.reasoning` — `AnthropicAdapter` from `thinking_delta` blocks, `OpenAIAdapter`
+   from `delta.reasoning_content` / `delta.reasoning`, `GeminiAdapter` from `thought: true`
+   parts.
+2. **Service layer** (`_stream_completion`): accumulates reasoning and emits
+   `StreamEvent(type="reasoning", …)`. If no API-level reasoning was found, after the stream
+   `parse_reasoning_tags()` extracts `<think>…</think>` blocks from the content (covering
+   local models like DeepSeek R1, QwQ, Qwen3). The result is persisted to
+   `Message.reasoning_content` alongside the cleaned content.
 
-2. **Reply extraction** (`getStreamingReply`): Accumulates reasoning text into
-   `state.reasoning`, gated by the `show_thoughts` setting.
-
-3. **ReasoningHandler class**: Manages the full lifecycle with state machine
-   (`None` -> `Thinking` -> `Done`/`Hidden`), duration tracking, DOM updates,
-   auto-parsing of XML-like think blocks from message text, hidden-reasoning
-   model detection (o1, o3, etc.), and reasoning signature storage for
-   OpenRouter Claude models.
-
-### The Bannered Mare: Two-Level Reasoning Pipeline
-
-1. **Adapter layer** (`parse_stream_line`): Each adapter extracts reasoning into
-   `StreamChunk.reasoning`:
-   - `AnthropicAdapter`: `thinking_delta` blocks
-   - `OpenAIAdapter`: `delta.reasoning_content` or `delta.reasoning`
-   - `GeminiAdapter`: Parts with `thought: true`
-
-2. **Service layer** (`_stream_completion`): Accumulates `full_reasoning` from
-   chunks and emits `StreamEvent(type="reasoning", content=...)`. After the
-   stream completes, if no API-level reasoning was found, `parse_reasoning_tags()`
-   extracts `<think>...</think>` blocks from the content (covering local models
-   like DeepSeek R1, QwQ, Qwen3 that embed reasoning in output text).
-
-   The extracted reasoning is persisted to `Message.reasoning_content` in the
-   database alongside the cleaned message content.
-
-### Summary
+The Bannered Mare deliberately skips SillyTavern's rendering-side reasoning features
+(duration tracking, hidden-model lists, signatures) — those belong to a client.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -241,47 +169,21 @@ Reasoning is handled across three independent layers:
 | Client receives | Raw reasoning text (client renders) | `{"type":"reasoning","content":"..."}` events |
 | Persistence | `chat[messageId].extra.reasoning_duration` | `Message.reasoning_content` column |
 
-
 ## 5. Token Usage from Streams
 
-### SillyTavern: Client-Side Tokenizer
+SillyTavern does **not** read `usage` objects from the stream; it computes token counts on
+the client with a tokenizer after the stream completes, and derives TPS from wall-clock time —
+uniform across providers but approximate ([Analysis §7 ›](/sillytavern/analysis/streaming#_7-token-usage-from-streams)).
 
-ST does **not** extract `usage` objects from streaming responses. Token counts
-are computed on the client using a tokenizer after the stream completes:
+The Bannered Mare prefers **provider-reported** usage, extracted per adapter:
 
-```js
-const currentTokenCount = isFinal && power_user.message_token_count_enabled
-    ? await getTokenCountAsync(tokenCountText, 0) : 0;
-```
-
-TPS (tokens per second) is calculated from wall-clock time and the client-side
-token count. This approach works uniformly across all providers but produces
-approximate counts.
-
-### The Bannered Mare: Provider-Reported Usage with Fallback
-
-Each adapter extracts `TokenUsage` from stream data when the provider includes
-it:
-
-- **Anthropic**: `message_delta` event carries `usage.output_tokens`
+- **Anthropic**: `message_delta` carries `usage.output_tokens`
 - **OpenAI**: `usage` object in the final chunk (when `stream_options` is set)
-- **Gemini**: `usageMetadata` in each stream frame with `promptTokenCount`,
-  `candidatesTokenCount`, `totalTokenCount`, `cachedContentTokenCount`
+- **Gemini**: `usageMetadata` per frame (`promptTokenCount`, `candidatesTokenCount`,
+  `totalTokenCount`, `cachedContentTokenCount`)
 
-The service accumulates the last usage and emits a dedicated event:
-
-```python
-yield StreamEvent(
-    type="usage",
-    input_tokens=last_usage.input_tokens,
-    output_tokens=last_usage.output_tokens,
-    cache_read_tokens=last_usage.cache_read_tokens,
-    cache_creation_tokens=last_usage.cache_creation_tokens,
-)
-```
-
-If the provider does not report output tokens, the service falls back to
-`TokenizerService.count_tokens()`:
+The service emits a dedicated `StreamEvent(type="usage", …)` and, when the provider omits
+output tokens, falls back to `TokenizerService.count_tokens()`:
 
 ```python
 token_count = (
@@ -291,10 +193,7 @@ token_count = (
 )
 ```
 
-The non-streaming path also tracks token drift between estimated and actual
-counts via structured logging.
-
-### Summary
+The non-streaming path also logs token drift between estimated and actual counts.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -304,38 +203,17 @@ counts via structured logging.
 | Usage event to client | None (computed post-stream) | `StreamEvent(type="usage", ...)` |
 | Token drift monitoring | Not tracked | Structured log comparing estimate vs actual |
 
-
 ## 6. Smooth Streaming
 
-### SillyTavern: Character-Level Delay Transform
+SillyTavern ships client-side smooth streaming: `SmoothEventSourceStream` splits each SSE
+event into per-character events with punctuation-aware delays, and `stream_fade_in` uses
+`morphdom` + `Intl.Segmenter` for word-level opacity transitions
+([Analysis §6 ›](/sillytavern/analysis/streaming#_6-smooth-streaming)).
 
-`SmoothEventSourceStream` extends the base `EventSourceStream` by piping
-through an additional `TransformStream` that splits each SSE event into
-per-character events with configurable delays:
-
-- Regular characters: `speedFactor * 0.4ms` (default 20ms at speed 50)
-- Commas/newlines: half the punctuation delay (default 250ms)
-- Periods/exclamation/question: full punctuation delay (default 500ms)
-
-Delays are skipped when the document is not focused or when
-`smooth_streaming_no_think` is enabled for reasoning content.
-
-Additionally, `stream_fade_in` uses `morphdom` (DOM diffing) with
-`Intl.Segmenter` to create word-level `<span>` elements with CSS opacity
-transitions.
-
-### The Bannered Mare: Not Implemented (Backend Design)
-
-The Bannered Mare is a headless API server. It emits raw `StreamEvent` objects
-over SSE without any rendering-level transformation. Smooth streaming, character
-splitting, and animation delays are the responsibility of whatever frontend
-client consumes the API.
-
-The typed event protocol (`text`, `reasoning`) provides the building blocks for
-a client to implement smooth streaming: each text chunk can be split and delayed
-at the client's discretion.
-
-### Summary
+The Bannered Mare is a **headless API server**, so this is out of scope by design — it emits
+raw `StreamEvent` objects with no rendering-level transformation. The typed protocol
+(`text`, `reasoning`) gives a client the building blocks to implement smooth streaming
+itself, at its own discretion.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -344,61 +222,30 @@ at the client's discretion.
 | Configuration | Speed slider (1-100), toggle, no-think option | N/A (client responsibility) |
 | DOM rendering | morphdom + CSS fade-in | N/A |
 
-
 ## 7. Error Handling
 
-### SillyTavern: Multi-Layer Error Passthrough
+SillyTavern forwards provider errors largely as-is: the backend passes through HTTP status +
+body (500 on network error), and the frontend's `tryParseStreamingError()` heuristically
+sniffs `data.error` / `message` / `detail` / `quota_error`, shows a toast, and preserves
+partial text on recovery ([Analysis §8 ›](/sillytavern/analysis/streaming#_8-stream-error-handling)).
 
-**Backend:** Provider HTTP errors are forwarded as-is (status code + body).
-Network errors return 500 if headers have not been sent. The backend never
-constructs structured error events in the stream.
-
-**Frontend:** `tryParseStreamingError()` runs at two points:
-1. On non-OK initial HTTP response (before the stream reader starts)
-2. On each SSE event during the read loop
-
-It parses the raw data as JSON and checks for `data.error`, `data.message`,
-`data.detail`, or `data.quota_error`. If found, a toast is displayed and an
-exception is thrown.
-
-**Recovery:** `StreamingProcessor.onErrorStreaming()` aborts the controller,
-unlocks the UI, emits lifecycle events, and preserves whatever partial text was
-accumulated. The partial result is returned rather than discarded.
-
-**Smooth streaming:** Unrecognized event formats in `SmoothEventSourceStream`
-pass through the raw event unmodified rather than crashing the stream.
-
-### The Bannered Mare: Structured Error Events
-
-**Gateway layer:** `ProviderGateway` catches `httpx.HTTPStatusError` and maps
-status codes to a typed exception hierarchy:
-- 401 -> `ProviderAuthError`
-- 429 -> `ProviderRateLimitError`
-- 400 -> `ProviderInvalidRequestError`
-- Others -> `ProviderException`
-- Timeouts -> `ProviderTimeoutError`
-
-**Service layer:** `_stream_completion()` wraps the entire streaming loop in
-try/except and maps exceptions to a typed error event:
+The Bannered Mare produces **structured, classified** error events. The gateway maps
+`httpx.HTTPStatusError` to a typed exception hierarchy (401 → `ProviderAuthError`, 429 →
+`ProviderRateLimitError`, 400 → `ProviderInvalidRequestError`, timeouts →
+`ProviderTimeoutError`), and `_stream_completion()` turns any exception into a typed event:
 
 ```python
 except Exception as e:
     yield StreamEvent(type="error", message=str(e), code=_classify_error(e))
 ```
 
-The `code` field contains a machine-readable classification: `rate_limit`,
-`auth_error`, `timeout`, `provider_error`, or `internal_error`.
+The `code` is machine-readable (`rate_limit`, `auth_error`, `timeout`, `provider_error`,
+`internal_error`), and a second guard in the router catches anything escaping the service.
+The client receives a structured event:
 
-**Router layer:** A second try/except in `event_generator()` catches any
-exception that escapes the service (e.g., from event serialization) and emits a
-final error event before closing the stream.
-
-**Client receives:** A structured JSON error event:
 ```json
 {"type": "error", "message": "Rate limit exceeded", "code": "rate_limit"}
 ```
-
-### Summary
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -408,37 +255,13 @@ final error event before closing the stream.
 | HTTP status forwarding | Yes (except 401 -> 400) | Mapped to typed exceptions before stream starts |
 | Error during stream | Arrives as raw SSE data | Arrives as structured error event |
 
+## 8. Overall Trade-offs
 
-## 8. Overall Architecture Comparison
-
-```
-                    SillyTavern v1.17.0
-                    ====================
-                    
-  Provider API  ──(SSE bytes)──>  Express Backend  ──(raw pipe)──>  Browser
-                                  [no transformation]               [heavy JS parser]
-                                  
-  Ollama        ──(JSONL)──────>  parseOllamaStream ──(SSE)──────>  Browser
-                                  [JSONL -> SSE transcoder]
-
-
-                    The Bannered Mare
-                    ===============
-                    
-  Provider API  ──(SSE bytes)──>  httpx async lines
-                                      |
-                                  adapter.parse_stream_line()     [per-provider]
-                                      |
-                                  StreamChunk                     [canonical]
-                                      |
-                                  _stream_completion()            [business logic]
-                                      |
-                                  StreamEvent                     [API contract]
-                                      |
-                                  SSE JSON  ──────────────────>   Any client
-```
-
-### Architectural Trade-offs
+The two architectures (contrasted in [Figure 1](#fig-cmp-streaming) above) optimize for
+different shapes. SillyTavern is a monolithic browser app: a thin relay backend and a
+frontend that owns all intelligence. The Bannered Mare is a decoupled API server: the backend
+owns provider abstraction, persistence, and error classification, exposing a clean contract to
+any client.
 
 | Dimension | SillyTavern | The Bannered Mare |
 |-----------|-------------|-----------------|
@@ -452,8 +275,3 @@ final error event before closing the stream.
 | Rendering features | Smooth streaming, fade-in, FPS throttle | None (headless API) |
 | Error semantics | Raw passthrough | Typed, classified events |
 | Abort mechanism | Signal-based (immediate) | Polling-based (cooperative) |
-
-ST optimizes for a monolithic browser application where the backend is a thin
-relay and the frontend owns all intelligence. The Bannered Mare optimizes for a
-decoupled API server where the backend owns provider abstraction, persistence,
-and error classification, exposing a clean contract to any client.
