@@ -145,23 +145,66 @@ Each entry is a prompt *definition*. Maps to the `Prompt` class at `st/public/sc
 
 ## 3. How ST reads & assembles a preset
 
-```
-preset .json file
-   │  (import) preset-manager.js  →  validates type, stores under the API's preset list
-   ▼
-openai.js  loadOpenAISettings()   →  merges into oai_settings; fires OAI_PRESET_CHANGED
-   │                                 setupChatCompletionPromptManager() (openai.js:666)
-   ▼
-PromptManager  (PromptManager.js) →  holds prompts[] + prompt_order, renders the UI,
-   │                                 owns the global dummyId 100001 order
-   ▼
-preparePromptsForChatCompletion() (openai.js:1358)
-   │  walks prompt_order; for each enabled identifier:
-   │    • marker      → replace with live content (§5)
-   │    • non-marker  → emit { role, content } after macro substitution ({{char}}, {{scenario}}…)
-   ▼
-ChatCompletion / MessageCollection  →  final ordered messages[] array  →  provider request
-```
+<Figure tag="Figure 2" title="How ST reads and assembles a preset" id="fig-preset-assembly">
+<svg viewBox="0 0 640 566" role="img" aria-label="Preset load and assembly pipeline in SillyTavern" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="ps-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
+  </defs>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#ps-ah)">
+    <path d="M320 58 V82"/>
+    <path d="M320 138 V162"/>
+    <path d="M320 234 V258"/>
+    <path d="M320 330 V354"/>
+    <path d="M320 456 V480"/>
+  </g>
+  <g font-size="9.5" fill="var(--tbm-dgm-faint)">
+    <text x="332" y="74">import</text>
+    <text x="332" y="154">load settings</text>
+    <text x="332" y="250">wire up</text>
+    <text x="332" y="346">assemble</text>
+    <text x="332" y="472">emit</text>
+  </g>
+  <g text-anchor="middle">
+    <rect x="110" y="16" width="420" height="42" rx="9" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="320" y="34" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">preset .json file</text>
+    <text x="320" y="50" font-size="9.5" fill="var(--tbm-dgm-faint)">the imported artifact</text>
+    <rect x="110" y="82" width="420" height="56" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="320" y="104" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">preset-manager.js</text>
+    <text x="320" y="124" font-size="10.5" fill="var(--tbm-dgm-ink-2)">validates the type · stores it under the API's preset list</text>
+    <rect x="110" y="162" width="420" height="72" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="320" y="184" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">openai.js — loadOpenAISettings()</text>
+    <text x="320" y="204" font-size="10.5" fill="var(--tbm-dgm-ink-2)">merges into oai_settings · fires OAI_PRESET_CHANGED</text>
+    <text x="320" y="222" font-size="10.5" fill="var(--tbm-dgm-ink-2)">calls setupChatCompletionPromptManager() (openai.js:666)</text>
+    <rect x="110" y="258" width="420" height="72" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="320" y="280" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">PromptManager — PromptManager.js</text>
+    <text x="320" y="300" font-size="10.5" fill="var(--tbm-dgm-ink-2)">holds prompts[] + prompt_order · renders the UI</text>
+    <text x="320" y="318" font-size="10.5" fill="var(--tbm-dgm-ink-2)">owns the global order (dummyId 100001)</text>
+    <rect x="110" y="354" width="420" height="102" rx="9" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)"/>
+    <text x="320" y="376" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">preparePromptsForChatCompletion()</text>
+    <text x="320" y="391" font-size="9.5" fill="var(--tbm-dgm-faint)">openai.js:1358</text>
+    <text x="320" y="410" font-size="10.5" fill="var(--tbm-dgm-ink-2)">walks prompt_order — for each enabled identifier:</text>
+  </g>
+  <g text-anchor="start" font-size="10.5" fill="var(--tbm-dgm-ink-2)">
+    <text x="150" y="429">• marker → replaced with live content (§5)</text>
+    <text x="150" y="447">• non-marker → { role, content } after macro substitution</text>
+  </g>
+  <g text-anchor="middle">
+    <rect x="110" y="480" width="420" height="56" rx="9" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="320" y="502" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">ChatCompletion → messages[]</text>
+    <text x="320" y="522" font-size="10.5" fill="var(--tbm-dgm-ink-2)">final ordered array · sent as the provider request</text>
+  </g>
+</svg>
+<template #caption>
+
+**One import, four hops to a request.** An imported preset is validated and stored
+(`preset-manager.js`), merged into `oai_settings` (`loadOpenAISettings`), and handed to the
+`PromptManager`, which owns the `prompts[]` + `prompt_order` model. At send time,
+`preparePromptsForChatCompletion` walks the order: markers are swapped for live content
+(§5) and every other enabled entry is macro-substituted into a `{ role, content }` message —
+producing the final ordered `messages[]` array for the provider.
+
+</template>
+</Figure>
 
 Key references:
 - **Import / save / per-API routing:** `st/public/scripts/preset-manager.js` (uses `presetApiMap`; chat-completion presets go into `openai_settings`/`openai_setting_names`). Backend file storage: `st/src/endpoints/presets.js`.
