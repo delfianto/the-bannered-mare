@@ -20,7 +20,7 @@ export const bookmarkedMessages = [
     id: "bmsg-001",
     role: "assistant" as const,
     content:
-      '*Thalric sighs, his breath clouding in the freezing air of the sanctum as he adjusts the weight of his staff. He looks toward the heavy stone doors...*\n\n"If the prophecy holds, the sun will not rise over Candlekeep tomorrow. We must finish the ritual before the clock strikes twelve."',
+      '*Thalric sighs, his breath clouding in the freezing air of the sanctum as he adjusts the weight of his staff. He looks toward the heavy stone doors...*\n\n"If the prophecy holds, the sun will not rise over Skyrim tomorrow. We must finish the ritual before the clock strikes twelve."',
     character: {
       id: characters[0].id,
       name: characters[0].name,

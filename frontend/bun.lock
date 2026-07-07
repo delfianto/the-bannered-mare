@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "candlekeep-ui",
+      "name": "bannered-mare-frontend",
       "dependencies": {
         "@iconify-json/lucide": "^1.2.111",
         "@nuxt/ui": "^4.8.2",
