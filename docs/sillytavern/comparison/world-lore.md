@@ -1,12 +1,7 @@
 # World Lore System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
-> SillyTavern source: `public/scripts/world-info.js` (6,273 lines, client-side) +
-> `src/endpoints/worldinfo.js` (158 lines, file CRUD)
->
-> The Bannered Mare source: `src/lore/activation_engine.py`, `src/lore/service.py`,
-> `src/lore/repository.py`, `src/lore/router.py`, `src/lore/schemas.py`,
-> `src/core/persistence/models/lore.py`, `src/core/persistence/enums.py`
-
+This page assumes the [World / Lore Analysis](/sillytavern/analysis/world-lore) for how
+SillyTavern works internally, and focuses on where The Bannered Mare diverges and why.
 
 The Bannered Mare keeps the core activation mechanics and trims the long tail of ST-specific
 fields accumulated over the years:
@@ -44,11 +39,10 @@ filters, vectorized activation, and outlets, and splits ST's single `order` into
 
 ## 1. Entry Data Model
 
-### 1.1 Structural Overview
-
-SillyTavern entries carry 35+ fields, accumulated over years of feature additions.
-The Bannered Mare entries carry 18 persisted fields, covering the core activation and insertion
-mechanics while omitting several ST-specific extensions.
+SillyTavern entries carry 35+ fields accumulated over years of feature additions
+([Analysis §1 ›](/sillytavern/analysis/world-lore#_1-entry-data-model)). The Bannered Mare
+entries carry 18 persisted fields, covering the core activation and insertion mechanics while
+omitting several ST-specific extensions.
 
 | Category | SillyTavern | The Bannered Mare | Notes |
 |---|---|---|---|
@@ -74,7 +68,7 @@ mechanics while omitting several ST-specific extensions.
 | Automation | `automationId: string` | -- | Not implemented. |
 | Outlet name | `outletName: string` | -- | Not implemented (no outlet position). |
 
-### 1.2 Fields Present in The Bannered Mare but Absent in SillyTavern
+### 1.1 Fields Present in The Bannered Mare but Absent in SillyTavern
 
 | Field | Purpose |
 |---|---|
@@ -82,7 +76,7 @@ mechanics while omitting several ST-specific extensions.
 | `id: str` (NanoID) | Globally unique identifier. ST uses a per-lorebook `uid` integer. |
 | `created_at`, `updated_at` | Audit timestamps from `BaseModel`. ST has no equivalent. |
 
-### 1.3 Data Storage
+### 1.2 Data Storage
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -93,6 +87,12 @@ mechanics while omitting several ST-specific extensions.
 
 
 ## 2. Activation Engine
+
+SillyTavern's `checkWorldInfo()` is a stateful, ~500-line async function running a multi-pass
+iterative loop with four scan states
+([Analysis §2 ›](/sillytavern/analysis/world-lore#_2-activation-engine-checkworldinfo)). The
+Bannered Mare's `activate_entries()` is a stateless, ~50-line pure function that scans the full
+entry list once and returns results.
 
 ### 2.1 Architecture
 
@@ -112,14 +112,11 @@ Both systems follow the same two-stage pattern:
 2. Secondary filter: apply logic (AND_ANY / AND_ALL / NOT_ANY / NOT_ALL)
 ```
 
-**SillyTavern implementation** (`matchKeys()` at line 337):
-- Regex detection via `/pattern/flags` syntax per key string.
-- Case handling: per-entry nullable with global fallback.
-- Whole-word: regex boundary check for single words, `includes()` for multi-word.
-- Default: `String.includes()` substring match.
-- Supports macro expansion on keys via `substituteParams()` before matching.
+SillyTavern's `matchKeys()` detects `/pattern/flags` regex per key, handles case via per-entry
+nullable with global fallback, and supports macro expansion on keys via `substituteParams()`
+before matching ([Analysis §2 ›](/sillytavern/analysis/world-lore#_2-activation-engine-checkworldinfo)).
 
-**The Bannered Mare implementation** (`_match_keyword()` and `_match_regex()`):
+**The Bannered Mare** implementation (`_match_keyword()` and `_match_regex()`):
 - Regex mode controlled by `entry.use_regex` boolean (applies to all keys on the entry).
 - Whole-word matching uses `\b` word boundaries via `re.escape()` + `re.search()`.
 - Default: `re.escape()` + `re.search()` for substring matching.
@@ -141,29 +138,16 @@ In The Bannered Mare, entries with `priority < 0` are excluded entirely during b
 cutoff.
 
 
-## 3. Scan Buffer
+## 3. Scan Buffer Construction
 
-### 3.1 SillyTavern: Multi-Layer Buffer
+SillyTavern's `WorldInfoBuffer` class maintains four internal layers -- a depth-indexed chat
+buffer, global scan data (character/persona/scenario fields), a recursion buffer, and an
+extension-injection buffer -- with per-entry flags selecting which global sources apply
+([Analysis §3 ›](/sillytavern/analysis/world-lore#_3-scan-buffer-construction)).
 
-ST's `WorldInfoBuffer` class maintains four internal layers:
-
-| Layer | Description |
-|---|---|
-| `depthBuffer[]` | Chat messages indexed by depth (0 = most recent), up to MAX_SCAN_DEPTH (1000). |
-| `globalScanData` | Character description, personality, persona, scenario, creator notes, depth prompt. |
-| `recurseBuffer[]` | Content from previously activated entries (fed back during recursion passes). |
-| `injectBuffer[]` | Extension prompt injections marked with `scan: true`. |
-
-Per-entry flags (`matchPersonaDescription`, `matchCharacterDescription`, etc.) control
-which global scan sources are included for that specific entry.
-
-### 3.2 The Bannered Mare: Flat String
-
-The Bannered Mare passes a single `scan_text: str` parameter to `activate_entries()`. The caller
-(`LoreService.get_activated_entries()`) is responsible for constructing this string from
+**The Bannered Mare** passes a single `scan_text: str` parameter to `activate_entries()`. The
+caller (`LoreService.get_activated_entries()`) is responsible for constructing this string from
 chat messages and character context before calling the engine.
-
-### 3.3 Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -175,6 +159,10 @@ chat messages and character context before calling the engine.
 
 
 ## 4. Insertion Positions
+
+SillyTavern exposes 8 insertion positions
+([Analysis §4 ›](/sillytavern/analysis/world-lore#_4-insertion-positions)); The Bannered Mare
+implements 4 of them.
 
 ### 4.1 Position Map
 
@@ -218,6 +206,11 @@ are inserted as discrete messages at the specified chat history depth.
 
 ## 5. Token Budget
 
+SillyTavern computes the budget as a percentage of max context (`world_info_budget`, default
+25%) capped by `world_info_budget_cap`, enforced after a probability roll with an overflow
+toast ([Analysis §5 ›](/sillytavern/analysis/world-lore#_5-token-budget)). The Bannered Mare
+takes an absolute token count from the caller.
+
 ### 5.1 Budget Calculation
 
 | Aspect | SillyTavern | The Bannered Mare |
@@ -244,32 +237,15 @@ Both systems delegate token counting to a tokenizer service. SillyTavern uses
 
 ## 6. Recursive Scanning
 
-### 6.1 SillyTavern: Full Implementation
+SillyTavern's recursive scanning is a multi-pass system with four scan states and per-entry
+control fields (`excludeRecursion`, `preventRecursion`, `delayUntilRecursion`), guarded against
+infinite loops by max steps and budget exhaustion
+([Analysis §6 ›](/sillytavern/analysis/world-lore#_6-recursive-scanning)).
 
-ST's recursive scanning is a multi-pass system with four scan states:
-
-| State | Behavior |
-|---|---|
-| `INITIAL` | First pass: scan chat buffer against all entries. |
-| `RECURSION` | Subsequent passes: activated entry content is added to the scan buffer, potentially triggering new entries. |
-| `MIN_ACTIVATIONS` | If fewer entries activated than `world_info_min_activations`, scan depth increases incrementally. Recursion buffer excluded. |
-| `NONE` | Terminal state. |
-
-Control fields per entry:
-- `excludeRecursion`: Entry cannot be activated during recursion passes.
-- `preventRecursion`: Entry's content is not added to the recursion buffer.
-- `delayUntilRecursion`: Entry only activates during recursion, with tiered delay levels.
-
-Infinite loop prevention: max recursion steps, budget exhaustion, no-new-entries termination,
-`preventRecursion` flag.
-
-### 6.2 The Bannered Mare: Not Implemented
-
-`activate_entries()` performs a single pass. There is no recursion buffer, no multi-pass
-loop, and no scan state machine. The entry model has no fields for recursion control
-(`excludeRecursion`, `preventRecursion`, `delayUntilRecursion`).
-
-### 6.3 Assessment
+**The Bannered Mare** does not implement recursion. `activate_entries()` performs a single
+pass -- there is no recursion buffer, no multi-pass loop, and no scan state machine. The entry
+model has no fields for recursion control (`excludeRecursion`, `preventRecursion`,
+`delayUntilRecursion`).
 
 Recursive scanning is one of ST's most powerful features for complex world-building (e.g.,
 mentioning a faction name triggers a faction entry, whose content mentions a leader name,
@@ -280,25 +256,14 @@ design is simpler and more predictable but cannot express entry chaining.
 
 ## 7. Group / Mutual Exclusion
 
-### 7.1 SillyTavern: Full Implementation
+SillyTavern's `filterByInclusionGroups()` provides mutual exclusion within named groups -- one
+entry per `group` label activates per generation, selected by a five-step algorithm (timed
+effects, group scoring, already-activated check, `groupOverride`, weighted random)
+([Analysis §7 ›](/sillytavern/analysis/world-lore#_7-group-mutual-exclusion)).
 
-ST's `filterByInclusionGroups()` provides mutual exclusion within named groups:
-
-- Entries declare group membership via comma-separated `group` labels.
-- Only one entry per group activates per generation.
-- Selection algorithm (in priority order):
-  1. Timed effects filter (sticky entries win over non-sticky).
-  2. Group scoring (highest key match count wins, if enabled).
-  3. Already-activated check (previous-pass winners block new candidates).
-  4. Priority override (`groupOverride=true` wins unconditionally).
-  5. Weighted random selection using `groupWeight`.
-
-### 7.2 The Bannered Mare: Not Implemented
-
-The entry model has no `group`, `groupOverride`, `groupWeight`, or `useGroupScoring`
-fields. All matching entries activate independently with no mutual exclusion constraints.
-
-### 7.3 Assessment
+**The Bannered Mare** does not implement group exclusion. The entry model has no `group`,
+`groupOverride`, `groupWeight`, or `useGroupScoring` fields. All matching entries activate
+independently with no mutual exclusion constraints.
 
 Group exclusion is valuable for scenarios like "activate one of several weather entries"
 or "only one faction reputation level at a time." Without it, users must manually
@@ -308,24 +273,13 @@ exclusion logic.
 
 ## 8. Timed Effects
 
-### 8.1 SillyTavern: Full Implementation
+SillyTavern tracks three timed effect types (`sticky`, `cooldown`, `delay`) in
+`chat_metadata.timedWorldInfo`, persisted per-chat and surviving page reloads
+([Analysis §8 ›](/sillytavern/analysis/world-lore#_8-timed-effects)).
 
-Three timed effect types, tracked in `chat_metadata.timedWorldInfo`:
-
-| Effect | Behavior |
-|---|---|
-| `sticky` | Entry stays active for N messages after first activation, bypassing keyword checks. Triggers cooldown on expiry if configured. |
-| `cooldown` | Entry is suppressed for N messages after activation (or after sticky expires). |
-| `delay` | Entry cannot activate until the chat has at least N messages. Computed from entry field and chat length. |
-
-State is persisted per-chat and survives page reloads.
-
-### 8.2 The Bannered Mare: Not Implemented
-
-No `sticky`, `cooldown`, or `delay` fields on the entry model. No timed effect state
-tracking. All entries are evaluated purely against the current scan text on every request.
-
-### 8.3 Assessment
+**The Bannered Mare** does not implement timed effects. There are no `sticky`, `cooldown`, or
+`delay` fields on the entry model and no timed effect state tracking. All entries are evaluated
+purely against the current scan text on every request.
 
 Timed effects enable dynamic storytelling mechanics (e.g., a curse that persists for 5
 messages, a cooldown on weather changes, lore that only appears after the story progresses).
@@ -334,34 +288,21 @@ stateless activation model is simpler to reason about but cannot express tempora
 behavior.
 
 
-## 9. Import Formats
+## 9. Import / Export
 
-### 9.1 SillyTavern: Multi-Format Support
+SillyTavern imports five lorebook formats (native, NovelAI, Agnai, Risu, Character Book V2)
+plus PNG-embedded data, preserving `originalData` for round-trip fidelity
+([Analysis §9 ›](/sillytavern/analysis/world-lore#_9-import-export)).
 
-| Format | Detection | Key Mapping Highlights |
-|---|---|---|
-| SillyTavern native | Has `entries` property | Direct use |
-| NovelAI Lorebook | `lorebookVersion` present | `keys` -> `key`, `text` -> `content`, `budgetPriority` -> `order` |
-| Agnai Memory Book | `kind === 'memory'` | `keywords` -> `key`, `entry` -> `content`, `weight` -> `order` |
-| Risu Lorebook | `type === 'risu'` | `key` (comma-split), `secondkey`, `alwaysActive` -> `constant` |
-| Character Book (V2 Spec) | Via `convertCharacterBook()` | Full mapping including `extensions.*` namespace for ST-specific fields |
-| PNG with embedded data | `.png` file extension | Extracts `naidata` from metadata, routes through above converters |
-
-Original Character Book data is preserved as `originalData` for round-trip fidelity.
-
-### 9.2 The Bannered Mare: API-Only
-
-The Bannered Mare provides a RESTful CRUD API (`POST /api/lorebooks`, `POST /api/lorebooks/{id}/entries`)
-with Pydantic schema validation. There is no dedicated lorebook file-import endpoint and no
-standalone format converters.
+**The Bannered Mare** provides a RESTful CRUD API (`POST /api/lorebooks`,
+`POST /api/lorebooks/{id}/entries`) with Pydantic schema validation. There is no dedicated
+lorebook file-import endpoint and no standalone format converters.
 
 One indirect path does exist: the character-card importer (`POST /api/characters/import`)
 extracts an embedded V2 `character_book` and expands it into a `Lorebook` plus mapped
 `LoreEntry` rows (see the Character Cards comparison). Import of other external lorebook
 formats (NovelAI, Agnai, Risu, standalone lorebook JSON) would still need a client
 application or a future import service mapping them to `LoreEntryCreate` / `LorebookCreate`.
-
-### 9.3 Assessment
 
 ST's multi-format import is critical for its role as a community platform where users share
 character cards with embedded lorebooks across different tools. As a backend API, The Bannered Mare
@@ -371,6 +312,14 @@ lorebook. The remaining gap is standalone lorebook formats (NovelAI, Agnai, Risu
 
 
 ## 10. Additional Features in SillyTavern Not Present in The Bannered Mare
+
+SillyTavern layers on many further activation extras -- probability rolls, trigger-type
+filters, content decorators, per-entry scan flags, macro substitution, multiple lore sources,
+event hooks, group scoring, named outlets, and min-activation depth expansion
+([Analysis §2 ›](/sillytavern/analysis/world-lore#_2-activation-engine-checkworldinfo),
+[§12 ›](/sillytavern/analysis/world-lore#_12-lore-sources),
+[§13 ›](/sillytavern/analysis/world-lore#_13-event-system-integration)) -- none of which
+The Bannered Mare implements:
 
 | Feature | Description | Complexity to Add |
 |---|---|---|

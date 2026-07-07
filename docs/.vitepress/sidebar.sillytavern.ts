@@ -16,16 +16,17 @@ const topics: [slug: string, label: string][] = [
   ['presets', 'Presets'],
 ]
 
+// The per-topic Comparison pages are the study's entry points. Each links into a
+// deep SillyTavern Analysis page (kept as a reference archive, reachable via those
+// links but intentionally not listed in the nav).
 export const sillytavernSidebar: DefaultTheme.SidebarItem[] = [
   { text: 'Overview', link: '/sillytavern/' },
   {
-    text: 'Analysis',
+    text: 'Topics',
     collapsed: false,
-    items: topics.map(([slug, label]) => ({ text: label, link: `/sillytavern/analysis/${slug}` })),
-  },
-  {
-    text: 'Comparison',
-    collapsed: false,
-    items: topics.map(([slug, label]) => ({ text: label, link: `/sillytavern/comparison/${slug}` })),
+    items: topics.map(([slug, label]) => ({
+      text: label,
+      link: `/sillytavern/comparison/${slug}`,
+    })),
   },
 ]

@@ -1,5 +1,8 @@
 # LLM Provider System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
+This page assumes the [Providers Analysis](/sillytavern/analysis/providers) for how
+SillyTavern works internally, and focuses on where The Bannered Mare diverges and why.
+
 The two systems reach the same providers by opposite means — a big branching dispatcher versus
 a small adapter interface:
 
@@ -35,22 +38,11 @@ routes every call through a small, uniform `ProviderAdapter` interface.
 
 ## 1. Provider Count and Scope
 
-### SillyTavern
+SillyTavern supports ~40+ provider integrations split across two independent subsystems — 23 chat
+completion providers, 15 text completion backends, and 3 dedicated endpoints (KoboldAI, NovelAI,
+AI Horde) ([Analysis §1 ›](/sillytavern/analysis/providers#_1-provider-registry)).
 
-Supports ~40+ distinct provider integrations split across two independent subsystems:
-
-- **Chat Completions**: 23 providers (OpenAI, Claude, OpenRouter, Gemini, Vertex AI,
-  MistralAI, Cohere, DeepSeek, xAI, Groq, Perplexity, Azure OpenAI, AI21, Chutes,
-  ElectronHub, NanoGPT, AI/ML API, Pollinations, Moonshot, Fireworks, CometAPI, Z.AI,
-  SiliconFlow).
-- **Text Completions**: 15 providers (Ooba, Mancer, vLLM, Aphrodite, TabbyAPI,
-  KoboldCpp, TogetherAI, LlamaCpp, Ollama, InfermaticAI, DreamGen, OpenRouter,
-  Featherless, HuggingFace, Generic).
-- **Dedicated backends**: KoboldAI, NovelAI, AI Horde (separate endpoint files).
-
-### The Bannered Mare
-
-Supports 8 provider types via `ProviderType` enum:
+**The Bannered Mare** supports 8 provider types via the `ProviderType` enum:
 
 | ProviderType  | Adapter Used       |
 |---------------|--------------------|
@@ -68,8 +60,6 @@ eight types. `OllamaAdapter` and `LMStudioAdapter` both subclass `OpenAIAdapter`
 OpenAI-compatible servers), and xAI, OpenRouter, and Custom providers reuse the OpenAI
 adapter directly since their APIs are OpenAI-compatible.
 
-### Comparison
-
 SillyTavern covers a far wider surface area, including legacy text-completion backends,
 niche aggregators, and self-hosted inference engines. The Bannered Mare targets the major
 cloud providers and local inference (Ollama and LM Studio, both with native
@@ -79,29 +69,12 @@ systems treat OpenAI-compatible APIs as a shared baseline.
 
 ## 2. Architecture Pattern
 
-### SillyTavern: Switch/If-Else Dispatch
+SillyTavern routes through a single ~2,700-line file (`chat-completions.js`) with a two-tier
+dispatch — a switch statement for 12 bespoke providers and a ~260-line if/else chain for the
+OAI-compatible rest — where each standalone async handler owns the full request lifecycle; text
+completions live in a second, fully separate dispatch file ([Analysis §2 ›](/sillytavern/analysis/providers#_2-backend-request-handlers)).
 
-Routing lives in a single ~2,700-line file (`chat-completions.js`) with a two-tier
-dispatch:
-
-1. **Tier 1 -- Switch statement**: 12 providers with bespoke request formats are
-   dispatched to dedicated `async` handler functions (`sendClaudeRequest`,
-   `sendMakerSuiteRequest`, etc.).
-2. **Tier 2 -- If/else chain**: The remaining 11 providers fall through to a ~260-line
-   if/else block that configures `apiUrl`, `apiKey`, `headers`, and `bodyParams`, then
-   merges them into a single OpenAI-compatible request body.
-
-Text completions use a second, fully separate dispatch file (`text-completions.js`,
-646 lines) with its own switch statement and parameter filtering.
-
-Handler functions are standalone async functions that receive the raw Express
-`(request, response)` pair. Each handler owns the full lifecycle: URL construction,
-auth, payload building, HTTP call, streaming/non-streaming response handling, and
-error handling.
-
-### The Bannered Mare: Adapter Pattern with Gateway
-
-The system is split into three layers:
+**The Bannered Mare** uses an adapter pattern with a gateway, split into three layers:
 
 1. **`ProviderAdapter` (ABC)**: Defines five abstract methods -- `build_url`,
    `build_headers`, `build_payload`, `parse_response`, `parse_stream_line` -- plus a
@@ -119,8 +92,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
                      httpx.AsyncClient -> Provider API
 ```
 
-### Comparison
-
 | Aspect                    | SillyTavern                                          | The Bannered Mare                                    |
 |---------------------------|------------------------------------------------------|----------------------------------------------------|
 | Dispatch mechanism        | Switch statement + if/else chain                     | Registry dict lookup + polymorphic adapter          |
@@ -133,22 +104,11 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 3. Authentication Handling
 
-### SillyTavern
+SillyTavern stores 40+ named secrets in a per-user JSON file (via `SecretManager`, with rotation
+and masking) and spans five auth patterns — Bearer, `x-api-key`, `api-key`, `?key=` query param,
+and a full Vertex AI JWT/OAuth2 flow — with per-provider reverse-proxy overrides ([Analysis §4 ›](/sillytavern/analysis/providers#_4-authentication)).
 
-- **Storage**: JSON file on disk per user, managed by `SecretManager` class. Supports
-  multi-secret per key with rotation and masked display.
-- **40+ secret keys** defined in `SECRET_KEYS` (one per provider/service).
-- **Five auth patterns** across providers:
-  - `Authorization: Bearer <key>` (majority of providers)
-  - `x-api-key: <key>` (Anthropic)
-  - `api-key: <key>` (Azure OpenAI)
-  - `?key=<apiKey>` query parameter (Google AI Studio, Vertex AI Express)
-  - JWT/OAuth2 flow (Vertex AI Full -- service account JSON to JWT to access token)
-  - No auth (local backends: KoboldCpp, LlamaCpp, Ollama)
-- **Reverse proxy**: Nearly every cloud provider supports a `reverse_proxy` URL
-  override with `proxy_password` as the credential.
-
-### The Bannered Mare
+**The Bannered Mare** takes a leaner, environment-variable approach:
 
 - **Storage**: Environment variables. Each `ProviderConfig` declares an `env_var_name`
   (e.g., `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`). Custom providers store their env var
@@ -166,8 +126,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Base URL override**: Each Provider row can store a custom `base_url` that overrides
   the default from `PROVIDER_CONFIGS`.
 
-### Comparison
-
 | Aspect                | SillyTavern                              | The Bannered Mare                          |
 |-----------------------|------------------------------------------|------------------------------------------|
 | Key storage           | JSON file with rotation/masking          | Environment variables                    |
@@ -179,20 +137,11 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 4. Parameter Management
 
-### SillyTavern
+SillyTavern filters parameters through 8 constant allowlist arrays (`_.pickBy()`), assembles
+provider-specific additions inline in each handler, and manages defaults/presets entirely in the
+frontend, sending parameters as-is ([Analysis §5 ›](/sillytavern/analysis/providers#_5-parameter-management)).
 
-- **Parameter allowlists**: 8 constant arrays (`OLLAMA_KEYS`, `OPENAI_KEYS`,
-  `VLLM_KEYS`, `OPENROUTER_KEYS`, `AZURE_OPENAI_KEYS`, etc.) defined in
-  `constants.js`. Filtering is applied via `_.pickBy()`.
-- **Common set**: `model, messages, temperature, max_tokens, top_p, stream,
-  presence_penalty, frequency_penalty, stop, seed`.
-- **Provider additions** are assembled inline within each handler or if/else branch
-  (e.g., Claude gets `top_k`, `thinking`, `output_config`; Gemini gets `topK`,
-  `safetySettings`, `thinkingConfig`).
-- **No cascade**: Parameters are sent as-is from the frontend. The frontend UI manages
-  defaults, presets, and overrides.
-
-### The Bannered Mare
+**The Bannered Mare** manages parameters server-side:
 
 - **Model as configured endpoint**: A `Model` entry is not a 1:1 mapping to an upstream
   model. The same upstream model (identified by `model_identifier`) can have multiple
@@ -219,8 +168,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Unsupported parameter tracking**: `ModelFamily.unsupported_parameters` column
   explicitly lists parameters the family does not support.
 
-### Comparison
-
 | Aspect                     | SillyTavern                           | The Bannered Mare                                |
 |----------------------------|---------------------------------------|------------------------------------------------|
 | Model configuration        | One model = one config                | Configured endpoint (N configs per upstream model via `template_id`) |
@@ -233,36 +180,29 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 5. Response Normalization
 
-### SillyTavern
+SillyTavern normalizes to the OpenAI `{ choices: [{ message: { content } }] }` shape — forwarding
+OAI-compatible providers untouched and hand-wrapping non-OAI responses per handler (preserving the
+original alongside), all as plain untyped JS objects ([Analysis §6 ›](/sillytavern/analysis/providers#_6-response-normalisation)).
 
-- **Target format**: OpenAI-compatible `{ choices: [{ message: { content } }] }`.
-- **OAI-compat providers**: Forwarded without transformation (OpenRouter, Groq,
-  Fireworks, Perplexity, etc.).
-- **Non-OAI providers**: Each handler wraps its response into the OAI shape manually.
-  The original provider response is preserved alongside (e.g., Claude's `content` array,
-  Gemini's `responseContent` parts).
-- **No typed response model**: Normalized responses are plain JS objects.
+**The Bannered Mare** normalizes into three typed dataclasses:
 
-### The Bannered Mare
+- `CompletionResponse`: `content: str`, `finish_reason: str`, `usage: TokenUsage`,
+  `reasoning: str | None`, `raw: dict`.
+- `StreamChunk`: `content: str | None`, `reasoning: str | None`,
+  `finish_reason: str | None`, `usage: TokenUsage | None`.
+- `TokenUsage`: `input_tokens`, `output_tokens`, `total_tokens`,
+  `cache_read_tokens`, `cache_creation_tokens`.
 
-- **Target format**: Three typed dataclasses:
-  - `CompletionResponse`: `content: str`, `finish_reason: str`, `usage: TokenUsage`,
-    `reasoning: str | None`, `raw: dict`.
-  - `StreamChunk`: `content: str | None`, `reasoning: str | None`,
-    `finish_reason: str | None`, `usage: TokenUsage | None`.
-  - `TokenUsage`: `input_tokens`, `output_tokens`, `total_tokens`,
-    `cache_read_tokens`, `cache_creation_tokens`.
-- **Every adapter** implements `parse_response()` and `parse_stream_line()` to produce
-  these canonical types.
-- **Finish reason mapping**: Each adapter normalizes provider-specific stop reasons to a
-  common vocabulary (`stop`, `length`, `content_filter`, `tool_calls`):
-  - Anthropic: `end_turn` -> `stop`, `max_tokens` -> `length`.
-  - Gemini: `STOP` -> `stop`, `MAX_TOKENS` -> `length`, `SAFETY`/`RECITATION`/etc. ->
-    `content_filter`.
-  - OpenAI: Pass-through (already canonical).
-- **Raw preservation**: `CompletionResponse.raw` stores the unmodified provider JSON.
+Every adapter implements `parse_response()` and `parse_stream_line()` to produce these canonical
+types. Finish reasons are normalized to a common vocabulary (`stop`, `length`, `content_filter`,
+`tool_calls`) via explicit per-adapter maps:
 
-### Comparison
+- Anthropic: `end_turn` -> `stop`, `max_tokens` -> `length`.
+- Gemini: `STOP` -> `stop`, `MAX_TOKENS` -> `length`, `SAFETY`/`RECITATION`/etc. ->
+  `content_filter`.
+- OpenAI: Pass-through (already canonical).
+
+The unmodified provider JSON is retained in `CompletionResponse.raw`.
 
 | Aspect                   | SillyTavern                               | The Bannered Mare                            |
 |--------------------------|-------------------------------------------|--------------------------------------------|
@@ -274,39 +214,25 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 6. Streaming
 
-### SillyTavern
+SillyTavern's backend is a transparent SSE proxy — `forwardFetchResponse()` pipes upstream bytes
+straight to the Express response (Ollama's JSONL being the one re-wrapped exception), with an
+`AbortController` tied to socket `close` for cancellation ([Streaming Analysis ›](/sillytavern/analysis/streaming)).
 
-- **Mechanism**: `forwardFetchResponse()` from `src/util.js` pipes the upstream SSE
-  stream directly to the Express HTTP response. The server acts as a transparent proxy
-  for SSE data.
-- **Ollama exception**: Text-completion Ollama uses newline-delimited JSON, rewrapped
-  into SSE format via `parseOllamaStream()`.
-- **Abort handling**: Each handler creates an `AbortController` tied to the socket
-  `close` event. When the client disconnects, the upstream request is aborted.
-  KoboldCpp additionally sends an explicit `/api/extra/abort` request.
-- **Header-sent safety**: All handlers check `response.headersSent` before sending
-  error responses to avoid crashes during active streams.
+**The Bannered Mare** parses the stream server-side:
+`ProviderGateway.chat_completion_stream()` uses `httpx.AsyncClient` with
+`client.stream("POST", ...)`, iterates `response.aiter_lines()`, calls
+`adapter.parse_stream_line()` on each line, and yields `StreamChunk` objects. Each adapter
+handles its own SSE format:
 
-### The Bannered Mare
+- OpenAI: Strips `data: ` prefix, handles `[DONE]` sentinel, extracts delta content and reasoning.
+- Anthropic: Dispatches on `type` field (`content_block_delta` for text/thinking, `message_delta`
+  for finish, `message_stop` as fallback).
+- Gemini: Parses `candidates[0].content.parts`, separates `thought` parts from text.
+- Ollama / LM Studio: Inherit OpenAI parsing (both use the `/v1/chat/completions` SSE format).
 
-- **Mechanism**: `ProviderGateway.chat_completion_stream()` uses `httpx.AsyncClient`
-  with `client.stream("POST", ...)`. The gateway iterates `response.aiter_lines()`,
-  calls `adapter.parse_stream_line()` on each line, and yields `StreamChunk` objects.
-- **Adapter parsing**: Each adapter implements `parse_stream_line()` to handle its SSE
-  format:
-  - OpenAI: Strips `data: ` prefix, handles `[DONE]` sentinel, extracts delta content
-    and reasoning.
-  - Anthropic: Dispatches on `type` field (`content_block_delta` for text/thinking,
-    `message_delta` for finish, `message_stop` as fallback).
-  - Gemini: Parses `candidates[0].content.parts`, separates `thought` parts from text.
-  - Ollama / LM Studio: Inherit OpenAI parsing (both use the `/v1/chat/completions` SSE
-    format).
-- **Stream termination**: Chunks with `finish_reason` set signal end of stream; the
-  generator returns after yielding the final chunk.
-- **Error handling**: HTTP errors during streaming are caught after `response.aread()`
-  and mapped to typed exceptions.
-
-### Comparison
+Chunks with `finish_reason` set signal end of stream; the generator returns after the final chunk.
+HTTP errors during streaming are caught after `response.aread()` and mapped to typed exceptions.
+The full streaming contrast has its own [Streaming Comparison](/sillytavern/comparison/streaming).
 
 | Aspect                  | SillyTavern                                | The Bannered Mare                              |
 |-------------------------|--------------------------------------------|----------------------------------------------|
@@ -318,23 +244,12 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 7. Prompt Caching
 
-### SillyTavern
+SillyTavern implements Anthropic prompt caching via `cachingAtDepthForClaude()`
+(`cache_control: { type: 'ephemeral', ttl }` at a configurable depth), with parallel logic for
+OpenRouter and NanoGPT Claude, cacheability detection through the OpenRouter `/models` API, and
+the relevant beta headers ([Analysis §8 ›](/sillytavern/analysis/providers#_8-provider-specific-features)).
 
-- **Anthropic caching**: `cachingAtDepthForClaude()` adds
-  `cache_control: { type: 'ephemeral', ttl }` to messages at a configurable depth from
-  the end. System prompt caching adds `cache_control` to the last system block and
-  last tool definition.
-- **OpenRouter Claude caching**: `cachingAtDepthForOpenRouterClaude()` and
-  `cachingSystemPromptForOpenRouter()` adapt the same logic for OpenRouter's message
-  format (handles string vs array content).
-- **NanoGPT Claude caching**: Passes `cache_control.enabled` and `ttl` when model
-  matches a Claude pattern.
-- **Beta header**: `prompt-caching-2024-07-31` included in Claude's beta headers array
-  alongside `extended-cache-ttl-2025-04-11`.
-- **Cacheable detection**: `isOpenRouterModelCacheable()` queries the OpenRouter
-  `/models` API to check for `pricing.input_cache_write`.
-
-### The Bannered Mare
+**The Bannered Mare** caches through the adapters:
 
 - **Anthropic caching**: `AnthropicAdapter.build_payload()` wraps the system prompt
   (assembled from the template + fragment system, not stored on the Model entity) in a
@@ -358,8 +273,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **No depth-based caching**: No configurable depth parameter for cache breakpoint
   placement.
 
-### Comparison
-
 | Aspect                   | SillyTavern                              | The Bannered Mare                           |
 |--------------------------|------------------------------------------|-------------------------------------------|
 | Anthropic system caching | Supported with configurable TTL          | Supported (ephemeral, no TTL config)      |
@@ -371,26 +284,12 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 8. Reasoning / Extended Thinking Support
 
-### SillyTavern
+SillyTavern activates reasoning by model-name string matching per provider — Anthropic
+enabled/adaptive modes with budget calculators, Gemini `thinkingConfig`, DeepSeek `-reasoner`,
+xAI binary effort, OpenRouter/Moonshot/Z.AI toggles — and extracts it provider-specifically
+([Analysis §8 ›](/sillytavern/analysis/providers#_8-provider-specific-features)).
 
-- **Anthropic**: Detects thinking-capable models by string matching (`claude-3-7`,
-  `claude-opus-4`, `claude-sonnet-4`, etc.). Two modes:
-  - `thinking.type = 'enabled'` with numeric `budget_tokens` (pre-Opus 4.6).
-  - `thinking.type = 'adaptive'` with `output_config.effort` levels
-    (low/medium/high/max) for Opus 4.6+/Sonnet 4.6.
-  - Budget calculation via `calculateClaudeBudgetTokens()`.
-- **Gemini**: `thinkingConfig` with either numeric `thinkingBudget` or string
-  `thinkingLevel` depending on model generation. Separate calculator functions per
-  model sub-family (Flash, Pro, Gemini 3).
-- **DeepSeek**: Detects `-reasoner` suffix, adds `reasoning_content` to tool calls.
-- **xAI**: Binary reasoning effort -- `high` stays `high`, everything else maps to
-  `low`.
-- **OpenRouter**: `reasoning.exclude` flag and `reasoning.effort` level pass-through.
-- **Moonshot / Z.AI**: `thinking.type: 'enabled'/'disabled'` toggle.
-- **Response extraction**: Provider-specific. Claude thinking blocks, Gemini thought
-  parts, DeepSeek `reasoning_content` fields.
-
-### The Bannered Mare
+**The Bannered Mare** drives reasoning through the parameter cascade rather than name matching:
 
 - **Anthropic**: `AnthropicAdapter.build_payload()` passes through a `thinking` dict
   from parameters when `thinking.type == 'enabled'`. No model-name detection or
@@ -410,8 +309,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Canonical field**: Both `CompletionResponse.reasoning` and `StreamChunk.reasoning`
   normalize reasoning content across all providers.
 
-### Comparison
-
 | Aspect                     | SillyTavern                                | The Bannered Mare                              |
 |----------------------------|--------------------------------------------|----------------------------------------------|
 | Thinking mode activation   | Model-name string matching per provider    | Parameter cascade from ModelFamily/Preset     |
@@ -424,20 +321,11 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 ## 9. Error Handling
 
-### SillyTavern
+SillyTavern wraps each handler's fetch in try/catch, mostly flattening non-OK responses to 500
+(502 for `ECONNREFUSED`), special-casing `429` + `insufficient_quota` into a `quota_error` flag,
+and guarding on `response.headersSent` before sending errors ([Analysis §7 ›](/sillytavern/analysis/providers#_7-error-handling)).
 
-- **Pattern**: Each handler wraps its fetch call in try/catch. Non-OK responses are
-  logged and returned as `response.status(500).send(errorJson)`. The original status
-  code is not always preserved.
-- **Rate limiting**: Detected specifically for the OAI-compat path via
-  `status === 429 && error.type === 'insufficient_quota'`. A `quota_error` flag is
-  sent to the frontend for UI-specific messaging.
-- **Connection errors**: `ECONNREFUSED` is detected and returned as 502.
-- **Abort handling**: `AbortController` tied to socket close on every handler.
-- **Header-sent guard**: All handlers check `response.headersSent` before sending
-  error responses.
-
-### The Bannered Mare
+**The Bannered Mare** uses a typed exception hierarchy:
 
 - **Typed exception hierarchy**: `ProviderException` base class with four subclasses:
   - `ProviderAuthError` (HTTP 401)
@@ -452,8 +340,6 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
   `TimeoutException` -> `ProviderTimeoutError`, catch-all -> `ProviderException`.
 - **Exception propagation**: Provider exceptions bubble up to the router layer, where
   they are mapped to HTTP responses per the project's layered architecture.
-
-### Comparison
 
 | Aspect                 | SillyTavern                                | The Bannered Mare                             |
 |------------------------|--------------------------------------------|---------------------------------------------|

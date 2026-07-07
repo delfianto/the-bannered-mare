@@ -1,14 +1,9 @@
 # RAG Pipeline — SillyTavern v1.17.0 vs The Bannered Mare
 
-This document compares RAG (Retrieval-Augmented Generation) capabilities between
-SillyTavern v1.17.0 and The Bannered Mare. Both systems now have functional RAG
-pipelines, though with different architectural foundations and scope.
-
-Source analysis: `docs/st_analysis/RAG_PIPELINE.md`
-
-
-Both now have working RAG, but on different foundations — a file-system index versus the
-application's own database:
+This page assumes the [RAG Analysis](/sillytavern/analysis/rag) for how SillyTavern works
+internally, and focuses on where The Bannered Mare diverges and why. Both systems now have
+functional RAG pipelines, though on different architectural foundations — a file-system index
+versus the application's own database:
 
 <Figure tag="Figure 1" title="Vectra files vs VectorChord in Postgres" id="fig-cmp-rag">
 <svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare RAG" style="font-family:var(--vp-font-family-base)">
@@ -59,22 +54,11 @@ everything else, so a single query can span messages and Data Bank entries.
 
 ## 2. Vector Storage
 
-### SillyTavern
+SillyTavern stores vectors in **Vectra** (`vectra` npm package), a file-system index that keeps
+each collection as a directory of JSON files (`<user_data>/vectors/<source>/<collectionId>/<model>/`),
+with no support for external vector databases ([Analysis §2 ›](/sillytavern/analysis/rag#_2-vector-storage-backend)).
 
-ST uses **Vectra** (`vectra` npm package v0.2.2), a lightweight file-system-based
-vector index that stores collections as directories of JSON files on disk.
-
-- Directory layout: `<user_data>/vectors/<source>/<collectionId>/<model>/`
-- Switching embedding source or model creates a separate index (no automatic migration)
-- Operations: upsert, query (top-K with score threshold), list, delete, purge
-- Metadata per item: `{ hash, text, index }` (hash for dedup, text for retrieval, index for ordering)
-- Corrupted index recovery: detects JSON parse errors, deletes index, retries with redirect
-
-No support for external vector databases (Pinecone, Chroma, Weaviate, pgvector, etc.).
-
-### The Bannered Mare
-
-The Bannered Mare uses **VectorChord** (the `vchord` extension, built on pgvector's `vector`
+**The Bannered Mare** uses **VectorChord** (the `vchord` extension, built on pgvector's `vector`
 type), storing embeddings directly in the same database as all other application data.
 
 - Table: `embeddings` (SQLAlchemy model at `src/core/persistence/models/rag.py`)
@@ -102,8 +86,6 @@ The VectorChord approach has several structural advantages over Vectra:
 - The flat RaBitQ index scales to IVF partitioning (`vchordrq` `lists`) for larger datasets
   without changing application code
 
-### Comparison
-
 | Aspect | ST (Vectra) | The Bannered Mare (VectorChord) |
 |--------|-------------|----------------------|
 | Storage format | JSON files on disk | PostgreSQL rows |
@@ -116,27 +98,12 @@ The VectorChord approach has several structural advantages over Vectra:
 
 ## 3. Embedding Providers
 
-### SillyTavern
+SillyTavern offers 19 embedding sources — mostly OpenAI-compatible `/embeddings` wrappers, plus a
+zero-config in-process ONNX option and two browser-side embedders — with per-source batching quirks
+([Analysis §3 ›](/sillytavern/analysis/rag#_3-embedding-providers)).
 
-19 embedding sources, most wrapping OpenAI-compatible `/embeddings` endpoints:
-
-| Category | Providers |
-|----------|-----------|
-| Local (zero-config) | `transformers` (ONNX via sillytavern-transformers, default `Xenova/all-mpnet-base-v2`) |
-| Local (user-hosted) | `ollama`, `llamacpp`, `vllm`, `koboldcpp` |
-| Cloud (API key) | `openai`, `mistral`, `togetherai`, `cohere`, `nomicai`, `palm`, `vertexai`, `electronhub`, `openrouter`, `chutes`, `nanogpt`, `siliconflow` |
-| Browser-side | `webllm` (WebLLM WASM), `koboldcpp` (client fetch) |
-| Legacy | `extras` (ST-Extras server) |
-
-Notable details:
-- Batching: 10 items server-side, 5 client-side (1 for transformers/ollama)
-- Cohere passes `input_type` for asymmetric embeddings (search_query vs. search_document)
-- Two providers compute embeddings in-browser and send pre-computed vectors to backend
-
-### The Bannered Mare
-
-Four embedding adapters in `EmbeddingService` (`src/rag/embedding_service.py`),
-selected by the `provider` setting:
+**The Bannered Mare** exposes four embedding adapters in `EmbeddingService`
+(`src/rag/embedding_service.py`), selected by the `provider` setting:
 
 | Adapter | `provider` value | API endpoint | Auth | Notes |
 |---------|------------------|--------------|------|-------|
@@ -168,8 +135,6 @@ Configuration via `EmbeddingSettings` in `src/core/config.py`:
 Batching: 10 items per batch for all adapters (constant `BATCH_SIZE` in
 `embedding_service.py`).
 
-### Comparison
-
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Named providers | 19 | 4 (llama.cpp, OpenAI-compatible, Ollama, HF TEI) |
@@ -188,34 +153,12 @@ while ST can run ONNX embeddings in-process with no setup.
 
 ## 4. Document Processing and Text Chunking
 
-### SillyTavern
+SillyTavern ingests 10+ file formats (PDF, HTML, Markdown, EPUB, DOCX/XLSX/PPTX,
+ODT/ODP/ODS, up to 350 MB) and chunks with `splitRecursive` — a recursive delimiter chain
+(`\n\n`, `\n`, ` `, `""`) with sentence-trimmed symmetric overlap ([Analysis §4 ›](/sillytavern/analysis/rag#_4-document-processing)).
 
-Supported file types via client-side and server-side converters:
-
-| Format | Converter |
-|--------|-----------|
-| PDF | pdf.js (client-side) |
-| HTML | DOMParser + DOMPurify |
-| Markdown | Simple text post-processing |
-| EPUB | epub.js (client-side) |
-| DOCX, XLSX, PPTX | Server plugin (`/api/plugins/office/probe`) |
-| ODT, ODP, ODS | Server plugin |
-| Plain text (.txt, .json, .csv) | Stored as-is |
-
-Max file size: 350 MB.
-
-**Text chunking** uses `splitRecursive`, a recursive delimiter-based algorithm:
-- Delimiter chain: `['\n\n', '\n', ' ', '']` (paragraph, line, word, character)
-- Custom chunk boundary delimiter can be prepended
-- Chunk overlap: symmetric, trimmed to sentence boundaries
-- Overlap formula: `chunk_size * overlap_percent / 100`, split evenly between prev/next chunk tails
-
-Optional: translate files to English before chunking (via Chat Translation extension).
-
-### The Bannered Mare
-
-**Document ingestion is text-only.** Data Bank entries are created via the REST API
-with plain text content -- there is no file upload or format conversion pipeline.
+**The Bannered Mare's** document ingestion is **text-only**. Data Bank entries are created via
+the REST API with plain text content -- there is no file upload or format conversion pipeline.
 Adding file processing (PDF, EPUB, etc.) is a future enhancement.
 
 **Text chunking** uses `chunk_text()` (`src/rag/chunker.py`), a recursive
@@ -228,8 +171,6 @@ delimiter-based splitter structurally similar to ST's `splitRecursive`:
 Configurable parameters (via `RAGSettings`):
 - `chunk_size`: max characters per chunk (default 500)
 - `chunk_overlap`: overlap characters from previous chunk (default 50)
-
-### Comparison
 
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
@@ -248,30 +189,12 @@ ingestion: The Bannered Mare cannot process binary file formats.
 
 ## 5. Data Bank (Knowledge Base)
 
-### SillyTavern
+SillyTavern's Data Bank is a three-tier attachment system (global / character / chat, stored in
+settings and chat metadata) fed by six ingestion sources — file upload, Fandom, MediaWiki, web
+scraping, YouTube transcripts, and manual notepad entry — managed via `/db*` slash commands
+([Analysis §5 ›](/sillytavern/analysis/rag#_5-data-bank)).
 
-Three-tier attachment system with different scopes:
-
-| Scope | Availability | Storage location |
-|-------|-------------|-----------------|
-| Global | All characters, all chats | `extension_settings.attachments` |
-| Character | One character, all its chats | `extension_settings.character_attachments[avatar]` |
-| Chat | Current chat only | `chat_metadata.attachments` |
-
-Ingestion sources:
-- Direct file upload (drag & drop or file picker)
-- Fandom wiki scraping (all articles, with regex filtering)
-- MediaWiki scraping (any instance)
-- Web scraping (arbitrary URLs)
-- YouTube transcripts (by URL or video ID)
-- Manual text entry (Notepad)
-
-Files can be individually enabled/disabled without deletion. Managed via slash commands
-(`/db`, `/db-list`, `/db-get`, `/db-add`, `/db-update`, `/db-delete`, `/db-search`, etc.).
-
-### The Bannered Mare
-
-Three-tier Data Bank with the same scoping model, implemented as a relational entity:
+**The Bannered Mare** keeps the same three-tier scoping model, implemented as a relational entity:
 
 | Scope | Availability | Storage |
 |-------|-------------|---------|
@@ -297,8 +220,6 @@ synchronous database access through `DataBankRepository` (`src/rag/repository.py
 Ingestion: text content only, supplied via the API. No file upload, web scraping,
 wiki scraping, or YouTube transcript extraction.
 
-### Comparison
-
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Scope tiers | 3 (global, character, chat) | 3 (global, character, chat) |
@@ -315,30 +236,12 @@ lacks. ST has far richer ingestion sources.
 
 ## 6. Chat Vectorization
 
-### SillyTavern
+SillyTavern's `synchronizeChat()` incrementally vectorizes chat messages for memory recall —
+hash-diffing against the Vectra collection, optionally summarizing and chunking before embedding,
+triggered on a debounced schedule with configurable query/insert/protect/threshold parameters
+([Analysis §6 ›](/sillytavern/analysis/rag#_6-chat-vectorization-smart-context)).
 
-Incremental chat message vectorization for "memory recall" -- retrieving semantically
-relevant past messages that have scrolled out of the context window.
-
-Process (`synchronizeChat()`):
-1. Hash each non-system message text
-2. Compare hashes against Vectra collection (keyed by chat ID)
-3. Insert new messages, delete orphaned ones
-4. Optional: summarize messages before embedding (via Main API, Extras, or WebLLM)
-5. Optional: chunk messages by `message_chunk_size` (default 400 chars)
-
-Triggered on a debounced schedule whenever messages are sent, received, edited,
-deleted, or swiped. "Vectorize All" button available for full re-indexing.
-
-Configurable parameters:
-- `query`: number of recent messages to form the search query (default 2)
-- `insert`: number of past messages to retrieve (default 3)
-- `protect`: last N messages exempt from rearrangement (default 5)
-- `score_threshold`: cosine similarity cutoff (default 0.25)
-
-### The Bannered Mare
-
-Message vectorization via `RetrievalService.vectorize_message()`
+**The Bannered Mare** vectorizes messages via `RetrievalService.vectorize_message()`
 (`src/rag/retrieval_service.py`):
 
 1. Compute a deterministic 63-bit SHA-256 hash of the message content (masked to fit the signed `BIGINT` column)
@@ -366,8 +269,6 @@ Configuration (`RAGSettings` in `src/core/config.py`):
 - `max_results`: top-K limit (default 5)
 - `similarity_threshold`: cosine similarity cutoff (default 0.3)
 
-### Comparison
-
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Dedup strategy | Hash-based (string hash) | Hash-based (SHA-256 masked to 63 bits) |
@@ -386,31 +287,12 @@ loop.
 
 ## 7. Query Pipeline and Prompt Injection
 
-### SillyTavern
+SillyTavern runs its query pipeline before every generation (via a `generate_interceptor` hook),
+walking a four-step flow — Data Bank, message attachments, World Info, chat memory — and injecting
+results through two configurable channels (`3_vectors` chat memory and `4_vectors_data_bank`) with
+position and role controls ([Analysis §7 ›](/sillytavern/analysis/rag#_7-query-pipeline), [§8 ›](/sillytavern/analysis/rag#_8-prompt-injection)).
 
-Triggered before every LLM generation (except quiet prompts) via the
-`generate_interceptor` manifest hook.
-
-Full flow:
-1. Process Data Bank files -- ingest any un-vectorized attachments, query all
-   Data Bank collections, inject results via `setExtensionPrompt(TAG_DB)`
-2. Process message attachments -- vectorize inline file attachments, prepend
-   retrieved chunks to the message text
-3. Activate World Info -- vectorize WI entries per-world, query, emit
-   `WORLDINFO_FORCE_ACTIVATE` for matches
-4. Chat memory retrieval -- build query from last N messages, query chat collection,
-   filter out protected messages, inject via `setExtensionPrompt(TAG)`
-
-Two injection channels:
-- `3_vectors` -- chat memory results (default template: `"Past events:\n{{text}}"`)
-- `4_vectors_data_bank` -- Data Bank results (default template: `"Related information:\n{{text}}"`)
-
-Injection position is configurable: before main prompt, after main prompt, or
-in-chat at a specific depth. Role configurable for Data Bank (system/user/assistant).
-
-### The Bannered Mare
-
-RAG results are integrated into the prompt via the `rag_context` component in
+**The Bannered Mare** integrates RAG results via the `rag_context` component in
 `PromptBuilder.build_api_messages()` (`src/prompt_template/prompt_builder.py`).
 
 Flow:
@@ -430,8 +312,6 @@ Additionally, manual semantic search is exposed via the REST API:
 - `GET /api/rag/status` -- returns current RAG configuration (provider, model,
   dimensions, chunk settings, threshold)
 
-### Comparison
-
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
 | Injection channels | 2 (chat memory + Data Bank, separate templates) | 1 (unified `rag_context` component) |
@@ -449,23 +329,11 @@ and enable/disable mechanism.
 
 ## 8. World Info Vector Activation
 
-### SillyTavern
+SillyTavern supports dual activation for World Info — keyword matching plus optional semantic
+search that vectorizes entries into per-world collections and force-activates matches via
+`WORLDINFO_FORCE_ACTIVATE`, supplementing (not replacing) keyword hits ([Analysis §9 ›](/sillytavern/analysis/rag#_9-world-info-vector-integration)).
 
-Dual activation: keyword matching AND optional semantic search. When "Enable for
-World Info" is checked:
-
-1. WI entries are vectorized into per-world collections (`world_<hash(name)>`)
-2. Chat text is used as query against all world collections
-3. Matching entries are force-activated via `WORLDINFO_FORCE_ACTIVATE` event
-4. Configurable: activate all entries or only entries marked "vectorized"
-5. Max entries cap (default 5)
-
-This runs alongside the standard keyword activation -- semantic matches supplement
-keyword matches rather than replacing them.
-
-### The Bannered Mare
-
-Keyword/regex activation only. The lore activation engine
+**The Bannered Mare** does keyword/regex activation only. The lore activation engine
 (`src/lore/activation_engine.py`) implements:
 - Primary key matching (keyword or regex, with case sensitivity and whole-word options)
 - Secondary key matching (AND/NOT logic)
@@ -481,20 +349,11 @@ The activation engine itself would not need reworking.
 
 ## 9. Configuration Surface
 
-### SillyTavern
+SillyTavern exposes a ~40-parameter settings object plus runtime slash commands, covering
+embedding source, chat/file/Data Bank vectorization, World Info vectorization, and summarization
+([Analysis §10 ›](/sillytavern/analysis/rag#_10-settings-configuration)).
 
-Extensive settings object with ~40 parameters covering:
-- Embedding source selection and per-source model names
-- Chat vectorization (enable, query count, insert count, protect count, chunk size, threshold)
-- File vectorization (enable, size threshold, chunk size/count, overlap percent)
-- Data Bank files (size threshold, chunk size/count, overlap, template, position, depth, role)
-- World Info vectorization (enable, enable-for-all, max entries)
-- Summarization (enable, source, prompt)
-- Runtime slash commands for threshold, query count, max entries, and feature toggles
-
-### The Bannered Mare
-
-Three Pydantic settings models in `src/core/config.py`:
+**The Bannered Mare** uses three Pydantic settings models in `src/core/config.py`:
 
 **`EmbeddingSettings`** (nested in `RAGSettings.embedding`):
 - `provider` -- `"llamacpp"` (default), `"openai"`, `"ollama"`, or `"huggingface"`
@@ -529,8 +388,6 @@ All settings are configurable via environment variables using the
 `env_nested_delimiter="__"` convention (e.g., `RAG__EMBEDDING__MODEL=text-embedding-3-small`).
 
 Runtime status endpoint: `GET /api/rag/status` returns the active configuration.
-
-### Comparison
 
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|

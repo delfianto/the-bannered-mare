@@ -1,9 +1,7 @@
 # Tags, Stats, and Data Integrity — Engineering Comparison
 
-This document compares how SillyTavern v1.17.0 and The Bannered Mare approach tag management, statistics tracking, search/filtering, and data integrity. The analysis covers current implementations as of April 2026.
-
-**Reference material:** [docs/st_analysis/TAGS_STATS_DATA.md](/sillytavern/analysis/tags-stats-data)
-
+This page assumes the [Tags / Stats / Data Analysis](/sillytavern/analysis/tags-stats-data) for
+how SillyTavern works internally, and focuses on where The Bannered Mare diverges and why.
 
 Tags capture the systems' broader philosophy — a rich client-side registry versus a plain column
 on the row:
@@ -38,16 +36,12 @@ array directly on the `characters` row — no IDs, no metadata.
 </template>
 </Figure>
 
-## 1. Tag System
+## 1. Tags System
 
-### 1.1 Data Model
-
-**SillyTavern** stores tags as a flat array of JavaScript objects in the user's `settings.json`. Each tag carries an ID, name, folder type, filter state, sort order, two color values, a creation timestamp, and a visibility flag. A separate `tag_map` object maps entity keys (avatar filenames for characters, group IDs for groups) to arrays of tag IDs. Tags and their assignments are two independent structures that must be kept in sync manually.
-
-```
-tags: Tag[]                         -- all tag definitions
-tag_map: { [entityKey]: tagId[] }   -- entity-to-tag assignments
-```
+SillyTavern stores tags as a flat array of objects in the user's `settings.json` (each with an
+ID, colors, folder type, sort order, and more) plus a separate `tag_map` index binding entities
+to tag IDs -- two structures kept in sync manually
+([Analysis §1 ›](/sillytavern/analysis/tags-stats-data#_1-tags-system)).
 
 **The Bannered Mare** stores tags as a PostgreSQL array column directly on the `characters` table:
 
@@ -59,8 +53,6 @@ tags: Mapped[list[str] | None] = mapped_column(
 ```
 
 The `StringList` type resolves to `postgresql.ARRAY(String)` in production and `JSON` for SQLite test environments. Tags are plain strings -- there is no separate tag registry, no tag IDs, no color metadata, and no folder semantics. A character's tags are simply a list of strings stored alongside the character record.
-
-### 1.2 Comparison Table
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -79,7 +71,7 @@ The `StringList` type resolves to `postgresql.ARRAY(String)` in production and `
 | Backup/restore | Dedicated export/import of tag data as JSON | Handled by standard database backup |
 | Slash commands | 5 tag commands for scripting | N/A (no scripting layer) |
 
-### 1.3 Design Trade-offs
+### 1.1 Design Trade-offs
 
 SillyTavern's tag system is a full-featured organizational tool with ~2,850 lines of dedicated code. Tags have their own identity, visual configuration, and can serve as navigational containers (folders). The trade-off is complexity: tags and their assignments live in two separate structures that must be synchronized, and the server has no awareness of tags at all -- everything is client-side.
 
@@ -90,22 +82,14 @@ A future evolution path for The Bannered Mare would be a normalized tag table (`
 
 ## 2. Search and Filtering
 
-### 2.1 SillyTavern Approach
+SillyTavern performs all search and filtering client-side: Fuse.js fuzzy matching with weighted
+fields, a three-state tag filter, and a seven-stage `FilterHelper` pipeline
+(`SEARCH → FAV → GROUP → FOLDER → TAG → WORLD_INFO_SEARCH → PERSONA_SEARCH`), with state
+persisted across reloads
+([Analysis §3 ›](/sillytavern/analysis/tags-stats-data#_3-search-system-local-characterentity-search),
+[§2 ›](/sillytavern/analysis/tags-stats-data#_2-tag-filtering-system)).
 
-ST performs all search and filtering client-side using Fuse.js for fuzzy matching. The `FilterHelper` class chains seven filter types in sequence: `SEARCH -> FAV -> GROUP -> FOLDER -> TAG -> WORLD_INFO_SEARCH -> PERSONA_SEARCH`. Each filter narrows the dataset further.
-
-Key characteristics:
-- **Fuzzy search** with Fuse.js (threshold 0.2, location-independent matching)
-- **Weighted fields** -- character name (weight 20), tags (10), description (3), personality (2), etc.
-- **Three-state tag filter** -- each tag cycles through SELECTED (include), EXCLUDED (exclude), and UNDEFINED (ignore)
-- **AND logic** for inclusion (all selected tags must match), **OR logic** for exclusion (any excluded tag disqualifies)
-- **Score caching** per search term per category
-- **Fallback** to plain case-insensitive substring matching when fuzzy search is disabled
-- **Filter state persistence** across page reloads via browser storage
-
-### 2.2 The Bannered Mare Approach
-
-The Bannered Mare handles filtering server-side through the `BaseRepository._apply_filters()` method, which translates query parameters into SQLAlchemy `WHERE` clauses. The character list endpoint (`GET /api/characters`) accepts filter parameters via `CharacterFilterParams`:
+**The Bannered Mare** handles filtering server-side through the `BaseRepository._apply_filters()` method, which translates query parameters into SQLAlchemy `WHERE` clauses. The character list endpoint (`GET /api/characters`) accepts filter parameters via `CharacterFilterParams`:
 
 ```python
 class CharacterFilterParams(BaseModel):
@@ -116,8 +100,6 @@ class CharacterFilterParams(BaseModel):
 ```
 
 The `_apply_filters` method supports nine operators: `eq`, `ne`, `gt`, `lt`, `ge`, `le`, `in`, `like`, `ilike`. The `tags__ilike` filter performs a case-insensitive `LIKE` match against the serialized tag array column.
-
-### 2.3 Comparison Table
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -133,7 +115,7 @@ The `_apply_filters` method supports nine operators: `eq`, `ne`, `gt`, `lt`, `ge
 | Performance scaling | Degrades with dataset size (all data in browser memory) | Scales with database indexing |
 | State persistence | Browser localStorage | Stateless (query parameters per request) |
 
-### 2.4 Design Trade-offs
+### 2.1 Design Trade-offs
 
 ST's client-side search is powerful for small-to-medium collections: fuzzy matching, weighted relevance, and instant UI updates without network round-trips. The cost is that the entire dataset must be loaded into browser memory, and search performance is bounded by JavaScript execution speed.
 
@@ -144,31 +126,12 @@ PostgreSQL offers paths to close this gap without reimplementing a client-side s
 
 ## 3. Statistics Tracking
 
-### 3.1 SillyTavern Approach
+SillyTavern tracks per-character RP metrics (word counts, message counts, swipes, generation
+time, chat size) in a `stats.json` file, updated via a real-time frontend push plus a batch
+rebuild that re-parses every chat `.jsonl`
+([Analysis §4 ›](/sillytavern/analysis/tags-stats-data#_4-statistics-tracking)).
 
-ST tracks per-character statistics in a `stats.json` file. Each character entry (keyed by avatar filename) records:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `total_gen_time` | number | Total LLM generation time (ms) |
-| `user_word_count` | number | Words written by the user |
-| `non_user_word_count` | number | Words generated by the AI |
-| `user_msg_count` | number | Total user messages |
-| `non_user_msg_count` | number | Total AI messages |
-| `total_swipe_count` | number | Total regeneration count |
-| `chat_size` | number | Total chat file size (bytes) |
-| `date_last_chat` | number | Most recent activity timestamp |
-| `date_first_chat` | number | First activity timestamp |
-
-Stats are updated via two paths:
-- **Real-time:** The frontend increments counters on each message event and pushes updates to the server via `POST /api/stats/update`
-- **Batch rebuild:** `POST /api/stats/recreate` scans all chat `.jsonl` files from disk, parsing every message line and recalculating everything from scratch
-
-Persistence uses a 5-minute auto-save interval with dirty tracking and atomic file writes (`write-file-atomic`).
-
-### 3.2 The Bannered Mare Approach
-
-The Bannered Mare does not implement character-level RP statistics (word counts, message counts, generation times). Instead, it tracks **LLM usage statistics** through the audit logging system.
+**The Bannered Mare** does not implement character-level RP statistics (word counts, message counts, generation times). Instead, it tracks **LLM usage statistics** through the audit logging system.
 
 The `AuditWriter` (a fire-and-forget writer backed by PostgreSQL) records every LLM API call to the `llm_audit_logs` table with fields including: chat_id, provider, model, prompt/completion/total tokens, latency, status (success/error), and estimated cost. The admin endpoint `GET /admin/logs/llm/stats` runs a SQLAlchemy aggregation (grouped by provider+model) that computes:
 
@@ -179,8 +142,6 @@ The `AuditWriter` (a fire-and-forget writer backed by PostgreSQL) records every 
 - Success/error counts and success rate
 
 HTTP request logs (`http_logs`) and application errors (`error_logs`) are stored in their own PostgreSQL tables. Each audit write runs on a dedicated `AsyncSession`, decoupled from the request transaction, and swallows its own errors so logging can never roll back a chat.
-
-### 3.3 Comparison Table
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -194,7 +155,7 @@ HTTP request logs (`http_logs`) and application errors (`error_logs`) are stored
 | Per-character breakdown | Yes (primary key is character avatar filename) | No (grouped by provider+model, not character) |
 | Chat-level stats | Aggregated into per-character totals | Queryable by `chat_id` in raw logs |
 
-### 3.4 Design Trade-offs
+### 3.1 Design Trade-offs
 
 These are fundamentally different metrics for different audiences. ST's stats answer user-facing questions: "How much have I chatted with this character? How many words has the AI generated?" The Bannered Mare's stats answer operational questions: "How many tokens am I consuming? What is the error rate? How much is this costing?"
 
@@ -205,33 +166,15 @@ The Bannered Mare's approach of logging each LLM call independently to a Postgre
 A per-character stats view for The Bannered Mare could be built entirely from existing data using SQL aggregation over the `messages` table joined to `chats` and `characters`, without any additional storage.
 
 
-## 4. Data Integrity
+## 4. Data Maid (Data Integrity Checker)
 
-### 4.1 SillyTavern: Data Maid
+SillyTavern's "Data Maid" is a dedicated integrity checker (~816 lines backend, ~404 lines
+frontend) that scans nine categories of on-disk data for orphaned files no longer referenced by
+any active entity, cross-referencing the filesystem against parsed chat files under a
+token-based, path-hashing security model
+([Analysis §5 ›](/sillytavern/analysis/tags-stats-data#_5-data-maid-data-integrity-checker)).
 
-ST's "Data Maid" is a dedicated integrity checker (~816 lines backend, ~404 lines frontend) that identifies **orphaned files** -- data on disk no longer referenced by any active entity. It scans nine categories:
-
-| Category | What it checks |
-|----------|---------------|
-| Images | User-uploaded images not referenced in any chat message |
-| Files | Uploaded files not referenced in chats or settings |
-| Chats | Chat directories for deleted characters |
-| Group Chats | Group chat files not referenced by any group |
-| Avatar Thumbnails | Thumbnails for missing character avatars |
-| Background Thumbnails | Thumbnails for deleted backgrounds |
-| Persona Thumbnails | Thumbnails for deleted personas |
-| Chat Backups | Automatic chat backup files |
-| Settings Backups | Automatic settings backup files |
-
-The Data Maid uses a security model where file paths are SHA-256 hashed before being sent to the frontend, and a cryptographic token (32 random bytes) is issued per scan session. All view/delete operations must include the valid token, and the token is invalidated when the session ends.
-
-Detection works by cross-referencing the filesystem against parsed chat files: the Data Maid reads every `.jsonl` message looking for media references (`extra.image`, `extra.file`, etc.) and every chat metadata block, then flags files that appear on disk but not in any reference set.
-
-Separately, the tag system has its own "Prune" feature that removes tags with zero assignments and `tag_map` entries pointing to deleted entities. And the stats system can be rebuilt from chat files via `recreateStats` to purge entries for deleted characters.
-
-### 4.2 The Bannered Mare: Relational Integrity
-
-The Bannered Mare delegates data integrity to PostgreSQL's relational constraint system. The schema uses foreign keys with explicit `ON DELETE` behaviors:
+**The Bannered Mare** delegates data integrity to PostgreSQL's relational constraint system. The schema uses foreign keys with explicit `ON DELETE` behaviors:
 
 | Relationship | Constraint | Effect |
 |-------------|-----------|--------|
@@ -251,8 +194,6 @@ Additionally, the `CharacterService.delete()` method explicitly calls `delete_ch
 
 SQLAlchemy ORM relationships use `cascade="all, delete-orphan"` on the Python side, which mirrors the database-level cascades and also handles in-session orphan cleanup.
 
-### 4.3 Comparison Table
-
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Primary integrity mechanism | Post-hoc scanning (Data Maid) | Preventive constraints (foreign keys) |
@@ -266,7 +207,7 @@ SQLAlchemy ORM relationships use `cascade="all, delete-orphan"` on the Python si
 | Security model for cleanup | Token-based, path-hashing, single-use tokens | N/A (integrity is structural, not a user-facing operation) |
 | Risk of orphaned data | Present (files can accumulate without references) | Minimal for relational data; possible for filesystem assets if application crashes mid-delete |
 
-### 4.4 Design Trade-offs
+### 4.1 Design Trade-offs
 
 ST's file-based architecture means data integrity is fundamentally an application-level concern. When a character is deleted, the chat files, thumbnails, tag references, and stat entries must each be cleaned up by separate code paths. If any step fails or is skipped, orphans accumulate. The Data Maid exists precisely because this is a known, expected condition -- it provides a controlled way to detect and resolve the inevitable drift between filesystem state and application state.
 
@@ -275,7 +216,7 @@ The Bannered Mare's relational model pushes most integrity concerns down to the 
 The one gap in The Bannered Mare's approach is the filesystem. Avatar images and thumbnails live on disk, outside the database transaction. If the application crashes after the database deletion completes but before `delete_character_files()` finishes, orphaned image files could remain. This is a much smaller surface area than ST's full-filesystem integrity problem, but it is not zero. A periodic cleanup job that cross-references the `characters/` storage directory against the `characters` table would close this gap.
 
 
-## 5. Cross-System Integration
+## 5. Relationships Between Systems
 
 ### 5.1 SillyTavern
 

@@ -1,13 +1,10 @@
 # Presets: SillyTavern vs. The Bannered Mare
 
-The Bannered Mare can **import** SillyTavern (ST) chat-completion presets, but it does not
-model them the way ST does. This document explains what an ST preset is, how
-The Bannered Mare represents the same ideas, and exactly what the importer
-(`POST /api/presets/import`) does with each part.
-
-> See also: the sibling `PROMPTING.md` (ST↔The Bannered Mare prompt-system comparison) and
-> `docs/st_analysis/PRESET.md` (deeper ST preset-format analysis). This file is the
-> **comparison + import contract**.
+This page assumes the [Presets Analysis](/sillytavern/analysis/presets) for what an ST
+chat-completion preset is and how ST assembles one, and focuses on how The Bannered Mare
+represents the same ideas and exactly what the importer (`POST /api/presets/import`) does with
+each part. The Bannered Mare can **import** SillyTavern (ST) chat-completion presets, but it
+does not model them the way ST does.
 
 ## TL;DR
 
@@ -66,28 +63,16 @@ drops the marker/role plumbing modern long-context models don't need.
 
 ## What an ST chat-completion preset is
 
-A single JSON file carrying (all optional unless noted):
-
-- **Sampler block** — `temperature`, `top_p`, `top_k`, `top_a`, `min_p`,
-  `frequency_penalty`, `presence_penalty`, `repetition_penalty`,
-  `openai_max_tokens`, `seed`, `n`. (Connection fields like
-  `chat_completion_source`, model names, and proxy are environment config, not tuning.)
-- **`prompts[]`** — a library of prompt entries: `identifier`, `name`, `role`,
-  `content`, `system_prompt`, `marker`, `injection_position`, `injection_depth`,
-  `enabled`. Three kinds:
-  - **markers** (`marker: true`, no content) — placeholders ST fills at assembly:
-    `charDescription`, `charPersonality`, `scenario`, `personaDescription`,
-    `worldInfoBefore/After`, `dialogueExamples`, `chatHistory`;
-  - **built-ins** — `main`, `nsfw`, `jailbreak`, `enhanceDefinitions`;
-  - **custom** — UUID-keyed creator fragments (CoT blocks, anti-slop rules, etc.).
-- **`prompt_order[]`** — per-character assembly order; `character_id` `100001`/`100000`
-  is the global one. Its `enabled` flags are what creators' "toggles" actually flip.
-- **Format / nudge strings** — `scenario_format`, `wi_format`, `new_chat_prompt`,
-  `group_nudge_prompt`, etc.
-
-Notes: ST presets have **no `name`** — the name is the filename. The same JSON
-shape is reused by ST for *non-presets* (regex scripts, character cards); the
-importer detects and rejects those.
+In brief, an ST chat-completion preset is a single JSON file that bundles a **sampler block**
+(`temperature`, `top_p`, penalties, `openai_max_tokens`, …) with a **prompt-assembly recipe**
+(`prompts[]` — markers, built-ins, and custom fragments — plus a per-character
+`prompt_order[]`) and a set of format/nudge strings. It has **no `name`** (the name is the
+filename), and the same JSON shape is reused for non-presets (regex scripts, character cards)
+that the importer must detect and reject. Full detail in
+[Analysis §2 preset structure ›](/sillytavern/analysis/presets#_2-chat-completion-preset-structure),
+[§3 how ST assembles a preset ›](/sillytavern/analysis/presets#_3-how-st-reads-assembles-a-preset),
+[§5 the marker set ›](/sillytavern/analysis/presets#_5-the-marker-set-what-st-substitutes), and
+[§6 the other artifact types ›](/sillytavern/analysis/presets#_6-the-other-two-artifact-types-for-the-importers-type-detector).
 
 ## How The Bannered Mare models the same ideas
 

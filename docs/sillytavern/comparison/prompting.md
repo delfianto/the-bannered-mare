@@ -1,5 +1,8 @@
 # Prompting System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
+This page assumes the [Prompting Analysis](/sillytavern/analysis/prompting) for how
+SillyTavern works internally, and focuses on where The Bannered Mare diverges and why.
+
 Both assemble a prompt within a token budget, but one is a large client-server pipeline and the
 other a small server-side pass:
 
@@ -35,17 +38,15 @@ server-side `PromptBuilder` pass driven by a database-stored `component_order`.
 
 ## 1. Architecture Overview
 
-### SillyTavern
+SillyTavern's prompting system is a client-server split pipeline: prompt assembly runs entirely
+in the browser (`ChatCompletion`, `PromptManager`, ~12,000 lines of JS), then a Node.js backend
+does provider-specific format conversion before forwarding ([Analysis §1 ›](/sillytavern/analysis/prompting#_1-prompt-assembly-pipeline)).
 
-The prompting system is a **client-server split pipeline**. Prompt assembly happens entirely in the browser via JavaScript classes (`ChatCompletion`, `Message`, `MessageCollection`, `PromptManager`). The assembled prompt -- always in OpenAI ChatML format -- is sent to a Node.js backend that performs provider-specific format conversion via `prompt-converters.js` before forwarding to the API.
-
-Key files: `openai.js` (6996 lines), `PromptManager.js` (2144 lines), `macros.js`, `instruct-mode.js`, `prompt-converters.js` (1445 lines).
-
-Total complexity: ~12,000 lines of JavaScript across the prompt assembly path.
-
-### The Bannered Mare
-
-The prompting system is a **server-side monolithic pipeline**. A single `PromptBuilder` class (`prompt_builder.py`, ~220 lines) constructs the message array from database-persisted `PromptTemplate` configuration. Provider-specific formatting is handled by a separate `ProviderAdapter` hierarchy that transforms the canonical OpenAI-format messages into each provider's native format.
+**The Bannered Mare** is a server-side monolithic pipeline. A single `PromptBuilder` class
+(`prompt_builder.py`, ~220 lines) constructs the message array from database-persisted
+`PromptTemplate` configuration. Provider-specific formatting is handled by a separate
+`ProviderAdapter` hierarchy that transforms the canonical OpenAI-format messages into each
+provider's native format.
 
 Key files: `prompt_builder.py`, `core/utils/template.py` (~115 lines), `core/persistence/models/prompt.py` (PromptTemplate + PromptFragment + TemplateFragment + DEFAULT_COMPONENT_ORDER), `prompt_fragment/service.py` (~178 lines), `lore/activation_engine.py` (~153 lines), `provider/adapters/*.py`.
 
@@ -54,26 +55,13 @@ Total complexity: ~800 lines of Python across the prompt assembly path.
 
 ## 2. Prompt Assembly Pipeline
 
-### SillyTavern
+SillyTavern's pipeline is a multi-phase orchestration with several handoff points — `Generate()`
+runs macros, `preparePromptsForChatCompletion()` merges system prompts with the user-configured
+order, and `populateChatCompletion()` fills a token budget via a reserve/free pattern, all
+extensible through the `CHAT_COMPLETION_PROMPT_READY` hook ([Analysis §1 ›](/sillytavern/analysis/prompting#_1-prompt-assembly-pipeline)).
 
-The pipeline is a multi-phase orchestration with several handoff points:
-
-1. `Generate()` in `script.js` collects character data, runs macro substitution, and calls `prepareOpenAIMessages()`.
-2. `preparePromptsForChatCompletion()` merges system prompts (world info, character fields, extensions) with the user-configured prompt ordering from `PromptManager`.
-3. `populateChatCompletion()` fills a `ChatCompletion` object within a token budget using a reserve/free pattern:
-   - Adds mandatory prompts (character definition, world info) first.
-   - Reserves budget for control prompts (impersonation, quiet prompts).
-   - Fills chat history newest-first until budget is exhausted.
-   - Fills example dialogues if budget remains.
-   - Inserts absolute-position (depth) injections into the chat history.
-4. `squashSystemMessages()` optionally merges consecutive system messages.
-5. The flat message array is sent to the server for provider-specific conversion.
-
-The pipeline supports a `CHAT_COMPLETION_PROMPT_READY` event hook, allowing extensions to modify the assembled prompt before it is sent.
-
-### The Bannered Mare
-
-The pipeline is a single-method orchestration in `PromptBuilder.build_api_messages()`:
+**The Bannered Mare** does it in a single-method orchestration in
+`PromptBuilder.build_api_messages()`:
 
 1. Resolve the `PromptTemplate` (from the chat or the system default).
 2. Build a `TemplateContext` from the character, persona, and chat data.
@@ -84,8 +72,6 @@ The pipeline is a single-method orchestration in `PromptBuilder.build_api_messag
 7. Return the flat `[{role, content}]` array.
 
 There is no event system or extension hook mechanism.
-
-### Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -98,30 +84,12 @@ There is no event system or extension hook mechanism.
 
 ## 3. Component Ordering
 
-### SillyTavern
+SillyTavern's default order is a 12-slot array of `{identifier, enabled}` entries per character
+(with hardcoded `nsfw` and `jailbreak` slots), fully reorderable via a drag-and-drop UI and
+stored per-character with a global fallback ([Analysis §5 ›](/sillytavern/analysis/prompting#_5-component-ordering)).
 
-The default component order has 12 slots, managed as an array of `{identifier, enabled}` entries per character:
-
-```
-1. main (system prompt)
-2. worldInfoBefore
-3. personaDescription
-4. charDescription
-5. charPersonality
-6. scenario
-7. enhanceDefinitions (disabled by default)
-8. nsfw
-9. worldInfoAfter
-10. dialogueExamples (marker)
-11. chatHistory (marker)
-12. jailbreak
-```
-
-Users can fully reorder via drag-and-drop UI. Per-character overrides are stored alongside a global fallback (dummy character ID `100001`). The order is a UI-editable array stored in `serviceSettings.prompt_order`.
-
-### The Bannered Mare
-
-The default component order has 11 slots, stored as a JSON column on the `PromptTemplate` model:
+**The Bannered Mare's** default component order has 11 slots, stored as a JSON column on the
+`PromptTemplate` model:
 
 ```python
 DEFAULT_COMPONENT_ORDER = [
@@ -139,9 +107,13 @@ DEFAULT_COMPONENT_ORDER = [
 ]
 ```
 
-The `rag_context` slot injects retrieved context from a RAG pipeline (if available) between example dialogues and chat history, giving the model relevant reference material immediately before the conversation.
+The `rag_context` slot injects retrieved context from a RAG pipeline (if available) between
+example dialogues and chat history, giving the model relevant reference material immediately
+before the conversation.
 
-The earlier `nsfw_prompt` and `jailbreak_prompt` component slots were removed. Their function is now handled by the **Prompt Fragment** system (see Section 9). During component iteration, fragments are injected at 3 positions mapped to specific components:
+The earlier `nsfw_prompt` and `jailbreak_prompt` component slots were removed. Their function is
+now handled by the **Prompt Fragment** system (see Section 9). During component iteration,
+fragments are injected at 3 positions mapped to specific components:
 
 | After component | Injection position | Typical use |
 |---|---|---|
@@ -149,9 +121,9 @@ The earlier `nsfw_prompt` and `jailbreak_prompt` component slots were removed. T
 | `example_dialogues` | `pre_history` | Context-setting fragments before conversation |
 | `chat_history` | `post_history` | Jailbreak instructions, final reminders |
 
-Each component also has a boolean toggle in `DEFAULT_COMPONENTS_ENABLED`. Templates are reorderable via API (PUT with a new `component_order` list), but there is no drag-and-drop UI layer yet.
-
-### Comparison
+Each component also has a boolean toggle in `DEFAULT_COMPONENTS_ENABLED`. Templates are
+reorderable via API (PUT with a new `component_order` list), but there is no drag-and-drop UI
+layer yet.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -169,25 +141,17 @@ Each component also has a boolean toggle in `DEFAULT_COMPONENTS_ENABLED`. Templa
 
 ## 4. Template Engine
 
-### SillyTavern
+SillyTavern runs three coexisting engines: a legacy regex-based `evaluateMacros()`, an
+experimental lexer/parser behind a flag, and Handlebars for text-completion story strings — all
+using `{{...}}` syntax ([Analysis §3 ›](/sillytavern/analysis/prompting#_3-macro-template-engine)).
 
-Two template engines coexist:
-
-**Legacy engine (default):** Regex-based `evaluateMacros()` in `macros.js`. Processes macros in three phases (pre-environment, environment variables, post-environment). Uses `{{macro}}` double-brace syntax. No control flow -- purely substitution.
-
-**Experimental engine:** Full lexer/parser behind `power_user.experimental_macro_engine` flag. Structured into categories (core, env, state, chat, time, variable, instruct). Still uses `{{macro}}` syntax but supports richer evaluation.
-
-**Handlebars for story strings:** The text-completion context template uses Handlebars (`{{#if field}}...{{/if}}`) for conditional assembly. Compiled via `Handlebars.compile()` with `noEscape: true`.
-
-### The Bannered Mare
-
-Single engine: **Jinja2** via `TemplateService` (`core/utils/template.py`). The environment is configured with:
+**The Bannered Mare** uses a single engine: **Jinja2** via `TemplateService`
+(`core/utils/template.py`). The environment is configured with:
 - `autoescape=False` (no HTML escaping)
 - `trim_blocks=True`, `lstrip_blocks=True` (clean whitespace handling)
 
-Templates are rendered from string (`env.from_string()`), not from filesystem. The service also provides `validate_template()` for syntax checking before persistence.
-
-### Comparison
+Templates are rendered from string (`env.from_string()`), not from filesystem. The service also
+provides `validate_template()` for syntax checking before persistence.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -201,34 +165,19 @@ Templates are rendered from string (`env.from_string()`), not from filesystem. T
 
 ## 5. Macro / Variable System
 
-### SillyTavern
+SillyTavern exposes 60+ built-in macros across many categories (names, character data, chat
+state, date/time, randomness, instruct, STscript variables, metadata), evaluated in a phased
+order via `substituteParams()` ([Analysis §3 ›](/sillytavern/analysis/prompting#_3-macro-template-engine)).
 
-60+ built-in macros across multiple categories:
-
-**Character/Names:** `{{user}}`, `{{char}}`, `{{group}}`, `{{charIfNotGroup}}`, `{{notChar}}`
-**Character Data:** `{{description}}`, `{{personality}}`, `{{scenario}}`, `{{persona}}`, `{{mesExamples}}`
-**Chat State:** `{{lastMessage}}`, `{{lastUserMessage}}`, `{{lastCharMessage}}`, `{{lastMessageId}}`, `{{firstIncludedMessageId}}`
-**Date/Time:** `{{time}}`, `{{date}}`, `{{weekday}}`, `{{isotime}}`, `{{isodate}}`, `{{idle_duration}}`, `{{time_UTC+N}}`
-**Utilities:** `{{random::a::b::c}}`, `{{pick::a::b}}`, `{{roll:NdM}}`, `{{reverse:text}}`, `{{banned "word"}}`
-**Instruct:** `{{instructInput}}`, `{{instructOutput}}`, `{{systemPrompt}}`, `{{chatStart}}`
-**STscript:** `{{getvar::name}}`, `{{setvar::name::value}}`, `{{getglobalvar::name}}`
-**Metadata:** `{{model}}`, `{{maxPrompt}}`, `{{maxContext}}`, `{{maxResponse}}`
-**Special:** `{{original}}` (resolves to original prompt content when overridden), `{{outlet::key}}` (World Info custom outlets)
-
-Macros are evaluated at assembly time in `preparePrompt()` via `substituteParams()`. The evaluation order matters -- phase 1 macros (instruct sequences) run before phase 2 (environment variables) and phase 3 (chat state, date/time).
-
-### The Bannered Mare
-
-10 built-in variables exposed via `TemplateService._build_variables()`:
+**The Bannered Mare** exposes 10 built-in variables via `TemplateService._build_variables()`:
 
 **Character:** `{{char}}`, `{{description}}`, `{{personality}}`, `{{scenario}}`
 **Persona:** `{{user}}`, `{{persona}}`
 **Temporal:** `{{time}}` (HH:MM), `{{date}}` (YYYY-MM-DD)
 **Chat:** `{{chat_title}}`
 
-All variables are evaluated in a single pass by Jinja2's native rendering. There are no phased evaluation or ordering dependencies.
-
-### Comparison
+All variables are evaluated in a single pass by Jinja2's native rendering. There are no phased
+evaluation or ordering dependencies.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -244,29 +193,18 @@ All variables are evaluated in a single pass by Jinja2's native rendering. There
 
 ## 6. Token Budgeting
 
-### SillyTavern
+SillyTavern runs a dedicated `TokenHandler` + `ChatCompletion` budget system: mandatory prompts
+are allocated first (throwing if they overflow), a reserve/free pattern protects control prompts,
+history fills newest-first, and per-category token counts are tracked with model-specific
+tokenizers ([Analysis §6 ›](/sillytavern/analysis/prompting#_6-token-budget-management)).
 
-A dedicated `TokenHandler` + `ChatCompletion` budget system:
-
-1. **Budget calculation:** `max_context - max_response_tokens`
-2. **Mandatory prompt allocation:** System prompts, character data, and world info are added first. If they exceed the budget, a `TokenBudgetExceededError` is thrown.
-3. **Reserve/free pattern:** Budget is reserved for control prompts (impersonation, quiet prompts) and chat-history bookends (new chat marker, group nudge) before chat history insertion. After history is filled, the reservation is freed and the reserved prompts are inserted at their final positions.
-4. **Greedy history fill:** Messages are inserted newest-first until the budget runs out.
-5. **Example dialogue fill:** Entire example blocks are added only if the full block fits.
-6. **Token counting:** Asynchronous, server-side tokenizer endpoint. Per-message token counts are computed on `Message` creation. Images add 85+ tokens; video uses 263 tokens/second.
-7. **Category tracking:** Counts tracked per category (prompt, bias, nudge, jailbreak, examples, conversation).
-
-### The Bannered Mare
-
-A simpler budget system in `PromptBuilder._build_chat_history()`:
+**The Bannered Mare** uses a simpler budget system in `PromptBuilder._build_chat_history()`:
 
 1. **Budget source:** `template.max_history_tokens` (default: 4096).
 2. **History-only budgeting:** Only chat history messages are subject to the token budget. System prompts, character data, lore entries, and other components are added without budget checks.
 3. **Greedy history fill:** Messages are iterated in reverse chronological order. Each message's `token_count` is read from the database (or computed via `TokenizerService`). A 3-token overhead per message is added.
 4. **No reservation pattern:** There is no reserve/free mechanism. Components outside chat history are not budget-constrained.
 5. **No example dialogue budgeting:** Example dialogues are included unconditionally (not budget-gated).
-
-### Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -283,20 +221,12 @@ A simpler budget system in `PromptBuilder._build_chat_history()`:
 
 ## 7. Lore / World Info Injection
 
-### SillyTavern
+SillyTavern's World Info extension injects entries at `worldInfoBefore` / `worldInfoAfter`
+relative to the character block, plus absolute (depth) injection into chat history via
+`injection_position: ABSOLUTE`; keyword scanning is a separate system wired through the
+`PromptManager` ([Analysis §5 ›](/sillytavern/analysis/prompting#_5-component-ordering)).
 
-World Info entries are processed by the World Info extension and injected at two primary positions:
-
-- **`worldInfoBefore`**: Entries placed before the character definition block.
-- **`worldInfoAfter`**: Entries placed after the character definition block.
-
-Additionally, entries can use **absolute (depth) injection** to place content at a specific depth within the chat history. Depth injection uses `injection_position: ABSOLUTE`, `injection_depth` (number of messages from the end), and `injection_order` (priority). Multiple entries at the same depth are grouped by role and priority.
-
-World Info activation is handled by a separate keyword-scanning system (not covered in the prompting analysis, but the injection points are wired through the `PromptManager` and `populationInjectionPrompts()`).
-
-### The Bannered Mare
-
-Lore activation is handled by a dedicated `activation_engine.py`:
+**The Bannered Mare** handles lore activation in a dedicated `activation_engine.py`:
 
 1. **Keyword scanning:** `activate_entries()` iterates all enabled `LoreEntry` records. Entries marked `constant` bypass keyword matching. Otherwise, primary keys are matched via substring or regex, then secondary keys are filtered via configurable logic (`AND_ANY`, `AND_ALL`, `NOT_ANY`, `NOT_ALL`).
 2. **Token budget enforcement:** Activated entries are sorted by priority (descending) and accumulated until the token budget is exhausted.
@@ -306,9 +236,9 @@ Lore activation is handled by a dedicated `activation_engine.py`:
    - `AT_DEPTH` -- Injected into chat history at a specific message depth
    - `BEFORE_EXAMPLES` -- Before example dialogues
 
-The `PromptBuilder` groups activated entries by position and routes them to the correct component slot. `AT_DEPTH` entries are injected during `_build_chat_history()`, sorted by depth in descending order and inserted at `len(history) - entry.depth`.
-
-### Comparison
+The `PromptBuilder` groups activated entries by position and routes them to the correct component
+slot. `AT_DEPTH` entries are injected during `_build_chat_history()`, sorted by depth in
+descending order and inserted at `len(history) - entry.depth`.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -327,21 +257,13 @@ The `PromptBuilder` groups activated entries by position and routes them to the 
 
 ## 8. Instruct Mode
 
-### SillyTavern
+SillyTavern's instruct mode wraps messages with model-specific prefix/suffix sequences for text
+completion APIs — each preset defines 15+ properties (per-role sequences, position overrides,
+behavior flags, auto-detection via regex/hash matching) ([Analysis §7 ›](/sillytavern/analysis/prompting#_7-instruct-mode)).
 
-Instruct mode wraps messages with model-specific prefix/suffix sequences for text completion APIs. Each instruct preset defines 15+ properties including:
-
-- Per-role sequences: `input_sequence`/`suffix`, `output_sequence`/`suffix`, `system_sequence`/`suffix`
-- Position overrides: `first_output_sequence`, `last_output_sequence`, `first_input_sequence`, `last_input_sequence`
-- Behavior flags: `wrap`, `macro`, `names_behavior`, `skip_examples`, `system_same_as_user`
-- Auto-detection: `activation_regex`, `bind_to_context` for model-based auto-selection
-- Chat template hash matching for known models (Llama 3, Mistral V2/V3, Gemma 2, etc.)
-
-Instruct mode also exposes macros (`{{instructInput}}`, `{{instructOutput}}`, etc.) that can be used inside other templates.
-
-### The Bannered Mare
-
-There is no instruct mode implementation. All provider communication uses the Chat Completions API format (structured `{role, content}` messages). The `ProviderAdapter` hierarchy handles the structural transformation:
+**The Bannered Mare** has no instruct mode implementation. All provider communication uses the
+Chat Completions API format (structured `{role, content}` messages). The `ProviderAdapter`
+hierarchy handles the structural transformation:
 
 - `AnthropicAdapter`: Extracts system messages into the `system` parameter, sends chat messages in Anthropic's Messages API format.
 - `GeminiAdapter`: Extracts system messages into `systemInstruction`, maps roles (`assistant` -> `model`), uses `parts` format.
@@ -349,8 +271,6 @@ There is no instruct mode implementation. All provider communication uses the Ch
 - `OllamaAdapter` / `LMStudioAdapter`: Extend `OpenAIAdapter` with local-server defaults.
 
 Text completion API support (raw prompt string) is not implemented.
-
-### Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -363,31 +283,23 @@ Text completion API support (raw prompt string) is not implemented.
 
 ## 9. Instruction Slots and Prompt Fragments
 
-### SillyTavern
+SillyTavern offers three fixed user-editable slots stored in presets — `main`, `nsfw`, and
+`jailbreak` (post-history) — with character-card overrides via `system_prompt` /
+`post_history_instructions` (gated by `forbid_overrides`, with `{{original}}` access to the
+preset text); adding a new instruction category means repurposing a slot ([Analysis §4 ›](/sillytavern/analysis/prompting#_4-system-prompt-construction)).
 
-Three user-editable Jinja2/Handlebars template slots stored in presets:
-
-1. **Main prompt** (`main`): The primary system instruction. Default: `"Write {{char}}'s next reply in a fictional chat between {{charIfNotGroup}} and {{user}}."`
-2. **NSFW prompt** (`nsfw`): Auxiliary instruction for NSFW content. Default: empty.
-3. **Jailbreak / Post-History Instructions** (`jailbreak`): Instruction placed after chat history. Default: empty.
-
-Additionally, the **story string** is a Handlebars template that controls how character data is assembled for text completion contexts.
-
-Character cards can override `main` and `jailbreak` via their `system_prompt` and `post_history_instructions` fields. The override is blocked if the preset prompt has `forbid_overrides` set. The `{{original}}` macro inside an override resolves to the preset's original content.
-
-These slots are fixed -- adding a new instruction category (e.g., a writing-style directive) requires repurposing one of the existing three slots or using an extension's injection point.
-
-### The Bannered Mare
-
-One fixed template slot plus a composable **Prompt Fragment Library**:
+**The Bannered Mare** keeps one fixed template slot plus a composable **Prompt Fragment Library**:
 
 1. **`system_template`** (required): The primary system prompt template. Rendered via Jinja2 with the full `TemplateContext`.
 
-The earlier `nsfw_template` and `jailbreak_template` columns on `PromptTemplate` have been removed. Their function -- and any number of additional instruction categories -- is now served by **prompt fragments**.
+The earlier `nsfw_template` and `jailbreak_template` columns on `PromptTemplate` have been
+removed. Their function -- and any number of additional instruction categories -- is now served
+by **prompt fragments**.
 
 **Prompt Fragment system** (`src/prompt_fragment/`):
 
-A `PromptFragment` is a standalone, reusable instruction block stored in the database. Each fragment has:
+A `PromptFragment` is a standalone, reusable instruction block stored in the database. Each
+fragment has:
 - **`name`** -- display label (e.g., "NSFW Explicit", "Jailbreak v2", "Victorian Writing Style")
 - **`fragment_type`** -- category tag: `system`, `nsfw`, `jailbreak`, `instruction`, or `context`
 - **`content`** -- Jinja2 template text, rendered with the same `TemplateContext` as the system prompt
@@ -398,7 +310,8 @@ Fragments are attached to templates via the `TemplateFragment` join table, which
 - **`ordinal`** -- ordering within a position (0-based, ascending)
 - **`depth`** -- for `at_depth` fragments, how many messages from the end to splice the fragment (defaults to 4)
 
-During prompt assembly, `PromptBuilder` injects the three component-anchored positions after specific components by mapping component names to positions:
+During prompt assembly, `PromptBuilder` injects the three component-anchored positions after
+specific components by mapping component names to positions:
 
 ```python
 _FRAGMENT_POSITIONS = {
@@ -408,15 +321,24 @@ _FRAGMENT_POSITIONS = {
 }
 ```
 
-For each component in the template's `component_order`, after appending the component's messages, the builder checks if that component has a mapped fragment position and injects all attached fragments at that position (ordered by `ordinal`). Each fragment is rendered through Jinja2 and emitted as a `{"role": "system", "content": ...}` message. Fragments at the fourth position, `at_depth`, are handled separately by `_build_depth_fragments()` -- they ride the same in-history injection mechanism as `AT_DEPTH` lore entries, spliced into the chat history at their `depth` from the end (drift-prevention reminders).
+For each component in the template's `component_order`, after appending the component's messages,
+the builder checks if that component has a mapped fragment position and injects all attached
+fragments at that position (ordered by `ordinal`). Each fragment is rendered through Jinja2 and
+emitted as a `{"role": "system", "content": ...}` message. Fragments at the fourth position,
+`at_depth`, are handled separately by `_build_depth_fragments()` -- they ride the same in-history
+injection mechanism as `AT_DEPTH` lore entries, spliced into the chat history at their `depth`
+from the end (drift-prevention reminders).
 
-The same fragment can be attached to multiple templates, and multiple fragments can occupy the same position on a single template. The `FragmentService` provides CRUD operations, attach/detach, and bulk reordering of a template's fragments.
+The same fragment can be attached to multiple templates, and multiple fragments can occupy the
+same position on a single template. The `FragmentService` provides CRUD operations, attach/detach,
+and bulk reordering of a template's fragments.
 
-Character-level override: If `character.system_prompt` is set, it replaces the template's `system_template` for that character (rendered through the same Jinja2 engine). There is no `forbid_overrides` mechanism and no `{{original}}` equivalent.
+Character-level override: If `character.system_prompt` is set, it replaces the template's
+`system_template` for that character (rendered through the same Jinja2 engine). There is no
+`forbid_overrides` mechanism and no `{{original}}` equivalent.
 
-The `post_history_instructions` field on the Character model provides an additional injection point after chat history, independent of any attached fragments.
-
-### Comparison
+The `post_history_instructions` field on the Character model provides an additional injection
+point after chat history, independent of any attached fragments.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
@@ -435,31 +357,21 @@ The `post_history_instructions` field on the Character model provides an additio
 
 ## 10. Provider-Specific Formatting
 
-### SillyTavern
+SillyTavern assembles OpenAI ChatML client-side, then converts server-side in
+`prompt-converters.js` — enforcing role alternation, merging same-role messages, prefixing names,
+and applying depth-based caching, with five generic merge modes for OAI-compatible endpoints
+([Analysis §10 ›](/sillytavern/analysis/prompting#_10-provider-specific-formatting)).
 
-All prompts are assembled into OpenAI ChatML format client-side, then converted server-side by dedicated functions in `prompt-converters.js`:
-
-- **Anthropic:** Extracts system messages into `systemPrompt`, enforces strict role alternation by merging consecutive same-role messages, moves images from assistant to user, applies prompt caching at depth.
-- **Gemini:** Extracts system messages into `system_instruction.parts`, maps roles, converts to `parts` format, handles thought signatures.
-- **Cohere:** Prepends character names to content, returns `{chatHistory}` format.
-- **Mistral:** Sanitizes tool call IDs, fixes message ordering, supports prefill via `prefix` flag.
-- **xAI:** Prepends character names, handles group name prefixing.
-- **Generic merge modes:** `merge`, `semi`, `strict`, `single` for OpenAI-compatible and custom endpoints with varying levels of role enforcement and message merging.
-
-Post-processing also includes `squashSystemMessages()` which merges consecutive system messages into one.
-
-### The Bannered Mare
-
-The `ProviderAdapter` hierarchy handles format transformation within `build_payload()`:
+**The Bannered Mare's** `ProviderAdapter` hierarchy handles format transformation within
+`build_payload()`:
 
 - **`AnthropicAdapter`:** Extracts all system messages and joins them with `\n\n` into a single `system` parameter with prompt caching. Non-system messages are passed as `{role, content}` dicts. Does not enforce role alternation (relies on the prompt builder producing valid sequences).
 - **`GeminiAdapter`:** Extracts system messages into `systemInstruction.parts`. Maps `assistant` -> `model`. Converts messages to `{role, parts: [{text}]}` format.
 - **`OpenAIAdapter`:** Passes messages through with no transformation. Serves as the base for xAI, OpenRouter, and custom providers.
 - **`OllamaAdapter` / `LMStudioAdapter`:** Both extend `OpenAIAdapter` with a different URL path and longer timeout for local inference servers.
 
-There is no message merging, role alternation enforcement, name prefixing, or post-processing mode system.
-
-### Comparison
+There is no message merging, role alternation enforcement, name prefixing, or post-processing mode
+system.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|

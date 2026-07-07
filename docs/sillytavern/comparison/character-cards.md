@@ -1,9 +1,7 @@
 # Character Card System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
-> Comparison date: 2026-04-07
-> ST analysis source: `docs/st_analysis/CHARACTER_CARD.md`
-> The Bannered Mare source: `src/character/` module
-
+This page assumes the [Character Cards Analysis](/sillytavern/analysis/character-cards) for how
+SillyTavern works internally, and focuses on where The Bannered Mare diverges and why.
 
 Both read the same card ecosystem, but differ on how many specs they cover and how strictly they
 validate:
@@ -40,21 +38,9 @@ defaults) and also accepts legacy Pygmalion field names.
 
 ## 1. Card Specification Support
 
-### SillyTavern
+SillyTavern supports three spec versions (V1, V2, V3) with a strict V1 → V2 → V3 validation cascade and type checks ([Analysis §1 ›](/sillytavern/analysis/character-cards#_1-card-specification-versions)).
 
-Supports three specification versions via `TavernCardValidator.js`:
-
-| Spec | Validation Depth | Notes |
-|------|-----------------|-------|
-| V1 (TavernAI Legacy) | Field presence check on 6 required string fields | No type checking |
-| V2 (chara_card_v2) | Envelope + 14 required fields + type checks on arrays/objects | Includes optional `character_book` validation |
-| V3 (chara_card_v3) | Envelope only (`spec`, `spec_version`, `data` existence) | No field-level validation on `data` |
-
-Validation order is V1 -> V2 -> V3, returning the first match. A V2 card passes V1 validation since V2's top level mirrors V1 fields.
-
-### The Bannered Mare
-
-Supports two specification versions in `card_parser.py`:
+**The Bannered Mare** supports two specification versions in `card_parser.py`:
 
 | Spec | Detection Logic | Notes |
 |------|----------------|-------|
@@ -62,8 +48,6 @@ Supports two specification versions in `card_parser.py`:
 | V2 | `spec` and/or `data` dict present | Permissive: reads fields with `.get()` defaults, no strict validation |
 
 Detection is V2-first: if `spec` and `data` exist, or if `data` is a dict, parse as V2. Otherwise fall back to V1.
-
-### Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -80,25 +64,9 @@ The Bannered Mare's parser is deliberately lenient -- it accepts partial cards w
 
 ## 2. Storage Model
 
-### SillyTavern
+SillyTavern is file-based with no database: the PNG file is simultaneously the avatar and the data store, and identity is the filename ([Analysis §11 ›](/sillytavern/analysis/character-cards#_11-file-based-storage-design)).
 
-File-based, no database. The PNG file is both the avatar image and the data store.
-
-```
-{user_data}/characters/MyCharacter.png     # Avatar + embedded JSON
-{user_data}/characters/MyCharacter/        # Sprites
-{user_data}/chats/MyCharacter/             # Chat logs (.jsonl)
-{user_data}/thumbnails/avatar/             # Cached thumbnails
-```
-
-- Character identity is the PNG filename (e.g., `MyCharacter.png`).
-- All references (chats, sprites, thumbnails) derive from this filename.
-- Atomic writes via `write-file-atomic` to prevent corruption.
-- V1 and V2 fields are dual-written at both the top level and inside `data.*` for backward compatibility.
-
-### The Bannered Mare
-
-PostgreSQL database with filesystem for binary assets only.
+**The Bannered Mare** uses a PostgreSQL database with the filesystem for binary assets only.
 
 ```
 characters table (PostgreSQL):
@@ -121,8 +89,6 @@ characters table (PostgreSQL):
 - Avatars stored as separate files referenced by relative path columns.
 - Relationships (`chats`, `lorebooks`) enforced via foreign keys with cascade deletes.
 
-### Comparison
-
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Primary store | Filesystem (PNG files) | PostgreSQL |
@@ -138,27 +104,9 @@ The fundamental difference: ST treats the PNG as a self-contained document, whil
 
 ## 3. Import/Export Formats
 
-### SillyTavern
+SillyTavern imports six formats (PNG, JSON, YAML, CharX, BYAF, with JSON auto-detecting V2/V3/V1/Pygmalion sub-forms) and exports two (PNG, JSON), stripping private fields on export ([Analysis §4 ›](/sillytavern/analysis/character-cards#_4-import-system), [§5 ›](/sillytavern/analysis/character-cards#_5-export-system)).
 
-**Import formats (6):**
-
-| Format | Extension | Handler | Avatar Source |
-|--------|-----------|---------|---------------|
-| PNG | `.png` | `importFromPng` | Uploaded image |
-| JSON | `.json` | `importFromJson` | Default avatar (`ai4.png`) |
-| YAML | `.yml`/`.yaml` | `importFromYaml` | Default avatar |
-| CharX | `.charx` | `importFromCharX` | Icon asset from ZIP |
-| BYAF | `.byaf` | `importFromByaf` | Character image from ZIP |
-
-JSON import handles three sub-formats: V2/V3 (has `spec`), V1 (has `name`), and Pygmalion/Gradio (has `char_name`).
-
-**Export formats (2):** PNG (avatar + embedded JSON), JSON (V2 format, pretty-printed with 4-space indent).
-
-Private fields (`fav`, `chat`) are stripped on export.
-
-### The Bannered Mare
-
-**Import formats (2):**
+**The Bannered Mare** supports two import formats:
 
 | Format | Extension | Handler | Avatar Source |
 |--------|-----------|---------|---------------|
@@ -167,11 +115,7 @@ Private fields (`fav`, `chat`) are stripped on export.
 
 JSON detection: if `spec`+`data` present, parse as V2; if `data` is a dict, parse as V2; otherwise V1 (including Pygmalion field aliases).
 
-**Export formats (2):** PNG (V2 JSON in tEXt chunk), JSON (V2 format, 2-space indent).
-
-No field stripping on export -- all persisted fields are included.
-
-### Comparison
+Export formats (2): PNG (V2 JSON in tEXt chunk), JSON (V2 format, 2-space indent). No field stripping on export -- all persisted fields are included.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -188,22 +132,9 @@ ST's broader import support reflects its role as a community hub tool that must 
 
 ## 4. PNG Metadata Handling
 
-### SillyTavern
+SillyTavern uses `png-chunks-extract` + a custom encoder to write both a `chara` (V2) and a `ccv3` (V3) tEXt chunk, reading `ccv3` first with case-insensitive keyword matching ([Analysis §2 ›](/sillytavern/analysis/character-cards#_2-png-metadata-encoding)).
 
-Uses `png-chunks-extract` + `png-chunk-text` + custom `src/png/encode.js` for chunk manipulation.
-
-**Write process:**
-1. Extract all chunks from PNG buffer.
-2. Remove existing `chara` and `ccv3` tEXt chunks (case-insensitive).
-3. Base64-encode V2 JSON and insert as `chara` tEXt chunk before IEND.
-4. Clone data, mutate to V3 spec fields, insert as `ccv3` tEXt chunk (errors silently ignored).
-5. Re-encode all chunks into valid PNG.
-
-**Read process:** Prefer `ccv3` chunk if present; fall back to `chara` chunk. Case-insensitive keyword matching.
-
-### The Bannered Mare
-
-Manual PNG chunk parsing in `card_parser.py` using `struct` and `zlib` (no third-party PNG libraries for chunk handling; `Pillow` used only for image operations).
+**The Bannered Mare** parses PNG chunks manually in `card_parser.py` using `struct` and `zlib` (no third-party PNG libraries for chunk handling; `Pillow` used only for image operations).
 
 **Write process (`export_card_png`):**
 1. Open avatar with Pillow (or generate 1x1 transparent placeholder).
@@ -217,8 +148,6 @@ Manual PNG chunk parsing in `card_parser.py` using `struct` and `zlib` (no third
 3. For `tEXt` type: split on null byte to get keyword and value.
 4. Stop at IEND.
 5. Look for `chara` keyword, base64-decode, parse JSON.
-
-### Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -297,26 +226,9 @@ ST's `readFromV2` hoists V2 data fields to V1 top-level fields and backfills def
 
 ## 6. Avatar Management
 
-### SillyTavern
+For SillyTavern the avatar *is* the character file: changing it rewrites the PNG (512x768, Jimp) with the same embedded JSON, plus lazily cached thumbnails and sprite support ([Analysis §9 ›](/sillytavern/analysis/character-cards#_9-avatar-management)).
 
-The avatar IS the character file. Changing the avatar means rewriting the PNG with the same embedded JSON.
-
-| Aspect | Detail |
-|--------|--------|
-| Standard dimensions | 512 x 768 px |
-| Processing library | Jimp |
-| Operations | Crop (optional), resize, cover (fill without distortion) |
-| Output format | Always PNG |
-| Default avatar | `./public/img/ai4.png` |
-| Thumbnail storage | `{user_data}/thumbnails/avatar/` |
-| Thumbnail generation | On demand, cached |
-| Thumbnail invalidation | Explicit call on avatar change |
-| Sprites support | Yes (expression images in character subdirectory) |
-| Avatar-only edit | Dedicated endpoint (`POST /edit-avatar`) |
-
-### The Bannered Mare
-
-Avatar is decoupled from character data. Stored as a separate file with a DB reference.
+**The Bannered Mare** decouples the avatar from character data, storing it as a separate file with a DB reference.
 
 | Aspect | Detail |
 |--------|--------|
@@ -333,8 +245,6 @@ Avatar is decoupled from character data. Stored as a separate file with a DB ref
 | Validation | Extension check, file size, image integrity (Pillow verify), dimensions |
 | API endpoints | `GET /{id}/avatar`, `GET /{id}/avatar_thumbnail` |
 
-### Comparison
-
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Avatar-data coupling | Same file | Separate files + DB columns |
@@ -349,30 +259,9 @@ Avatar is decoupled from character data. Stored as a separate file with a DB ref
 
 ## 7. Character Book / Lorebook Integration
 
-### SillyTavern
+In SillyTavern the `character_book` is an optional embedded field on `data` (V2 spec) — 8 spec fields plus 25+ ST extension fields per entry — linked to external World Info files and round-tripped with the card ([Analysis §8 ›](/sillytavern/analysis/character-cards#_8-character-book-embedded-lorebook)).
 
-The `character_book` is an optional embedded field on `data` following the V2 spec.
-
-**Structure:**
-```
-data.character_book = {
-  name: string,
-  entries: [...],
-  extensions: object
-}
-```
-
-Each entry has 8 spec fields (`keys`, `secondary_keys`, `comment`, `content`, `constant`, `selective`, `insertion_order`, `enabled`, `position`, `id`, `extensions`) plus 25+ ST-specific extension fields (probability, depth, group, sticky, cooldown, delay, match targets, etc.).
-
-**Integration points:**
-- `data.extensions.world` links a character to an external World Info file.
-- On save, ST converts the referenced World Info file to `character_book` format and embeds it.
-- On import, the embedded `character_book` is extracted and available for use.
-- World Info and character book share the same data model but use different field names (mapped via `convertWorldInfoToCharacterBook`).
-
-### The Bannered Mare
-
-Lorebooks are a separate database entity with a foreign key relationship to characters.
+**The Bannered Mare** makes lorebooks a separate database entity with a foreign key relationship to characters.
 
 **Structure:**
 ```
@@ -397,8 +286,6 @@ lore_entries table:
 - On import (`service.import_card`), an embedded `character_book` is extracted into a new `Lorebook` plus mapped `LoreEntry` rows (keys, secondary keys/logic, position, depth, role, priority, flags).
 - On export (`_character_to_card` + `card_to_v2_dict`), the character's first lorebook is serialized back into `data.character_book`.
 
-### Comparison
-
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Storage location | Embedded in character JSON (`data.character_book`) | Separate `lorebooks` + `lore_entries` tables |
@@ -418,34 +305,14 @@ The Bannered Mare's lorebook schema covers the core activation model (keys, seco
 
 ## 8. Caching
 
-### SillyTavern
+SillyTavern runs a two-tier cache (memory `MemoryLimitedMap` + `node-persist` disk store) plus shallow lazy-loading, because parsing PNG metadata on every request is expensive ([Analysis §10 ›](/sillytavern/analysis/character-cards#_10-caching-architecture)).
 
-Two-tier caching strategy driven by the cost of parsing PNG metadata on every request.
-
-**Tier 1 -- Memory cache:**
-- `MemoryLimitedMap` with configurable capacity (default 100 MB, ~3000 characters).
-- FIFO eviction. Key: `{filePath}-{mtimeMs}`.
-- Disabled on Android.
-
-**Tier 2 -- Disk cache:**
-- `node-persist` key-value store in `{DATA_ROOT}/_cache/characters/`.
-- No TTL. Synced every 5 minutes against actual character files.
-- Configurable via `performance.useDiskCache`.
-
-**Read path:** Memory -> Disk -> Parse PNG -> store in both tiers.
-
-**Shallow loading:** When `performance.lazyLoadCharacters` is enabled, the list endpoint returns only display fields. Full data loaded on demand.
-
-### The Bannered Mare
-
-No application-level caching layer. PostgreSQL handles query caching internally.
+**The Bannered Mare** has no application-level caching layer; PostgreSQL handles query caching internally.
 
 - Character list uses database pagination (`LIMIT`/`OFFSET` with `ORDER BY created_at DESC`).
 - No in-memory character cache.
 - No lazy loading mode; the list endpoint returns full `CharacterResponse` objects.
 - Thumbnail is pre-generated (not cached on demand).
-
-### Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -461,30 +328,9 @@ ST needs caching because reading character data requires PNG binary parsing on e
 
 ## 9. API Design
 
-### SillyTavern
+SillyTavern exposes an Express router of POST-only, RPC-style endpoints (`/all`, `/get`, `/create`, `/edit`, `/edit-avatar`, `/edit-attribute`, etc.), identifying characters by avatar filename in the request body ([Analysis §3 ›](/sillytavern/analysis/character-cards#_3-character-crud-operations)).
 
-Express router with POST-based RPC-style endpoints:
-
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/all` | POST | List all characters |
-| `/get` | POST | Get single character by avatar URL |
-| `/create` | POST | Create character |
-| `/edit` | POST | Update character |
-| `/edit-avatar` | POST | Replace avatar only |
-| `/edit-attribute` | POST | Update single field |
-| `/merge-attributes` | POST | Deep-merge fields |
-| `/delete` | POST | Delete character |
-| `/rename` | POST | Rename + re-key |
-| `/duplicate` | POST | File-level copy |
-| `/export` | POST | Export as PNG or JSON |
-| `/import` | POST | Import from any format |
-
-All endpoints use POST regardless of semantics. Character identification is by avatar filename in the request body.
-
-### The Bannered Mare
-
-FastAPI router with RESTful resource-oriented endpoints:
+**The Bannered Mare** uses a FastAPI router with RESTful resource-oriented endpoints:
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
@@ -500,8 +346,6 @@ FastAPI router with RESTful resource-oriented endpoints:
 | `/api/characters/import` | POST | Import PNG or JSON |
 
 Uses proper HTTP methods, path-based resource identification, Pydantic response models, and multipart form data for avatar uploads.
-
-### Comparison
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|

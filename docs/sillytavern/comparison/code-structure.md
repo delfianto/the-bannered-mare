@@ -3,7 +3,7 @@
 A side-by-side engineering analysis of how each project organizes its codebase,
 manages module boundaries, and enforces structural discipline. This is a neutral
 comparison -- both approaches have legitimate trade-offs shaped by different
-constraints (community-driven JS monolith vs. greenfield Python backend).
+constraints (community-driven JS monolith vs. greenfield Python backend). For SillyTavern's structure in depth, see the [Code Structure Analysis](/sillytavern/analysis/code-structure).
 
 
 ## 1. Codebase Scale
@@ -242,28 +242,74 @@ Excluding `__init__.py` files:
 
 ### 5.1 Import Graph Shape
 
-**SillyTavern:** Hub-and-spoke with a dominant center.
+The two import graphs have opposite shapes — a hub-and-spoke centered on `util.js`
+versus a strictly one-way layered DAG:
 
-```
-util.js  <----  [almost everything]
-constants.js <-- [almost everything]
-users.js  <--  [endpoints that need user dirs]
-```
+<Figure tag="Figure 2" title="Import graph shape — hub-and-spoke vs layered DAG" id="fig-import-graph">
+<svg viewBox="0 0 760 300" role="img" aria-label="SillyTavern hub-and-spoke versus The Bannered Mare layered DAG" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="ig-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
+  </defs>
+  <rect x="24" y="16" width="344" height="268" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <rect x="392" y="16" width="344" height="268" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  <text x="196" y="42" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern</text>
+  <text x="196" y="60" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">hub-and-spoke</text>
+  <text x="564" y="42" text-anchor="middle" font-size="13" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare</text>
+  <text x="564" y="60" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">layered DAG</text>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.5" fill="none" marker-end="url(#ig-ah)">
+    <path d="M118 100 L156 142"/>
+    <path d="M274 100 L236 142"/>
+    <path d="M126 164 L149 161"/>
+    <path d="M262 164 L243 161"/>
+    <path d="M196 218 V182"/>
+  </g>
+  <g text-anchor="middle" font-size="10">
+    <rect x="151" y="142" width="90" height="40" rx="9" fill="var(--tbm-dgm-danger-soft)" stroke="var(--tbm-dgm-danger)"/>
+    <text x="196" y="160" font-size="11.5" font-weight="700" fill="var(--tbm-dgm-ink)">util.js</text>
+    <text x="196" y="175" font-size="9" fill="var(--tbm-dgm-ink-2)">40+ exports</text>
+    <rect x="42" y="78" width="88" height="24" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="86" y="94" fill="var(--tbm-dgm-ink)">endpoints/*</text>
+    <rect x="262" y="78" width="88" height="24" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="306" y="94" fill="var(--tbm-dgm-ink)">openai.js</text>
+    <rect x="30" y="150" width="96" height="24" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="78" y="166" fill="var(--tbm-dgm-ink)">characters.js</text>
+    <rect x="266" y="150" width="86" height="24" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="309" y="166" fill="var(--tbm-dgm-ink)">script.js</text>
+    <rect x="150" y="218" width="92" height="24" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="196" y="234" fill="var(--tbm-dgm-ink)">worldinfo.js</text>
+    <text x="196" y="266" font-size="9.5" fill="var(--tbm-dgm-faint)">nearly every module imports it</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.5" fill="none" marker-end="url(#ig-ah)">
+    <path d="M564 104 V126"/>
+    <path d="M564 156 V178"/>
+    <path d="M564 208 V230"/>
+    <path d="M628 90 H634"/>
+    <path d="M628 142 H634"/>
+  </g>
+  <g text-anchor="middle" font-size="10.5">
+    <rect x="500" y="76" width="128" height="28" rx="8" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/><text x="564" y="94" fill="var(--tbm-dgm-ink)">router.py</text>
+    <rect x="500" y="128" width="128" height="28" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="564" y="146" fill="var(--tbm-dgm-ink)">service.py</text>
+    <rect x="500" y="180" width="128" height="28" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="564" y="198" fill="var(--tbm-dgm-ink)">repository.py</text>
+    <rect x="486" y="232" width="156" height="28" rx="8" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/><text x="564" y="250" fill="var(--tbm-dgm-ink)">core/persistence/</text>
+    <rect x="636" y="76" width="96" height="26" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="684" y="93" font-size="9.5" fill="var(--tbm-dgm-ink)">dependencies.py</text>
+    <rect x="636" y="128" width="96" height="26" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="684" y="145" font-size="9.5" fill="var(--tbm-dgm-ink)">schemas.py</text>
+    <text x="564" y="278" font-size="9.5" fill="var(--tbm-dgm-faint)">one direction · cycles are a build error</text>
+  </g>
+</svg>
+<template #caption>
 
+**Opposite shapes.** SillyTavern's graph funnels into `util.js` (40+ exports, imported by
+nearly everything) — a hub whose churn ripples widely. The Bannered Mare's graph is a strict
+one-way DAG (`router → service → repository → core/persistence`, with `dependencies.py` and
+`schemas.py` off to the side); `basedpyright`'s `reportImportCycles` makes a back-edge a build
+error.
+
+</template>
+</Figure>
+
+**SillyTavern** — hub-and-spoke with a dominant center:
 - `util.js` exports 40+ symbols; it is the single most-imported module.
 - Endpoint files are largely independent of each other, with notable exceptions
   (e.g., `characters.js` imports from `worldinfo.js`, `thumbnails.js`, `chats.js`).
 - Frontend has bidirectional dependencies: `script.js` imports from `openai.js`
   and vice versa.
 
-**The Bannered Mare:** Layered DAG with strict direction.
-
-```
-router.py  -->  service.py  -->  repository.py  -->  core/persistence/
-     |               |
-     v               v
-dependencies.py   schemas.py
-```
+**The Bannered Mare** — layered DAG with strict direction:
 
 - `basedpyright` is configured with `reportImportCycles = true`, making
   circular imports a build error.
