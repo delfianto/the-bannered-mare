@@ -3,8 +3,9 @@ import io
 import os
 import sys
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Backend lives one level up from this repo-root scripts/demo/ folder.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.join(_REPO_ROOT, "backend"))
 
 from fastapi import UploadFile
 from src.character.repository import CharacterRepository

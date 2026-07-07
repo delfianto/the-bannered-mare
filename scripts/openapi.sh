@@ -13,8 +13,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BACKEND_ROOT="$REPO_ROOT/backend"
 cd "$BACKEND_ROOT"
 
 # Find python
