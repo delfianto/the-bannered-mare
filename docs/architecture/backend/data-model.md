@@ -153,11 +153,11 @@ from another.
   <g text-anchor="middle">
     <text x="317" y="90" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
     <text x="322" y="242" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
-    <text x="480" y="262" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
+    <rect x="422" y="251" width="116" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/><text x="480" y="262" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
     <text x="279" y="140" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs persona</text>
     <text x="602" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs model</text>
-    <text x="654" y="250" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs template · preset</text>
-    <text x="905" y="250" font-size="10" fill="var(--tbm-dgm-ink-2)">refs</text>
+    <rect x="594" y="239" width="120" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/><text x="654" y="250" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs template · preset</text>
+    <text x="916" y="250" text-anchor="start" font-size="10" fill="var(--tbm-dgm-ink-2)">refs</text>
     <text x="824" y="174" font-size="10" fill="var(--tbm-dgm-accent)">needs</text>
     <text x="520" y="360" font-size="9.5" fill="var(--tbm-dgm-faint)">indexes</text>
   </g>
@@ -231,7 +231,7 @@ snapshots.
     <path d="M515 147 H570 V129 H628" marker-end="url(#ca-ah)"/>
     <path d="M515 147 H570 V177 H628" marker-end="url(#ca-ah)"/>
   </g>
-  <text x="410" y="103" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">— dashed = reference (SET NULL) —</text>
+  <text x="410" y="14" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">— dashed = reference (SET NULL) —</text>
   <line x1="410" y1="338" x2="410" y2="390" stroke="var(--tbm-dgm-faint)" stroke-width="1.4" stroke-dasharray="2 3"/>
 </svg>
 <template #caption>
