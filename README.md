@@ -75,7 +75,7 @@ The `/sync-schema` skill in `frontend/.claude/skills/` automates this and report
 
 ## Repository History
 
-This repo was consolidated from two previously separate repositories (`candlekeep-core` and `candlekeep-ui`) via `git subtree`, preserving both projects' full commit history — `backend/` and `frontend/` are not fresh code, they carry their entire prior history as reachable ancestors. Product branding was renamed from "Candlekeep" to "The Bannered Mare" as part of the same move; a handful of infrastructure identifiers (the Postgres database name, Mongo log database name) were deliberately left unchanged since renaming live infrastructure was out of scope.
+This repo was consolidated from two previously separate repositories (`candlekeep-core` and `candlekeep-ui`) via `git subtree`, preserving both projects' full commit history — `backend/` and `frontend/` are not fresh code, they carry their entire prior history as reachable ancestors. Product branding was renamed from "Candlekeep" to "The Bannered Mare" as part of the same move; a handful of infrastructure identifiers (such as the Postgres database name) were deliberately left unchanged since renaming live infrastructure was out of scope.
 
 ## License
 
