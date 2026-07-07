@@ -26,8 +26,9 @@ async def main():
     # Export as PNG
     png_bytes = char_service.export_as_png(character.id)
 
-    # Save to _character_cards/daro_soraya.png
-    dest_path = os.path.join("_character_cards", "daro_soraya.png")
+    # Save to the repo-root characters/ collection (test-data cards).
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    dest_path = os.path.join(repo_root, "characters", "daro_soraya.png")
     with open(dest_path, "wb") as f:
         f.write(png_bytes)
 
