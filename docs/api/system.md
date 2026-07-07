@@ -9,7 +9,7 @@ built-in endpoints. The log queries read the [observability
 sink](/architecture/backend/data-model#observability) — the LLM-call, HTTP-request, and
 error records written by middleware and the audit writer. Like the rest of the API these
 are **unauthenticated**, so keep the service off untrusted networks (see
-[Authentication](/architecture/api/#authentication)).
+[Authentication](/api/#authentication)).
 
 ## Health & built-ins
 

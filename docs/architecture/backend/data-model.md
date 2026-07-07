@@ -328,7 +328,7 @@ column definitions live in the ORM models under
 call, HTTP request, and unhandled error respectively. `LlmAuditLog` keeps a `chat_id`
 *reference* (set-null, so audit rows survive their chat); the other two hold no foreign
 keys. They are written by middleware and the audit writer and read only through the
-[admin log endpoints](/architecture/api/system).
+[admin log endpoints](/api/system).
 
 ## 5. Two entities that break the rules on purpose
 
@@ -355,5 +355,5 @@ calls it made.
   queried, and migrated (base model, repositories, async/sync split, Alembic).
 - [Project Structure](/architecture/backend/project-structure) — the vertical slices that
   own each domain's code.
-- [API Reference](/architecture/api/) — the endpoints that create, read, and mutate these
+- [API Reference](/api/) — the endpoints that create, read, and mutate these
   entities.

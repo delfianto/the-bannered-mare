@@ -28,18 +28,4 @@ export const architectureSidebar: DefaultTheme.SidebarItem[] = [
       { text: 'State & Localization', link: '/architecture/frontend/state-and-localization' },
     ],
   },
-  {
-    text: 'API Reference',
-    collapsed: false,
-    items: [
-      { text: 'Overview', link: '/architecture/api/' },
-      { text: 'Characters & Personas', link: '/architecture/api/characters-personas' },
-      { text: 'Conversations', link: '/architecture/api/conversations' },
-      { text: 'World & Lore', link: '/architecture/api/world-and-lore' },
-      { text: 'Knowledge & RAG', link: '/architecture/api/knowledge-and-rag' },
-      { text: 'Providers & Models', link: '/architecture/api/providers-and-models' },
-      { text: 'Prompt Building', link: '/architecture/api/prompt-building' },
-      { text: 'System & Admin', link: '/architecture/api/system' },
-    ],
-  },
 ]

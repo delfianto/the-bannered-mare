@@ -219,7 +219,7 @@ You now have a running platform. To understand how it's built, read on:
 
 - **[Architecture](/architecture/)** — the system map, the backend's modular-monolith and
   data model, and the frontend's structure and streaming client.
-- **[API Reference](/architecture/api/)** — every endpoint the backend exposes, grouped by
+- **[API Reference](/api/)** — every endpoint the backend exposes, grouped by
   domain, with request and response shapes.
 - **[LLM Providers](/providers/)** — how each provider (OpenAI, Anthropic, Google,
   OpenRouter, xAI, Ollama, LM Studio) is wired in, and their quirks.
