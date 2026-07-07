@@ -16,7 +16,7 @@ def test_content_hash_fits_signed_bigint():
     guards the 63-bit mask that fixed silently-dropped embeddings.
     """
     for i in range(500):
-        assert 0 <= _content_hash(f"candlekeep entry {i}") <= _INT64_MAX
+        assert 0 <= _content_hash(f"sample entry {i}") <= _INT64_MAX
 
 
 def _chunk(content: str, score: float = 0.5) -> RetrievedChunk:
