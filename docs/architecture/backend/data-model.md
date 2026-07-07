@@ -53,10 +53,10 @@ obvious.
   <!-- protected -->
   <g font-size="12" text-anchor="middle">
     <rect x="30" y="222" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="90" y="246" fill="var(--tbm-dgm-ink)">Model</text>
-    <rect x="250" y="222" width="140" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="320" y="246" fill="var(--tbm-dgm-ink)">ModelFamily</text>
+    <rect x="270" y="222" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="330" y="246" fill="var(--tbm-dgm-ink)">ModelFamily</text>
   </g>
-  <line x1="150" y1="241" x2="246" y2="241" stroke="var(--tbm-dgm-accent)" stroke-width="2.4" marker-end="url(#tbm-ah-accent)"/>
-  <text x="198" y="232" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-accent)">needs</text>
+  <line x1="150" y1="241" x2="266" y2="241" stroke="var(--tbm-dgm-accent)" stroke-width="2.4" marker-end="url(#tbm-ah-accent)"/>
+  <text x="208" y="232" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-accent)">needs</text>
   <text x="410" y="237" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Protected reference · ON DELETE RESTRICT</text>
   <text x="410" y="255" font-size="11.5" fill="var(--tbm-dgm-ink-2)">The target can't be deleted while anything still points at it.</text>
 </svg>
@@ -87,98 +87,80 @@ stay **inside** a domain; the arrows that cross a boundary are the loans one dom
 from another.
 
 <Figure tag="Figure 2" title="Entities grouped into domains, with cross-domain links" id="fig-domain-map">
-<svg viewBox="0 0 960 640" role="img" aria-label="Data model domain map" style="font-family:var(--vp-font-family-base)">
+<svg viewBox="0 0 960 620" role="img" aria-label="Data model domain map" style="font-family:var(--vp-font-family-base)">
   <defs>
-    <marker id="dm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
-    <marker id="dm-ah-data" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-data)"/></marker>
-    <marker id="dm-ah-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-accent)"/></marker>
+    <marker id="dm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
+    <marker id="dm-ah-data" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-data)"/></marker>
+    <marker id="dm-ah-accent" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-accent)"/></marker>
   </defs>
-  <!-- ===== Characters & Personas ===== -->
-  <rect x="24" y="40" width="250" height="150" rx="12" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)" stroke-opacity=".6" stroke-dasharray="5 4"/>
-  <text x="40" y="62" font-size="11.5" font-weight="700" letter-spacing=".04em" fill="var(--tbm-dgm-accent)">CHARACTERS &amp; PERSONAS</text>
+  <g stroke-dasharray="5 4">
+    <rect x="24" y="48" width="264" height="176" rx="12" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)" stroke-opacity=".6"/>
+    <rect x="348" y="48" width="264" height="176" rx="12" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)" stroke-opacity=".6"/>
+    <rect x="672" y="48" width="264" height="176" rx="12" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)" stroke-opacity=".6"/>
+    <rect x="24" y="284" width="264" height="150" rx="12" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)" stroke-opacity=".6"/>
+    <rect x="348" y="284" width="264" height="150" rx="12" fill="var(--tbm-dgm-brand-soft)" stroke="var(--tbm-dgm-brand)" stroke-opacity=".6"/>
+    <rect x="672" y="284" width="264" height="312" rx="12" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)" stroke-opacity=".6"/>
+    <rect x="24" y="470" width="588" height="110" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+  </g>
+  <g font-size="11.5" font-weight="700" letter-spacing=".04em">
+    <text x="40" y="70" fill="var(--tbm-dgm-accent)">CHARACTERS &amp; PERSONAS</text>
+    <text x="364" y="70" fill="var(--tbm-dgm-backend)">CONVERSATIONS</text>
+    <text x="688" y="70" fill="var(--tbm-dgm-provider)">PROVIDERS &amp; MODELS</text>
+    <text x="40" y="306" fill="var(--tbm-dgm-data)">WORLD &amp; LORE</text>
+    <text x="364" y="306" fill="var(--tbm-dgm-brand)">KNOWLEDGE &amp; RAG</text>
+    <text x="688" y="306" fill="var(--tbm-dgm-frontend)">PROMPT BUILDING</text>
+    <text x="40" y="492" fill="var(--tbm-dgm-faint)">OBSERVABILITY · write-only sink</text>
+  </g>
+  <g fill="none">
+    <line x1="480" y1="114" x2="480" y2="128" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="480" y1="164" x2="480" y2="178" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="114" x2="804" y2="128" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="156" y1="350" x2="156" y2="364" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="350" x2="804" y2="364" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="414" x2="804" y2="400" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="164" x2="804" y2="178" stroke="var(--tbm-dgm-accent)" stroke-width="2.2" marker-end="url(#dm-ah-accent)"/>
+    <line x1="480" y1="364" x2="480" y2="352" stroke="var(--tbm-dgm-faint)" stroke-width="1.6" stroke-dasharray="2 3" marker-end="url(#dm-ah)"/>
+    <line x1="240" y1="96" x2="394" y2="96" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <path d="M240 108 H306 V332 H242" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="480" y1="314" x2="480" y2="226" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <path d="M396 106 H318 V146 H242" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M564 96 H642 V146 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M564 106 H654 V332 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M888 146 H910 V332 H890" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+  </g>
   <g font-size="12" text-anchor="middle">
-    <rect x="44" y="76" width="140" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="114" y="96" fill="var(--tbm-dgm-ink)">Character</text>
-    <rect x="44" y="132" width="140" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="114" y="152" fill="var(--tbm-dgm-ink)">Persona</text>
+    <rect x="72" y="78" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="101" fill="var(--tbm-dgm-ink)">Character</text>
+    <rect x="72" y="128" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="151" fill="var(--tbm-dgm-ink)">Persona</text>
+    <rect x="396" y="78" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)" stroke-width="1.8"/><text x="480" y="101" font-weight="700" fill="var(--tbm-dgm-ink)">Chat</text>
+    <rect x="396" y="128" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="151" fill="var(--tbm-dgm-ink)">Message</text>
+    <rect x="396" y="178" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="201" fill="var(--tbm-dgm-ink)">MessageAlternative</text>
+    <rect x="720" y="78" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="101" fill="var(--tbm-dgm-ink)">Provider</text>
+    <rect x="720" y="128" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="151" fill="var(--tbm-dgm-ink)">Model</text>
+    <rect x="720" y="178" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="201" fill="var(--tbm-dgm-ink)">ModelFamily</text>
+    <rect x="72" y="314" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="337" fill="var(--tbm-dgm-ink)">Lorebook</text>
+    <rect x="72" y="364" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="387" fill="var(--tbm-dgm-ink)">LoreEntry</text>
+    <rect x="396" y="314" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="337" fill="var(--tbm-dgm-ink)">DataBankEntry</text>
+    <rect x="396" y="364" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="387" fill="var(--tbm-dgm-ink)">Embedding</text>
+    <rect x="720" y="314" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="337" fill="var(--tbm-dgm-ink)">PromptTemplate</text>
+    <rect x="720" y="364" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="387" fill="var(--tbm-dgm-ink)">TemplateFragment</text>
+    <rect x="720" y="414" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="437" fill="var(--tbm-dgm-ink)">PromptFragment</text>
+    <rect x="720" y="464" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="487" fill="var(--tbm-dgm-ink)">Preset</text>
+    <rect x="720" y="514" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="537" fill="var(--tbm-dgm-ink)">Profile</text>
+    <rect x="48" y="506" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="132" y="529" fill="var(--tbm-dgm-ink)">LlmAuditLog</text>
+    <rect x="236" y="506" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="320" y="529" fill="var(--tbm-dgm-ink)">HttpLog</text>
+    <rect x="424" y="506" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="508" y="529" fill="var(--tbm-dgm-ink)">ErrorLog</text>
   </g>
-  <!-- ===== Conversations ===== -->
-  <rect x="352" y="40" width="256" height="200" rx="12" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)" stroke-opacity=".6" stroke-dasharray="5 4"/>
-  <text x="368" y="62" font-size="11.5" font-weight="700" letter-spacing=".04em" fill="var(--tbm-dgm-backend)">CONVERSATIONS</text>
-  <g font-size="12" text-anchor="middle">
-    <rect x="405" y="76" width="150" height="34" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)" stroke-width="1.6"/><text x="480" y="97" font-weight="700" fill="var(--tbm-dgm-ink)">Chat</text>
-    <rect x="405" y="140" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="160" fill="var(--tbm-dgm-ink)">Message</text>
-    <rect x="388" y="196" width="184" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="216" fill="var(--tbm-dgm-ink)">MessageAlternative</text>
+  <g text-anchor="middle">
+    <text x="317" y="90" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
+    <text x="322" y="242" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
+    <text x="480" y="262" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
+    <text x="279" y="140" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs persona</text>
+    <text x="602" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs model</text>
+    <text x="654" y="250" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs template · preset</text>
+    <text x="905" y="250" font-size="10" fill="var(--tbm-dgm-ink-2)">refs</text>
+    <text x="824" y="174" font-size="10" fill="var(--tbm-dgm-accent)">needs</text>
+    <text x="520" y="360" font-size="9.5" fill="var(--tbm-dgm-faint)">indexes</text>
   </g>
-  <line x1="480" y1="110" x2="480" y2="138" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <line x1="480" y1="172" x2="480" y2="194" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <!-- ===== Providers & Models ===== -->
-  <rect x="686" y="40" width="250" height="200" rx="12" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)" stroke-opacity=".6" stroke-dasharray="5 4"/>
-  <text x="702" y="62" font-size="11.5" font-weight="700" letter-spacing=".04em" fill="var(--tbm-dgm-provider)">PROVIDERS &amp; MODELS</text>
-  <g font-size="12" text-anchor="middle">
-    <rect x="706" y="76" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="96" fill="var(--tbm-dgm-ink)">Provider</text>
-    <rect x="706" y="132" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="152" fill="var(--tbm-dgm-ink)">Model</text>
-    <rect x="706" y="188" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="208" fill="var(--tbm-dgm-ink)">ModelFamily</text>
-  </g>
-  <line x1="781" y1="108" x2="781" y2="130" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <line x1="781" y1="164" x2="781" y2="186" stroke="var(--tbm-dgm-accent)" stroke-width="2.2" marker-end="url(#dm-ah-accent)"/>
-  <text x="795" y="180" font-size="10" fill="var(--tbm-dgm-accent)">needs</text>
-  <!-- ===== World & Lore ===== -->
-  <rect x="24" y="250" width="250" height="140" rx="12" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)" stroke-opacity=".6" stroke-dasharray="5 4"/>
-  <text x="40" y="272" font-size="11.5" font-weight="700" letter-spacing=".04em" fill="var(--tbm-dgm-data)">WORLD &amp; LORE</text>
-  <g font-size="12" text-anchor="middle">
-    <rect x="44" y="286" width="140" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="114" y="306" fill="var(--tbm-dgm-ink)">Lorebook</text>
-    <rect x="44" y="338" width="140" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="114" y="358" fill="var(--tbm-dgm-ink)">LoreEntry</text>
-  </g>
-  <line x1="114" y1="318" x2="114" y2="336" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <!-- ===== Prompt Building ===== -->
-  <rect x="686" y="290" width="250" height="320" rx="12" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)" stroke-opacity=".6" stroke-dasharray="5 4"/>
-  <text x="702" y="312" font-size="11.5" font-weight="700" letter-spacing=".04em" fill="var(--tbm-dgm-frontend)">PROMPT BUILDING</text>
-  <g font-size="12" text-anchor="middle">
-    <rect x="706" y="326" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="346" fill="var(--tbm-dgm-ink)">PromptTemplate</text>
-    <rect x="706" y="380" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="400" fill="var(--tbm-dgm-ink)">PromptFragment</text>
-    <rect x="696" y="434" width="170" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="454" fill="var(--tbm-dgm-ink)">TemplateFragment</text>
-    <rect x="706" y="500" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="520" fill="var(--tbm-dgm-ink)">Preset</text>
-    <rect x="706" y="552" width="150" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="781" y="572" fill="var(--tbm-dgm-ink)">Profile</text>
-  </g>
-  <line x1="770" y1="358" x2="762" y2="432" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <line x1="792" y1="412" x2="800" y2="432" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <!-- ===== Knowledge & RAG ===== -->
-  <rect x="24" y="452" width="250" height="158" rx="12" fill="var(--tbm-dgm-brand-soft)" stroke="var(--tbm-dgm-brand)" stroke-opacity=".6" stroke-dasharray="5 4"/>
-  <text x="40" y="474" font-size="11.5" font-weight="700" letter-spacing=".04em" fill="var(--tbm-dgm-brand)">KNOWLEDGE &amp; RAG</text>
-  <g font-size="12" text-anchor="middle">
-    <rect x="44" y="488" width="164" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="126" y="508" fill="var(--tbm-dgm-ink)">DataBankEntry</text>
-    <rect x="44" y="548" width="140" height="32" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="114" y="568" fill="var(--tbm-dgm-ink)">Embedding</text>
-  </g>
-  <line x1="126" y1="548" x2="126" y2="522" stroke="var(--tbm-dgm-faint)" stroke-width="1.8" stroke-dasharray="2 3" marker-end="url(#dm-ah)"/>
-  <text x="150" y="540" font-size="10" fill="var(--tbm-dgm-faint)">indexes</text>
-  <!-- ===== Observability ===== -->
-  <rect x="352" y="452" width="256" height="158" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)" stroke-dasharray="5 4"/>
-  <text x="368" y="474" font-size="11.5" font-weight="700" letter-spacing=".04em" fill="var(--tbm-dgm-faint)">OBSERVABILITY (write-only sink)</text>
-  <g font-size="11.5" text-anchor="middle">
-    <rect x="368" y="488" width="224" height="30" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="507" fill="var(--tbm-dgm-ink)">LlmAuditLog</text>
-    <rect x="368" y="528" width="106" height="30" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="421" y="547" fill="var(--tbm-dgm-ink)">HttpLog</text>
-    <rect x="486" y="528" width="106" height="30" rx="7" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="539" y="547" fill="var(--tbm-dgm-ink)">ErrorLog</text>
-  </g>
-  <!-- ===== cross-domain links ===== -->
-  <!-- Character owns Chat -->
-  <line x1="184" y1="90" x2="403" y2="92" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <text x="292" y="82" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
-  <!-- Character owns Lorebook -->
-  <line x1="114" y1="164" x2="114" y2="284" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-  <text x="128" y="230" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
-  <!-- Chat refs Persona (back to characters domain) -->
-  <line x1="404" y1="150" x2="186" y2="150" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-  <text x="300" y="142" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs persona</text>
-  <!-- Chat refs Model -->
-  <line x1="556" y1="90" x2="704" y2="140" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-  <text x="636" y="104" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs model</text>
-  <!-- Chat refs template/preset (prompt building) -->
-  <line x1="556" y1="104" x2="704" y2="520" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-  <text x="600" y="330" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs template · preset</text>
-  <!-- Model refs template -->
-  <line x1="781" y1="164" x2="792" y2="324" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-  <!-- DataBank owned by Chat/Character -->
-  <line x1="206" y1="492" x2="356" y2="210" stroke="var(--tbm-dgm-data)" stroke-width="1.8" marker-end="url(#dm-ah-data)"/>
-  <text x="298" y="370" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
 </svg>
 <template #caption>
 
@@ -243,10 +225,12 @@ snapshots.
   <line x1="410" y1="266" x2="410" y2="298" stroke="var(--tbm-dgm-data)" stroke-width="2.4" marker-end="url(#ca-ah-data)"/>
   <text x="424" y="288" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
   <!-- ref arrows (dashed) -->
-  <line x1="305" y1="140" x2="192" y2="132" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ca-ah)"/>
-  <line x1="305" y1="152" x2="192" y2="176" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ca-ah)"/>
-  <line x1="515" y1="140" x2="628" y2="132" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ca-ah)"/>
-  <line x1="515" y1="152" x2="628" y2="176" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ca-ah)"/>
+  <g fill="none" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4">
+    <path d="M305 147 H250 V129 H192" marker-end="url(#ca-ah)"/>
+    <path d="M305 147 H250 V177 H192" marker-end="url(#ca-ah)"/>
+    <path d="M515 147 H570 V129 H628" marker-end="url(#ca-ah)"/>
+    <path d="M515 147 H570 V177 H628" marker-end="url(#ca-ah)"/>
+  </g>
   <text x="410" y="103" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">— dashed = reference (SET NULL) —</text>
   <line x1="410" y1="338" x2="410" y2="390" stroke="var(--tbm-dgm-faint)" stroke-width="1.4" stroke-dasharray="2 3"/>
 </svg>
