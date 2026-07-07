@@ -1,3 +1,6 @@
 node_modules/
 .vitepress/dist/
 .vitepress/cache/
+
+# Superpowers SDD scratch (plans, specs) — build-excluded, not for the repo
+superpowers/
