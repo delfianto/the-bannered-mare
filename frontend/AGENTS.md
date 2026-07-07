@@ -211,7 +211,7 @@ When `VITE_USE_MOCKS=true`, the Vite `/api` proxy is disabled so MSW's service w
 
 #### Mock Data Inventory
 
-Fixtures in `src/mocks/data/` mirror the backend seed data: **6 providers**, **19 model families**, **34 models**, **20 characters** (Elder Scrolls themed, Unsplash portraits), **20 chats** with YAML conversation scenarios, **3 personas**, **3 presets**, **4 templates**, **3 fragments**, **5 data bank entries**.
+Fixtures in `src/mocks/data/` mirror the backend seed data: **7 providers**, **19 model families**, **34 models**, **20 characters** (Elder Scrolls themed, Unsplash portraits), **20 chats** with YAML conversation scenarios, **3 personas**, **3 presets**, **6 templates**, **3 fragments**, **5 data bank entries**.
 
 ### 5.3 Claude Code Environment
 
