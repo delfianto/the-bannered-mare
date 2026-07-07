@@ -9,7 +9,7 @@ retrieved into a prompt by meaning rather than by keyword. Writing an entry inde
 the vector store; **RAG search** queries that store. Retrieval draws on two sources: data
 bank entries and past chat messages, both embedded into the same
 [VectorChord](/architecture/backend/persistence) index. This is the semantic-search
-counterpart to the keyword-triggered [World & Lore](/architecture/api/world-and-lore); the
+counterpart to the keyword-triggered [World & Lore](/api/world-and-lore); the
 retrieval design is discussed in the [RAG analysis](/sillytavern/analysis/rag).
 
 ## Data bank

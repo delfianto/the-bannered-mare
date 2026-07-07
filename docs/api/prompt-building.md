@@ -40,7 +40,7 @@ a model — each optional. `ProfileResponse`:
 | `source_filename` | string \| null | Original filename if imported. |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
 
-Applying a profile to a chat is a [Conversations](/architecture/api/conversations#applying-a-profile)
+Applying a profile to a chat is a [Conversations](/api/conversations#applying-a-profile)
 endpoint (`POST /api/chats/{id}/profile`) — it *copies* the profile's values onto the chat,
 so profiles can be freely edited or deleted afterward. `POST …/default` moves the default
 flag so exactly one profile holds it.

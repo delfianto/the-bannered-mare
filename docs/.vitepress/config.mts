@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { apiSidebar } from './sidebar.api'
 import { architectureSidebar } from './sidebar.architecture'
 import { guideSidebar } from './sidebar.guide'
 import { providersSidebar } from './sidebar.providers'
@@ -27,12 +28,14 @@ export default defineConfig({
     nav: [
       { text: 'Getting Started', link: '/guide/' },
       { text: 'Architecture', link: '/architecture/' },
+      { text: 'API Reference', link: '/api/' },
       { text: 'LLM Providers', link: '/providers/' },
       { text: 'SillyTavern Study', link: '/sillytavern/' },
     ],
     sidebar: {
       '/guide/': guideSidebar,
       '/architecture/': architectureSidebar,
+      '/api/': apiSidebar,
       '/providers/': providersSidebar,
       '/sillytavern/': sillytavernSidebar,
     },

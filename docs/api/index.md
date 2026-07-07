@@ -174,10 +174,10 @@ The API's ~110 operations divide into seven areas, mirroring the
 
 | Domain | Covers |
 |--------|--------|
-| [Characters & Personas](/architecture/api/characters-personas) | Character cards (CRUD, import/export, avatars) and user personas. |
-| [Conversations](/architecture/api/conversations) | Chats, messages, streaming, swipes, and bookmarks. |
-| [World & Lore](/architecture/api/world-and-lore) | Lorebooks and their keyword-triggered entries. |
-| [Knowledge & RAG](/architecture/api/knowledge-and-rag) | The data bank and semantic search. |
-| [Providers & Models](/architecture/api/providers-and-models) | Provider connections, model definitions, families, and live model management. |
-| [Prompt Building](/architecture/api/prompt-building) | Profiles (loadouts), presets, templates, and fragments. |
-| [System & Admin](/architecture/api/system) | Health, the operational log queries, and the built-ins. |
+| [Characters & Personas](/api/characters-personas) | Character cards (CRUD, import/export, avatars) and user personas. |
+| [Conversations](/api/conversations) | Chats, messages, streaming, swipes, and bookmarks. |
+| [World & Lore](/api/world-and-lore) | Lorebooks and their keyword-triggered entries. |
+| [Knowledge & RAG](/api/knowledge-and-rag) | The data bank and semantic search. |
+| [Providers & Models](/api/providers-and-models) | Provider connections, model definitions, families, and live model management. |
+| [Prompt Building](/api/prompt-building) | Profiles (loadouts), presets, templates, and fragments. |
+| [System & Admin](/api/system) | Health, the operational log queries, and the built-ins. |

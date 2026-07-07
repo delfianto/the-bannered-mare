@@ -113,16 +113,7 @@ completions stream back the same way they came, over SSE. Click the diagram to e
 
 ## API Reference
 
-The single HTTP contract between the two halves, documented endpoint by endpoint and
-grouped by domain. Start with the [overview](/architecture/api/) for the conventions —
-base URL, the response envelope, pagination, filtering, and errors — that hold across the
-whole API.
-
-- [Overview & conventions](/architecture/api/) — how to read the reference
-- [Characters & Personas](/architecture/api/characters-personas) — cards, personas, import/export
-- [Conversations](/architecture/api/conversations) — chats, messages, streaming, bookmarks
-- [World & Lore](/architecture/api/world-and-lore) — lorebooks and lore entries
-- [Knowledge & RAG](/architecture/api/knowledge-and-rag) — the data bank and semantic search
-- [Providers & Models](/architecture/api/providers-and-models) — providers, models, families
-- [Prompt Building](/architecture/api/prompt-building) — profiles, presets, templates, fragments
-- [System & Admin](/architecture/api/system) — health and the operational log queries
+The single HTTP contract between the two halves has its own
+[**API Reference**](/api/) section — every endpoint, grouped by domain, with the
+cross-cutting conventions (base URL, the response envelope, pagination, filtering, and
+errors) documented up front.
