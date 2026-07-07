@@ -109,6 +109,21 @@ class RAGSettings(BaseModel):
     query_messages: int = 2
     vectorize_messages: bool = True
 
+    # --- VectorChord (vchordrq) search tuning ---
+    # The embeddings.embedding column is served by a flat VectorChord vchordrq
+    # RaBitQ index. These optional knobs are applied per search via `SET LOCAL`
+    # (best-effort — ignored if the GUC/extension is absent). Leave as None to
+    # use VectorChord's own defaults. `probes` is intentionally not exposed: it
+    # only affects IVF (`lists`) indexes, and ours is flat.
+    #
+    # - vchordrq_epsilon: RaBitQ distance lower-bound conservativeness, range
+    #   0.0-4.0 (VectorChord default 1.9). Higher = better recall, slower.
+    # - vchordrq_max_scan_tuples: cap on tuples scanned *before* the WHERE
+    #   filter. Raise it when the source_type/source_id filters are selective so
+    #   the flat scan reaches enough matches to fill `max_results`.
+    vchordrq_epsilon: float | None = None
+    vchordrq_max_scan_tuples: int | None = None
+
 
 class DiscoveryCacheSettings(BaseModel):
     """In-process cache for auto-detected provider model lists (Ollama/LM Studio).

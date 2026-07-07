@@ -2,6 +2,7 @@
 
 import hashlib
 
+from src.core.config import settings
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
 from src.rag.chunker import chunk_text
@@ -89,6 +90,8 @@ class RetrievalService:
             source_ids=source_ids,
             limit=search_limit,
             threshold=search_threshold,
+            epsilon=settings.rag.vchordrq_epsilon,
+            max_scan_tuples=settings.rag.vchordrq_max_scan_tuples,
         )
 
         chunks = [
