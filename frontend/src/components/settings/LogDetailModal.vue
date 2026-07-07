@@ -52,7 +52,12 @@ const responseReasoning = computed(() => {
 });
 const responseMeta = computed(() => {
   if (!responsePayload.value) return null;
-  const { content: _content, reasoning: _r, reasoning_content: _rc, ...rest } = responsePayload.value as Record<string, unknown>;
+  const {
+    content: _content,
+    reasoning: _r,
+    reasoning_content: _rc,
+    ...rest
+  } = responsePayload.value as Record<string, unknown>;
   return rest;
 });
 
@@ -94,9 +99,7 @@ function formatFullTimestamp(iso: string): string {
         <span>{{ httpLog.latency_ms.toFixed(0) }}ms</span>
         <span v-if="httpLog.client_ip">{{ httpLog.client_ip }}</span>
         <span>{{ formatFullTimestamp(httpLog.created_at) }}</span>
-        <span class="font-mono text-[10px] text-muted-foreground/60">{{
-          httpLog.request_id
-        }}</span>
+        <span class="font-mono text-[10px] text-muted-foreground/60">{{ httpLog.request_id }}</span>
       </div>
       <p v-if="httpLog.user_agent" class="truncate text-xs text-muted-foreground/70">
         {{ httpLog.user_agent }}

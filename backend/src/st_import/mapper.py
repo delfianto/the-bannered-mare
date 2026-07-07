@@ -251,7 +251,8 @@ def build_import_plan(preset: STPreset, base_name: str) -> ImportPlan:
     dropped = [k for k in _FORMAT_STRING_KEYS if getattr(preset, k, None)]
     if dropped:
         warnings.append(
-            "Dropped ST format/nudge strings with no Bannered Mare equivalent: " + ", ".join(dropped)
+            "Dropped ST format/nudge strings with no Bannered Mare equivalent: "
+            + ", ".join(dropped)
         )
 
     profile = ProfileSpec(
