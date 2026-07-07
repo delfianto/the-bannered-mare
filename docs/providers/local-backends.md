@@ -880,19 +880,57 @@ shipped code there is **no dedicated `LocalOpenAIAdapter`** and there are **no p
 `CUSTOM` provider type, which maps to `OpenAIAdapter`. LM Studio is the one local backend with its
 own type and adapter (`LMSTUDIO` → `LMStudioAdapter`).
 
-```
-ProviderGateway
-    |
-    +-- OpenAIAdapter (base)
-    |       |
-    |       +-- ProviderType.CUSTOM → used for: vLLM, TabbyAPI, OOBA, llama.cpp (OAI mode),
-    |       |                          KoboldCpp (OAI mode), and any other OpenAI-compatible server
-    |       |
-    |       +-- LMStudioAdapter (subclass) → ProviderType.LMSTUDIO
-    |               +-- optional Bearer auth, longer timeout, strips trailing /v1 from base_url
-    |
-    +-- (no KoboldAI / native text-completion adapter — native APIs are not implemented)
-```
+<Figure tag="Figure 1" title="Local-backend adapter hierarchy" id="fig-local-adapters">
+<svg viewBox="0 0 720 420" role="img" aria-label="OpenAIAdapter hierarchy for local backends" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="la-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
+  </defs>
+  <path d="M360 148 V180 M180 180 H540" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none"/>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#la-ah)">
+    <path d="M360 64 V94"/>
+    <path d="M180 180 V208"/>
+    <path d="M540 180 V208"/>
+  </g>
+  <g font-size="10" fill="var(--tbm-dgm-ink-2)">
+    <text x="374" y="84">routes to</text>
+    <text x="270" y="174" text-anchor="middle">CUSTOM type</text>
+    <text x="452" y="174" text-anchor="middle">subclass</text>
+  </g>
+  <g text-anchor="middle">
+    <rect x="280" y="20" width="160" height="44" rx="9" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
+    <text x="360" y="47" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">ProviderGateway</text>
+    <rect x="250" y="96" width="220" height="52" rx="9" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border-strong)" stroke-width="1.5"/>
+    <text x="360" y="118" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">OpenAIAdapter</text>
+    <text x="360" y="135" font-size="9.5" fill="var(--tbm-dgm-ink-2)">base adapter · OpenAI-compatible</text>
+    <rect x="40" y="208" width="280" height="124" rx="9" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
+    <text x="180" y="230" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">ProviderType.CUSTOM</text>
+    <text x="180" y="247" font-size="9.5" fill="var(--tbm-dgm-ink-2)">routes through OpenAIAdapter · user base_url</text>
+    <rect x="400" y="208" width="280" height="124" rx="9" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
+    <text x="540" y="230" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">LMStudioAdapter</text>
+    <text x="540" y="247" font-size="9.5" fill="var(--tbm-dgm-ink-2)">subclass → ProviderType.LMSTUDIO</text>
+    <rect x="40" y="356" width="640" height="44" rx="9" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)" stroke-dasharray="5 4"/>
+    <text x="360" y="382" font-size="10.5" fill="var(--tbm-dgm-faint)">No KoboldAI / native text-completion adapter — native APIs are not implemented</text>
+  </g>
+  <g font-size="10" text-anchor="start" fill="var(--tbm-dgm-ink-2)">
+    <text x="58" y="274">• vLLM · TabbyAPI · OOBA</text>
+    <text x="58" y="294">• llama.cpp · KoboldCpp (OAI mode)</text>
+    <text x="58" y="314">• any OpenAI-compatible server</text>
+    <text x="418" y="274">• optional Bearer auth</text>
+    <text x="418" y="294">• longer timeout</text>
+    <text x="418" y="314">• strips trailing /v1 from base_url</text>
+  </g>
+</svg>
+<template #caption>
+
+**One base adapter, two local paths.** Every OpenAI-compatible local server — vLLM,
+TabbyAPI, Oobabooga, and llama.cpp / KoboldCpp in OpenAI mode — connects through the generic
+`CUSTOM` provider type, which uses the base `OpenAIAdapter` unchanged. LM Studio is the one
+local backend with its own type and subclass (`LMStudioAdapter` → `LMSTUDIO`, adding Bearer
+auth, a longer timeout, and base-URL trimming). There is no native text-completion adapter —
+those APIs are not implemented.
+
+</template>
+</Figure>
 
 Because a `CUSTOM` provider carries a user-supplied `base_url` and (optionally) an
 `api_key_env_var`, no code change is needed to point at a local server — the OpenAI-compatible
