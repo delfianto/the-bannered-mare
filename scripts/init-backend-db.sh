@@ -15,9 +15,9 @@
 # Environment variables (all optional, have sensible defaults):
 #   POSTGRES_HOST       (default: localhost)
 #   POSTGRES_PORT       (default: 5432)
-#   POSTGRES_USER       (default: candlekeep)
-#   POSTGRES_PASSWORD   (default: candlekeep)
-#   POSTGRES_DB         (default: candlekeep)
+#   POSTGRES_USER       (default: bannered_mare)
+#   POSTGRES_PASSWORD   (default: bannered_mare)
+#   POSTGRES_DB         (default: bannered_mare)
 #   POSTGRES_SUPERUSER  (default: postgres)
 #   VECTORCHORD_ENABLED (default: true)  — installs the `vchord` extension
 #                        (VectorChord, which pulls in pgvector via CASCADE).
@@ -68,9 +68,9 @@ fi
 # --- Defaults (env vars > .env > hardcoded) ---
 PG_HOST="${POSTGRES_HOST:-${DB_URL_HOST:-localhost}}"
 PG_PORT="${POSTGRES_PORT:-${DB_URL_PORT:-5432}}"
-PG_USER="${POSTGRES_USER:-${DB_URL_USER:-candlekeep}}"
-PG_PASS="${POSTGRES_PASSWORD:-${DB_URL_PASS:-candlekeep}}"
-PG_DB="${POSTGRES_DB:-${DB_URL_DB:-candlekeep}}"
+PG_USER="${POSTGRES_USER:-${DB_URL_USER:-bannered_mare}}"
+PG_PASS="${POSTGRES_PASSWORD:-${DB_URL_PASS:-bannered_mare}}"
+PG_DB="${POSTGRES_DB:-${DB_URL_DB:-bannered_mare}}"
 PG_SUPERUSER="${POSTGRES_SUPERUSER:-postgres}"
 VCHORD="${VECTORCHORD_ENABLED:-${PGVECTOR_ENABLED:-true}}"
 AUTO_MODE=false
