@@ -911,43 +911,84 @@ export function addReasoningContentToToolCalls(messages) {
 
 ## 14. Architecture Summary
 
-```
-                   FRONTEND (Browser)                              BACKEND (Node.js)
-               ========================                        =======================
+<Figure tag="Figure 2" title="End-to-end tool-calling architecture" id="fig-tool-arch">
+<svg viewBox="0 0 720 640" role="img" aria-label="Tool calling frontend and backend method chain" style="font-family:var(--vp-font-family-base)">
+  <defs>
+    <marker id="tc-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
+  </defs>
+  <g font-size="11" font-weight="700" letter-spacing=".04em">
+    <text x="44" y="13" fill="var(--tbm-dgm-frontend)">FRONTEND · browser</text>
+    <text x="452" y="167" fill="var(--tbm-dgm-provider)">BACKEND · Node.js</text>
+  </g>
+  <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tc-ah)">
+    <path d="M207 74 V96"/>
+    <path d="M207 152 V174"/>
+    <path d="M207 230 V252"/>
+    <path d="M207 308 V330"/>
+    <path d="M207 386 V408"/>
+    <path d="M207 464 V486"/>
+    <path d="M207 542 V564"/>
+    <path d="M370 277 H450"/>
+    <path d="M452 359 H372"/>
+    <path d="M570 250 V224"/>
+    <path d="M44 593 H20 V277 H42"/>
+  </g>
+  <g font-size="9.5" fill="var(--tbm-dgm-ink-2)">
+    <text x="410" y="270" text-anchor="middle">POST</text>
+    <text x="411" y="352" text-anchor="middle">SSE / JSON</text>
+    <text x="14" y="435" text-anchor="middle" transform="rotate(-90 14 435)">recurse (depth + 1)</text>
+  </g>
+  <g text-anchor="middle">
+    <rect x="452" y="178" width="236" height="44" rx="9" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
+    <text x="570" y="205" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Provider APIs</text>
+    <rect x="452" y="250" width="236" height="118" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="570" y="271" font-size="11" font-weight="700" fill="var(--tbm-dgm-ink)">Provider-specific body</text>
+  </g>
+  <g font-size="10" text-anchor="start" fill="var(--tbm-dgm-ink-2)">
+    <text x="466" y="291">Claude → input_schema</text>
+    <text x="466" y="309">Gemini → function_declarations</text>
+    <text x="466" y="327">Mistral → sanitized tool IDs</text>
+    <text x="466" y="345">Cohere → text primer</text>
+    <text x="466" y="363">DeepSeek → required-field fix</text>
+  </g>
+  <g text-anchor="middle">
+    <rect x="44" y="20" width="326" height="54" rx="9" fill="var(--tbm-dgm-surface-3)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="207" y="43" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Extension / Slash Command</text>
+    <text x="207" y="60" font-size="9.5" fill="var(--tbm-dgm-faint)">the tool source</text>
+    <rect x="44" y="98" width="326" height="54" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="207" y="121" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">registerFunctionTool()</text>
+    <text x="207" y="138" font-size="9.5" fill="var(--tbm-dgm-ink-2)">declares name · params · action()</text>
+    <rect x="44" y="176" width="326" height="54" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="207" y="199" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">registerFunctionToolsOpenAI()</text>
+    <text x="207" y="216" font-size="9.5" fill="var(--tbm-dgm-ink-2)">data.tools[] · tool_choice = 'auto'</text>
+    <rect x="44" y="254" width="326" height="54" rx="9" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)"/>
+    <text x="207" y="277" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">sendOpenAIRequest()</text>
+    <text x="207" y="294" font-size="9.5" fill="var(--tbm-dgm-ink-2)">POST /api/backends/…/generate</text>
+    <rect x="44" y="332" width="326" height="54" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="207" y="355" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">parseToolCalls()</text>
+    <text x="207" y="372" font-size="9.5" fill="var(--tbm-dgm-ink-2)">OpenAI · Claude · Gemini · Cohere deltas</text>
+    <rect x="44" y="410" width="326" height="54" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="207" y="433" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">invokeFunctionTools()</text>
+    <text x="207" y="450" font-size="9.5" fill="var(--tbm-dgm-ink-2)">runs each action() · collects results + errors</text>
+    <rect x="44" y="488" width="326" height="54" rx="9" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
+    <text x="207" y="511" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">saveFunctionToolInvocations()</text>
+    <text x="207" y="528" font-size="9.5" fill="var(--tbm-dgm-ink-2)">adds a system message · emits TOOL_CALLS events</text>
+    <rect x="44" y="566" width="326" height="54" rx="9" fill="var(--tbm-dgm-brand-soft)" stroke="var(--tbm-dgm-brand)"/>
+    <text x="207" y="589" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Generate('normal', depth + 1)</text>
+    <text x="207" y="606" font-size="9.5" fill="var(--tbm-dgm-ink-2)">recurse until RECURSE_LIMIT (5)</text>
+  </g>
+</svg>
+<template #caption>
 
- [Extension / Slash Cmd]                                       [Provider APIs]
-        |                                                           ^
-        v                                                           |
- ToolManager.registerFunctionTool()                          Provider-specific
-        |                                                    body construction:
-        v                                                    - Claude: input_schema
- ToolManager.registerFunctionToolsOpenAI()                   - Gemini: function_declarations
-   -> data.tools = [{type:'function', function:{...}}]       - Mistral: sanitized IDs
-   -> data.tool_choice = 'auto'                              - Cohere: text primer
-        |                                                    - DeepSeek: empty required fix
-        v                                                           ^
- sendOpenAIRequest() ----POST /api/backends/chat-completions/generate--->
-        |                                                           |
-        v                                                           |
- ToolManager.parseToolCalls()  <---SSE stream / JSON response-------+
-   (handles OpenAI/Claude/Gemini/Cohere delta formats)
-        |
-        v
- ToolManager.invokeFunctionTools()
-   -> calls each tool's action()
-   -> collects results + errors + stealth calls
-        |
-        v
- ToolManager.saveFunctionToolInvocations()
-   -> adds system message to chat[] with <details> HTML
-   -> emits TOOL_CALLS_PERFORMED + TOOL_CALLS_RENDERED
-        |
-        v
- Generate('normal', { depth: depth + 1 })    // recursive call
-   -> previous tool calls reconstructed as assistant tool_call messages + tool result messages
-   -> budget-checked and inserted into prompt
-   -> cycle continues until RECURSE_LIMIT (5) or LLM stops calling tools
-```
+**One recursive path, split across the browser and the Node backend.** The frontend
+registers a tool, ships `data.tools` with `sendOpenAIRequest()`, and the backend builds the
+provider-specific request body (each provider differs) before calling the real provider
+API. The streamed response is parsed by `parseToolCalls()`, each tool's `action()` is run
+and its result saved back into the chat, and `Generate()` re-enters one level deeper —
+looping until the model stops calling tools or `RECURSE_LIMIT` (5) is hit.
+
+</template>
+</Figure>
 
 
 ## 15. Key Metrics
