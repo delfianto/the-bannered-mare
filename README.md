@@ -29,6 +29,39 @@ bun install
 bun run dev --host           # proxies /api to localhost:8000
 ```
 
+Once set up, the [`justfile`](justfile) wraps day-to-day commands for both halves — see below.
+
+## Task Runner
+
+A root [`justfile`](justfile) ([`just`](https://github.com/casey/just)) is the single entrypoint for every surface. Run `just` (or `just --list`) to see all recipes, grouped by area:
+
+```bash
+# database
+just db-init            # provision role/db + VectorChord + migrations (interactive)
+just db-migrate         # alembic upgrade head
+just db-check           # validate migrations (errors if models have drifted)
+just db-status          # current revision + heads + history
+just db-revision "msg"  # autogenerate a migration from model changes
+just db-backup          # pg_dump → backups/candlekeep-<timestamp>.dump
+just db-restore <file>  # pg_restore from a dump
+just db-seed [path]     # import character cards (default: ./characters)
+
+# backend / frontend / docs
+just be-dev             # backend, uvicorn --reload            (:8000)
+just be-prod            # backend, 4 workers, no reload         (:8000)
+just fe-dev             # frontend against the real backend     (:5173)
+just fe-mock            # frontend with the MSW mock harness     (:5173)
+just fe-prod            # build + preview the production bundle  (:4173)
+just docs-dev           # documentation site (VitePress)        (:5174)
+
+# stop
+just status             # show which dev services are running
+just be-stop            # stop one surface (also fe-stop / docs-stop)
+just stop-all           # stop everything + sweep stray processes
+```
+
+Ports: backend `8000` · frontend dev `5173` · frontend preview `4173` · docs `5174` (docs is pinned off 5173 so it can run alongside the frontend). `db-*` recipes read `DATABASE_URL` from `backend/.env`; local dumps in `backups/` are gitignored.
+
 ## Keeping the API Contract in Sync
 
 The API contract lives at the repo root as `openapi.json` — the shared interface between the two halves. The frontend's `src/api/schema.d.ts` is generated from it using a fixed relative path (`frontend/../openapi.json`). Whenever the backend's API changes:
