@@ -1,6 +1,8 @@
 # Command & Scripting Systems — SillyTavern v1.17.0 vs The Bannered Mare
 
-This document compares SillyTavern's slash command / STscript system with The Bannered Mare's approach to user-facing automation and programmability. The comparison is honest about a fundamental architectural difference: SillyTavern is an interactive application with a chat input bar where users type commands directly; The Bannered Mare is a headless API backend that exposes functionality through HTTP endpoints. These are different paradigms solving different problems, and neither approach is wrong.
+This page assumes the [Slash Commands Analysis](/sillytavern/analysis/slash-commands) for how
+SillyTavern's STscript works internally, and focuses on where The Bannered Mare diverges and why.
+The comparison is honest about a fundamental architectural difference: SillyTavern is an interactive application with a chat input bar where users type commands directly; The Bannered Mare is a headless API backend that exposes functionality through HTTP endpoints. These are different paradigms solving different problems, and neither approach is wrong.
 
 
 This is a paradigm difference, not a feature gap: the same operations are reached through a
@@ -47,47 +49,17 @@ The ST equivalent of "switching a model" is `/model gpt-4o`. The The Bannered Ma
 
 ## 2. SillyTavern's STscript — What It Is
 
-STscript is a Turing-complete scripting language embedded in SillyTavern's chat input. It started as simple `/command arg` shortcuts and grew into a full programming environment. Key facts:
-
-- **~200+ registered commands** across 33 source files (286 `addCommandObject` calls).
-- **Hand-written recursive descent parser** (~1,200 lines in `SlashCommandParser.js`) producing an AST of closures and executors.
-- **First-class closures** with lexical scoping, declared parameters, and immediate invocation.
-- **Pipe-based composition** (`|` passes output to the next command, `||` breaks the pipe).
-- **Three variable scopes**: runtime scope variables, chat-local persisted variables, and global persisted variables.
-- **Full flow control**: `/if`, `/while`, `/times`, `/break`, `/abort` with loop guards.
-- **A step debugger** with breakpoints, step-into, step-out, and argument inspection.
-- **Syntax highlighting** via a custom highlight.js language registration.
-- **IDE-grade autocomplete** with command names, named argument keys, enum values, scope variables, and Quick Reply names.
-- **Auto-execution hooks**: Quick Replies can trigger on startup, user message, AI response, chat change, new chat, group member draft, before generation, and World Info activation.
-
-The system is architecturally a **command-line shell embedded in a GUI**. The chat input doubles as a REPL. Quick Replies serve as saved scripts.
-
-### 2.1 Command Categories (Summary)
-
-| Category | Example Commands | Count |
-|----------|-----------------|:-----:|
-| Chat & message control | `/send`, `/sendas`, `/sys`, `/hide`, `/addswipe` | ~14 |
-| Generation control | `/gen`, `/genraw`, `/continue`, `/regenerate`, `/stop` | ~8 |
-| Character management | `/go`, `/character-create`, `/character-update`, `/character-delete` | ~6 |
-| Chat session | `/closechat`, `/tempchat`, `/delchat`, `/renamechat` | ~7 |
-| API & model switching | `/api`, `/model`, `/tokenizer`, `/instruct`, `/context` | ~7 |
-| UI & display | `/echo`, `/popup`, `/input`, `/buttons`, `/bg` | ~6 |
-| Text processing | `/upper`, `/lower`, `/substr`, `/replace`, `/test`, `/match` | ~8 |
-| Math operations | `/add`, `/sub`, `/mul`, `/div`, `/sin`, `/cos`, `/log` | ~15 |
-| Variables & flow control | `/let`, `/var`, `/if`, `/while`, `/times`, `/break` | ~20 |
-| Prompt engineering | `/inject`, `/listinjects`, `/flushinject` | ~5 |
-| Quick Reply management | `/qr-create`, `/qr-update`, `/qr-delete`, `/import` | ~22 |
-| Extension commands | Vectors, SD, TTS, Expressions, etc. | ~50+ |
-
-### 2.2 Key Architecture Details
-
-**Parser**: The parser operates character-by-character with `take(n)`, `discardWhitespace()`, and `testSymbol()` methods. It distinguishes commands (`/name`), closures (`{:...:}`), run shorthands (`/:name`), pipes (`|`, `||`), comments (`//`, `/* */`), parser flags (`/parser-flag`), and breakpoints (`/breakpoint`).
-
-**Execution**: Each command goes through a three-phase generator yield in `executeStep()` -- before argument resolution, after argument resolution, after execution. This design exists specifically to support the debugger without restructuring control flow.
-
-**Closures**: Closures are copy-on-execute (the `execute()` method clones the closure before running it), making them safely re-callable in loops and `/run` invocations. Closures can be assigned to variables, serialized for persistence (`/closure-serialize`), and imported across Quick Replies (`/import`).
-
-**Error handling**: Parser errors include line/column numbers and visual `^^^^^` pointers. Execution errors wrap callback failures with position context. The chat input shows a progress bar during execution with CSS-class-based status indicators.
+STscript is a Turing-complete scripting language embedded in SillyTavern's chat input — a
+command-line shell wearing a GUI. In brief: ~200+ registered commands, a hand-written
+recursive-descent parser producing an AST of first-class closures, pipe-based composition,
+three variable scopes, full flow control (`/if`, `/while`, `/times`), a step debugger,
+IDE-grade autocomplete, and Quick Replies as saved scripts with auto-execution hooks. Full
+detail in [Analysis §1 Command Registry ›](/sillytavern/analysis/slash-commands#_1-command-registry),
+[§3 Parser Architecture ›](/sillytavern/analysis/slash-commands#_3-parser-architecture),
+[§4 Execution Engine ›](/sillytavern/analysis/slash-commands#_4-execution-engine),
+[§5 Variable System ›](/sillytavern/analysis/slash-commands#_5-variable-system),
+[§6 Flow Control ›](/sillytavern/analysis/slash-commands#_6-flow-control), and
+[§7 Built-in Command Categories ›](/sillytavern/analysis/slash-commands#_7-built-in-command-categories).
 
 
 ## 3. What The Bannered Mare Has Instead

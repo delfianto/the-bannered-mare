@@ -1,8 +1,7 @@
 # Chat System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
-> Engineering comparison of the two systems' chat architectures.
-> SillyTavern analysis based on commit `1695f8e`; The Bannered Mare based on the current `main` branch.
-
+This page assumes the [Chat System Analysis](/sillytavern/analysis/chat-system) for how
+SillyTavern works internally, and focuses on where The Bannered Mare diverges and why.
 
 The core divergence is the store itself — portable files versus a relational database:
 
@@ -52,25 +51,9 @@ trading portability for indexed queries and safe concurrent writes.
 
 ## 2. Message Data Model
 
-### SillyTavern (`ChatMessage` interface)
+SillyTavern's `ChatMessage` is a positional object keyed by array index, with boolean role flags (`is_user`/`is_system`), three timestamp fields, inline swipe arrays, and a freeform `extra` metadata bag ([Analysis §3 ›](/sillytavern/analysis/chat-system#_3-message-data-model)).
 
-```
-name          string    Speaker name (character or user display name)
-mes           string    Message text (Markdown)
-is_user       boolean   true for user messages
-is_system     boolean   true for system/hidden messages
-send_date     string    ISO 8601 or formatted datetime
-gen_started   string    When generation began
-gen_finished  string    When generation completed
-force_avatar  string    Avatar URL override (group chats)
-extra         object    Extensible metadata bag (api, model, token_count,
-                        reasoning, files, media, bookmark_link, branches, ...)
-swipes        string[]  Alternative message texts
-swipe_info    object[]  Per-swipe metadata (timestamps, extra)
-swipe_id      number    Index of the active swipe
-```
-
-### The Bannered Mare (`Message` model)
+**The Bannered Mare** (`Message` model):
 
 ```
 id                 string(12)   NanoID primary key
@@ -83,8 +66,6 @@ active_index       int          Index of active alternative (0 = original)
 created_at         datetime     Auto-set on creation
 updated_at         datetime     Auto-updated
 ```
-
-### Key Differences
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -102,21 +83,9 @@ updated_at         datetime     Auto-updated
 
 ## 3. Swipes / Alternatives
 
-### SillyTavern
+SillyTavern stores alternatives ("swipes") inline on the message as parallel arrays (`swipes[]`, `swipe_info[]`, `swipe_id`), kept in sync with `mes` via sync functions, with configurable overswipe navigation ([Analysis §4 ›](/sillytavern/analysis/chat-system#_4-message-swipes-alternatives)).
 
-Alternatives ("swipes") are stored inline on the message object:
-
-- `swipes: string[]` -- parallel array of alternative texts.
-- `swipe_info: SwipeInfo[]` -- parallel array of per-swipe metadata (timestamps, `extra` snapshot).
-- `swipe_id: number` -- index of the currently displayed swipe.
-
-Arrays are lazily initialized on first swipe. Two sync functions (`syncMesToSwipe`, `syncSwipeToMes`) keep the top-level `mes` field in sync with the active `swipes[swipe_id]` entry.
-
-Navigation supports left/right swiping with configurable overswipe behavior per message (`REGENERATE`, `LOOP`, `PRISTINE_GREETING`, `NONE`, `EDIT_GENERATE`).
-
-### The Bannered Mare
-
-Alternatives are stored in a dedicated `message_alternatives` table:
+**The Bannered Mare** stores alternatives in a dedicated `message_alternatives` table:
 
 ```
 id           string(12)   NanoID primary key
@@ -127,11 +96,7 @@ ordinal      int          0-based position in the alternatives list
 created_at   datetime
 ```
 
-The parent `Message` tracks `active_index` (which ordinal is currently displayed). The service updates the message's `content` and `token_count` to match the selected alternative.
-
-On first regeneration, the original content is preserved as ordinal 0 before the new response is stored.
-
-### Comparison
+The parent `Message` tracks `active_index` (which ordinal is currently displayed). The service updates the message's `content` and `token_count` to match the selected alternative. On first regeneration, the original content is preserved as ordinal 0 before the new response is stored.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -147,23 +112,9 @@ On first regeneration, the original content is preserved as ordinal 0 before the
 
 ## 4. Message Editing
 
-### SillyTavern
+SillyTavern edits messages fully client-side (inline textarea, auto-save on keystroke, full-state save), syncing `swipes[swipe_id]`, setting a `tainted` flag, and supporting reorder/delete ([Analysis §5 ›](/sillytavern/analysis/chat-system#_5-message-editing)).
 
-Editing is fully client-side:
-
-1. Enter edit mode (`messageEdit`): replaces rendered HTML with a `<textarea>`.
-2. Auto-save on keystroke (`messageEditAuto`): updates in-memory `chat[mesId].mes` and debounces a save.
-3. Save (`messageEditDone`): re-renders the message; full-state save to server.
-4. Cancel (`messageEditCancel`): restores original text.
-
-Key behaviors:
-- Editing updates both `mes.mes` and `mes.swipes[mes.swipe_id]` to keep them synchronized.
-- Sets `chat_metadata.tainted = true`, which disables the "pristine greeting" overswipe behavior.
-- Supports message reordering (swap adjacent messages) and full message deletion.
-
-### The Bannered Mare
-
-Editing is server-side via a REST endpoint:
+**The Bannered Mare** edits server-side via a REST endpoint:
 
 ```
 PUT /api/chats/{chat_id}/messages/{message_id}
@@ -184,19 +135,9 @@ The service (`edit_message`) validates the message exists in the chat, updates t
 
 ## 5. Regeneration
 
-### SillyTavern
+SillyTavern implements regeneration through the swipe mechanism: overswiping past the last swipe triggers `Generate('swipe')` and stores the result as a new swipe, preserving the original ([Analysis §6 ›](/sillytavern/analysis/chat-system#_6-regeneration)).
 
-Regeneration is implemented through the swipe mechanism. Right-swiping past the last swipe on an AI message triggers `OVERSWIPE_BEHAVIOR.REGENERATE`:
-
-1. Clear the current message text (show "..." placeholder).
-2. Call `Generate('swipe')` to send context to the LLM.
-3. The response is stored as a new swipe via `saveReply({ type: 'swipe' })`.
-
-The original message is not lost -- it remains as a prior swipe entry. Group chat regeneration differs: it deletes all messages from the last AI batch (matching `gen_id`) and re-runs generation.
-
-### The Bannered Mare
-
-Regeneration has two dedicated API paths:
+**The Bannered Mare** has two dedicated API paths:
 
 **Non-streaming:**
 ```
@@ -226,26 +167,9 @@ The service (`regenerate` / `regenerate_stream`):
 
 ## 6. Branching and Bookmarks
 
-### SillyTavern
+SillyTavern implements checkpoints and branches by duplicating the JSONL file (copy message 0..N into a new chat), cross-linked via `chat_metadata.main_chat` and `extra.bookmark_link` / `extra.branches[]` ([Analysis §7 ›](/sillytavern/analysis/chat-system#_7-chat-branching-and-bookmarks)).
 
-Two related features implemented in `bookmarks.js`:
-
-**Checkpoints (Bookmarks):**
-- Copy chat from message 0 to the selected message into a new JSONL file.
-- The new chat's `chat_metadata.main_chat` references the parent.
-- The source message gets `extra.bookmark_link` pointing to the checkpoint.
-- Navigation: click the flag icon to open the checkpoint; "Back to Main" to return.
-
-**Branches:**
-- Similar to checkpoints, but the user is automatically navigated to the new chat.
-- Can branch from a specific swipe (not just the currently displayed one).
-- Tracked via `extra.branches[]` on the source message.
-
-Storage is via file duplication -- each branch/checkpoint is a fully independent JSONL file. No shared history.
-
-### The Bannered Mare
-
-**Branching / checkpoints: not implemented.** There is no chat-copy, checkpoint, or branch-off-a-swipe feature.
+**The Bannered Mare — branching / checkpoints: not implemented.** There is no chat-copy, checkpoint, or branch-off-a-swipe feature.
 
 **Bookmarks: partially implemented (session-level only).** A `Chat` row carries an `is_bookmarked` boolean, toggled through the chat-update endpoint (`is_bookmarked` field). A dedicated `GET /api/bookmarks/sessions` endpoint lists every bookmarked chat. Sibling endpoints for bookmarked characters (`GET /api/bookmarks/characters`) and pinned message fragments (`GET /api/bookmarks/messages`) exist as stubs that return empty lists. There is no per-message bookmark link or parent-chat reference -- bookmarking is a simple favorite flag on the whole session, not a checkpoint into a new chat.
 
@@ -254,54 +178,18 @@ Storage is via file duplication -- each branch/checkpoint is a fully independent
 
 ## 7. Group Chats
 
-### SillyTavern
+SillyTavern has full multi-character group chat support: JSON group metadata with member lists, four activation strategies (NATURAL/LIST/MANUAL/POOLED), three generation modes (SWAP/APPEND/APPEND_DISABLED), and `gen_id`-batched messages ([Analysis §8 ›](/sillytavern/analysis/chat-system#_8-group-chats)).
 
-Full multi-character group chat support:
-
-**Group metadata** stored as JSON (not JSONL) in `groups/`:
-- `members[]` -- character avatar filenames.
-- `disabled_members[]` -- muted characters.
-- `activation_strategy` -- NATURAL (mention/talkativeness roll), LIST (all in order), MANUAL (explicit trigger), POOLED (round-robin).
-- `generation_mode` -- SWAP (one card at a time), APPEND (all cards combined), APPEND_DISABLED (includes muted).
-
-**Group messages** are standard `ChatMessage` objects with additional fields:
-- `force_avatar` -- character's avatar URL for display.
-- `original_avatar` -- character's avatar filename for identity resolution.
-- `extra.gen_id` -- batch ID linking messages from the same generation turn.
-
-**Regeneration** in groups deletes all messages sharing the last `gen_id`, then re-runs the group generation pipeline.
-
-### The Bannered Mare
-
-**Not implemented.** The `Chat` model has a single `character_id` FK, structurally limiting it to 1:1 user-character conversations.
+**The Bannered Mare — not implemented.** The `Chat` model has a single `character_id` FK, structurally limiting it to 1:1 user-character conversations.
 
 **Observations.** Group chats require substantial architectural additions: a many-to-many relationship between chats and characters, a turn-ordering system, multi-character prompt assembly, and per-turn speaker attribution on messages. SillyTavern's activation strategies (especially NATURAL with talkativeness rolls) represent significant game-design logic that goes beyond basic chat infrastructure.
 
 
 ## 8. Personas
 
-### SillyTavern
+SillyTavern stores personas in `power_user` settings as key-value maps, with a three-tier lock system (chat > character > default) and per-persona configurable prompt injection (position, depth, role) ([Analysis §11 ›](/sillytavern/analysis/chat-system#_11-persona-system)).
 
-Personas are stored in `power_user` settings (not individual files):
-
-```
-power_user.personas[avatarId] = personaName
-power_user.persona_descriptions[avatarId] = {
-    description, position, depth, role, lorebook, connections, title
-}
-```
-
-Features:
-- **Chat lock:** Persona bound to a specific chat file (`chat_metadata.persona`).
-- **Character lock:** Persona bound to a character/group via `connections[]`.
-- **Default lock:** Global fallback (`power_user.default_persona`).
-- **Resolution order:** Chat lock > Character lock > Default lock > Current persona.
-- **Auto-lock:** Optionally locks the selected persona to the current chat on selection.
-- **Prompt injection:** Configurable position (`IN_PROMPT` or `IN_PROMPT_AT_DEPTH`) with adjustable depth and role.
-
-### The Bannered Mare
-
-Personas are a first-class domain entity with their own table:
+**The Bannered Mare** makes personas a first-class domain entity with their own table:
 
 ```
 personas table:
@@ -313,9 +201,7 @@ personas table:
   avatar_thumbnail string(255)? Path to thumbnail
 ```
 
-The `Chat` model has a `persona_id` FK, binding a persona to a specific chat session.
-
-Prompt injection is handled by the `PromptBuilder`, which inserts the persona description as a system message (`"User Persona: {description}"`) at a fixed position in the component order.
+The `Chat` model has a `persona_id` FK, binding a persona to a specific chat session. Prompt injection is handled by the `PromptBuilder`, which inserts the persona description as a system message (`"User Persona: {description}"`) at a fixed position in the component order.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -330,15 +216,9 @@ Prompt injection is handled by the `PromptBuilder`, which inserts the persona de
 
 ## 9. Presets (Generation Parameters)
 
-### SillyTavern
+SillyTavern stores presets as per-API-type configuration files (e.g., `OpenAI/`, `TextCompletion/`), each carrying the full parameter set for that API and deeply coupled to the API type. Presets are their own topic; see the [Presets Analysis](/sillytavern/analysis/presets#_2-chat-completion-preset-structure) for how ST structures per-API-type presets.
 
-Presets are per-API-type configuration files stored on disk (e.g., `OpenAI/`, `TextCompletion/`, `NovelAI/` directories under `openai_settings/` or `textgen_settings/`). Each preset file contains the full parameter set for that API type (temperature, top_p, top_k, penalties, samplers, etc.).
-
-The preset system is deeply coupled to the API type -- different APIs expose different parameter schemas, and the UI dynamically renders controls based on the selected API.
-
-### The Bannered Mare
-
-Presets are a first-class entity with a flexible JSON parameters column:
+**The Bannered Mare** makes presets a first-class entity with a flexible JSON parameters column:
 
 ```
 presets table:
@@ -364,65 +244,27 @@ The `Chat` model has a `preset_id` FK. The `ProviderGateway` receives `preset_pa
 
 ## 10. File Attachments
 
-### SillyTavern
+SillyTavern stores two per-message attachment categories — media (`extra.media[]`) and documents (`extra.files[]`, text extracted client-side) — across three scopes (GLOBAL/CHARACTER/CHAT) ([Analysis §12 ›](/sillytavern/analysis/chat-system#_12-file-attachments-in-chat)).
 
-Two attachment categories stored per-message:
-
-**Media** (`extra.media[]`): Images, video, audio.
-- Stored as files under `user/files/`.
-- Supports inline display and API-generated images.
-- Per-message `media_index` tracks the currently displayed media item.
-
-**Documents** (`extra.files[]`): PDF, DOCX, TXT, EPUB, XLSX, etc.
-- Text is extracted client-side using format-specific converters.
-- The extracted text is uploaded as a `.txt` file.
-- 350 MB size limit.
-
-Three attachment scopes: GLOBAL, CHARACTER, CHAT.
-
-### The Bannered Mare
-
-**Not implemented.** There is no file attachment system. Messages contain text content only.
+**The Bannered Mare — not implemented.** There is no file attachment system. Messages contain text content only.
 
 **Observations.** File attachments are a substantial feature involving storage management, text extraction, multimodal prompt construction (for vision models), and scope-based access control. For The Bannered Mare, implementing this would require a new `attachments` table, a file storage service, and integration with the prompt builder to inject attachment content or references into the API call.
 
 
 ## 11. Import / Export
 
-### SillyTavern
+SillyTavern imports six formats with auto-detection (Oobabooga, Agnai, CAI Tools, Kobold Lite, RisuAI, native JSONL/Chub), normalizing all to `ChatMessage`, and exports JSONL or plaintext ([Analysis §9 ›](/sillytavern/analysis/chat-system#_9-chat-importexport)).
 
-**Import** supports six formats with auto-detection:
-- Oobabooga (`data_visible` array)
-- Agnai (`messages` array)
-- CAI Tools (`histories` object)
-- Kobold Lite (`savedsettings` object)
-- RisuAI (`type === 'risuChat'`)
-- Native JSONL / Chub
-
-All formats are normalized to the standard `ChatMessage` structure on import.
-
-**Export** supports two modes:
-- JSONL (native format, raw download)
-- Plaintext (formatted as `Name: Message` pairs)
-
-### The Bannered Mare
-
-**Not implemented.** There is no import or export functionality.
+**The Bannered Mare — not implemented.** There is no import or export functionality.
 
 **Observations.** Import/export is important for interoperability with the broader RP tool ecosystem. The Bannered Mare's relational model means export would require serializing joined data (chat + messages + alternatives + character metadata) into a portable format. Import would need format detection and mapping logic similar to SillyTavern's. Supporting at least JSONL and the Character Card V2 chat format would provide baseline interoperability.
 
 
 ## 12. Prompt Construction
 
-While not strictly part of the "chat system," prompt construction is tightly coupled to how messages are assembled for LLM calls.
+While not strictly part of the "chat system," prompt construction is tightly coupled to how messages are assembled for LLM calls. SillyTavern assembles the prompt client-side from a configurable component order (character card, persona, world info, examples, history), using generation modes for group chats.
 
-### SillyTavern
-
-Prompt assembly is client-side, driven by a configurable component order. The system combines character cards, personas, world info, example dialogues, and chat history into a single prompt. Group chats use generation modes (SWAP, APPEND) to control how multiple character cards are included.
-
-### The Bannered Mare
-
-The `PromptBuilder` service constructs prompts server-side using the `PromptTemplate` entity:
+**The Bannered Mare** constructs prompts server-side in the `PromptBuilder` service using the `PromptTemplate` entity:
 
 - Configurable component order (`DEFAULT_COMPONENT_ORDER`): `system_prompt`, `world_lore_before_character`, `character_context`, `world_lore_after_character`, `scenario`, `persona`, `world_lore_before_examples`, `example_dialogues`, `rag_context`, `chat_history`, `post_history_instructions`.
 - Per-component enable/disable toggles (`components_enabled`).

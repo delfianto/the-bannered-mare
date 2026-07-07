@@ -1,8 +1,9 @@
 # Tool Calling / Function Calling — ST v1.17.0 vs The Bannered Mare
 
-## Overview
-
-This document compares tool calling (function calling) support between SillyTavern v1.17.0 and The Bannered Mare. SillyTavern has a mature, full-featured tool calling system. The Bannered Mare has partial parameter-level plumbing but no tool calling implementation.
+This page assumes the [Tool Calling Analysis](/sillytavern/analysis/tool-calling) for how
+SillyTavern's tool system works internally, and focuses on where The Bannered Mare diverges
+and why. The short version: SillyTavern has a mature, full-featured tool calling pipeline;
+The Bannered Mare has partial parameter-level plumbing but no tool calling implementation.
 
 
 ## 1. Capability Matrix
@@ -27,46 +28,16 @@ This document compares tool calling (function calling) support between SillyTave
 
 ## 2. What SillyTavern Has
 
-SillyTavern's tool calling system spans five files and roughly 1,500 lines of code across frontend and backend. The key components:
-
-### 2.1 Tool Registration and Definition
-
-Tools are registered via `ToolManager.registerFunctionTool()` with a standard interface: `name`, `description`, `parameters` (JSON Schema), `action` (async function), and optional `formatMessage`, `shouldRegister`, and `stealth` fields. A static `Map<string, ToolDefinition>` holds all registered tools. Extensions and slash commands can register/unregister tools at runtime.
-
-One built-in tool ships: `GenerateImage` from the Stable Diffusion extension.
-
-### 2.2 Provider Translation Layer
-
-The frontend always constructs tools in OpenAI format. The Node.js backend translates per provider:
-
-| Provider | Translation |
-|---|---|
-| OpenAI / OpenRouter / Groq / xAI / AI21 | Pass-through (`tools`, `tool_choice`) |
-| Anthropic Claude | `parameters` -> `input_schema`; `tool_choice` -> `{ type: "auto" }` |
-| Google Gemini | `tools` -> `function_declarations`; `tool_choice` -> `functionCallingConfig` with mode mapping |
-| MistralAI | Pass-through; tool call IDs sanitized with SHA-512 hash |
-| Cohere | Pass-through; `$schema` stripped; text primer injected on assistant tool_calls |
-| DeepSeek | Pass-through; empty `required` arrays deleted; dummy `reasoning_content` added |
-
-26 providers are flagged as tool-calling-capable, with 7 doing per-model capability checks at runtime.
-
-### 2.3 Response Parsing
-
-`ToolManager.parseToolCalls()` handles four distinct streaming formats (OpenAI delta, Cohere events, Anthropic content blocks, Gemini functionCall parts). Non-streaming responses are normalized from five provider formats into a uniform `[{id, function: {name, arguments}}]` shape.
-
-### 2.4 Execution Loop
-
-After parsing tool calls from a response, ST:
-
-1. Invokes each tool's `action()` function.
-2. Saves invocations as a system message in chat.
-3. Recursively calls `Generate()` with `depth + 1`.
-4. On the next generation, reconstructs previous tool call/result pairs as proper OpenAI-format messages in the prompt.
-5. Repeats until depth reaches `RECURSE_LIMIT` (5) or the LLM stops calling tools.
-
-### 2.5 Token Management
-
-Tool schema definitions are serialized and their token count is reserved from the context budget before chat history is added. This guarantees tool overhead never causes context overflow.
+SillyTavern ships a complete tool calling pipeline spanning ~1,500 lines across frontend and
+backend: a `ToolManager` registry with runtime register/unregister, per-provider request
+translation (OpenAI-format schemas rewritten for Anthropic, Gemini, Mistral, Cohere, DeepSeek,
+and 26 tool-capable providers), multi-format response parsing (4 streaming + 5 non-streaming
+shapes), tool invocation, and a recursive agentic loop with token budgeting. Full detail in
+[Analysis §1 Tool Registration ›](/sillytavern/analysis/tool-calling#_1-tool-registration),
+[§3 Provider Integration ›](/sillytavern/analysis/tool-calling#_3-provider-integration),
+[§5 Execution Flow ›](/sillytavern/analysis/tool-calling#_5-execution-flow),
+[§7 Parsing Tool Calls ›](/sillytavern/analysis/tool-calling#_7-parsing-tool-calls-from-diverse-response-formats),
+and [§12 Token Management ›](/sillytavern/analysis/tool-calling#_12-token-management).
 
 
 ## 3. What The Bannered Mare Has

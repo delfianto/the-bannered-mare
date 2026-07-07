@@ -1,18 +1,22 @@
 # Extension & Plugin Systems — SillyTavern v1.17.0 vs The Bannered Mare
 
+This page assumes the [Extensions Analysis](/sillytavern/analysis/extensions) for how SillyTavern's
+plugin runtimes, event system, and built-in extensions work internally, and focuses on where The
+Bannered Mare diverges and why.
+
 ## Table of Contents
 
-1. [Fundamental Architectural Difference](#1-fundamental-architectural-difference)
-2. [SillyTavern's Extension Ecosystem](#2-sillytaverns-extension-ecosystem)
-3. [The Bannered Mare's Extensibility Model](#3-the-bannered-mares-extensibility-model)
-4. [Feature-by-Feature Comparison](#4-feature-by-feature-comparison)
-5. [How ST Extension Capabilities Map to The Bannered Mare](#5-how-st-extension-capabilities-map-to-the-bannered-mare)
-6. [Provider Extensibility](#6-provider-extensibility)
-7. [Prompt Pipeline Extensibility](#7-prompt-pipeline-extensibility)
-8. [Message Processing Extensibility](#8-message-processing-extensibility)
-9. [Event Systems](#9-event-systems)
-10. [Third-Party Integration Surface](#10-third-party-integration-surface)
-11. [Trade-off Analysis](#11-trade-off-analysis)
+1. [Fundamental Architectural Difference](#_1-fundamental-architectural-difference)
+2. [SillyTavern's Extension Ecosystem](#_2-sillytaverns-extension-ecosystem)
+3. [The Bannered Mare's Extensibility Model](#_3-the-bannered-mares-extensibility-model)
+4. [Feature-by-Feature Comparison](#_4-feature-by-feature-comparison)
+5. [How ST Extension Capabilities Map to The Bannered Mare](#_5-how-st-extension-capabilities-map-to-the-bannered-mare)
+6. [Provider Extensibility](#_6-provider-extensibility)
+7. [Prompt Pipeline Extensibility](#_7-prompt-pipeline-extensibility)
+8. [Message Processing Extensibility](#_8-message-processing-extensibility)
+9. [Event Systems](#_9-event-systems)
+10. [Third-Party Integration Surface](#_10-third-party-integration-surface)
+11. [Trade-off Analysis](#_11-trade-off-analysis)
 
 
 The systems answer one question differently — *where does customization logic live?*
@@ -69,53 +73,7 @@ The difference is not a gap in capability -- it reflects two different answers t
 
 ## 2. SillyTavern's Extension Ecosystem
 
-### 2.1 Two-Layer Plugin Architecture
-
-ST runs two independent extension systems:
-
-**Server Plugins** (`./plugins/`):
-- Node.js modules loaded at startup
-- Each receives a scoped Express Router (`/api/plugins/{id}`)
-- Lifecycle: `init(router)` and `exit()`
-- Opt-in via `enableServerPlugins` config flag
-- Auto-updated from git remotes on startup
-
-**Frontend Extensions** (`public/scripts/extensions/`):
-- Browser-side ES modules loaded at page init
-- Full access to chat state, generation pipeline, UI rendering, slash commands, events
-- Six lifecycle hooks: install, update, delete, enable, disable, activate
-- Manifest-driven (`manifest.json`) with loading order, dependency declarations, version requirements
-
-### 2.2 Built-in Extensions
-
-ST ships 14 extensions covering capabilities that range from core RP features to multimedia integrations:
-
-| Extension | What It Does |
-|---|---|
-| Connection Manager | Multi-profile API switching (model, preset, proxy, tokenizer) |
-| Regex | Find/replace scripts on messages and prompts (3 scopes, 6 placement targets) |
-| Translate | Real-time message translation via external providers |
-| Data Bank | File attachments, web scraping, fandom/wiki import |
-| Image Captioning | Multimodal image description via LLMs |
-| Character Expressions | Sprite-based character emotion rendering |
-| Gallery | Character image gallery management |
-| Summarize (Memory) | Auto-summarization of chat history (3 backends) |
-| Image Generation | SD/DALL-E/ComfyUI generation with trigger detection |
-| TTS | Text-to-speech with 22+ provider adapters |
-| Quick Replies | Macro buttons with auto-execution on events |
-| Assets | Character asset library browser |
-| Token Counter | Token count display in UI |
-| Vector Storage | RAG via vector embeddings |
-
-### 2.3 Extension APIs
-
-Extensions access application state through `getContext()`, which exposes APIs for chat manipulation, character data, generation control, event subscription, slash commands, tokenization, prompt injection, UI rendering, tool registration, data bank scraping, macro registration, and i18n.
-
-### 2.4 Third-Party Ecosystem
-
-Third-party extensions install via git clone and have identical capabilities to built-in extensions. ST manages their lifecycle through 8 dedicated API endpoints (`/api/extensions/install`, `/update`, `/delete`, `/version`, `/branches`, `/switch`, `/move`, `/discover`). Auto-update is supported with concurrent version checking (max 5 parallel).
-
-Security is minimal: extensions run with full browser context access, no sandboxing, no capability restrictions. The primary guard is user trust.
+SillyTavern runs two independent plugin runtimes — server plugins (`./plugins/`, scoped Express routers) and frontend extensions (`public/scripts/extensions/`, manifest-driven ES modules with full app access via `getContext()`) — shipping 14 built-in extensions plus an unlimited git-installed third-party ecosystem, with no sandboxing ([Analysis §1 ›](/sillytavern/analysis/extensions#_1-extension-architecture-overview), [§2 ›](/sillytavern/analysis/extensions#_2-server-plugins), [§3 ›](/sillytavern/analysis/extensions#_3-frontend-extensions), [§4 ›](/sillytavern/analysis/extensions#_4-built-in-extensions-catalog)).
 
 
 ## 3. The Bannered Mare's Extensibility Model
@@ -257,13 +215,9 @@ These are not "missing features" -- they represent different scope decisions. A 
 
 ## 6. Provider Extensibility
 
-### SillyTavern
+SillyTavern supports 40+ providers through a mix of server-side endpoint modules and client-side format conversion; adding one means editing multiple files across server and client, with the provider list hardcoded in `src/constants.js` ([Analysis §8 ›](/sillytavern/analysis/extensions#_8-deep-dive-connection-manager)).
 
-ST supports 40+ providers through a combination of server-side endpoint modules and client-side format conversion. Adding a provider involves modifying multiple files across both server and client code. The provider list is hardcoded in `src/constants.js` and switching requires frontend UI interaction.
-
-### The Bannered Mare
-
-Providers are database-managed entities with a typed adapter system:
+**The Bannered Mare** treats providers as database-managed entities with a typed adapter system:
 
 ```
 _REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
@@ -287,15 +241,9 @@ The `ProviderType.CUSTOM` entry with `OpenAIAdapter` as the fallback means any O
 
 ## 7. Prompt Pipeline Extensibility
 
-### SillyTavern
+SillyTavern lets extensions inject into the prompt via `setExtensionPrompt(...)`, abort or modify generation through `generate_interceptor` hooks, and apply regex find/replace at 6 pipeline stages — layered, extension-ordered transformations ([Analysis §6 ›](/sillytavern/analysis/extensions#_6-deep-dive-regex-scripts)).
 
-Extensions inject into the prompt pipeline via `setExtensionPrompt(name, content, position, depth, scan, role)`. Multiple extensions can inject at the same position, ordered by their loading order. The `generate_interceptor` mechanism allows extensions to abort or modify generation before it starts. The regex engine applies find/replace transformations at 6 different pipeline stages.
-
-This creates a powerful but complex prompt assembly pipeline where the final prompt is the result of many layered transformations from independent extensions.
-
-### The Bannered Mare
-
-The prompt pipeline is assembled by `PromptBuilder` using four inputs:
+**The Bannered Mare** assembles the prompt in `PromptBuilder` using four inputs:
 1. **System template** -- Jinja2 template from the active prompt template
 2. **Lore entries** -- Activated by the keyword engine, inserted at configured positions (`before_character`, `after_character`, `at_depth`, `before_examples`)
 3. **Chat history** -- Messages from the database
@@ -310,19 +258,9 @@ A client that needs regex-style transformations or pre-generation interception m
 
 ## 8. Message Processing Extensibility
 
-### SillyTavern
+SillyTavern passes messages through multiple transform stages — regex scripts (6 placement targets), event handlers, generate interceptors, and macro substitution — ordered by loading order and event priority ([Analysis §6 ›](/sillytavern/analysis/extensions#_6-deep-dive-regex-scripts)).
 
-Messages pass through multiple processing stages:
-- Regex scripts (6 placement targets: user input, AI output, slash commands, world info, reasoning, display)
-- Event handlers (`MESSAGE_SENT`, `MESSAGE_RECEIVED`, `MESSAGE_EDITED`, `MESSAGE_SWIPED`, etc.)
-- Generate interceptors (pre-generation)
-- Macro substitution (`{{char}}`, `{{user}}`, custom macros)
-
-Extensions can transform messages at any stage, and the order of transformations is controlled by loading order and event subscription priority.
-
-### The Bannered Mare
-
-Messages are stored and retrieved without transformation. The API returns message content exactly as received from the LLM (after optional `<think>` tag parsing for reasoning content). The template engine applies Jinja2 variable substitution at prompt assembly time, but message content itself is not modified.
+**The Bannered Mare** stores and retrieves messages without transformation. The API returns message content exactly as received from the LLM (after optional `<think>` tag parsing for reasoning content). The template engine applies Jinja2 variable substitution at prompt assembly time, but message content itself is not modified.
 
 If a client needs to display transformed messages (e.g., with regex replacements, markdown rendering, or custom formatting), it applies those transforms after fetching from the API.
 
@@ -331,15 +269,9 @@ If a client needs to display transformed messages (e.g., with regex replacements
 
 ## 9. Event Systems
 
-### SillyTavern
+SillyTavern runs a custom `EventEmitter` with 103 named event types (lifecycle, messages, generation, chats, characters, settings, and more) that extensions subscribe to and order via `makeLast()`; built-in extensions register 42 handlers across 25 event types ([Analysis §10 ›](/sillytavern/analysis/extensions#_10-event-system-integration)).
 
-A custom `EventEmitter` with 103 named event types covering application lifecycle, messages, generation, chats, characters, settings, world info, connections, presets, secrets, UI, groups, tools, files, personas, and TTS. Extensions subscribe via `eventSource.on()` and can control execution order via `eventSource.makeLast()`. Two "sticky" events (`APP_READY`, `APP_INITIALIZED`) fire for late subscribers.
-
-Built-in extensions collectively register 42 event handlers across 25 event types.
-
-### The Bannered Mare
-
-No event system. The application is request-response with SSE streaming for chat completions. Server-Sent Events during streaming emit 6 typed event types: `start`, `text`, `reasoning`, `usage`, `done`, `error`. These are stream protocol events, not an application event bus.
+**The Bannered Mare** has no event system. The application is request-response with SSE streaming for chat completions. Server-Sent Events during streaming emit 6 typed event types: `start`, `text`, `reasoning`, `usage`, `done`, `error`. These are stream protocol events, not an application event bus.
 
 There is no mechanism for one part of the server to react to events from another part. Each request is handled by a single router -> service -> repository call chain.
 
@@ -348,18 +280,9 @@ There is no mechanism for one part of the server to react to events from another
 
 ## 10. Third-Party Integration Surface
 
-### SillyTavern
+SillyTavern lets third-party developers write frontend extensions and server plugins with full internal access, distribute them via git with manifest metadata, declare inter-extension dependencies, and hook install/update/delete lifecycles ([Analysis §11 ›](/sillytavern/analysis/extensions#_11-third-party-extension-ecosystem)).
 
-Third-party developers can:
-- Write frontend extensions with full access to chat state, generation, events, UI, and slash commands
-- Write server plugins that mount Express routes under `/api/plugins/{id}`
-- Distribute via git repositories with manifest-based metadata
-- Declare dependencies on other extensions and ST Extras API modules
-- Use lifecycle hooks for install/update/delete operations
-
-### The Bannered Mare
-
-Third-party developers can:
+**The Bannered Mare** third-party developers can:
 - Build any frontend against the REST/SSE API (OpenAPI spec available)
 - Build automation scripts that compose API calls for custom workflows
 - Build sidecar services that consume The Bannered Mare's API for features like TTS, image gen, or RAG
