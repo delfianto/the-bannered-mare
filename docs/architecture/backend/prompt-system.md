@@ -72,7 +72,7 @@ presets both attach to a `Chat`:
     <rect x="330" y="314" width="190" height="14" fill="var(--tbm-dgm-surface-3)"/>
     <text x="425" y="319" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Chat</text>
     <g font-size="11" fill="var(--tbm-dgm-ink-2)">
-      <text x="344" y="350">prompt_template_id</text>
+      <text x="344" y="350">template_id · nullable</text>
       <text x="344" y="372">preset_id · nullable</text>
     </g>
   </g>
@@ -94,7 +94,9 @@ presets both attach to a `Chat`:
 
 **A template is placed, not pasted.** `TemplateFragment` is the join row that binds a
 `PromptFragment` into a `PromptTemplate` with a `position`, an `ordinal`, and a `depth`. A
-`Chat` points at its default template and, optionally, a `Preset` for generation settings.
+`Chat` may point at a template (via nullable `template_id`) and, optionally, a `Preset` for
+generation settings. When a chat has no template, the builder falls back to the model's
+template, then to the default template, then to a minimal built-in prompt.
 
 </template>
 </Figure>

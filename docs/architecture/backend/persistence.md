@@ -55,35 +55,38 @@ To resolve this:
 
 ## 3. Asynchronous vs. Synchronous Operations
 
-The Bannered Mare implements a **mixed-mode** synchronization policy to balance simplicity and performance:
+The Bannered Mare implements a **mixed-mode** synchronization policy to balance simplicity and performance. Two full engines are configured side by side in [database.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/persistence/database.py): a synchronous engine (with `SessionLocal` / `get_db`) and an asynchronous engine (with `AsyncSessionLocal` / `get_async_db`).
 
 1. **Asynchronous (Async) Operations**:
-   - **Constraint**: Database interactions involving chat messages (which are highly concurrent, read/write heavy, and tied to real-time LLM streaming) **must be asynchronous**.
+   - **Where**: The hot, concurrent, streaming-adjacent paths — chat messages, chat sessions, persisted audit logging, and RAG embeddings. These slices ship a `repository_async.py` (`AsyncMessageRepository`, `AsyncChatRepository`, `AsyncEmbeddingRepository`, and the audit writer's `AuditRepository`).
    - **Implementation**: Uses `asyncpg` with async SQLAlchemy sessions, executing via `await session.execute(select(...))` and similar constructs.
 
 2. **Synchronous (Sync) Operations**:
-   - **Constraint**: All other operations (metadata updates, character configuration, provider management, presets, etc.) are synchronous.
-   - **Implementation**: Uses standard `psycopg` blocking driver calls inside a synchronous SQLAlchemy session to avoid async overhead and keep the code simple.
+   - **Where**: Everything else — character configuration, personas, providers, models, presets, prompt templates and fragments, lore, profiles, and so on.
+   - **Implementation**: Uses the `psycopg2` blocking driver inside a synchronous SQLAlchemy session to avoid async overhead and keep the code simple.
+
+Note that `chat_message`, `chat_session`, and `rag` keep **both** a sync `repository.py` and an async `repository_async.py`, using whichever fits the call site.
 
 
 ## 4. Repository Pattern
 
-Each domain features a dedicated repository extending `BaseRepository` (for synchronous operations) or an async base repository.
+Each domain features a dedicated repository extending the generic `BaseRepository[T]` (for synchronous operations) or `AsyncBaseRepository[T]` (for the async paths). Both are parameterized on the ORM model type.
 
-### Synchronous Base Repository
-Handles basic CRUD logic (`find_by_id`, `find_all`, `create`, `update`, `delete`) so developers don't have to rewrite queries for each model.
+### Base Repository CRUD
+The base classes handle common CRUD and query logic — `find_by_id`, `find_all`, `find_paginated`, `find_paginated_with_count`, `create`, `update`, `delete`, `count`, and `exists` — plus a small dynamic `_apply_filters` helper (operators like `__eq`, `__in`, `__ilike`). Writes use `flush()` rather than `commit()` so the **service layer** controls transaction boundaries; the repository also exposes `commit()`, `rollback()`, and `refresh()` for the service to call.
 
 ### Example Custom Repository
 ```python
 class CharacterRepository(BaseRepository[Character]):
-    def __init__(self, session: Session):
-        super().__init__(session, Character)
+    def __init__(self, db: Session):
+        super().__init__(db, Character)
 
-    def find_by_tags(self, tags: list[str]) -> list[Character]:
-        return self.session.query(Character).filter(
-            Character.tags.overlap(tags)
-        ).all()
+    def find_by_name(self, name: str) -> Character | None:
+        stmt = select(Character).where(Character.name == name)
+        return self.db.execute(stmt).scalars().first()
 ```
+
+Custom queries use SQLAlchemy 2.0 `select(...)` statements executed through `self.db`, not the legacy `session.query(...)` API.
 
 
 ## 5. Schema Migrations (Alembic)
@@ -93,7 +96,8 @@ Database schema alterations are strictly managed through Alembic.
   ```bash
   alembic revision --autogenerate -m "add_provider_last_synced_at"
   ```
-- **Applying Migrations**: Handled automatically on backend service start or via command-line:
+- **Applying Migrations**: Applied via the command line (not at application startup — the
+  lifespan handler only seeds default data):
   ```bash
   alembic upgrade head
   ```

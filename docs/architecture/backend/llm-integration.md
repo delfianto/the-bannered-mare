@@ -11,8 +11,10 @@ stateful gateway). Connection configuration lives in the database, separate from
 Three core database models describe LLM connectivity:
 
 1. **Provider** — an API service instance (e.g., "Ollama Local" or "OpenAI Production").
-   Holds the base URL, an active toggle, the last-synced timestamp, and the name of the
-   environment variable that contains the credentials.
+   Holds the base URL, an `enabled` toggle, the `last_synced_at` timestamp, and a curated
+   `allowed_models` allow-list. Credentials are read from an environment variable: for most
+   provider types the variable name is fixed by static `PROVIDER_CONFIGS` (e.g.
+   `OPENAI_API_KEY`), while a `custom` provider names its own via `api_key_env_var`.
 2. **ModelFamily** — a grouping of similar models that defines default parameters
    (temperature, frequency penalty, and so on) and configuration such as prompt-structure
    templates.
@@ -69,7 +71,7 @@ gateway, which selects the right adapter and drives the call:
   <text x="364" y="120" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">stateful coordinator</text>
   <line x1="278" y1="132" x2="450" y2="132" stroke="var(--tbm-dgm-border)"/>
   <text x="364" y="150" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">owns httpx.AsyncClient</text>
-  <text x="364" y="168" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">timeouts · retries</text>
+  <text x="364" y="168" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">per-model timeouts</text>
   <text x="364" y="186" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">exception normalization</text>
   <text x="364" y="204" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">parameter resolution</text>
   <!-- Adapter -->
@@ -108,18 +110,28 @@ and failure mapping.
 When a request is initiated, the gateway merges generation parameters in a fixed priority
 order, each layer overriding the one before it:
 
-1. **ModelFamily parameters** — global defaults.
+1. **ModelFamily parameters** — global defaults (only params whose `default` is set).
 2. **Model parameters** — per-model overrides.
 3. **Preset parameters** — user-specified overrides for the chat session.
 
+### OpenRouter Routing
+
+A `Model` can be flagged with `use_openrouter`. When set, the gateway ignores the model's
+own provider, points at the configured OpenRouter provider instead, sends the model's
+`openrouter_identifier`, and always uses the OpenAI adapter (OpenRouter speaks the OpenAI
+wire format).
+
 ### Exception Normalization
 
-The gateway catches standard HTTP status codes and maps them to clean system exceptions:
+The gateway catches HTTP status errors and maps them to clean system exceptions:
 
-- `401` / `403` → `ProviderAuthError`
+- `401` → `ProviderAuthError`
 - `429` → `ProviderRateLimitError`
 - `400` → `ProviderInvalidRequestError`
-- anything else → `ProviderException`
+- any other status → `ProviderException`
+
+Timeouts are caught separately and raised as `ProviderTimeoutError`; any other unexpected
+error is wrapped in `ProviderException`.
 
 ## 4. Model Discovery and Syncing
 
@@ -127,11 +139,15 @@ To make connecting a local backend painless, The Bannered Mare auto-discovers mo
 
 - **ModelDiscoveryClient**
   ([discovery.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/provider/discovery.py))
-  — queries a provider's listing endpoint (LM Studio's `/v1/models`, Ollama's `/api/tags`)
-  and normalizes the results into list items.
+  — a `Protocol` with per-provider implementations, chosen from a registry keyed by
+  provider type. Each queries that provider's native listing endpoint (Ollama's `/api/tags`
+  plus `/api/ps` for load state, LM Studio's `/api/v1/models`, the OpenAI-compatible
+  `/models`, Anthropic's `/models`, Gemini's `/v1beta/models`) and normalizes the results
+  into `DiscoveredModel` items. The local clients (Ollama, LM Studio) additionally support
+  `load_model` / `unload_model`; cloud clients raise `NotImplementedError` for those.
 - **ModelListCache**
   ([model_cache.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/provider/model_cache.py))
-  — an in-memory cache that avoids hammering network backends while a user browses available
-  models.
+  — a process-local, in-memory TTL cache keyed by provider ID that avoids hammering network
+  backends while a user browses available models. It is lost on restart by design.
 - **Model Synchronizer** — merges discovered models into the database, creating new `Model`
   rows automatically while preserving user modifications to existing ones.

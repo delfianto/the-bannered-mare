@@ -16,26 +16,45 @@ backend/
 ├── alembic/                  # Database schema migrations (Alembic auto-managed)
 ├── src/                      # Source directory
 │   ├── core/                 # Shared Kernel (Cross-cutting infrastructure)
-│   │   ├── config.py         # Application configuration & Environment variable loading
-│   │   ├── exceptions.py     # Centralized exceptions and HTTP handlers
-│   │   ├── logging/          # Structured logging and auditing configuration
-│   │   └── persistence/      # Base repository, DB session management, and base models
+│   │   ├── config.py         # Application configuration & environment variable loading
+│   │   ├── exceptions.py     # Application exception hierarchy (provider errors)
+│   │   ├── schemas.py        # Shared Pydantic base schemas
+│   │   ├── logging/          # Structured logging + request-logging middleware
+│   │   ├── persistence/      # Engines, sessions, base repositories, centralized models
+│   │   └── utils/            # OpenAPI, reasoning, storage, templating, tokenizer, validators
 │   ├── [domain_module]/      # Vertical Slices (Domain slices)
 │   │   ├── router.py         # API interface layer (routing, payload validation)
 │   │   ├── service.py        # Business logic layer (orchestrating repo tasks)
-│   │   ├── repository.py     # Data access layer (SQLAlchemy/SQL queries)
-│   │   ├── models.py         # SQLAlchemy domain database models
+│   │   ├── repository.py     # Data access layer (SQLAlchemy 2.0 queries)
+│   │   ├── repository_async.py  # Async data access (only where async is needed)
+│   │   ├── models.py         # Pass-through re-export of the centralized ORM model
 │   │   ├── schemas.py        # Pydantic schemas (DTOs for requests and responses)
 │   │   └── dependencies.py   # FastAPI dependencies (database session & service providers)
+│   ├── fixtures/             # Startup seed data (providers, families, models, templates)
+│   ├── demo/                 # Minimal HTML chat UI served at /demo for manual testing
 │   └── main.py               # Application entrypoint
 ├── tests/                    # Test suite mirroring the src/ structure
-├── pyproject.toml            # Package, linter, formatting, and type-checker configs
+├── pyproject.toml            # Package, linter, and type-checker configs
 └── alembic.ini               # Alembic configuration
 ```
 
-Two things sit outside the domain slices: the **shared kernel** (`src/core/`), which
-holds infrastructure every slice depends on, and `main.py`, which wires the application
-together at startup. The rest of the tree is slices.
+The current domain slices are: **admin**, **audit**, **bookmarks**, **character**,
+**chat_message**, **chat_session**, **health**, **lore**, **model**, **model_family**,
+**persona**, **preset**, **profile**, **prompt_fragment**, **prompt_template**,
+**provider**, **rag**, and **st_import** (SillyTavern import). Not every slice carries the
+full router/service/repository set — the shape follows the need:
+
+- **Router-only slices:** `admin` (queries persisted audit logs through the `audit`
+  slice's service) and `bookmarks` (thin read endpoints over existing models).
+- **No-router slices:** `audit` exposes no router of its own — the `admin` slice serves
+  its data — and holds a writer, an async repository, a service, and schemas.
+- **Import-only slice:** `st_import` has a parser, mapper, service, schemas, and errors
+  but no ORM model of its own; it maps SillyTavern data onto the `character` slice.
+
+Three things sit outside the domain slices: the **shared kernel** (`src/core/`), which
+holds infrastructure every slice depends on; the **fixtures** package, which seeds default
+data at startup; and `main.py`, which wires the application together. The rest of the tree
+is slices.
 
 ## 2. Shared Kernel (`src/core/`)
 
@@ -48,17 +67,29 @@ Centralized environment and project settings powered by `pydantic-settings`. It 
 validates configuration parameters like database URLs, log levels, allowed CORS origins,
 token limits, and local asset storage paths.
 
-### Exception Handler (`exceptions.py`)
+### Exceptions (`exceptions.py`)
 
-Defines the base system exceptions (e.g., `EntityNotFoundError`, `ValidationError`,
-`ProviderConnectionError`) and wires up FastAPI exception handlers, mapping service-layer
-exceptions to the correct HTTP status codes in one central place.
+Defines the application exception hierarchy rooted at `BanneredMareException`. The concrete
+subclasses are all provider-facing: `ProviderException` and its specializations
+`ProviderAuthError`, `ProviderTimeoutError`, `ProviderRateLimitError`, and
+`ProviderInvalidRequestError`. There is no generic "not found" or "validation" exception
+here — service layers raise FastAPI `HTTPException` directly (e.g., a 404 when an entity is
+missing), and routers rely on FastAPI's built-in Pydantic validation for request payloads.
 
 ### Persistence Foundation (`persistence/`)
 
-Initializes the SQLAlchemy asynchronous and synchronous engines and manages request-scoped
-database sessions. Contains the `BaseRepository` abstract class that implements common CRUD
-logic. This layer is detailed in [Persistence Layer](/architecture/backend/persistence).
+Initializes the SQLAlchemy synchronous and asynchronous engines and manages request-scoped
+database sessions. Contains the `BaseRepository` and `AsyncBaseRepository` classes that
+implement common CRUD logic, the centralized ORM models under `models/`, shared enums, and
+persistence utilities (nanoid generation). This layer is detailed in
+[Persistence Layer](/architecture/backend/persistence).
+
+### Utilities (`utils/`)
+
+A small toolbox every slice can reach for: `storage` (avatar/asset file handling with
+Pillow), `template` (Jinja2 rendering of prompt templates), `tokenizer` (tiktoken-based
+token counting), `reasoning` (extracting `<think>`-style reasoning from model output),
+`validators` (identifier validation), and `openapi` (generating the API schema).
 
 ## 3. The Vertical-Slice Pattern
 
@@ -123,8 +154,12 @@ scoped session into the router via FastAPI `Depends`.
    across repositories, applies domain validations, and drives work like building prompt
    messages or calling external LLM adapters. It is completely agnostic of the HTTP layer
    (no `Request` objects, no `JSONResponse`).
-3. **Repository layer (`repository.py`)** — executes database queries, updates, and deletes.
-   It maps to ORM models and returns SQLAlchemy entities rather than Pydantic schemas.
+3. **Repository layer (`repository.py`)** — executes database queries, updates, and deletes
+   using SQLAlchemy 2.0 `select()` statements. It returns ORM entities rather than Pydantic
+   schemas. A handful of slices (`chat_message`, `chat_session`, `audit`, `rag`) also ship a
+   `repository_async.py` for the async paths described in the persistence guide. ORM classes
+   themselves live centrally in `core/persistence/models/`; each slice's `models.py` is a
+   thin pass-through re-export.
 4. **Dependencies (`dependencies.py`)** — declares FastAPI `Depends` factories that inject
    repositories, services, and scoped database sessions into routers.
 
@@ -133,8 +168,13 @@ scoped session into the router via FastAPI `Depends`.
 `main.py` bootstraps the FastAPI application:
 
 - Configures CORS middleware based on authorized origins.
-- Wires up the exception-mapping handlers.
-- Handles database startup tasks automatically:
-  1. Runs any database migration checks.
-  2. Seeds base metadata if missing — pre-defined `Provider` systems, `ModelFamily`
-     templates, and the default `PromptTemplate` presets.
+- Adds the structured request-logging middleware.
+- Includes every domain slice's router.
+- Runs startup tasks in the lifespan handler:
+  1. Ensures the local storage directories exist (`ensure_storage_directories`).
+  2. Seeds base metadata if missing — pre-defined `Provider`s, `ModelFamily` records,
+     `Model`s, and the default `PromptTemplate`s. Seeding is best-effort: a failure is
+     logged but does not abort startup.
+
+Schema migrations are applied separately through Alembic (`alembic upgrade head`), not by
+`main.py` at boot.
