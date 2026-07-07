@@ -3,14 +3,14 @@
 # The Bannered Mare — Start Server
 #
 # Usage:
-#   ./scripts/start.sh              # Development (auto-reload)
-#   ./scripts/start.sh --prod       # Production (no reload, multiple workers)
+#   ./scripts/start-backend.sh              # Development (auto-reload)
+#   ./scripts/start-backend.sh --prod       # Production (no reload, multiple workers)
 # =============================================================================
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../backend" && pwd)"
 cd "$PROJECT_ROOT"
 
 # Find uvicorn

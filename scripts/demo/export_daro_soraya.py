@@ -2,8 +2,9 @@ import asyncio
 import os
 import sys
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Backend lives one level up from this repo-root scripts/demo/ folder.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.join(_REPO_ROOT, "backend"))
 
 from src.character.repository import CharacterRepository
 from src.character.service import CharacterService
@@ -27,8 +28,7 @@ async def main():
     png_bytes = char_service.export_as_png(character.id)
 
     # Save to the repo-root characters/ collection (test-data cards).
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    dest_path = os.path.join(repo_root, "characters", "daro_soraya.png")
+    dest_path = os.path.join(_REPO_ROOT, "characters", "daro_soraya.png")
     with open(dest_path, "wb") as f:
         f.write(png_bytes)
 

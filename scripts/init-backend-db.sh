@@ -7,10 +7,10 @@
 # Docker entrypoint.
 #
 # Usage:
-#   ./scripts/init-db.sh              # Interactive — prompts for values
-#   ./scripts/init-db.sh --auto       # Non-interactive — uses env vars / defaults
-#   ./scripts/init-db.sh --reset      # Drop and recreate database (destroys all data)
-#   ./scripts/init-db.sh --reset --auto  # Non-interactive reset (for CI/Docker)
+#   ./scripts/init-backend-db.sh              # Interactive — prompts for values
+#   ./scripts/init-backend-db.sh --auto       # Non-interactive — uses env vars / defaults
+#   ./scripts/init-backend-db.sh --reset      # Drop and recreate database (destroys all data)
+#   ./scripts/init-backend-db.sh --reset --auto  # Non-interactive reset (for CI/Docker)
 #
 # Environment variables (all optional, have sensible defaults):
 #   POSTGRES_HOST       (default: localhost)
@@ -40,7 +40,7 @@ error() { echo -e "${RED}[ERROR]${NC} $*"; exit 1; }
 
 # --- Parse DATABASE_URL from .env if available ---
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../backend" && pwd)"
 
 _parse_database_url() {
   # Extract components from DATABASE_URL=postgresql://user:pass@host:port/db

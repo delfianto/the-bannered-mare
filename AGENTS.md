@@ -12,7 +12,7 @@ A single `.claude/` config at the **repo root** holds the merged permissions and
 - **Work on `main`:** Commit directly to `main` in this repo. Do not create feature branches or open PRs unless the user asks.
 - **Commit Freely:** Commit each completed unit of work with a clear, conventional message.
 - **Never Push Unprompted:** Do NOT run `git push` unless the user explicitly asks.
-- **API contract changes:** Any change to a backend router/schema requires regenerating the root `openapi.json` (`backend/scripts/openapi.sh`) and then `frontend/src/api/schema.d.ts` (`bun run api:gen` in `frontend/`). See the root [README.md](README.md#keeping-the-api-contract-in-sync).
+- **API contract changes:** Any change to a backend router/schema requires regenerating the root `openapi.json` (`scripts/openapi.sh`) and then `frontend/src/api/schema.d.ts` (`bun run api:gen` in `frontend/`). See the root [README.md](README.md#keeping-the-api-contract-in-sync).
 
 ## Repository Structure
 

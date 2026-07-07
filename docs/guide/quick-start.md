@@ -9,7 +9,7 @@ title: Quick Start
 cd backend
 pip install -e ".[dev]"
 cp .env.example .env        # Configure database URL and API keys
-./scripts/init-db.sh        # Provision the Postgres DB + VectorChord (vchord); skip if you have one
+../scripts/init-backend-db.sh   # Provision the Postgres DB + VectorChord (vchord); skip if you have one
 alembic upgrade head
 uvicorn src.main:app --reload
 
@@ -24,7 +24,7 @@ bun run dev                  # proxies /api to localhost:8000 (bun run dev:mock 
 The API contract lives at the repo root as `openapi.json` — the shared interface between the two halves. The frontend's `src/api/schema.d.ts` is generated from it using a fixed relative path (`frontend/../openapi.json`). Whenever the backend's API changes:
 
 ```bash
-cd backend && ./scripts/openapi.sh   # regenerate ./openapi.json at the repo root
+./scripts/openapi.sh   # regenerate ./openapi.json at the repo root
 cd ../frontend && bun run api:gen    # regenerate frontend/src/api/schema.d.ts
 ```
 
