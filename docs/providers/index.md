@@ -29,7 +29,7 @@ documentation before making implementation decisions.
 | Provider | Coverage | Created |
 |----------|----------|---------|
 | [Ollama](/providers/ollama) | Native + OpenAI-compatible endpoints | 2026-04-06 |
-| [Local Backends](/providers/local-backends) | llama.cpp · Oobabooga · vLLM · KoboldCpp · TabbyAPI | 2026-04-06 |
+| [Local Backends](/providers/local-backends) | LM Studio · llama.cpp · Oobabooga · vLLM · KoboldCpp · TabbyAPI | 2026-04-06 |
 
 ## Cross-Provider
 

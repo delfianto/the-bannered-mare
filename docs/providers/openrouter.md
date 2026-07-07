@@ -2,9 +2,9 @@
 
 > **Source:** OpenRouter API documentation (openrouter.ai/docs), observed API behavior
 > **Base URL:** `https://openrouter.ai/api/v1`
-> **Goal:** Define exactly how the OpenRouter API works, how it differs from vanilla OpenAI,
-> what the `OpenRouterAdapter` must handle, and how it maps to the shared
-> `CompletionRequest`/`CompletionResponse` types defined in `analysis/OPENAI.md`.
+> **Goal:** Define exactly how the OpenRouter API works and how it differs from vanilla OpenAI.
+> In The Bannered Mare, OpenRouter is served by the shared `OpenAIAdapter` (no dedicated adapter);
+> the later sections sketch what a dedicated `OpenRouterAdapter` would add if one were ever built.
 
 
 ## Table of Contents
@@ -78,8 +78,10 @@ named by the model prefix and manages that provider's auth, limits, and fallback
 ### 1.2 Why This Matters for The Bannered Mare
 
 OpenRouter is the **lowest-friction path** to multi-model support. Because it speaks the
-OpenAI protocol, the existing OpenAI adapter handles 90% of the work. The OpenRouterAdapter
-is a **thin subclass** — not a separate implementation.
+OpenAI protocol, The Bannered Mare does not ship a dedicated OpenRouter adapter at all:
+`ProviderType.OPENROUTER` maps straight to `OpenAIAdapter` in the adapter registry
+(`src/provider/adapters/__init__.py`). Only the base URL and API key differ, and those live in
+the `Provider` record.
 
 
 ## 2. Authentication & Extra Headers
@@ -121,9 +123,10 @@ Content-Type: application/json
 ### 2.4 For The Bannered Mare
 
 The Provider model already stores `api_key_env_var` for credential lookup. The extra headers
-(`HTTP-Referer`, `X-Title`) should be stored as part of the provider configuration or
-drawn from application settings. The `OpenRouterAdapter.build_headers()` override handles
-injecting them.
+(`HTTP-Referer`, `X-Title`) are **not currently sent** — because OpenRouter is served by the
+shared `OpenAIAdapter`, whose `build_headers()` emits only `Content-Type` and the Bearer token.
+Adding them would require either a dedicated OpenRouter adapter or a header hook on the base
+adapter; today they are simply omitted (they are optional for API access).
 
 
 ## 3. Request Schema — OpenAI + Extensions
@@ -426,10 +429,10 @@ the final content chunk.
 
 ### 5.4 Implications for The Bannered Mare
 
-Because streaming is identical to OpenAI, the existing `OpenAIAdapter.parse_stream_chunk()`
-method works **without modification**. The `OpenRouterAdapter` does not need to override
-any streaming logic. The only difference is that chunk `id` fields use the `gen-` prefix
-and `model` may reflect a fallback model.
+Because streaming is identical to OpenAI, the existing `OpenAIAdapter.parse_stream_line()`
+method works **without modification** — which is exactly why OpenRouter reuses `OpenAIAdapter`
+directly. The only difference is that chunk `id` fields use the `gen-` prefix and `model` may
+reflect a fallback model (both are opaque to the adapter).
 
 
 ## 6. Models Endpoint
@@ -567,40 +570,47 @@ and users can use the `provider` preferences to optimize for price, speed, or la
 
 Because OpenRouter speaks the OpenAI protocol, The Bannered Mare gets access to Anthropic,
 Google, Meta, and dozens of other models **without implementing their native APIs**.
-The `OpenRouterAdapter` is a thin wrapper — the heavy lifting is already done by
-`OpenAIAdapter`.
+There is no OpenRouter-specific adapter at all — `OpenAIAdapter` does all the work.
 
 
 ## 8. Key Differences from OpenAI — Summary Table
 
-| Aspect | OpenAI | OpenRouter | Adapter Impact |
+| Aspect | OpenAI | OpenRouter | Handling in The Bannered Mare |
 |---|---|---|---|
-| **Base URL** | `https://api.openai.com/v1` | `https://openrouter.ai/api/v1` | Override `base_url` |
+| **Base URL** | `https://api.openai.com/v1` | `https://openrouter.ai/api/v1` | `Provider.base_url` (config, no code) |
 | **Key prefix** | `sk-...` | `or-...` (or `sk-or-...`) | No code change (just config) |
-| **Extra headers** | None | `HTTP-Referer`, `X-Title` | Override `build_headers()` |
-| **Model IDs** | `gpt-4o`, `o3` | `openai/gpt-4o`, `anthropic/claude-sonnet-4` | No code change (passed through) |
-| **Response ID** | `chatcmpl-...` | `gen-...` | No code change (ID is opaque string) |
-| **`models` array** | N/A | Fallback model list | Pass via `extra` dict |
-| **`route`** | N/A | Fallback strategy | Pass via `extra` dict |
-| **`transforms`** | N/A | Prompt transformation | Pass via `extra` dict |
-| **`provider`** | N/A | Provider preferences | Pass via `extra` dict |
-| **402 error** | N/A | Insufficient credits | Add error mapping |
-| **Models endpoint** | `GET /v1/models` (sparse) | `GET /v1/models` (rich: pricing, context, arch) | Add `list_models()` method |
-| **Streaming** | SSE `data:` lines | Identical | No override needed |
-| **Payload** | OpenAI-native | OpenAI pass-through + extras | Minimal override |
+| **Extra headers** | None | `HTTP-Referer`, `X-Title` | Not sent (shared `OpenAIAdapter` headers only) |
+| **Model IDs** | `gpt-4o`, `o3` | `openai/gpt-4o`, `anthropic/claude-sonnet-4` | Passed through in the payload |
+| **Response ID** | `chatcmpl-...` | `gen-...` | No code change (ID is opaque, and not surfaced on `CompletionResponse`) |
+| **`models` / `route` / `transforms` / `provider`** | N/A | Fallback + routing + prefs | **Not sent** — dropped by `OpenAIAdapter`'s `_OPENAI_PARAMS` allowlist |
+| **402 error** | N/A | Insufficient credits | Falls through to generic `ProviderException` (no dedicated mapping) |
+| **Models endpoint** | `GET /v1/models` (sparse) | `GET /v1/models` (rich: pricing, context, arch) | Listed via `OpenAIDiscoveryClient` (id + display name only) |
+| **Streaming** | SSE `data:` lines | Identical | `OpenAIAdapter.parse_stream_line()` (no override) |
+| **Payload** | OpenAI-native | OpenAI pass-through + extras | Standard OpenAI params only; OpenRouter extras not forwarded |
 
-**Bottom line:** 3 things to override: `base_url`, `build_headers()`, and error mapping.
-Everything else is inherited from `OpenAIAdapter`.
+**Bottom line:** OpenRouter is served entirely by the shared `OpenAIAdapter` — only `base_url`
+and the API key differ (both config). OpenRouter-specific extras (`models`, `route`,
+`transforms`, `provider`) and the 402 credit-error mapping are **not yet implemented**.
 
 
 ## 9. OpenRouterAdapter Implementation Spec
 
-### 9.1 File Location
+::: warning Not implemented
+The Bannered Mare does **not** ship an `OpenRouterAdapter`. `ProviderType.OPENROUTER` maps to
+`OpenAIAdapter` in the registry, and the current adapter interface is different from what this
+section sketches (adapters are stateless — see [OPENAI.md §12.4](/providers/openai#12-multi-provider-architecture)
+for the real hook signatures; there is no `CompletionRequest`, and `parse_stream_chunk` is
+`parse_stream_line`). The rest of this section describes how a dedicated adapter *could* be added
+if OpenRouter-specific features (fallback routing, extra headers, 402 mapping, rich model
+listing) were ever needed. It is a design sketch, not current code.
+:::
+
+### 9.1 Proposed File Location (if added)
 
 ```
 src/provider/
   adapters/
-    openrouter.py        ← OpenRouterAdapter (this file)
+    openrouter.py        ← OpenRouterAdapter (would need to be created)
     openai.py            ← OpenAIAdapter (parent class)
     base.py              ← ProviderAdapter ABC
 ```
@@ -745,6 +755,14 @@ This is the primary advantage of OpenRouter: ~90% code reuse with `OpenAIAdapter
 
 ## 10. Mapping: Shared Types ↔ OpenRouter API
 
+::: info Reflects the design sketch, not shipped types
+The tables below use the proposed `CompletionRequest` / `CompletionChunk` types from the earlier
+adapter design. The shipped canonical types are `CompletionResponse`, `StreamChunk`, and
+`TokenUsage` (`src/provider/adapters/base.py`); requests are a plain OpenAI `messages` list plus a
+`parameters` dict. In practice, since OpenRouter is served by `OpenAIAdapter`, only standard
+OpenAI parameters flow through — the `extra`-based OpenRouter fields below are not currently sent.
+:::
+
 ### 10.1 CompletionRequest → OpenRouter Payload
 
 | CompletionRequest Field | OpenRouter Payload Field | Transformation |
@@ -828,10 +846,18 @@ extra = {
 
 ## 11. Implementation Plan
 
-### Phase 2, Step 7 (from OPENAI.md Section 15)
+::: warning Deferred — not built
+This plan was never executed. The project deliberately routes `ProviderType.OPENROUTER` to
+`OpenAIAdapter` instead of building a dedicated adapter, because OpenRouter is OpenAI-compatible
+and the extra features below were not required. The steps remain as a reference for if/when a
+dedicated adapter is added; the registry snippet showing `ProviderType.OPENROUTER:
+OpenRouterAdapter` does **not** reflect current code.
+:::
 
-The OpenRouter adapter is part of **Phase 2: OpenAI-Compatible Providers**. It depends
-on Phase 1 (shared types + OpenAI adapter) being complete.
+### If added later (from OPENAI.md Section 15)
+
+The OpenRouter adapter would be an OpenAI-compatible subclass. It depends on the shared types +
+OpenAI adapter, which are already in place.
 
 ### Step 7.1: Create the Adapter
 

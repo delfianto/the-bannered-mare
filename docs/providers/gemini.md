@@ -2,9 +2,9 @@
 
 > **Source:** Google AI for Developers API reference (`ai.google.dev/api`), REST API spec (v1beta)
 > **Endpoint:** `POST /v1beta/models/{model}:generateContent`
-> **Goal:** Define exactly how the Gemini API differs from OpenAI, what the GeminiAdapter
-> must handle, and how it maps to the shared `CompletionRequest`/`CompletionResponse` types
-> defined in `analysis/OPENAI.md`.
+> **Goal:** Define exactly how the Gemini API differs from OpenAI, and how the shipped
+> `GeminiAdapter` maps it onto the shared canonical types (`CompletionResponse`, `StreamChunk`,
+> `TokenUsage`) defined in [OPENAI.md](/providers/openai#12-multi-provider-architecture).
 
 
 ## Table of Contents
@@ -78,8 +78,9 @@ and is typically used for Vertex AI, not the AI Studio API.
 | Key prefix | `sk-...` | `sk-ant-...` | `AIza...` |
 
 **Impact on The Bannered Mare:** The `GeminiAdapter.build_headers()` method produces minimal headers
-(just `Content-Type`). The API key is appended to the URL instead. This means `build_url()`
-must accept the API key or the adapter must override the HTTP call to append the query param.
+(just `Content-Type`). The API key is appended to the URL instead — which is why every adapter's
+`build_url(base_url, model, stream, api_key)` hook accepts the API key. Gemini uses it as a
+`?key=` query param; the OAuth Bearer alternative is not implemented.
 
 
 ## 3. Request Schema
@@ -217,11 +218,10 @@ generation parameters inside a `generationConfig` object:
 
 ### Impact on GeminiAdapter
 
-The `build_payload()` method must:
-1. Scan `CompletionRequest.messages` for all `system`/`developer` role messages
-2. Extract their content and build a `systemInstruction` Content object
-3. Remove them from the `contents` array
-4. Map remaining messages to Gemini's `contents` format (role + parts)
+The shipped `build_payload()`:
+1. Scans the incoming `messages` list for `system`-role messages (there is no `developer` role)
+2. Joins their content into a `systemInstruction` Content object (`{parts: [{text}]}`)
+3. Maps the remaining messages to Gemini's `contents` format (`assistant`→`model`, `parts` array)
 
 
 ## 5. Message Format — Contents with Parts
@@ -478,6 +478,11 @@ The `finishReason` only appears on the final chunk for each candidate.
 The `usageMetadata` may appear on intermediate chunks with running totals.
 
 ### 7.5 Parsing Algorithm for GeminiAdapter
+
+> The sketch below shows the SSE handling conceptually. In the shipped code the adapter is
+> stateless: it exposes `parse_stream_line(line) -> StreamChunk | None` (see §13.2) and the
+> `ProviderGateway` owns the loop. There is no adapter-owned `complete_stream` and no
+> `CompletionChunk` type; `thought`-flagged parts are surfaced as `StreamChunk.reasoning`.
 
 ```python
 async def complete_stream(self, request: CompletionRequest) -> AsyncIterator[CompletionChunk]:
@@ -909,324 +914,115 @@ src/provider/adapters/gemini.py
 
 ### 13.2 Core Implementation
 
+The shipped `GeminiAdapter` is stateless. A single `build_url()` handles both streaming and
+non-streaming (choosing `streamGenerateContent` + `?alt=sse` when `stream` is true), and the API
+key is always a `?key=` query param — there is no OAuth Bearer path. Sampling params map into
+`generationConfig` via `_GENERATION_CONFIG_MAP`; Gemini 2.5+ "thinking" parts are detected in the
+response (parts flagged `thought: true`), not requested via a `reasoning_effort` budget.
+
 ```python
+_FINISH_REASON_MAP = {
+    "STOP": "stop", "MAX_TOKENS": "length", "SAFETY": "content_filter",
+    "RECITATION": "content_filter", "LANGUAGE": "content_filter",
+    "BLOCKLIST": "content_filter", "PROHIBITED_CONTENT": "content_filter",
+    "SPII": "content_filter", "MALFORMED_FUNCTION_CALL": "stop",
+}
+_GENERATION_CONFIG_MAP = {
+    "temperature": "temperature", "top_p": "topP", "top_k": "topK",
+    "max_output_tokens": "maxOutputTokens", "stop_sequences": "stopSequences",
+    "frequency_penalty": "frequencyPenalty", "presence_penalty": "presencePenalty",
+    "seed": "seed",
+}
+_ROLE_MAP = {"assistant": "model", "user": "user"}
+
+
 class GeminiAdapter(ProviderAdapter):
-    """Adapter for Google Gemini API (v1beta)."""
+    """Adapter for the Google Gemini generateContent API."""
 
-    BASE_PATH = "/v1beta/models"
-
-    def build_url(self, model: str) -> str:
-        api_key = self.provider.get_api_key()
-        base = self.base_url or "https://generativelanguage.googleapis.com"
-        url = f"{base}{self.BASE_PATH}/{model}:generateContent"
+    def build_url(self, base_url, model, stream, api_key=None) -> str:
+        base = base_url.rstrip("/")
+        if stream:
+            action, params = "streamGenerateContent", {"alt": "sse"}
+        else:
+            action, params = "generateContent", {}
         if api_key:
-            url += f"?key={api_key}"
-        return url
+            params["key"] = api_key
+        url = f"{base}/v1beta/models/{model}:{action}"
+        return f"{url}?{urlencode(params)}" if params else url
 
-    def build_stream_url(self, model: str) -> str:
-        api_key = self.provider.get_api_key()
-        base = self.base_url or "https://generativelanguage.googleapis.com"
-        url = f"{base}{self.BASE_PATH}/{model}:streamGenerateContent"
-        if api_key:
-            url += f"?key={api_key}&alt=sse"
-        return url
+    def build_headers(self, api_key) -> dict[str, str]:
+        return {"Content-Type": "application/json"}   # key is in the URL
 
-    def build_headers(self) -> dict[str, str]:
-        headers = {"Content-Type": "application/json"}
-        # API key is in URL query param, not headers.
-        # If using OAuth instead:
-        api_key = self.provider.get_api_key()
-        if api_key and api_key.startswith("ya29."):
-            # OAuth token — use Bearer header instead of query param
-            headers["Authorization"] = f"Bearer {api_key}"
-        return headers
+    def build_payload(self, messages, model, stream, parameters) -> dict[str, Any]:
+        system_parts, contents = [], []
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            if role == "system":
+                system_parts.append(content)
+                continue
+            contents.append({"role": _ROLE_MAP.get(role, role), "parts": [{"text": content}]})
 
-    def build_payload(self, request: CompletionRequest) -> dict[str, Any]:
-        system_content, chat_messages = self._split_system_messages(request.messages)
+        payload = {"contents": contents}
+        if system_parts:
+            payload["systemInstruction"] = {"parts": [{"text": "\n\n".join(system_parts)}]}
 
-        payload: dict[str, Any] = {
-            "contents": self._format_contents(chat_messages),
-        }
-
-        # System instruction (top-level, as Content object)
-        if system_content:
-            payload["systemInstruction"] = {
-                "parts": [{"text": system_content}],
-            }
-
-        # Generation config (ALL generation params go here)
-        gen_config: dict[str, Any] = {}
-
-        if request.temperature is not None:
-            gen_config["temperature"] = request.temperature
-        if request.top_p is not None:
-            gen_config["topP"] = request.top_p
-        if request.max_tokens is not None:
-            gen_config["maxOutputTokens"] = request.max_tokens
-        if request.stop:
-            gen_config["stopSequences"] = request.stop
-        if request.frequency_penalty is not None:
-            gen_config["frequencyPenalty"] = request.frequency_penalty
-        if request.presence_penalty is not None:
-            gen_config["presencePenalty"] = request.presence_penalty
-        if request.seed is not None:
-            gen_config["seed"] = request.seed
-        if request.n > 1:
-            gen_config["candidateCount"] = request.n
-
-        # Response format
-        if request.response_format:
-            if isinstance(request.response_format, JsonSchemaFormat):
-                gen_config["responseMimeType"] = "application/json"
-                gen_config["responseSchema"] = request.response_format.schema
-            elif isinstance(request.response_format, JsonObjectFormat):
-                gen_config["responseMimeType"] = "application/json"
-
-        # Logprobs
-        if request.logprobs:
-            gen_config["responseLogprobs"] = True
-            if request.top_logprobs is not None:
-                gen_config["logprobs"] = request.top_logprobs
-
-        # Thinking (Gemini 2.5+)
-        if request.reasoning_effort is not None:
-            gen_config["thinkingConfig"] = self._build_thinking_config(
-                request.reasoning_effort
-            )
-
-        # Provider-specific extras (topK, etc.)
-        if request.extra:
-            if "top_k" in request.extra:
-                gen_config["topK"] = request.extra["top_k"]
-
+        gen_config = {}
+        for param_key, config_key in _GENERATION_CONFIG_MAP.items():
+            value = parameters.get(param_key)
+            if value is not None:
+                gen_config[config_key] = value
+        if "maxOutputTokens" not in gen_config and "max_tokens" in parameters:
+            gen_config["maxOutputTokens"] = parameters["max_tokens"]   # fallback
         if gen_config:
             payload["generationConfig"] = gen_config
 
-        # Safety settings (from extra or defaults)
-        if request.extra and "safety_settings" in request.extra:
-            payload["safetySettings"] = request.extra["safety_settings"]
-
-        # Tools
-        if request.tools:
-            payload["tools"] = [self._format_tools(request.tools)]
-        if request.tool_choice:
-            payload["toolConfig"] = self._format_tool_config(request.tool_choice)
-
-        # Cached content
-        if request.extra and "cached_content" in request.extra:
-            payload["cachedContent"] = request.extra["cached_content"]
-
-        # NOTE: logit_bias — silently dropped (not supported by Gemini)
-        # NOTE: model — not in payload (it's in the URL path)
-
+        if parameters.get("safety_settings"):
+            payload["safetySettings"] = parameters["safety_settings"]
         return payload
 
-    def _split_system_messages(
-        self, messages: list[ChatMessage]
-    ) -> tuple[str | None, list[ChatMessage]]:
-        """Extract system/developer messages into systemInstruction."""
-        system_parts: list[str] = []
-        chat_messages: list[ChatMessage] = []
-
-        for msg in messages:
-            if msg.role in (MessageRole.SYSTEM, MessageRole.DEVELOPER):
-                if isinstance(msg.content, str):
-                    system_parts.append(msg.content)
-                elif isinstance(msg.content, list):
-                    for part in msg.content:
-                        if isinstance(part, TextContent):
-                            system_parts.append(part.text)
-            else:
-                chat_messages.append(msg)
-
-        system_content = "\n\n".join(system_parts) if system_parts else None
-        return system_content, chat_messages
-
-    def _format_contents(self, messages: list[ChatMessage]) -> list[dict]:
-        """Format messages into Gemini contents array."""
-        result: list[dict] = []
-
-        for msg in messages:
-            role = self._map_role(msg.role)
-            parts = self._format_parts(msg)
-
-            # Handle tool messages — become functionResponse parts in user message
-            if msg.role == MessageRole.TOOL:
-                fn_response_part = {
-                    "functionResponse": {
-                        "name": msg.name or msg.tool_call_id or "",
-                        "response": {"result": msg.content if isinstance(msg.content, str) else ""},
-                    }
-                }
-                if result and result[-1]["role"] == "user":
-                    result[-1]["parts"].append(fn_response_part)
-                else:
-                    result.append({"role": "user", "parts": [fn_response_part]})
-                continue
-
-            # Include tool calls from assistant messages as functionCall parts
-            if msg.tool_calls and msg.role == MessageRole.ASSISTANT:
-                for tc in msg.tool_calls:
-                    parts.append({
-                        "functionCall": {
-                            "name": tc.function_name,
-                            "args": json.loads(tc.arguments),
-                        }
-                    })
-
-            result.append({"role": role, "parts": parts})
-
-        return result
-
-    def _map_role(self, role: MessageRole) -> str:
-        mapping = {
-            MessageRole.USER: "user",
-            MessageRole.ASSISTANT: "model",  # "assistant" → "model"
-            MessageRole.TOOL: "user",        # Tool results go in user messages
-        }
-        return mapping.get(role, "user")
-
-    def _format_parts(self, msg: ChatMessage) -> list[dict]:
-        """Convert message content to Gemini parts array."""
-        if isinstance(msg.content, str):
-            return [{"text": msg.content}]
-
-        parts: list[dict] = []
-        if isinstance(msg.content, list):
-            for part in msg.content:
-                parts.append(self._format_content_part(part))
-        return parts
-
-    def _format_content_part(self, part: ContentPart) -> dict:
-        if isinstance(part, TextContent):
-            return {"text": part.text}
-        elif isinstance(part, ImageContent):
-            if part.url.startswith("data:"):
-                header, data = part.url.split(",", 1)
-                mime_type = header.split(":")[1].split(";")[0]
-                return {
-                    "inlineData": {"mimeType": mime_type, "data": data},
-                }
-            else:
-                return {
-                    "fileData": {"mimeType": "image/jpeg", "fileUri": part.url},
-                }
-        return {"text": str(part)}
-
-    def _format_tools(self, tools: list[ToolDefinition]) -> dict:
-        """Format tools as Gemini functionDeclarations.
-
-        Gemini groups all function declarations inside a single tools[] element.
-        """
-        declarations = []
-        for tool in tools:
-            decl: dict[str, Any] = {"name": tool.name}
-            if tool.description:
-                decl["description"] = tool.description
-            if tool.parameters:
-                decl["parameters"] = tool.parameters
-            declarations.append(decl)
-        return {"functionDeclarations": declarations}
-
-    def _format_tool_config(self, choice: ToolChoice) -> dict:
-        if isinstance(choice, ToolChoiceNone):
-            mode = "NONE"
-        elif isinstance(choice, ToolChoiceAuto):
-            mode = "AUTO"
-        elif isinstance(choice, ToolChoiceRequired):
-            mode = "ANY"
-        elif isinstance(choice, ToolChoiceFunction):
-            return {
-                "functionCallingConfig": {
-                    "mode": "ANY",
-                    "allowedFunctionNames": [choice.name],
-                }
-            }
-        else:
-            mode = "AUTO"
-        return {"functionCallingConfig": {"mode": mode}}
-
-    def _build_thinking_config(self, effort: ReasoningEffort) -> dict:
-        budget_map = {
-            ReasoningEffort.LOW: 1024,
-            ReasoningEffort.MEDIUM: 8192,
-            ReasoningEffort.HIGH: 24576,
-        }
-        return {
-            "thinkingBudget": budget_map.get(effort, 8192),
-            "includeThoughts": False,
-        }
-
-    def _map_finish_reason(self, reason: str | None) -> FinishReason:
-        mapping = {
-            "STOP": FinishReason.STOP,
-            "MAX_TOKENS": FinishReason.LENGTH,
-            "SAFETY": FinishReason.CONTENT_FILTER,
-            "RECITATION": FinishReason.CONTENT_FILTER,
-            "LANGUAGE": FinishReason.STOP,
-            "OTHER": FinishReason.STOP,
-            "BLOCKLIST": FinishReason.CONTENT_FILTER,
-            "PROHIBITED_CONTENT": FinishReason.CONTENT_FILTER,
-            "SPII": FinishReason.CONTENT_FILTER,
-            "MALFORMED_FUNCTION_CALL": FinishReason.ERROR,
-        }
-        return mapping.get(reason or "", FinishReason.STOP)
-
-    def parse_response(self, raw: dict[str, Any]) -> CompletionResponse:
-        candidates = raw.get("candidates", [])
-        if not candidates:
-            return CompletionResponse(
-                id="",
-                content=None,
-                finish_reason=FinishReason.CONTENT_FILTER,
-                usage=None,
-                raw=raw,
-            )
-
-        candidate = candidates[0]
-        content = candidate.get("content", {})
-        parts = content.get("parts", [])
-
-        text_content = None
-        tool_calls = None
-        call_index = 0
-
-        for part in parts:
-            if "text" in part:
-                text_content = (text_content or "") + part["text"]
-            elif "functionCall" in part:
-                fc = part["functionCall"]
-                if tool_calls is None:
-                    tool_calls = []
-                tool_calls.append(ToolCall(
-                    id=f"call_{call_index}",  # Gemini has no call IDs
-                    function_name=fc["name"],
-                    arguments=json.dumps(fc.get("args", {})),
-                ))
-                call_index += 1
-
-        usage = None
-        if raw.get("usageMetadata"):
-            um = raw["usageMetadata"]
-            usage = TokenUsage(
-                prompt_tokens=um.get("promptTokenCount", 0),
-                completion_tokens=um.get("candidatesTokenCount", 0),
-                total_tokens=um.get("totalTokenCount", 0),
-            )
-
+    def parse_response(self, data) -> CompletionResponse:
+        candidates = data.get("candidates", [{}])
+        candidate = candidates[0] if candidates else {}
+        parts = candidate.get("content", {}).get("parts", [])
+        content = "".join(p.get("text", "") for p in parts if "text" in p and not p.get("thought"))
+        reasoning = "".join(p.get("text", "") for p in parts if p.get("thought")) or None
+        raw_reason = candidate.get("finishReason") or "STOP"
+        usage = data.get("usageMetadata", {})
         return CompletionResponse(
-            id="",  # Gemini does not provide response IDs
-            content=text_content,
-            finish_reason=self._map_finish_reason(candidate.get("finishReason")),
-            usage=usage,
-            tool_calls=tool_calls,
-            model=raw.get("modelVersion"),
-            raw=raw,
+            content=content,
+            finish_reason=_FINISH_REASON_MAP.get(raw_reason, raw_reason.lower()),
+            usage=TokenUsage(
+                input_tokens=usage.get("promptTokenCount", 0),
+                output_tokens=usage.get("candidatesTokenCount", 0),
+                total_tokens=usage.get("totalTokenCount", 0),
+                cache_read_tokens=usage.get("cachedContentTokenCount", 0),
+            ),
+            reasoning=reasoning,
+            raw=data,
         )
+
+    def parse_stream_line(self, line) -> StreamChunk | None:
+        # "data: " SSE lines only (?alt=sse); same candidates/parts extraction as above,
+        # returning content/reasoning/finish_reason/usage as a StreamChunk (None to skip).
+        ...
 ```
+
+Not implemented: tool/function-calling (`functionDeclarations`, `toolConfig`,
+`functionResponse`), image/inline-data parts, `responseSchema`/JSON mode, logprobs config,
+`candidateCount` (n), cached content, and a `reasoning_effort`→`thinkingConfig` mapping.
 
 
 ## 14. Mapping: Shared Types to Gemini API
+
+::: info Some rows describe unbuilt features
+The shipped adapter maps `temperature`, `top_p`→topP, `top_k`→topK,
+`max_output_tokens`/`max_tokens`→maxOutputTokens, `stop_sequences`→stopSequences,
+`frequency_penalty`/`presence_penalty`, and `seed` into `generationConfig`, plus `safety_settings`.
+Rows for tools, `responseSchema`/JSON mode, logprobs, `candidateCount`, cached content, and
+`reasoning_effort`→thinking are **not implemented**. There is no `CompletionRequest`/`CompletionChunk`
+object — requests are a `messages` list + `parameters` dict, and streaming yields `StreamChunk`.
+:::
 
 ### 14.1 CompletionRequest to Gemini Payload
 
@@ -1284,85 +1080,34 @@ class GeminiAdapter(ProviderAdapter):
 | *(stream end)* | *(iteration end)* | No explicit signal — stream closes |
 
 
-## 15. Implementation Plan
+## 15. Implementation Status
 
-### Phase 1: Basic GeminiAdapter
-
-```
-1. Create src/provider/adapters/gemini.py
-   - build_url(): /v1beta/models/{model}:generateContent?key=...
-   - build_stream_url(): /v1beta/models/{model}:streamGenerateContent?key=...&alt=sse
-   - build_headers(): Minimal (Content-Type only, key is in URL)
-   - build_payload():
-     a. Extract system messages → systemInstruction (Content object with parts)
-     b. Format remaining messages as contents (role: "model" not "assistant", parts array)
-     c. Wrap generation parameters in generationConfig (camelCase names)
-     d. Drop unsupported params (logit_bias)
-   - parse_response(): Extract text from candidates[0].content.parts, map finishReason, build TokenUsage
-   - parse_stream_chunk(): Parse SSE data lines with full GenerateContentResponse objects
-
-2. Register in ProviderGateway
-   - ProviderType.GOOGLE → GeminiAdapter
-
-3. Override HTTP call mechanism
-   - The base ProviderAdapter.complete() uses build_url() for the endpoint
-   - GeminiAdapter needs build_stream_url() for streaming (different endpoint)
-   - Must handle: no [DONE] signal, stream just ends
-```
-
-### Phase 2: Tool Calling
+### Delivered (`src/provider/adapters/gemini.py`)
 
 ```
-4. Tool definition formatting
-   - Wrap all tools in single {functionDeclarations: [...]} object
-   - Parameters field name stays the same (unlike Anthropic's input_schema)
-
-5. Tool config mapping
-   - tool_choice values → functionCallingConfig.mode (NONE/AUTO/ANY)
-   - Named function → mode: ANY + allowedFunctionNames
-
-6. Tool call response parsing
-   - Extract functionCall parts from candidate content
-   - Generate synthetic call IDs (Gemini provides none)
-   - Serialize args object to JSON string for shared ToolCall type
-
-7. Tool result formatting
-   - Convert tool role messages to functionResponse parts inside user messages
-   - Response must be an object, not a string — wrap in {"result": "..."}
+- build_url(): {base_url}/v1beta/models/{model}:generateContent?key=...  (non-stream)
+              and :streamGenerateContent?alt=sse&key=...                 (stream)
+- build_headers(): Content-Type only (key is in the URL)
+- build_payload():
+    a. Extract system messages → systemInstruction (parts)
+    b. Format remaining messages as contents (assistant → "model")
+    c. Map sampling params into generationConfig (_GENERATION_CONFIG_MAP + max_tokens fallback)
+    d. Pass safety_settings through when provided
+- parse_response(): text vs thought parts, finishReason mapping, cache-aware TokenUsage
+- parse_stream_line(): "data: " SSE lines from ?alt=sse; content/reasoning/finish/usage
+- Registered in the registry: ProviderType.GOOGLE → GeminiAdapter
+- Reasoning: thinking ("thought") parts are surfaced on CompletionResponse.reasoning
 ```
 
-### Phase 3: Safety Settings + Caching
+### Not Yet Built
 
 ```
-8. Default safety settings for RP
-   - Apply permissive defaults (BLOCK_ONLY_HIGH or BLOCK_NONE)
-   - Allow override via CompletionRequest.extra["safety_settings"]
-   - Handle SAFETY/RECITATION finish reasons gracefully
-
-9. Context caching support
-   - Support passing cachedContent resource name via extra
-   - Future: CachedContents API integration for creating cache entries
-```
-
-### Phase 4: Advanced Features
-
-```
-10. Thinking support (Gemini 2.5+)
-    - Map reasoning_effort to thinkingConfig.thinkingBudget
-    - Optionally include thoughts in response via includeThoughts
-
-11. Image/multimodal support
-    - Convert ImageContent to inlineData (base64) or fileData (URL via File API)
-    - Handle mimeType detection
-    - Map OpenAI data URI format to Gemini inlineData format
-
-12. Structured output
-    - Map JsonSchemaFormat to responseMimeType + responseSchema
-    - Map JsonObjectFormat to responseMimeType: "application/json"
-
-13. Token counting integration
-    - Call POST /v1beta/models/{model}:countTokens for accurate counts
-    - Integrate with PromptBuilder budget calculations
+- Tool/function calling (functionDeclarations, toolConfig, functionResponse)
+- reasoning_effort → thinkingConfig.thinkingBudget mapping
+- Structured output (responseMimeType / responseSchema)
+- Image / inline-data multimodal parts
+- candidateCount (n), logprobs config, cached content
+- Token-counting endpoint (:countTokens) integration
 ```
 
 
@@ -1395,13 +1140,14 @@ class GeminiAdapter(ProviderAdapter):
 
 ### Mapping to The Bannered Mare Exceptions
 
+The gateway (`ProviderGateway._handle_http_error`) maps by HTTP status only:
+
 | Gemini Error | The Bannered Mare Exception |
 |---|---|
 | `UNAUTHENTICATED` (401) | `ProviderAuthError` |
 | `RESOURCE_EXHAUSTED` (429) | `ProviderRateLimitError` |
-| `INVALID_ARGUMENT` (400) | `ProviderBadRequestError` |
-| `NOT_FOUND` (404) | `ProviderModelNotFoundError` |
-| `INTERNAL` (500) / `UNAVAILABLE` (503) | `ProviderServerError` |
+| `INVALID_ARGUMENT` (400) | `ProviderInvalidRequestError` |
+| `NOT_FOUND` (404) / `INTERNAL` (500) / `UNAVAILABLE` (503) | `ProviderException` (all other statuses) |
 
 
 ## Appendix B: Gemini Model Names

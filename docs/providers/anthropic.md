@@ -2,9 +2,9 @@
 
 > **Source:** Anthropic API docs (platform.claude.com), OpenAPI spec, Python SDK API reference
 > **Endpoint:** `POST /v1/messages`
-> **Goal:** Define exactly how the Anthropic API differs from OpenAI, what the AnthropicAdapter
-> must handle, and how it maps to the shared `CompletionRequest`/`CompletionResponse` types
-> defined in `analysis/OPENAI.md`.
+> **Goal:** Define exactly how the Anthropic API differs from OpenAI, and how the shipped
+> `AnthropicAdapter` maps it onto the shared canonical types (`CompletionResponse`, `StreamChunk`,
+> `TokenUsage`) defined in [OPENAI.md](/providers/openai#12-multi-provider-architecture).
 
 
 ## Table of Contents
@@ -218,11 +218,11 @@ Or with cache control:
 
 ### Impact on AnthropicAdapter
 
-The `build_payload()` method must:
-1. Scan `CompletionRequest.messages` for all `system`/`developer` role messages
-2. Extract their content and place it in the `system` top-level field
-3. Remove them from the `messages` array
-4. Ensure remaining messages alternate `user`/`assistant`
+The shipped `build_payload()`:
+1. Scans the incoming `messages` list for `system`-role messages (there is no `developer` role)
+2. Joins their content and places it in the `system` top-level field (with an ephemeral cache block)
+3. Passes the remaining `user`/`assistant` messages through as `{role, content}`
+4. Does not itself enforce `user`/`assistant` alternation — it relies on the caller's ordering
 
 
 ## 5. Message Format & Content Blocks
@@ -442,6 +442,11 @@ message_stop                           ← stream complete
 ```
 
 ### 7.5 Parsing Algorithm for AnthropicAdapter
+
+> The sketch below shows the event handling conceptually. In the shipped code the adapter is
+> stateless: it exposes `parse_stream_line(line) -> StreamChunk | None` (see §13.2) and the
+> `ProviderGateway` owns the SSE loop. There is no adapter-owned `complete_stream`, no
+> `CompletionChunk`/`ToolCallChunk` type, and tool-call streaming is not handled.
 
 ```python
 async def complete_stream(self, request: CompletionRequest) -> AsyncIterator[CompletionChunk]:
@@ -866,256 +871,107 @@ src/provider/adapters/anthropic.py
 
 ### 13.2 Core Implementation
 
+The shipped `AnthropicAdapter` is stateless (the `ProviderGateway` owns the HTTP call) and works
+from the shared hook signatures. It always attaches an ephemeral `cache_control` block to the
+system prompt and sends the prompt-caching beta header. `thinking` is passed through only when the
+caller supplies a `{"type": "enabled", ...}` config in `parameters` — it is not derived from a
+`reasoning_effort` value.
+
 ```python
+_STOP_REASON_MAP = {
+    "end_turn": "stop", "max_tokens": "length",
+    "stop_sequence": "stop", "tool_use": "tool_calls",
+}
+_ANTHROPIC_VERSION = "2023-06-01"
+
+
 class AnthropicAdapter(ProviderAdapter):
-    """Adapter for Anthropic Messages API."""
+    """Adapter for the Anthropic Messages API."""
 
-    ANTHROPIC_VERSION = "2023-06-01"
+    def build_url(self, base_url, model, stream, api_key=None) -> str:
+        return f"{base_url}/messages"
 
-    def build_url(self, model: str) -> str:
-        return f"{self.base_url}/messages"
-
-    def build_headers(self) -> dict[str, str]:
-        headers = {
-            "Content-Type": "application/json",
-            "anthropic-version": self.ANTHROPIC_VERSION,
-        }
-        api_key = self.provider.get_api_key()
+    def build_headers(self, api_key) -> dict[str, str]:
+        headers = {"Content-Type": "application/json"}
         if api_key:
             headers["x-api-key"] = api_key
+        headers["anthropic-version"] = _ANTHROPIC_VERSION
+        headers["anthropic-beta"] = "prompt-caching-2024-07-31"
         return headers
 
-    def build_payload(self, request: CompletionRequest) -> dict[str, Any]:
-        system_content, chat_messages = self._split_system_messages(request.messages)
+    def build_payload(self, messages, model, stream, parameters) -> dict[str, Any]:
+        system_parts, chat_messages = [], []
+        for msg in messages:
+            if msg.get("role") == "system":
+                system_parts.append(msg.get("content", ""))
+            else:
+                chat_messages.append({"role": msg["role"], "content": msg.get("content", "")})
 
-        payload: dict[str, Any] = {
-            "model": request.model,
-            "messages": self._format_messages(chat_messages),
-            "max_tokens": request.max_tokens or 4096,  # Required field
-        }
-
-        # System prompt (top-level)
-        if system_content:
-            payload["system"] = system_content
-
-        # Generation parameters
-        if request.temperature is not None:
-            payload["temperature"] = min(request.temperature, 1.0)  # Clamp to 0-1
-        if request.top_p is not None:
-            payload["top_p"] = request.top_p
-        if request.stop:
-            payload["stop_sequences"] = request.stop  # Different name
-        if request.stream:
+        payload = {"model": model, "messages": chat_messages}
+        if system_parts:
+            payload["system"] = [{
+                "type": "text",
+                "text": "\n\n".join(system_parts),
+                "cache_control": {"type": "ephemeral"},  # system prompt is always cached
+            }]
+        if stream:
             payload["stream"] = True
 
-        # Extended thinking / reasoning
-        if request.reasoning_effort is not None:
-            payload["thinking"] = self._build_thinking_config(request.reasoning_effort)
-
-        # Tools
-        if request.tools:
-            payload["tools"] = [self._format_tool(t) for t in request.tools]
-        if request.tool_choice:
-            payload["tool_choice"] = self._format_tool_choice(request.tool_choice)
-
-        # Metadata
-        if request.extra and request.extra.get("user_id"):
-            payload["metadata"] = {"user_id": request.extra["user_id"]}
-
-        # Response format
-        if request.response_format and isinstance(request.response_format, JsonSchemaFormat):
-            payload["output_config"] = {
-                "format": {
-                    "type": "json_schema",
-                    "schema": request.response_format.schema,
-                }
-            }
-
-        # Provider-specific extras (top_k, cache_control, etc.)
-        if request.extra:
-            for key in ("top_k", "cache_control", "thinking", "output_config"):
-                if key in request.extra:
-                    payload[key] = request.extra[key]
-
-        # NOTE: frequency_penalty, presence_penalty, logit_bias, logprobs,
-        # seed, n — all silently dropped (not supported by Anthropic)
-
+        payload["max_tokens"] = parameters.get("max_tokens", 4096)  # required by Anthropic
+        temp = parameters.get("temperature")
+        if temp is not None:
+            payload["temperature"] = min(float(temp), 1.0)          # clamp to <= 1.0
+        if parameters.get("top_p") is not None:
+            payload["top_p"] = parameters["top_p"]
+        if parameters.get("top_k") is not None:
+            payload["top_k"] = parameters["top_k"]
+        if parameters.get("stop_sequences"):
+            payload["stop_sequences"] = parameters["stop_sequences"]
+        thinking = parameters.get("thinking")
+        if isinstance(thinking, dict) and thinking.get("type") == "enabled":
+            payload["thinking"] = thinking
         return payload
 
-    def _split_system_messages(
-        self, messages: list[ChatMessage]
-    ) -> tuple[str | list[dict] | None, list[ChatMessage]]:
-        """Extract system/developer messages into top-level system field."""
-        system_parts: list[str] = []
-        chat_messages: list[ChatMessage] = []
-
-        for msg in messages:
-            if msg.role in (MessageRole.SYSTEM, MessageRole.DEVELOPER):
-                if isinstance(msg.content, str):
-                    system_parts.append(msg.content)
-                elif isinstance(msg.content, list):
-                    for part in msg.content:
-                        if isinstance(part, TextContent):
-                            system_parts.append(part.text)
-            else:
-                chat_messages.append(msg)
-
-        system_content = "\n\n".join(system_parts) if system_parts else None
-        return system_content, chat_messages
-
-    def _format_messages(self, messages: list[ChatMessage]) -> list[dict]:
-        """Format messages for Anthropic (only user/assistant roles)."""
-        result: list[dict] = []
-
-        for msg in messages:
-            if msg.role == MessageRole.TOOL:
-                # Tool results become content blocks inside user messages
-                tool_result_block = {
-                    "type": "tool_result",
-                    "tool_use_id": msg.tool_call_id,
-                    "content": msg.content if isinstance(msg.content, str) else "",
-                }
-                # Merge into last user message or create new one
-                if result and result[-1]["role"] == "user":
-                    if isinstance(result[-1]["content"], str):
-                        result[-1]["content"] = [
-                            {"type": "text", "text": result[-1]["content"]},
-                            tool_result_block,
-                        ]
-                    else:
-                        result[-1]["content"].append(tool_result_block)
-                else:
-                    result.append({
-                        "role": "user",
-                        "content": [tool_result_block],
-                    })
-                continue
-
-            m: dict[str, Any] = {"role": msg.role.value}
-
-            if isinstance(msg.content, str):
-                m["content"] = msg.content
-            elif isinstance(msg.content, list):
-                m["content"] = [self._format_content_part(p) for p in msg.content]
-
-            # Include tool_use blocks for assistant message replay
-            if msg.tool_calls and msg.role == MessageRole.ASSISTANT:
-                if isinstance(m.get("content"), str):
-                    m["content"] = [{"type": "text", "text": m["content"]}] if m["content"] else []
-                elif m.get("content") is None:
-                    m["content"] = []
-                for tc in msg.tool_calls:
-                    m["content"].append({
-                        "type": "tool_use",
-                        "id": tc.id,
-                        "name": tc.function_name,
-                        "input": json.loads(tc.arguments),  # Anthropic wants parsed object
-                    })
-
-            result.append(m)
-
-        return result
-
-    def _format_content_part(self, part: ContentPart) -> dict:
-        if isinstance(part, TextContent):
-            return {"type": "text", "text": part.text}
-        elif isinstance(part, ImageContent):
-            if part.url.startswith("data:"):
-                # Parse data URI: data:image/jpeg;base64,/9j/4...
-                header, data = part.url.split(",", 1)
-                media_type = header.split(":")[1].split(";")[0]
-                return {
-                    "type": "image",
-                    "source": {"type": "base64", "media_type": media_type, "data": data},
-                }
-            else:
-                return {
-                    "type": "image",
-                    "source": {"type": "url", "url": part.url},
-                }
-        return {"type": "text", "text": str(part)}
-
-    def _format_tool(self, tool: ToolDefinition) -> dict:
-        result: dict[str, Any] = {"name": tool.name}
-        if tool.description:
-            result["description"] = tool.description
-        if tool.parameters:
-            result["input_schema"] = tool.parameters  # NOT "parameters"
-        if tool.strict:
-            result["strict"] = True
-        return result
-
-    def _format_tool_choice(self, choice: ToolChoice) -> dict:
-        if isinstance(choice, ToolChoiceNone):
-            return {"type": "none"}
-        elif isinstance(choice, ToolChoiceAuto):
-            return {"type": "auto"}
-        elif isinstance(choice, ToolChoiceRequired):
-            return {"type": "any"}  # "required" → "any" in Anthropic
-        elif isinstance(choice, ToolChoiceFunction):
-            return {"type": "tool", "name": choice.name}
-        return {"type": "auto"}
-
-    def _build_thinking_config(self, effort: ReasoningEffort) -> dict:
-        budget_map = {
-            ReasoningEffort.LOW: 1024,
-            ReasoningEffort.MEDIUM: 4096,
-            ReasoningEffort.HIGH: 16384,
-        }
-        return {
-            "type": "enabled",
-            "budget_tokens": budget_map.get(effort, 4096),
-        }
-
-    def _map_stop_reason(self, reason: str | None) -> FinishReason:
-        mapping = {
-            "end_turn": FinishReason.STOP,
-            "max_tokens": FinishReason.LENGTH,
-            "stop_sequence": FinishReason.STOP,
-            "tool_use": FinishReason.TOOL_CALLS,
-        }
-        return mapping.get(reason or "", FinishReason.STOP)
-
-    def parse_response(self, raw: dict[str, Any]) -> CompletionResponse:
-        # Extract text content (skip thinking blocks)
-        text_content = None
-        tool_calls = None
-
-        for block in raw.get("content", []):
-            if block["type"] == "text":
-                text_content = (text_content or "") + block["text"]
-            elif block["type"] == "tool_use":
-                if tool_calls is None:
-                    tool_calls = []
-                tool_calls.append(ToolCall(
-                    id=block["id"],
-                    function_name=block["name"],
-                    arguments=json.dumps(block["input"]),  # Serialize to string
-                ))
-
-        usage = None
-        if raw.get("usage"):
-            u = raw["usage"]
-            usage = TokenUsage(
-                prompt_tokens=u.get("input_tokens", 0),
-                completion_tokens=u.get("output_tokens", 0),
-                total_tokens=u.get("input_tokens", 0) + u.get("output_tokens", 0),
-                cached_tokens=u.get("cache_read_input_tokens", 0),
-            )
-
+    def parse_response(self, data) -> CompletionResponse:
+        blocks = data.get("content", [])
+        content = "".join(b.get("text", "") for b in blocks if b.get("type") == "text")
+        reasoning = "".join(b.get("thinking", "") for b in blocks if b.get("type") == "thinking") or None
+        raw_reason = data.get("stop_reason") or "end_turn"
+        usage = data.get("usage", {})
         return CompletionResponse(
-            id=raw["id"],
-            content=text_content,
-            finish_reason=self._map_stop_reason(raw.get("stop_reason")),
-            usage=usage,
-            tool_calls=tool_calls,
-            model=raw.get("model"),
-            raw=raw,
+            content=content,
+            finish_reason=_STOP_REASON_MAP.get(raw_reason, raw_reason),
+            usage=TokenUsage(
+                input_tokens=usage.get("input_tokens", 0),
+                output_tokens=usage.get("output_tokens", 0),
+                total_tokens=usage.get("input_tokens", 0) + usage.get("output_tokens", 0),
+                cache_read_tokens=usage.get("cache_read_input_tokens", 0),
+                cache_creation_tokens=usage.get("cache_creation_input_tokens", 0),
+            ),
+            reasoning=reasoning,
+            raw=data,
         )
+
+    def parse_stream_line(self, line) -> StreamChunk | None:
+        # "data: " SSE lines only. content_block_delta → text_delta / thinking_delta;
+        # message_delta → finish_reason (+ output_tokens); message_stop → finish_reason="stop".
+        ...
 ```
+
+Not implemented: tool-call and image content-block formatting, a `reasoning_effort`→thinking
+budget mapping, `output_config`/response-format, and metadata — Anthropic-only params such as
+`frequency_penalty`/`n`/`seed` are simply never forwarded.
 
 
 ## 14. Mapping: Shared Types to Anthropic API
+
+::: info Some rows describe unbuilt features
+The shipped adapter forwards `messages`, `model`, `temperature` (clamped), `top_p`, `top_k`,
+`stop_sequences`, and a pre-built `thinking` config, plus the always-on system-prompt cache. Rows
+below for `reasoning_effort`→thinking, tools/tool_choice, response_format, and metadata describe a
+design that is **not implemented**. Also note there is no `CompletionRequest`/`CompletionChunk`
+object — requests are a `messages` list + `parameters` dict, and streaming yields `StreamChunk`.
+:::
 
 ### 14.1 CompletionRequest → Anthropic Payload
 
@@ -1171,80 +1027,33 @@ class AnthropicAdapter(ProviderAdapter):
 | `message_stop` | *(stream end)* | Break iteration |
 
 
-## 15. Implementation Plan
+## 15. Implementation Status
 
-### Phase 1: Basic AnthropicAdapter
-
-```
-1. Create src/provider/adapters/anthropic.py
-   - build_headers(): x-api-key + anthropic-version
-   - build_url(): /v1/messages
-   - build_payload():
-     a. Extract system messages → top-level system field
-     b. Format remaining messages (user/assistant only)
-     c. Map generation parameters (temperature clamped, stop→stop_sequences)
-     d. Drop unsupported params (frequency_penalty, presence_penalty, etc.)
-   - parse_response(): Extract text from content blocks, map stop_reason, build TokenUsage
-   - parse_stream_chunk(): Handle named SSE events (message_start, content_block_delta, etc.)
-
-2. Register in ProviderGateway
-   - ProviderType.ANTHROPIC → AnthropicAdapter
-
-3. Update SSE parser
-   - Current parser only handles `data:` lines
-   - Must also handle `event:` lines for Anthropic named events
-```
-
-### Phase 2: Tool Calling
+### Delivered (`src/provider/adapters/anthropic.py`)
 
 ```
-4. Tool definition formatting
-   - Remove OpenAI wrapper ({type: "function", function: {...}})
-   - Rename parameters → input_schema
-
-5. Tool choice mapping
-   - required → any
-   - named function → {type: "tool", name: "..."}
-
-6. Tool call response parsing
-   - Extract tool_use blocks from content[]
-   - Serialize input object to JSON string for shared ToolCall type
-
-7. Tool result formatting
-   - Convert tool role messages to tool_result blocks inside user messages
+- build_headers(): x-api-key + anthropic-version + prompt-caching beta header
+- build_url(): {base_url}/messages
+- build_payload():
+    a. Extract system messages → top-level system field (always cache_control: ephemeral)
+    b. Pass user/assistant messages through as {role, content}
+    c. Map params (temperature clamped to <=1.0, top_p, top_k, stop_sequences)
+    d. thinking passed through when parameters["thinking"] = {type: "enabled", ...}
+    e. Unsupported params (frequency_penalty, presence_penalty, n, seed, ...) simply not read
+- parse_response(): text + thinking blocks, stop_reason mapping, cache-aware TokenUsage
+- parse_stream_line(): content_block_delta (text_delta/thinking_delta), message_delta, message_stop
+- Registered in the registry: ProviderType.ANTHROPIC → AnthropicAdapter
+- Prompt caching: cache_control on system prompt; cache_read/creation tokens in TokenUsage
 ```
 
-### Phase 3: Advanced Features
+### Not Yet Built
 
 ```
-8. Extended thinking support
-   - Map reasoning_effort to thinking config
-   - Parse thinking blocks in response (optional: expose to caller)
-   - Handle thinking_delta in streaming
-
-9. Prompt caching support
-   - Add cache_control to system prompt blocks
-   - Track cache_creation_input_tokens and cache_read_input_tokens
-   - Expose cache savings in TokenUsage
-
-10. Token counting integration
-    - Call POST /v1/messages/count_tokens for accurate counts
-    - Use as alternative to tiktoken for Claude models
-    - Integrate with PromptBuilder budget calculations
-```
-
-### Phase 4: Multimodal
-
-```
-11. Image support
-    - Convert ImageContent to Anthropic format
-    - Handle both URL and base64 sources
-    - Map OpenAI data URI format to Anthropic base64 format
-
-12. Document support (Anthropic-only)
-    - PDF, plain text upload via base64
-    - URL-based document loading
-    - Expose via extra field on CompletionRequest
+- Tool calling: tool definition/choice formatting, tool_use parsing, tool_result messages
+- reasoning_effort → thinking budget mapping (caller must supply the thinking config directly)
+- response_format / output_config passthrough
+- Multimodal (image/document content blocks)
+- Token-counting endpoint (POST /v1/messages/count_tokens) integration
 ```
 
 
@@ -1276,12 +1085,14 @@ class AnthropicAdapter(ProviderAdapter):
 
 ### Mapping to The Bannered Mare Exceptions
 
+The gateway (`ProviderGateway._handle_http_error`) maps by HTTP status only:
+
 | Anthropic Error | The Bannered Mare Exception |
 |---|---|
 | `authentication_error` (401) | `ProviderAuthError` |
 | `rate_limit_error` (429) | `ProviderRateLimitError` |
 | `invalid_request_error` (400) | `ProviderInvalidRequestError` |
-| `overloaded_error` (529) | `ProviderRateLimitError` (treat as temporary) |
+| `overloaded_error` (529) | `ProviderException` (all non-401/429/400 statuses) |
 | All others | `ProviderException` |
 
 ### Streaming Errors
