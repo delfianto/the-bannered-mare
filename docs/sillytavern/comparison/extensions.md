@@ -124,20 +124,24 @@ The Bannered Mare has no plugin loader, no extension directory, no event bus, an
 
 ### 3.1 API-First Extensibility
 
-The system exposes 12 resource routers, each providing full CRUD:
+The system mounts roughly 18 routers, most providing full CRUD:
 
 | Router | Prefix | Capabilities |
 |---|---|---|
-| Providers | `/api/providers` | Register/configure AI providers (API keys, base URLs, provider types) |
+| Providers | `/api/providers` | Register/configure AI providers (API keys, base URLs, provider types); local model discovery/load/unload |
 | Model Families | `/api/model-families` | Define model families with parameter schemas and defaults |
 | Models | `/api/models` | Register models with parameter overrides, OpenRouter routing |
 | Characters | `/api/characters` | Character CRUD, TavernCard V1/V2 import/export (PNG + JSON) |
 | Chat Sessions | `/api/chats` | Chat lifecycle, model/preset/persona assignment |
 | Chat Messages | `/api/chats/{id}/messages` | Send, stream (SSE), edit, regenerate, manage alternatives |
 | Personas | `/api/personas` | User persona CRUD |
-| Presets | `/api/presets` | Parameter preset CRUD with default selection |
+| Presets | `/api/presets` | Parameter preset CRUD; ST preset import (`POST /api/presets/import`) |
+| Profiles | `/api/profiles` | Bundle a template + preset into one selectable unit (used by ST import) |
 | Prompt Templates | `/api/prompt-templates` | Jinja2 templates with preview rendering and default selection |
+| Prompt Fragments | `/api/prompt-fragments` | Reusable instruction blocks + template-fragment attachment |
 | Lorebooks | `/api/lorebooks` | Lorebook and lore entry CRUD with keyword activation config |
+| Data Bank / RAG | `/api/data-bank`, `/api/rag` | Knowledge entries + semantic search/status |
+| Bookmarks | `/api/bookmarks` | List bookmarked chat sessions |
 | Health | `/health` | Readiness checks |
 | Admin Logs | `/admin/logs` | HTTP, LLM audit, and error log querying with aggregation |
 
@@ -266,16 +270,17 @@ _REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
     ProviderType.OPENAI: OpenAIAdapter,
     ProviderType.ANTHROPIC: AnthropicAdapter,
     ProviderType.GOOGLE: GeminiAdapter,
-    ProviderType.XAI: OpenAIAdapter,       # Reuses OpenAI-compatible adapter
-    ProviderType.OPENROUTER: OpenAIAdapter, # Reuses OpenAI-compatible adapter
+    ProviderType.XAI: OpenAIAdapter,        # Reuses OpenAI-compatible adapter
+    ProviderType.OPENROUTER: OpenAIAdapter,  # Reuses OpenAI-compatible adapter
     ProviderType.OLLAMA: OllamaAdapter,
-    ProviderType.CUSTOM: OpenAIAdapter,     # Fallback for OpenAI-compatible APIs
+    ProviderType.LMSTUDIO: LMStudioAdapter,
+    ProviderType.CUSTOM: OpenAIAdapter,      # Fallback for OpenAI-compatible APIs
 }
 ```
 
-The adapter abstraction (`ProviderAdapter`) defines 5 methods: `build_url`, `build_headers`, `build_payload`, `parse_response`, `parse_stream_line`. Adding a new provider means writing one Python class and adding one registry entry.
+The adapter abstraction (`ProviderAdapter`) defines 5 abstract methods: `build_url`, `build_headers`, `build_payload`, `parse_response`, `parse_stream_line` (plus a default `get_timeout`). Adding a new provider means writing one Python class and adding one registry entry.
 
-The `ProviderType.CUSTOM` entry with `OpenAIAdapter` as the fallback means any OpenAI-compatible API (LM Studio, text-generation-webui, etc.) can be configured through the API without any code changes -- just register a new provider with the custom type and its base URL.
+The `ProviderType.CUSTOM` entry with `OpenAIAdapter` as the fallback means any OpenAI-compatible API (text-generation-webui, vLLM, etc.) can be configured through the API without any code changes -- just register a new provider with the custom type and its base URL. (Ollama and LM Studio, though OpenAI-compatible, are first-class provider types with their own adapters for local model discovery and load/unload.)
 
 **Trade-off:** ST supports more providers out of the box. The Bannered Mare's adapter pattern is more uniform but requires a code change for genuinely new API formats.
 
@@ -414,7 +419,7 @@ Neither approach is inherently superior. The right choice depends on whether the
 | Event types | 103 | 6 (SSE stream events only) |
 | Extension lifecycle hooks | 8 | 0 |
 | Third-party extension management endpoints | 8 | 0 |
-| API resource routers | N/A (endpoints are endpoint-grouped) | 12 |
+| API resource routers | N/A (endpoints are endpoint-grouped) | ~18 |
 | Provider adapter pattern | Per-provider endpoint modules | Abstract base class + typed registry |
 | Prompt injection points (extension-controlled) | Unlimited (via `setExtensionPrompt`) | 4 (lore insertion positions) |
 | Message transform stages | 6+ (regex placements + events) | 0 (messages stored as-received) |

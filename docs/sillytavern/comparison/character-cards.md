@@ -252,8 +252,8 @@ The Bannered Mare's manual parser is lightweight but does not handle `ccv3` (V3)
 | `tags` | `tags` (V1) + `data.tags` | `tags` ARRAY | |
 | `creator` | `data.creator` | `creator` VARCHAR(100) | |
 | `character_version` | `data.character_version` | `character_version` VARCHAR(100) | |
-| `extensions` | `data.extensions` (open namespace) | Not persisted directly | The Bannered Mare has `ParsedCard.extensions` but does not store it in DB |
-| `character_book` | `data.character_book` | Separate `lorebooks` table | See section 7 |
+| `extensions` | `data.extensions` (open namespace) | Not stored as a column, but species/gender/age/custom_gender are extracted from it into dedicated columns | The Bannered Mare reads `extensions.bannered_mare` (and legacy keys) for those fields; the rest of the `extensions` dict is not persisted |
+| `character_book` | `data.character_book` | Separate `lorebooks` + `lore_entries` tables (round-tripped) | See section 7 |
 
 ### ST-Only Fields (No The Bannered Mare Equivalent)
 
@@ -288,7 +288,8 @@ On import (`service.import_card`), The Bannered Mare maps `ParsedCard` to the `C
 
 - `card.example_dialogues` (single string in V2) is wrapped in a single-element list: `[card.example_dialogues]`.
 - Empty strings are converted to `None` for nullable columns.
-- `card.extensions` is silently discarded (not persisted).
+- The raw `card.extensions` dict is not persisted, but its species/gender/age/custom_gender values (extracted by the parser) are written to their dedicated columns.
+- `card.character_book`, if present, is expanded into a `Lorebook` plus mapped `LoreEntry` rows.
 - Version is hardcoded to `2` for all imports.
 
 ST's `readFromV2` hoists V2 data fields to V1 top-level fields and backfills defaults for missing extension fields (`talkativeness` -> 0.5, `fav` -> false).
@@ -392,8 +393,9 @@ lore_entries table:
 **Integration points:**
 - `Character.lorebooks` relationship with cascade delete.
 - Lorebooks can be character-scoped (`character_id` set) or global (`is_global = True`).
-- No automatic embedding into character export (the card parser's `ParsedCard` does not include a `character_book` field).
-- Import does not extract `character_book` from incoming cards.
+- `ParsedCard` carries a `character_book` field, so lorebooks round-trip through import/export.
+- On import (`service.import_card`), an embedded `character_book` is extracted into a new `Lorebook` plus mapped `LoreEntry` rows (keys, secondary keys/logic, position, depth, role, priority, flags).
+- On export (`_character_to_card` + `card_to_v2_dict`), the character's first lorebook is serialized back into `data.character_book`.
 
 ### Comparison
 
@@ -403,15 +405,15 @@ lore_entries table:
 | Portability | Travels with the character card | Must be exported/imported separately |
 | Global lorebooks | Via World Info files | Via `is_global` flag on `lorebooks` |
 | Entry fields | 8 spec + 25+ extension fields | 16 columns (maps to core V2 spec + selected ST extensions) |
-| Import from card | Extracted and usable | `character_book` in `extensions` is discarded |
-| Export to card | Embedded via `convertWorldInfoToCharacterBook` | Not embedded in export |
+| Import from card | Extracted and usable | Extracted into `Lorebook` + `LoreEntry` rows |
+| Export to card | Embedded via `convertWorldInfoToCharacterBook` | Embedded in `data.character_book` (first lorebook) |
 | Group/exclusion logic | Groups, weights, mutual exclusion | Not implemented |
 | Probability activation | Yes (per-entry probability) | Not implemented |
 | Sticky/cooldown/delay | Yes | Not implemented |
 | Match targets | 6 configurable targets (persona, character desc, personality, etc.) | Not implemented |
 | Regex matching | Via ST extensions | `use_regex` column on `lore_entries` |
 
-The Bannered Mare's lorebook schema covers the core activation model (keys, secondary keys, position, depth, priority) but omits ST's advanced features (probability, stickiness, cooldown, group scoring, multi-target matching). The critical gap for interoperability is that character book data is not round-tripped through import/export.
+The Bannered Mare's lorebook schema covers the core activation model (keys, secondary keys, position, depth, priority) but omits ST's advanced features (probability, stickiness, cooldown, group scoring, multi-target matching). Character book data now round-trips through import/export -- an embedded `character_book` is expanded into `Lorebook`/`LoreEntry` rows on import and re-embedded on export -- though only the core V2 fields survive the round trip; ST's advanced extension fields are dropped.
 
 
 ## 8. Caching
@@ -524,9 +526,9 @@ Uses proper HTTP methods, path-based resource identification, Pydantic response 
 | Character identity | Mutable filename | Immutable NanoID |
 | Spec coverage | V1 + V2 + V3 + CharX + BYAF + YAML | V1 + V2 |
 | Import breadth | 6 formats | 2 formats |
-| Lorebook portability | Embedded in card (round-trips) | Separate entity (does not round-trip) |
+| Lorebook portability | Embedded in card (round-trips) | Separate entity, round-tripped via `character_book` on import/export |
 | Caching | Two-tier (memory + disk) | Database-native |
-| Extensions system | Open `extensions` namespace preserved across round-trips | Extensions parsed but not persisted |
+| Extensions system | Open `extensions` namespace preserved across round-trips | Extensions read for species/gender/age/custom_gender; the rest not persisted |
 | Sprite/expression system | Full support | Not implemented |
 | API style | RPC (POST-only) | REST (proper HTTP methods) |
 | Type safety | JSDoc typedefs (runtime: none) | Pydantic + SQLAlchemy mapped types + basedpyright |

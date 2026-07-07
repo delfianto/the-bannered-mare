@@ -18,7 +18,7 @@ a small adapter interface:
     <text x="40" y="186">Text vs chat — a second, separate dispatch file</text>
     <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Widest surface area, most coupling</text>
     <text x="408" y="90">Dispatch — ProviderGateway selects an adapter</text>
-    <text x="408" y="122">Coverage — 7 types via 4 adapter classes</text>
+    <text x="408" y="122">Coverage — 8 types via 5 adapter classes</text>
     <text x="408" y="154">Abstraction — one ProviderAdapter interface</text>
     <text x="408" y="186">Reuse — xAI/OpenRouter/Custom → OpenAIAdapter</text>
     <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">Fewer providers, uniform shape</text>
@@ -50,7 +50,7 @@ Supports ~40+ distinct provider integrations split across two independent subsys
 
 ### The Bannered Mare
 
-Supports 7 provider types via `ProviderType` enum:
+Supports 8 provider types via `ProviderType` enum:
 
 | ProviderType  | Adapter Used       |
 |---------------|--------------------|
@@ -60,18 +60,21 @@ Supports 7 provider types via `ProviderType` enum:
 | `xai`         | `OpenAIAdapter`    |
 | `openrouter`  | `OpenAIAdapter`    |
 | `ollama`      | `OllamaAdapter`    |
+| `lmstudio`    | `LMStudioAdapter`  |
 | `custom`      | `OpenAIAdapter`    |
 
-Four concrete adapter classes (OpenAI, Anthropic, Gemini, Ollama) cover all seven
-types. xAI, OpenRouter, and Custom providers reuse the OpenAI adapter since their APIs
-are OpenAI-compatible.
+Five concrete adapter classes (OpenAI, Anthropic, Gemini, Ollama, LM Studio) cover all
+eight types. `OllamaAdapter` and `LMStudioAdapter` both subclass `OpenAIAdapter` (local
+OpenAI-compatible servers), and xAI, OpenRouter, and Custom providers reuse the OpenAI
+adapter directly since their APIs are OpenAI-compatible.
 
 ### Comparison
 
 SillyTavern covers a far wider surface area, including legacy text-completion backends,
 niche aggregators, and self-hosted inference engines. The Bannered Mare targets the major
-cloud providers and local inference (Ollama), delegating long-tail provider access to
-OpenRouter. Both systems treat OpenAI-compatible APIs as a shared baseline.
+cloud providers and local inference (Ollama and LM Studio, both with native
+model discovery and load/unload), delegating long-tail provider access to OpenRouter. Both
+systems treat OpenAI-compatible APIs as a shared baseline.
 
 
 ## 2. Architecture Pattern
@@ -153,9 +156,11 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 - **Key retrieval**: `Provider.get_api_key()` reads `os.getenv(env_var_name)` at
   call time. `Provider.has_api_key()` checks whether the env var is set.
 - **Three auth patterns** across adapters:
-  - `Authorization: Bearer <key>` (OpenAI, xAI, OpenRouter, Custom)
+  - `Authorization: Bearer <key>` (OpenAI, xAI, OpenRouter, Custom, and LM Studio when a
+    token is configured)
   - `x-api-key: <key>` (Anthropic)
-  - No auth (Ollama -- `build_headers` returns only Content-Type)
+  - No auth (Ollama -- `build_headers` returns only Content-Type; LM Studio defaults to no
+    auth but inherits Bearer from `OpenAIAdapter` when a token is set)
 - **Google Gemini** uses API key as a query parameter (`?key=<apiKey>`), handled in
   `GeminiAdapter.build_url()`.
 - **Base URL override**: Each Provider row can store a custom `base_url` that overrides
@@ -166,7 +171,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Aspect                | SillyTavern                              | The Bannered Mare                          |
 |-----------------------|------------------------------------------|------------------------------------------|
 | Key storage           | JSON file with rotation/masking          | Environment variables                    |
-| Key count             | 40+ named secrets                        | 7 (one per ProviderConfig)               |
+| Key count             | 40+ named secrets                        | 8 (one per ProviderConfig)               |
 | Auth pattern variety  | 5+ patterns including JWT/OAuth2         | 3 patterns (Bearer, x-api-key, none)     |
 | Reverse proxy support | Built-in per provider                    | Via base_url override on Provider model  |
 | Vertex AI auth        | Full JWT/OAuth2 flow                     | Not implemented (Google AI Studio only)  |
@@ -203,14 +208,14 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
      last.
 - **Adapter-level filtering**: Each adapter selectively extracts parameters it
   understands from the merged dict:
-  - `OpenAIAdapter`: Whitelists via `_OPENAI_PARAMS` set (20 keys including
+  - `OpenAIAdapter`: Whitelists via `_OPENAI_PARAMS` set (19 keys including
     `reasoning_effort`, `max_completion_tokens`, `stream_options`).
   - `AnthropicAdapter`: Extracts `max_tokens`, `temperature` (clamped to 1.0), `top_p`,
     `top_k`, `stop_sequences`, `thinking`.
   - `GeminiAdapter`: Maps canonical names to Gemini names via `_GENERATION_CONFIG_MAP`
     (e.g., `top_p` -> `topP`, `max_output_tokens` -> `maxOutputTokens`), with a
     `max_tokens` -> `maxOutputTokens` fallback.
-  - `OllamaAdapter`: Inherits OpenAI filtering.
+  - `OllamaAdapter` / `LMStudioAdapter`: Inherit OpenAI filtering.
 - **Unsupported parameter tracking**: `ModelFamily.unsupported_parameters` column
   explicitly lists parameters the family does not support.
 
@@ -294,7 +299,8 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
   - Anthropic: Dispatches on `type` field (`content_block_delta` for text/thinking,
     `message_delta` for finish, `message_stop` as fallback).
   - Gemini: Parses `candidates[0].content.parts`, separates `thought` parts from text.
-  - Ollama: Inherits OpenAI parsing (uses `/v1/chat/completions` SSE format).
+  - Ollama / LM Studio: Inherit OpenAI parsing (both use the `/v1/chat/completions` SSE
+    format).
 - **Stream termination**: Chunks with `finish_reason` set signal end of stream; the
   generator returns after yielding the final chunk.
 - **Error handling**: HTTP errors during streaming are caught after `response.aread()`
@@ -462,7 +468,7 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 
 | Dimension                | SillyTavern v1.17.0                        | The Bannered Mare                             |
 |--------------------------|--------------------------------------------|---------------------------------------------|
-| Provider count           | ~40+ (23 chat + 15 text + 3 dedicated)     | 7 types, 4 adapter classes                  |
+| Provider count           | ~40+ (23 chat + 15 text + 3 dedicated)     | 8 types, 5 adapter classes                  |
 | Architecture             | Switch/if-else in monolithic handlers      | Adapter pattern + Gateway                   |
 | Language / Runtime       | Node.js / Express                          | Python 3.14+ / FastAPI                      |
 | HTTP client              | node-fetch                                 | httpx (async)                               |
@@ -477,4 +483,4 @@ Router -> Service -> ProviderGateway -> ProviderAdapter (stateless)
 | Reasoning support        | 7 providers with model-name detection      | 3 adapter families with parameter cascade   |
 | Error handling           | Per-handler try/catch, flat status codes   | Typed exception hierarchy, centralized mapping |
 | Text completions         | Separate subsystem (15 providers)          | Not implemented (chat completions only)     |
-| Total provider code      | ~6,200 lines across 10 files               | ~550 lines across 6 files                   |
+| Total provider code      | ~6,200 lines across 10 files               | ~2,000 lines across 17 files                |

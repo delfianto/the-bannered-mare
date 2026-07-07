@@ -128,8 +128,9 @@ Each provider has its own adapter class implementing `parse_stream_line()`:
 | OpenAI | `OpenAIAdapter` | Strips `data: ` prefix, handles `[DONE]` sentinel, extracts from `choices[0].delta` with `reasoning_content` / `reasoning` fallback |
 | Gemini | `GeminiAdapter` | Extracts from `candidates[0].content.parts`, separates `thought: true` parts from text parts |
 | Ollama | `OllamaAdapter` | Inherits from `OpenAIAdapter` unchanged (Ollama's `/v1/chat/completions` is OpenAI-compatible) |
+| LM Studio | `LMStudioAdapter` | Inherits from `OpenAIAdapter` unchanged (LM Studio's `/v1/chat/completions` is OpenAI-compatible) |
 
-All four return the same `StreamChunk(content, reasoning, finish_reason, usage)`
+All five return the same `StreamChunk(content, reasoning, finish_reason, usage)`
 dataclass. The gateway layer iterates lines and delegates without knowing which
 adapter is active.
 
@@ -138,7 +139,7 @@ adapter is active.
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
 | Dispatch mechanism | JSON structure sniffing + enum switch | Polymorphic class per provider |
-| Number of parsing codepaths | ~15 (7 main + 8 OpenAI sub-paths) | 4 adapter classes |
+| Number of parsing codepaths | ~15 (7 main + 8 OpenAI sub-paths) | 5 adapter classes (3 with distinct parsers; Ollama + LM Studio inherit OpenAI's) |
 | Output type | Yields `{ data, chunk, reasoning }` | Returns `StreamChunk` dataclass |
 | Extensibility | Add branches to if/else chain | Add new adapter class |
 | Ollama handling | Custom JSONL-to-SSE transcoder | Inherits OpenAI adapter (Ollama serves `/v1/`) |

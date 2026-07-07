@@ -114,9 +114,13 @@ Upload a `.json` ST preset. The importer:
    - a `PromptTemplate` — `system_template` from `main`; components toggled and
      ordered from the markers in `prompt_order`;
    - one `PromptFragment` + `TemplateFragment` per enabled content prompt, with
-     position/depth derived from its injection settings;
-   - a `Preset` **only if** sampler fields are present.
-4. Returns what was created plus a `warnings[]` list.
+     position/depth derived from its injection settings (an existing fragment with
+     identical content is reused rather than duplicated);
+   - a `Preset` **only if** sampler fields are present;
+   - a `Profile` that ties the template and (optional) preset into one selectable
+     unit, tagged `source="sillytavern"` with the original `source_filename`.
+4. Returns the created IDs/names (`template`, `fragment_ids`, optional `preset`,
+   `profile`) plus a `warnings[]` list.
 
 It deliberately **does not** route through the normal template/fragment services:
 those validate content as strict Jinja2 and would reject ST's `:`-style macros

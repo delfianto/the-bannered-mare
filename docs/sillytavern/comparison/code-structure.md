@@ -1,4 +1,4 @@
-# Code Structure Comparison: SillyTavern v1.17.0 vs The Bannered Mare v0.1.5
+# Code Structure Comparison: SillyTavern v1.17.0 vs The Bannered Mare v0.2.5
 
 A side-by-side engineering analysis of how each project organizes its codebase,
 manages module boundaries, and enforces structural discipline. This is a neutral
@@ -11,22 +11,22 @@ constraints (community-driven JS monolith vs. greenfield Python backend).
 | Metric | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
 | Primary language | JavaScript (ESM) | Python 3.14 |
-| Total source LoC | ~185,000 | ~12,200 |
-| Source files | ~340 `.js` | ~167 `.py` |
-| Test LoC | ~5,000 | ~5,600 |
-| Test files | ~14 | ~35 |
-| Test-to-source ratio | ~2.7% | ~46% |
+| Total source LoC | ~185,000 | ~18,500 |
+| Source files | ~340 `.js` | ~205 `.py` |
+| Test LoC | ~5,000 | ~10,200 |
+| Test files | ~14 | ~86 |
+| Test-to-source ratio | ~2.7% | ~55% |
 | Runtime dependencies | 96 | 19 |
 | Dev dependencies | 24 | 10 |
 
-SillyTavern is roughly 15x larger by line count. It is a full-stack application
+SillyTavern is roughly 10x larger by line count. It is a full-stack application
 (Express backend + jQuery SPA frontend), while The Bannered Mare is a headless
 API backend only. Comparing raw LoC is therefore misleading without noting that
 ~141,000 of ST's lines are frontend code with no Bannered Mare equivalent.
 
 Backend-only comparison: ST's `src/` is ~31,700 lines across ~80 files.
-The Bannered Mare's `src/` is ~12,600 lines across ~167 files. The file count is
-higher in The Bannered Mare despite having roughly one-third the code, reflecting
+The Bannered Mare's `src/` is ~18,500 lines across ~205 files. The file count is
+much higher in The Bannered Mare despite having roughly half the code, reflecting
 its vertical-slice module structure (many small files vs. fewer large ones).
 
 The two codebases have fundamentally different shapes — a large full-stack monolith with a
@@ -37,7 +37,7 @@ central god object versus a headless backend of small, uniform slices:
   <rect x="24" y="16" width="344" height="398" rx="14" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
   <rect x="392" y="16" width="344" height="398" rx="14" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
   <text x="196" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">SillyTavern v1.17.0</text>
-  <text x="564" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare v0.1.5</text>
+  <text x="564" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--tbm-dgm-ink)">The Bannered Mare v0.2.5</text>
   <text x="196" y="64" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">full-stack JS monolith</text>
   <text x="564" y="64" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">headless Python backend</text>
   <rect x="44" y="80" width="304" height="92" rx="10" fill="var(--tbm-dgm-danger-soft)" stroke="var(--tbm-dgm-danger)"/>
@@ -68,13 +68,13 @@ central god object versus a headless backend of small, uniform slices:
     <rect x="602" y="248" width="88" height="22" rx="6" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="646" y="263">… + more</text>
   </g>
   <text x="564" y="292" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">each slice: router · service · repository</text>
-  <text x="564" y="316" text-anchor="middle" font-size="11" font-weight="600" fill="var(--tbm-dgm-ink)">~12,200 LoC (backend)</text>
-  <text x="564" y="334" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">19 deps · ~46% test ratio</text>
+  <text x="564" y="316" text-anchor="middle" font-size="11" font-weight="600" fill="var(--tbm-dgm-ink)">~18,500 LoC (backend)</text>
+  <text x="564" y="334" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">19 deps · ~55% test ratio</text>
   <text x="564" y="372" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">greenfield, uniform slices</text>
 </svg>
 <template #caption>
 
-**Grown vs. designed.** SillyTavern is ~15× larger by line count — a single full-stack repo
+**Grown vs. designed.** SillyTavern is ~10× larger by line count — a single full-stack repo
 whose frontend centres on one 12,481-line file. The Bannered Mare is a headless backend of many
 small, identically-shaped slices, with a far higher test ratio and a fraction of the
 dependencies. Neither is "wrong": they answer different constraints.
@@ -123,10 +123,14 @@ backend/
 │   ├── preset/            # Same internal structure
 │   ├── prompt_template/   # + prompt_builder.py
 │   ├── prompt_fragment/   # Same internal structure
+│   ├── profile/           # Template + preset bundle (used by ST import)
+│   ├── st_import/         # SillyTavern preset importer (parser, mapper, service)
 │   ├── lore/              # + activation_engine.py
-│   ├── rag/               # + embedding_service.py, retrieval_service.py, chunker.py
+│   ├── rag/               # + embedding_service.py, retrieval_service.py, rerank_service.py, chunker.py
+│   ├── audit/             # PostgreSQL-backed HTTP/LLM/error logging
+│   ├── bookmarks/         # Session bookmark listing (router only)
 │   ├── health/            # Minimal: router + service
-│   ├── admin/             # Minimal: router only
+│   ├── admin/             # Minimal: log-query router only
 │   └── fixtures/          # Seed data definitions + per-provider families
 ├── tests/                 # Mirrors src/ structure
 ├── alembic/               # Database migrations
@@ -156,13 +160,13 @@ A typical The Bannered Mare domain module contains 7-8 files:
 ```
 character/
 ├── __init__.py          # Public exports
-├── router.py            # HTTP endpoints (202 lines)
-├── service.py           # Business logic (307 lines)
+├── router.py            # HTTP endpoints (218 lines)
+├── service.py           # Business logic (489 lines)
 ├── repository.py        # Database queries (45 lines)
 ├── models.py            # Model re-export (5 lines)
-├── schemas.py           # Request/response DTOs (100 lines)
+├── schemas.py           # Request/response DTOs (130 lines)
 ├── dependencies.py      # DI factories (25 lines)
-└── card_parser.py       # Domain-specific utility (203 lines)
+└── card_parser.py       # Domain-specific utility (244 lines)
 ```
 
 A typical ST endpoint file contains everything in one file:
@@ -177,7 +181,7 @@ endpoints/characters.js  # 1,543 lines: routes, validation, file I/O, logic
 |-----------|------------|-----------------|
 | Utility hub | `src/util.js` (1,565 lines, 40+ exports) | `src/core/utils/` (6 files, ~530 lines total) |
 | Constants/Enums | `src/constants.js` (558 lines) | `src/core/persistence/enums.py` (50 lines) |
-| Config | `config.yaml` + CLI args + env vars (multi-source merge) | Pydantic Settings: `.env` + env vars (88 lines) |
+| Config | `config.yaml` + CLI args + env vars (multi-source merge) | Pydantic Settings: `.env` + env vars (185 lines) |
 | Logging | Minimal (console + `accessLogWriter.js`) | Structured: structlog + PostgreSQL audit (420 lines) |
 | Base patterns | None (each endpoint is standalone) | `BaseRepository` (225 lines), `BaseModel` (47 lines) |
 
@@ -195,9 +199,9 @@ modules (`storage.py`, `template.py`, `tokenizer.py`, `validators.py`,
 |-------|----------------------|-----------------|
 | > 2,000 lines | 1 file (`chat-completions.js`: 2,683) | 0 files |
 | 1,000-2,000 lines | 5 files | 0 files |
-| 500-1,000 lines | ~8 files | 1 file (`chat_message/service.py`: 527) |
-| 200-500 lines | ~15 files | 8 files |
-| < 200 lines | ~50 files | ~156 files |
+| 500-1,000 lines | ~8 files | 1 file (`chat_message/service.py`: 718) |
+| 200-500 lines | ~15 files | ~12 files |
+| < 200 lines | ~50 files | ~190 files |
 
 ### 4.2 Largest Files
 
@@ -215,17 +219,17 @@ modules (`storage.py`, `template.py`, `tokenizer.py`, `validators.py`,
 
 | File | Lines |
 |------|------:|
-| `chat_message/service.py` | 527 |
-| `model/service.py` | 364 |
-| `fixtures/parameter_definitions.py` | 352 |
-| `character/service.py` | 307 |
-| `admin/router.py` | 233 |
+| `chat_message/service.py` | 718 |
+| `character/service.py` | 489 |
+| `fixtures/parameter_definitions.py` | 421 |
+| `fixtures/models/openrouter.py` | 396 |
+| `model/service.py` | 387 |
 
-The former largest file (`core/persistence/models.py`, 788 lines) has been
-split into 10 per-domain modules under `core/persistence/models/` (largest:
-`prompt.py` at 149 lines). The Bannered Mare's largest file is now a service file at
-527 lines -- smaller than ST's smallest "large" endpoint file. The trade-off
-is more files to navigate (~167 source files vs. ~80 in ST's backend).
+The former largest persistence file (`core/persistence/models.py`, 788 lines) was
+split into 12 per-domain modules under `core/persistence/models/`. The Bannered Mare's
+largest file is now `chat_message/service.py` at 718 lines -- still smaller than
+several of ST's large endpoint files. The trade-off is more files to navigate
+(~205 source files vs. ~80 in ST's backend).
 
 ### 4.3 Median File Size
 
@@ -371,7 +375,7 @@ tests/
 | Package management | npm (`package.json`) | uv/pip (`pyproject.toml`) |
 | Build step | Webpack bundles `lib.js` at startup | None (Python runs source directly) |
 | Config sources | 4-layer: env vars > CLI > config.yaml > defaults | 2-layer: env vars > `.env` defaults |
-| Config file | YAML (349 lines) with migration system | Pydantic Settings (88 lines) |
+| Config file | YAML (349 lines) with migration system | Pydantic Settings (185 lines) |
 | Linting | ESLint (`.eslintrc.cjs`) | Ruff (config in `pyproject.toml`) |
 | Formatting | Not configured | Ruff format (config in `pyproject.toml`) |
 | Type checking | `jsconfig.json` (2 configs: server + client) | `basedpyright` (config in `pyproject.toml`) |
@@ -393,11 +397,11 @@ across 10+ LLM provider APIs. They solve it very differently.
 |--------|------------|-----------------|
 | Pattern | Procedural converter functions | OOP adapter pattern (ABC) |
 | Central file | `chat-completions.js` (2,683 lines) + `prompt-converters.js` (1,445 lines) | `provider/adapters/base.py` (99 lines) |
-| Per-provider code | Converter functions in shared files | Separate adapter classes (`openai.py`, `anthropic.py`, `gemini.py`, `ollama.py`) |
+| Per-provider code | Converter functions in shared files | Separate adapter classes (`openai.py`, `anthropic.py`, `gemini.py`, `ollama.py`, `lmstudio.py`) |
 | HTTP client | `node-fetch` (inline in handler) | `httpx` (owned by `ProviderGateway`, not adapters) |
 | Adapter responsibility | Format conversion + HTTP call + error handling | Format conversion only (stateless data transformers) |
 | Streaming | Parsed inline in the endpoint handler | `ProviderGateway.chat_completion_stream()` delegates line parsing to adapters |
-| Provider count | 20+ in chat-completions alone | 4 adapters + OpenRouter routing |
+| Provider count | 20+ in chat-completions alone | 8 provider types via 5 adapters + OpenRouter routing |
 
 SillyTavern's approach concentrates all provider logic in two large files,
 making it easy to see all providers at once but harder to modify one without
@@ -410,13 +414,13 @@ at the cost of more indirection.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|------------|-----------------|
-| Entry point | `server.js` (18 lines) -> `server-main.js` (466 lines) | `main.py` (101 lines) |
+| Entry point | `server.js` (18 lines) -> `server-main.js` (466 lines) | `main.py` (119 lines) |
 | Startup pattern | Promise chain waterfall (10 `.then()` calls) | FastAPI lifespan context manager |
 | Middleware setup | Manual registration in `server-main.js` (16 middleware in sequence) | 2 middleware: CORS + request logging |
-| Route mounting | `setupPrivateEndpoints()` mounts 44 routers | `app.include_router()` for 16 routers |
+| Route mounting | `setupPrivateEndpoints()` mounts 44 routers | `app.include_router()` for 18 routers |
 | Legacy compat | 30+ deprecated URL redirects (HTTP 308) | None (new project) |
 | Database init | N/A (filesystem) | `seed_database()` loads fixture data on startup |
-| Startup LoC | ~900 across 2 files | ~101 in 1 file |
+| Startup LoC | ~900 across 2 files | ~119 in 1 file |
 
 
 ## 12. Summary of Structural Trade-offs
@@ -445,6 +449,6 @@ designed with the benefit of hindsight.
 
 **Tool & Version Info**
 - SillyTavern: v1.17.0
-- The Bannered Mare: v0.1.5
+- The Bannered Mare: v0.2.5
 - Author: Claude Opus 4.6 (1M context)
 - Date: 2026-04-07

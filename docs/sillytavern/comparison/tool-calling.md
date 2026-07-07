@@ -108,17 +108,20 @@ The Gemini adapter (`src/provider/adapters/gemini.py`) maps `MALFORMED_FUNCTION_
 
 ### 3.4 Model Family Metadata
 
-Model family fixtures track `supports_function_calling` as a boolean in `extra_metadata`:
+Model family fixtures track `supports_function_calling` as a boolean in `extra_metadata`. Of the fixtures that declare the flag, 28 families set it to `True` and 4 set it to `False`. The `True` families span the cloud and hosted lineups:
 
-| Provider | Families with `supports_function_calling: True` |
+| Fixture group | Families with `supports_function_calling: True` |
 |---|---|
-| Anthropic | 4 (Claude 4.5 Standard, 4.5 Opus, 4.6 Sonnet, 4.6 Opus) |
-| OpenAI | 2 (GPT-4o, GPT-4.1) |
-| Google | 2 (Gemini 2.5 Flash, Gemini 2.5 Pro) |
-| xAI | 4 (Grok 3, Grok 3 Mini, Grok 4, Grok 4 Mini) |
-| OpenRouter | 1 (Meta Llama 4 Maverick) |
+| Claude | 11 (Fable 5; 4.5 Haiku; 4.5/4.6/4.7/4.8 Opus; 4.5/4.6 Sonnet, Sonnet 5) |
+| OpenAI GPT | 4 (GPT-4o, GPT-4.1, GPT-5 Chat, GPT-5 Thinking) |
+| Gemini | 3 (Gemini 2.5, Gemini 3, Gemini 3.5) |
+| DeepSeek | 3 (V3, V4, R1) |
+| Grok | 2 (Grok 4.2, Grok 4.3) |
+| GLM | 2 (GLM 4, GLM 5) |
+| MiniMax | 2 (M2, M3) |
+| Others | 3 (Kimi K2, Xiaomi MiMo V2.5, Poolside Laguna) |
 
-This metadata is stored in the database and queryable, but is not referenced by any adapter or gateway logic. No code path checks this flag before deciding whether to include tools in a request.
+The 4 families flagged `False` are the local/open-weight lineups (Llama 3, Mistral Nemo 12B, Mistral Small 24B, and the OpenRouter Misc catch-all). This metadata is stored in the database and queryable, but is not referenced by any adapter or gateway logic. No code path checks this flag before deciding whether to include tools in a request.
 
 ### 3.5 What the Adapters Do Not Do
 
