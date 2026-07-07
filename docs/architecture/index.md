@@ -94,6 +94,7 @@ completions stream back the same way they came, over SSE. Click the diagram to e
 ## Backend
 
 - [Project Structure](/architecture/backend/project-structure) — the modular-monolith / vertical-slice layout
+- [Data Model](/architecture/backend/data-model) — the entities, their ownership, and the domain boundaries
 - [Persistence Layer](/architecture/backend/persistence) — SQLAlchemy 2.0, repositories, migrations
 - [LLM Integration](/architecture/backend/llm-integration) — the provider adapters and streaming
 - [Prompt System](/architecture/backend/prompt-system) — how prompts are assembled
@@ -101,6 +102,7 @@ completions stream back the same way they came, over SSE. Click the diagram to e
 
 ## Frontend
 
+- [Project Structure](/architecture/frontend/project-structure) — the feature-based, layered `src/` layout
 - [Design System](/architecture/frontend/design-system) — Nuxt UI v4 and the visual language
 - [Main Screens](/architecture/frontend/main-screens) — the app's top-level surfaces
 - [Core Components](/architecture/frontend/core-components) — the reusable building blocks
@@ -108,3 +110,19 @@ completions stream back the same way they came, over SSE. Click the diagram to e
 - [Mock Harness](/architecture/frontend/mock-harness) — developing against a simulated backend
 - [Backend Connection](/architecture/frontend/backend-connection) — the typed client and SSE parser
 - [State & Localization](/architecture/frontend/state-and-localization) — Pinia stores and vue-i18n
+
+## API Reference
+
+The single HTTP contract between the two halves, documented endpoint by endpoint and
+grouped by domain. Start with the [overview](/architecture/api/) for the conventions —
+base URL, the response envelope, pagination, filtering, and errors — that hold across the
+whole API.
+
+- [Overview & conventions](/architecture/api/) — how to read the reference
+- [Characters & Personas](/architecture/api/characters-personas) — cards, personas, import/export
+- [Conversations](/architecture/api/conversations) — chats, messages, streaming, bookmarks
+- [World & Lore](/architecture/api/world-and-lore) — lorebooks and lore entries
+- [Knowledge & RAG](/architecture/api/knowledge-and-rag) — the data bank and semantic search
+- [Providers & Models](/architecture/api/providers-and-models) — providers, models, families
+- [Prompt Building](/architecture/api/prompt-building) — profiles, presets, templates, fragments
+- [System & Admin](/architecture/api/system) — health and the operational log queries
