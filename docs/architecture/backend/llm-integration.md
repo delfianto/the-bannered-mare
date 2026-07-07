@@ -87,13 +87,13 @@ gateway, which selects the right adapter and drives the call:
   <text x="642" y="245" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">OpenAI · Anthropic · Gemini · Ollama · …</text>
   <!-- Arrows -->
   <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
-    <path d="M184 145 L254 145"/>
-    <path d="M472 120 L542 90"/>
-    <path d="M472 175 L542 220"/>
+    <path d="M184 145 H254"/>
+    <path d="M472 145 H508 V83 H542"/>
+    <path d="M472 145 H508 V232 H542"/>
   </g>
   <text x="219" y="138" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">hand off</text>
-  <text x="512" y="98" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">select</text>
-  <text x="500" y="212" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">HTTPS · SSE</text>
+  <text x="526" y="78" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">select</text>
+  <text x="506" y="248" text-anchor="middle" font-size="10" fill="var(--tbm-dgm-ink-2)">HTTPS · SSE</text>
 </svg>
 <template #caption>
 

@@ -62,6 +62,7 @@ order that references them by identifier and toggles each on or off:
     <path d="M583 190 L583 228"/>
   </g>
   <text x="393" y="104" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">look up by</text>
+  <rect x="369" y="107" width="48" height="11" rx="2" fill="var(--tbm-dgm-surface-2)"/>
   <text x="393" y="115" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">identifier</text>
 </svg>
 <template #caption>

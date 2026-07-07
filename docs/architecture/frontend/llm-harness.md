@@ -38,18 +38,19 @@ local or cloud providers:
   <text x="585" y="350" text-anchor="middle" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">Cloud providers</text>
   <text x="585" y="368" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">OpenAI · Anthropic</text>
   <!-- Arrows -->
+  <path d="M135 294 H585" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none"/>
   <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
-    <path d="M360 72 L360 110"/>
-    <path d="M360 168 L360 206"/>
-    <path d="M340 264 L150 320"/>
-    <path d="M360 264 L360 320"/>
-    <path d="M380 264 L570 320"/>
+    <path d="M360 72 V110"/>
+    <path d="M360 168 V206"/>
+    <path d="M360 264 V320"/>
+    <path d="M135 294 V320"/>
+    <path d="M585 294 V320"/>
   </g>
   <g font-size="10.5" fill="var(--tbm-dgm-ink-2)">
     <text x="372" y="94">triggers actions</text>
     <text x="372" y="190">API via client</text>
-    <text x="210" y="300" text-anchor="middle">query / sync</text>
-    <text x="520" y="300" text-anchor="middle">network request</text>
+    <text x="200" y="288" text-anchor="middle">query / sync</text>
+    <text x="500" y="288" text-anchor="middle">network request</text>
   </g>
 </svg>
 <template #caption>

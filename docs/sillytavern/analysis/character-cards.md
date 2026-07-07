@@ -39,6 +39,7 @@ text chunk — so one file is both the avatar and the full character definition:
     <path d="M483 124 L483 148"/>
     <path d="M483 208 L483 232"/>
   </g>
+  <rect x="294" y="103" width="38" height="13" rx="3" fill="var(--tbm-dgm-surface-2)"/>
   <text x="312" y="112" text-anchor="middle" font-size="9.5" fill="var(--tbm-dgm-ink-2)">decode</text>
 </svg>
 <template #caption>

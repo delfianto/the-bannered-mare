@@ -83,6 +83,7 @@ each entity to the tag IDs it carries:
     <path d="M506 115 L564 115"/>
   </g>
   <text x="245" y="108" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">keyed by</text>
+  <rect x="223" y="111" width="44" height="11" rx="2" fill="var(--tbm-dgm-surface-2)"/>
   <text x="245" y="119" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">avatar/id</text>
   <text x="535" y="108" text-anchor="middle" font-size="9" fill="var(--tbm-dgm-faint)">by tag id</text>
   <text x="380" y="222" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">Both structures live in settings.json — client-side only, no dedicated server endpoint.</text>
