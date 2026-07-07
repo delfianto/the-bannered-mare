@@ -63,7 +63,7 @@ bun run api:gen              # Regenerate src/api/schema.d.ts from the root open
 
 ## Mock Mode
 
-MSW intercepts all API calls in the browser when `VITE_USE_MOCKS=true`. Fixtures in `src/mocks/data/` include 6 providers, 34 models across 19 families, 20 Elder Scrolls–themed characters, 20 chats with YAML conversation scenarios, and more.
+MSW intercepts all API calls in the browser when `VITE_USE_MOCKS=true`. Fixtures in `src/mocks/data/` include 7 providers, 34 models across 19 families, 20 Elder Scrolls–themed characters, and 20 chats backed by 19 YAML conversation scenarios, and more.
 
 ```bash
 VITE_USE_MOCKS=true vp dev --host                         # mock mode

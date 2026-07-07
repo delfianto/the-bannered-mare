@@ -15,7 +15,7 @@ clean REST API that any frontend — web, desktop, or mobile — can consume.
 |-------|-----------|
 | Runtime | Python 3.14+ |
 | Framework | FastAPI (ASGI) |
-| Database | PostgreSQL + VectorChord (vchordrq, built on pgvector) |
+| Database | PostgreSQL + pgvector (the `vector` extension) |
 | ORM | SQLAlchemy 2.0 (async + sync) |
 | Migrations | Alembic |
 | Validation | Pydantic V2 |
@@ -26,13 +26,18 @@ clean REST API that any frontend — web, desktop, or mobile — can consume.
 | Logging | structlog + PostgreSQL audit trail |
 | Type Checking | basedpyright (strict mode) |
 | Linting | ruff |
-| Testing | pytest (300+ tests) |
+| Testing | pytest (500+ tests) |
 
 ## Quick Start
 
 ```bash
 pip install -e ".[dev]"
 cp .env.example .env        # Configure database URL and API keys
+./scripts/init-db.sh        # Provision the Postgres database, role, and pgvector extension
 alembic upgrade head
 uvicorn src.main:app --reload
 ```
+
+The `init-db.sh` helper bootstraps a local PostgreSQL database (creating the role and enabling
+the `vector` extension); skip it if you already have a database provisioned. `scripts/start.sh`
+launches the server (uvicorn, with `--reload` in dev) for day-to-day use.
