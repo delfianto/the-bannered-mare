@@ -237,5 +237,8 @@ def lmstudio_gateway() -> ProviderGateway:
     model_name = resp.json()["data"][0]["id"]
 
     provider = _make_provider(ProviderType.LMSTUDIO, host, "")
-    model = _make_model(model_name, model_params={"max_tokens": 32, "temperature": 0})
+    # LM Studio serves whatever the user has loaded — often a reasoning model.
+    # Give it enough budget to emit content after its reasoning tokens (a 32-token
+    # cap gets fully consumed by reasoning, leaving empty content).
+    model = _make_model(model_name, model_params={"max_tokens": 512, "temperature": 0})
     return ProviderGateway(provider, model)

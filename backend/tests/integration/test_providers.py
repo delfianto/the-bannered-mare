@@ -209,12 +209,16 @@ class TestOllama:
 
 @has_lmstudio
 class TestLMStudio:
+    # LM Studio serves whatever model the user has loaded, which may be a
+    # reasoning model: it can spend its whole output budget on reasoning tokens
+    # and return empty `content`. Treat reasoning as valid output so these tests
+    # verify the adapter round-trip rather than the loaded model's chattiness.
     @pytest.mark.asyncio
     async def test_completion(self, lmstudio_gateway):
         response = await lmstudio_gateway.chat_completion(SIMPLE_MESSAGES)
 
         assert isinstance(response, CompletionResponse)
-        assert len(response.content) > 0
+        assert response.content or response.reasoning, "no content or reasoning returned"
         assert response.finish_reason in ("stop", "length")
 
     @pytest.mark.asyncio
@@ -223,10 +227,11 @@ class TestLMStudio:
         async for chunk in lmstudio_gateway.chat_completion_stream(SIMPLE_MESSAGES):
             chunks.append(chunk)
 
-        content_chunks = [c for c in chunks if c.content]
-        assert len(content_chunks) > 0
+        # A reasoning model streams reasoning deltas before (or instead of) content.
+        output_chunks = [c for c in chunks if c.content or c.reasoning]
+        assert len(output_chunks) > 0
 
-        full_text = "".join(c.content for c in content_chunks if c.content)
+        full_text = "".join((c.content or "") + (c.reasoning or "") for c in chunks)
         assert len(full_text) > 0
 
     @pytest.mark.asyncio
@@ -239,4 +244,4 @@ class TestLMStudio:
         response = await lmstudio_gateway.chat_completion(messages)
 
         assert isinstance(response, CompletionResponse)
-        assert len(response.content) > 0
+        assert response.content or response.reasoning, "no content or reasoning returned"
