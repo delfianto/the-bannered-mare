@@ -15,16 +15,24 @@ hero:
       text: View on GitHub
       link: https://github.com/delfianto/the-bannered-mare
 features:
-  - title: Getting Started
+  - icon: 🚀
+    title: Getting Started
     details: Install and run both halves — the FastAPI backend and the Vue 3 frontend.
     link: /guide/
-  - title: Architecture
-    details: How it's built — modular monolith, prompt system, RAG, and the Vue SPA.
+  - icon: 🏗️
+    title: Architecture
+    details: How it's built — modular monolith, data model, prompt system, RAG, and the Vue SPA.
     link: /architecture/
-  - title: LLM Providers
+  - icon: 🔗
+    title: API Reference
+    details: Every backend endpoint, grouped by domain, with the shared conventions up front.
+    link: /api/
+  - icon: 🔌
+    title: LLM Providers
     details: Reference for the supported providers and local backends.
     link: /providers/
-  - title: SillyTavern Study
+  - icon: 📚
+    title: SillyTavern Study
     details: Deep analysis of SillyTavern and a comparison with The Bannered Mare.
     link: /sillytavern/
 ---
