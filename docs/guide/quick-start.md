@@ -9,7 +9,7 @@ title: Quick Start
 cd backend
 pip install -e ".[dev]"
 cp .env.example .env        # Configure database URL and API keys
-./scripts/init-db.sh        # Provision the Postgres DB + pgvector (skip if you have one)
+./scripts/init-db.sh        # Provision the Postgres DB + VectorChord (vchord); skip if you have one
 alembic upgrade head
 uvicorn src.main:app --reload
 
