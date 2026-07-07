@@ -25,7 +25,7 @@ application's own database:
     <text x="40" y="186">Runs — client-side (browser)</text>
     <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Broad ingestion, portable files</text>
     <text x="408" y="90">Store — PostgreSQL + pgvector</text>
-    <text x="408" y="122">Embeddings — 2 adapters (Ollama · OpenAI)</text>
+    <text x="408" y="122">Embeddings — 4 adapters (llama.cpp · OpenAI · Ollama · TEI)</text>
     <text x="408" y="154">Ingestion — text (Data Bank manual entry)</text>
     <text x="408" y="186">Runs — server-side async service</text>
     <text x="408" y="222" fill="var(--tbm-dgm-ink-2)">One store for data + vectors</text>
@@ -45,7 +45,9 @@ everything else, so a single query can span messages and Data Bank entries.
 | Capability | SillyTavern v1.17.0 | The Bannered Mare |
 |------------|---------------------|-----------------|
 | Vector database | Vectra (file-system JSON) | PostgreSQL + pgvector (upgradeable to vchord) |
-| Embedding providers | 19 sources (local + cloud) | 2 adapters (Ollama + OpenAI-compatible) |
+| Embedding providers | 19 sources (local + cloud) | 4 adapters (llama.cpp, OpenAI-compatible, Ollama, HF TEI) |
+| Asymmetric embeddings | Cohere only | Yes (query/document prompt prefixes; default EmbeddingGemma) |
+| Reranking | Not built-in | Optional cross-encoder reranker over HF TEI (off by default) |
 | Document ingestion | PDF, HTML, Markdown, EPUB, DOCX, XLSX, PPTX, ODT/ODP/ODS | Text-only (Data Bank manual entry) |
 | Text chunking | Recursive delimiter-based with overlap | Recursive delimiter-based with overlap |
 | Knowledge base (Data Bank) | Three-tier (global, character, chat) | Three-tier (global, character, chat) |
@@ -128,44 +130,55 @@ Notable details:
 
 ### The Bannered Mare
 
-Two embedding adapters in `EmbeddingService` (`src/rag/embedding_service.py`):
+Four embedding adapters in `EmbeddingService` (`src/rag/embedding_service.py`),
+selected by the `provider` setting:
 
-| Adapter | API endpoint | Auth | Default model |
-|---------|-------------|------|---------------|
-| **Ollama** | `POST {ollama_url}/api/embed` | None (local) | `nomic-embed-text` |
-| **OpenAI-compatible** | `POST {openai_url}/embeddings` | Bearer token via env var | User-configured |
+| Adapter | `provider` value | API endpoint | Auth | Notes |
+|---------|------------------|--------------|------|-------|
+| **llama.cpp** (default) | `llamacpp` | `POST {llamacpp_url}/v1/embeddings` | None (local) | Default provider; llama-server's OpenAI-compatible route |
+| **OpenAI-compatible** | `openai` | `POST {openai_url}/embeddings` | Bearer token via env var | OpenAI, Mistral, TogetherAI, vLLM, LiteLLM, etc. |
+| **Ollama** | `ollama` | `POST {ollama_url}/api/embed` | None (local) | Ollama's native embed endpoint |
+| **HF TEI** | `huggingface` | `POST {huggingface_url}/embed` | None (local) | Text Embeddings Inference native dialect (`inputs` key, bare list response) |
 
-The OpenAI-compatible adapter works with any provider that implements the standard
-`/v1/embeddings` contract (OpenAI, Mistral, TogetherAI, vLLM, LiteLLM, etc.),
-meaning the 2-adapter architecture covers substantially more than 2 providers in
-practice.
+The `llamacpp` and `openai` adapters both speak the standard `/v1/embeddings`
+contract, so the four-adapter architecture covers substantially more than four
+providers in practice.
+
+**Asymmetric embeddings.** The default model is **EmbeddingGemma**, which is
+asymmetric: queries and documents are embedded with different prompt prefixes.
+`EmbeddingService` exposes `embed_query()` and `embed_documents()`, applying the
+configured `query_prefix` / `document_prefix` respectively.
 
 Configuration via `EmbeddingSettings` in `src/core/config.py`:
-- `provider`: `"ollama"` or `"openai"` (selects the adapter)
-- `model`: embedding model name
+- `provider`: `"llamacpp"` (default), `"openai"`, `"ollama"`, or `"huggingface"`
+- `model`: embedding model name (default `embeddinggemma`)
 - `dimensions`: vector dimensions (default 768)
+- `llamacpp_url`: llama.cpp server URL (default `http://localhost:8080`)
+- `huggingface_url`: HF TEI server URL (default `http://localhost:8080`)
 - `ollama_url`: Ollama server URL (default `http://localhost:11434`)
 - `openai_url`: OpenAI-compatible base URL (default `https://api.openai.com/v1`)
 - `openai_key_env`: environment variable name holding the API key
+- `query_prefix` / `document_prefix`: asymmetric-embedding prompt prefixes
 
-Batching: 10 items per batch for both adapters (constant `BATCH_SIZE` in
+Batching: 10 items per batch for all adapters (constant `BATCH_SIZE` in
 `embedding_service.py`).
 
 ### Comparison
 
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
-| Named providers | 19 | 2 (Ollama + OpenAI-compatible) |
-| Effective provider coverage | 19 | Most of the same providers via OpenAI-compatible adapter |
-| Zero-config local option | Yes (ONNX `all-mpnet-base-v2`) | Requires running Ollama |
+| Named providers | 19 | 4 (llama.cpp, OpenAI-compatible, Ollama, HF TEI) |
+| Effective provider coverage | 19 | Most of the same providers via the OpenAI-compatible adapter |
+| Zero-config local option | Yes (ONNX `all-mpnet-base-v2`) | Requires running llama.cpp, Ollama, or TEI |
 | Browser-side embedding | Yes (WebLLM, KoboldCpp) | No (server-side only) |
-| Asymmetric embedding support | Cohere only | Not yet |
-| Provider-specific quirks | Handled per-adapter (9 backend files) | Minimal -- two clean adapters |
+| Asymmetric embedding support | Cohere only | Yes (query/document prompt prefixes; default EmbeddingGemma) |
+| Provider-specific quirks | Handled per-adapter (9 backend files) | Minimal -- four clean adapters |
 
 The breadth gap is real but narrow in practice: most of ST's 19 sources use the
-OpenAI-compatible protocol, which The Bannered Mare's single OpenAI adapter already handles.
-The main gap is the lack of a zero-config local option -- The Bannered Mare requires either
-Ollama or an API key, while ST can run ONNX embeddings in-process with no setup.
+OpenAI-compatible protocol, which The Bannered Mare's `llamacpp`/`openai` adapters
+already handle. The main gap is the lack of a zero-config local option -- The Bannered
+Mare requires running llama.cpp, Ollama, or a TEI server (or supplying an API key),
+while ST can run ONNX embeddings in-process with no setup.
 
 
 ## 4. Document Processing and Text Chunking
@@ -323,16 +336,24 @@ Configurable parameters:
 Message vectorization via `RetrievalService.vectorize_message()`
 (`src/rag/retrieval_service.py`):
 
-1. Compute a deterministic 64-bit SHA-256 hash of the message content
+1. Compute a deterministic 63-bit SHA-256 hash of the message content (masked to fit the signed `BIGINT` column)
 2. Check if an embedding with that hash already exists (`exists_by_hash`)
 3. If new, embed the message text and store an `Embedding` row with
    `source_type='message'` and `source_id=message_id`
 
 Retrieval via `RetrievalService.retrieve()`:
-1. Embed the query text
+1. Embed the query text (with the asymmetric query prefix)
 2. Run a pgvector cosine similarity search across `source_types=['message', 'data_bank']`
    and relevant `source_ids` (chat ID + data bank entry IDs for the active scopes)
 3. Filter by `threshold` (default 0.3), return top-K results
+
+**Optional reranking.** When `RerankSettings.enabled` is true (off by default), the
+retriever casts a wider net -- it pulls up to `candidates` (default 30) vector hits
+with the vector similarity floor dropped to 0.0, then a cross-encoder reranker
+(`RerankService`, an HF TEI `/rerank` model such as `BAAI/bge-reranker-v2-m3`)
+reorders them. Hits scoring at least the reranker `score_threshold` are kept and cut
+to `max_results`. A slow or down reranker never breaks retrieval -- it falls back to
+the raw vector ranking.
 
 Configuration (`RAGSettings` in `src/core/config.py`):
 - `vectorize_messages`: toggle message embedding (default True)
@@ -344,7 +365,7 @@ Configuration (`RAGSettings` in `src/core/config.py`):
 
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
-| Dedup strategy | Hash-based (string hash) | Hash-based (SHA-256 truncated to 64 bits) |
+| Dedup strategy | Hash-based (string hash) | Hash-based (SHA-256 masked to 63 bits) |
 | Orphan cleanup | Deletes vectors for removed messages | `delete_by_source` available, not auto-triggered |
 | Pre-embed summarization | Yes (3 backends) | Not yet |
 | Message chunking | Optional (400 char default) | Not yet (whole message embedded) |
@@ -468,19 +489,30 @@ Extensive settings object with ~40 parameters covering:
 
 ### The Bannered Mare
 
-Two Pydantic settings models in `src/core/config.py`:
+Three Pydantic settings models in `src/core/config.py`:
 
 **`EmbeddingSettings`** (nested in `RAGSettings.embedding`):
-- `provider` -- `"ollama"` or `"openai"`
-- `model` -- embedding model name (default `nomic-embed-text`)
+- `provider` -- `"llamacpp"` (default), `"openai"`, `"ollama"`, or `"huggingface"`
+- `model` -- embedding model name (default `embeddinggemma`)
 - `dimensions` -- vector dimensions (default 768)
+- `llamacpp_url` -- llama.cpp endpoint (default `http://localhost:8080`)
+- `huggingface_url` -- HF TEI endpoint (default `http://localhost:8080`)
 - `ollama_url` -- Ollama endpoint (default `http://localhost:11434`)
 - `openai_url` -- OpenAI-compatible endpoint (default `https://api.openai.com/v1`)
 - `openai_key_env` -- env var name for API key
+- `query_prefix` / `document_prefix` -- asymmetric-embedding prompt prefixes
+
+**`RerankSettings`** (nested in `RAGSettings.rerank`):
+- `enabled` -- master toggle for reranking (default False)
+- `huggingface_url` -- TEI rerank endpoint (default `http://localhost:8091`)
+- `model` -- reranker model, informational (default `BAAI/bge-reranker-v2-m3`)
+- `candidates` -- wide-net vector-hit count fed to the reranker (default 30)
+- `score_threshold` -- reranker relevance floor (default 0.3)
 
 **`RAGSettings`** (at `settings.rag`):
 - `enabled` -- master toggle (default False)
 - `embedding` -- nested `EmbeddingSettings`
+- `rerank` -- nested `RerankSettings`
 - `chunk_size` -- characters per chunk (default 500)
 - `chunk_overlap` -- overlap characters (default 50)
 - `similarity_threshold` -- cosine similarity cutoff (default 0.3)
@@ -497,7 +529,7 @@ Runtime status endpoint: `GET /api/rag/status` returns the active configuration.
 
 | Aspect | ST | The Bannered Mare |
 |--------|-----|-----------|
-| Total parameters | ~40 | ~12 |
+| Total parameters | ~40 | ~22 |
 | Per-provider model config | Yes (13 provider-specific model fields) | Single `model` field |
 | File processing settings | Yes (size threshold, chunk size/count, overlap) | N/A (no file processing) |
 | World Info vectorization settings | Yes (enable, enable-for-all, max entries) | N/A (no WI vectorization) |
@@ -524,7 +556,7 @@ ST's plain JSON settings do not.
 
 | Area | Detail |
 |------|--------|
-| Embedding provider breadth | 19 named sources vs. 2 adapters |
+| Embedding provider breadth | 19 named sources vs. 4 adapters |
 | Zero-config local embeddings | ONNX in-process, no external service needed |
 | Document ingestion | 10+ file formats, web/wiki scraping, YouTube transcripts |
 | World Info vector activation | Semantic search supplements keyword matching |
@@ -541,6 +573,8 @@ ST's plain JSON settings do not.
 | Data integrity | Foreign keys with cascade deletes, Alembic-managed schema vs. JSON settings metadata |
 | Type safety | Pydantic schemas + BasedPyright across the full pipeline vs. untyped JavaScript objects |
 | Configuration validation | Pydantic model validation at startup vs. runtime JS checks |
+| Reranking | Optional cross-encoder reranker over HF TEI (`BAAI/bge-reranker-v2-m3`) vs. no built-in reranking |
+| Asymmetric embeddings | First-class query/document prompt prefixes (EmbeddingGemma) vs. Cohere-only `input_type` |
 
 ### Remaining Gaps
 

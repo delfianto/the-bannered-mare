@@ -1,7 +1,7 @@
 # Chat System Comparison: SillyTavern v1.17.0 vs The Bannered Mare
 
 > Engineering comparison of the two systems' chat architectures.
-> SillyTavern analysis based on commit `1695f8e`; The Bannered Mare based on current `develop` branch.
+> SillyTavern analysis based on commit `1695f8e`; The Bannered Mare based on the current `main` branch.
 
 
 The core divergence is the store itself — portable files versus a relational database:
@@ -245,9 +245,11 @@ Storage is via file duplication -- each branch/checkpoint is a fully independent
 
 ### The Bannered Mare
 
-**Not implemented.** There is no branching, checkpoint, or bookmark system.
+**Branching / checkpoints: not implemented.** There is no chat-copy, checkpoint, or branch-off-a-swipe feature.
 
-**Observations.** Branching is straightforward to implement with SillyTavern's file-based model -- copy the file, truncate, done. In a relational model, branching would require either duplicating message rows (expensive, breaks referential identity) or implementing a tree/DAG structure on the messages table (e.g., a `parent_message_id` column or a separate `branches` table). This is a non-trivial design decision that The Bannered Mare has not yet addressed.
+**Bookmarks: partially implemented (session-level only).** A `Chat` row carries an `is_bookmarked` boolean, toggled through the chat-update endpoint (`is_bookmarked` field). A dedicated `GET /api/bookmarks/sessions` endpoint lists every bookmarked chat. Sibling endpoints for bookmarked characters (`GET /api/bookmarks/characters`) and pinned message fragments (`GET /api/bookmarks/messages`) exist as stubs that return empty lists. There is no per-message bookmark link or parent-chat reference -- bookmarking is a simple favorite flag on the whole session, not a checkpoint into a new chat.
+
+**Observations.** Branching is straightforward to implement with SillyTavern's file-based model -- copy the file, truncate, done. In a relational model, branching would require either duplicating message rows (expensive, breaks referential identity) or implementing a tree/DAG structure on the messages table (e.g., a `parent_message_id` column or a separate `branches` table). This is a non-trivial design decision that The Bannered Mare has not yet addressed. Its current bookmark support is limited to flagging whole sessions as favorites, not the checkpoint/branch semantics SillyTavern offers.
 
 
 ## 7. Group Chats
@@ -422,13 +424,13 @@ Prompt assembly is client-side, driven by a configurable component order. The sy
 
 The `PromptBuilder` service constructs prompts server-side using the `PromptTemplate` entity:
 
-- Configurable component order: `system_prompt`, `nsfw_prompt`, `world_lore_before_character`, `character_context`, `world_lore_after_character`, `scenario`, `persona`, `world_lore_before_examples`, `example_dialogues`, `chat_history`, `jailbreak_prompt`, `post_history_instructions`.
-- Per-component enable/disable toggles.
-- Jinja2 templates for system, NSFW, and jailbreak prompts.
-- Token-budgeted chat history with configurable `max_history_tokens`.
-- AT_DEPTH lore entry injection into chat history at specified positions.
+- Configurable component order (`DEFAULT_COMPONENT_ORDER`): `system_prompt`, `world_lore_before_character`, `character_context`, `world_lore_after_character`, `scenario`, `persona`, `world_lore_before_examples`, `example_dialogues`, `rag_context`, `chat_history`, `post_history_instructions`.
+- Per-component enable/disable toggles (`components_enabled`).
+- A single Jinja2 `system_template` for the base system prompt; NSFW/jailbreak/instruction text now lives in reusable `PromptFragment`s attached via `TemplateFragment` at positions (`after_system`, `pre_history`, `post_history`, `at_depth`), rather than as fixed prompt components.
+- Token-budgeted chat history with configurable `max_history_tokens` (default 4096).
+- AT_DEPTH lore entries and `at_depth` fragments injected into chat history at a depth from the end.
 - Template resolution chain: `Chat.template` -> `Model.template` -> default template. Models carry a `template_id` FK, so selecting a model can automatically determine the prompt template.
-- Prompt configuration is template + fragments only -- there is no model-level system prompt field.
+- A per-character `system_prompt` can override the template's `system_template`; otherwise there is no model-level system prompt field.
 
 | Aspect | SillyTavern | The Bannered Mare |
 |--------|-------------|-----------------|
@@ -450,7 +452,7 @@ The `PromptBuilder` service constructs prompts server-side using the `PromptTemp
 | Message editing | Client-side, auto-save, swipe-synced | Server-side REST, token recount |
 | Message reordering | Supported | Not implemented |
 | Regeneration | Via swipe overswipe mechanism | Dedicated API endpoint (blocking + SSE) |
-| Branching / bookmarks | File duplication with parent references | Not implemented |
+| Branching / bookmarks | File duplication with parent references | Branching not implemented; session-level bookmark flag (`is_bookmarked`) with a bookmarks-list endpoint |
 | Group chats | Full support (4 activation strategies, 3 generation modes) | Not implemented |
 | Personas | Three-tier lock system, configurable injection | Database entity, per-chat FK binding |
 | Presets | Per-API-type file-based | Database entity with generic JSON parameters |

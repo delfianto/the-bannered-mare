@@ -5,7 +5,7 @@
 >
 > The Bannered Mare source: `src/lore/activation_engine.py`, `src/lore/service.py`,
 > `src/lore/repository.py`, `src/lore/router.py`, `src/lore/schemas.py`,
-> `src/core/persistence/models.py`, `src/core/persistence/enums.py`
+> `src/core/persistence/models/lore.py`, `src/core/persistence/enums.py`
 
 
 The Bannered Mare keeps the core activation mechanics and trims the long tail of ST-specific
@@ -352,18 +352,22 @@ Original Character Book data is preserved as `originalData` for round-trip fidel
 ### 9.2 The Bannered Mare: API-Only
 
 The Bannered Mare provides a RESTful CRUD API (`POST /api/lorebooks`, `POST /api/lorebooks/{id}/entries`)
-with Pydantic schema validation. There is no file import endpoint and no format converters.
+with Pydantic schema validation. There is no dedicated lorebook file-import endpoint and no
+standalone format converters.
 
-Import of external lorebook formats would need to be handled by a client application or a
-future import service that maps external formats to `LoreEntryCreate` / `LorebookCreate`
-schemas.
+One indirect path does exist: the character-card importer (`POST /api/characters/import`)
+extracts an embedded V2 `character_book` and expands it into a `Lorebook` plus mapped
+`LoreEntry` rows (see the Character Cards comparison). Import of other external lorebook
+formats (NovelAI, Agnai, Risu, standalone lorebook JSON) would still need a client
+application or a future import service mapping them to `LoreEntryCreate` / `LorebookCreate`.
 
 ### 9.3 Assessment
 
 ST's multi-format import is critical for its role as a community platform where users share
 character cards with embedded lorebooks across different tools. As a backend API, The Bannered Mare
-delegates import concerns to its consumers but would benefit from a Character Card V2
-import endpoint to enable direct card ingestion.
+delegates most import concerns to its consumers, but Character Card V2 ingestion already works:
+importing a card carries its embedded `character_book` straight into a character-scoped
+lorebook. The remaining gap is standalone lorebook formats (NovelAI, Agnai, Risu).
 
 
 ## 10. Additional Features in SillyTavern Not Present in The Bannered Mare
@@ -395,7 +399,7 @@ import endpoint to enable direct card ingestion.
 | Insertion positions | 8 | 4 |
 | Activation features | Keywords, regex, probability, decorators, vectorized, timed effects, recursion, groups | Keywords, regex, constants |
 | Budget model | Percentage-of-context with absolute cap | Absolute token count (caller-computed) |
-| API style | Internal function calls + slash commands + 5 REST endpoints | RESTful CRUD (7 endpoints) + activation service method |
+| API style | Internal function calls + slash commands + 5 REST endpoints | RESTful CRUD (8 endpoints) + activation service method |
 | Import formats | 5 (native, NovelAI, Agnai, Risu, Character Book V2) + PNG extraction | None (API-only) |
 | Type safety | Runtime JavaScript (no type checking) | SQLAlchemy models + Pydantic schemas + BasedPyright strict mode |
 

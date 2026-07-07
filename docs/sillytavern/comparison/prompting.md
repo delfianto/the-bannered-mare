@@ -47,7 +47,7 @@ Total complexity: ~12,000 lines of JavaScript across the prompt assembly path.
 
 The prompting system is a **server-side monolithic pipeline**. A single `PromptBuilder` class (`prompt_builder.py`, ~220 lines) constructs the message array from database-persisted `PromptTemplate` configuration. Provider-specific formatting is handled by a separate `ProviderAdapter` hierarchy that transforms the canonical OpenAI-format messages into each provider's native format.
 
-Key files: `prompt_builder.py`, `core/utils/template.py` (~115 lines), `core/persistence/models.py` (PromptTemplate + PromptFragment + TemplateFragment + DEFAULT_COMPONENT_ORDER), `prompt_fragment/service.py` (~178 lines), `lore/activation_engine.py` (~153 lines), `provider/adapters/*.py`.
+Key files: `prompt_builder.py`, `core/utils/template.py` (~115 lines), `core/persistence/models/prompt.py` (PromptTemplate + PromptFragment + TemplateFragment + DEFAULT_COMPONENT_ORDER), `prompt_fragment/service.py` (~178 lines), `lore/activation_engine.py` (~153 lines), `provider/adapters/*.py`.
 
 Total complexity: ~800 lines of Python across the prompt assembly path.
 
@@ -155,7 +155,7 @@ Each component also has a boolean toggle in `DEFAULT_COMPONENTS_ENABLED`. Templa
 
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
-| Number of default slots | 12 (incl. hardcoded nsfw + jailbreak) | 11 fixed slots (incl. RAG context) + fragments at 3 injection points |
+| Number of default slots | 12 (incl. hardcoded nsfw + jailbreak) | 11 fixed slots (incl. RAG context) + fragments at 4 injection points |
 | Instruction slot approach | Dedicated named slots (`nsfw`, `jailbreak`) | User-defined fragments attached to any template |
 | Storage | Per-character JS array in settings | Per-template JSON column in PostgreSQL |
 | Reordering mechanism | Drag-and-drop UI | API endpoint (PUT with new list) |
@@ -346,7 +346,7 @@ There is no instruct mode implementation. All provider communication uses the Ch
 - `AnthropicAdapter`: Extracts system messages into the `system` parameter, sends chat messages in Anthropic's Messages API format.
 - `GeminiAdapter`: Extracts system messages into `systemInstruction`, maps roles (`assistant` -> `model`), uses `parts` format.
 - `OpenAIAdapter`: Passes messages through as-is (native format).
-- `OllamaAdapter`: Extends `OpenAIAdapter` with local-server defaults.
+- `OllamaAdapter` / `LMStudioAdapter`: Extend `OpenAIAdapter` with local-server defaults.
 
 Text completion API support (raw prompt string) is not implemented.
 
@@ -394,10 +394,11 @@ A `PromptFragment` is a standalone, reusable instruction block stored in the dat
 - **`is_global`** -- if true, the fragment is available to all templates
 
 Fragments are attached to templates via the `TemplateFragment` join table, which stores:
-- **`position`** -- injection point: `after_system`, `pre_history`, or `post_history`
+- **`position`** -- injection point: `after_system`, `pre_history`, `post_history`, or `at_depth`
 - **`ordinal`** -- ordering within a position (0-based, ascending)
+- **`depth`** -- for `at_depth` fragments, how many messages from the end to splice the fragment (defaults to 4)
 
-During prompt assembly, `PromptBuilder` injects fragments after specific components by mapping component names to positions:
+During prompt assembly, `PromptBuilder` injects the three component-anchored positions after specific components by mapping component names to positions:
 
 ```python
 _FRAGMENT_POSITIONS = {
@@ -407,7 +408,7 @@ _FRAGMENT_POSITIONS = {
 }
 ```
 
-For each component in the template's `component_order`, after appending the component's messages, the builder checks if that component has a mapped fragment position and injects all attached fragments at that position (ordered by `ordinal`). Each fragment is rendered through Jinja2 and emitted as a `{"role": "system", "content": ...}` message.
+For each component in the template's `component_order`, after appending the component's messages, the builder checks if that component has a mapped fragment position and injects all attached fragments at that position (ordered by `ordinal`). Each fragment is rendered through Jinja2 and emitted as a `{"role": "system", "content": ...}` message. Fragments at the fourth position, `at_depth`, are handled separately by `_build_depth_fragments()` -- they ride the same in-history injection mechanism as `AT_DEPTH` lore entries, spliced into the chat history at their `depth` from the end (drift-prevention reminders).
 
 The same fragment can be attached to multiple templates, and multiple fragments can occupy the same position on a single template. The `FragmentService` provides CRUD operations, attach/detach, and bulk reordering of a template's fragments.
 
@@ -422,7 +423,7 @@ The `post_history_instructions` field on the Character model provides an additio
 | Instruction architecture | 3 hardcoded slots (main, nsfw, jailbreak) | 1 fixed slot (system) + N user-defined fragments |
 | Adding new instruction categories | Requires repurposing an existing slot or extension | Create a new fragment and attach it |
 | Fragment reuse across templates | N/A (each preset has its own slot text) | Same fragment attachable to multiple templates |
-| Injection positions | Fixed: nsfw in prompt area, jailbreak after history | 3 positions (`after_system`, `pre_history`, `post_history`) per fragment |
+| Injection positions | Fixed: nsfw in prompt area, jailbreak after history | 4 positions (`after_system`, `pre_history`, `post_history`, `at_depth`) per fragment |
 | Ordering within position | N/A (one item per slot) | `ordinal` field on `TemplateFragment` join table |
 | Template language | Custom macros + Handlebars | Jinja2 |
 | Character override | `system_prompt` and `post_history_instructions` fields | `system_prompt` field + `post_history_instructions` as separate component |
@@ -454,7 +455,7 @@ The `ProviderAdapter` hierarchy handles format transformation within `build_payl
 - **`AnthropicAdapter`:** Extracts all system messages and joins them with `\n\n` into a single `system` parameter with prompt caching. Non-system messages are passed as `{role, content}` dicts. Does not enforce role alternation (relies on the prompt builder producing valid sequences).
 - **`GeminiAdapter`:** Extracts system messages into `systemInstruction.parts`. Maps `assistant` -> `model`. Converts messages to `{role, parts: [{text}]}` format.
 - **`OpenAIAdapter`:** Passes messages through with no transformation. Serves as the base for xAI, OpenRouter, and custom providers.
-- **`OllamaAdapter`:** Extends `OpenAIAdapter` with a different URL path and longer timeout.
+- **`OllamaAdapter` / `LMStudioAdapter`:** Both extend `OpenAIAdapter` with a different URL path and longer timeout for local inference servers.
 
 There is no message merging, role alternation enforcement, name prefixing, or post-processing mode system.
 
@@ -463,7 +464,7 @@ There is no message merging, role alternation enforcement, name prefixing, or po
 | Aspect | SillyTavern | The Bannered Mare |
 |---|---|---|
 | Conversion architecture | Centralized converter functions | Per-provider adapter classes |
-| Dedicated provider converters | 6 (Anthropic, Gemini, Cohere, Mistral, xAI, Generic) | 4 (Anthropic, Gemini, OpenAI, Ollama) |
+| Dedicated provider converters | 6 (Anthropic, Gemini, Cohere, Mistral, xAI, Generic) | 5 adapter classes (Anthropic, Gemini, OpenAI, Ollama, LM Studio) |
 | Role alternation enforcement | Yes (Anthropic, Gemini) | No |
 | Message merging | Yes (consecutive same-role) | No |
 | System message squashing | Optional (`squashSystemMessages`) | No (Anthropic adapter joins system parts) |
@@ -502,7 +503,7 @@ The following table summarizes features present in SillyTavern that are not yet 
 | Server-side prompt assembly | Prompt logic not exposed to client tampering |
 | Jinja2 with full control flow | Templates can use conditionals, loops, filters, macros natively |
 | Template syntax validation | Malformed templates are rejected before persistence |
-| Composable prompt fragment library | Users define reusable instruction blocks (NSFW, jailbreak, style, etc.) and attach them to any template at 3 injection points, replacing hardcoded instruction slots |
+| Composable prompt fragment library | Users define reusable instruction blocks (NSFW, jailbreak, style, etc.) and attach them to any template at 4 injection points, replacing hardcoded instruction slots |
 | Fragment reuse across templates | A single fragment can be shared by multiple templates; updates propagate everywhere |
 | `BEFORE_EXAMPLES` lore position | Additional insertion point for lore entries |
 | Secondary keyword logic (4 modes) | More flexible lore activation than ST's World Info (as seen from the prompting pipeline) |

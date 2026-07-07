@@ -168,9 +168,9 @@ Persistence uses a 5-minute auto-save interval with dirty tracking and atomic fi
 
 ### 3.2 The Bannered Mare Approach
 
-The Bannered Mare does not implement character-level RP statistics (word counts, message counts, generation times). Instead, it tracks **LLM usage statistics** through the admin logging system.
+The Bannered Mare does not implement character-level RP statistics (word counts, message counts, generation times). Instead, it tracks **LLM usage statistics** through the audit logging system.
 
-The `MongoLogger` records every LLM API call to a `llm_audit` collection in MongoDB with fields including: provider, model, prompt/completion/total tokens, latency, status (success/error), and estimated cost. The admin endpoint `GET /admin/logs/llm/stats` runs a MongoDB aggregation pipeline that groups by provider+model and computes:
+The `AuditWriter` (a fire-and-forget writer backed by PostgreSQL, replacing a former Mongo logger) records every LLM API call to the `llm_audit_logs` table with fields including: chat_id, provider, model, prompt/completion/total tokens, latency, status (success/error), and estimated cost. The admin endpoint `GET /admin/logs/llm/stats` runs a SQLAlchemy aggregation (grouped by provider+model) that computes:
 
 - Total API calls
 - Total prompt/completion/total tokens
@@ -178,7 +178,7 @@ The `MongoLogger` records every LLM API call to a `llm_audit` collection in Mong
 - Average latency
 - Success/error counts and success rate
 
-HTTP request logs (`http_logs`) and application errors (`error_logs`) are also stored in MongoDB with TTL indexes for automatic expiration.
+HTTP request logs (`http_logs`) and application errors (`error_logs`) are stored in their own PostgreSQL tables. Each audit write runs on a dedicated `AsyncSession`, decoupled from the request transaction, and swallows its own errors so logging can never roll back a chat.
 
 ### 3.3 Comparison Table
 
@@ -186,9 +186,9 @@ HTTP request logs (`http_logs`) and application errors (`error_logs`) are also s
 |--------|-------------|-----------------|
 | Stat scope | Per-character RP metrics | Per-provider/model operational metrics |
 | What is tracked | Word counts, message counts, swipes, gen time, chat size | Tokens, latency, cost, success rate, errors |
-| Storage | `stats.json` (flat file per user) | MongoDB `llm_audit` collection |
-| Update mechanism | Dual: real-time frontend push + batch rebuild from chat files | Automatic on every LLM call (middleware) |
-| Data retention | Indefinite (file persists) | TTL-based expiration via MongoDB indexes |
+| Storage | `stats.json` (flat file per user) | PostgreSQL `llm_audit_logs` table |
+| Update mechanism | Dual: real-time frontend push + batch rebuild from chat files | Automatic on every LLM call (best-effort writer) |
+| Data retention | Indefinite (file persists) | Indefinite (rows persist; no TTL/retention job) |
 | UI | User stats popup + per-character stats popup | Admin API endpoints (no UI) |
 | Rebuild capability | Full rebuild by re-parsing all `.jsonl` chat files | Not needed (each call logged independently) |
 | Per-character breakdown | Yes (primary key is character avatar filename) | No (grouped by provider+model, not character) |
@@ -200,7 +200,7 @@ These are fundamentally different metrics for different audiences. ST's stats an
 
 ST's dual-path approach (real-time + batch rebuild) is pragmatic for file-based storage. The real-time path can drift if the browser crashes, but the batch rebuild provides an authoritative recalculation. The downside is that the rebuild must parse every message in every chat file, which becomes slow for large histories.
 
-The Bannered Mare's approach of logging each LLM call independently to MongoDB avoids the drift problem entirely -- each event is recorded at the time it happens, and aggregation is a read-only query over the recorded data. However, it does not capture RP-specific metrics like word counts or swipe counts. Those would need to be derived from the message data already stored in PostgreSQL, which is straightforward (the `messages` and `message_alternatives` tables contain all the raw data) but not yet implemented.
+The Bannered Mare's approach of logging each LLM call independently to a PostgreSQL audit table avoids the drift problem entirely -- each event is recorded at the time it happens, and aggregation is a read-only query over the recorded data. However, it does not capture RP-specific metrics like word counts or swipe counts. Those would need to be derived from the message data already stored in PostgreSQL, which is straightforward (the `messages` and `message_alternatives` tables contain all the raw data) but not yet implemented.
 
 A per-character stats view for The Bannered Mare could be built entirely from existing data using SQL aggregation over the `messages` table joined to `chats` and `characters`, without any additional storage.
 
@@ -262,7 +262,7 @@ SQLAlchemy ORM relationships use `cascade="all, delete-orphan"` on the Python si
 | Cross-entity references | Must parse all chat files to find references | Tracked by foreign key relationships |
 | File-database sync | Not applicable (all data is files) | `delete_character_files()` removes filesystem assets on character deletion |
 | Tag cleanup | Prune feature (removes unused tags, dangling tag_map entries) | Not needed (tags are column data on the entity) |
-| Stats cleanup | `recreateStats` rebuilds from surviving chat files | MongoDB TTL handles expiration; operational stats have no entity-level orphan risk |
+| Stats cleanup | `recreateStats` rebuilds from surviving chat files | Audit rows persist in PostgreSQL (no TTL); operational stats have no entity-level orphan risk |
 | Security model for cleanup | Token-based, path-hashing, single-use tokens | N/A (integrity is structural, not a user-facing operation) |
 | Risk of orphaned data | Present (files can accumulate without references) | Minimal for relational data; possible for filesystem assets if application crashes mid-delete |
 
@@ -289,7 +289,7 @@ The one gap in The Bannered Mare's approach is the filesystem. Avatar images and
 - **Tags + Search:** The `tags__ilike` filter parameter enables searching by tag content, but tags are not integrated into a broader multi-field search.
 - **Tags + Stats:** LLM stats are grouped by provider/model, not by character or tag. No cross-referencing exists.
 - **Data Integrity + Tags:** Tags are part of the character row. Deleting a character deletes its tags atomically.
-- **Data Integrity + Stats:** LLM audit logs in MongoDB are independent of relational data. Character deletion does not affect audit logs, which expire via TTL.
+- **Data Integrity + Stats:** LLM audit logs live in their own PostgreSQL tables, written on a separate session from request transactions. Character deletion does not affect audit rows (they store `chat_id`/provider/model, not FK-constrained references), and there is no automatic expiration.
 
 
 ## 6. Summary of Key Differences

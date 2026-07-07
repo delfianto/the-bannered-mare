@@ -101,7 +101,7 @@ The Bannered Mare does not need a command language because it exposes the same o
 | `/send`, `/sys`, `/sendas` | `POST /api/chats/{id}/messages` | JSON body with `role` and `content` |
 | `/regenerate`, `/continue` | `POST /api/chats/{id}/messages?regenerate=true` | Query parameter |
 | `/gen` (streaming) | `POST /api/chats/{id}/messages?stream=true` | SSE response |
-| `/go name` (switch character) | `PUT /api/chats/{id}` | Update `character_id` |
+| `/go name` (switch character) | `POST /api/chats` | New chat with a different `character_id` (a chat's character is fixed at creation) |
 | `/model name` | `PUT /api/chats/{id}` | Update `model_id` |
 | `/character-create` | `POST /api/characters` | Multipart form |
 | `/character-update` | `PUT /api/characters/{id}` | Multipart form |
@@ -191,7 +191,7 @@ The headless API architecture provides capabilities that ST's monolithic approac
 | **Concurrent access** | Async request handling, database transactions | Single-user JS event loop |
 | **Database-backed persistence** | PostgreSQL with Alembic migrations | JSON files on disk |
 | **Provider adapter abstraction** | `ProviderGateway` with typed `CompletionResponse` / `StreamChunk` | Per-provider code paths in `sendGenerationRequest` |
-| **Audit logging** | MongoDB-backed HTTP and LLM call logging | Browser console |
+| **Audit logging** | PostgreSQL-backed HTTP and LLM call logging | Browser console |
 | **Lore activation engine** | Keyword/regex matching with primary + secondary logic, token budgeting | Similar (World Info), but triggered manually via commands too |
 
 
