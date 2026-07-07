@@ -19,7 +19,9 @@
 #   POSTGRES_PASSWORD   (default: candlekeep)
 #   POSTGRES_DB         (default: candlekeep)
 #   POSTGRES_SUPERUSER  (default: postgres)
-#   PGVECTOR_ENABLED    (default: true)
+#   VECTORCHORD_ENABLED (default: true)  — installs the `vchord` extension
+#                        (VectorChord, which pulls in pgvector via CASCADE).
+#                        PGVECTOR_ENABLED is still honoured as a fallback name.
 # =============================================================================
 
 set -euo pipefail
@@ -70,7 +72,7 @@ PG_USER="${POSTGRES_USER:-${DB_URL_USER:-candlekeep}}"
 PG_PASS="${POSTGRES_PASSWORD:-${DB_URL_PASS:-candlekeep}}"
 PG_DB="${POSTGRES_DB:-${DB_URL_DB:-candlekeep}}"
 PG_SUPERUSER="${POSTGRES_SUPERUSER:-postgres}"
-PGVECTOR="${PGVECTOR_ENABLED:-true}"
+VCHORD="${VECTORCHORD_ENABLED:-${PGVECTOR_ENABLED:-true}}"
 AUTO_MODE=false
 RESET_MODE=false
 
@@ -93,7 +95,7 @@ echo "  Host:       $PG_HOST:$PG_PORT"
 echo "  Database:   $PG_DB"
 echo "  App user:   $PG_USER"
 echo "  Superuser:  $PG_SUPERUSER"
-echo "  pgvector:   $PGVECTOR"
+echo "  vchord:     $VCHORD"
 echo ""
 
 if [ "$AUTO_MODE" = false ]; then
@@ -155,14 +157,17 @@ psql_su_db -c "
   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO $PG_USER;
 " && ok "Privileges granted."
 
-# --- Step 4: Install pgvector extension ---
-if [ "$PGVECTOR" = "true" ]; then
-  info "Step 4: Installing pgvector extension..."
-  psql_su_db -c "CREATE EXTENSION IF NOT EXISTS vector;" 2>/dev/null \
-    && ok "pgvector extension installed." \
-    || warn "pgvector not available. RAG features will be disabled."
+# --- Step 4: Install the VectorChord extension (pulls in pgvector via CASCADE) ---
+# Done here as the superuser so the app-user migration only has to `CREATE
+# EXTENSION IF NOT EXISTS vchord CASCADE` (a no-op), which it may lack the
+# privilege to run itself. Mirrors the DDL in the consolidated Alembic migration.
+if [ "$VCHORD" = "true" ]; then
+  info "Step 4: Installing VectorChord (vchord) extension..."
+  psql_su_db -c "CREATE EXTENSION IF NOT EXISTS vchord CASCADE;" 2>/dev/null \
+    && ok "VectorChord extension installed (with pgvector)." \
+    || warn "VectorChord (vchord) unavailable — expected the tensorchord/vchord-postgres image. RAG features will be disabled."
 else
-  info "Step 4: Skipping pgvector (PGVECTOR_ENABLED=false)."
+  info "Step 4: Skipping VectorChord (VECTORCHORD_ENABLED=false)."
 fi
 
 # --- Step 5: Run Alembic migrations ---
