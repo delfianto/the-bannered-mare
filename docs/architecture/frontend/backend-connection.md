@@ -41,9 +41,10 @@ well, so those operations bypass `openapi-fetch` and use the browser's native `f
 
 Real-time roleplay replies arrive as Server-Sent Events. The streaming client lives inside
 `useChatMessages`
-([useChatMessages.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/composables/useChatMessages.ts)).
-It creates a placeholder message in the UI, then reads the response body chunk by chunk,
-appending decoded text to that message until the stream signals `[DONE]`:
+([useChatMessages.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/composables/useChatMessages.ts)),
+shared by both `sendMessage` and `regenerate` via a `readStream(response)` helper. It creates a
+placeholder assistant message in the UI, then reads the response body chunk by chunk, appending
+decoded content to that message until the stream ends:
 
 <Figure tag="Figure 1" title="The SSE read loop" id="fig-sse-loop">
 <svg viewBox="0 0 640 700" role="img" aria-label="Server-sent events streaming loop" style="font-family:var(--vp-font-family-base)">
@@ -83,7 +84,7 @@ appending decoded text to that message until the stream signals `[DONE]`:
   <text x="521" y="554" text-anchor="middle" font-size="11.5" fill="var(--tbm-dgm-ink)">isGenerating = false</text>
   <!-- Append box -->
   <rect x="160" y="616" width="320" height="44" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
-  <text x="320" y="643" text-anchor="middle" font-size="12" fill="var(--tbm-dgm-ink)">Append data.text to active message</text>
+  <text x="320" y="643" text-anchor="middle" font-size="12" fill="var(--tbm-dgm-ink)">Append event.content to active message</text>
   <!-- Arrows -->
   <g stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" fill="none" marker-end="url(#tbm-ah)">
     <path d="M320 58 L320 74"/>
@@ -109,8 +110,8 @@ appending decoded text to that message until the stream signals `[DONE]`:
 <template #caption>
 
 **A placeholder, then a growing message.** The UI message is created immediately with a local
-UUID so the user sees the reply forming; each decoded `data:` event appends text and loops back
-to read more, until `[DONE]` closes the reader.
+UUID so the user sees the reply forming; each decoded `data:` event appends its `content` and
+loops back to read more, until the stream ends (`[DONE]` is skipped and the reader reports `done`).
 
 </template>
 </Figure>
@@ -119,10 +120,20 @@ to read more, until `[DONE]` closes the reader.
 
 Network packets can arrive fragmented, so the parser reassembles events from a running buffer:
 
-1. Append each raw chunk to a local string buffer.
+1. Decode each raw chunk (`TextDecoder`, `{ stream: true }`) and append it to a local string buffer.
 2. Split the buffer on double newlines (`\n\n`) to segment individual SSE entries.
-3. Keep the last incomplete line in the buffer, to prepend to the next packet.
+3. `pop()` the last (possibly incomplete) segment back into the buffer, to prepend to the next packet.
 4. For each complete line:
-   - if it starts with `data: `, slice the payload and parse it as JSON;
-   - if the payload is `[DONE]`, end parsing;
-   - otherwise append the text value to the active message's `content`.
+   - skip anything that doesn't start with `data: `;
+   - slice off the `data: ` prefix; if the payload is `[DONE]`, skip it (`continue`);
+   - otherwise parse the payload as JSON. Backend events are the typed `StreamEvent`
+     shape `{ type, content?, message? }` — **not** `{ text }`.
+5. Dispatch on `event.type`:
+   - `text` → append `event.content` to the active message's `content`;
+   - `reasoning` → append `event.content` to the message's `reasoning_content`;
+   - `error` → capture `event.message` and stop; the empty placeholder is dropped so a failed
+     generation never lingers as a blank reply.
+
+Each append writes a **new** message object into the array so standard watchers fire and the UI
+re-renders as text grows. When `reader.read()` reports `done`, the loop ends and
+`isGenerating` is set back to `false`.

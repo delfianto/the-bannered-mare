@@ -20,7 +20,7 @@ local or cloud providers:
   </defs>
   <rect x="240" y="16" width="240" height="56" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
   <text x="360" y="40" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">ProviderView.vue</text>
-  <text x="360" y="58" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">connection tabs</text>
+  <text x="360" y="58" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">provider detail view</text>
   <rect x="235" y="112" width="250" height="56" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
   <text x="360" y="136" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">useProvider.ts · useModels.ts</text>
   <text x="360" y="154" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">composables — state + orchestration</text>
@@ -88,44 +88,73 @@ export function useProvider() {
   const modelsError = ref<Error | null>(null);
   const pendingModelAction = ref<string | null>(null);
 
+  const searchResults = ref<DiscoveredModel[]>([]);
+  const searchingModels = ref(false);
+  const savingFilter = ref(false);
+
   // API operations...
   async function fetchProvider(id: string) { ... }
   async function saveProvider(id: string, updates: Record<string, unknown>) { ... }
   async function fetchAvailableModels(id: string) { ... }
   async function syncNow(id: string) { ... }
+  async function searchModels(id: string, query: string) { ... }
+  async function setModelFilter(id: string, allowedModels: string[]) { ... }
   async function loadModel(id: string, identifier: string) { ... }
   async function unloadModel(id: string, identifier: string) { ... }
+  async function deleteModel(id: string, identifier: string) { ... }
+  async function persistModel(id: string, identifier: string) { ... }
 }
 ```
 
 ### Key Operations
 
-- **`syncNow(id)`** — forces the backend to query local model directories and cache new
-  entries in the database.
+- **`syncNow(id)`** — forces the backend to re-query the provider for its model list and refresh
+  the cached available models.
+- **`searchModels(id, query)`** — searches the provider's catalog (used to add models beyond the
+  synced set).
+- **`setModelFilter(id, allowedModels)`** — persists a curated allow-list; the response carries the
+  freshly-filtered available list, so no separate refetch is needed.
 - **`loadModel(id, identifier)`** — tells the local provider (e.g., LM Studio) to load the
   specified weights into memory.
 - **`unloadModel(id, identifier)`** — tells the local provider to release the weights.
+- **`deleteModel(id, identifier)`** / **`persistModel(id, identifier)`** — remove a discovered model
+  or persist it as a first-class registered model.
 
 ## 3. UI Components and Views
 
-LLM configuration is presented through modular tabs and dedicated views.
+LLM configuration is split between the tabbed **Connections** list page and dedicated
+detail/edit views under `views/settings/`.
 
-### Provider Details View (`ProviderView.vue`)
+### Connections List (`ConnectionsView.vue` + `src/components/connections/`)
 
-[ProviderView.vue](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/views/settings/ProviderView.vue)
-is the central hub for:
+[ConnectionsView.vue](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/views/ConnectionsView.vue)
+hosts three tabs (selected via the `?tab=` query param):
 
-- changing API keys, environment-variable names, and endpoints;
-- verifying connection status;
-- listing discovered models with their status (`loaded`, `cached`, `unloaded`) and action
-  buttons to load, unload, or toggle availability.
+- **`ProvidersTab.vue`** — lists all configured API connections (OpenAI, Anthropic, Google,
+  OpenRouter, xAI, Ollama, LM Studio) with active indicators.
+- **`ModelsTab.vue`** — shows all registered models with their families and providers.
+- **`ModelFamiliesTab.vue`** — lists model families.
 
-### Connection Sub-Tabs (`src/components/connections/`)
+Prompt-side resources (presets, templates, fragments) are **not** here — they live on the
+Loadouts page (`ProfilesView.vue`); see [Main Screens](main-screens.md).
 
-- **`ProvidersTab.vue`** — lists all configured API connections (OpenAI, Anthropic, Ollama,
-  …) with active indicators.
-- **`ModelsTab.vue`** — shows all registered models with their families and active providers.
-- **`ModelFamiliesTab.vue`** — configures global parameters (temperature, penalties, limits)
-  and formatting guidelines per family.
-- **`ModelInferenceParams.vue`** — standardized parameter inputs (sliders for
-  temperature/top_p, lists for stop sequences) shared across presets and templates.
+### Detail / Edit Views (`views/settings/`)
+
+Clicking a row opens a full-page editor:
+
+- **`ProviderView.vue`** (`/settings/providers/:id`) — the central provider hub: change API keys,
+  environment-variable names, and endpoints; trigger a model sync; and manage discovered models
+  (load, unload, delete, persist, and curate the allow-list via the model filter). This view
+  drives `useProvider`.
+- **`ModelCreateView.vue`** / **`ModelView.vue`** — create or edit a model, assigning its family
+  and provider and editing inference parameters.
+- **`ModelFamilyView.vue`** — edit a model family's name, identifier, and description.
+- **`TemplateView.vue`**, **`FragmentView.vue`**, **`PresetView.vue`** — edit a prompt template,
+  fragment, or preset.
+
+### Shared Parameter Inputs
+
+- **`ModelInferenceParams.vue`** — parameter editor used when editing a model; renders each
+  parameter through the recursive **`ParamInput.vue`** (sliders for ranged numbers, toggles,
+  enums, lists, nested objects — see [Core Components](core-components.md)), with tooltip help
+  sourced from the `useSettingsStore` parameter docs.

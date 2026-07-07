@@ -26,7 +26,7 @@ handler, reads a fixture, and resolves the original network promise with a mock 
   <text x="358" y="146" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">intercepts in-browser</text>
   <rect x="536" y="52" width="150" height="72" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
   <text x="611" y="82" text-anchor="middle" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">handlers.ts</text>
-  <text x="611" y="100" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">40+ endpoints</text>
+  <text x="611" y="100" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">90+ endpoints</text>
   <rect x="536" y="184" width="150" height="62" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
   <text x="611" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="var(--tbm-dgm-ink)">data/ fixtures</text>
   <text x="611" y="230" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">seed-mirroring JSON</text>
@@ -81,13 +81,13 @@ the config branches on the `VITE_USE_MOCKS` flag:
 Mock logic is encapsulated under
 [src/mocks/](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/mocks/):
 
-- **`handlers.ts`** — implements 40+ endpoints mimicking backend behavior: CRUD, pagination,
+- **`handlers.ts`** — implements ~90 endpoints mimicking backend behavior: CRUD, pagination,
   filtering, and model load-state mutations.
-- **`data/`** — JSON/JS files with realistic test data mirroring the seed fixtures:
-  - **6 providers** (OpenAI, Anthropic, Ollama, LM Studio, …)
+- **`data/`** — TypeScript modules with realistic test data mirroring the seed fixtures:
+  - **7 providers** (OpenAI, Anthropic, Google AI, OpenRouter, xAI, Ollama, LM Studio)
   - **19 model families** and **34 models**
   - **20 characters** (with Unsplash avatar photos)
-  - **20 chats** linked to YAML dialogue scripts
-  - **presets, templates, prompt fragments, and RAG data-bank entries**
-- **`data/scenarios/`** — YAML scenario scripts describing multi-turn dialogues for character
-  cards.
+  - **20 chats** whose conversations are lazily loaded from YAML scenario scripts
+  - **3 personas**, **3 presets**, **6 prompt templates**, **3 prompt fragments**, and **5 RAG data-bank entries**
+- **`data/scenarios/`** — **19** YAML scenario scripts describing multi-turn dialogues for
+  character cards; a lazy loader (`loader.ts`) resolves them into messages on demand.
