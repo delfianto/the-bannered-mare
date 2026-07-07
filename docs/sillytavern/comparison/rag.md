@@ -10,7 +10,7 @@ Source analysis: `docs/st_analysis/RAG_PIPELINE.md`
 Both now have working RAG, but on different foundations — a file-system index versus the
 application's own database:
 
-<Figure tag="Figure 1" title="Vectra files vs pgvector in Postgres" id="fig-cmp-rag">
+<Figure tag="Figure 1" title="Vectra files vs VectorChord in Postgres" id="fig-cmp-rag">
 <svg viewBox="0 0 760 262" role="img" aria-label="SillyTavern vs The Bannered Mare RAG" style="font-family:var(--vp-font-family-base)">
   <rect x="24" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
   <rect x="392" y="16" width="344" height="230" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
@@ -24,7 +24,7 @@ application's own database:
     <text x="40" y="154">Ingestion — PDF · HTML · EPUB · DOCX · …</text>
     <text x="40" y="186">Runs — client-side (browser)</text>
     <text x="40" y="222" fill="var(--tbm-dgm-ink-2)">Broad ingestion, portable files</text>
-    <text x="408" y="90">Store — PostgreSQL + pgvector</text>
+    <text x="408" y="90">Store — PostgreSQL + VectorChord (vchordrq)</text>
     <text x="408" y="122">Embeddings — 4 adapters (llama.cpp · OpenAI · Ollama · TEI)</text>
     <text x="408" y="154">Ingestion — text (Data Bank manual entry)</text>
     <text x="408" y="186">Runs — server-side async service</text>
@@ -44,7 +44,7 @@ everything else, so a single query can span messages and Data Bank entries.
 
 | Capability | SillyTavern v1.17.0 | The Bannered Mare |
 |------------|---------------------|-----------------|
-| Vector database | Vectra (file-system JSON) | PostgreSQL + pgvector (upgradeable to vchord) |
+| Vector database | Vectra (file-system JSON) | PostgreSQL + VectorChord (vchordrq index, on pgvector) |
 | Embedding providers | 19 sources (local + cloud) | 4 adapters (llama.cpp, OpenAI-compatible, Ollama, HF TEI) |
 | Asymmetric embeddings | Cohere only | Yes (query/document prompt prefixes; default EmbeddingGemma) |
 | Reranking | Not built-in | Optional cross-encoder reranker over HF TEI (off by default) |
@@ -74,37 +74,42 @@ No support for external vector databases (Pinecone, Chroma, Weaviate, pgvector, 
 
 ### The Bannered Mare
 
-The Bannered Mare uses **pgvector**, the PostgreSQL vector extension, storing embeddings
-directly in the same database as all other application data.
+The Bannered Mare uses **VectorChord** (the `vchord` extension, built on pgvector's `vector`
+type), storing embeddings directly in the same database as all other application data.
 
 - Table: `embeddings` (SQLAlchemy model at `src/core/persistence/models/rag.py`)
-- Vector column: `pgvector.sqlalchemy.Vector` with configurable dimensions
-- Similarity search: cosine distance (`<=>` operator) with score threshold filtering
-- Repository: `AsyncEmbeddingRepository` (`src/rag/repository_async.py`) with raw SQL
-  for the vector query, standard SQLAlchemy for CRUD
+- Vector column: `pgvector.sqlalchemy.Vector(768)` — dimension pinned, since the vchordrq
+  index requires a fixed-dimension column
+- Index: `ix_embeddings_vchordrq` — a flat VectorChord **vchordrq** RaBitQ index, built via
+  `vchordrq (embedding vector_cosine_ops)` with `residual_quantization = true`
+- Similarity search: cosine distance (`<=>` operator) as `ORDER BY ... LIMIT` — the shape the
+  vchordrq index accelerates — with a score-threshold floor
+- Repository: `AsyncEmbeddingRepository` (`src/rag/repository_async.py`) with raw SQL for the
+  vector query and standard SQLAlchemy for CRUD; optional `vchordrq.epsilon` /
+  `vchordrq.max_scan_tuples` tuning is applied per search
 - Metadata per row: `source_type`, `source_id`, `content_hash` (BigInteger for dedup),
   `content` (original text), `chunk_index`, `model_name`, `dimensions`
 - Index scope filtering: queries filter on `source_type` and `source_id` arrays,
   allowing a single query to search across multiple collections (messages + data bank
   entries) simultaneously
 
-The pgvector approach has several structural advantages over Vectra:
+The VectorChord approach has several structural advantages over Vectra:
 
 - No separate service -- vectors live in the same PostgreSQL instance, managed by
   Alembic migrations, backed up with the rest of the database
-- SQL-level filtering -- WHERE clauses narrow the search space before the vector scan,
+- SQL-level filtering -- WHERE clauses narrow the result set alongside the vector scan,
   rather than post-filtering results in application code
-- Upgrade path to **vchord** (or other pgvector-compatible extensions) for HNSW/IVFFlat
-  indexing without changing application code
+- The flat RaBitQ index scales to IVF partitioning (`vchordrq` `lists`) for larger datasets
+  without changing application code
 
 ### Comparison
 
-| Aspect | ST (Vectra) | The Bannered Mare (pgvector) |
+| Aspect | ST (Vectra) | The Bannered Mare (VectorChord) |
 |--------|-------------|----------------------|
 | Storage format | JSON files on disk | PostgreSQL rows |
 | Scaling | Single-user local files | Connection-pooled database |
 | Multi-collection query | Sequential loop over collections | Single SQL query with array filters |
-| Index types | Flat (brute-force) | Flat; upgradeable to HNSW/IVFFlat |
+| Index types | Flat (brute-force) | Flat RaBitQ (vchordrq); upgradeable to IVF `lists` |
 | Backup/migration | Manual file copy | Standard database backup tooling |
 | Cross-model migration | None (separate dirs per model) | Delete + re-embed (tracked by `model_name`) |
 
@@ -343,7 +348,7 @@ Message vectorization via `RetrievalService.vectorize_message()`
 
 Retrieval via `RetrievalService.retrieve()`:
 1. Embed the query text (with the asymmetric query prefix)
-2. Run a pgvector cosine similarity search across `source_types=['message', 'data_bank']`
+2. Run a VectorChord (vchordrq) cosine similarity search across `source_types=['message', 'data_bank']`
    and relevant `source_ids` (chat ID + data bank entry IDs for the active scopes)
 3. Filter by `threshold` (default 0.3), return top-K results
 
@@ -467,7 +472,7 @@ Keyword/regex activation only. The lore activation engine
 - Priority-based ordering with token budget management
 - No semantic search path
 
-The RAG infrastructure (embedding service, pgvector search) is now in place, so
+The RAG infrastructure (embedding service, VectorChord search) is now in place, so
 adding a vector activation channel alongside the keyword engine would be an additive
 change -- vectorize lore entries into the existing `embeddings` table with
 `source_type='lore'`, query during activation, merge results with keyword matches.
@@ -567,7 +572,7 @@ ST's plain JSON settings do not.
 
 | Area | Detail |
 |------|--------|
-| Vector database | PostgreSQL + pgvector (SQL-level filtering, HNSW-upgradeable, standard backups) vs. Vectra (flat JSON files) |
+| Vector database | PostgreSQL + VectorChord (flat vchordrq RaBitQ index, SQL-level filtering, standard backups) vs. Vectra (flat JSON files) |
 | Multi-collection search | Single SQL query across message + data bank vectors vs. sequential collection iteration |
 | Pipeline architecture | Fully server-side (Python async) vs. split between browser JS and Express backend |
 | Data integrity | Foreign keys with cascade deletes, Alembic-managed schema vs. JSON settings metadata |

@@ -42,7 +42,7 @@ Features that are deliberately **not** implemented:
 - **Multi-provider LLM support** — OpenAI, Anthropic, Google Gemini, xAI Grok, OpenRouter, Ollama, and custom endpoints. Clean adapter pattern, not a giant switch statement.
 - **TavernCard V1/V2 import/export** — Full PNG metadata and JSON support. Community character cards just work.
 - **World lore system** — Keyword-activated lorebooks with primary/secondary logic, 4 insertion positions, AT_DEPTH injection, priority ordering, and token budgeting.
-- **RAG / semantic search** — PostgreSQL + pgvector vector search over chat history and Data Bank knowledge entries (with an upgrade path to VectorChord's vchordrq index). Local embeddings via llama.cpp (EmbeddingGemma by default), or Ollama / any OpenAI-compatible provider.
+- **RAG / semantic search** — PostgreSQL + VectorChord (vchordrq index, built on pgvector) vector search over chat history and Data Bank knowledge entries. Local embeddings via llama.cpp (EmbeddingGemma by default), or Ollama / any OpenAI-compatible provider.
 - **Data Bank** — Three-tier knowledge base (global, character, chat scope). Write knowledge once, retrieve semantically during conversations.
 - **Prompt fragment library** — Reusable instruction blocks (NSFW rules, jailbreaks, writing style) that attach to templates. Write once, compose across any number of templates.
 - **Prompt pipeline** — 11-component template system with Jinja2, per-character system prompt overrides, fragment injection at 4 positions, and data-driven component ordering.
@@ -63,7 +63,7 @@ Features that are deliberately **not** implemented:
 |-------|-----------|
 | Runtime | Python 3.14+ |
 | Framework | FastAPI (ASGI) |
-| Database | PostgreSQL + pgvector |
+| Database | PostgreSQL + VectorChord (vchordrq, built on pgvector) |
 | ORM | SQLAlchemy 2.0 (async + sync) |
 | Migrations | Alembic |
 | Validation | Pydantic V2 |

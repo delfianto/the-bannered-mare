@@ -54,7 +54,7 @@ for the server-sent event (SSE) stream that carries live completions.
   <text x="450" y="416" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">config · persistence (SQLAlchemy 2.0) · structured logging · exception handlers</text>
   <!-- ===== Data + Providers tier ===== -->
   <rect x="70" y="486" width="350" height="128" rx="14" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)" stroke-opacity=".55" stroke-dasharray="5 4"/>
-  <text x="86" y="510" font-size="12" font-weight="700" letter-spacing=".05em" fill="var(--tbm-dgm-data)">🗄  PostgreSQL + pgvector</text>
+  <text x="86" y="510" font-size="12" font-weight="700" letter-spacing=".05em" fill="var(--tbm-dgm-data)">🗄  PostgreSQL + VectorChord</text>
   <text x="86" y="540" font-size="11.5" fill="var(--tbm-dgm-ink)">Persistence — sessions, characters, messages</text>
   <text x="86" y="562" font-size="11.5" fill="var(--tbm-dgm-ink)">Vector embeddings — RAG retrieval</text>
   <text x="86" y="590" font-size="10.5" fill="var(--tbm-dgm-faint)">One store, one owner: the backend</text>
@@ -85,7 +85,7 @@ for the server-sent event (SSE) stream that carries live completions.
 **The whole platform on one page.** A browser drives the Vue SPA; every call crosses
 a single typed HTTP boundary into the FastAPI service, whose domain slices all share
 one shape (`router · service · repository`). The backend is the sole owner of the
-PostgreSQL + pgvector store and the sole caller of the external LLM providers —
+PostgreSQL + VectorChord store and the sole caller of the external LLM providers —
 completions stream back the same way they came, over SSE. Click the diagram to enlarge.
 
 </template>
