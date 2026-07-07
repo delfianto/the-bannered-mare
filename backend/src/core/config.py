@@ -147,7 +147,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
     # Database
-    database_url: str = "postgresql://user:password@localhost:5432/candlekeep"
+    database_url: str = "postgresql://user:password@localhost:5432/bannered_mare"
     database: DatabaseSettings = DatabaseSettings()
 
     # Storage — root directory for all binary/generated files (character & persona
