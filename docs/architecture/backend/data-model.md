@@ -87,20 +87,20 @@ stay **inside** a domain; the arrows that cross a boundary are the loans one dom
 from another.
 
 <Figure tag="Figure 2" title="Entities grouped into domains, with cross-domain links" id="fig-domain-map">
-<svg viewBox="0 0 960 620" role="img" aria-label="Data model domain map" style="font-family:var(--vp-font-family-base)">
+<svg viewBox="0 0 960 615" role="img" aria-label="Data model domain map" style="font-family:var(--vp-font-family-base)">
   <defs>
-    <marker id="dm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
-    <marker id="dm-ah-data" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-data)"/></marker>
-    <marker id="dm-ah-accent" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-accent)"/></marker>
+    <marker id="dm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-arrow)"/></marker>
+    <marker id="dm-ah-data" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-data)"/></marker>
+    <marker id="dm-ah-accent" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--tbm-dgm-accent)"/></marker>
   </defs>
   <g stroke-dasharray="5 4">
-    <rect x="24" y="48" width="264" height="176" rx="12" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)" stroke-opacity=".6"/>
-    <rect x="348" y="48" width="264" height="176" rx="12" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)" stroke-opacity=".6"/>
-    <rect x="672" y="48" width="264" height="176" rx="12" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)" stroke-opacity=".6"/>
-    <rect x="24" y="284" width="264" height="150" rx="12" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)" stroke-opacity=".6"/>
-    <rect x="348" y="284" width="264" height="150" rx="12" fill="var(--tbm-dgm-brand-soft)" stroke="var(--tbm-dgm-brand)" stroke-opacity=".6"/>
+    <rect x="24" y="48" width="264" height="196" rx="12" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)" stroke-opacity=".6"/>
+    <rect x="348" y="48" width="264" height="196" rx="12" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)" stroke-opacity=".6"/>
+    <rect x="672" y="48" width="264" height="196" rx="12" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)" stroke-opacity=".6"/>
+    <rect x="24" y="284" width="264" height="138" rx="12" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)" stroke-opacity=".6"/>
+    <rect x="348" y="284" width="264" height="138" rx="12" fill="var(--tbm-dgm-brand-soft)" stroke="var(--tbm-dgm-brand)" stroke-opacity=".6"/>
     <rect x="672" y="284" width="264" height="312" rx="12" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)" stroke-opacity=".6"/>
-    <rect x="24" y="470" width="588" height="110" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
+    <rect x="24" y="462" width="588" height="80" rx="12" fill="var(--tbm-dgm-surface-2)" stroke="var(--tbm-dgm-border)"/>
   </g>
   <g font-size="11.5" font-weight="700" letter-spacing=".04em">
     <text x="40" y="70" fill="var(--tbm-dgm-accent)">CHARACTERS &amp; PERSONAS</text>
@@ -109,57 +109,60 @@ from another.
     <text x="40" y="306" fill="var(--tbm-dgm-data)">WORLD &amp; LORE</text>
     <text x="364" y="306" fill="var(--tbm-dgm-brand)">KNOWLEDGE &amp; RAG</text>
     <text x="688" y="306" fill="var(--tbm-dgm-frontend)">PROMPT BUILDING</text>
-    <text x="40" y="492" fill="var(--tbm-dgm-faint)">OBSERVABILITY · write-only sink</text>
+    <text x="40" y="484" fill="var(--tbm-dgm-faint)">OBSERVABILITY · write-only sink</text>
   </g>
   <g fill="none">
-    <line x1="480" y1="114" x2="480" y2="128" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="480" y1="164" x2="480" y2="178" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="804" y1="114" x2="804" y2="128" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="156" y1="350" x2="156" y2="364" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="804" y1="350" x2="804" y2="364" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="804" y1="414" x2="804" y2="400" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="804" y1="164" x2="804" y2="178" stroke="var(--tbm-dgm-accent)" stroke-width="2.2" marker-end="url(#dm-ah-accent)"/>
-    <line x1="480" y1="364" x2="480" y2="352" stroke="var(--tbm-dgm-faint)" stroke-width="1.6" stroke-dasharray="2 3" marker-end="url(#dm-ah)"/>
-    <line x1="240" y1="96" x2="394" y2="96" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <path d="M240 108 H306 V332 H242" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="480" y1="314" x2="480" y2="226" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <path d="M396 106 H318 V146 H242" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-    <path d="M564 96 H642 V146 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-    <path d="M564 106 H654 V332 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-    <path d="M888 146 H910 V332 H890" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <line x1="480" y1="116" x2="480" y2="138" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="480" y1="174" x2="480" y2="196" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="116" x2="804" y2="138" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="174" x2="804" y2="196" stroke="var(--tbm-dgm-accent)" stroke-width="2.2" marker-end="url(#dm-ah-accent)"/>
+    <line x1="156" y1="352" x2="156" y2="374" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="352" x2="804" y2="374" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="432" x2="804" y2="410" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="480" y1="374" x2="480" y2="352" stroke="var(--tbm-dgm-faint)" stroke-width="1.6" stroke-dasharray="2 3" marker-end="url(#dm-ah)"/>
+    <line x1="240" y1="98" x2="394" y2="98" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <path d="M240 110 H306 V334 H242" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="540" y1="316" x2="540" y2="240" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <path d="M396 110 H318 V156 H242" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M564 98 H642 V156 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M564 110 H654 V334 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M888 156 H910 V334 H890" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
   </g>
   <g font-size="12" text-anchor="middle">
-    <rect x="72" y="78" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="101" fill="var(--tbm-dgm-ink)">Character</text>
-    <rect x="72" y="128" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="151" fill="var(--tbm-dgm-ink)">Persona</text>
-    <rect x="396" y="78" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)" stroke-width="1.8"/><text x="480" y="101" font-weight="700" fill="var(--tbm-dgm-ink)">Chat</text>
-    <rect x="396" y="128" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="151" fill="var(--tbm-dgm-ink)">Message</text>
-    <rect x="396" y="178" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="201" fill="var(--tbm-dgm-ink)">MessageAlternative</text>
-    <rect x="720" y="78" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="101" fill="var(--tbm-dgm-ink)">Provider</text>
-    <rect x="720" y="128" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="151" fill="var(--tbm-dgm-ink)">Model</text>
-    <rect x="720" y="178" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="201" fill="var(--tbm-dgm-ink)">ModelFamily</text>
-    <rect x="72" y="314" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="337" fill="var(--tbm-dgm-ink)">Lorebook</text>
-    <rect x="72" y="364" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="387" fill="var(--tbm-dgm-ink)">LoreEntry</text>
-    <rect x="396" y="314" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="337" fill="var(--tbm-dgm-ink)">DataBankEntry</text>
-    <rect x="396" y="364" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="387" fill="var(--tbm-dgm-ink)">Embedding</text>
-    <rect x="720" y="314" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="337" fill="var(--tbm-dgm-ink)">PromptTemplate</text>
-    <rect x="720" y="364" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="387" fill="var(--tbm-dgm-ink)">TemplateFragment</text>
-    <rect x="720" y="414" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="437" fill="var(--tbm-dgm-ink)">PromptFragment</text>
-    <rect x="720" y="464" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="487" fill="var(--tbm-dgm-ink)">Preset</text>
-    <rect x="720" y="514" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="537" fill="var(--tbm-dgm-ink)">Profile</text>
-    <rect x="48" y="506" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="132" y="529" fill="var(--tbm-dgm-ink)">LlmAuditLog</text>
-    <rect x="236" y="506" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="320" y="529" fill="var(--tbm-dgm-ink)">HttpLog</text>
-    <rect x="424" y="506" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="508" y="529" fill="var(--tbm-dgm-ink)">ErrorLog</text>
+    <rect x="72" y="80" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="103" fill="var(--tbm-dgm-ink)">Character</text>
+    <rect x="72" y="138" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="161" fill="var(--tbm-dgm-ink)">Persona</text>
+    <rect x="396" y="80" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)" stroke-width="1.8"/><text x="480" y="103" font-weight="700" fill="var(--tbm-dgm-ink)">Chat</text>
+    <rect x="396" y="138" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="161" fill="var(--tbm-dgm-ink)">Message</text>
+    <rect x="396" y="196" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="219" fill="var(--tbm-dgm-ink)">MessageAlternative</text>
+    <rect x="720" y="80" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="103" fill="var(--tbm-dgm-ink)">Provider</text>
+    <rect x="720" y="138" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="161" fill="var(--tbm-dgm-ink)">Model</text>
+    <rect x="720" y="196" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="219" fill="var(--tbm-dgm-ink)">ModelFamily</text>
+    <rect x="72" y="316" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="339" fill="var(--tbm-dgm-ink)">Lorebook</text>
+    <rect x="72" y="374" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="397" fill="var(--tbm-dgm-ink)">LoreEntry</text>
+    <rect x="396" y="316" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="339" fill="var(--tbm-dgm-ink)">DataBankEntry</text>
+    <rect x="396" y="374" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="397" fill="var(--tbm-dgm-ink)">Embedding</text>
+    <rect x="720" y="316" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="339" fill="var(--tbm-dgm-ink)">PromptTemplate</text>
+    <rect x="720" y="374" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="397" fill="var(--tbm-dgm-ink)">TemplateFragment</text>
+    <rect x="720" y="432" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="455" fill="var(--tbm-dgm-ink)">PromptFragment</text>
+    <rect x="720" y="490" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="513" fill="var(--tbm-dgm-ink)">Preset</text>
+    <rect x="720" y="548" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="571" fill="var(--tbm-dgm-ink)">Profile</text>
+    <rect x="48" y="494" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="132" y="517" fill="var(--tbm-dgm-ink)">LlmAuditLog</text>
+    <rect x="236" y="494" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="320" y="517" fill="var(--tbm-dgm-ink)">HttpLog</text>
+    <rect x="424" y="494" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="508" y="517" fill="var(--tbm-dgm-ink)">ErrorLog</text>
   </g>
   <g text-anchor="middle">
     <text x="317" y="90" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
-    <text x="322" y="242" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
-    <rect x="422" y="251" width="116" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/><text x="480" y="262" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
-    <text x="279" y="140" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs persona</text>
+    <text x="330" y="266" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
+    <rect x="460" y="247" width="112" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/>
+    <text x="516" y="258" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
+    <rect x="244" y="139" width="70" height="14" rx="3" fill="var(--tbm-dgm-surface-2)"/>
+    <text x="279" y="150" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs persona</text>
     <text x="602" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs model</text>
-    <rect x="594" y="239" width="120" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/><text x="654" y="250" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs template · preset</text>
-    <text x="916" y="250" text-anchor="start" font-size="10" fill="var(--tbm-dgm-ink-2)">refs</text>
-    <text x="824" y="174" font-size="10" fill="var(--tbm-dgm-accent)">needs</text>
-    <text x="520" y="360" font-size="9.5" fill="var(--tbm-dgm-faint)">indexes</text>
+    <rect x="598" y="245" width="122" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/>
+    <text x="659" y="256" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs template · preset</text>
+    <text x="916" y="256" text-anchor="start" font-size="10" fill="var(--tbm-dgm-ink-2)">refs</text>
+    <text x="826" y="188" font-size="10" fill="var(--tbm-dgm-accent)">needs</text>
+    <text x="522" y="366" font-size="9.5" fill="var(--tbm-dgm-faint)">indexes</text>
   </g>
 </svg>
 <template #caption>
