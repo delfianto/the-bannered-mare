@@ -439,21 +439,27 @@ Despite being OpenAI-compatible, these differences matter for a provider adapter
 - No `grok-4.20-0309-reasoning` variant
 - No `grok-4-1-fast-reasoning` variant
 
-### Provider Client
+### Adapter
 
-Current `ProviderClient` sends all requests through OpenAI protocol, which works for xAI.
-However:
-- No parameter filtering for reasoning model constraints
-- No timeout override for reasoning models
-- Does not parse `reasoning_content`, `citations`, or xAI-specific usage fields
+xAI is served by the shared `OpenAIAdapter` — `ProviderType.XAI` maps to `OpenAIAdapter` in the
+adapter registry, so requests go through the OpenAI protocol, which works for xAI. However:
+- No parameter filtering for reasoning model constraints (all `_OPENAI_PARAMS` are forwarded as-is)
+- No timeout override for reasoning models (`get_timeout` is a flat 120s)
+- `reasoning_content` is parsed into `CompletionResponse.reasoning`, but `citations` and
+  xAI-specific usage fields (`reasoning_tokens`, `cost_in_usd_ticks`) are not extracted (they
+  remain available in `CompletionResponse.raw`)
 
 
 ## 13. Adapter Recommendations
 
 ### Reuse OpenAI Adapter
 
-xAI is OpenAI-compatible — no dedicated adapter class needed. The `OpenAIAdapter` should
-handle xAI with these provider-specific overrides:
+xAI is OpenAI-compatible — no dedicated adapter class needed, and the code reflects this:
+`ProviderType.XAI` maps to `OpenAIAdapter`. The overrides below are **recommendations, not
+implemented** — there is no `filter_parameters` hook (`build_payload` forwards the
+`_OPENAI_PARAMS` allowlist), no per-model timeout, no `XAICompletionResponse` subclass, and no
+`max_tokens`→`max_completion_tokens` rewrite. If needed, they would require a dedicated xAI adapter
+or additions to the base `OpenAIAdapter`.
 
 ### 1. Parameter Filtering by Model Variant
 

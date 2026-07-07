@@ -539,59 +539,65 @@ options. This is particularly useful for:
 
 ## 10. Current The Bannered Mare Implementation
 
-### 10.1 What `ProviderClient` Does Now
+The original single `ProviderClient` has been replaced by the adapter layer described in
+[Section 12](#12-multi-provider-architecture). The `OpenAIAdapter` is now the baseline for all
+OpenAI-compatible providers.
 
-From `src/provider/client.py`:
+### 10.1 What `OpenAIAdapter` + `ProviderGateway` Do Now
+
+The `ProviderGateway` (`src/provider/gateway.py`) owns the `httpx` client and calls into a
+stateless adapter selected by provider type. For OpenAI, that is `OpenAIAdapter`
+(`src/provider/adapters/openai.py`):
 
 ```python
-class ProviderClient:
-    def __init__(self, provider, model, openrouter_provider=None):
-        # Determines base_url and active_identifier
-        # Handles OpenRouter routing
+class OpenAIAdapter(ProviderAdapter):
+    def build_url(self, base_url, model, stream, api_key=None) -> str:
+        return f"{base_url}/chat/completions"
 
-    def _get_effective_parameters(self) -> dict:
-        # Merges model_family defaults with model overrides
+    def build_headers(self, api_key) -> dict[str, str]:
+        # Content-Type + optional "Authorization: Bearer <key>"
 
-    def _build_payload(self, messages, stream=False) -> dict:
-        # Returns: {model, messages, stream?, **parameters}
+    def build_payload(self, messages, model, stream, parameters) -> dict:
+        # {model, messages, stream?} plus every key in _OPENAI_PARAMS present in parameters
 
-    async def chat_completion(self, messages) -> dict:
-        # POST {base_url}/chat/completions
-        # Returns full response JSON
+    def parse_response(self, data) -> CompletionResponse:
+        # Extracts content, finish_reason, usage (incl. cached tokens), and reasoning_content
 
-    async def chat_completion_stream(self, messages) -> AsyncIterator[str]:
-        # POST {base_url}/chat/completions with stream=True
-        # Yields content deltas as strings
+    def parse_stream_line(self, line) -> StreamChunk | None:
+        # Parses "data: " SSE lines, [DONE], content/reasoning deltas, and usage
 ```
+
+The gateway's `chat_completion()` returns a typed `CompletionResponse`; its
+`chat_completion_stream()` yields typed `StreamChunk` objects. Parameters are merged by
+`ProviderGateway._get_effective_parameters()` (ModelFamily defaults → Model overrides → preset
+overrides).
 
 ### 10.2 What It Gets Right
 
-1. **Bearer token auth** — correct
+1. **Bearer token auth** — correct (only sent when an API key is configured)
 2. **POST to /chat/completions** — correct for OpenAI-compatible APIs
 3. **SSE parsing** — handles `data: ` prefix and `[DONE]` signal
-4. **Parameter merging** — family defaults + model overrides
-5. **Error mapping** — HTTP status → custom exception types
+4. **Parameter merging** — family defaults + model overrides + preset overrides
+5. **Error mapping** — HTTP status → custom exception types (in the gateway)
+6. **Typed responses** — content, usage, finish_reason, and reasoning parsed into dataclasses
+7. **Parameter selection** — only keys in `_OPENAI_PARAMS` (incl. `max_completion_tokens`,
+   `reasoning_effort`, `stop`, `response_format`, `tools`, `stream_options`) are forwarded
+8. **Reasoning capture** — `reasoning_content` / `reasoning` fields surfaced on the response
 
-### 10.3 What It Gets Wrong or Misses
+### 10.3 What It Still Misses
 
-| Issue | Current | Correct |
-|---|---|---|
-| **Hardcoded endpoint** | Always `/chat/completions` | Should vary by provider (Anthropic: `/v1/messages`, Gemini: different entirely) |
-| **No `max_completion_tokens`** | Uses `max_tokens` from parameters | Should prefer `max_completion_tokens` for newer models |
-| **No reasoning support** | No `reasoning_effort` | Required for o-series models |
-| **No `developer` role** | Sends `system` messages | o-series models require `developer` role |
-| **No response parsing** | Returns raw JSON dict | Should extract content, usage, finish_reason into typed objects |
-| **No usage tracking** | Ignores `usage` in response | Should capture and return token counts |
-| **No `n > 1` support** | Always generates 1 response | Needed for swipe feature |
-| **No `stream_options`** | No `include_usage` support | Needed for streaming usage tracking |
-| **No tool calling** | Not supported | Architecture should allow it |
-| **No stop sequences** | Not passed | Should be configurable |
-| **No response format** | Not supported | Should pass through |
-| **No logprobs** | Not supported | Useful for debugging |
-| **No multimodal** | Text-only messages | Should support image content parts |
-| **No abort mechanism** | Stream runs to completion | Should support cancellation via signal |
-| **Timeout too short** | 60 seconds | Some models (o3) take minutes for complex reasoning |
-| **Single client per request** | Creates new `httpx.AsyncClient` per call | Should reuse connections |
+The adapter forwards these parameters if present but The Bannered Mare does not yet drive them
+end-to-end, and some higher-level features remain unbuilt:
+
+| Issue | Status |
+|---|---|
+| **`developer` role** | Adapter passes messages through unchanged; no automatic `system`→`developer` rewrite for o-series |
+| **Typed tool-calling** | `tools`/`tool_choice` are forwarded, but tool calls are not parsed into canonical types |
+| **Multimodal content parts** | Messages are OpenAI-shaped dicts; image/audio parts are passed through, not modeled |
+| **`n > 1` (swiping)** | `n` is forwarded, but only the first choice is parsed |
+| **Abort / cancellation** | Stream runs to completion; no cancellation signal |
+| **Shared connection pool** | Each call opens a new `httpx.AsyncClient` |
+| **Configurable timeout** | Fixed at 120s (`get_timeout`), not per-model tunable via config |
 
 
 ## 11. Gap Analysis
@@ -607,35 +613,38 @@ class ProviderClient:
 
 ### 11.2 Gaps
 
-| # | Gap | Severity | Reason |
+Most of the original P0/P1 gaps were closed by the adapter layer. The `Status` column reflects the
+current `OpenAIAdapter` / `ProviderGateway` implementation.
+
+| # | Gap | Severity | Status |
 |---|---|---|---|
-| 1 | No typed response objects | P0 | Raw dict access is fragile — `response["choices"][0]["message"]["content"]` breaks if structure changes |
-| 2 | No usage tracking returned to caller | P0 | ChatMessageService ignores actual token counts from the API, stores tiktoken estimates instead |
-| 3 | No `max_completion_tokens` support | P0 | o-series models reject `max_tokens` |
-| 4 | No `developer` role support | P0 | o-series models reject `system` role |
-| 5 | Hardcoded `/chat/completions` path | P0 | Breaks for Anthropic (`/v1/messages`), Gemini, Ollama (`/api/chat`) |
-| 6 | No abort/cancel mechanism | P1 | User cannot stop generation |
-| 7 | No `n > 1` for swiping | P1 | Core RP feature (multiple alternatives) |
-| 8 | No `reasoning_effort` | P1 | o-series models need this |
-| 9 | No `stop` sequences | P1 | Important for formatting control |
-| 10 | No `stream_options.include_usage` | P1 | Streaming calls lose usage data |
-| 11 | Single-use httpx client | P2 | Connection overhead per request |
-| 12 | No `response_format` passthrough | P2 | Cannot request JSON output |
-| 13 | No `logprobs` | P2 | Useful for debugging/quality |
-| 14 | No `logit_bias` | P2 | Token frequency control |
-| 15 | No multimodal messages | P2 | Vision/image support |
-| 16 | No tool calling | P3 | Not needed for core RP |
-| 17 | No `seed` support | P3 | Reproducibility |
-| 18 | No `service_tier` | P3 | Billing optimization |
-| 19 | No `web_search_options` | P3 | New feature |
+| 1 | Typed response objects | P0 | Done — `parse_response` returns `CompletionResponse` |
+| 2 | Usage returned to caller | P0 | Done at the gateway (`CompletionResponse.usage`); downstream storage out of scope here |
+| 3 | `max_completion_tokens` support | P0 | Done — in `_OPENAI_PARAMS`, forwarded when present |
+| 4 | `developer` role support | P0 | Open — messages passed through as-is; no `system`→`developer` rewrite |
+| 5 | Endpoint varies by provider | P0 | Done — each adapter builds its own URL |
+| 6 | Abort/cancel mechanism | P1 | Open — stream runs to completion |
+| 7 | `n > 1` for swiping | P1 | Partial — `n` is forwarded; only the first choice is parsed |
+| 8 | `reasoning_effort` | P1 | Done — forwarded via `_OPENAI_PARAMS` |
+| 9 | `stop` sequences | P1 | Done — forwarded via `_OPENAI_PARAMS` |
+| 10 | `stream_options.include_usage` | P1 | Done — forwarded; usage parsed from the final chunk |
+| 11 | Single-use httpx client | P2 | Open — a new `AsyncClient` per call |
+| 12 | `response_format` passthrough | P2 | Done — forwarded via `_OPENAI_PARAMS` |
+| 13 | `logprobs` / `top_logprobs` | P2 | Done — forwarded via `_OPENAI_PARAMS` |
+| 14 | `logit_bias` | P2 | Done — forwarded via `_OPENAI_PARAMS` |
+| 15 | Multimodal messages | P2 | Open — not modeled as typed content parts |
+| 16 | Typed tool calling | P3 | Partial — `tools`/`tool_choice` forwarded; tool calls not parsed |
+| 17 | `seed` support | P3 | Done — forwarded via `_OPENAI_PARAMS` |
+| 18 | `service_tier` | P3 | Open — not in `_OPENAI_PARAMS` |
+| 19 | `web_search_options` | P3 | Open — not in `_OPENAI_PARAMS` |
 
 
 ## 12. Multi-Provider Architecture Design
 
-### 12.1 The Problem
+### 12.1 The Problem It Solves
 
-The Bannered Mare currently has ONE client that assumes ALL providers speak the OpenAI protocol.
-This is fundamentally broken because:
+The original design had ONE client that assumed ALL providers speak the OpenAI protocol. That was
+fundamentally broken — hence the adapter layer described below, which is now the shipped design:
 
 | Provider | Endpoint | Message Format | Auth | Key Differences |
 |---|---|---|---|---|
@@ -696,171 +705,134 @@ adapter — nothing above the gateway changes.
 
 ### 12.3 Key Abstractions
 
+The canonical types live in `src/provider/adapters/base.py`. There is **no `CompletionRequest`
+object** — the gateway passes an OpenAI-format `messages` list (list of `{role, content}` dicts)
+and a merged `parameters` dict directly into each adapter's `build_payload()`. Only the response
+and streaming shapes are typed:
+
 ```python
-# ---- Shared types (provider-agnostic) ----
-
-@dataclass
-class CompletionRequest:
-    """Provider-agnostic request. Adapters translate this to provider format."""
-    messages: list[ChatMessage]
-    model: str
-    temperature: float | None = None
-    top_p: float | None = None
-    max_tokens: int | None = None
-    stop: list[str] | None = None
-    stream: bool = False
-    stream_include_usage: bool = False
-    n: int = 1
-    frequency_penalty: float | None = None
-    presence_penalty: float | None = None
-    reasoning_effort: ReasoningEffort | None = None
-    response_format: ResponseFormat | None = None
-    seed: int | None = None
-    tools: list[ToolDefinition] | None = None
-    tool_choice: ToolChoice | None = None
-    logit_bias: dict[str, int] | None = None
-    logprobs: bool = False
-    top_logprobs: int | None = None
-    extra: dict[str, Any] | None = None  # Provider-specific overrides
-
-@dataclass
-class CompletionResponse:
-    """Provider-agnostic response. Adapters translate provider response to this."""
-    id: str
-    content: str | None
-    finish_reason: FinishReason
-    usage: TokenUsage | None
-    tool_calls: list[ToolCall] | None = None
-    model: str | None = None
-    refusal: str | None = None
-    raw: dict[str, Any] | None = None  # Original provider response
-
-@dataclass
-class CompletionChunk:
-    """Provider-agnostic streaming chunk."""
-    id: str
-    delta_content: str | None = None
-    delta_role: str | None = None
-    finish_reason: FinishReason | None = None
-    usage: TokenUsage | None = None  # Only on final chunk
-    tool_call_chunks: list[ToolCallChunk] | None = None
+# ---- Shared types (provider-agnostic), src/provider/adapters/base.py ----
 
 @dataclass
 class TokenUsage:
-    prompt_tokens: int
-    completion_tokens: int
-    total_tokens: int
-    reasoning_tokens: int = 0
-    cached_tokens: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_creation_tokens: int = 0
 
 @dataclass
-class ChatMessage:
-    role: MessageRole  # system, developer, user, assistant, tool
-    content: str | list[ContentPart]
-    name: str | None = None
-    tool_calls: list[ToolCall] | None = None
-    tool_call_id: str | None = None
+class CompletionResponse:
+    """Normalized non-streaming completion response."""
+    content: str
+    finish_reason: str
+    usage: TokenUsage
+    reasoning: str | None = None
+    raw: dict[str, Any] = field(default_factory=dict)
 
-class MessageRole(str, Enum):
-    SYSTEM = "system"
-    DEVELOPER = "developer"
-    USER = "user"
-    ASSISTANT = "assistant"
-    TOOL = "tool"
-
-class FinishReason(str, Enum):
-    STOP = "stop"
-    LENGTH = "length"
-    TOOL_CALLS = "tool_calls"
-    CONTENT_FILTER = "content_filter"
-    ERROR = "error"
-
-class ReasoningEffort(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
+@dataclass
+class StreamChunk:
+    """Single chunk from a streaming completion response."""
+    content: str | None = None
+    reasoning: str | None = None
+    finish_reason: str | None = None
+    usage: TokenUsage | None = None  # populated on the final chunk
 ```
 
-### 12.4 The Adapter Protocol
+Message roles come from the persistence layer's `MessageRole` enum (`user`, `assistant`,
+`system` — no `developer` or `tool` role). `finish_reason` is a plain string that adapters
+normalize toward the OpenAI vocabulary (`stop`, `length`, `tool_calls`, `content_filter`). There
+are no `CompletionRequest`, `CompletionChunk`, `FinishReason`, or `ReasoningEffort` types, and
+tool-call / content-part types are not yet modeled.
+
+### 12.4 The Adapter Interface
+
+Adapters are **stateless data transformers** — they do not make HTTP calls. The `ProviderGateway`
+owns the `httpx` client, timeouts, and error handling, and calls these hooks:
 
 ```python
 from abc import ABC, abstractmethod
 
 class ProviderAdapter(ABC):
-    """Base class for provider-specific API adapters."""
+    """Transforms requests/responses between canonical format and a provider's native API."""
 
     @abstractmethod
-    async def complete(self, request: CompletionRequest) -> CompletionResponse:
-        """Send a completion request and return the response."""
+    def build_url(
+        self, base_url: str, model: str, stream: bool, api_key: str | None = None
+    ) -> str:
+        """Build the full request URL for this provider."""
         ...
 
     @abstractmethod
-    async def complete_stream(
-        self, request: CompletionRequest
-    ) -> AsyncIterator[CompletionChunk]:
-        """Send a streaming completion request and yield chunks."""
+    def build_headers(self, api_key: str | None) -> dict[str, str]:
+        """Build request headers (auth, content-type, version headers)."""
         ...
 
     @abstractmethod
-    def build_headers(self) -> dict[str, str]:
-        """Build provider-specific HTTP headers."""
+    def build_payload(
+        self, messages: list[dict[str, Any]], model: str, stream: bool, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Convert canonical messages + parameters into the provider's request body."""
         ...
 
     @abstractmethod
-    def build_url(self, model: str) -> str:
-        """Build the provider-specific endpoint URL."""
+    def parse_response(self, data: dict[str, Any]) -> CompletionResponse:
+        """Parse the provider's JSON response into a canonical CompletionResponse."""
         ...
 
     @abstractmethod
-    def build_payload(self, request: CompletionRequest) -> dict[str, Any]:
-        """Transform CompletionRequest into provider-specific payload."""
+    def parse_stream_line(self, line: str) -> StreamChunk | None:
+        """Parse a single SSE line into a StreamChunk (None to skip the line)."""
         ...
 
-    @abstractmethod
-    def parse_response(self, raw: dict[str, Any]) -> CompletionResponse:
-        """Transform provider response into CompletionResponse."""
-        ...
+    def get_timeout(self, model: str) -> float:
+        """HTTP timeout in seconds (non-abstract; defaults to 120.0)."""
+        return 120.0
+```
 
-    @abstractmethod
-    def parse_stream_chunk(self, line: str) -> CompletionChunk | None:
-        """Parse a single SSE line into a CompletionChunk."""
-        ...
+The adapter registry lives in `src/provider/adapters/__init__.py`, and `get_adapter()` resolves a
+`ProviderType` to a concrete adapter class (falling back to `OpenAIAdapter`):
+
+```python
+_REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
+    ProviderType.OPENAI: OpenAIAdapter,
+    ProviderType.ANTHROPIC: AnthropicAdapter,
+    ProviderType.GOOGLE: GeminiAdapter,
+    ProviderType.XAI: OpenAIAdapter,          # OpenAI-compatible
+    ProviderType.OPENROUTER: OpenAIAdapter,   # OpenAI-compatible
+    ProviderType.OLLAMA: OllamaAdapter,
+    ProviderType.LMSTUDIO: LMStudioAdapter,
+    ProviderType.CUSTOM: OpenAIAdapter,       # Default to OpenAI-compatible
+}
 ```
 
 ### 12.5 The Gateway (Router)
 
+`ProviderGateway` (`src/provider/gateway.py`) is constructed per request with a `Provider` and
+`Model` (plus an optional OpenRouter provider). It selects the adapter, builds the request through
+the adapter's hooks, and owns the `httpx` call and error mapping:
+
 ```python
 class ProviderGateway:
-    """Routes requests to the correct adapter based on provider type."""
+    """Routes requests to AI providers through the correct adapter."""
 
-    def __init__(self, http_client: httpx.AsyncClient):
-        self._client = http_client
-        self._adapters: dict[ProviderType, type[ProviderAdapter]] = {
-            ProviderType.OPENAI: OpenAIAdapter,
-            ProviderType.ANTHROPIC: AnthropicAdapter,
-            ProviderType.GOOGLE: GeminiAdapter,
-            ProviderType.OPENROUTER: OpenRouterAdapter,
-            ProviderType.XAI: XAIAdapter,         # OpenAI-compatible
-            ProviderType.OLLAMA: OllamaAdapter,
-            ProviderType.CUSTOM: OpenAIAdapter,    # Default to OpenAI-compatible
-        }
+    def __init__(self, provider, model, openrouter_provider=None, preset_parameters=None):
+        # model.use_openrouter routes through the OpenRouter provider with OpenAIAdapter;
+        # otherwise get_adapter(provider.provider_type) picks the adapter.
+        ...
 
-    def get_adapter(self, provider: Provider, model: Model) -> ProviderAdapter:
-        adapter_class = self._adapters.get(provider.provider_type, OpenAIAdapter)
-        return adapter_class(provider=provider, model=model, client=self._client)
+    async def chat_completion(self, messages: list[dict[str, str]]) -> CompletionResponse:
+        parameters = self._get_effective_parameters()
+        url = self.adapter.build_url(self.base_url, self.active_identifier, False, self.api_key)
+        headers = self.adapter.build_headers(self.api_key)
+        payload = self.adapter.build_payload(messages, self.active_identifier, False, parameters)
+        # httpx POST, raise_for_status → _handle_http_error, then adapter.parse_response(...)
 
-    async def complete(
-        self, provider: Provider, model: Model, request: CompletionRequest
-    ) -> CompletionResponse:
-        adapter = self.get_adapter(provider, model)
-        return await adapter.complete(request)
-
-    async def complete_stream(
-        self, provider: Provider, model: Model, request: CompletionRequest
-    ) -> AsyncIterator[CompletionChunk]:
-        adapter = self.get_adapter(provider, model)
-        async for chunk in adapter.complete_stream(request):
-            yield chunk
+    async def chat_completion_stream(
+        self, messages: list[dict[str, str]]
+    ) -> AsyncIterator[StreamChunk]:
+        # streams SSE, calling adapter.parse_stream_line(line) per line
+        ...
 ```
 
 
@@ -871,187 +843,93 @@ class ProviderGateway:
 ```
 src/provider/
   adapters/
-    __init__.py
-    base.py              ← ProviderAdapter ABC
-    openai.py            ← OpenAIAdapter
-    anthropic.py         ← (future) AnthropicAdapter
-    gemini.py            ← (future) GeminiAdapter
-    openrouter.py        ← (future) OpenRouterAdapter
-    ollama.py            ← (future) OllamaAdapter
+    __init__.py          ← registry (_REGISTRY) + get_adapter()
+    base.py              ← ProviderAdapter ABC + CompletionResponse/StreamChunk/TokenUsage
+    openai.py            ← OpenAIAdapter (also serves xAI, OpenRouter, CUSTOM)
+    anthropic.py         ← AnthropicAdapter
+    gemini.py            ← GeminiAdapter
+    ollama.py            ← OllamaAdapter (subclass of OpenAIAdapter)
+    lmstudio.py          ← LMStudioAdapter (subclass of OpenAIAdapter)
   gateway.py             ← ProviderGateway
-  types.py               ← CompletionRequest, CompletionResponse, etc.
-  client.py              ← (deprecated, replaced by gateway)
+  discovery.py           ← ModelDiscoveryClient implementations (local + cloud model listing)
+  model_cache.py         ← ModelListCache (TTL cache of discovered models)
 ```
+
+There is no separate `types.py` (canonical types live in `base.py`) and no `openrouter.py` —
+OpenRouter reuses `OpenAIAdapter`. The old `client.py` has been removed.
 
 ### 13.2 OpenAIAdapter Implementation
 
+The shipped `OpenAIAdapter` is a stateless transformer. `build_payload()` forwards only the keys
+it recognizes (the `_OPENAI_PARAMS` allowlist), and it does **not** rename `max_tokens` — the
+allowlist carries both `max_tokens` and `max_completion_tokens` as-is:
+
 ```python
+_OPENAI_PARAMS = {
+    "temperature", "top_p", "n", "stop", "max_tokens", "max_completion_tokens",
+    "presence_penalty", "frequency_penalty", "logit_bias", "logprobs", "top_logprobs",
+    "response_format", "seed", "tools", "tool_choice", "parallel_tool_calls",
+    "reasoning_effort", "user", "stream_options",
+}
+
+
 class OpenAIAdapter(ProviderAdapter):
-    """Adapter for OpenAI and OpenAI-compatible APIs."""
+    """Adapter for OpenAI and OpenAI-compatible APIs (xAI, OpenRouter, vLLM, etc.)."""
 
-    def build_url(self, model: str) -> str:
-        return f"{self.base_url}/chat/completions"
+    def build_url(self, base_url, model, stream, api_key=None) -> str:
+        return f"{base_url}/chat/completions"
 
-    def build_headers(self) -> dict[str, str]:
+    def build_headers(self, api_key) -> dict[str, str]:
         headers = {"Content-Type": "application/json"}
-        api_key = self.provider.get_api_key()
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"
         return headers
 
-    def build_payload(self, request: CompletionRequest) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "model": request.model,
-            "messages": self._format_messages(request.messages),
-        }
-
-        # Generation parameters (only include non-None)
-        if request.temperature is not None:
-            payload["temperature"] = request.temperature
-        if request.top_p is not None:
-            payload["top_p"] = request.top_p
-        if request.max_tokens is not None:
-            # Use max_completion_tokens for newer models
-            if self._is_reasoning_model(request.model):
-                payload["max_completion_tokens"] = request.max_tokens
-            else:
-                payload["max_completion_tokens"] = request.max_tokens
-        if request.frequency_penalty is not None:
-            payload["frequency_penalty"] = request.frequency_penalty
-        if request.presence_penalty is not None:
-            payload["presence_penalty"] = request.presence_penalty
-        if request.stop:
-            payload["stop"] = request.stop
-        if request.n > 1:
-            payload["n"] = request.n
-        if request.seed is not None:
-            payload["seed"] = request.seed
-        if request.reasoning_effort is not None:
-            payload["reasoning_effort"] = request.reasoning_effort.value
-        if request.response_format:
-            payload["response_format"] = request.response_format.to_dict()
-        if request.logprobs:
-            payload["logprobs"] = True
-            if request.top_logprobs is not None:
-                payload["top_logprobs"] = request.top_logprobs
-        if request.logit_bias:
-            payload["logit_bias"] = request.logit_bias
-        if request.tools:
-            payload["tools"] = [t.to_dict() for t in request.tools]
-        if request.tool_choice:
-            payload["tool_choice"] = request.tool_choice.to_dict()
-
-        # Streaming
-        if request.stream:
+    def build_payload(self, messages, model, stream, parameters) -> dict[str, Any]:
+        payload = {"model": model, "messages": messages}
+        if stream:
             payload["stream"] = True
-            if request.stream_include_usage:
-                payload["stream_options"] = {"include_usage": True}
-
-        # Provider-specific overrides
-        if request.extra:
-            payload.update(request.extra)
-
+        for key, value in parameters.items():
+            if key in _OPENAI_PARAMS:
+                payload[key] = value
         return payload
 
-    def _format_messages(self, messages: list[ChatMessage]) -> list[dict]:
-        result = []
-        for msg in messages:
-            m: dict[str, Any] = {"role": msg.role.value}
-
-            if isinstance(msg.content, str):
-                m["content"] = msg.content
-            elif isinstance(msg.content, list):
-                m["content"] = [self._format_content_part(p) for p in msg.content]
-
-            if msg.name:
-                m["name"] = msg.name
-            if msg.tool_calls:
-                m["tool_calls"] = [tc.to_dict() for tc in msg.tool_calls]
-            if msg.tool_call_id:
-                m["tool_call_id"] = msg.tool_call_id
-
-            result.append(m)
-        return result
-
-    def _is_reasoning_model(self, model: str) -> bool:
-        return any(model.startswith(p) for p in ("o1", "o3", "o4"))
-
-    def parse_response(self, raw: dict[str, Any]) -> CompletionResponse:
-        choice = raw["choices"][0]
-        message = choice["message"]
-
-        tool_calls = None
-        if message.get("tool_calls"):
-            tool_calls = [
-                ToolCall(
-                    id=tc["id"],
-                    function_name=tc["function"]["name"],
-                    arguments=tc["function"]["arguments"],
-                )
-                for tc in message["tool_calls"]
-            ]
-
-        usage = None
-        if raw.get("usage"):
-            u = raw["usage"]
-            details = u.get("completion_tokens_details", {})
-            usage = TokenUsage(
-                prompt_tokens=u.get("prompt_tokens", 0),
-                completion_tokens=u.get("completion_tokens", 0),
-                total_tokens=u.get("total_tokens", 0),
-                reasoning_tokens=details.get("reasoning_tokens", 0),
-                cached_tokens=u.get("prompt_tokens_details", {}).get("cached_tokens", 0),
-            )
+    def parse_response(self, data) -> CompletionResponse:
+        choice = data.get("choices", [{}])[0]
+        message = choice.get("message", {})
+        usage_data = data.get("usage", {})
+        prompt_details = usage_data.get("prompt_tokens_details", {})
+        # reasoning_content used by DeepSeek, xAI, OpenRouter reasoning models
+        reasoning = message.get("reasoning_content") or message.get("reasoning") or None
 
         return CompletionResponse(
-            id=raw["id"],
-            content=message.get("content"),
-            finish_reason=FinishReason(choice.get("finish_reason", "stop")),
-            usage=usage,
-            tool_calls=tool_calls,
-            model=raw.get("model"),
-            refusal=message.get("refusal"),
-            raw=raw,
+            content=message.get("content") or "",
+            finish_reason=choice.get("finish_reason", "stop"),
+            usage=TokenUsage(
+                input_tokens=usage_data.get("prompt_tokens", 0),
+                output_tokens=usage_data.get("completion_tokens", 0),
+                total_tokens=usage_data.get("total_tokens", 0),
+                cache_read_tokens=prompt_details.get("cached_tokens", 0),
+            ),
+            reasoning=reasoning,
+            raw=data,
         )
 
-    def parse_stream_chunk(self, data: dict[str, Any]) -> CompletionChunk | None:
-        if not data.get("choices"):
-            # Usage-only final chunk
-            usage = self._parse_usage(data.get("usage")) if data.get("usage") else None
-            return CompletionChunk(id=data["id"], usage=usage)
-
-        choice = data["choices"][0]
-        delta = choice.get("delta", {})
-
-        usage = None
-        if data.get("usage"):
-            usage = self._parse_usage(data["usage"])
-
-        tool_chunks = None
-        if delta.get("tool_calls"):
-            tool_chunks = [
-                ToolCallChunk(
-                    index=tc["index"],
-                    id=tc.get("id"),
-                    function_name=tc.get("function", {}).get("name"),
-                    arguments_delta=tc.get("function", {}).get("arguments"),
-                )
-                for tc in delta["tool_calls"]
-            ]
-
-        finish = None
-        if choice.get("finish_reason"):
-            finish = FinishReason(choice["finish_reason"])
-
-        return CompletionChunk(
-            id=data["id"],
-            delta_content=delta.get("content"),
-            delta_role=delta.get("role"),
-            finish_reason=finish,
-            usage=usage,
-            tool_call_chunks=tool_chunks,
-        )
+    def parse_stream_line(self, line) -> StreamChunk | None:
+        if not line.startswith("data: "):
+            return None
+        data_str = line[6:]
+        if data_str == "[DONE]":
+            return StreamChunk(finish_reason="stop")
+        # json.loads(data_str) → extract choices[0].delta.content / reasoning_content,
+        # finish_reason, and usage (with prompt_tokens_details.cached_tokens);
+        # returns None for empty/keepalive lines.
+        ...
 ```
+
+Note: message roles/content are passed through as OpenAI-shaped dicts, so there is no
+`_format_messages` step, no `max_tokens`→`max_completion_tokens` rewrite, and tool calls are not
+parsed into typed objects.
 
 ### 13.3 What OpenAI-Compatible Providers Get for Free
 
@@ -1196,92 +1074,46 @@ class ToolCallChunk:
 ```
 
 
-## 15. Implementation Plan
+## 15. Implementation Status
 
-### Phase 1: Foundation (Types + OpenAI Adapter)
-
-```
-1. Create src/provider/types.py
-   - CompletionRequest, CompletionResponse, CompletionChunk
-   - ChatMessage, MessageRole, FinishReason, ReasoningEffort
-   - TokenUsage
-   - ContentPart types (TextContent, ImageContent)
-
-2. Create src/provider/adapters/base.py
-   - ProviderAdapter ABC
-
-3. Create src/provider/adapters/openai.py
-   - OpenAIAdapter implementing all methods
-   - Handles: headers, URL, payload, response parsing, stream parsing
-   - Supports: all generation params, reasoning_effort, stream_options,
-     developer role, max_completion_tokens
-
-4. Create src/provider/gateway.py
-   - ProviderGateway with shared httpx.AsyncClient
-   - Route by ProviderType to adapter
-
-5. Update src/chat_message/service.py
-   - Use ProviderGateway instead of ProviderClient
-   - Build CompletionRequest from PromptBuilder output
-   - Extract TokenUsage from CompletionResponse
-   - Store ACTUAL token counts (not tiktoken estimates)
-
-6. Deprecate src/provider/client.py
-   - Keep for backwards compatibility during transition
-   - Mark all methods as deprecated
-```
-
-### Phase 2: OpenAI-Compatible Providers
+### Delivered (Foundation + all adapters)
 
 ```
-7. Create src/provider/adapters/openrouter.py
-   - Subclass OpenAIAdapter
-   - Override build_headers() for extra headers
-   - Override build_url() for OpenRouter base URL
+1. src/provider/adapters/base.py
+   - ProviderAdapter ABC + CompletionResponse, StreamChunk, TokenUsage
+   - (no separate types.py; no CompletionRequest — messages+parameters are passed directly)
 
-8. Create src/provider/adapters/ollama.py
-   - Subclass OpenAIAdapter
-   - Override build_url() for /api/chat path
-   - Override build_headers() (no auth)
-   - Handle response shape differences
+2. src/provider/adapters/openai.py
+   - OpenAIAdapter: headers, URL, payload (via _OPENAI_PARAMS), response + stream parsing
+   - Forwards reasoning_effort, stream_options, max_completion_tokens, etc.
 
-9. Verify xAI, DeepSeek, Groq work with base OpenAIAdapter
-   - Only need different base_url (already in Provider model)
+3. src/provider/gateway.py
+   - ProviderGateway routes by ProviderType via get_adapter(); returns typed responses
+   - _get_effective_parameters() merges family defaults + model overrides + preset overrides
+
+4. OpenAI-compatible providers
+   - xAI, OpenRouter, and CUSTOM reuse OpenAIAdapter (no dedicated classes)
+   - OllamaAdapter and LMStudioAdapter subclass OpenAIAdapter (local-server URL/auth/timeout)
+
+5. Non-OpenAI providers
+   - src/provider/adapters/anthropic.py — AnthropicAdapter (system top-level, x-api-key +
+     anthropic-version, prompt caching, thinking, distinct response parsing)
+   - src/provider/adapters/gemini.py — GeminiAdapter (contents/parts, key as query param,
+     generationConfig, safetySettings, ?alt=sse streaming)
+
+6. Model discovery
+   - src/provider/discovery.py + model_cache.py provide live model listing (and load/unload
+     for Ollama / LM Studio) with a TTL cache
 ```
 
-### Phase 3: Non-OpenAI Providers
+### Not Yet Built
 
 ```
-10. Create src/provider/adapters/anthropic.py
-    - Separate payload builder (system as top-level, different message format)
-    - Different auth (x-api-key header, anthropic-version header)
-    - Different response parsing
-
-11. Create src/provider/adapters/gemini.py
-    - Completely different API structure
-    - Different auth (API key as query param)
-    - Different message format (contents/parts)
-    - Safety settings support
-```
-
-### Phase 4: Enhanced Features
-
-```
-12. Add abort/cancel support
-    - Pass httpx CancelScope or asyncio Event to adapters
-    - Allow ChatMessageService to signal cancellation
-
-13. Add n > 1 support (swiping)
-    - CompletionResponse returns list[Choice] instead of single
-    - ChatMessageService stores multiple alternatives
-
-14. Add response_format passthrough
-    - PromptBuilder or ChatMessageService can set response format
-    - Adapter passes it through
-
-15. Add stream_options.include_usage
-    - Return TokenUsage from streaming completions
-    - Store actual usage data
+- Abort/cancel support (stream currently runs to completion)
+- n > 1 parsing (n is forwarded, only the first choice is parsed)
+- Typed tool calling and multimodal content parts
+- Shared/pooled httpx client (a new AsyncClient is opened per call)
+- system → developer role rewrite for o-series models
 ```
 
 

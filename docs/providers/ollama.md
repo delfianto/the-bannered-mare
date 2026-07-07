@@ -353,26 +353,32 @@ shared `TokenUsage` abstraction. Store in `CompletionResponse.raw` for observabi
 
 ### 4.3 Mapping to TokenUsage
 
+The shipped `TokenUsage` uses `input_tokens`/`output_tokens` (not `prompt_tokens`/
+`completion_tokens`). Note: this native-API mapping is illustrative — the `OllamaAdapter`
+actually reads OpenAI-shaped usage from the `/v1/*` endpoint via the inherited `parse_response`.
+
 ```python
 TokenUsage(
-    prompt_tokens=response["prompt_eval_count"],
-    completion_tokens=response["eval_count"],
+    input_tokens=response["prompt_eval_count"],
+    output_tokens=response["eval_count"],
     total_tokens=response["prompt_eval_count"] + response["eval_count"],
-    reasoning_tokens=0,
-    cached_tokens=0,
+    cache_read_tokens=0,
+    cache_creation_tokens=0,
 )
 ```
 
-### 4.4 Mapping to FinishReason
+### 4.4 Mapping to finish_reason
 
-| Ollama `done_reason` | Shared `FinishReason` |
+`CompletionResponse.finish_reason` is a plain string (there is no `FinishReason` enum). Via the
+OpenAI-compatible endpoint the inherited parser reads `choices[0].finish_reason` directly.
+
+| Ollama `done_reason` | Normalized `finish_reason` |
 |---|---|
-| `"stop"` | `FinishReason.STOP` |
-| (tool_calls present) | `FinishReason.TOOL_CALLS` |
-| (no done_reason, eval_count == num_predict) | `FinishReason.LENGTH` |
+| `"stop"` | `"stop"` |
+| (tool_calls present) | `"tool_calls"` |
+| (truncated by `num_predict`) | `"length"` |
 
-Ollama does not have explicit `"length"` or `"content_filter"` done reasons.
-The adapter must infer `LENGTH` when the generation was truncated by `num_predict`.
+Ollama does not have explicit `"length"` or `"content_filter"` done reasons in its native API.
 
 
 ## 5. Native Streaming — NDJSON
@@ -738,86 +744,66 @@ Rationale:
 
 ### 9.2 Class Design
 
+The shipped `OllamaAdapter` (`src/provider/adapters/ollama.py`) is a thin subclass of
+`OpenAIAdapter` — it overrides only the URL, headers, and timeout. It does **not** override
+`build_payload()`, so parameters pass through the inherited `_OPENAI_PARAMS` allowlist unchanged
+(there is no field-popping or `keep_alive`/`num_ctx` handling):
+
 ```python
 class OllamaAdapter(OpenAIAdapter):
-    """
-    Uses the OpenAI-compatible endpoint for chat completions.
-    Overrides connection params (no auth, local URL).
-    """
+    """Adapter for Ollama's OpenAI-compatible /v1/chat/completions endpoint."""
 
-    def build_headers(self) -> dict[str, str]:
+    def build_url(self, base_url, model, stream, api_key=None) -> str:
+        return f"{base_url}/v1/chat/completions"
+
+    def build_headers(self, api_key) -> dict[str, str]:
         return {"Content-Type": "application/json"}
 
-    def build_url(self, model: str) -> str:
-        # provider.base_url = "http://localhost:11434"
-        return f"{self.provider.base_url}/v1/chat/completions"
+    def get_timeout(self, model: str) -> float:
+        return 300.0  # local inference can be slow on first load / large models
 
-    def build_payload(self, request: CompletionRequest) -> dict[str, Any]:
-        payload = super().build_payload(request)
-        # Ollama does not support these fields
-        payload.pop("logit_bias", None)
-        payload.pop("user", None)
-        payload.pop("logprobs", None)
-        payload.pop("top_logprobs", None)
+    # build_payload(), parse_response(), parse_stream_line() inherited from OpenAIAdapter
+```
 
-        # If extra contains Ollama-specific options, handle them
-        if request.extra:
-            if "keep_alive" in request.extra:
-                payload["keep_alive"] = request.extra["keep_alive"]
-            if "num_ctx" in request.extra:
-                # num_ctx not supported on /v1/, would need native API
-                pass
+Model management (list, load/unload, pull, delete) lives outside the adapter, in the
+`ModelDiscoveryClient` protocol implemented by `OllamaDiscoveryClient`
+(`src/provider/discovery.py`) — it is **not** part of the `ProviderAdapter` interface:
 
-        return payload
+```python
+class OllamaDiscoveryClient:
+    """Ollama's native API: /api/tags (installed), /api/ps (loaded)."""
 
-    # parse_response() inherited from OpenAIAdapter (same format)
-    # parse_stream_chunk() inherited from OpenAIAdapter (same SSE format)
-
-
-class OllamaModelManager:
-    """
-    Handles Ollama-specific model management via the native API.
-    NOT part of the ProviderAdapter interface.
-    """
-
-    def __init__(self, base_url: str, client: httpx.AsyncClient):
-        self.base_url = base_url
-        self.client = client
-
-    async def list_models(self) -> list[OllamaModelInfo]:
-        """GET /api/tags"""
+    def list_models(self, base_url, api_key=None) -> list[DiscoveredModel]:
+        """GET /api/tags + GET /api/ps to mark which models are loaded."""
         ...
 
-    async def show_model(self, model: str) -> OllamaModelDetail:
-        """POST /api/show"""
+    def load_model(self, base_url, identifier) -> None:
+        """POST /api/generate with keep_alive=-1 (unload uses keep_alive=0)."""
         ...
 
-    async def pull_model(self, model: str) -> AsyncIterator[PullProgress]:
-        """POST /api/pull (streaming NDJSON)"""
-        ...
+    def unload_model(self, base_url, identifier) -> None: ...
 
-    async def delete_model(self, model: str) -> bool:
+    def delete_model(self, base_url, identifier) -> None:
         """DELETE /api/delete"""
-        ...
-
-    async def list_running(self) -> list[OllamaRunningModel]:
-        """GET /api/ps"""
         ...
 ```
 
+Note: there is no `pull`/`show` in the discovery client and no `num_ctx`/`keep_alive`
+plumbing today; discovery results are cached in `ModelListCache` (`src/provider/model_cache.py`).
+
 ### 9.3 Provider Configuration
 
+The `Provider` model stores no API key value and no per-provider `extra_config`/`keep_alive`.
+Auth is by env-var name (`api_key_env_var`, which is `None` for Ollama since no key is required),
+and Ollama is seeded from `PROVIDER_CONFIGS` with `requires_api_key=False`:
+
 ```python
-# In the Provider model / config
 Provider(
-    name="Local Ollama",
+    name="Ollama",
     provider_type=ProviderType.OLLAMA,
-    base_url="http://localhost:11434",
-    api_key=None,           # No auth needed
-    extra_config={
-        "keep_alive": "30m",     # Keep models loaded for roleplay sessions
-        "default_num_ctx": 8192, # Default context window
-    }
+    base_url="http://localhost:11434",   # or the OLLAMA_HOST override at seed time
+    api_key_env_var=None,                # no auth needed
+    enabled=True,
 )
 ```
 
@@ -844,23 +830,22 @@ async def parse_ndjson_stream(
 Ollama can report all locally available models. This is critical for The Bannered Mare's
 UX -- users should see which models are available without manual configuration.
 
+This is implemented by `OllamaDiscoveryClient.list_models()` (`src/provider/discovery.py`), which
+calls `GET /api/tags` (installed) plus `GET /api/ps` (loaded) and returns typed `DiscoveredModel`
+records — `identifier`, `display_name`, `state` (`loaded`/`not-loaded`), `size_bytes`, and
+`quantization` (from `details.quantization_level`). `max_context_length` is left `None` because it
+would require a per-model `/api/show` call, which the client does not make today.
+
 ```python
-async def discover_models(base_url: str) -> list[dict]:
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{base_url}/api/tags")
-        data = resp.json()
-        return [
-            {
-                "id": m["name"],
-                "name": m["name"],
-                "family": m["details"]["family"],
-                "parameter_size": m["details"]["parameter_size"],
-                "quantization": m["details"]["quantization_level"],
-                "size_bytes": m["size"],
-                "capabilities": [],  # Use /api/show for this
-            }
-            for m in data.get("models", [])
-        ]
+# Shape returned per model (DiscoveredModel), sync httpx.Client throughout:
+DiscoveredModel(
+    identifier=m["model"],
+    display_name=m.get("name", m["model"]),
+    state="loaded" if m["model"] in loaded_names else "not-loaded",
+    size_bytes=m.get("size"),
+    quantization=(m.get("details") or {}).get("quantization_level"),
+    max_context_length=None,
+)
 ```
 
 ### 10.2 Capability Detection via POST /api/show
@@ -915,218 +900,69 @@ This section maps the provider-agnostic types from the OpenAI analysis (Section 
 to the Ollama-specific values. Since we use the OpenAI-compatible endpoint for chat,
 most mappings are identical to the OpenAI adapter.
 
-### 11.1 CompletionRequest to Ollama /v1/chat/completions
+### 11.1 Payload, response, and message mapping
 
-```python
-def build_payload(request: CompletionRequest) -> dict[str, Any]:
-    payload: dict[str, Any] = {
-        "model": request.model,
-        "messages": [format_message(m) for m in request.messages],
-        "stream": request.stream,
-    }
+Because `OllamaAdapter` inherits `build_payload()`, `parse_response()`, and `parse_stream_line()`
+from `OpenAIAdapter` unchanged, the mapping is **identical to OpenAI** — see
+[OPENAI.md §13.2](/providers/openai#13-openai-adapter-spec). In particular:
 
-    # Direct 1:1 mappings (same as OpenAI)
-    if request.temperature is not None:
-        payload["temperature"] = request.temperature
-    if request.top_p is not None:
-        payload["top_p"] = request.top_p
-    if request.max_tokens is not None:
-        payload["max_tokens"] = request.max_tokens
-    if request.stop:
-        payload["stop"] = request.stop
-    if request.seed is not None:
-        payload["seed"] = request.seed
-    if request.frequency_penalty is not None:
-        payload["frequency_penalty"] = request.frequency_penalty
-    if request.presence_penalty is not None:
-        payload["presence_penalty"] = request.presence_penalty
+- Messages are passed through as OpenAI-shaped `{role, content}` dicts (no per-message reformatting).
+- Any parameter in the `_OPENAI_PARAMS` allowlist is forwarded verbatim; everything else is dropped.
+- The response is already OpenAI-shaped, so `content`, `finish_reason`, and `usage` parse directly
+  into the canonical `CompletionResponse` / `TokenUsage`.
 
-    # Reasoning effort mapping
-    if request.reasoning_effort is not None:
-        payload["reasoning_effort"] = request.reasoning_effort.value
+### 11.2 Fields and their real behavior
 
-    # Stream options
-    if request.stream and request.stream_include_usage:
-        payload["stream_options"] = {"include_usage": True}
+The earlier notion of a hand-tuned Ollama allowlist does not exist — the adapter simply reuses
+`_OPENAI_PARAMS`. That changes what actually happens to several fields:
 
-    # Response format
-    if request.response_format:
-        payload["response_format"] = request.response_format.to_dict()
-
-    # Tools
-    if request.tools:
-        payload["tools"] = [t.to_dict() for t in request.tools]
-    # Note: tool_choice NOT supported, skip even if set
-
-    # Ollama-specific extras
-    if request.extra:
-        if "keep_alive" in request.extra:
-            payload["keep_alive"] = request.extra["keep_alive"]
-
-    # Unsupported fields intentionally omitted:
-    # - n (always 1)
-    # - logit_bias
-    # - logprobs / top_logprobs
-    # - user
-
-    return payload
-```
-
-### 11.2 Ollama Response to CompletionResponse
-
-Via the OpenAI-compatible endpoint, the response is already in OpenAI format.
-The `parse_response()` method inherited from `OpenAIAdapter` works as-is:
-
-```python
-# Inherited from OpenAIAdapter -- no override needed
-def parse_response(self, raw: dict[str, Any]) -> CompletionResponse:
-    choice = raw["choices"][0]
-    message = choice["message"]
-    usage_data = raw.get("usage")
-
-    return CompletionResponse(
-        id=raw["id"],
-        content=message.get("content"),
-        finish_reason=self._map_finish_reason(choice.get("finish_reason")),
-        usage=TokenUsage(
-            prompt_tokens=usage_data["prompt_tokens"],
-            completion_tokens=usage_data["completion_tokens"],
-            total_tokens=usage_data["total_tokens"],
-        ) if usage_data else None,
-        tool_calls=self._parse_tool_calls(message.get("tool_calls")),
-        model=raw.get("model"),
-        raw=raw,
-    )
-```
-
-### 11.3 ChatMessage to Ollama Message
-
-Via the OpenAI-compatible endpoint, message format is standard:
-
-```python
-def format_message(msg: ChatMessage) -> dict[str, Any]:
-    result: dict[str, Any] = {"role": msg.role.value}
-
-    if isinstance(msg.content, str):
-        result["content"] = msg.content
-    elif isinstance(msg.content, list):
-        # Content parts -- supported for vision
-        result["content"] = [format_content_part(p) for p in msg.content]
-
-    if msg.tool_calls:
-        result["tool_calls"] = [tc.to_dict() for tc in msg.tool_calls]
-    if msg.tool_call_id:
-        result["tool_call_id"] = msg.tool_call_id
-
-    return result
-```
-
-### 11.4 Fields NOT Mappable
-
-| Shared Type Field | Status | Reason |
+| Field | Real behavior | Notes |
 |---|---|---|
-| `CompletionRequest.n` | Ignored | Ollama always generates 1 |
-| `CompletionRequest.logit_bias` | Ignored | Not supported |
-| `CompletionRequest.logprobs` | Ignored | Not supported via compat endpoint |
-| `CompletionRequest.top_logprobs` | Ignored | Not supported via compat endpoint |
-| `CompletionRequest.tool_choice` | Ignored | Not supported |
-| `CompletionResponse.refusal` | Always None | No content filtering |
-| `TokenUsage.reasoning_tokens` | Always 0 | Not reported separately |
-| `TokenUsage.cached_tokens` | Always 0 | Not applicable to local models |
+| `n` | Forwarded | Only the first choice is parsed |
+| `logit_bias`, `logprobs`, `top_logprobs` | Forwarded (in `_OPENAI_PARAMS`) | Ollama may ignore them |
+| `tool_choice` / `tools` | Forwarded | Not parsed back into typed tool calls |
+| `reasoning` | Surfaced via `reasoning_content`/`reasoning` in the response |
+| `keep_alive`, `num_ctx`, `num_gpu`, `top_k`, `mirostat` | **Not sent** | Not in `_OPENAI_PARAMS`; would need the native API |
+| `TokenUsage.cache_*` | Usually 0 | Not applicable to local models |
 
-### 11.5 Ollama-Specific Fields (via `extra`)
-
-Fields unique to Ollama that may be passed through `CompletionRequest.extra`:
-
-```python
-request = CompletionRequest(
-    model="gemma3:latest",
-    messages=[...],
-    temperature=0.8,
-    extra={
-        "keep_alive": "30m",
-        "num_ctx": 8192,        # Only effective via native API
-        "num_gpu": -1,          # Only effective via native API
-        "top_k": 40,            # Only effective via native API
-        "mirostat": 2,          # Only effective via native API
-    }
-)
-```
+There is no `extra`/`keep_alive` passthrough — Ollama-specific options are simply not forwarded
+through the OpenAI-compatible chat path today.
 
 
-## 12. Implementation Plan
+## 12. Implementation Status
 
-### Phase 1: OllamaAdapter for Chat (via OpenAI-compatible endpoint)
+### Delivered — chat via the OpenAI-compatible endpoint
 
 ```
-1. Create src/provider/adapters/ollama.py
-   - OllamaAdapter subclassing OpenAIAdapter
-   - Override build_headers() -- no auth
-   - Override build_url() -- http://localhost:11434/v1/chat/completions
-   - Override build_payload() -- strip unsupported fields, add keep_alive
-   - Inherit parse_response() and parse_stream_chunk() from OpenAIAdapter
+1. src/provider/adapters/ollama.py
+   - OllamaAdapter subclasses OpenAIAdapter
+   - Overrides build_headers() (no auth), build_url() ({base_url}/v1/chat/completions),
+     and get_timeout() (300s)
+   - build_payload(), parse_response(), parse_stream_line() inherited unchanged
+     (no field-stripping, no keep_alive injection)
 
-2. Register in ProviderGateway
+2. Registered in the adapter registry
    - ProviderType.OLLAMA -> OllamaAdapter
-
-3. Test with local Ollama instance
-   - Non-streaming chat completion
-   - Streaming chat completion
-   - Tool calling (if model supports it)
-   - Vision (if model supports it)
 ```
 
-### Phase 2: Model Management
+### Delivered — model management via the discovery client
 
 ```
-4. Create src/provider/ollama/model_manager.py
-   - OllamaModelManager class
-   - list_models() -- GET /api/tags
-   - show_model() -- POST /api/show
-   - list_running() -- GET /api/ps
+3. src/provider/discovery.py — OllamaDiscoveryClient (ModelDiscoveryClient protocol)
+   - list_models(): GET /api/tags + GET /api/ps (marks loaded models)
+   - load_model()/unload_model(): POST /api/generate with keep_alive=-1 / 0
+   - delete_model(): DELETE /api/delete
+   - get_discovery_client(ProviderType.OLLAMA) resolves it from a registry
 
-5. Create src/provider/ollama/schemas.py
-   - OllamaModelInfo (Pydantic model for /api/tags response)
-   - OllamaModelDetail (Pydantic model for /api/show response)
-   - OllamaRunningModel (Pydantic model for /api/ps response)
-
-6. Expose model management in router
-   - GET /api/providers/ollama/models -- list available models
-   - GET /api/providers/ollama/models/{model} -- show model info
-   - GET /api/providers/ollama/models/running -- list loaded models
+4. src/provider/model_cache.py — ModelListCache (in-process TTL cache of DiscoveredModel lists)
 ```
 
-### Phase 3: Model Pull/Delete (Optional, nice-to-have)
+### Not Yet Built
 
 ```
-7. Add pull/delete support
-   - POST /api/providers/ollama/models/pull -- download a model
-     - Stream progress via SSE to frontend
-     - Parse NDJSON from Ollama, re-emit as SSE
-   - DELETE /api/providers/ollama/models/{model} -- remove a model
-
-8. Create NDJSON stream parser utility
-   - parse_ndjson_stream() in src/core/streaming.py
-   - Reusable for any NDJSON source
-```
-
-### Phase 4: Enhanced Ollama Features (Future)
-
-```
-9. Native API fallback for advanced features
-   - When num_ctx is specified, use /api/chat instead of /v1/chat/completions
-   - Build native API payload with options object
-   - Parse NDJSON stream into CompletionChunk
-
-10. Capability auto-detection
-    - On provider connection, call /api/tags + /api/show for each model
-    - Cache capabilities (vision, tools, etc.)
-    - Surface in model selection UI
-
-11. Performance dashboard
-    - Expose timing metrics (load_duration, eval_duration, etc.)
-    - Tokens/second calculation: eval_count / (eval_duration / 1e9)
-    - VRAM usage from /api/ps
+- Native /api/chat fallback for num_ctx / hardware options (chat always uses /v1/*)
+- Model pull (POST /api/pull) and show (POST /api/show)
+- Vision / tool-call parsing, capability auto-detection, performance metrics
 ```
 
 

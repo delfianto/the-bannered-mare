@@ -874,170 +874,114 @@ They are critical for RP quality tuning.
 
 ### 10.1 Architecture Decision
 
-Given the analysis above, the adapter architecture from OPENAI.md section 12 applies
-directly to local backends:
+The adapter architecture from OPENAI.md section 12 applies directly to local backends. In the
+shipped code there is **no dedicated `LocalOpenAIAdapter`** and there are **no per-backend
+`ProviderType` values** for llama.cpp/vLLM/OOBA/etc. — those backends connect through the generic
+`CUSTOM` provider type, which maps to `OpenAIAdapter`. LM Studio is the one local backend with its
+own type and adapter (`LMSTUDIO` → `LMStudioAdapter`).
 
 ```
 ProviderGateway
     |
     +-- OpenAIAdapter (base)
     |       |
-    |       +-- used for: vLLM, TabbyAPI, OOBA, llama.cpp (OAI mode)
-    |
-    +-- LocalOpenAIAdapter (subclass of OpenAIAdapter)
+    |       +-- ProviderType.CUSTOM → used for: vLLM, TabbyAPI, OOBA, llama.cpp (OAI mode),
+    |       |                          KoboldCpp (OAI mode), and any other OpenAI-compatible server
     |       |
-    |       +-- Removes Authorization header
-    |       +-- Passes extra sampling params via CompletionRequest.extra
-    |       +-- Adds model discovery via backend-specific endpoints
+    |       +-- LMStudioAdapter (subclass) → ProviderType.LMSTUDIO
+    |               +-- optional Bearer auth, longer timeout, strips trailing /v1 from base_url
     |
-    +-- KoboldAIAdapter (separate adapter, if native API needed)
-            |
-            +-- Text completion only (prompt string, not messages)
-            +-- Different request/response shape
-            +-- Used only for KoboldCpp/TabbyAPI native API
+    +-- (no KoboldAI / native text-completion adapter — native APIs are not implemented)
 ```
 
-### 10.2 OpenAI-Compatible Path (Recommended)
+Because a `CUSTOM` provider carries a user-supplied `base_url` and (optionally) an
+`api_key_env_var`, no code change is needed to point at a local server — the OpenAI-compatible
+`/v1/chat/completions` path is used as-is. Backend-only sampling params (`min_p`,
+`repetition_penalty`, `mirostat`, …) are **not** forwarded, since `OpenAIAdapter.build_payload`
+only passes the `_OPENAI_PARAMS` allowlist.
 
-For all modern local backends, the OpenAI-compatible path works:
+### 10.2 OpenAI-Compatible Path (how it works today)
+
+For all modern local backends, the OpenAI-compatible path works via a `CUSTOM` provider:
 
 1. **Set `base_url`** to the local server address (e.g., `http://localhost:8080/v1`).
-2. **Remove or dummy the API key** -- most local servers ignore it or accept any value.
-3. **Pass standard params** through `CompletionRequest` fields directly.
-4. **Pass extra params** via `CompletionRequest.extra` dict -- the adapter
-   serializes them into the request body alongside standard params.
-5. **Parse standard response** -- all backends return OpenAI-compatible response shapes.
+2. **Auth** -- optional; `OpenAIAdapter.build_headers` sends a Bearer token only if a key is
+   configured (via `api_key_env_var`), otherwise just `Content-Type`.
+3. **Standard params** -- forwarded from the merged `parameters` dict, filtered by `_OPENAI_PARAMS`.
+4. **Backend-only sampling params** (`min_p`, `repetition_penalty`, `mirostat`, `grammar`, …) are
+   **not forwarded** — there is no `extra`/pass-through mechanism on the OpenAI-compatible path.
+5. **Parse standard response** -- all backends return OpenAI-compatible response shapes, so the
+   inherited `parse_response`/`parse_stream_line` work unchanged.
+
+Recall that requests are not wrapped in a `CompletionRequest` object — the gateway passes an
+OpenAI-format `messages` list plus a `parameters` dict directly to `build_payload()` (see
+[OPENAI.md §12.3](/providers/openai#12-multi-provider-architecture)).
+
+### 10.3 Provider Type Mapping (as shipped)
+
+The `ProviderType` enum (`src/core/persistence/enums.py`) has **no per-backend local values**.
+Local OpenAI-compatible servers use `CUSTOM`; LM Studio has its own type:
 
 ```python
-# From OPENAI.md section 12.3:
-@dataclass
-class CompletionRequest:
-    messages: list[ChatMessage]
-    model: str
-    temperature: float | None = None
-    top_p: float | None = None
-    max_tokens: int | None = None
-    stop: list[str] | None = None
-    stream: bool = False
-    # ... standard fields ...
-    extra: dict[str, Any] | None = None  # <-- local backend params go here
-```
-
-Example `extra` for a local backend request:
-```python
-extra = {
-    "min_p": 0.05,
-    "repetition_penalty": 1.1,
-    "mirostat": 2,
-    "mirostat_tau": 5.0,
-    "grammar": '...',
-    "cache_prompt": True,
-    "samplers": ["dry", "top_k", "typ_p", "top_p", "min_p", "temperature"],
-}
-```
-
-### 10.3 Provider Type Mapping
-
-```python
-class ProviderType(str, Enum):
-    # Cloud providers
+class ProviderType(enum.StrEnum):
+    XAI = "xai"
+    GOOGLE = "google"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
-    GOOGLE = "google"
     OPENROUTER = "openrouter"
-    XAI = "xai"
-
-    # Local providers
     OLLAMA = "ollama"
-    LLAMACPP = "llamacpp"
-    VLLM = "vllm"
-    KOBOLDCPP = "koboldcpp"
-    OOBA = "ooba"
-    TABBYAPI = "tabbyapi"
-    CUSTOM = "custom"          # Generic OpenAI-compatible
+    LMSTUDIO = "lmstudio"
+    CUSTOM = "custom"          # generic OpenAI-compatible (llama.cpp, vLLM, OOBA, KoboldCpp, TabbyAPI, …)
 
-# In ProviderGateway:
-_adapters = {
-    ProviderType.LLAMACPP: LocalOpenAIAdapter,
-    ProviderType.VLLM: LocalOpenAIAdapter,
-    ProviderType.OOBA: LocalOpenAIAdapter,
-    ProviderType.TABBYAPI: LocalOpenAIAdapter,
-    ProviderType.KOBOLDCPP: LocalOpenAIAdapter,  # OAI mode
-    ProviderType.CUSTOM: LocalOpenAIAdapter,
+# In src/provider/adapters/__init__.py:
+_REGISTRY = {
+    ProviderType.OPENAI: OpenAIAdapter,
+    ProviderType.ANTHROPIC: AnthropicAdapter,
+    ProviderType.GOOGLE: GeminiAdapter,
+    ProviderType.XAI: OpenAIAdapter,
+    ProviderType.OPENROUTER: OpenAIAdapter,
+    ProviderType.OLLAMA: OllamaAdapter,
+    ProviderType.LMSTUDIO: LMStudioAdapter,
+    ProviderType.CUSTOM: OpenAIAdapter,   # local OpenAI-compatible servers land here
 }
 ```
 
 ### 10.4 Key Adapter Behaviors
 
-| Behavior | Cloud (OpenAI) | Local Backend |
+| Behavior | Cloud (OpenAI) | Local Backend (via CUSTOM / LMSTUDIO) |
 |---|---|---|
-| Auth header | `Bearer <api_key>` | None or dummy |
-| Base URL | `https://api.openai.com/v1` | `http://localhost:<port>/v1` |
+| Auth header | `Bearer <api_key>` | Bearer only if a key is configured, else none |
+| Base URL | `https://api.openai.com/v1` | user-set `http://localhost:<port>/v1` |
 | `model` field | Routes to specific model | Often ignored (server has one model) |
-| Extra params | Not sent | Merged into request body from `extra` |
-| Response parsing | Standard OpenAI | Standard OpenAI (+ optional extra fields) |
-| Error handling | HTTP 4xx/5xx with OpenAI error shape | Varies; best-effort parsing |
+| Backend-only sampling params | Not sent | Not sent (only `_OPENAI_PARAMS` are forwarded) |
+| Response parsing | Standard OpenAI | Standard OpenAI (inherited) |
+| Error handling | HTTP status → custom exception (in the gateway) | Same mapping |
 
 
-## 11. Implementation Plan
+## 11. Implementation Status
 
-### Phase 1: OpenAI-Compatible Chat Completion
+### Delivered — OpenAI-Compatible Chat Completion
 
-**Target:** Works with all five local backends out of the box.
+All five local backends work today with **no dedicated code** — configure a `CUSTOM` provider
+pointing at the server's `/v1` base URL and the shared `OpenAIAdapter` handles chat, streaming,
+and response parsing. LM Studio is the exception with its own `LMStudioAdapter`. There is no
+`LocalOpenAIAdapter` and no per-backend `ProviderType`.
 
-- Implement `LocalOpenAIAdapter` as a subclass of `OpenAIAdapter`:
-  - Override `build_headers()` to omit or dummy Authorization.
-  - Override `build_payload()` to merge `CompletionRequest.extra` into the body.
-  - Keep `parse_response()` and `parse_stream_chunk()` identical to OpenAI.
-- Add `ProviderType` entries for each local backend.
-- Register adapters in `ProviderGateway`.
-- Test with: llama.cpp, OOBA, vLLM, KoboldCpp, TabbyAPI.
+### Delivered — Model Discovery (standard `/models` only)
 
-### Phase 2: Model Discovery
+`GET /v1/models` is covered by `OpenAIDiscoveryClient` (`src/provider/discovery.py`), returned as
+`DiscoveredModel(identifier, display_name, state="loaded")` — id and display name only, no size or
+context length. `CUSTOM` providers resolve to this client. LM Studio and Ollama have richer native
+discovery clients (`LMStudioDiscoveryClient`, `OllamaDiscoveryClient`). Backend-specific info
+endpoints (llama.cpp `/props`, OOBA `/v1/internal/model/list`, TabbyAPI `/v1/model`, KoboldCpp
+`/api/v1/model`) are **not** queried.
 
-**Target:** Detect available models and capabilities from each backend.
+### Not Yet Built
 
-- `GET /v1/models` -- standard across all backends.
-- Backend-specific info endpoints:
-  - llama.cpp: `GET /props`, `GET /health`.
-  - OOBA: `GET /v1/internal/model/list`.
-  - TabbyAPI: `GET /v1/model`, `GET /health`, `GET /.well-known/serviceinfo`.
-  - KoboldCpp: `GET /api/v1/model`, `GET /api/v1/config/max_context_length`.
-
-### Phase 3: Text Completion Support
-
-**Target:** Enable direct prompt control for advanced instruct mode.
-
-- Add `POST /v1/completions` support to `LocalOpenAIAdapter`.
-- Build instruct formatting layer that converts `CompletionRequest.messages` to a
-  single prompt string using model-specific templates.
-- This is the bridge between The Bannered Mare's internal `ChatMessage` format and the
-  text completion API.
-
-### Phase 4: Extra Sampling Parameters
-
-**Target:** Expose local-backend-specific sampling through the UI/API.
-
-- Define a `LocalSamplingParams` schema with the common local-only params:
-  `min_p`, `typical_p`, `top_a`, `tfs`, `mirostat`, `repetition_penalty`,
-  `grammar`, `sampler_order`, `dynatemp_range`, `dry_*`, `xtc_*`.
-- Map these into `CompletionRequest.extra` automatically.
-- Validate param support per backend (use compatibility matrix from section 8).
-
-### Phase 5: Native API Support (Optional)
-
-**Target:** Direct KoboldAI API for SillyTavern power users.
-
-- Implement `KoboldAIAdapter` with native request/response shapes.
-- `POST /api/v1/generate` with prompt string.
-- `POST /api/extra/generate/stream` for SSE streaming.
-- Useful for: KoboldCpp native, TabbyAPI KoboldAI endpoints.
-
-### Phase 6: Management Features (Optional)
-
-**Target:** Model loading, LoRA management, tokenization.
-
-- Tokenize/detokenize via backend-appropriate endpoints.
-- Model load/unload for TabbyAPI and OOBA.
-- LoRA hot-swap for llama.cpp and TabbyAPI.
-- These are admin-level features, not part of the core inference path.
+- **Text completion (`/v1/completions`)** and an instruct-formatting layer that converts messages
+  to a single prompt string.
+- **Backend-only sampling params** (`min_p`, `typical_p`, `mirostat`, `repetition_penalty`,
+  `grammar`, `sampler_order`, `dry_*`, `xtc_*`) — there is no pass-through path for them today.
+- **Native KoboldAI adapter** (`/api/v1/generate`, `/api/extra/generate/stream`).
+- **Management features** — tokenize/detokenize, LoRA hot-swap, and model load/unload for TabbyAPI
+  and OOBA (Ollama and LM Studio load/unload are supported via their discovery clients).

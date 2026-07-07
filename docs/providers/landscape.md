@@ -17,26 +17,38 @@
 
 ### Provider System
 
-**Database Model** (`src/core/persistence/models.py:441-565`):
-- `Provider` ORM model with `name`, `provider_type`, `base_url`, `api_key_env_var`, `enabled`
-- `ProviderType` enum: OPENAI, ANTHROPIC, GOOGLE, OPENROUTER, XAI, OLLAMA, CUSTOM (7 types)
+**Database Model** (`src/core/persistence/models/provider.py`):
+- `Provider` ORM model with `name`, `provider_type`, `base_url`, `api_key_env_var`, `enabled`,
+  `last_synced_at`, `allowed_models`
+- `ProviderType` enum: XAI, GOOGLE, OPENAI, ANTHROPIC, OPENROUTER, OLLAMA, LMSTUDIO, CUSTOM (8 types)
 - `PROVIDER_CONFIGS` dict maps each type to display name, env var, default URL, key requirement
 
-**Single Client** (`src/provider/client.py`):
-- `ProviderClient` class handles ALL providers via OpenAI-compatible protocol
-- `_build_payload()` (line 76): Constructs `{"model", "messages", "stream"}` + merged parameters
-- `chat_completion()` (line 120): Non-streaming, returns full response
-- `chat_completion_stream()` (line 157): SSE streaming via `httpx.AsyncClient.stream()`
-- Auth: Always `Authorization: Bearer <key>` header (line 133)
+**Adapter Layer** (`src/provider/adapters/`):
+- The single-client design has been replaced by an adapter pattern. Adapters are **stateless
+  data transformers** — the `ProviderGateway` owns the `httpx` client, timeouts, and error handling.
+- `ProviderAdapter` ABC (`adapters/base.py`) defines the hooks: `build_url()`, `build_headers()`,
+  `build_payload()`, `parse_response()`, `parse_stream_line()`, and `get_timeout()`.
+- Concrete adapters: `OpenAIAdapter`, `AnthropicAdapter`, `GeminiAdapter`, `OllamaAdapter`,
+  `LMStudioAdapter` (the last two subclass `OpenAIAdapter`). xAI, OpenRouter, and CUSTOM all
+  reuse `OpenAIAdapter`.
+- Canonical types (`adapters/base.py`): `CompletionResponse`, `StreamChunk`, `TokenUsage`.
+  Requests are passed as an OpenAI-format `messages` list plus a merged `parameters` dict.
 
-**Parameter System** (`src/core/persistence/models.py:283-329`):
+**Gateway** (`src/provider/gateway.py`):
+- `ProviderGateway` selects the adapter via `get_adapter(provider_type)`, builds the request
+  through the adapter's hooks, and performs the HTTP call.
+- `chat_completion()`: Non-streaming, returns a typed `CompletionResponse`.
+- `chat_completion_stream()`: SSE streaming via `httpx.AsyncClient.stream()`, yielding `StreamChunk`s.
+- `_get_effective_parameters()`: merges ModelFamily defaults → Model overrides → preset overrides.
+
+**Parameter System** (`src/model_family/`, `src/model/`):
 - `ModelFamily` defines parameter schemas + defaults per family
 - `Model` can override with instance-level parameters
-- `_get_effective_parameters()` merges family defaults + model overrides
+- `ProviderGateway._get_effective_parameters()` merges family defaults + model overrides
 
-**Key Insight:** The Bannered Mare assumes every provider speaks OpenAI protocol. This works for
-Ollama, vLLM, OpenRouter, and LiteLLM proxies — but breaks for native Anthropic, Gemini,
-and Cohere APIs.
+**Key Insight:** The Bannered Mare no longer assumes every provider speaks OpenAI protocol. The
+OpenAI-compatible baseline covers Ollama, LM Studio, vLLM, OpenRouter, xAI, and similar proxies,
+while native Anthropic and Gemini APIs each get a dedicated adapter.
 
 
 ## 2. SillyTavern — Provider Landscape
@@ -154,61 +166,75 @@ Per-provider parameter filtering:
 | Environment variable-based API key storage | Done |
 | Provider CRUD with validation | Done |
 
-### What's Missing
+### Gaps — Resolved and Remaining
 
-| Gap | Impact | Priority |
-|-----|--------|----------|
-| **No provider-specific adapters** — Anthropic/Gemini/Cohere APIs are NOT OpenAI-compatible | Cannot use native APIs; must rely on proxy (LiteLLM/OpenRouter) | High |
-| **No message format conversion** — All messages assumed OpenAI shape | Blocks native Anthropic, Gemini integration | High |
-| **No response normalization layer** — Assumes `choices[0].message.content` | Breaks for native Anthropic (`content[0].text`), Gemini (`candidates[0]`) | High |
-| **No provider-specific auth strategies** — Always uses Bearer header | Gemini needs query param, Anthropic needs `x-api-key` + version header | High |
-| **No parameter allowlists** — Sends ALL params to every provider | Providers reject unknown params (Ollama rejects `top_p` sometimes) | Medium |
-| **No provider-specific features** — No thinking mode, safety settings, caching | Users can't access advanced features of Claude/Gemini | Medium |
-| **No streaming format adaptation** — Only parses OpenAI SSE format | Anthropic and Gemini stream differently | High |
-| **No multi-value API key rotation** | Single key per provider, no fallback | Low |
+Most of the gaps identified in the original single-client design have since been closed by the
+adapter layer (see §1). The remaining table tracks their status.
+
+| Gap | Impact | Status |
+|-----|--------|--------|
+| **Provider-specific adapters** — Anthropic/Gemini APIs are NOT OpenAI-compatible | Native APIs now supported directly | Done (`AnthropicAdapter`, `GeminiAdapter`) |
+| **Message format conversion** — messages translated per provider | Native Anthropic + Gemini integration | Done (each adapter's `build_payload`) |
+| **Response normalization layer** | Native shapes parsed into `CompletionResponse` | Done (each adapter's `parse_response`) |
+| **Provider-specific auth strategies** | Gemini uses `?key=`, Anthropic uses `x-api-key` + version header | Done (each adapter's `build_headers`/`build_url`) |
+| **Parameter allowlists / selective mapping** — each adapter extracts only the params it understands | Avoids sending unknown params | Done (e.g. `OpenAIAdapter._OPENAI_PARAMS`, Gemini `_GENERATION_CONFIG_MAP`) |
+| **Provider-specific features** — thinking mode, safety settings, prompt caching | Advanced Claude/Gemini features | Done (Anthropic `thinking`/`cache_control`, Gemini `safetySettings`) |
+| **Streaming format adaptation** — per-provider SSE parsing | Anthropic and Gemini stream differently | Done (each adapter's `parse_stream_line`) |
+| **Multi-value API key rotation** | Single key per provider, no fallback | Not implemented (Low priority) |
 
 
-## 5. Reimagined Architecture
+## 5. Architecture (As Built)
 
 ### Design: Adapter Pattern with Canonical Message Format
 
-Rather than ST's giant switch statement with 25 handler functions, use a clean adapter
-pattern that keeps the single-client simplicity while supporting provider-specific needs.
+Rather than ST's giant switch statement with 25 handler functions, the implemented design is a
+clean adapter pattern that keeps the single-client simplicity while supporting provider-specific
+needs. The sections below describe what shipped.
 
-### Layer 1: Canonical Types (Already Partially Exists)
+### Layer 1: Canonical Types (`adapters/base.py`)
+
+Requests are not wrapped in a `CompletionRequest` object — the gateway passes an OpenAI-format
+`messages` list and a merged `parameters` dict straight to the adapter's `build_payload()`. The
+canonical response/streaming types are dataclasses:
 
 ```
-CompletionRequest:
-  - messages: list[Message]        # Canonical format
-  - system_prompt: str | None      # Extracted, not inline
-  - model: str
-  - stream: bool
-  - parameters: dict[str, Any]     # Merged family + model params
-  - tools: list[Tool] | None       # For function calling
-
 CompletionResponse:
   - content: str
   - finish_reason: str
   - usage: TokenUsage
-  - tool_calls: list[ToolCall] | None
+  - reasoning: str | None          # For thinking / reasoning models
+  - raw: dict[str, Any]            # Original provider response
 
 StreamChunk:
   - content: str | None
   - reasoning: str | None          # For thinking mode
   - finish_reason: str | None
+  - usage: TokenUsage | None       # Populated on the final chunk
+
+TokenUsage:
+  - input_tokens / output_tokens / total_tokens
+  - cache_read_tokens / cache_creation_tokens
 ```
 
-### Layer 2: Provider Adapter Protocol
+Tool calling is not yet part of the canonical types.
+
+### Layer 2: Provider Adapter Interface
+
+`ProviderAdapter` is an `abc.ABC`. Adapters are stateless — they receive everything they need as
+arguments and never hold provider/HTTP state:
 
 ```python
-class ProviderAdapter(Protocol):
-    def build_url(self, model: str) -> str: ...
-    def build_headers(self, api_key: str) -> dict[str, str]: ...
-    def build_payload(self, request: CompletionRequest) -> dict[str, Any]: ...
+class ProviderAdapter(ABC):
+    def build_url(self, base_url: str, model: str, stream: bool, api_key: str | None = None) -> str: ...
+    def build_headers(self, api_key: str | None) -> dict[str, str]: ...
+    def build_payload(self, messages: list[dict], model: str, stream: bool, parameters: dict) -> dict: ...
     def parse_response(self, data: dict) -> CompletionResponse: ...
-    def parse_stream_chunk(self, line: str) -> StreamChunk | None: ...
-    def filter_parameters(self, params: dict) -> dict: ...
+    def parse_stream_line(self, line: str) -> StreamChunk | None: ...
+    def get_timeout(self, model: str) -> float: ...  # non-abstract, defaults to 120.0
 ```
+
+There is no separate `filter_parameters` hook — each adapter's `build_payload()` selectively
+extracts only the parameters it understands.
 
 ### Layer 3: Concrete Adapters
 
@@ -236,32 +262,42 @@ class ProviderAdapter(Protocol):
 - `generationConfig` wrapper for params
 - Stream → `?alt=sse` endpoint variant
 
-**OllamaAdapter** (extends OpenAI but with local quirks):
-- No auth required
-- Parameter filtering (Ollama-specific keys only)
-- Model pull/status checking
+**OllamaAdapter** (subclasses `OpenAIAdapter` with local-server quirks):
+- No auth header
+- Endpoint under `/v1/chat/completions`, longer default timeout (300s)
+- Model list/load/unload/pull handled separately by the discovery client, not the adapter
 
-### Layer 4: Adapter Registry
+**LMStudioAdapter** (subclasses `OpenAIAdapter` for LM Studio's local server):
+- Optional auth (Bearer sent only when configured), longer default timeout (300s)
+- Strips a trailing `/v1` from the configured base URL before appending `/v1/chat/completions`
+
+### Layer 4: Adapter Registry (`adapters/__init__.py`)
 
 ```python
-ADAPTER_REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
+_REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
     ProviderType.OPENAI: OpenAIAdapter,
     ProviderType.ANTHROPIC: AnthropicAdapter,
     ProviderType.GOOGLE: GeminiAdapter,
-    ProviderType.OPENROUTER: OpenAIAdapter,  # OpenAI-compatible
-    ProviderType.XAI: OpenAIAdapter,         # OpenAI-compatible
+    ProviderType.XAI: OpenAIAdapter,          # OpenAI-compatible
+    ProviderType.OPENROUTER: OpenAIAdapter,   # OpenAI-compatible
     ProviderType.OLLAMA: OllamaAdapter,
-    ProviderType.CUSTOM: OpenAIAdapter,      # Assume compatible
+    ProviderType.LMSTUDIO: LMStudioAdapter,
+    ProviderType.CUSTOM: OpenAIAdapter,       # Assume compatible
 }
 ```
 
-### Implementation Priority
+`get_adapter(provider_type)` looks up this registry (falling back to `OpenAIAdapter`) and
+instantiates the class.
 
-1. **AnthropicAdapter** — High demand, completely different protocol
-2. **GeminiAdapter** — Second most different, large user base
-3. **Parameter filtering** — Quick win, prevents provider errors
-4. **OllamaAdapter** — Minor tweaks to OpenAI adapter
-5. **Provider-specific features** — Thinking mode, safety settings, caching (iterative)
+### Delivered Adapters
+
+All of the following have shipped:
+
+1. **AnthropicAdapter** — completely different protocol (Messages API)
+2. **GeminiAdapter** — generateContent API with a distinct schema
+3. **Per-adapter parameter selection** — each adapter maps only the params it understands
+4. **OllamaAdapter** and **LMStudioAdapter** — thin subclasses of `OpenAIAdapter` for local servers
+5. **Provider-specific features** — Anthropic thinking + prompt caching, Gemini safety settings
 
 ### What NOT to Build
 
