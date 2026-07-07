@@ -20,11 +20,11 @@ describe("providersForFamily", () => {
 
   it("handles the Gemma case (ollama/lmstudio/openrouter)", () => {
     const family = { provider_types: ["ollama", "lmstudio", "openrouter"] } as any;
-    expect(providersForFamily(providers, family).map((p) => p.id).sort()).toEqual([
-      "lmstudio",
-      "ollama",
-      "openrouter",
-    ]);
+    expect(
+      providersForFamily(providers, family)
+        .map((p) => p.id)
+        .sort(),
+    ).toEqual(["lmstudio", "ollama", "openrouter"]);
   });
 
   it("returns [] when no family is selected", () => {
