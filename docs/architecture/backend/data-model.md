@@ -153,8 +153,8 @@ from another.
   <g text-anchor="middle">
     <text x="317" y="90" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
     <text x="330" y="266" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
-    <rect x="460" y="247" width="112" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/>
-    <text x="516" y="258" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
+    <rect x="460" y="255" width="112" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/>
+    <text x="516" y="266" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
     <rect x="244" y="139" width="70" height="14" rx="3" fill="var(--tbm-dgm-surface-2)"/>
     <text x="279" y="150" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs persona</text>
     <text x="602" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs model</text>
