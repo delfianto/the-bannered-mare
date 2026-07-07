@@ -42,7 +42,7 @@ just db-migrate         # alembic upgrade head
 just db-check           # validate migrations (errors if models have drifted)
 just db-status          # current revision + heads + history
 just db-revision "msg"  # autogenerate a migration from model changes
-just db-backup          # pg_dump → backups/candlekeep-<timestamp>.dump
+just db-backup          # pg_dump → storage/backups/candlekeep-<timestamp>.dump
 just db-restore <file>  # pg_restore from a dump
 just db-seed [path]     # import character cards (default: ./characters)
 
@@ -60,7 +60,7 @@ just be-stop            # stop one surface (also fe-stop / docs-stop)
 just stop-all           # stop everything + sweep stray processes
 ```
 
-Ports: backend `8000` · frontend dev `5173` · frontend preview `4173` · docs `5174` (docs is pinned off 5173 so it can run alongside the frontend). `db-*` recipes read `DATABASE_URL` from `backend/.env`; local dumps in `backups/` are gitignored.
+Ports: backend `8000` · frontend dev `5173` · frontend preview `4173` · docs `5174` (docs is pinned off 5173 so it can run alongside the frontend). `db-*` recipes read `DATABASE_URL` from `backend/.env`. All binary/generated files — character & persona avatars, temp uploads, and `db-backup` dumps — live under a single `STORAGE_PATH` root (default `./storage` at the repo root; set an absolute path in Docker), which is gitignored.
 
 ## Keeping the API Contract in Sync
 

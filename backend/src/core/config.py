@@ -1,12 +1,19 @@
 """Application configuration using Pydantic Settings"""
 
+from pathlib import Path
 from typing import Literal
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _ = load_dotenv()
+
+# A relative STORAGE_PATH resolves against the repo root, derived from this file's
+# location (backend/src/core/config.py → parents[3]) rather than the process CWD.
+# Without this, `just db-seed` (run from the repo root) and the server (run from
+# backend/) would resolve "./storage" to different directories.
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class LoggingSettings(BaseModel):
@@ -143,8 +150,19 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://user:password@localhost:5432/candlekeep"
     database: DatabaseSettings = DatabaseSettings()
 
-    # Storage
-    storage_path: str = "./storage"
+    # Storage — root directory for all binary/generated files (character & persona
+    # avatars, temp uploads, db backups). A relative value resolves against the repo
+    # root; in Docker/production set an absolute path, e.g. STORAGE_PATH=/data.
+    storage_path: str = Field(default="./storage", validate_default=True)
+
+    @field_validator("storage_path")
+    @classmethod
+    def _resolve_storage_path(cls, value: str) -> str:
+        """Normalize STORAGE_PATH to an absolute path (relative → repo root)."""
+        path = Path(value).expanduser()
+        if not path.is_absolute():
+            path = _REPO_ROOT / path
+        return str(path.resolve())
 
     # API
     api_host: str = "0.0.0.0"
