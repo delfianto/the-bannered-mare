@@ -1,8 +1,8 @@
 """Fire-and-forget audit writer backed by PostgreSQL.
 
-Drop-in replacement for the former Mongo logger. Each write opens its own
-AsyncSession (decoupled from the request transaction) and swallows all errors —
-audit logging must never break a request or roll back the chat transaction.
+Each write opens its own AsyncSession (decoupled from the request transaction)
+and swallows all errors — audit logging must never break a request or roll back
+the chat transaction.
 """
 
 from typing import Any
@@ -123,5 +123,5 @@ class AuditWriter:
             logger.error("audit_write_failed", collection=kind, error=str(e))
 
 
-# Global writer instance (mirrors the old `mongo_logger` singleton)
+# Global writer instance
 audit_logger = AuditWriter()

@@ -170,7 +170,7 @@ Persistence uses a 5-minute auto-save interval with dirty tracking and atomic fi
 
 The Bannered Mare does not implement character-level RP statistics (word counts, message counts, generation times). Instead, it tracks **LLM usage statistics** through the audit logging system.
 
-The `AuditWriter` (a fire-and-forget writer backed by PostgreSQL, replacing a former Mongo logger) records every LLM API call to the `llm_audit_logs` table with fields including: chat_id, provider, model, prompt/completion/total tokens, latency, status (success/error), and estimated cost. The admin endpoint `GET /admin/logs/llm/stats` runs a SQLAlchemy aggregation (grouped by provider+model) that computes:
+The `AuditWriter` (a fire-and-forget writer backed by PostgreSQL) records every LLM API call to the `llm_audit_logs` table with fields including: chat_id, provider, model, prompt/completion/total tokens, latency, status (success/error), and estimated cost. The admin endpoint `GET /admin/logs/llm/stats` runs a SQLAlchemy aggregation (grouped by provider+model) that computes:
 
 - Total API calls
 - Total prompt/completion/total tokens
