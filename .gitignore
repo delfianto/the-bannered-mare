@@ -1,5 +1,7 @@
 # Superpowers SDD session scratch (ledger, task briefs, reports, review diffs)
 .superpowers/
 
-# Local database dumps from `just db-backup`
-/backups/
+# Runtime binary/generated files — character & persona avatars, temp uploads, and
+# db backups (`just db-backup`). Root is configurable via STORAGE_PATH (backend/.env);
+# this covers the default ./storage at the repo root.
+/storage/

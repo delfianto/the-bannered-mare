@@ -58,20 +58,22 @@ db-migrate:
 db-revision message:
     cd {{ backend_dir }} && .venv/bin/alembic revision --autogenerate -m "{{ message }}"
 
-# Back up the database to backups/candlekeep-<timestamp>.dump (pg_dump custom format).
+# Back up the database to $STORAGE_PATH/backups/candlekeep-<timestamp>.dump (pg_dump custom format).
 [group('database')]
 db-backup:
     #!/usr/bin/env bash
     set -euo pipefail
     url=$(grep -E '^DATABASE_URL=' {{ backend_dir }}/.env | head -1 | cut -d= -f2-)
     [ -n "$url" ] || { echo "DATABASE_URL not found in {{ backend_dir }}/.env"; exit 1; }
-    mkdir -p backups
-    out="backups/candlekeep-$(date +%Y%m%d-%H%M%S).dump"
+    storage=$(grep -E '^STORAGE_PATH=' {{ backend_dir }}/.env | head -1 | cut -d= -f2-)
+    dir="${storage:-./storage}/backups"
+    mkdir -p "$dir"
+    out="$dir/candlekeep-$(date +%Y%m%d-%H%M%S).dump"
     echo "Backing up → $out"
     pg_dump "$url" --format=custom --file "$out"
     echo "✓ $out ($(du -h "$out" | cut -f1))"
 
-# Restore the database from a dump:  just db-restore backups/candlekeep-XXXX.dump
+# Restore the database from a dump:  just db-restore storage/backups/candlekeep-XXXX.dump
 [group('database')]
 db-restore file:
     #!/usr/bin/env bash

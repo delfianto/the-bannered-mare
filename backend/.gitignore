@@ -35,11 +35,8 @@ Thumbs.db
 
 # --- The Bannered Mare specific ---
 
-# Storage - user-uploaded files (keep directory structure)
-storage/characters/*
-storage/temp/*
-!storage/characters/.gitkeep
-!storage/temp/.gitkeep
+# Storage now lives at the repo root under STORAGE_PATH (default ./storage) and is
+# ignored there — see the root .gitignore. Nothing binary is stored under backend/.
 
 # Stray local SQLite/DB files (Postgres is the real database)
 *.db

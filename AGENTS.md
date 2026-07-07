@@ -25,7 +25,7 @@ The root [`justfile`](justfile) is the canonical entrypoint for **running** ever
 | | `db-check` | `alembic check` — fails if models drifted from the latest migration |
 | | `db-status` | `alembic current` + `heads` + `history` |
 | | `db-revision "msg"` | `alembic revision --autogenerate -m "msg"` |
-| | `db-backup` / `db-restore <file>` | `pg_dump` → `backups/` / `pg_restore` |
+| | `db-backup` / `db-restore <file>` | `pg_dump` → `$STORAGE_PATH/backups/` / `pg_restore` |
 | | `db-seed [path]` | `scripts/import_card.py` (default `./characters`) |
 | **backend** | `be-dev` / `be-prod` | `scripts/start-backend.sh` (uvicorn `--reload` / 4 workers) — `:8000` |
 | **frontend** | `fe-dev` / `fe-mock` / `fe-prod` | `bun run dev` / `dev:mock` (MSW) / `build`+`preview` — `:5173`, preview `:4173` |

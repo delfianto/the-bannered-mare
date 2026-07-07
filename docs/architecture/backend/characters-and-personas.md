@@ -37,11 +37,14 @@ The `Persona` model defines the profile of the user taking part in the chat sess
 
 ## 3. Storage & Asset Directory Layout
 
-Media assets such as custom avatars and profile images are saved to a local disk path set by
-the `STORAGE_PATH` configuration value (default `./storage`). The layout is:
+Media assets such as custom avatars and profile images are saved under the `STORAGE_PATH`
+root — the single directory for *all* binary and generated files. A relative value (the
+default `./storage`) resolves against the repo root rather than the process working
+directory, so the server and the `just db-seed` importer always agree on where files live;
+in Docker or production, set an absolute path such as `STORAGE_PATH=/data`. The layout is:
 
 ```text
-storage/
+$STORAGE_PATH/                       # default ./storage at the repo root
 ├── characters/
 │   └── {character_id}/
 │       ├── avatar_original.{ext}    # Original upload, extension preserved
@@ -50,7 +53,8 @@ storage/
 │   └── {persona_id}/
 │       ├── avatar_original.{ext}
 │       └── avatar_thumbnail.jpg
-└── temp/                            # Created at startup; reserved for file processing
+├── temp/                            # Created at startup; reserved for file processing
+└── backups/                         # pg_dump archives written by `just db-backup`
 ```
 
 The original keeps its uploaded extension (one of `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`);
