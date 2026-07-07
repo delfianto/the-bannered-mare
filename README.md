@@ -42,7 +42,7 @@ just db-migrate         # alembic upgrade head
 just db-check           # validate migrations (errors if models have drifted)
 just db-status          # current revision + heads + history
 just db-revision "msg"  # autogenerate a migration from model changes
-just db-backup          # pg_dump → storage/backups/candlekeep-<timestamp>.dump
+just db-backup          # pg_dump → storage/backups/<db>-<timestamp>.dump
 just db-restore <file>  # pg_restore from a dump
 just db-seed [path]     # import character cards (default: ./characters)
 
