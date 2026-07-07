@@ -9,13 +9,14 @@ title: Quick Start
 cd backend
 pip install -e ".[dev]"
 cp .env.example .env        # Configure database URL and API keys
+./scripts/init-db.sh        # Provision the Postgres DB + pgvector (skip if you have one)
 alembic upgrade head
 uvicorn src.main:app --reload
 
 # Frontend (Terminal 2)
 cd frontend
 bun install
-bun run dev --host           # proxies /api to localhost:8000
+bun run dev                  # proxies /api to localhost:8000 (bun run dev:mock for MSW-only)
 ```
 
 ## Keeping the API Contract in Sync
