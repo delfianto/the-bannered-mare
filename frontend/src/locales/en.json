@@ -52,6 +52,7 @@
     "sourceSillyTavern": "SillyTavern",
     "taskModelSame": "Same as chat model",
     "taskModelHint": "Cheaper model for titles & suggestions. Saves tokens on paid APIs.",
+    "unsupportedWarning": "These preset parameters aren't supported by {model} and won't be sent:",
     "fields": {
       "template": "Prompt Template",
       "preset": "Sampler Preset",
