@@ -32,7 +32,7 @@ const { families } = useModelFamilies({ pageSize: 100 });
 const searchQuery = ref("");
 const searchFocused = ref(false);
 const selectedProvider = ref("all");
-const selectedFamily = ref("all"); // TODO: enable when backend supports model_family_id filter
+const selectedFamily = ref("all");
 const selectedStatus = ref<"all" | "enabled" | "disabled">("all");
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
