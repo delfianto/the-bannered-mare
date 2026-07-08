@@ -142,6 +142,11 @@ function handleExport() {
 function handleImport(data: CharacterData) {
   form.loadCharacter(data);
 }
+
+function handleAvatarChange(file: File) {
+  form.updateField("avatarFile", file);
+  form.updateField("avatarUrl", URL.createObjectURL(file));
+}
 </script>
 
 <template>
@@ -263,6 +268,7 @@ function handleImport(data: CharacterData) {
             @update:field="(field: any, val: any) => form.updateField(field, val)"
             @add:tag="form.addTag"
             @remove:tag="form.removeTag"
+            @change="handleAvatarChange"
           />
           <BehaviorTab
             v-if="activeTab === 'behavior'"
@@ -295,7 +301,11 @@ function handleImport(data: CharacterData) {
           >
             {{ $t("characters.form.livePreview") }}
           </p>
-          <CharacterPreview :data="form.data" :completeness="form.completeness.value" />
+          <CharacterPreview
+            :data="form.data"
+            :completeness="form.completeness.value"
+            @change="handleAvatarChange"
+          />
         </div>
       </div>
     </div>
