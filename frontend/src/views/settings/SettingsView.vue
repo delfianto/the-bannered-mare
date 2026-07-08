@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import SettingsTabs from "@/components/settings/SettingsTabs.vue";
 import InterfaceTab from "@/components/settings/InterfaceTab.vue";
-import PersonaTab from "@/components/settings/PersonaTab.vue";
 import LogsTab from "@/components/settings/LogsTab.vue";
 import AboutTab from "@/components/settings/AboutTab.vue";
 
@@ -31,7 +30,6 @@ const activeTab = ref("interface");
     <!-- Tab Content -->
     <div class="flex-1 overflow-y-auto px-12 py-6">
       <InterfaceTab v-if="activeTab === 'interface'" />
-      <PersonaTab v-if="activeTab === 'persona'" />
       <LogsTab v-if="activeTab === 'logs'" />
       <AboutTab v-if="activeTab === 'about'" />
     </div>

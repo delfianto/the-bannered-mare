@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ProfilesTabs from "@/components/profiles/ProfilesTabs.vue";
 import ProfilesTab from "@/components/profiles/ProfilesTab.vue";
+import PersonaTab from "@/components/profiles/PersonaTab.vue";
 import PresetsTab from "@/components/connections/PresetsTab.vue";
 import TemplatesTab from "@/components/connections/TemplatesTab.vue";
 import FragmentsTab from "@/components/connections/FragmentsTab.vue";
@@ -10,7 +11,7 @@ import FragmentsTab from "@/components/connections/FragmentsTab.vue";
 const route = useRoute();
 const router = useRouter();
 
-const validTabs = ["profiles", "presets", "templates", "fragments"];
+const validTabs = ["profiles", "personas", "presets", "templates", "fragments"];
 
 const activeTab = computed({
   get: () => {
@@ -45,6 +46,7 @@ const activeTab = computed({
     <!-- Tab Content -->
     <div class="flex-1 overflow-y-auto px-12 py-6">
       <ProfilesTab v-if="activeTab === 'profiles'" />
+      <PersonaTab v-else-if="activeTab === 'personas'" />
       <PresetsTab v-else-if="activeTab === 'presets'" />
       <TemplatesTab v-else-if="activeTab === 'templates'" />
       <FragmentsTab v-else-if="activeTab === 'fragments'" />

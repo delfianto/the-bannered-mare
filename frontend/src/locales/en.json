@@ -40,7 +40,8 @@
     "title": "Loadouts",
     "subtitle": "Configure prompt loadouts, presets, templates, and fragments.",
     "tabs": {
-      "profiles": "Profiles"
+      "profiles": "Profiles",
+      "personas": "Personas"
     },
     "newProfile": "New Profile",
     "empty": "No profiles yet. Create one to quickly configure new chats.",

@@ -47,9 +47,9 @@ const routes = [
     component: () => import("@/views/LorebooksView.vue"),
   },
   {
+    // Personas moved into the Loadouts section; keep the old path as a redirect.
     path: "/persona",
-    name: "persona",
-    component: () => import("@/views/settings/SettingsView.vue"),
+    redirect: { path: "/loadouts", query: { tab: "personas" } },
   },
 
   {
