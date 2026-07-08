@@ -2,8 +2,6 @@
 
 from fastapi import APIRouter, Depends, Query, status
 
-from src.chat_message.dependencies import ChatMessageServiceDep
-from src.chat_message.schemas import TitleResponse
 from src.chat_session.dependencies import ChatServiceDep
 from src.chat_session.schemas import (
     ChatApplyProfile,
@@ -50,14 +48,6 @@ def create_chat(chat_data: ChatCreate, service: ChatServiceDep):
         title=chat_data.title,
         profile_id=chat_data.profile_id,
     )
-
-
-@router.post("/{chat_id}/title", response_model=TitleResponse)
-async def generate_chat_title(chat_id: str, service: ChatMessageServiceDep):
-    """Generate and persist a concise title for the chat, using the task model
-    (falls back to the chat's main model when no task model is configured)."""
-    title = await service.generate_title(chat_id)
-    return TitleResponse(title=title)
 
 
 @router.get("/{chat_id}", response_model=ChatResponse)
