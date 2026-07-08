@@ -368,8 +368,13 @@ class ChatMessageService:
     ) -> list[str]:
         """Generate next-turn suggestions using the chat's own model and context.
 
-        - ``reply``: several short candidate user turns (rendered as chips).
+        - ``reply``: several short candidate user turns (rendered as cards).
         - ``impersonate``: one drafted user message in the user's voice.
+        - ``tones``: several short tone/approach labels for the scene (chips).
+
+        Reply candidates and impersonation drafts become the user's actual
+        message, so they run on the main model for quality; ``tones`` labels are
+        throwaway metadata and run on the cheap task model.
         """
         chat = await self._get_chat_by_id(chat_id)
 
@@ -391,11 +396,20 @@ class ChatMessageService:
                 f"continuing the scene naturally.{tone_clause} Output only the message text — no "
                 "quotation marks, no name label, and no commentary about the task."
             )
+        elif mode == "tones":
+            instruction = (
+                f"Suggest {count} short labels (1-3 words each) for distinct tones or approaches "
+                f"{user_name} (the human user) could take in their next message, fitting the "
+                f"current scene and what {char_name} just said or did. Vary the emotional "
+                'direction. Style examples only (do not reuse): "Stand your ground", '
+                '"De-escalate", "Flirt back". Respond with ONLY a JSON array of strings.'
+            )
         else:
             instruction = (
                 f"Do not continue the story as {char_name}. Instead, propose {count} distinct, "
-                f"short options for what {user_name} (the human user) could say or do next — each a "
-                "different tone or direction, each one or two sentences. Respond with ONLY a JSON "
+                f"short options for what {user_name} (the human user) could say next — written in "
+                f"{user_name}'s voice and grounded in what {char_name} just said or did, each a "
+                "different tone or direction, one or two sentences. Respond with ONLY a JSON "
                 'array of strings, e.g. ["...", "...", "..."].'
             )
 
@@ -408,7 +422,13 @@ class ChatMessageService:
         else:
             api_messages = [*api_messages, {"role": "user", "content": instruction}]
 
-        gateway = await self._build_task_gateway(chat)
+        # Drafted content (reply/impersonate) becomes the user's message → main
+        # model; tone labels are throwaway → cheap task model.
+        gateway = (
+            await self._build_task_gateway(chat)
+            if mode == "tones"
+            else await self._build_gateway(chat)
+        )
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)

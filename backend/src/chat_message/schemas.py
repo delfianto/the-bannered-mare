@@ -62,14 +62,16 @@ MessageListResponse = PaginatedResponse[MessageResponse]
 class SuggestionRequest(BaseModel):
     """Request for next-turn suggestions.
 
-    - ``reply``: propose several short, distinct actions the user could send next.
+    - ``reply``: propose several short, distinct messages the user could send next.
     - ``impersonate``: draft a single user message in the user's voice, optionally
       steered by ``tone`` (e.g. "defiant", "tender").
+    - ``tones``: propose several short tone/approach labels for the current scene
+      (used to populate the tone chips, each then feeding ``impersonate``).
     """
 
-    mode: Literal["reply", "impersonate"] = "reply"
+    mode: Literal["reply", "impersonate", "tones"] = "reply"
     tone: str | None = Field(default=None, max_length=40, description="Tone to steer the draft")
-    count: int = Field(default=3, ge=1, le=6, description="How many suggestions (reply mode)")
+    count: int = Field(default=3, ge=1, le=6, description="How many suggestions (reply/tones)")
 
 
 class SuggestionResponse(BaseModel):
