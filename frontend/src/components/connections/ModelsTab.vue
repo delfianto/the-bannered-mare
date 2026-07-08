@@ -24,6 +24,7 @@ const {
   search,
   filterByProvider,
   filterByFamily,
+  filterByStatus,
 } = useModels();
 const { providers } = useProviders();
 const { families } = useModelFamilies({ pageSize: 100 });
@@ -32,6 +33,7 @@ const searchQuery = ref("");
 const searchFocused = ref(false);
 const selectedProvider = ref("all");
 const selectedFamily = ref("all"); // TODO: enable when backend supports model_family_id filter
+const selectedStatus = ref<"all" | "enabled" | "disabled">("all");
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -51,6 +53,11 @@ function handleProviderFilter(value: string) {
 function handleFamilyFilter(value: string) {
   selectedFamily.value = value;
   filterByFamily(value === "all" ? undefined : value);
+}
+
+function handleStatusFilter(value: string) {
+  selectedStatus.value = value as "all" | "enabled" | "disabled";
+  filterByStatus(value === "all" ? undefined : value === "enabled");
 }
 
 const providerItems = computed(() => [
@@ -75,6 +82,18 @@ const familyLabel = computed(
   () =>
     familyItems.value.find((i) => i.value === selectedFamily.value)?.label ??
     t("connections.allFamilies"),
+);
+
+const statusItems = computed(() => [
+  { label: t("connections.allStatuses"), value: "all" },
+  { label: t("connections.statusEnabled"), value: "enabled" },
+  { label: t("connections.statusDisabled"), value: "disabled" },
+]);
+
+const statusLabel = computed(
+  () =>
+    statusItems.value.find((i) => i.value === selectedStatus.value)?.label ??
+    t("connections.allStatuses"),
 );
 
 const filteredModels = computed(() => models.value);
@@ -194,6 +213,27 @@ async function handleToggleEnabled(row: any, event: Event) {
         >
           <UIcon name="i-lucide-layers" class="size-3.5" />
           {{ familyLabel }}
+        </button>
+      </USelectMenu>
+
+      <!-- Status filter (enabled/disabled, server-side via API) -->
+      <USelectMenu
+        :model-value="selectedStatus"
+        :items="statusItems"
+        value-key="value"
+        :search-input="false"
+        :ui="{
+          base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
+          content: 'border bg-card ring-0 outline-none shadow-lg',
+          item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
+        }"
+        @update:model-value="handleStatusFilter"
+      >
+        <button
+          class="flex h-9 min-w-[150px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+        >
+          <UIcon name="i-lucide-toggle-left" class="size-3.5" />
+          {{ statusLabel }}
         </button>
       </USelectMenu>
     </div>
