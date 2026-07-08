@@ -84,7 +84,7 @@ src/
 │   ├── chat/               # Chat page
 │   ├── settings/           # Settings + detail pages (provider/model/family edit)
 │   └── *.vue               # Home, Characters, Creator, Connections, Memory, etc.
-├── App.vue                 # Root (wraps app in UApp for Nuxt UI providers)
+├── App.vue                 # Root (mounts AppShell + ToastContainer)
 └── main.ts                 # Entry point (Pinia, Router, i18n, MSW init)
 ```
 
@@ -99,14 +99,14 @@ src/
 - **Framework:** Vue 3.5 — always `<script setup lang="ts">` Composition API
 - **Build Bundler:** Vite 8 powered by Rolldown (Rust); Oxc transforms + Lightning CSS minify
 - **Language:** TypeScript 6 (strict mode)
-- **UI Library:** Nuxt UI v4 via the Vite plugin (`@nuxt/ui/vite`) — **NOT** Nuxt.js
-- **Styling:** Tailwind CSS v4 with custom CSS variables
+- **UI Library:** DaisyUI 5 — a CSS-only Tailwind plugin (component _classes_, no JS runtime). Interactive behavior lives in shared Vue primitives (`AppIcon`, `AppTooltip`, `SelectMenu`) under `src/components/shared/`, registered globally in `main.ts`.
+- **Styling:** Tailwind CSS v4 via `@tailwindcss/vite`; DaisyUI themes (`tbm-*`) + retained CSS variables
 - **State:** Pinia for global state, composables for feature-scoped state
 - **Routing:** Vue Router 5
 - **i18n:** vue-i18n
 - **API Client:** openapi-fetch (typed against `src/api/schema.d.ts`)
 - **Mocking:** MSW (Mock Service Worker)
-- **Icons:** Lucide via `@iconify-json/lucide` — always `<UIcon name="i-lucide-*" />`
+- **Icons:** `lucide-vue-next` via the global `<AppIcon name="i-lucide-*" />` (registry: `src/components/shared/icons.ts`)
 - **Lint / Format:** Oxlint / Oxfmt, run through `vp lint` / `vp fmt` (provided by the Vite+ toolchain — no standalone devDeps)
 
 ### 4.2 Layered Responsibilities
@@ -118,7 +118,7 @@ Data flows **View → Component → Composable → API Client**. Keep each layer
    - **Forbidden:** No inline `fetch`/API calls and no raw business logic — delegate to a composable.
 
 2. **Component (`components/**/\*.vue`)\*\*:
-   - **Responsibilities:** Presentation and interaction. Receive `props`, emit events, render Nuxt UI primitives.
+   - **Responsibilities:** Presentation and interaction. Receive `props`, emit events, render DaisyUI classes and the shared primitives.
    - **Forbidden:** No direct API calls or global-state mutation — lift that into a composable or store.
 
 3. **Composable (`composables/use*.ts`)**:
@@ -150,11 +150,11 @@ For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Conne
 | `useLibraryFilters`                   | Client-side character filtering               |
 | `useSidebar`                          | Sidebar collapse state (localStorage)         |
 | `useTheme`                            | Dark/light mode singleton (localStorage)      |
-| `useAppToast`                         | Toast wrapper around Nuxt UI's `useToast`     |
+| `useAppToast`                         | Self-contained toast store (via `ToastContainer`) |
 
 ### 4.3 Key Architecture Decisions
 
-- **No shadcn/ui:** Migrated to Nuxt UI v4. The old `src/components/ui/` directory no longer exists.
+- **DaisyUI, not a component runtime:** Migrated off Nuxt UI v4 to DaisyUI 5 (a CSS-only Tailwind plugin). Behavior lives in three globally-registered shared primitives — `AppIcon`, `AppTooltip`, `SelectMenu`; everything else is hand-rolled Tailwind using DaisyUI's token vocabulary.
 - **API types directly:** Components use `components["schemas"]["CharacterResponse"]` etc. from the generated schema. No parallel/duplicate type systems.
 - **Avatar URLs from API:** Use the `avatar` / `avatar_thumbnail` fields directly. Don't route through `getAvatarUrl()` (it generates endpoints not mocked in MSW).
 - **Singleton theme:** `useTheme()` shares one `isDark` ref across all components.
@@ -171,7 +171,7 @@ When asked to implement a feature, follow this strict template:
 
 1. **Analysis:** Read the relevant views/components/composables. Check API types in `schema.d.ts` and the matching MSW handler/fixture.
 2. **Plan:** Outline changes in **API Client → Composable → Component → View** order.
-3. **Code:** Apply changes, reusing existing patterns and Nuxt UI primitives.
+3. **Code:** Apply changes, reusing existing patterns, DaisyUI classes, and the shared primitives.
 4. **Verify:** Run type checking, lint, and a full build.
 
 ### 5.2 Commands & Quality Assurance
@@ -220,7 +220,7 @@ Claude Code config lives at the **repo root** `.claude/` — Claude Code loads `
 - **Permissions** (root `.claude/settings.json`): a merged `allow` list for both halves' tooling (`vp`, `bun`, `uv`, `ruff`, read-only `git`/`gh`, file inspection, doc `WebFetch` domains), an `ask` list for destructive git ops (`reset`/`checkout`/`restore`/`clean`) and `rm`, and a `deny` list (`sudo`, force-push, `reset --hard`, `gh repo delete`/`archive`). Per §2.1 you commit directly to `main` and never `git push` unless the user asks — a `git-push-guard` PreToolUse hook enforces the push guard. `git commit`/`push` aren't pre-allowed; add them to `.claude/settings.local.json`'s `allow` per-machine to skip the prompt (rules evaluate deny→ask→allow).
 - **Hooks** (root `.claude/hooks/`, `be-`/`fe-` prefix marks the half): the frontend hooks are `fe-linter` (PostToolUse — `vp fmt` + `vp lint --fix`, scoped to `frontend/*` source, skips generated files) and `fe-typecheck` (Stop — `vue-tsc --noEmit` gate against `frontend/`); they prepend `~/.vite-plus/bin` to PATH so `vp` resolves in their fresh shell. Backend hooks (`be-linter`, `be-typecheck`) sit alongside them and self-scope to `backend/`; `git-push-guard` (PreToolUse) and `session-context` (SessionStart) are repo-wide.
 - **Skills** (`frontend/.claude/skills/`): `sync-schema`, `new-msw-handler`, `new-component`, `new-composable`, and the vendored `superdesign` — all tracked, so a fresh clone picks them up.
-- **MCP** (root `.mcp.json`): the Nuxt UI MCP (`nuxt-ui` → `https://ui.nuxt.com/mcp`), pre-approved via `enabledMcpjsonServers` in the root settings.
+- **MCP** (root `.mcp.json`): none configured (`mcpServers: {}`). DaisyUI docs are reachable via `WebFetch(domain:daisyui.com)`.
 
 Only `.claude/settings.local.json` (personal allowlist) is **gitignored**.
 
@@ -237,41 +237,29 @@ Vite+ can also wire up agent/editor integration via `vp migrate --agent` / `vp c
 - Extract shared logic into composables; keep components focused on rendering and interaction.
 - Prefer `computed`/`ref` reactivity over manual watchers where possible.
 
-### 6.2 Nuxt UI & Components
+### 6.2 Components & DaisyUI
 
-Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitives:
+The UI layer is **DaisyUI 5** — CSS-only Tailwind component classes plus three globally-registered shared primitives (no import needed):
 
 ```vue
-<UApp>           <!-- Root wrapper: provides TooltipProvider, Toaster -->
-<UIcon>          <!-- ALWAYS use for icons, never bare <span class="i-lucide-*"> -->
-<UButton>        <!-- Buttons with variants -->
-<UBadge>         <!-- Status badges -->
-<UTooltip>       <!-- Tooltips (require UApp ancestor) -->
-<USelectMenu>    <!-- Dropdowns — use custom trigger + :ui overrides -->
-<UNotifications> <!-- Toast container (provided by UApp) -->
+<AppIcon name="i-lucide-*" />                          <!-- ALL icons (lucide-vue-next) -->
+<AppTooltip :text="..." side="right"> … </AppTooltip>  <!-- teleported hover tooltip -->
+<SelectMenu v-model="v" :items="items" value-key="value"> <button>…</button> </SelectMenu>
 ```
 
-**USelectMenu pattern (custom styled)** — the project uses a consistent warm-bordered dropdown:
+For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, `card`, …) and DaisyUI's token utilities (§6.3) on hand-rolled markup.
+
+**SelectMenu pattern** — a searchable, teleported dropdown; the default slot is the trigger button, and the listbox styling/width are handled internally (no `:ui` overrides):
 
 ```vue
-<USelectMenu
-  v-model="value"
-  :items="items"
-  value-key="value"
-  :search-input="false"
-  :ui="{
-    base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-    content: 'border bg-card ring-0 outline-none shadow-lg',
-    item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-  }"
->
-  <button class="flex h-9 items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground outline-none">
+<SelectMenu v-model="value" :items="items" value-key="value" :search-input="false">
+  <button class="flex h-9 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground outline-none">
     {{ label }}
   </button>
-</USelectMenu>
+</SelectMenu>
 ```
 
-- `UIcon` for **ALL** icons — never a bare `<span class="i-lucide-*">`.
+- `AppIcon` for **ALL** icons — never a bare `<span class="i-lucide-*">`. Add new icons to `src/components/shared/icons.ts`.
 - Use `border` alone for card borders (the base layer sets `border-color: var(--color-border)` on all elements).
 
 ### 6.3 Design System
@@ -282,15 +270,15 @@ Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitive
 - **Inter** (default): body text, UI labels
 - **BlackChancery** (`font-medieval`): brand wordmark "The Bannered Mare" only
 
-**Colors (CSS Variables)** — Nuxt UI configured with `primary: "amber"`, `neutral: "stone"`.
+**Colors** — DaisyUI themes `tbm-<palette>` / `tbm-<palette>-dark` (`src/assets/themes.css`), switched by `useTheme()` via the `data-theme` attribute on `<html>` (6 palettes × light/dark). Use DaisyUI token utilities: `bg-base-100/200/300` (page → raised → recessed surfaces), `text-base-content`, `bg-primary` / `text-primary-content`, `text-error`; plus the retained `text-muted-foreground`, `text-foreground` (aliased to base-content), and bare `border`. Don't reintroduce the old shadcn names (`bg-card`, `bg-muted`, `bg-accent`, `text-destructive`).
 
 - Light mode: parchment cream backgrounds (`#FFFFFF`), warm walnut text (`#2C2418`), amber primary (`#C9922E`)
 - Dark mode: deep walnut backgrounds (`#0F0D0B`), warm cream text (`#E8DFD0`), bright amber primary (`#D4A544`)
 
 **Common patterns**
 
-- **Card:** `rounded-xl border bg-card/50 p-4`
-- **Input:** `h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
+- **Card:** `rounded-xl border bg-base-200/50 p-4`
+- **Input:** `h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
 - **Section heading:** `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
 - **Toggle switch:** custom `div` (not `USwitch`) — see `AppSidebar.vue`
 - **Entry animation:** `animate-fade-in-up` with staggered `animation-delay`
@@ -304,7 +292,7 @@ Components are auto-imported by the Vite plugin. Always prefer Nuxt UI primitive
 ### 6.5 Error Handling & User Feedback
 
 - API calls return `{ data, error }` — always branch on `error` before using `data`.
-- Surface user-facing errors and confirmations through `useAppToast` (wraps Nuxt UI's `useToast`); do not swallow errors silently.
+- Surface user-facing errors and confirmations through `useAppToast` (a self-contained toast store); do not swallow errors silently.
 - Sanitize any rendered HTML (e.g. markdown output) with `dompurify` before injecting.
 
 ---
@@ -332,7 +320,7 @@ If the user asks for a step-by-step plan, output specifically using this format:
 
 ### Step 3: Component Layer
 
-- Build/extend components in `src/components/<area>/` using Nuxt UI primitives and the design-system patterns.
+- Build/extend components in `src/components/<area>/` using DaisyUI classes, the shared primitives, and the design-system patterns.
 
 ### Step 4: View / Route
 

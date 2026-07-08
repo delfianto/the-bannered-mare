@@ -55,7 +55,7 @@ central god object versus a headless backend of small, uniform slices:
   <text x="196" y="372" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-faint)">community-driven, grown over years</text>
   <rect x="412" y="80" width="304" height="92" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
   <text x="564" y="103" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">Vue 3 SPA frontend</text>
-  <text x="564" y="123" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">typed components · Pinia · Nuxt UI</text>
+  <text x="564" y="123" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">typed components · Pinia · DaisyUI</text>
   <text x="564" y="143" text-anchor="middle" font-size="10.5" fill="var(--tbm-dgm-ink-2)">separate repository</text>
   <rect x="412" y="188" width="304" height="150" rx="10" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)"/>
   <text x="564" y="209" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--tbm-dgm-ink)">FastAPI — modular monolith</text>

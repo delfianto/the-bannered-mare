@@ -1,7 +1,7 @@
 # Core Components
 
 This page outlines The Bannered Mare's frontend component architecture — Vue 3 components
-styled with Tailwind CSS and Nuxt UI v4 primitives.
+styled with Tailwind CSS and DaisyUI 5 primitives.
 
 
 ## 1. App Shell and Navigation Layout

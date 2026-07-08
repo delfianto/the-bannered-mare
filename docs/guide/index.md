@@ -121,7 +121,7 @@ parses the server-sent event (SSE) stream that carries live completions. Its sta
 | Toolchain | [Vite+](https://vite-plus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
 | Package manager | Bun |
 | Language | TypeScript 6 (strict) |
-| UI library | [Nuxt UI v4](https://ui.nuxt.com) via `@nuxt/ui/vite` — **not** Nuxt.js |
+| UI library | [DaisyUI 5](https://daisyui.com) — a Tailwind CSS plugin via `@tailwindcss/vite` |
 | Styling | Tailwind CSS v4 with custom CSS variables |
 | State | Pinia (global) + composables (feature-scoped) |
 | Routing | Vue Router 5 |

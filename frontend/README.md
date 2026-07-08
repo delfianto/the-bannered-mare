@@ -12,14 +12,14 @@ Talks to [the backend](../backend), a FastAPI service, via a typed `openapi-fetc
 | Toolchain       | [Vite+](https://vite-plus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
 | Package Manager | Bun                                                                                         |
 | Language        | TypeScript 6 (strict)                                                                       |
-| UI Library      | [Nuxt UI v4](https://ui.nuxt.com) via `@nuxt/ui/vite` — **not** Nuxt.js                     |
-| Styling         | Tailwind CSS v4 with custom CSS variables                                                   |
+| UI Library      | [DaisyUI 5](https://daisyui.com) — a Tailwind CSS plugin via `@tailwindcss/vite`            |
+| Styling         | Tailwind CSS v4 + DaisyUI themes (`tbm-*`, switched via `data-theme`)                       |
 | State           | Pinia (global) + composables (feature-scoped)                                               |
 | Routing         | Vue Router 5                                                                                |
 | i18n            | vue-i18n                                                                                    |
 | API Client      | openapi-fetch (typed against auto-generated `src/api/schema.d.ts`)                          |
 | Mocking         | MSW (Mock Service Worker)                                                                   |
-| Icons           | Lucide via `@iconify-json/lucide` — `<UIcon name="i-lucide-*" />`                           |
+| Icons           | `lucide-vue-next` via the global `<AppIcon name="i-lucide-*" />`                            |
 | Lint / Format   | Oxlint / Oxfmt via `vp lint` / `vp fmt`                                                     |
 
 ## Getting Started

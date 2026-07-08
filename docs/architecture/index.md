@@ -36,7 +36,7 @@ for the server-sent event (SSE) stream that carries live completions.
     <text x="707" y="140" fill="var(--tbm-dgm-ink)">LLM · Mock</text>
     <text x="707" y="155" font-size="10" fill="var(--tbm-dgm-ink-2)">harness</text>
   </g>
-  <text x="126" y="212" font-size="11" fill="var(--tbm-dgm-faint)">Vue 3.5 · Nuxt UI v4 · TypeScript · Vite · vue-i18n · custom SSE stream parser</text>
+  <text x="126" y="212" font-size="11" fill="var(--tbm-dgm-faint)">Vue 3.5 · DaisyUI 5 · TypeScript · Vite · vue-i18n · custom SSE stream parser</text>
   <!-- ===== Backend tier ===== -->
   <rect x="70" y="272" width="760" height="170" rx="14" fill="var(--tbm-dgm-backend-soft)" stroke="var(--tbm-dgm-backend)" stroke-opacity=".55" stroke-dasharray="5 4"/>
   <text x="86" y="296" font-size="12" font-weight="700" letter-spacing=".08em" fill="var(--tbm-dgm-backend)">BACKEND · FastAPI modular monolith · Python 3.14</text>
@@ -103,7 +103,7 @@ completions stream back the same way they came, over SSE. Click the diagram to e
 ## Frontend
 
 - [Project Structure](/architecture/frontend/project-structure) — the feature-based, layered `src/` layout
-- [Design System](/architecture/frontend/design-system) — Nuxt UI v4 and the visual language
+- [Design System](/architecture/frontend/design-system) — DaisyUI 5 and the visual language
 - [Main Screens](/architecture/frontend/main-screens) — the app's top-level surfaces
 - [Core Components](/architecture/frontend/core-components) — the reusable building blocks
 - [LLM Harness](/architecture/frontend/llm-harness) — driving live inference from the client

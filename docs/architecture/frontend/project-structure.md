@@ -30,11 +30,11 @@ frontend/
 │   ├── types/              # Hand-written TS types: API aliases from schema + UI-only shapes
 │   ├── utils/              # Framework-agnostic helpers (pure functions)
 │   ├── views/              # Routed pages (*View.vue), incl. chat/ and settings/ sub-trees
-│   ├── App.vue             # Root component — wraps the app in Nuxt UI's <UApp>
+│   ├── App.vue             # Root component — mounts AppShell + ToastContainer
 │   ├── main.ts             # Entrypoint — installs Pinia, Router, i18n; boots MSW in mock mode
 │   └── i18n.ts             # vue-i18n setup (locale detection + localStorage persistence)
 ├── package.json            # Scripts, dependencies
-└── vite.config.ts          # Vite+ / Nuxt UI / Tailwind config
+└── vite.config.ts          # Vite+ / DaisyUI / Tailwind config
 ```
 
 Three things are worth calling out before the layer-by-layer tour. `api/schema.d.ts` is
@@ -67,7 +67,7 @@ as function calls.
   <text x="380" y="130" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">reads route params · composes components · owns page layout</text>
   <rect x="150" y="172" width="460" height="60" rx="10" fill="var(--tbm-dgm-frontend-soft)" stroke="var(--tbm-dgm-frontend)"/>
   <text x="380" y="197" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">components/ — presentational SFCs</text>
-  <text x="380" y="216" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">props in · events out · Nuxt UI primitives · no data fetching</text>
+  <text x="380" y="216" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">props in · events out · DaisyUI primitives · no data fetching</text>
   <rect x="150" y="258" width="460" height="60" rx="10" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)"/>
   <text x="380" y="283" text-anchor="middle" font-size="13" font-weight="700" fill="var(--tbm-dgm-ink)">composables/ — useChatMessages()</text>
   <text x="380" y="302" text-anchor="middle" font-size="11" fill="var(--tbm-dgm-ink-2)">reactive feature state · CRUD + SSE streaming · the only caller of the client</text>
@@ -131,7 +131,7 @@ walked through in [Main Screens](/architecture/frontend/main-screens).
 | `shared/` | Cross-feature building blocks used everywhere — `Modal`, `ConfirmModal`, `DataTable`, `AppPagination`, `SearchBar`, `EmptyState`, the toast container |
 
 Components are presentational: they receive props and emit events, build on
-[Nuxt UI v4](/architecture/frontend/design-system) primitives, and defer all state and data
+[DaisyUI 5](/architecture/frontend/design-system) primitives, and defer all state and data
 work to composables. The reusable ones are detailed in
 [Core Components](/architecture/frontend/core-components).
 

@@ -2,7 +2,7 @@
 
 The Bannered Mare wears a warm, literary fantasy aesthetic — parchment, walnut ink, and
 medieval-library tones. The system is built from CSS variables, custom typography, Tailwind
-CSS v4, and Nuxt UI v4 token configuration.
+CSS v4, and DaisyUI 5 token configuration.
 
 
 ## 1. Color Palette Tokens
