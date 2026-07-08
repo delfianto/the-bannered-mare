@@ -11,6 +11,7 @@ from sqlalchemy import select
 
 from src.audit.writer import audit_logger
 from src.chat_message.models import Message, MessageRole
+from src.chat_message.normalize import parse_structured_list, sanitize_narrative
 from src.chat_message.repository_async import (
     AsyncMessageAlternativeRepository,
     AsyncMessageRepository,
@@ -38,7 +39,6 @@ from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
 from src.provider.gateway import ProviderGateway
 from src.provider.models import Provider
-from src.provider.normalize import parse_structured_list, sanitize_narrative
 from src.rag.retrieval_service import RetrievalService
 
 logger = get_logger(__name__)

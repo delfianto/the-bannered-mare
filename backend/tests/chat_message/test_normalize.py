@@ -1,6 +1,6 @@
 """Tests for tolerant model-output normalization."""
 
-from src.provider.normalize import parse_structured_list, sanitize_narrative
+from src.chat_message.normalize import parse_structured_list, sanitize_narrative
 
 
 class TestParseStructuredList:
