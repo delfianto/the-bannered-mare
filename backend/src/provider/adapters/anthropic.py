@@ -37,7 +37,9 @@ class AnthropicAdapter(ProviderAdapter):
         if api_key:
             headers["x-api-key"] = api_key
         headers["anthropic-version"] = _ANTHROPIC_VERSION
-        headers["anthropic-beta"] = "prompt-caching-2024-07-31"
+        # prompt-caching is GA but the header is still accepted; effort gates the
+        # output_config.effort adaptive-thinking control on Opus 4.5+.
+        headers["anthropic-beta"] = "prompt-caching-2024-07-31,effort-2025-11-24"
         return headers
 
     def build_payload(
@@ -91,8 +93,20 @@ class AnthropicAdapter(ProviderAdapter):
             payload["stop_sequences"] = stop_sequences
 
         thinking = parameters.get("thinking")
-        if isinstance(thinking, dict) and thinking.get("type") == "enabled":
+        # Forward any explicit thinking mode (enabled/disabled, and the adaptive
+        # mode used by the newer tiers) — not just "enabled".
+        if isinstance(thinking, dict) and thinking.get("type"):
             payload["thinking"] = thinking
+
+        # Adaptive-thinking effort (Opus 4.5+/Sonnet 5/Fable) rides on
+        # output_config.effort, gated by the effort beta header in build_headers.
+        effort = parameters.get("effort")
+        if effort is not None:
+            payload["output_config"] = {"effort": effort}
+
+        metadata = parameters.get("metadata")
+        if isinstance(metadata, dict) and metadata:
+            payload["metadata"] = metadata
 
         return payload
 

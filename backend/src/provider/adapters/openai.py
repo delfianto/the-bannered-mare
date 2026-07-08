@@ -10,16 +10,27 @@ from src.provider.adapters.base import (
     TokenUsage,
 )
 
-# Parameters that OpenAI Chat Completions accepts at the top level
+# Parameters accepted at the top level by OpenAI Chat Completions and the
+# OpenAI-compatible surfaces we route through it (OpenRouter, xAI, LM Studio).
+# Extra sampler knobs (top_k, min_p, top_a, repetition/repeat penalty) are not
+# part of the OpenAI spec but are honored by OpenRouter and local runtimes; they
+# only appear here for families whose schema defines them, so native OpenAI/xAI
+# requests (which never carry them) are unaffected. The `thinking` object is
+# handled separately (mapped to OpenRouter's `reasoning`), not passed raw.
 _OPENAI_PARAMS = {
     "temperature",
     "top_p",
+    "top_k",
+    "min_p",
+    "top_a",
     "n",
     "stop",
     "max_tokens",
     "max_completion_tokens",
     "presence_penalty",
     "frequency_penalty",
+    "repetition_penalty",
+    "repeat_penalty",
     "logit_bias",
     "logprobs",
     "top_logprobs",
@@ -29,6 +40,8 @@ _OPENAI_PARAMS = {
     "tool_choice",
     "parallel_tool_calls",
     "reasoning_effort",
+    "verbosity",
+    "agent_count",
     "user",
     "stream_options",
 }
@@ -67,6 +80,19 @@ class OpenAIAdapter(ProviderAdapter):
         for key, value in parameters.items():
             if key in _OPENAI_PARAMS:
                 payload[key] = value
+
+        # Map the native `thinking` toggle to OpenRouter's unified `reasoning`
+        # object. Only open-weight families routed via OpenRouter carry `thinking`
+        # (native OpenAI/xAI never do), so this stays OpenRouter-scoped in practice.
+        # Skip when reasoning_effort is set — that already controls reasoning and
+        # sending both risks a conflict.
+        thinking = parameters.get("thinking")
+        if (
+            isinstance(thinking, dict)
+            and thinking.get("type")
+            and "reasoning_effort" not in parameters
+        ):
+            payload["reasoning"] = {"enabled": thinking["type"] != "disabled"}
 
         return payload
 
