@@ -8,7 +8,6 @@ import { useProfiles } from "@/composables/useProfiles";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
-import QuillTypingIndicator from "@/components/chat/QuillTypingIndicator.vue";
 import MoodChips from "@/components/chat/MoodChips.vue";
 import ParchmentInput from "@/components/chat/ParchmentInput.vue";
 import type { MoodChip } from "@/types/chat";
@@ -309,19 +308,13 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
             :character-avatar="msg.role === 'assistant' ? characterAvatar : undefined"
             :alternative-count="getAlternativeCount(msg.id)"
             :current-alt-index="getCurrentAltIndex(msg.id)"
+            :streaming="isGenerating && i === messages.length - 1 && msg.role === 'assistant'"
             @edit="handleEditMessage"
             @swipe="handleSwipe"
           />
 
           <!-- Mood Chips -->
           <MoodChips v-if="showMoodChips" :chips="MOOD_CHIPS" @select="handleMoodSelect" />
-
-          <!-- Typing Indicator -->
-          <QuillTypingIndicator
-            v-if="isGenerating"
-            :character-name="activeSession.character.name"
-            :character-avatar="characterAvatar"
-          />
         </div>
       </div>
 

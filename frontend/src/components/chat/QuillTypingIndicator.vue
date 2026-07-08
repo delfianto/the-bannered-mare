@@ -1,32 +1,23 @@
 <script setup lang="ts">
+// The bubble/avatar are supplied by the surrounding MessageBubble; this renders
+// only the inline "composing" animation shown inside an empty assistant bubble
+// while awaiting the first streamed token.
 defineProps<{
-  characterName: string;
-  characterAvatar: string;
+  characterName?: string;
 }>();
 </script>
 
 <template>
-  <div class="flex animate-fade-in-up gap-3">
-    <img
-      :src="characterAvatar"
-      :alt="characterName"
-      class="mt-1 size-9 shrink-0 rounded-full object-cover ring-1 ring-border"
-    />
-    <div class="rounded-2xl rounded-tl-md border bg-muted px-5 py-4">
-      <div class="flex items-center gap-2.5">
-        <UIcon name="i-lucide-pen-tool" class="animate-quill-write size-4 text-primary" />
-        <span class="text-xs text-muted-foreground italic">
-          {{ characterName }} dips her quill...
-        </span>
-        <div class="ml-1 flex items-center gap-1">
-          <span
-            v-for="i in 3"
-            :key="i"
-            class="animate-pulse-dot size-1.5 rounded-full bg-primary/60"
-            :style="{ animationDelay: `${(i - 1) * 200}ms` }"
-          />
-        </div>
-      </div>
+  <div class="flex items-center gap-2.5">
+    <UIcon name="i-lucide-pen-tool" class="animate-quill-write size-4 text-primary" />
+    <span class="text-xs text-muted-foreground italic"> {{ characterName }} dips her quill... </span>
+    <div class="ml-1 flex items-center gap-1">
+      <span
+        v-for="i in 3"
+        :key="i"
+        class="animate-pulse-dot size-1.5 rounded-full bg-primary/60"
+        :style="{ animationDelay: `${(i - 1) * 200}ms` }"
+      />
     </div>
   </div>
 </template>

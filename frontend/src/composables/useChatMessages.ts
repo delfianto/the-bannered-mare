@@ -92,14 +92,11 @@ export function useChatMessages(
   // Track if we are currently generating (prevents double clicks and triggers scroll)
   const isGenerating = ref(false);
 
-  // Helper to process the SSE stream (Shared logic)
-  const readStream = async (response: Response) => {
-    if (!response.body) return;
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    // Create a temporary "pending" message
-    const tempMsg: Message = {
+  // Append an empty assistant bubble up front so the UI can show the "pending"
+  // (quill) state inside it while we wait for the first token. readStream then
+  // fills this same message as events arrive.
+  const addAssistantPlaceholder = (): string => {
+    const placeholder: Message = {
       id: crypto.randomUUID(),
       role: "assistant",
       content: "",
@@ -107,11 +104,20 @@ export function useChatMessages(
       created_at: new Date().toISOString(),
       chat_id: getChatId()!,
     };
+    messages.value = [...messages.value, placeholder];
+    return placeholder.id;
+  };
 
-    // Add to UI immediately
-    messages.value = [...messages.value, tempMsg];
+  // Helper to process the SSE stream (Shared logic). The empty assistant
+  // placeholder is created by the caller so the bubble shows immediately.
+  const readStream = async (response: Response, placeholderId: string) => {
+    if (!response.body) return;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
-    const assistantMsgIndex = messages.value.length - 1;
+    const assistantMsgIndex = messages.value.findIndex((m) => m.id === placeholderId);
+    if (assistantMsgIndex === -1) return;
+
     let buffer = "";
     let streamError: string | null = null;
 
@@ -168,7 +174,7 @@ export function useChatMessages(
 
     if (streamError) {
       // Drop the empty placeholder so an error never lingers as a blank reply.
-      messages.value = messages.value.filter((m) => m.id !== tempMsg.id || m.content);
+      messages.value = messages.value.filter((m) => m.id !== placeholderId || m.content);
       throw new Error(streamError);
     }
   };
@@ -183,6 +189,7 @@ export function useChatMessages(
       messages.value = messages.value.slice(0, -1);
     }
 
+    const placeholderId = addAssistantPlaceholder();
     isGenerating.value = true;
     error.value = null;
 
@@ -200,7 +207,7 @@ export function useChatMessages(
         throw new Error(err.detail || "Regeneration failed");
       }
 
-      await readStream(response);
+      await readStream(response, placeholderId);
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Regeneration failed");
       isGenerating.value = false;
@@ -223,6 +230,7 @@ export function useChatMessages(
     };
     messages.value = [...messages.value, tempUserMsg];
 
+    const placeholderId = addAssistantPlaceholder();
     isGenerating.value = true;
     error.value = null;
 
@@ -240,10 +248,12 @@ export function useChatMessages(
         throw new Error(err.detail || "Failed to send message");
       }
 
-      await readStream(response);
+      await readStream(response, placeholderId);
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Failed to send message");
       isGenerating.value = false;
+      // Drop the empty placeholder so a failed send doesn't leave a blank bubble.
+      messages.value = messages.value.filter((m) => m.id !== placeholderId || m.content);
     }
   };
 
