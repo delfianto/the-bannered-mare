@@ -89,12 +89,6 @@ watch(
   },
 );
 
-const selectUi = {
-  base: "w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent",
-  content: "w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg",
-  item: "text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent",
-};
-
 const selectedFamily = computed(
   () =>
     families.value.find((f: any) => f.id === form.model_family_id) ||
@@ -324,19 +318,18 @@ function formatDate(iso: string): string {
                   >
                     {{ $t("connections.model.family") }}
                   </span>
-                  <USelectMenu
+                  <SelectMenu
                     v-model="form.model_family_id"
                     :items="familyItems"
                     value-key="value"
                     class="w-full"
-                    :ui="selectUi"
                   >
                     <button
                       class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
                     >
                       {{ familyName }}
                     </button>
-                  </USelectMenu>
+                  </SelectMenu>
                 </label>
 
                 <!-- Provider selector -->
@@ -346,13 +339,12 @@ function formatDate(iso: string): string {
                   >
                     {{ $t("connections.model.provider") }}
                   </span>
-                  <USelectMenu
+                  <SelectMenu
                     v-model="form.provider_id"
                     :items="providerItems"
                     value-key="value"
                     :search-input="false"
                     class="w-full"
-                    :ui="selectUi"
                     :disabled="!form.model_family_id"
                   >
                     <button
@@ -361,7 +353,7 @@ function formatDate(iso: string): string {
                     >
                       {{ providerName }}
                     </button>
-                  </USelectMenu>
+                  </SelectMenu>
                 </label>
 
                 <!-- OpenRouter routing -->

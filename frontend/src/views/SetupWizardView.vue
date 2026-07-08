@@ -30,12 +30,6 @@ const { presets } = usePresets();
 const { personas, createPersona } = usePersonas();
 const { models } = useModels({ pageSize: 100 });
 
-const selectUi = {
-  base: "border-none shadow-none ring-0 outline-none p-0 bg-transparent w-full",
-  content: "border bg-card ring-0 outline-none shadow-lg",
-  item: "text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent",
-};
-
 // Reka UI's Combobox forbids an item value of "" (it reserves the empty string
 // for the cleared state), so the "None" option uses a sentinel that maps back
 // to null on submit.
@@ -435,12 +429,11 @@ function finish() {
         <div class="space-y-4">
           <div>
             <span class="mb-1 block text-xs font-medium text-muted-foreground">Model</span>
-            <USelectMenu
+            <SelectMenu
               v-model="followUpModelId"
               :items="modelOptions"
               value-key="value"
               :search-input="true"
-              :ui="selectUi"
             >
               <button
                 type="button"
@@ -457,7 +450,7 @@ function finish() {
                   class="size-4 shrink-0 text-muted-foreground"
                 />
               </button>
-            </USelectMenu>
+            </SelectMenu>
           </div>
 
           <div>
@@ -487,13 +480,12 @@ function finish() {
               </button>
             </div>
 
-            <USelectMenu
+            <SelectMenu
               v-else
               v-model="followUpPersonaId"
               :items="toOptions(personas, 'No persona')"
               value-key="value"
               :search-input="false"
-              :ui="selectUi"
             >
               <button
                 type="button"
@@ -510,7 +502,7 @@ function finish() {
                   class="size-4 shrink-0 text-muted-foreground"
                 />
               </button>
-            </USelectMenu>
+            </SelectMenu>
           </div>
 
           <div class="flex items-center gap-3">

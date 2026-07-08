@@ -236,18 +236,12 @@ function formatDate(iso: string): string {
                 >
                   {{ $t("connections.fragment.type") }}
                 </label>
-                <USelectMenu
+                <SelectMenu
                   v-model="form.fragment_type"
                   :items="fragmentTypeOptions.map((o) => ({ label: o.label, value: o.value }))"
                   value-key="value"
                   :search-input="false"
                   class="w-full"
-                  :ui="{
-                    base: 'w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-                    content:
-                      'w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg',
-                    item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-                  }"
                 >
                   <button
                     class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
@@ -257,7 +251,7 @@ function formatDate(iso: string): string {
                       form.fragment_type
                     }}
                   </button>
-                </USelectMenu>
+                </SelectMenu>
               </div>
 
               <!-- Is Global toggle -->

@@ -176,16 +176,11 @@ async function handleToggleEnabled(row: any, event: Event) {
       </div>
 
       <!-- Provider filter (server-side via API) -->
-      <USelectMenu
+      <SelectMenu
         :model-value="selectedProvider"
         :items="providerItems"
         value-key="value"
         :search-input="false"
-        :ui="{
-          base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-          content: 'border bg-card ring-0 outline-none shadow-lg',
-          item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-        }"
         @update:model-value="handleProviderFilter"
       >
         <button
@@ -194,18 +189,13 @@ async function handleToggleEnabled(row: any, event: Event) {
           <AppIcon name="i-lucide-server" class="size-3.5" />
           {{ providerLabel }}
         </button>
-      </USelectMenu>
+      </SelectMenu>
 
       <!-- Family filter (server-side via API) -->
-      <USelectMenu
+      <SelectMenu
         :model-value="selectedFamily"
         :items="familyItems"
         value-key="value"
-        :ui="{
-          base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-          content: 'border bg-card ring-0 outline-none shadow-lg',
-          item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-        }"
         @update:model-value="handleFamilyFilter"
       >
         <button
@@ -214,19 +204,14 @@ async function handleToggleEnabled(row: any, event: Event) {
           <AppIcon name="i-lucide-layers" class="size-3.5" />
           {{ familyLabel }}
         </button>
-      </USelectMenu>
+      </SelectMenu>
 
       <!-- Status filter (enabled/disabled, server-side via API) -->
-      <USelectMenu
+      <SelectMenu
         :model-value="selectedStatus"
         :items="statusItems"
         value-key="value"
         :search-input="false"
-        :ui="{
-          base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-          content: 'border bg-card ring-0 outline-none shadow-lg',
-          item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-        }"
         @update:model-value="handleStatusFilter"
       >
         <button
@@ -235,7 +220,7 @@ async function handleToggleEnabled(row: any, event: Event) {
           <AppIcon name="i-lucide-toggle-left" class="size-3.5" />
           {{ statusLabel }}
         </button>
-      </USelectMenu>
+      </SelectMenu>
     </div>
 
     <!-- Loading -->
