@@ -7,6 +7,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Bannered Mare</title>
+    <script>
+      // Set the daisyUI theme before paint to avoid a flash of the default theme.
+      (function () {
+        try {
+          var mode = localStorage.getItem("theme-mode");
+          var scheme = localStorage.getItem("color-scheme") || "amber";
+          var dark = mode === "dark" || (!mode && matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.dataset.theme = "tbm-" + scheme + (dark ? "-dark" : "");
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
-@import "@nuxt/ui";
+@plugin "daisyui" {
+  logs: false;
+}
 @import "./themes.css";
 
 /* BlackChancery — brand wordmark only */
@@ -12,17 +14,18 @@
   font-display: swap;
 }
 
-@custom-variant dark (&:is(.dark *));
+/* dark: variant keyed off the active theme's -dark suffix (no .dark class) */
+@custom-variant dark (&:where([data-theme$="-dark"], [data-theme$="-dark"] *));
 
 @theme {
   --font-medieval: "BlackChancery", serif;
   --font-cinzel: "Cinzel", Georgia, serif;
 
-  /* Chat specific colors */
-  --color-chat-user-bg: var(--chat-user-bg);
-  --color-chat-user-fg: var(--chat-user-fg);
-  --color-chat-assistant-bg: var(--chat-assistant-bg);
-  --color-chat-assistant-fg: var(--chat-assistant-fg);
+  /* Preserve the app's rounded-* scale (independent of daisyUI's --radius-*) */
+  --radius-sm: calc(0.625rem - 4px);
+  --radius-md: calc(0.625rem - 2px);
+  --radius-lg: 0.625rem;
+  --radius-xl: calc(0.625rem + 4px);
 
   /* Staggered entry animation */
   --animate-fade-in-up: fade-in-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -39,87 +42,30 @@
   }
 }
 
-/* ── The Bannered Mare Light Theme Tokens ── */
-:root {
-  color-scheme: light;
-  --background: #ffffff;
-  --foreground: #2c2418;
-  --card: #ffffff;
-  --card-foreground: #2c2418;
-  --popover: #ffffff;
-  --popover-foreground: #2c2418;
-  --primary: #c9922e;
-  --primary-foreground: #ffffff;
-  --secondary: #faf7f2;
-  --secondary-foreground: #5c4e3c;
-  --muted: #f5f0e8;
-  --muted-foreground: #7a6e5d;
-  --accent: #e8dfd0;
-  --accent-foreground: #2c2418;
-  --destructive: #b84233;
-  --border: #e8dfd0;
-  --input: #e8dfd0;
-  --ring: #c9922e;
-  --radius: 0.625rem;
-
-  --chat-user-bg: #c9922e;
-  --chat-user-fg: #ffffff;
-  --chat-assistant-bg: #f5f0e8;
-  --chat-assistant-fg: #2c2418;
-}
-
-/* ── The Bannered Mare Dark Theme Tokens ── */
-.dark {
-  color-scheme: dark;
-  --background: #0f0d0b;
-  --foreground: #e8dfd0;
-  --card: #1e1b17;
-  --card-foreground: #e8dfd0;
-  --popover: #1e1b17;
-  --popover-foreground: #e8dfd0;
-  --primary: #d4a544;
-  --primary-foreground: #0f0d0b;
-  --secondary: #1a1614;
-  --secondary-foreground: #d4c4a8;
-  --muted: #2a2520;
-  --muted-foreground: #9b8e7a;
-  --accent: #2a2520;
-  --accent-foreground: #e8dfd0;
-  --destructive: #d45b4f;
-  --border: #2a2520;
-  --input: #2a2520;
-  --ring: #d4a544;
-
-  --chat-user-bg: #d4a544;
-  --chat-user-fg: #0f0d0b;
-  --chat-assistant-bg: #2a2520;
-  --chat-assistant-fg: #e8dfd0;
-}
-
-/* ── Nuxt UI token bridge ── */
+/* ── Temporary bridge (removed in Phase 5) ──
+   Maps the shadcn-style utility names still used across the app to daisyUI's
+   theme vars, so bg-card / text-foreground / bg-muted / bg-accent / … keep
+   resolving until the codemod renames them to daisyUI's vocabulary. The
+   retained tokens (border/input/ring/muted-foreground) reference the runtime
+   custom properties emitted by each daisyUI theme and stay permanently. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--color-base-100);
+  --color-foreground: var(--color-base-content);
+  --color-card: var(--color-base-200);
+  --color-card-foreground: var(--color-base-content);
+  --color-popover: var(--color-base-200);
+  --color-popover-foreground: var(--color-base-content);
+  --color-secondary: var(--color-base-200);
+  --color-secondary-foreground: var(--color-base-content);
+  --color-muted: var(--color-base-300);
+  --color-accent: var(--color-base-300);
+  --color-accent-foreground: var(--color-base-content);
+  --color-primary-foreground: var(--color-primary-content);
+  --color-destructive: var(--color-error);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-border: var(--color-border);
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
 }
 
 @layer base {
@@ -129,8 +75,8 @@
     border-color: var(--color-border);
   }
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--color-base-100);
+    color: var(--color-base-content);
     scrollbar-gutter: stable;
   }
 }
