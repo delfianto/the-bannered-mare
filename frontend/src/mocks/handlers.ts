@@ -388,18 +388,27 @@ export const handlers = [
       const encoder = new TextEncoder();
       const responseStream = new ReadableStream({
         async start(controller) {
+          // Mirror the backend's typed StreamEvent contract: { type, content? },
+          // NOT { text }. The client only renders `type: "text"` events.
+          const send = (obj: Record<string, unknown>) =>
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
+
+          send({ type: "start", message_id: `msg-${Date.now()}` });
+
+          // Simulate backend latency (retrieval + prompt build + first token) so
+          // the composing animation is visible before text streams in.
+          await new Promise((r) => setTimeout(r, 600));
+
           const text = regenerate
             ? "[Mock Regenerated Response] This is a simulated regenerated reply."
             : "[Mock Streaming AI Response] This is a simulated streaming reply.";
-          const words = text.split(" ");
 
-          for (const word of words) {
-            const chunk = JSON.stringify({ text: word + " " });
-            controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
+          for (const word of text.split(" ")) {
+            send({ type: "text", content: word + " " });
             await new Promise((r) => setTimeout(r, 50));
           }
 
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          send({ type: "done", finish_reason: "stop" });
           controller.close();
         },
       });
