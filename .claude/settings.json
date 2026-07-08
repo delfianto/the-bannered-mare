@@ -87,7 +87,7 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:router.vuejs.org)",
       "WebFetch(domain:tailwindcss.com)",
-      "WebFetch(domain:ui.nuxt.com)",
+      "WebFetch(domain:daisyui.com)",
       "WebFetch(domain:vite.dev)",
       "WebFetch(domain:vitejs.dev)",
       "WebFetch(domain:vue-i18n.intlify.dev)",
@@ -173,5 +173,5 @@
     "logfire@claude-plugins-official": true,
     "42crunch-api-security-testing@claude-plugins-official": true
   },
-  "enabledMcpjsonServers": ["nuxt-ui"]
+  "enabledMcpjsonServers": []
 }
