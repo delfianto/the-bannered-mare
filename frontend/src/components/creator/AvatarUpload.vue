@@ -49,7 +49,7 @@ function onChange(e: Event) {
         <img
           :src="avatarUrl"
           alt="Character portrait"
-          class="absolute inset-0 size-full object-cover"
+          class="absolute inset-0 size-full object-cover object-top"
         />
         <div
           class="group absolute inset-0 flex items-center justify-center bg-black/0 transition-colors hover:bg-black/40"

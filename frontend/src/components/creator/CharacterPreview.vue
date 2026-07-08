@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { CharacterData } from "@/types/creator";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
 
@@ -7,6 +7,33 @@ const props = defineProps<{
   data: CharacterData;
   completeness: { filled: number; total: number };
 }>();
+
+// The preview card doubles as the portrait uploader on wide screens (the
+// standalone form uploader only appears when this panel is hidden), so the
+// image you see is the image you drop onto.
+const emit = defineEmits<{
+  change: [file: File];
+}>();
+
+const dragOver = ref(false);
+const inputRef = ref<HTMLInputElement | null>(null);
+
+function handleFile(file: File) {
+  if (!file.type.startsWith("image/")) return;
+  emit("change", file);
+}
+
+function onDrop(e: DragEvent) {
+  e.preventDefault();
+  dragOver.value = false;
+  const file = e.dataTransfer?.files[0];
+  if (file) handleFile(file);
+}
+
+function onChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (file) handleFile(file);
+}
 
 const pct = computed(() =>
   props.completeness.total > 0 ? (props.completeness.filled / props.completeness.total) * 100 : 0,
@@ -20,21 +47,49 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
 
 <template>
   <div class="space-y-4">
-    <!-- Character Card -->
+    <!-- Character Card — also the portrait dropzone (click or drag an image). -->
     <div
-      class="relative aspect-3/4 max-h-[280px] overflow-hidden rounded-xl"
+      class="group relative aspect-3/4 max-h-[280px] cursor-pointer overflow-hidden rounded-xl transition-all"
+      :class="dragOver ? 'ring-2 ring-primary' : ''"
       style="box-shadow: 0 4px 20px var(--color-foreground) / 0.08"
+      @click="inputRef?.click()"
+      @dragover.prevent="dragOver = true"
+      @dragleave="dragOver = false"
+      @drop="onDrop"
     >
       <img
         v-if="data.avatarUrl"
         :src="data.avatarUrl"
         :alt="data.name"
-        class="absolute inset-0 size-full object-cover"
+        class="absolute inset-0 size-full object-cover object-top"
       />
       <div v-else class="absolute inset-0 flex items-center justify-center bg-muted">
         <UIcon name="i-lucide-user" class="size-16 text-muted-foreground/30" />
       </div>
       <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
+
+      <!-- Upload affordance: hint when empty, hover overlay when a portrait exists. -->
+      <div
+        v-if="!data.avatarUrl"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-2"
+        :class="dragOver ? 'text-primary' : 'text-white/60'"
+      >
+        <UIcon name="i-lucide-image-plus" class="size-8" />
+        <span class="text-[11px] font-medium">Drop image or click</span>
+      </div>
+      <div
+        v-else
+        class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/40"
+      >
+        <div
+          class="flex flex-col items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100"
+        >
+          <UIcon name="i-lucide-camera" class="size-6 text-white" />
+          <span class="text-xs font-medium text-white">Change portrait</span>
+        </div>
+      </div>
+
+      <input ref="inputRef" type="file" accept="image/*" class="hidden" @change="onChange" />
 
       <div v-if="data.tags.length > 0" class="absolute top-3 left-3 flex flex-wrap gap-1">
         <span

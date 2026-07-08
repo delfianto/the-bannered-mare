@@ -17,12 +17,8 @@ const emit = defineEmits<{
   "update:field": [field: keyof CharacterData, value: any];
   "add:tag": [tag: string];
   "remove:tag": [tag: string];
+  change: [file: File];
 }>();
-
-function handleAvatarChange(file: File) {
-  emit("update:field", "avatarFile", file);
-  emit("update:field", "avatarUrl", URL.createObjectURL(file));
-}
 </script>
 
 <template>
@@ -37,13 +33,17 @@ function handleAvatarChange(file: File) {
     </div>
 
     <div class="flex gap-6">
-      <AvatarUpload :avatar-url="data.avatarUrl" @change="handleAvatarChange" />
+      <!-- On wide screens the Live Preview card is the portrait uploader, so this
+           standalone control only shows when that panel is hidden. -->
+      <div class="xl:hidden">
+        <AvatarUpload :avatar-url="data.avatarUrl" @change="emit('change', $event)" />
+      </div>
 
       <div class="flex-1 space-y-4">
         <FormField :label="t('characters.form.name')">
           <input
             :value="data.name"
-            placeholder="Elara Moonwhisper"
+            placeholder="Isolde Fenwick"
             class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             @input="emit('update:field', 'name', ($event.target as HTMLInputElement).value)"
           />
