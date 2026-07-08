@@ -66,6 +66,8 @@
       "description": "Description",
       "descriptionPlaceholder": "What is this loadout for?",
       "setDefault": "Set as default profile",
+      "defaultOn": "Default loadout",
+      "defaultOff": "Not default",
       "create": "Create Profile",
       "save": "Save Changes"
     },
