@@ -1,5 +1,7 @@
 """Profile business logic service"""
 
+from typing import Any
+
 from fastapi import HTTPException, status
 
 from src.core.persistence import gen_id
@@ -75,41 +77,43 @@ class ProfileService:
         self.profile_repo.commit()
         return created
 
-    def update(
-        self,
-        profile_id: str,
-        name: str | None = None,
-        description: str | None = None,
-        is_default: bool | None = None,
-        prompt_template_id: str | None = None,
-        preset_id: str | None = None,
-        persona_id: str | None = None,
-        model_id: str | None = None,
-        task_model_id: str | None = None,
-    ) -> Profile:
-        """Update profile. Provided FK ids are validated; None leaves a field unchanged."""
-        profile = self.get_by_id(profile_id)
-        self._validate_refs(prompt_template_id, preset_id, persona_id, model_id, task_model_id)
+    def update(self, profile_id: str, updates: dict[str, Any]) -> Profile:
+        """Update a profile from a partial payload (fields the client actually sent).
 
-        if is_default:
+        Only keys present in ``updates`` are touched; an explicit ``None`` CLEARS
+        that field — this is how a loadout's model/persona/preset/task model gets
+        unselected. Provided non-null FK ids are validated for existence.
+        """
+        profile = self.get_by_id(profile_id)
+
+        self._validate_refs(
+            updates.get("prompt_template_id"),
+            updates.get("preset_id"),
+            updates.get("persona_id"),
+            updates.get("model_id"),
+            updates.get("task_model_id"),
+        )
+
+        if updates.get("is_default"):
             self.profile_repo.unset_all_defaults(exclude_id=profile_id)
 
-        if name is not None:
-            profile.name = name
-        if description is not None:
-            profile.description = description
-        if is_default is not None:
-            profile.is_default = is_default
-        if prompt_template_id is not None:
-            profile.prompt_template_id = prompt_template_id
-        if preset_id is not None:
-            profile.preset_id = preset_id
-        if persona_id is not None:
-            profile.persona_id = persona_id
-        if model_id is not None:
-            profile.model_id = model_id
-        if task_model_id is not None:
-            profile.task_model_id = task_model_id
+        editable = {
+            "name",
+            "description",
+            "is_default",
+            "prompt_template_id",
+            "preset_id",
+            "persona_id",
+            "model_id",
+            "task_model_id",
+        }
+        for key, value in updates.items():
+            if key not in editable:
+                continue
+            # Name is required — ignore an attempt to clear it.
+            if key == "name" and not value:
+                continue
+            setattr(profile, key, value)
 
         updated = self.profile_repo.update(profile)
         self.profile_repo.commit()

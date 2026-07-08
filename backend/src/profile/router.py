@@ -51,17 +51,9 @@ def get_profile(profile_id: str, service: ProfileServiceDep):
 @router.put("/{profile_id}", response_model=ProfileResponse)
 def update_profile(profile_id: str, body: ProfileUpdate, service: ProfileServiceDep):
     """Update profile"""
-    return service.update(
-        profile_id=profile_id,
-        name=body.name,
-        description=body.description,
-        is_default=body.is_default,
-        prompt_template_id=body.prompt_template_id,
-        preset_id=body.preset_id,
-        persona_id=body.persona_id,
-        model_id=body.model_id,
-        task_model_id=body.task_model_id,
-    )
+    # exclude_unset so an explicitly-sent null clears a field (unselect), while an
+    # omitted field is left unchanged.
+    return service.update(profile_id, body.model_dump(exclude_unset=True))
 
 
 @router.delete("/{profile_id}", status_code=status.HTTP_204_NO_CONTENT)
