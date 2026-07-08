@@ -41,7 +41,7 @@ const teaser = computed(() => props.content.replace(/\s+/g, " ").trim().slice(0,
       </div>
       <div class="flex shrink-0 items-center gap-2">
         <span class="text-[10px] tabular-nums text-muted-foreground/40">{{ charCount }}</span>
-        <UIcon
+        <AppIcon
           name="i-lucide-chevron-down"
           class="size-4 text-muted-foreground transition-transform"
           :class="{ 'rotate-180': open }"

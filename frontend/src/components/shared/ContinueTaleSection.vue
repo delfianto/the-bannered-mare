@@ -54,21 +54,21 @@ function avatarSrc(chat: Chat): string {
           class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="scroll('left')"
         >
-          <UIcon name="i-lucide-chevron-left" class="size-4" />
+          <AppIcon name="i-lucide-chevron-left" class="size-4" />
         </button>
         <button
           :aria-label="$t('bookmarks.scrollRight')"
           class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="scroll('right')"
         >
-          <UIcon name="i-lucide-chevron-right" class="size-4" />
+          <AppIcon name="i-lucide-chevron-right" class="size-4" />
         </button>
       </div>
     </div>
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-8">
-      <UIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
+      <AppIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
     </div>
 
     <div v-else ref="scrollContainer" class="scrollbar-hide flex gap-4 overflow-x-auto pb-2">
@@ -97,7 +97,7 @@ function avatarSrc(chat: Chat): string {
           <p class="mb-2 text-xs text-white/70">with {{ session.character.name }}</p>
           <div class="flex items-center gap-3 text-[11px] text-white/60">
             <span class="flex items-center gap-1">
-              <UIcon name="i-lucide-clock" class="size-3" />
+              <AppIcon name="i-lucide-clock" class="size-3" />
               {{ timeAgo(session.updated_at) }}
             </span>
           </div>

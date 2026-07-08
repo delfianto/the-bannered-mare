@@ -24,7 +24,7 @@ function onImported() {
         class="flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         @click="showImport = true"
       >
-        <UIcon name="i-lucide-upload" class="size-4" />
+        <AppIcon name="i-lucide-upload" class="size-4" />
         {{ $t("presetImport.button") }}
       </button>
     </div>
@@ -33,12 +33,12 @@ function onImported() {
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+      <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -96,7 +96,7 @@ function onImported() {
         <!-- Details -->
         <div class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground">
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-sliders-horizontal" class="size-3 shrink-0" />
+            <AppIcon name="i-lucide-sliders-horizontal" class="size-3 shrink-0" />
             <span
               >{{ parameterCount(preset) }} parameter{{
                 parameterCount(preset) !== 1 ? "s" : ""
@@ -104,7 +104,7 @@ function onImported() {
             >
           </div>
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
+            <AppIcon name="i-lucide-clock" class="size-3 shrink-0" />
             <span>{{ new Date(preset.updated_at).toLocaleDateString() }}</span>
           </div>
         </div>
@@ -113,7 +113,7 @@ function onImported() {
         <div
           class="absolute right-3 bottom-3 flex items-center gap-1 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
         >
-          <UIcon name="i-lucide-pencil" class="size-3" />
+          <AppIcon name="i-lucide-pencil" class="size-3" />
           {{ $t("common.edit") }}
         </div>
       </RouterLink>

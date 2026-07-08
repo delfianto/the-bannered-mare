@@ -82,7 +82,7 @@ function openFamily(row: any) {
               : 'border-border bg-muted/40 hover:border-muted-foreground/30'
           "
         >
-          <UIcon
+          <AppIcon
             name="i-lucide-search"
             class="size-4 shrink-0 transition-colors"
             :class="searchFocused ? 'text-primary' : 'text-muted-foreground'"
@@ -117,7 +117,7 @@ function openFamily(row: any) {
         <button
           class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
-          <UIcon name="i-lucide-server" class="size-3.5" />
+          <AppIcon name="i-lucide-server" class="size-3.5" />
           {{ providerTypeLabel }}
         </button>
       </USelectMenu>
@@ -125,12 +125,12 @@ function openFamily(row: any) {
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+      <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
@@ -141,7 +141,7 @@ function openFamily(row: any) {
         v-if="families.length === 0"
         class="flex flex-col items-center justify-center gap-2 py-16"
       >
-        <UIcon name="i-lucide-folder-open" class="size-8 text-muted-foreground/50" />
+        <AppIcon name="i-lucide-folder-open" class="size-8 text-muted-foreground/50" />
         <p class="text-sm text-muted-foreground">{{ $t("connections.noFamilies") }}</p>
       </div>
 

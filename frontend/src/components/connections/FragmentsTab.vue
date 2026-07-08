@@ -65,7 +65,7 @@ const columns: DataTableColumn[] = [
         "
         @click="toggleUnusedOnly"
       >
-        <UIcon name="i-lucide-filter" class="size-3.5" />
+        <AppIcon name="i-lucide-filter" class="size-3.5" />
         Unused only
       </button>
       <span class="text-xs text-muted-foreground"
@@ -75,12 +75,12 @@ const columns: DataTableColumn[] = [
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+      <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -95,7 +95,7 @@ const columns: DataTableColumn[] = [
       v-else-if="fragments.length === 0"
       class="flex flex-col items-center justify-center gap-3 py-20"
     >
-      <UIcon name="i-lucide-puzzle" class="size-8 text-muted-foreground/40" />
+      <AppIcon name="i-lucide-puzzle" class="size-8 text-muted-foreground/40" />
       <p class="text-sm text-muted-foreground">
         {{ unusedOnly ? "No unused fragments." : "No fragments yet." }}
       </p>

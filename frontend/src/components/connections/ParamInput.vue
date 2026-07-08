@@ -222,7 +222,7 @@ function updateObjectProp(key: string, val: unknown) {
         :class="layout === 'horizontal' ? 'w-[180px]' : 'w-full'"
       >
         <span class="truncate">{{ selectValue || "Select..." }}</span>
-        <UIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0 text-muted-foreground" />
+        <AppIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0 text-muted-foreground" />
       </button>
     </USelectMenu>
   </template>
@@ -299,7 +299,7 @@ function updateObjectProp(key: string, val: unknown) {
             :aria-label="'Remove ' + tag"
             @click="removeTag(i)"
           >
-            <UIcon name="i-lucide-x" class="size-3" />
+            <AppIcon name="i-lucide-x" class="size-3" />
           </button>
         </span>
       </div>

@@ -57,7 +57,7 @@ function timeAgo(dateStr: string): string {
         class="flex size-5 items-center justify-center rounded border-2 transition-colors"
         :class="selected ? 'border-primary bg-primary' : 'border-border bg-muted/40'"
       >
-        <UIcon v-if="selected" name="i-lucide-check" class="size-3.5 text-primary-foreground" />
+        <AppIcon v-if="selected" name="i-lucide-check" class="size-3.5 text-primary-foreground" />
       </div>
     </div>
 

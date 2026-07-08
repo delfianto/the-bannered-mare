@@ -53,7 +53,7 @@ function go(p: number) {
         aria-label="Previous page"
         @click="go(page - 1)"
       >
-        <UIcon name="i-lucide-chevron-left" class="size-4" />
+        <AppIcon name="i-lucide-chevron-left" class="size-4" />
       </button>
 
       <template v-for="(p, i) in pages" :key="i">
@@ -79,7 +79,7 @@ function go(p: number) {
         aria-label="Next page"
         @click="go(page + 1)"
       >
-        <UIcon name="i-lucide-chevron-right" class="size-4" />
+        <AppIcon name="i-lucide-chevron-right" class="size-4" />
       </button>
     </div>
   </div>

@@ -260,7 +260,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
     v-if="sessionsLoading && chatSessions.length === 0"
     class="flex h-full flex-1 items-center justify-center"
   >
-    <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
+    <AppIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
   </div>
 
   <!-- Empty state -->
@@ -349,7 +349,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
 
           <!-- Loading messages -->
           <div v-if="messagesLoading && messages.length === 0" class="flex justify-center py-8">
-            <UIcon
+            <AppIcon
               name="i-lucide-loader-circle"
               class="size-6 animate-spin text-muted-foreground"
             />
@@ -396,7 +396,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
                   class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
                   @click="loadSuggestions"
                 >
-                  <UIcon
+                  <AppIcon
                     :name="suggesting ? 'i-lucide-loader-circle' : 'i-lucide-sparkles'"
                     class="size-3.5"
                     :class="{ 'animate-spin': suggesting }"
@@ -408,7 +408,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
                   class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
                   @click="loadTones"
                 >
-                  <UIcon name="i-lucide-drama" class="size-3.5" />
+                  <AppIcon name="i-lucide-drama" class="size-3.5" />
                   {{ $t("chat.suggest.tones") }}
                 </button>
               </div>

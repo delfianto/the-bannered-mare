@@ -50,7 +50,7 @@ function avatarSrc(chat: Chat): string {
     <!-- Search -->
     <div class="px-3 pt-4 pb-3">
       <div class="flex items-center gap-2 rounded-lg border bg-background/60 px-3 py-2">
-        <UIcon name="i-lucide-search" class="size-3.5 shrink-0 text-muted-foreground" />
+        <AppIcon name="i-lucide-search" class="size-3.5 shrink-0 text-muted-foreground" />
         <input
           v-model="search"
           type="text"
@@ -71,7 +71,7 @@ function avatarSrc(chat: Chat): string {
 
     <!-- Loading -->
     <div v-if="loading" class="flex flex-1 items-center justify-center">
-      <UIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
+      <AppIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Session List -->

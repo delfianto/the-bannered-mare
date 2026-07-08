@@ -31,7 +31,7 @@ function dismiss() {
   >
     <div class="flex items-center gap-3">
       <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-        <UIcon name="i-lucide-sparkles" class="size-4.5 text-primary" />
+        <AppIcon name="i-lucide-sparkles" class="size-4.5 text-primary" />
       </div>
       <div>
         <p class="text-sm font-medium text-foreground">Let's get your first profile set up</p>

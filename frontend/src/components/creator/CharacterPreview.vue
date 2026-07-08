@@ -64,7 +64,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         class="absolute inset-0 size-full object-cover object-top"
       />
       <div v-else class="absolute inset-0 flex items-center justify-center bg-muted">
-        <UIcon name="i-lucide-user" class="size-16 text-muted-foreground/30" />
+        <AppIcon name="i-lucide-user" class="size-16 text-muted-foreground/30" />
       </div>
       <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
 
@@ -74,7 +74,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         class="absolute inset-0 flex flex-col items-center justify-center gap-2"
         :class="dragOver ? 'text-primary' : 'text-white/60'"
       >
-        <UIcon name="i-lucide-image-plus" class="size-8" />
+        <AppIcon name="i-lucide-image-plus" class="size-8" />
         <span class="text-[11px] font-medium">Drop image or click</span>
       </div>
       <div
@@ -84,7 +84,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         <div
           class="flex flex-col items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100"
         >
-          <UIcon name="i-lucide-camera" class="size-6 text-white" />
+          <AppIcon name="i-lucide-camera" class="size-6 text-white" />
           <span class="text-xs font-medium text-white">Change portrait</span>
         </div>
       </div>
@@ -121,7 +121,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
       <div
         class="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
       >
-        <UIcon name="i-lucide-message-circle" class="size-3" />
+        <AppIcon name="i-lucide-message-circle" class="size-3" />
         {{ $t("characters.form.greeting") }}
       </div>
       <div v-if="greetingPreview" class="text-xs leading-[1.7]">
@@ -157,7 +157,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
           </p>
           <p class="text-[11px] text-muted-foreground">
             <span v-if="pct >= 100" class="flex items-center gap-1 text-primary">
-              <UIcon name="i-lucide-check" class="size-3" /> Character complete
+              <AppIcon name="i-lucide-check" class="size-3" /> Character complete
             </span>
             <span v-else-if="pct >= 50">Looking good — keep going!</span>
             <span v-else>Fill in more details</span>

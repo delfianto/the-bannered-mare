@@ -15,7 +15,7 @@ const query = ref("");
           : 'border-border bg-muted/40 hover:border-muted-foreground/30'
       "
     >
-      <UIcon
+      <AppIcon
         name="i-lucide-search"
         class="size-[18px] shrink-0 transition-colors duration-300"
         :class="focused ? 'text-primary' : 'text-muted-foreground'"

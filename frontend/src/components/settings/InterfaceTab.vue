@@ -56,7 +56,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Stream Responses -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-radio" class="size-5 text-primary" />
+            <AppIcon name="i-lucide-radio" class="size-5 text-primary" />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.streamResponses") }}
@@ -87,7 +87,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Show Typing Indicator -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-pen-tool" class="size-5 text-primary" />
+            <AppIcon name="i-lucide-pen-tool" class="size-5 text-primary" />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.typingIndicator") }}
@@ -118,7 +118,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Language -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon name="i-lucide-languages" class="size-5 text-primary" />
+            <AppIcon name="i-lucide-languages" class="size-5 text-primary" />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.language") }}
@@ -143,7 +143,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
             >
               {{ SUPPORTED_LOCALES.find((l) => l.code === currentLocale)?.name }}
-              <UIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
+              <AppIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -161,7 +161,10 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         <!-- Dark mode toggle -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <UIcon :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" class="size-5 text-primary" />
+            <AppIcon
+              :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+              class="size-5 text-primary"
+            />
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ $t("settings.interface.darkMode") }}
@@ -250,7 +253,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               v-if="colorScheme === preset.id"
               class="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
             >
-              <UIcon name="i-lucide-check" class="size-3" />
+              <AppIcon name="i-lucide-check" class="size-3" />
             </div>
 
             <!-- Label -->

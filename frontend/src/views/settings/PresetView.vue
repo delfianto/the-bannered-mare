@@ -141,14 +141,14 @@ function formatDate(iso: string): string {
       class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
-        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+        <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -169,11 +169,14 @@ function formatDate(iso: string): string {
             :aria-label="$t('connections.preset.backToPresets')"
             @click="router.push({ path: '/connections', query: { tab: 'presets' } })"
           >
-            <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
+            <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-              <UIcon name="i-lucide-sliders-horizontal" class="size-3.5 text-primary-foreground" />
+              <AppIcon
+                name="i-lucide-sliders-horizontal"
+                class="size-3.5 text-primary-foreground"
+              />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Preset
@@ -193,7 +196,7 @@ function formatDate(iso: string): string {
             :disabled="deleting"
             @click="handleDelete"
           >
-            <UIcon
+            <AppIcon
               :name="deleting ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
               class="size-4"
               :class="{ 'animate-spin': deleting }"
@@ -213,7 +216,7 @@ function formatDate(iso: string): string {
             :disabled="saving"
             @click="handleSave"
           >
-            <UIcon
+            <AppIcon
               :name="saving ? 'i-lucide-loader-2' : 'i-lucide-save'"
               class="size-4"
               :class="{ 'animate-spin': saving }"
@@ -330,7 +333,7 @@ function formatDate(iso: string): string {
                     :aria-label="$t('connections.preset.removeParam')"
                     @click="removeParameter(index)"
                   >
-                    <UIcon name="i-lucide-x" class="size-4" />
+                    <AppIcon name="i-lucide-x" class="size-4" />
                   </button>
                 </div>
               </div>
@@ -338,7 +341,7 @@ function formatDate(iso: string): string {
                 class="mt-3 flex items-center gap-2 rounded-lg border border-dashed px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
                 @click="addParameter"
               >
-                <UIcon name="i-lucide-plus" class="size-4" />
+                <AppIcon name="i-lucide-plus" class="size-4" />
                 {{ $t("connections.preset.addParam") }}
               </button>
             </div>
@@ -380,7 +383,7 @@ function formatDate(iso: string): string {
                   :disabled="saving"
                   @click="handleSetDefault"
                 >
-                  <UIcon
+                  <AppIcon
                     :name="saving ? 'i-lucide-loader-2' : 'i-lucide-star'"
                     class="size-4"
                     :class="{ 'animate-spin': saving }"

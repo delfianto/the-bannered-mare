@@ -43,7 +43,7 @@ function removeKeyword(kw: string) {
         :aria-label="expanded ? 'Collapse entry' : 'Expand entry'"
         @click="expanded = !expanded"
       >
-        <UIcon
+        <AppIcon
           name="i-lucide-chevron-down"
           class="size-4 transition-transform"
           :class="expanded ? 'rotate-180' : ''"
@@ -78,7 +78,7 @@ function removeKeyword(kw: string) {
           "
           @click="emit('update', entry.id, { enabled: !entry.enabled })"
         >
-          <UIcon name="i-lucide-power" class="size-3.5" />
+          <AppIcon name="i-lucide-power" class="size-3.5" />
         </button>
         <button
           type="button"
@@ -86,7 +86,7 @@ function removeKeyword(kw: string) {
           :aria-label="t('characters.form.removeLorebook')"
           @click="emit('remove', entry.id)"
         >
-          <UIcon name="i-lucide-x" class="size-3.5" />
+          <AppIcon name="i-lucide-x" class="size-3.5" />
         </button>
       </div>
     </div>
@@ -112,7 +112,7 @@ function removeKeyword(kw: string) {
               :aria-label="t('characters.form.removeKeyword', { keyword: kw })"
               @click="removeKeyword(kw)"
             >
-              <UIcon name="i-lucide-x" class="size-2.5" />
+              <AppIcon name="i-lucide-x" class="size-2.5" />
             </button>
           </span>
           <input

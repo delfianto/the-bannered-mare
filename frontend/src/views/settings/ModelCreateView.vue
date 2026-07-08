@@ -160,11 +160,11 @@ onBeforeRouteLeave(() => {
           aria-label="Back to models"
           @click="goBack"
         >
-          <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
+          <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
         </button>
         <div class="flex items-center gap-2">
           <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-            <UIcon name="i-lucide-cpu" class="size-3.5 text-primary-foreground" />
+            <AppIcon name="i-lucide-cpu" class="size-3.5 text-primary-foreground" />
           </div>
           <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
             New Model
@@ -177,7 +177,7 @@ onBeforeRouteLeave(() => {
         :disabled="saving || !canCreate"
         @click="handleCreate"
       >
-        <UIcon
+        <AppIcon
           :name="saving ? 'i-lucide-loader-2' : 'i-lucide-save'"
           class="size-4"
           :class="{ 'animate-spin': saving }"

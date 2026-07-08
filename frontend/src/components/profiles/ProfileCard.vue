@@ -37,7 +37,7 @@ defineEmits<{
           v-if="profile.is_default"
           class="flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-medium tracking-wide text-primary uppercase"
         >
-          <UIcon name="i-lucide-star" class="size-3" />
+          <AppIcon name="i-lucide-star" class="size-3" />
           {{ $t("profiles.default") }}
         </span>
       </div>
@@ -54,7 +54,7 @@ defineEmits<{
     <!-- Bundled components (template / preset / persona / model) -->
     <div class="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-border/30 pt-3">
       <div class="flex min-w-0 items-center gap-1.5 text-[11px]">
-        <UIcon name="i-lucide-scroll-text" class="size-3.5 shrink-0 text-muted-foreground" />
+        <AppIcon name="i-lucide-scroll-text" class="size-3.5 shrink-0 text-muted-foreground" />
         <span
           class="truncate"
           :class="templateLabel ? 'text-foreground' : 'italic text-muted-foreground/50'"
@@ -63,7 +63,10 @@ defineEmits<{
         </span>
       </div>
       <div class="flex min-w-0 items-center gap-1.5 text-[11px]">
-        <UIcon name="i-lucide-sliders-horizontal" class="size-3.5 shrink-0 text-muted-foreground" />
+        <AppIcon
+          name="i-lucide-sliders-horizontal"
+          class="size-3.5 shrink-0 text-muted-foreground"
+        />
         <span
           class="truncate"
           :class="presetLabel ? 'text-foreground' : 'italic text-muted-foreground/50'"
@@ -72,7 +75,7 @@ defineEmits<{
         </span>
       </div>
       <div class="flex min-w-0 items-center gap-1.5 text-[11px]">
-        <UIcon name="i-lucide-user" class="size-3.5 shrink-0 text-muted-foreground" />
+        <AppIcon name="i-lucide-user" class="size-3.5 shrink-0 text-muted-foreground" />
         <span
           class="truncate"
           :class="personaLabel ? 'text-foreground' : 'italic text-muted-foreground/50'"
@@ -81,7 +84,7 @@ defineEmits<{
         </span>
       </div>
       <div class="flex min-w-0 items-center gap-1.5 text-[11px]">
-        <UIcon name="i-lucide-cpu" class="size-3.5 shrink-0 text-muted-foreground" />
+        <AppIcon name="i-lucide-cpu" class="size-3.5 shrink-0 text-muted-foreground" />
         <span
           class="truncate"
           :class="modelLabel ? 'text-foreground' : 'italic text-muted-foreground/50'"
@@ -100,11 +103,11 @@ defineEmits<{
         class="flex items-center gap-1 hover:text-primary"
         @click="$emit('setDefault')"
       >
-        <UIcon name="i-lucide-star" class="size-3" />
+        <AppIcon name="i-lucide-star" class="size-3" />
         {{ $t("profiles.setDefault") }}
       </button>
       <button class="flex items-center gap-1 hover:text-foreground" @click="$emit('edit')">
-        <UIcon name="i-lucide-pencil" class="size-3" />
+        <AppIcon name="i-lucide-pencil" class="size-3" />
         {{ $t("common.edit") }}
       </button>
       <button
@@ -112,7 +115,7 @@ defineEmits<{
         :class="pendingDelete ? 'text-destructive!' : 'hover:text-destructive'"
         @click="$emit('delete')"
       >
-        <UIcon name="i-lucide-trash-2" class="size-3" />
+        <AppIcon name="i-lucide-trash-2" class="size-3" />
         {{ pendingDelete ? $t("profiles.confirmDelete") : $t("common.delete") }}
       </button>
     </div>

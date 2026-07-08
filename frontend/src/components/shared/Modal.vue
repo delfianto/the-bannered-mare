@@ -105,7 +105,7 @@ const maxWidthClass = {
                 class="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground active:scale-95"
                 @click="emit('close')"
               >
-                <UIcon name="i-lucide-x" class="size-4" />
+                <AppIcon name="i-lucide-x" class="size-4" />
               </button>
             </div>
 

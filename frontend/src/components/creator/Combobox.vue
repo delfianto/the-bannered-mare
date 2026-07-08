@@ -57,7 +57,7 @@ function handleBlur(e: FocusEvent) {
         class="absolute top-0 right-0 flex h-full w-10 items-center justify-center text-muted-foreground"
         @click="open = !open"
       >
-        <UIcon
+        <AppIcon
           name="i-lucide-chevron-down"
           class="size-4 transition-transform"
           :class="open ? 'rotate-180' : ''"

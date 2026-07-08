@@ -210,7 +210,7 @@ function scopeBadgeClass(scope: string): string {
           class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="openCreateForm"
         >
-          <UIcon name="i-lucide-plus" class="size-4" />
+          <AppIcon name="i-lucide-plus" class="size-4" />
           {{ $t("memory.addEntry") }}
         </button>
       </div>
@@ -281,12 +281,12 @@ function scopeBadgeClass(scope: string): string {
           v-if="loading && entries.length === 0"
           class="flex flex-1 items-center justify-center py-20"
         >
-          <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+          <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         </div>
 
         <!-- Error -->
         <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-          <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+          <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
           <p class="text-sm text-muted-foreground">{{ error.message }}</p>
           <button
             class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -319,7 +319,7 @@ function scopeBadgeClass(scope: string): string {
             </h2>
             <div class="flex items-center gap-3">
               <div class="relative flex-1">
-                <UIcon
+                <AppIcon
                   name="i-lucide-search"
                   class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground/50"
                 />
@@ -338,22 +338,26 @@ function scopeBadgeClass(scope: string): string {
                 :disabled="searchLoading || !searchQuery.trim()"
                 @click="onSearch"
               >
-                <UIcon v-if="searchLoading" name="i-lucide-loader-2" class="size-4 animate-spin" />
-                <UIcon v-else name="i-lucide-search" class="size-4" />
+                <AppIcon
+                  v-if="searchLoading"
+                  name="i-lucide-loader-2"
+                  class="size-4 animate-spin"
+                />
+                <AppIcon v-else name="i-lucide-search" class="size-4" />
                 {{ $t("common.search") }}
               </button>
             </div>
 
             <!-- Search Results -->
             <div v-if="searchLoading" class="mt-4 flex items-center justify-center py-6">
-              <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
+              <AppIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
             </div>
 
             <div
               v-else-if="hasSearched && searchResults.length === 0"
               class="mt-4 py-6 text-center"
             >
-              <UIcon
+              <AppIcon
                 name="i-lucide-search-x"
                 class="mx-auto mb-2 size-6 text-muted-foreground/40"
               />
@@ -450,7 +454,7 @@ function scopeBadgeClass(scope: string): string {
                 class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground"
               >
                 <div class="flex items-center gap-1.5">
-                  <UIcon name="i-lucide-clock" class="size-3 shrink-0" />
+                  <AppIcon name="i-lucide-clock" class="size-3 shrink-0" />
                   <span>{{ new Date(entry.updated_at).toLocaleDateString() }}</span>
                 </div>
               </div>
@@ -463,7 +467,7 @@ function scopeBadgeClass(scope: string): string {
                   class="flex items-center gap-1 hover:text-foreground"
                   @click.stop="openEditForm(entry)"
                 >
-                  <UIcon name="i-lucide-pencil" class="size-3" />
+                  <AppIcon name="i-lucide-pencil" class="size-3" />
                   {{ $t("common.edit") }}
                 </button>
                 <button
@@ -474,7 +478,7 @@ function scopeBadgeClass(scope: string): string {
                   @click.stop="onDeleteClick(entry.id)"
                   @mouseleave="cancelDelete"
                 >
-                  <UIcon name="i-lucide-trash-2" class="size-3" />
+                  <AppIcon name="i-lucide-trash-2" class="size-3" />
                   {{
                     pendingDeleteId === entry.id ? $t("memory.confirmDelete") : $t("common.delete")
                   }}

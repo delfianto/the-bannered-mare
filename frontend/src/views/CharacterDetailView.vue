@@ -97,7 +97,7 @@ async function startTale() {
 <template>
   <!-- Loading -->
   <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
-    <UIcon name="i-lucide-loader-2" class="size-8 animate-spin text-primary" />
+    <AppIcon name="i-lucide-loader-2" class="size-8 animate-spin text-primary" />
   </div>
 
   <!-- Error -->
@@ -105,7 +105,7 @@ async function startTale() {
     v-else-if="error || !character"
     class="flex flex-1 flex-col items-center justify-center gap-4 py-20"
   >
-    <UIcon name="i-lucide-alert-circle" class="size-10 text-muted-foreground/40" />
+    <AppIcon name="i-lucide-alert-circle" class="size-10 text-muted-foreground/40" />
     <p class="text-sm text-muted-foreground">{{ error || $t("characters.notFound") }}</p>
     <button
       class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -124,7 +124,7 @@ async function startTale() {
           class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="goBack"
         >
-          <UIcon name="i-lucide-arrow-left" class="size-4" />
+          <AppIcon name="i-lucide-arrow-left" class="size-4" />
           {{ $t("common.back") }}
         </button>
         <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
@@ -135,7 +135,7 @@ async function startTale() {
         class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         @click="router.push(`/characters/${characterId}/edit`)"
       >
-        <UIcon name="i-lucide-pencil" class="size-4" />
+        <AppIcon name="i-lucide-pencil" class="size-4" />
         {{ $t("common.edit") }}
       </button>
     </div>
@@ -301,7 +301,7 @@ async function startTale() {
             :disabled="creating"
             @click="startTale"
           >
-            <UIcon
+            <AppIcon
               :name="creating ? 'i-lucide-loader-2' : 'i-lucide-message-square-plus'"
               class="size-5"
               :class="{ 'animate-spin': creating }"

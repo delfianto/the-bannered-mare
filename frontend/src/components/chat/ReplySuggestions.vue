@@ -22,7 +22,7 @@ const emit = defineEmits<{
       :style="{ animationDelay: `${i * 60}ms` }"
       @click="emit('select', text)"
     >
-      <UIcon
+      <AppIcon
         name="i-lucide-corner-down-left"
         class="mt-0.5 size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
       />

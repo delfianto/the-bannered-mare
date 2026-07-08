@@ -72,15 +72,15 @@ const positionLabels: Record<string, string> = {
     <div class="flex items-center justify-between border-t border-border/30 pt-2.5">
       <div class="flex items-center gap-3 text-[10px] text-muted-foreground">
         <span class="flex items-center gap-1">
-          <UIcon name="i-lucide-map-pin" class="size-3" />
+          <AppIcon name="i-lucide-map-pin" class="size-3" />
           {{ positionLabels[entry.position] ?? entry.position }}
         </span>
         <span class="flex items-center gap-1">
-          <UIcon name="i-lucide-arrow-up-down" class="size-3" />
+          <AppIcon name="i-lucide-arrow-up-down" class="size-3" />
           {{ $t("lorebooks.order") }} {{ entry.order }}
         </span>
         <span v-if="entry.constant" class="flex items-center gap-1 text-primary">
-          <UIcon name="i-lucide-pin" class="size-3" />
+          <AppIcon name="i-lucide-pin" class="size-3" />
           {{ $t("lorebooks.constant") }}
         </span>
       </div>
@@ -88,7 +88,7 @@ const positionLabels: Record<string, string> = {
         class="flex items-center gap-2 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
       >
         <button class="flex items-center gap-1 hover:text-foreground" @click="$emit('edit')">
-          <UIcon name="i-lucide-pencil" class="size-3" />
+          <AppIcon name="i-lucide-pencil" class="size-3" />
           {{ $t("common.edit") }}
         </button>
         <button
@@ -96,7 +96,7 @@ const positionLabels: Record<string, string> = {
           :class="pendingDelete ? 'text-destructive!' : 'hover:text-destructive'"
           @click="$emit('delete')"
         >
-          <UIcon name="i-lucide-trash-2" class="size-3" />
+          <AppIcon name="i-lucide-trash-2" class="size-3" />
           {{ pendingDelete ? $t("lorebooks.confirmDelete") : $t("common.delete") }}
         </button>
       </div>

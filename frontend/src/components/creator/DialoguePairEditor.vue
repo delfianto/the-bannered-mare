@@ -22,13 +22,13 @@ const emit = defineEmits<{
         :aria-label="$t('characters.form.removeDialogue')"
         @click="emit('remove', pair.id)"
       >
-        <UIcon name="i-lucide-x" class="size-3.5" />
+        <AppIcon name="i-lucide-x" class="size-3.5" />
       </button>
     </div>
 
     <div class="space-y-1.5">
       <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-        <UIcon name="i-lucide-user" class="size-3" />
+        <AppIcon name="i-lucide-user" class="size-3" />
         <span>User</span>
       </div>
       <textarea
@@ -44,7 +44,7 @@ const emit = defineEmits<{
 
     <div class="space-y-1.5">
       <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-        <UIcon name="i-lucide-bot" class="size-3" />
+        <AppIcon name="i-lucide-bot" class="size-3" />
         <span>Character</span>
       </div>
       <textarea

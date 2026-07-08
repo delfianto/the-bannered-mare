@@ -118,7 +118,7 @@ const userActions = [
         class="absolute top-1/2 -left-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'left')"
       >
-        <UIcon name="i-lucide-chevron-left" class="size-4" />
+        <AppIcon name="i-lucide-chevron-left" class="size-4" />
       </button>
 
       <!-- Swipe Right Arrow (assistant only) -->
@@ -128,7 +128,7 @@ const userActions = [
         class="absolute top-1/2 -right-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
         @click="emit('swipe', message.id, 'right')"
       >
-        <UIcon name="i-lucide-chevron-right" class="size-4" />
+        <AppIcon name="i-lucide-chevron-right" class="size-4" />
       </button>
 
       <!-- Sender name — assistant only -->
@@ -201,7 +201,7 @@ const userActions = [
             class="flex size-6 items-center justify-center rounded text-muted-foreground/40 transition-colors hover:text-muted-foreground"
             @click="handleAction(act.key)"
           >
-            <UIcon :name="act.icon" class="size-3" />
+            <AppIcon :name="act.icon" class="size-3" />
           </button>
         </div>
 

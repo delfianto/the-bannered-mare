@@ -47,12 +47,12 @@ function formatUrl(url: string | null): string {
   <div>
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+      <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -102,11 +102,11 @@ function formatUrl(url: string | null): string {
         <!-- Info line: url + key status -->
         <div class="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
           <span class="flex min-w-0 items-center gap-1.5">
-            <UIcon name="i-lucide-link" class="size-3 shrink-0" />
+            <AppIcon name="i-lucide-link" class="size-3 shrink-0" />
             <span class="truncate">{{ formatUrl(provider.base_url) }}</span>
           </span>
           <span class="flex shrink-0 items-center gap-1.5">
-            <UIcon name="i-lucide-key" class="size-3 shrink-0" />
+            <AppIcon name="i-lucide-key" class="size-3 shrink-0" />
             <!-- Local providers (no env var) never need a key — show neutral, not a warning -->
             <span v-if="!provider.env_var_name">{{ $t("connections.provider.keyNotSet") }}</span>
             <span v-else-if="provider.api_key_configured" class="text-emerald-500">{{

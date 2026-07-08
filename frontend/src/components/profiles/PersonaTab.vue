@@ -255,7 +255,7 @@ async function setDefault(personaId: string) {
             @click="saveForm"
           >
             <span v-if="formSaving" class="flex items-center gap-2">
-              <UIcon name="i-lucide-loader-2" class="size-3.5 animate-spin" />
+              <AppIcon name="i-lucide-loader-2" class="size-3.5 animate-spin" />
               {{ $t("common.saving") }}
             </span>
             <span v-else>
@@ -278,18 +278,18 @@ async function setDefault(personaId: string) {
 
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-16">
-      <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-muted-foreground" />
+      <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="rounded-xl border bg-card/50 p-8 text-center">
-      <UIcon name="i-lucide-alert-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
+      <AppIcon name="i-lucide-alert-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ error }}</p>
     </div>
 
     <!-- Empty State -->
     <div v-else-if="personas.length === 0" class="rounded-xl border bg-card/50 p-8 text-center">
-      <UIcon name="i-lucide-user-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
+      <AppIcon name="i-lucide-user-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ $t("settings.persona.noPersonas") }}</p>
     </div>
 
@@ -364,7 +364,7 @@ async function setDefault(personaId: string) {
             @click.stop="onDeleteClick(persona.id)"
             @mouseleave="cancelDelete"
           >
-            <UIcon
+            <AppIcon
               :name="
                 pendingDeleteId === persona.id ? 'i-lucide-alert-triangle' : 'i-lucide-trash-2'
               "

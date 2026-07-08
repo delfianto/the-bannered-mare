@@ -45,11 +45,11 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       :title="$t('chat.profile.title')"
       @click="toggle"
     >
-      <UIcon name="i-lucide-layers" class="size-3.5 shrink-0" />
+      <AppIcon name="i-lucide-layers" class="size-3.5 shrink-0" />
       <span class="max-w-[120px] truncate">{{
         currentProfileName || $t("chat.profile.none")
       }}</span>
-      <UIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0" />
+      <AppIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0" />
     </button>
 
     <div
@@ -68,7 +68,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
         class="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-accent/50"
         @click="choose(p)"
       >
-        <UIcon
+        <AppIcon
           name="i-lucide-check"
           class="mt-0.5 size-3.5 shrink-0"
           :class="p.name === currentProfileName ? 'text-primary' : 'text-transparent'"
@@ -91,7 +91,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
         class="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
         @click="goManage"
       >
-        <UIcon name="i-lucide-settings-2" class="size-4" />
+        <AppIcon name="i-lucide-settings-2" class="size-4" />
         {{ $t("chat.profile.manage") }}
       </button>
 
