@@ -202,22 +202,27 @@ const selectUi = {
 
         <div>
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.persona")
+            $t("profiles.fields.taskModel")
           }}</span>
           <USelectMenu
-            v-model="personaId"
-            :items="personaOptions"
+            v-model="taskModelId"
+            :items="taskModelOptions"
             value-key="value"
-            :search-input="false"
+            :search-input="true"
             :ui="selectUi"
           >
             <button
               type="button"
+              :title="$t('profiles.taskModelHint')"
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
-                <span class="truncate">{{ labelFor(personas, personaId) }}</span>
+                <UIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
+                <span class="truncate">{{
+                  taskModelId === "__none__"
+                    ? $t("profiles.taskModelSame")
+                    : labelFor(models, taskModelId)
+                }}</span>
               </span>
               <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
@@ -250,13 +255,13 @@ const selectUi = {
 
         <div>
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.taskModel")
+            $t("profiles.fields.persona")
           }}</span>
           <USelectMenu
-            v-model="taskModelId"
-            :items="taskModelOptions"
+            v-model="personaId"
+            :items="personaOptions"
             value-key="value"
-            :search-input="true"
+            :search-input="false"
             :ui="selectUi"
           >
             <button
@@ -264,44 +269,42 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
-                <span class="truncate">{{
-                  taskModelId === "__none__"
-                    ? $t("profiles.taskModelSame")
-                    : labelFor(models, taskModelId)
-                }}</span>
+                <UIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
+                <span class="truncate">{{ labelFor(personas, personaId) }}</span>
               </span>
               <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
-          <p class="mt-1 text-[10px] text-muted-foreground/70">
-            {{ $t("profiles.taskModelHint") }}
-          </p>
+        </div>
+
+        <div>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("profiles.form.setDefault")
+          }}</span>
+          <button
+            type="button"
+            class="flex h-11 w-full items-center justify-between rounded-lg border bg-muted/40 px-3 outline-none"
+            role="switch"
+            :aria-checked="isDefault"
+            @click="isDefault = !isDefault"
+          >
+            <UIcon
+              name="i-lucide-star"
+              class="size-4 shrink-0"
+              :class="isDefault ? 'text-primary' : 'text-muted-foreground'"
+            />
+            <span
+              class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
+              :class="isDefault ? 'bg-primary' : 'bg-muted-foreground/40'"
+            >
+              <span
+                class="size-4 rounded-full shadow-sm transition-transform duration-300"
+                :class="isDefault ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+              />
+            </span>
+          </button>
         </div>
       </div>
-
-      <!-- Default toggle -->
-      <button
-        type="button"
-        class="flex w-full items-center justify-between rounded-lg border bg-muted/40 px-3 py-2.5"
-        role="switch"
-        :aria-checked="isDefault"
-        @click="isDefault = !isDefault"
-      >
-        <span class="flex items-center gap-2 text-sm text-foreground">
-          <UIcon name="i-lucide-star" class="size-4 text-muted-foreground" />
-          {{ $t("profiles.form.setDefault") }}
-        </span>
-        <span
-          class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-          :class="isDefault ? 'bg-primary' : 'bg-muted-foreground/40'"
-        >
-          <span
-            class="size-4 rounded-full shadow-sm transition-transform duration-300"
-            :class="isDefault ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
-          />
-        </span>
-      </button>
 
       <!-- Footer -->
       <div class="flex items-center gap-3 pt-1">
