@@ -8,7 +8,7 @@ output. This replaces the former provider-split ``ollama/gemma-4`` +
 """
 
 from src.fixtures.model_families import ModelFamilySeedData
-from src.fixtures.parameter_definitions import TEMPERATURE, TOP_K, TOP_P_95
+from src.fixtures.parameter_definitions import MIN_P, TEMPERATURE, TOP_K, TOP_P_95
 
 GEMMA_FAMILIES: list[ModelFamilySeedData] = [
     {
@@ -25,6 +25,17 @@ GEMMA_FAMILIES: list[ModelFamilySeedData] = [
             "temperature": TEMPERATURE,
             "top_p": TOP_P_95,
             "top_k": {**TOP_K, "default": 64, "max_value": 200},
+            # RP-community tail cutoff; pairs with a hotter temperature. 0 = off.
+            "min_p": MIN_P,
+            # Gemma 4 thinking. Native control is a boolean (<|think|> token /
+            # enable_thinking, default off), but the graded surfaces expose a level:
+            # Gemini API thinking_level, Bedrock reasoning_effort, OpenRouter
+            # reasoning.effort. We model it as a level (minimal = effectively off).
+            "thinking_level": {
+                "type": "enum",
+                "default": "minimal",
+                "str_values": ["minimal", "low", "medium", "high"],
+            },
             # Local (Ollama) context control: 256K on 12B/26B/31B, 128K on E2B/E4B.
             "num_ctx": {"type": "int", "default": 32768, "min_value": 512, "max_value": 262144},
             # Hosted (OpenRouter/API) output cap.
