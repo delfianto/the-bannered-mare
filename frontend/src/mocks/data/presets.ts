@@ -15,6 +15,8 @@ export const presets: Preset[] = [
       max_tokens: 2048,
       frequency_penalty: 0.1,
       presence_penalty: 0.15,
+      top_k: 40,
+      min_p: 0.05,
     },
     is_default: true,
     created_at: NOW,

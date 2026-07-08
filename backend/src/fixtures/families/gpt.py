@@ -12,9 +12,20 @@ Parameters per the OpenAI API docs (developers.openai.com).
 """
 
 from src.fixtures.model_families import ModelFamilySeedData
-from src.fixtures.parameter_definitions import OPENAI_SAMPLING, OPENAI_THINKING_COMMON
+from src.fixtures.parameter_definitions import (
+    OPENAI_REJECTED_SAMPLERS,
+    OPENAI_SAMPLING,
+    OPENAI_THINKING_COMMON,
+)
 
-_UNSUPPORTED_CHAT = ["max_tokens", "reasoning_effort", "summary", "verbosity"]
+# top_k/min_p/top_a/repetition_penalty aren't OpenAI params — the API 400s on them.
+_UNSUPPORTED_CHAT = [
+    "max_tokens",
+    "reasoning_effort",
+    "summary",
+    "verbosity",
+    *OPENAI_REJECTED_SAMPLERS,
+]
 _UNSUPPORTED_THINKING = [
     "max_tokens",
     "temperature",
@@ -24,6 +35,7 @@ _UNSUPPORTED_THINKING = [
     "logprobs",
     "top_logprobs",
     "logit_bias",
+    *OPENAI_REJECTED_SAMPLERS,
 ]
 
 GPT_FAMILIES: list[ModelFamilySeedData] = [
