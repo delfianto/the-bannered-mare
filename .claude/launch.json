@@ -6,6 +6,12 @@
       "runtimeExecutable": "bun",
       "runtimeArgs": ["run", "--cwd", "docs", "docs:dev", "--port", "5199"],
       "port": 5199
+    },
+    {
+      "name": "frontend-mock",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "--cwd", "frontend", "dev:mock", "--port", "5273"],
+      "port": 5273
     }
   ]
 }
