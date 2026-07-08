@@ -339,26 +339,38 @@ class ChatMessageService:
     def _parse_suggestion_list(text: str, count: int) -> list[str]:
         """Best-effort parse of model output into suggestion strings.
 
-        Prefers a JSON array (local models rarely honour strict JSON mode, so
-        this is lenient); falls back to one suggestion per line, stripping
-        list markers (bullets, numbering) and surrounding quotes.
+        Local models frequently emit slightly-malformed JSON — a doubled opening
+        quote (``[""a", "b"]``), a trailing comma, or the whole array on one line.
+        Try strict JSON, then a light repair, then pull the quoted segments out
+        directly, and finally fall back to one suggestion per line.
         """
         text = text.strip()
         match = re.search(r"\[[\s\S]*\]", text)
         if match:
-            try:
-                data = json.loads(match.group(0))
+            blob = match.group(0)
+            # Strict first (never mangle valid JSON), then a repaired variant:
+            # collapse doubled quotes and drop trailing commas.
+            repaired = re.sub(r",\s*]", "]", blob.replace('""', '"'))
+            for candidate in (blob, repaired):
+                try:
+                    data = json.loads(candidate)
+                except json.JSONDecodeError, ValueError:
+                    continue
                 if isinstance(data, list):
                     items = [str(x).strip() for x in data if str(x).strip()]
                     if items:
                         return items[:count]
-            except json.JSONDecodeError, ValueError:
-                pass
+            # Still unparseable — extract the quoted segments directly so a
+            # malformed blob never leaks through as one giant "[...]" item.
+            quoted = [q.strip().strip('"').strip() for q in re.findall(r'"(.+?)"', blob, re.DOTALL)]
+            quoted = [q for q in quoted if q]
+            if quoted:
+                return quoted[:count]
 
         items: list[str] = []
         for raw_line in text.splitlines():
             line = re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", raw_line.strip())
-            line = line.strip().strip('"').strip()
+            line = line.strip().strip("[]").strip().strip('"').strip()
             if line:
                 items.append(line)
         return items[:count]
