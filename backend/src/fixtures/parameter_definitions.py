@@ -141,6 +141,12 @@ GEMINI_SAFETY_SETTINGS: dict[str, Any] = {
 # Composable parameter bundles
 # ---------------------------------------------------------------------------
 
+# Community sampler knobs the OpenAI-compatible adapter now forwards (for
+# OpenRouter / local runtimes) but that native OpenAI and xAI reject with a 400.
+# The OpenAI (gpt) and xAI (grok) families list these as unsupported so the
+# gateway strips them and the loadout UI warns — other routes silently drop them.
+OPENAI_REJECTED_SAMPLERS: list[str] = ["top_k", "min_p", "top_a", "repetition_penalty"]
+
 OPENAI_SAMPLING: dict[str, Any] = {
     "temperature": TEMPERATURE,
     "top_p": TOP_P,

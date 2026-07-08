@@ -13,7 +13,16 @@ export const allModelFamiliesMock: ModelFamilyItem[] = [
     family_identifier: "openai/gpt-4o",
     description: "OpenAI GPT-4o family. 128K context, multimodal, classic sampling.",
     provider_types: ["openai", "openrouter"],
-    unsupported_parameters: ["max_tokens", "reasoning_effort", "summary", "verbosity"],
+    unsupported_parameters: [
+      "max_tokens",
+      "reasoning_effort",
+      "summary",
+      "verbosity",
+      "top_k",
+      "min_p",
+      "top_a",
+      "repetition_penalty",
+    ],
     parameters: {
       max_completion_tokens: { type: "int", default: 4096, min_value: 1, max_value: 16384 },
       temperature: { type: "float", default: 1.0, min_value: 0.0, max_value: 2.0 },

@@ -20,7 +20,7 @@ Parameters per the xAI docs (docs.x.ai/developers/models).
 """
 
 from src.fixtures.model_families import ModelFamilySeedData
-from src.fixtures.parameter_definitions import XAI_BASE
+from src.fixtures.parameter_definitions import OPENAI_REJECTED_SAMPLERS, XAI_BASE
 
 GROK_FAMILIES: list[ModelFamilySeedData] = [
     {
@@ -49,7 +49,12 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
             },
             "agent_count": {"type": "int", "min_value": 1, "max_value": 16},
         },
-        "unsupported_parameters": ["stop", "frequency_penalty", "presence_penalty"],
+        "unsupported_parameters": [
+            "stop",
+            "frequency_penalty",
+            "presence_penalty",
+            *OPENAI_REJECTED_SAMPLERS,
+        ],
         "extra_metadata": {
             "lineage": "grok",
             "developer": "xai",
@@ -87,7 +92,12 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
                 "str_values": ["none", "low", "medium"],
             },
         },
-        "unsupported_parameters": ["stop", "frequency_penalty", "presence_penalty"],
+        "unsupported_parameters": [
+            "stop",
+            "frequency_penalty",
+            "presence_penalty",
+            *OPENAI_REJECTED_SAMPLERS,
+        ],
         "extra_metadata": {
             "lineage": "grok",
             "developer": "xai",
