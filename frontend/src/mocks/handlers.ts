@@ -465,7 +465,7 @@ export const handlers = [
   }),
 
   // Auto-generate a chat title (routed through the task model on the real backend)
-  http.post("/api/chats/:chatId/title", async ({ params }) => {
+  http.post("/api/chats/:chatId/messages/title", async ({ params }) => {
     await delay(400);
     const chat = db.chats.find((c) => c.id === params.chatId);
     const title = "A Bargain by Candlelight";

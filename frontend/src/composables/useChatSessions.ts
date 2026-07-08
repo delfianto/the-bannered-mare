@@ -129,7 +129,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
   // the local session list. Best-effort — a failure just leaves the title unset.
   const generateTitle = async (chatId: string): Promise<string | null> => {
     try {
-      const { data, error: apiError } = await client.POST("/api/chats/{chat_id}/title", {
+      const { data, error: apiError } = await client.POST("/api/chats/{chat_id}/messages/title", {
         params: { path: { chat_id: chatId } },
       });
       if (apiError || !data?.title) return null;

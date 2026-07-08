@@ -21,7 +21,6 @@ relationships — a chat's one owner and four references — see
 | `PUT` | `/api/chats/{id}` | Update title, model, preset, or bookmark flag. |
 | `DELETE` | `/api/chats/{id}` | Delete a chat (cascades to its messages). |
 | `POST` | `/api/chats/{id}/profile` | Apply a profile (loadout) to the chat. |
-| `POST` | `/api/chats/{id}/title` | Auto-generate and persist a concise title. |
 
 ### The chat resource
 
@@ -71,19 +70,6 @@ curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/profile \
   -H "Content-Type: application/json" -d '{ "profile_id": "aB3dEf6hIjK0" }'   # → ChatResponse
 ```
 
-### Auto-generating a title
-
-`POST /api/chats/{id}/title` summarizes the recent turns into a short title, saves it to the
-chat, and returns `{ "title": "…" }`. The UI fires this once, right after the first
-user↔assistant exchange, when the chat has no title yet. Like all auxiliary calls it runs on
-the chat's **task model** (falling back to the main `model` when none is set — see
-[the task-model note](/api/prompt-building#profiles)), so titling need not spend the big
-model's tokens.
-
-```bash
-curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/title   # → { "title": "The Road to Ivarstead" }
-```
-
 ## Messages
 
 | Method | Path | Purpose |
@@ -91,6 +77,7 @@ curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/title   # → { "title
 | `GET` | `/api/chats/{id}/messages` | List a chat's messages (cursor-paginated). |
 | `POST` | `/api/chats/{id}/messages` | Send a message, or regenerate the last reply. |
 | `POST` | `/api/chats/{id}/messages/suggestions` | Suggest next-turn replies, or draft one in the user's voice. |
+| `POST` | `/api/chats/{id}/messages/title` | Auto-generate and persist a concise chat title. |
 | `PUT` | `/api/chats/{id}/messages/{message_id}` | Edit a message's content. |
 | `GET` | `/api/chats/{id}/messages/{message_id}/alternatives` | List a message's swipes. |
 | `PUT` | `/api/chats/{id}/messages/{message_id}/alternatives/{alternative_id}/activate` | Switch the active swipe. |
@@ -176,6 +163,19 @@ curl -X POST "http://localhost:8000/api/chats/V1StGXR8Z5jd/messages/suggestions"
 # draft the user's next line, defiantly
 curl -X POST "http://localhost:8000/api/chats/V1StGXR8Z5jd/messages/suggestions" \
   -H "Content-Type: application/json" -d '{ "mode": "impersonate", "tone": "defiant" }'
+```
+
+### Auto-generating a title
+
+`POST /api/chats/{id}/messages/title` summarizes the recent turns into a short title, saves
+it to the chat, and returns `{ "title": "…" }`. The UI fires this once, right after the first
+user↔assistant exchange, when the chat has no title yet. Like the other auxiliary calls it
+runs on the chat's **task model** (falling back to the main `model` when none is set — see
+[the task-model note](/api/prompt-building#profiles)), so titling need not spend the big
+model's tokens.
+
+```bash
+curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/messages/title   # → { "title": "The Road to Ivarstead" }
 ```
 
 ## Bookmarks

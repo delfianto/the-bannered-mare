@@ -633,27 +633,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/chats/{chat_id}/title": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Generate Chat Title
-     * @description Generate and persist a concise title for the chat, using the task model
-     *     (falls back to the chat's main model when no task model is configured).
-     */
-    post: operations["generate_chat_title_api_chats__chat_id__title_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   "/api/chats/{chat_id}": {
     parameters: {
       query?: never;
@@ -748,6 +727,27 @@ export interface paths {
      *       steered by a `tone`.
      */
     post: operations["suggest_next_turn_api_chats__chat_id__messages_suggestions_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/chats/{chat_id}/messages/title": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Generate Chat Title
+     * @description Generate and persist a concise title for the chat, using the task model
+     *     (falls back to the chat's main model when no task model is configured).
+     */
+    post: operations["generate_chat_title_api_chats__chat_id__messages_title_post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -5273,37 +5273,6 @@ export interface operations {
       };
     };
   };
-  generate_chat_title_api_chats__chat_id__title_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        chat_id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TitleResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
   get_chat_api_chats__chat_id__get: {
     parameters: {
       query?: never;
@@ -5532,6 +5501,37 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["SuggestionResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  generate_chat_title_api_chats__chat_id__messages_title_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        chat_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TitleResponse"];
         };
       };
       /** @description Validation Error */

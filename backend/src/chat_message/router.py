@@ -15,6 +15,7 @@ from src.chat_message.schemas import (
     StreamEvent,
     SuggestionRequest,
     SuggestionResponse,
+    TitleResponse,
     stream_event_to_dict,
 )
 from src.chat_message.service import ChatMessageService
@@ -128,6 +129,14 @@ async def suggest_next_turn(
         chat_id, mode=body.mode, tone=body.tone, count=body.count
     )
     return SuggestionResponse(suggestions=suggestions)
+
+
+@router.post("/title", response_model=TitleResponse)
+async def generate_chat_title(chat_id: str, service: ChatMessageServiceDep):
+    """Generate and persist a concise title for the chat, using the task model
+    (falls back to the chat's main model when no task model is configured)."""
+    title = await service.generate_title(chat_id)
+    return TitleResponse(title=title)
 
 
 @router.put("/{message_id}", response_model=MessageResponse)
