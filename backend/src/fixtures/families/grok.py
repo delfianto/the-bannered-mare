@@ -3,10 +3,16 @@
 Grouped by generation. Grok 4.2 (xAI's official "4.20") is reasoning-only — no
 stop/penalties — with a multi-agent variant that scales parallel agents via
 reasoning_effort (low/medium = 4, high/xhigh = 16) plus an agent_count knob and
-web_search/x_search. Grok 4.3 is the hybrid workhorse (1M context) supporting
-stop, frequency/presence penalties, and reasoning_effort (none/low/medium); it
-is the consolidated target the retired grok-4-fast / 4.1 / 4.1-fast redirect to.
-Served via xAI or OpenRouter.
+web_search/x_search. Grok 4.3 is the hybrid workhorse (1M context) with
+reasoning_effort (none/low/medium); it is the consolidated target the retired
+grok-4-fast / 4.1 / 4.1-fast redirect to. Served via xAI or OpenRouter.
+
+Both are reasoning models, and xAI reasoning models reject stop and the
+frequency/presence penalties (a 400) — so both list those in
+unsupported_parameters. Grok 4.3 can turn reasoning off with
+reasoning_effort="none", on which path xAI accepts them again, but the family
+default is reasoning-on and the schema can't express that conditional, so we mark
+them unsupported to keep the default request safe.
 
 Grok 4.0 (256K) is omitted — it is sunsetting and delisted from OpenRouter.
 
@@ -14,12 +20,7 @@ Parameters per the xAI docs (docs.x.ai/developers/models).
 """
 
 from src.fixtures.model_families import ModelFamilySeedData
-from src.fixtures.parameter_definitions import (
-    FREQUENCY_PENALTY,
-    PRESENCE_PENALTY,
-    STOP_LIST,
-    XAI_BASE,
-)
+from src.fixtures.parameter_definitions import XAI_BASE
 
 GROK_FAMILIES: list[ModelFamilySeedData] = [
     {
@@ -66,9 +67,10 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
         "name": "Grok 4.3",
         "family_identifier": "xai/grok-4.3",
         "description": (
-            "xAI Grok 4.3. 1M context, hybrid reasoning via reasoning_effort (none/low/medium); "
-            "supports stop and frequency/presence penalties. Consolidated target for the retired "
-            "grok-4-fast / 4.1 / 4.1-fast. Served via xAI or OpenRouter."
+            "xAI Grok 4.3. 1M context, hybrid reasoning via reasoning_effort (none/low/medium). "
+            "As a reasoning model it rejects stop and frequency/presence penalties (except on the "
+            "reasoning_effort=none path). Consolidated target for the retired grok-4-fast / 4.1 / "
+            "4.1-fast. Served via xAI or OpenRouter."
         ),
         "provider_types": ["xai", "openrouter"],
         "parameters": {
@@ -79,16 +81,13 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
                 "max_value": 131072,
             },
             **XAI_BASE,
-            "frequency_penalty": FREQUENCY_PENALTY,
-            "presence_penalty": PRESENCE_PENALTY,
-            "stop": STOP_LIST,
             "reasoning_effort": {
                 "type": "enum",
                 "default": "low",
                 "str_values": ["none", "low", "medium"],
             },
         },
-        "unsupported_parameters": [],
+        "unsupported_parameters": ["stop", "frequency_penalty", "presence_penalty"],
         "extra_metadata": {
             "lineage": "grok",
             "developer": "xai",

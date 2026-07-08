@@ -26,6 +26,17 @@ TEMPERATURE: NumericParameterSchema = {
     "max_value": 2.0,
 }
 
+# Anthropic caps temperature at 1.0 (values >1 are rejected natively; the
+# OpenAI-compat layer clamps them). Claude families use this instead of the 0–2
+# TEMPERATURE. Several open-weight vendors share the same 1.0 ceiling (GLM, Kimi,
+# MiniMax) but declare it inline.
+CLAUDE_TEMPERATURE: NumericParameterSchema = {
+    "type": "float",
+    "default": 1.0,
+    "min_value": 0.0,
+    "max_value": 1.0,
+}
+
 TOP_P: NumericParameterSchema = {
     "type": "float",
     "default": 1.0,
@@ -44,6 +55,16 @@ TOP_K: NumericParameterSchema = {
     "type": "int",
     "default": 40,
     "min_value": 1,
+}
+
+# Min-p sampling: keep only tokens above default*P_max probability. The RP
+# community's preferred tail cutoff (pairs with a higher temperature). 0 = off.
+# Honored by local runtimes (Ollama/llama.cpp/LM Studio) and OpenRouter.
+MIN_P: NumericParameterSchema = {
+    "type": "float",
+    "default": 0.0,
+    "min_value": 0.0,
+    "max_value": 1.0,
 }
 
 FREQUENCY_PENALTY: NumericParameterSchema = {
@@ -88,16 +109,20 @@ GEMINI_SAFETY_SETTINGS: dict[str, Any] = {
                     "HARM_CATEGORY_HATE_SPEECH",
                     "HARM_CATEGORY_SEXUALLY_EXPLICIT",
                     "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "HARM_CATEGORY_CIVIC_INTEGRITY",
                 ],
             },
             "threshold": {
                 "type": "enum",
                 "default": "BLOCK_NONE",
+                # OFF fully disables the filter (Gemini 2.5/3 default for unset
+                # categories); BLOCK_NONE routes through but never blocks.
                 "str_values": [
+                    "OFF",
                     "BLOCK_NONE",
-                    "BLOCK_LOW_AND_ABOVE",
+                    "BLOCK_ONLY_HIGH",
                     "BLOCK_MEDIUM_AND_ABOVE",
-                    "BLOCK_HIGH_AND_ABOVE",
+                    "BLOCK_LOW_AND_ABOVE",
                 ],
             },
         },
@@ -165,7 +190,7 @@ GEMINI_35_SAMPLING: dict[str, Any] = {
 # (sending both 400s) — model seeds must set at most one. Opus 4.7+/Fable drop
 # sampling parameters entirely; see CLAUDE_47_BASE.
 CLAUDE_45_BASE: dict[str, Any] = {
-    "temperature": TEMPERATURE,
+    "temperature": CLAUDE_TEMPERATURE,
     "top_p": TOP_P,
     "top_k": TOP_K,
     "stop_sequences": STOP_LIST,
@@ -181,7 +206,7 @@ CLAUDE_45_BASE: dict[str, Any] = {
 }
 
 CLAUDE_46_BASE: dict[str, Any] = {
-    "temperature": TEMPERATURE,
+    "temperature": CLAUDE_TEMPERATURE,
     "top_p": TOP_P,
     "top_k": TOP_K,
     "stop_sequences": STOP_LIST,
@@ -243,6 +268,17 @@ PARAMETER_DEFINITIONS_SEED_DATA = {
             "For modern models (Claude/Gemini), higher values (40-100) allow for more literary flair and rare descriptors."
         ),
     },
+    "min_p": {
+        "label": "Min P (Tail Cutoff)",
+        "short_info": "Drops words below a share of the top word's probability.",
+        "detailed_info": (
+            "The roleplay community's favorite sanity filter. Unlike Top P (which measures a "
+            "cumulative budget), Min P sets a floor relative to the single most likely token — "
+            "so it stays coherent even when you crank temperature high for wild, creative prose. "
+            "Try 0.02-0.1 with a hot temperature (1.1-1.5). 0 disables it. "
+            "Honored by local models (Ollama/LM Studio) and OpenRouter."
+        ),
+    },
     # --- 2. Repetition Control (The "Anti-Loop" Settings) ---
     "frequency_penalty": {
         "label": "Frequency Penalty (Repetition)",
@@ -259,6 +295,25 @@ PARAMETER_DEFINITIONS_SEED_DATA = {
         "detailed_info": (
             "Encourages the model to introduce NEW topics and words rather than dwelling on the current scene. "
             "Useful if the RP feels stagnant and you want the character to push the plot forward."
+        ),
+    },
+    "repetition_penalty": {
+        "label": "Repetition Penalty",
+        "short_info": "Multiplicative anti-repeat control (open-weight models).",
+        "detailed_info": (
+            "The open-weight equivalent of frequency/presence penalty, but multiplicative rather "
+            "than additive. 1.0 = off; RP typically uses a gentle 1.05-1.15. Push too high and the "
+            "prose turns stilted as common words get starved. Used by DeepSeek/MiMo and other "
+            "OpenRouter-hosted open models."
+        ),
+    },
+    "repeat_penalty": {
+        "label": "Repeat Penalty (Local)",
+        "short_info": "llama.cpp/Ollama anti-repeat control.",
+        "detailed_info": (
+            "The local-runtime name for repetition penalty (Ollama / LM Studio / llama.cpp). "
+            "1.0 = off; keep it modest (1.05-1.15) for RP. Pairs with 'repeat_last_n' (how far "
+            "back it looks). Distinct from OpenRouter's 'repetition_penalty' only in name."
         ),
     },
     # --- 3. Length & Formatting ---
@@ -346,12 +401,34 @@ PARAMETER_DEFINITIONS_SEED_DATA = {
         ),
     },
     "thinking_level": {
-        "label": "Thinking Level (Gemini 3.0)",
-        "short_info": "Depth of reasoning in Gemini 3.0 models.",
+        "label": "Thinking Level (Gemini 3 / Gemma 4)",
+        "short_info": "Depth of reasoning in Gemini 3.x and Gemma 4 models.",
         "detailed_info": (
-            "Controls how much internal reasoning Gemini 3.0 uses before responding. "
-            "'minimal' keeps responses fast and natural for RP. "
-            "'high' is for complex reasoning tasks. For most RP scenarios, stick with 'minimal' or 'low'."
+            "Controls how much internal reasoning the model does before responding. "
+            "'minimal' keeps responses fast and natural for RP (Gemma 4 treats this as "
+            "thinking effectively off). 'high' is for complex reasoning tasks. For most RP "
+            "scenarios, stick with 'minimal' or 'low'. On Gemma 4 the native control is a "
+            "boolean thinking token; this level maps to the graded OpenRouter/Gemini surface."
+        ),
+    },
+    "thinking_budget": {
+        "label": "Thinking Budget (Gemini 2.5)",
+        "short_info": "Token budget for internal reasoning.",
+        "detailed_info": (
+            "Caps how many tokens Gemini 2.5 spends thinking before it answers. "
+            "-1 = dynamic (the model decides based on complexity — the safe default). "
+            "0 = off (Flash / Flash-Lite only; Pro always thinks). Higher budgets help with "
+            "lore-heavy or puzzle scenes at the cost of latency. Superseded by 'thinking_level' "
+            "on Gemini 3.x."
+        ),
+    },
+    "media_resolution": {
+        "label": "Media Resolution (Gemini 3)",
+        "short_info": "Token budget for images/video in the prompt.",
+        "detailed_info": (
+            "Controls how finely Gemini 3.x tokenizes visual inputs. Higher settings read image "
+            "detail better (useful for reference art or scene photos) but cost more tokens. "
+            "For text-only RP this has no effect; leave at medium."
         ),
     },
     "summary": {
@@ -371,6 +448,15 @@ PARAMETER_DEFINITIONS_SEED_DATA = {
             "Controls how much the GPT-5 reasoning models explain their thought process. "
             "'low' minimizes reasoning tokens and speeds up responses. "
             "'high' shows more of the internal chain-of-thought. For RP, use 'low' to avoid exposing meta-reasoning."
+        ),
+    },
+    "agent_count": {
+        "label": "Agent Count (Grok Multi-Agent)",
+        "short_info": "Number of parallel agents Grok orchestrates.",
+        "detailed_info": (
+            "Grok's multi-agent variant spins up several reasoning agents that collaborate on a "
+            "reply. More agents can improve consistency on intricate, multi-thread scenes but "
+            "cost more and add latency. Rarely needed for casual RP."
         ),
     },
     # --- 5. System & Context ---

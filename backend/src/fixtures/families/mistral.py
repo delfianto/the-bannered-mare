@@ -18,6 +18,8 @@ _MISTRAL_RP_PARAMS: dict = {
     "temperature": {"type": "float", "default": 0.9, "min_value": 0.0, "max_value": 2.0},
     "top_p": {"type": "float", "default": 0.92, "min_value": 0.0, "max_value": 1.0},
     "top_k": {"type": "int", "default": 65, "min_value": 1, "max_value": 200},
+    # RP-community tail cutoff; pairs with a hotter temperature. 0 = off.
+    "min_p": {"type": "float", "default": 0.02, "min_value": 0.0, "max_value": 1.0},
     "repeat_penalty": {"type": "float", "default": 1.1, "min_value": 1.0, "max_value": 2.0},
     "num_ctx": {"type": "int", "default": 8192, "min_value": 512, "max_value": 131072},
     "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 16384},

@@ -21,6 +21,9 @@ _UNSUPPORTED_THINKING = [
     "top_p",
     "frequency_penalty",
     "presence_penalty",
+    "logprobs",
+    "top_logprobs",
+    "logit_bias",
 ]
 
 GPT_FAMILIES: list[ModelFamilySeedData] = [

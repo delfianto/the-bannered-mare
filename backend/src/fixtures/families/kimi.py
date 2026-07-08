@@ -12,7 +12,6 @@ from src.fixtures.model_families import ModelFamilySeedData
 from src.fixtures.parameter_definitions import (
     FREQUENCY_PENALTY,
     PRESENCE_PENALTY,
-    TOP_K,
     TOP_P_95,
 )
 
@@ -27,10 +26,10 @@ KIMI_FAMILIES: list[ModelFamilySeedData] = [
         "provider_types": ["openrouter"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 65536},
-            # Thinking mode ~1.0, instant mode ~0.6 (the RP-fast default).
-            "temperature": {"type": "float", "default": 0.6, "min_value": 0.0, "max_value": 2.0},
+            # Moonshot caps temperature at 1.0 (not 2.0). Thinking mode wants ~1.0,
+            # instant mode ~0.6 (the RP-fast default).
+            "temperature": {"type": "float", "default": 0.6, "min_value": 0.0, "max_value": 1.0},
             "top_p": TOP_P_95,
-            "top_k": {**TOP_K, "max_value": 100},
             "frequency_penalty": FREQUENCY_PENALTY,
             "presence_penalty": PRESENCE_PENALTY,
             "reasoning_effort": {
@@ -39,7 +38,9 @@ KIMI_FAMILIES: list[ModelFamilySeedData] = [
                 "str_values": ["low", "medium", "high"],
             },
         },
-        "unsupported_parameters": [],
+        # Moonshot's contract has no top_k/min_p/repetition_penalty (even its
+        # first-party OpenRouter endpoint omits them).
+        "unsupported_parameters": ["top_k"],
         "extra_metadata": {
             "lineage": "kimi",
             "developer": "moonshot",
