@@ -18,7 +18,7 @@ const emit = defineEmits<{
       v-for="(text, i) in items"
       :key="i"
       :disabled="disabled"
-      class="group flex w-full animate-fade-in-up items-start gap-2 rounded-lg border bg-card/60 px-3 py-2 text-left text-sm text-foreground transition-all duration-200 hover:border-primary/40 hover:bg-accent hover:shadow-[0_0_12px_var(--color-primary)/0.12] disabled:cursor-not-allowed disabled:opacity-50"
+      class="group flex w-full animate-fade-in-up items-start gap-2 rounded-lg border bg-base-200/60 px-3 py-2 text-left text-sm text-foreground transition-all duration-200 hover:border-primary/40 hover:bg-base-300 hover:shadow-[0_0_12px_var(--color-primary)/0.12] disabled:cursor-not-allowed disabled:opacity-50"
       :style="{ animationDelay: `${i * 60}ms` }"
       @click="emit('select', text)"
     >

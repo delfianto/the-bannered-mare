@@ -63,7 +63,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         :alt="data.name"
         class="absolute inset-0 size-full object-cover object-top"
       />
-      <div v-else class="absolute inset-0 flex items-center justify-center bg-muted">
+      <div v-else class="absolute inset-0 flex items-center justify-center bg-base-300">
         <AppIcon name="i-lucide-user" class="size-16 text-muted-foreground/30" />
       </div>
       <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
@@ -117,7 +117,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
     </div>
 
     <!-- Greeting Preview -->
-    <div class="space-y-2 rounded-xl border bg-card p-4">
+    <div class="space-y-2 rounded-xl border bg-base-200 p-4">
       <div
         class="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
       >
@@ -131,7 +131,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
     </div>
 
     <!-- Completeness -->
-    <div class="rounded-xl border bg-card p-4">
+    <div class="rounded-xl border bg-base-200 p-4">
       <p class="mb-2 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase">
         {{ $t("characters.form.completeness") }}
       </p>

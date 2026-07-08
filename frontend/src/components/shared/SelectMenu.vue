@@ -138,7 +138,7 @@ onBeforeUnmount(() => {
         v-if="open"
         ref="menu"
         role="listbox"
-        class="fixed z-[80] overflow-hidden rounded-lg border bg-card shadow-lg"
+        class="fixed z-[80] overflow-hidden rounded-lg border bg-base-200 shadow-lg"
         :style="menuStyle"
       >
         <div v-if="searchInput" class="border-b p-1.5">
@@ -147,7 +147,7 @@ onBeforeUnmount(() => {
             v-model="query"
             type="text"
             placeholder="Search…"
-            class="h-8 w-full rounded-md border bg-muted/40 px-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            class="h-8 w-full rounded-md border bg-base-300/40 px-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
         </div>
         <ul class="max-h-60 overflow-y-auto p-1">
@@ -157,7 +157,7 @@ onBeforeUnmount(() => {
             role="option"
             :aria-selected="item[valueKey] === modelValue"
             class="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors"
-            :class="i === highlighted ? 'bg-accent text-foreground' : 'text-muted-foreground'"
+            :class="i === highlighted ? 'bg-base-300 text-foreground' : 'text-muted-foreground'"
             @click="select(item)"
             @mouseenter="highlighted = i"
           >

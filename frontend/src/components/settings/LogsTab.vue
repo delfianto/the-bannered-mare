@@ -186,7 +186,7 @@ onMounted(fetchAll);
           <div
             v-for="card in statCards"
             :key="card.label"
-            class="rounded-xl border bg-card/50 p-4 text-center"
+            class="rounded-xl border bg-base-200/50 p-4 text-center"
           >
             <AppIcon :name="card.icon" class="mx-auto mb-1 size-4 text-muted-foreground" />
             <p class="text-2xl font-bold text-foreground">{{ card.value }}</p>
@@ -200,11 +200,11 @@ onMounted(fetchAll);
           <div
             v-for="row in usageRows"
             :key="`${row.provider}/${row.model}`"
-            class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-3 py-2"
+            class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-base-300/10 px-3 py-2"
           >
             <span
               class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
-              :class="providerColors[row.provider] ?? 'bg-muted text-muted-foreground'"
+              :class="providerColors[row.provider] ?? 'bg-base-300 text-muted-foreground'"
             >
               {{ row.provider }}
             </span>
@@ -248,7 +248,7 @@ onMounted(fetchAll);
           class="relative rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200"
           :class="
             activeSubTab === tab.id
-              ? 'bg-primary text-primary-foreground'
+              ? 'bg-primary text-primary-content'
               : 'border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground'
           "
           @click="activeSubTab = tab.id"
@@ -267,13 +267,13 @@ onMounted(fetchAll);
           v-for="log in httpLogs"
           :key="log.id"
           type="button"
-          class="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40"
+          class="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-base-300/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-base-300/40"
           @click="openLog('http', log)"
         >
           <!-- Method -->
           <span
             class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
-            :class="methodColors[log.method] ?? 'bg-muted text-muted-foreground'"
+            :class="methodColors[log.method] ?? 'bg-base-300 text-muted-foreground'"
           >
             {{ log.method }}
           </span>
@@ -318,14 +318,14 @@ onMounted(fetchAll);
           v-for="log in llmLogs"
           :key="log.id"
           type="button"
-          class="w-full rounded-lg border border-border/30 bg-muted/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40"
+          class="w-full rounded-lg border border-border/30 bg-base-300/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-base-300/40"
           @click="openLog('llm', log)"
         >
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <!-- Provider -->
             <span
               class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
-              :class="providerColors[log.provider] ?? 'bg-muted text-muted-foreground'"
+              :class="providerColors[log.provider] ?? 'bg-base-300 text-muted-foreground'"
             >
               {{ log.provider }}
             </span>
@@ -382,7 +382,7 @@ onMounted(fetchAll);
           v-for="err in errorLogs"
           :key="err.id"
           type="button"
-          class="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-muted/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-accent/40"
+          class="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-base-300/10 px-4 py-3 text-left transition-colors hover:border-primary/40 hover:bg-base-300/40"
           @click="openLog('error', err)"
         >
           <!-- Error type -->

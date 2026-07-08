@@ -45,7 +45,7 @@ function hide() {
       <span
         v-if="visible"
         role="tooltip"
-        class="pointer-events-none fixed z-[100] whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs font-medium text-background shadow-md"
+        class="pointer-events-none fixed z-[100] whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs font-medium text-base-100 shadow-md"
         :style="pos"
       >
         {{ text }}

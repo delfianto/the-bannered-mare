@@ -46,7 +46,7 @@ function dismiss() {
         I'll do it manually
       </button>
       <button
-        class="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3.5 text-xs font-medium text-primary-foreground shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3]"
+        class="flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3.5 text-xs font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3]"
         @click="getStarted"
       >
         Get Started

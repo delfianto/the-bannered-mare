@@ -148,7 +148,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
+  <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
     <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
       {{ initial ? $t("profiles.form.editTitle") : $t("profiles.form.newTitle") }}
     </h2>
@@ -162,7 +162,7 @@ function onSubmit() {
           v-model="name"
           type="text"
           :placeholder="$t('profiles.form.namePlaceholder')"
-          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+          class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -174,7 +174,7 @@ function onSubmit() {
           v-model="description"
           rows="2"
           :placeholder="$t('profiles.form.descriptionPlaceholder')"
-          class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+          class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -192,7 +192,7 @@ function onSubmit() {
           >
             <button
               type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <AppIcon
@@ -218,7 +218,7 @@ function onSubmit() {
           >
             <button
               type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <AppIcon
@@ -245,7 +245,7 @@ function onSubmit() {
             <button
               type="button"
               :title="$t('profiles.taskModelHint')"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <AppIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
@@ -272,7 +272,7 @@ function onSubmit() {
           >
             <button
               type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
@@ -295,7 +295,7 @@ function onSubmit() {
           >
             <button
               type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
                 <AppIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
@@ -312,7 +312,7 @@ function onSubmit() {
           }}</span>
           <button
             type="button"
-            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
             role="switch"
             :aria-checked="isDefault"
             @click="isDefault = !isDefault"
@@ -333,7 +333,7 @@ function onSubmit() {
             >
               <span
                 class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                :class="isDefault ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                :class="isDefault ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
               />
             </span>
           </button>
@@ -365,14 +365,14 @@ function onSubmit() {
       <!-- Footer -->
       <div class="flex items-center gap-3 pt-1">
         <button
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
           :disabled="saving || !name.trim()"
           @click="onSubmit"
         >
           {{ initial ? $t("profiles.form.save") : $t("profiles.form.create") }}
         </button>
         <button
-          class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="$emit('cancel')"
         >
           {{ $t("common.cancel") }}

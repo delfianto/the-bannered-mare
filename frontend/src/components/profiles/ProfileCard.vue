@@ -19,7 +19,7 @@ defineEmits<{
 
 <template>
   <div
-    class="group relative flex flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+    class="group relative flex flex-col rounded-xl border bg-base-200/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
   >
     <!-- Header -->
     <div class="mb-2 flex items-start justify-between gap-2">
@@ -29,7 +29,7 @@ defineEmits<{
       <div class="flex shrink-0 items-center gap-1.5">
         <span
           v-if="profile.source === 'sillytavern'"
-          class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-muted-foreground uppercase"
+          class="rounded-full bg-base-300 px-2 py-0.5 text-[9px] font-medium tracking-wide text-muted-foreground uppercase"
         >
           {{ $t("profiles.sourceSillyTavern") }}
         </span>
@@ -112,7 +112,7 @@ defineEmits<{
       </button>
       <button
         class="flex items-center gap-1"
-        :class="pendingDelete ? 'text-destructive!' : 'hover:text-destructive'"
+        :class="pendingDelete ? 'text-error!' : 'hover:text-error'"
         @click="$emit('delete')"
       >
         <AppIcon name="i-lucide-trash-2" class="size-3" />

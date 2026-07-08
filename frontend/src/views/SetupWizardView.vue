@@ -217,7 +217,7 @@ function finish() {
 
     <!-- Step 1: Provider readiness -->
     <div v-if="step === 1" class="space-y-4">
-      <div class="rounded-xl border bg-card/50 p-5">
+      <div class="rounded-xl border bg-base-200/50 p-5">
         <h2
           class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
@@ -233,7 +233,7 @@ function finish() {
           <li
             v-for="provider in localProviders"
             :key="provider.id"
-            class="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2.5"
+            class="flex items-center justify-between rounded-lg bg-base-300/40 px-3 py-2.5"
           >
             <span class="flex items-center gap-2 text-sm text-foreground">
               <AppIcon
@@ -267,7 +267,7 @@ function finish() {
         </ul>
       </div>
 
-      <div class="rounded-xl border bg-card/50 p-5">
+      <div class="rounded-xl border bg-base-200/50 p-5">
         <h2
           class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
@@ -277,7 +277,7 @@ function finish() {
           <li
             v-for="provider in cloudProviders"
             :key="provider.id"
-            class="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2.5"
+            class="flex items-center justify-between rounded-lg bg-base-300/40 px-3 py-2.5"
           >
             <span class="flex items-center gap-2 text-sm text-foreground">
               <AppIcon
@@ -312,7 +312,7 @@ function finish() {
           I'll do this manually
         </button>
         <button
-          class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3]"
+          class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3]"
           @click="step = 2"
         >
           Next
@@ -340,12 +340,12 @@ function finish() {
             <div
               v-for="p in incompleteProfiles"
               :key="p.id"
-              class="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2"
+              class="flex items-center justify-between rounded-lg bg-base-300/40 px-3 py-2"
             >
               <span class="text-sm text-foreground">{{ p.name }}</span>
               <button
                 type="button"
-                class="rounded-lg border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                class="rounded-lg border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-base-300"
                 @click="resumeIncompleteProfile(p)"
               >
                 Finish Setup
@@ -356,7 +356,7 @@ function finish() {
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <button
-            class="flex flex-col items-center gap-3 rounded-xl border bg-card/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-accent"
+            class="flex flex-col items-center gap-3 rounded-xl border bg-base-200/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-base-300"
             @click="createPath = 'manual'"
           >
             <AppIcon name="i-lucide-sliders-horizontal" class="size-8 text-primary" />
@@ -366,7 +366,7 @@ function finish() {
             >
           </button>
           <button
-            class="flex flex-col items-center gap-3 rounded-xl border bg-card/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-accent"
+            class="flex flex-col items-center gap-3 rounded-xl border bg-base-200/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-base-300"
             @click="showImportModal = true"
           >
             <AppIcon name="i-lucide-upload" class="size-8 text-primary" />
@@ -380,7 +380,7 @@ function finish() {
 
       <div v-else-if="createPath === 'manual'" class="space-y-4">
         <!-- No personas yet: offer to create one before the form's persona dropdown is reached -->
-        <div v-if="personas.length === 0" class="rounded-xl border bg-card/50 p-5">
+        <div v-if="personas.length === 0" class="rounded-xl border bg-base-200/50 p-5">
           <span class="mb-1.5 block text-xs font-medium text-muted-foreground"
             >You don't have a persona yet (optional, but recommended)</span
           >
@@ -389,12 +389,12 @@ function finish() {
               v-model="quickPersonaName"
               type="text"
               placeholder="Persona name (e.g. your name)"
-              class="h-11 w-full rounded-lg border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+              class="h-11 w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
               @keydown.enter="quickCreatePersona"
             />
             <button
               type="button"
-              class="flex h-11 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-50"
+              class="flex h-11 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-sm text-foreground transition-colors hover:bg-base-300 disabled:opacity-50"
               :disabled="creatingPersona || !quickPersonaName.trim()"
               @click="quickCreatePersona"
             >
@@ -419,7 +419,7 @@ function finish() {
       </div>
 
       <!-- Attach a model to finish a just-imported or previously-abandoned profile -->
-      <div v-if="profileToFinish" class="rounded-xl border bg-card/50 p-6">
+      <div v-if="profileToFinish" class="rounded-xl border bg-base-200/50 p-6">
         <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
           Attach a Model
         </h2>
@@ -437,7 +437,7 @@ function finish() {
             >
               <button
                 type="button"
-                class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+                class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
               >
                 <span class="flex min-w-0 items-center gap-2">
                   <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
@@ -462,12 +462,12 @@ function finish() {
                 v-model="quickPersonaName"
                 type="text"
                 placeholder="Persona name (e.g. your name)"
-                class="h-11 w-full rounded-lg border bg-muted/40 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+                class="h-11 w-full rounded-lg border bg-base-300/40 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
                 @keydown.enter="quickCreatePersona"
               />
               <button
                 type="button"
-                class="flex h-11 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-50"
+                class="flex h-11 shrink-0 items-center gap-1.5 rounded-lg border px-3 text-sm text-foreground transition-colors hover:bg-base-300 disabled:opacity-50"
                 :disabled="creatingPersona || !quickPersonaName.trim()"
                 @click="quickCreatePersona"
               >
@@ -489,7 +489,7 @@ function finish() {
             >
               <button
                 type="button"
-                class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+                class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
               >
                 <span class="flex min-w-0 items-center gap-2">
                   <AppIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
@@ -507,7 +507,7 @@ function finish() {
 
           <div class="flex items-center gap-3">
             <button
-              class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-50"
+              class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content disabled:opacity-50"
               :disabled="finishingImport"
               @click="finishImportSetup"
             >
@@ -519,7 +519,7 @@ function finish() {
               Finish
             </button>
             <button
-              class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
               @click="profileToFinish = null"
             >
               Back
@@ -541,7 +541,7 @@ function finish() {
     <!-- Step 3: done -->
     <div
       v-else
-      class="flex flex-col items-center gap-4 rounded-xl border bg-card/50 p-10 text-center"
+      class="flex flex-col items-center gap-4 rounded-xl border bg-base-200/50 p-10 text-center"
     >
       <AppIcon name="i-lucide-circle-check" class="size-10 text-emerald-500" />
       <h2 class="font-cinzel text-lg font-semibold text-foreground">You're all set</h2>
@@ -549,7 +549,7 @@ function finish() {
         Your first profile is ready. Head back and start a tale.
       </p>
       <button
-        class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm"
+        class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm"
         @click="finish"
       >
         Done

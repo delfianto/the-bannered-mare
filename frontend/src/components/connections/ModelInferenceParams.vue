@@ -131,7 +131,7 @@ const sections = computed(() => {
       </div>
       <button
         v-if="overrideCount > 0"
-        class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
         @click="resetToDefaults"
       >
         <AppIcon name="i-lucide-rotate-ccw" class="size-3" />
@@ -162,7 +162,7 @@ const sections = computed(() => {
         <div
           v-for="paramKey in section.params"
           :key="paramKey"
-          class="flex items-center justify-between gap-3 rounded-lg border border-border/30 bg-muted/10 px-3 py-2"
+          class="flex items-center justify-between gap-3 rounded-lg border border-border/30 bg-base-300/10 px-3 py-2"
         >
           <div class="flex min-w-0 items-center gap-2">
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
@@ -189,7 +189,7 @@ const sections = computed(() => {
         <div
           v-for="paramKey in section.params"
           :key="paramKey"
-          class="rounded-lg border border-border/30 bg-muted/10 px-3 py-2.5"
+          class="rounded-lg border border-border/30 bg-base-300/10 px-3 py-2.5"
         >
           <div class="mb-2 flex items-center gap-2">
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
@@ -216,7 +216,7 @@ const sections = computed(() => {
         <div
           v-for="paramKey in section.params"
           :key="paramKey"
-          class="rounded-lg border border-border/30 bg-muted/10 px-3 py-2.5"
+          class="rounded-lg border border-border/30 bg-base-300/10 px-3 py-2.5"
         >
           <div class="mb-2 flex items-center gap-2">
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />

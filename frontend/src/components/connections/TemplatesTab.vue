@@ -13,10 +13,10 @@ const { templates, loading, error, refresh } = usePromptTemplates();
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="refresh"
       >
         {{ $t("common.retry") }}
@@ -29,7 +29,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
         v-for="(template, index) in templates"
         :key="template.id"
         :to="`/settings/templates/${template.id}`"
-        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-base-200/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
       >
         <!-- Header -->
@@ -41,7 +41,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
           </div>
           <span
             v-if="template.is_default"
-            class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
+            class="shrink-0 rounded-full bg-base-300 px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
           >
             Default
           </span>

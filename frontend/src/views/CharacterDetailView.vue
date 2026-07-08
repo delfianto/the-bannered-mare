@@ -108,7 +108,7 @@ async function startTale() {
     <AppIcon name="i-lucide-alert-circle" class="size-10 text-muted-foreground/40" />
     <p class="text-sm text-muted-foreground">{{ error || $t("characters.notFound") }}</p>
     <button
-      class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+      class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
       @click="router.push('/characters')"
     >
       {{ $t("characters.detail.backToLibrary") }}
@@ -121,7 +121,7 @@ async function startTale() {
     <div class="flex animate-fade-in-up items-center justify-between">
       <div class="flex items-center gap-4">
         <button
-          class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="goBack"
         >
           <AppIcon name="i-lucide-arrow-left" class="size-4" />
@@ -132,7 +132,7 @@ async function startTale() {
         </h1>
       </div>
       <button
-        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
         @click="router.push(`/characters/${characterId}/edit`)"
       >
         <AppIcon name="i-lucide-pencil" class="size-4" />
@@ -146,7 +146,7 @@ async function startTale() {
       <div class="space-y-6 lg:col-span-2">
         <!-- Character Card with Avatar -->
         <div
-          class="animate-fade-in-up overflow-hidden rounded-xl border bg-card/50"
+          class="animate-fade-in-up overflow-hidden rounded-xl border bg-base-200/50"
           style="animation-delay: 60ms"
         >
           <!-- Avatar (full-bleed with gradient) — anchor to the top so a
@@ -158,7 +158,7 @@ async function startTale() {
               class="size-full object-cover object-top"
             />
             <div
-              class="absolute inset-0 bg-linear-to-t from-card/95 via-transparent to-transparent"
+              class="absolute inset-0 bg-linear-to-t from-base-200/95 via-transparent to-transparent"
             />
             <div class="absolute inset-x-0 bottom-0 p-6">
               <h2 class="font-cinzel text-xl font-bold text-foreground drop-shadow-lg">
@@ -219,7 +219,7 @@ async function startTale() {
               >
                 {{ $t("characters.detail.firstMessage") }}
               </h3>
-              <div class="rounded-lg border border-border/50 bg-background/50 p-4">
+              <div class="rounded-lg border border-border/50 bg-base-100/50 p-4">
                 <NarrativeText :content="character.first_message" />
               </div>
             </div>
@@ -235,7 +235,7 @@ async function startTale() {
                 <div
                   v-for="(dialogue, i) in character.example_dialogues"
                   :key="i"
-                  class="rounded-lg border border-border/50 bg-background/50 p-3"
+                  class="rounded-lg border border-border/50 bg-base-100/50 p-3"
                 >
                   <NarrativeText :content="dialogue" />
                 </div>
@@ -256,7 +256,7 @@ async function startTale() {
       <div class="space-y-6">
         <!-- Metadata Card -->
         <div
-          class="animate-fade-in-up rounded-xl border bg-card/50 p-4"
+          class="animate-fade-in-up rounded-xl border bg-base-200/50 p-4"
           style="animation-delay: 120ms"
         >
           <h3
@@ -297,7 +297,7 @@ async function startTale() {
         <!-- Start Tale Button -->
         <div class="animate-fade-in-up" style="animation-delay: 180ms">
           <button
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-cinzel text-sm font-semibold tracking-wide text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-60"
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-cinzel text-sm font-semibold tracking-wide text-primary-content transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-60"
             :disabled="creating"
             @click="startTale"
           >
@@ -313,7 +313,7 @@ async function startTale() {
         <!-- Post History Instructions -->
         <div
           v-if="character.post_history_instructions"
-          class="animate-fade-in-up rounded-xl border bg-card/50 p-4"
+          class="animate-fade-in-up rounded-xl border bg-base-200/50 p-4"
           style="animation-delay: 240ms"
         >
           <h3

@@ -48,7 +48,7 @@ defineEmits<{
     <slot name="action">
       <button
         v-if="actionLabel || (!hasFilters && !title)"
-        class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
         @click="$emit('action')"
       >
         <AppIcon name="i-lucide-plus" class="size-4" />

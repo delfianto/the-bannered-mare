@@ -41,7 +41,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
 <template>
   <div ref="rootRef" class="relative">
     <button
-      class="flex h-9 items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+      class="flex h-9 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
       :title="$t('chat.profile.title')"
       @click="toggle"
     >
@@ -54,7 +54,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
 
     <div
       v-if="open"
-      class="absolute top-full right-0 z-20 mt-1 w-64 rounded-lg border bg-card py-1 shadow-lg"
+      class="absolute top-full right-0 z-20 mt-1 w-64 rounded-lg border bg-base-200 py-1 shadow-lg"
     >
       <div
         class="px-3 py-1.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase"
@@ -65,7 +65,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       <button
         v-for="p in profiles"
         :key="p.id"
-        class="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-accent/50"
+        class="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-base-300/50"
         @click="choose(p)"
       >
         <AppIcon
@@ -88,7 +88,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       <div class="my-1 h-px bg-border" />
 
       <button
-        class="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+        class="flex w-full items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground"
         @click="goManage"
       >
         <AppIcon name="i-lucide-settings-2" class="size-4" />

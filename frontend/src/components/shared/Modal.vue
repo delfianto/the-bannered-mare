@@ -85,7 +85,7 @@ const maxWidthClass = {
           <div
             v-if="show"
             :class="[
-              'relative z-10 w-full rounded-2xl border border-white/10 bg-card/95 p-6 shadow-2xl backdrop-blur-md',
+              'relative z-10 w-full rounded-2xl border border-white/10 bg-base-200/95 p-6 shadow-2xl backdrop-blur-md',
               maxWidthClass,
             ]"
             role="dialog"

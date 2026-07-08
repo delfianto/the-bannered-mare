@@ -103,7 +103,7 @@ function formatDate(iso: string): string {
     <!-- Loading overlay -->
     <div
       v-if="loading"
-      class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+      class="absolute inset-0 z-50 flex items-center justify-center bg-base-100/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
         <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
@@ -113,10 +113,10 @@ function formatDate(iso: string): string {
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="router.back()"
       >
         {{ $t("common.goBack") }}
@@ -126,11 +126,11 @@ function formatDate(iso: string): string {
     <template v-if="fragment && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             :aria-label="$t('connections.fragment.backToFragments')"
             @click="router.push({ path: '/connections', query: { tab: 'fragments' } })"
           >
@@ -138,7 +138,7 @@ function formatDate(iso: string): string {
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-              <AppIcon name="i-lucide-puzzle" class="size-3.5 text-primary-foreground" />
+              <AppIcon name="i-lucide-puzzle" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Fragment
@@ -152,8 +152,8 @@ function formatDate(iso: string): string {
             class="flex h-9 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors"
             :class="
               confirmDelete
-                ? 'border-destructive bg-destructive/10 text-destructive'
-                : 'border-destructive/30 text-destructive hover:bg-destructive/10'
+                ? 'border-error bg-error/10 text-error'
+                : 'border-error/30 text-error hover:bg-error/10'
             "
             :disabled="deleting"
             @click="handleDelete"
@@ -174,7 +174,7 @@ function formatDate(iso: string): string {
 
           <!-- Save button -->
           <button
-            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
+            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
             :disabled="saving"
             @click="handleSave"
           >
@@ -192,7 +192,7 @@ function formatDate(iso: string): string {
       <div class="flex-1 overflow-y-auto p-6">
         <div class="mx-auto max-w-3xl space-y-6">
           <!-- Basic Info card -->
-          <div class="rounded-xl border bg-card/50 p-5">
+          <div class="rounded-xl border bg-base-200/50 p-5">
             <h2
               class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
@@ -210,7 +210,7 @@ function formatDate(iso: string): string {
                   v-model="form.name"
                   type="text"
                   placeholder="Fragment name"
-                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
@@ -225,7 +225,7 @@ function formatDate(iso: string): string {
                   v-model="form.description"
                   rows="3"
                   placeholder="Fragment description"
-                  class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
@@ -244,7 +244,7 @@ function formatDate(iso: string): string {
                   class="w-full"
                 >
                   <button
-                    class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
+                    class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
                   >
                     {{
                       fragmentTypeOptions.find((o) => o.value === form.fragment_type)?.label ||
@@ -275,7 +275,7 @@ function formatDate(iso: string): string {
                     <span
                       class="size-4 rounded-full shadow-sm transition-transform duration-300"
                       :class="
-                        form.is_global ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
+                        form.is_global ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
                       "
                     />
                   </div>
@@ -285,7 +285,7 @@ function formatDate(iso: string): string {
           </div>
 
           <!-- Content card -->
-          <div class="rounded-xl border bg-card/50 p-5">
+          <div class="rounded-xl border bg-base-200/50 p-5">
             <h2
               class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
@@ -295,7 +295,7 @@ function formatDate(iso: string): string {
               v-model="form.content"
               rows="8"
               :placeholder="$t('connections.fragment.contentPlaceholder')"
-              class="min-h-[200px] w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+              class="min-h-[200px] w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
             <p class="mt-2 text-[11px] text-muted-foreground/60">
               {{ $t("connections.fragment.contentHint") }}

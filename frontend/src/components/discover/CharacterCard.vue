@@ -58,7 +58,7 @@ function avatarSrc(): string {
           selected ? 'border-primary bg-primary' : 'border-white/60 bg-black/30 backdrop-blur-sm'
         "
       >
-        <AppIcon v-if="selected" name="i-lucide-check" class="size-3.5 text-primary-foreground" />
+        <AppIcon v-if="selected" name="i-lucide-check" class="size-3.5 text-primary-content" />
       </div>
     </div>
 

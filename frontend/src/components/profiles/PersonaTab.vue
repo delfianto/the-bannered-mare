@@ -191,7 +191,7 @@ async function setDefault(personaId: string) {
         {{ $t("settings.persona.title") }}
       </h3>
       <button
-        class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
         @click="openCreateForm"
       >
         <AppIcon name="i-lucide-plus" class="size-4" />
@@ -200,7 +200,7 @@ async function setDefault(personaId: string) {
     </div>
 
     <!-- Inline Create/Edit Form -->
-    <div v-if="showForm" class="mb-4 animate-fade-in-up rounded-xl border bg-card/50 p-5">
+    <div v-if="showForm" class="mb-4 animate-fade-in-up rounded-xl border bg-base-200/50 p-5">
       <h4 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
         {{ editingId ? $t("settings.persona.editPersona") : $t("settings.persona.newPersona") }}
       </h4>
@@ -213,7 +213,7 @@ async function setDefault(personaId: string) {
             v-model="formName"
             type="text"
             :placeholder="$t('settings.persona.namePlaceholder')"
-            class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+            class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
         <label class="block">
@@ -224,7 +224,7 @@ async function setDefault(personaId: string) {
             v-model="formDescription"
             rows="3"
             :placeholder="$t('settings.persona.descriptionPlaceholder')"
-            class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+            class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
         <div class="flex items-center gap-3">
@@ -244,13 +244,13 @@ async function setDefault(personaId: string) {
           <input
             type="file"
             accept="image/*"
-            class="w-full text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border file:border-border file:bg-background file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-foreground hover:file:bg-accent"
+            class="w-full text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border file:border-border file:bg-base-100 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-foreground hover:file:bg-base-300"
             @change="onAvatarChange"
           />
         </div>
         <div class="flex items-center gap-3">
           <button
-            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
             :disabled="formSaving || !formName.trim()"
             @click="saveForm"
           >
@@ -267,7 +267,7 @@ async function setDefault(personaId: string) {
             </span>
           </button>
           <button
-            class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             @click="cancelForm"
           >
             {{ $t("common.cancel") }}
@@ -282,13 +282,13 @@ async function setDefault(personaId: string) {
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="rounded-xl border bg-card/50 p-8 text-center">
+    <div v-else-if="error" class="rounded-xl border bg-base-200/50 p-8 text-center">
       <AppIcon name="i-lucide-alert-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ error }}</p>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="personas.length === 0" class="rounded-xl border bg-card/50 p-8 text-center">
+    <div v-else-if="personas.length === 0" class="rounded-xl border bg-base-200/50 p-8 text-center">
       <AppIcon name="i-lucide-user-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
       <p class="text-sm text-muted-foreground">{{ $t("settings.persona.noPersonas") }}</p>
     </div>
@@ -298,7 +298,7 @@ async function setDefault(personaId: string) {
       <div
         v-for="persona in personas"
         :key="persona.id"
-        class="group flex items-center gap-4 rounded-xl border bg-card/50 p-4 transition-colors hover:bg-card/80"
+        class="group flex items-center gap-4 rounded-xl border bg-base-200/50 p-4 transition-colors hover:bg-base-200/80"
       >
         <!-- Avatar -->
         <img
@@ -327,7 +327,7 @@ async function setDefault(personaId: string) {
               @click="setDefault(persona.id)"
             >
               <span
-                class="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent"
+                class="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-base-300"
               >
                 {{ $t("settings.persona.setDefault") }}
               </span>
@@ -341,7 +341,7 @@ async function setDefault(personaId: string) {
         <!-- Actions -->
         <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           <button
-            class="inline-flex size-8 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="inline-flex size-8 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             title="Edit persona"
             aria-label="Edit persona"
             @click="openEditForm(persona)"
@@ -352,8 +352,8 @@ async function setDefault(personaId: string) {
             class="inline-flex size-8 items-center justify-center rounded-md text-sm transition-colors"
             :class="
               pendingDeleteId === persona.id
-                ? 'bg-destructive/10 text-destructive'
-                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                ? 'bg-error/10 text-error'
+                : 'text-muted-foreground hover:bg-base-300 hover:text-foreground'
             "
             :title="pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'"
             :aria-label="

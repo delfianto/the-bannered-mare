@@ -36,10 +36,10 @@ const emit = defineEmits<{
 
 <template>
   <div>
-    <div class="overflow-hidden rounded-xl border bg-card/50">
+    <div class="overflow-hidden rounded-xl border bg-base-200/50">
       <table class="w-full text-left text-sm">
         <thead>
-          <tr class="border-b bg-muted/30">
+          <tr class="border-b bg-base-300/30">
             <th
               v-for="col in columns"
               :key="col.key"
@@ -54,7 +54,7 @@ const emit = defineEmits<{
           <tr
             v-for="row in rows"
             :key="row[rowKey]"
-            class="cursor-pointer border-b border-border/50 transition-colors last:border-0 hover:bg-accent/40"
+            class="cursor-pointer border-b border-border/50 transition-colors last:border-0 hover:bg-base-300/40"
             @click="emit('rowClick', row)"
           >
             <td v-for="col in columns" :key="col.key" class="px-4 py-2.5" :class="col.tdClass">

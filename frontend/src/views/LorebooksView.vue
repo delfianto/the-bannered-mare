@@ -200,7 +200,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
 
     <!-- Inline Lorebook form for first lorebook creation -->
     <div v-if="showLorebookForm" class="mx-auto w-full max-w-2xl">
-      <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
+      <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
         <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
           {{ editingLorebook ? $t("lorebooks.form.editTitle") : $t("lorebooks.form.newTitle") }}
         </h2>
@@ -213,7 +213,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
               v-model="lbName"
               type="text"
               :placeholder="$t('lorebooks.form.namePlaceholder')"
-              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+              class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </label>
           <label class="block">
@@ -224,12 +224,12 @@ async function toggleEntry(entry: LoreEntryResponse) {
               v-model="lbDescription"
               rows="2"
               :placeholder="$t('lorebooks.form.descriptionPlaceholder')"
-              class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+              class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </label>
           <button
             type="button"
-            class="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2"
+            class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
             role="switch"
             :aria-checked="lbIsGlobal"
             @click="lbIsGlobal = !lbIsGlobal"
@@ -240,21 +240,21 @@ async function toggleEntry(entry: LoreEntryResponse) {
             >
               <span
                 class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-                :class="lbIsGlobal ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
+                :class="lbIsGlobal ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
               />
             </span>
             <span class="text-sm text-foreground">{{ $t("lorebooks.form.isGlobal") }}</span>
           </button>
           <div class="flex items-center gap-3 pt-1">
             <button
-              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
               :disabled="savingLorebook || !lbName.trim()"
               @click="submitLorebook"
             >
               {{ editingLorebook ? $t("lorebooks.form.save") : $t("lorebooks.form.create") }}
             </button>
             <button
-              class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
               @click="showLorebookForm = false"
             >
               {{ $t("common.cancel") }}
@@ -284,7 +284,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
           {{ $t("lorebooks.title") }}
         </h1>
         <button
-          class="flex size-8 items-center justify-center rounded-lg border bg-card text-foreground transition-colors hover:bg-accent"
+          class="flex size-8 items-center justify-center rounded-lg border bg-base-200 text-foreground transition-colors hover:bg-base-300"
           :title="$t('lorebooks.newLorebook')"
           @click="openNewLorebook"
         >
@@ -296,7 +296,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
           v-for="lb in lorebooks"
           :key="lb.id"
           class="w-full rounded-lg border px-3 py-2.5 text-left transition-colors"
-          :class="selectedId === lb.id ? 'border-primary/40 bg-accent' : 'hover:bg-accent/50'"
+          :class="selectedId === lb.id ? 'border-primary/40 bg-base-300' : 'hover:bg-base-300/50'"
           @click="selectLorebook(lb.id)"
         >
           <div class="flex items-center justify-between gap-2">
@@ -331,7 +331,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
     <div class="flex-1 overflow-y-auto">
       <!-- Lorebook create/edit form -->
       <div v-if="showLorebookForm" class="px-8 py-6">
-        <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
+        <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
           <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
             {{ editingLorebook ? $t("lorebooks.form.editTitle") : $t("lorebooks.form.newTitle") }}
           </h2>
@@ -344,7 +344,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 v-model="lbName"
                 type="text"
                 :placeholder="$t('lorebooks.form.namePlaceholder')"
-                class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+                class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
               />
             </label>
             <label class="block">
@@ -355,12 +355,12 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 v-model="lbDescription"
                 rows="2"
                 :placeholder="$t('lorebooks.form.descriptionPlaceholder')"
-                class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+                class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
               />
             </label>
             <button
               type="button"
-              class="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2"
+              class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
               role="switch"
               :aria-checked="lbIsGlobal"
               @click="lbIsGlobal = !lbIsGlobal"
@@ -371,23 +371,21 @@ async function toggleEntry(entry: LoreEntryResponse) {
               >
                 <span
                   class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-                  :class="
-                    lbIsGlobal ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'
-                  "
+                  :class="lbIsGlobal ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
                 />
               </span>
               <span class="text-sm text-foreground">{{ $t("lorebooks.form.isGlobal") }}</span>
             </button>
             <div class="flex items-center gap-3 pt-1">
               <button
-                class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
                 :disabled="savingLorebook || !lbName.trim()"
                 @click="submitLorebook"
               >
                 {{ editingLorebook ? $t("lorebooks.form.save") : $t("lorebooks.form.create") }}
               </button>
               <button
-                class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
                 @click="showLorebookForm = false"
               >
                 {{ $t("common.cancel") }}
@@ -422,7 +420,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
             </div>
             <div class="flex shrink-0 items-center gap-2">
               <button
-                class="flex size-9 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                class="flex size-9 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
                 :title="$t('lorebooks.editLorebook')"
                 @click="openEditLorebook"
               >
@@ -432,8 +430,8 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 class="flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm transition-colors"
                 :class="
                   pendingDeleteLb === currentLorebook.id
-                    ? 'border-destructive text-destructive'
-                    : 'text-muted-foreground hover:bg-accent hover:text-destructive'
+                    ? 'border-error text-error'
+                    : 'text-muted-foreground hover:bg-base-300 hover:text-error'
                 "
                 @click="onDeleteLorebook"
                 @mouseleave="pendingDeleteLb = null"
@@ -442,7 +440,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 {{ pendingDeleteLb === currentLorebook.id ? $t("lorebooks.confirmDelete") : "" }}
               </button>
               <button
-                class="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                class="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
                 @click="openNewEntry"
               >
                 <AppIcon name="i-lucide-plus" class="size-4" />

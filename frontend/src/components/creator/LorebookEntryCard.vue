@@ -33,7 +33,9 @@ function removeKeyword(kw: string) {
 <template>
   <div
     class="overflow-hidden rounded-xl border transition-colors"
-    :class="entry.enabled ? 'border-border bg-muted/20' : 'border-border/50 bg-muted/10 opacity-60'"
+    :class="
+      entry.enabled ? 'border-border bg-base-300/20' : 'border-border/50 bg-base-300/10 opacity-60'
+    "
   >
     <!-- Header -->
     <div class="flex items-center gap-2 px-4 py-3">
@@ -56,7 +58,7 @@ function removeKeyword(kw: string) {
         <span
           v-for="kw in entry.keywords.slice(0, 3)"
           :key="kw"
-          class="rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground"
+          class="rounded-full bg-base-300 px-2 py-0.5 text-[10px] font-medium text-base-content"
         >
           {{ kw }}
         </span>
@@ -74,7 +76,7 @@ function removeKeyword(kw: string) {
           :class="
             entry.enabled
               ? 'text-primary hover:bg-primary/10'
-              : 'text-muted-foreground hover:bg-accent'
+              : 'text-muted-foreground hover:bg-base-300'
           "
           @click="emit('update', entry.id, { enabled: !entry.enabled })"
         >
@@ -82,7 +84,7 @@ function removeKeyword(kw: string) {
         </button>
         <button
           type="button"
-          class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-error/10 hover:text-error"
           :aria-label="t('characters.form.removeLorebook')"
           @click="emit('remove', entry.id)"
         >
@@ -98,7 +100,7 @@ function removeKeyword(kw: string) {
           t("characters.form.keywords")
         }}</span>
         <div
-          class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border bg-background p-2"
+          class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border bg-base-100 p-2"
         >
           <span
             v-for="kw in entry.keywords"
@@ -108,7 +110,7 @@ function removeKeyword(kw: string) {
             {{ kw }}
             <button
               type="button"
-              class="hover:text-destructive"
+              class="hover:text-error"
               :aria-label="t('characters.form.removeKeyword', { keyword: kw })"
               @click="removeKeyword(kw)"
             >
@@ -135,7 +137,7 @@ function removeKeyword(kw: string) {
           :value="entry.content"
           placeholder="The Sunken Library was once the greatest repository of arcane knowledge…"
           rows="3"
-          class="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+          class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2.5 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
           @input="
             emit('update', entry.id, { content: ($event.target as HTMLTextAreaElement).value })
           "

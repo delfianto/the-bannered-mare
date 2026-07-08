@@ -36,7 +36,7 @@ const actions = [
       <div
         v-if="open"
         ref="menuRef"
-        class="absolute right-0 bottom-full z-50 mb-1 w-44 origin-bottom-right rounded-lg border bg-popover py-1 shadow-lg"
+        class="absolute right-0 bottom-full z-50 mb-1 w-44 origin-bottom-right rounded-lg border bg-base-200 py-1 shadow-lg"
         tabindex="-1"
         @blur.capture="open = false"
       >
@@ -47,8 +47,8 @@ const actions = [
           class="flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors"
           :class="
             item.destructive
-              ? 'text-destructive hover:bg-destructive/10'
-              : 'text-popover-foreground hover:bg-muted/60'
+              ? 'text-error hover:bg-error/10'
+              : 'text-base-content hover:bg-base-300/60'
           "
           @click.stop="
             $emit('action', item.name);

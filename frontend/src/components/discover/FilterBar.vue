@@ -53,8 +53,8 @@ function sortLabel(value: SortOption): string {
         class="flex items-center gap-2 rounded-lg border px-3 transition-all duration-200"
         :class="
           searchFocused
-            ? 'border-primary/40 bg-background shadow-[0_0_0_3px_var(--color-primary)/0.08]'
-            : 'border-border bg-muted/40 hover:border-muted-foreground/30'
+            ? 'border-primary/40 bg-base-100 shadow-[0_0_0_3px_var(--color-primary)/0.08]'
+            : 'border-border bg-base-300/40 hover:border-muted-foreground/30'
         "
       >
         <AppIcon
@@ -79,7 +79,7 @@ function sortLabel(value: SortOption): string {
     <!-- Sort dropdown -->
     <SelectMenu v-model="selectedSort" :items="sortItems" value-key="value" :search-input="false">
       <button
-        class="flex h-9 items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+        class="flex h-9 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
       >
         <AppIcon name="i-lucide-arrow-up-down" class="size-3.5" />
         {{ sortLabel(sort) }}
@@ -88,7 +88,7 @@ function sortLabel(value: SortOption): string {
     </SelectMenu>
 
     <!-- View mode toggle -->
-    <div class="flex h-9 items-center rounded-lg border bg-muted/40">
+    <div class="flex h-9 items-center rounded-lg border bg-base-300/40">
       <button
         :aria-label="$t('characters.view.grid')"
         class="flex h-full items-center px-2.5 transition-colors"
@@ -118,7 +118,7 @@ function sortLabel(value: SortOption): string {
       :class="
         selectMode
           ? 'border-primary/40 bg-primary/10 text-primary'
-          : 'border-border bg-muted/40 text-muted-foreground hover:text-foreground'
+          : 'border-border bg-base-300/40 text-muted-foreground hover:text-foreground'
       "
       @click="emit('update:selectMode', !selectMode)"
     >

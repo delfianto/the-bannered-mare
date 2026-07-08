@@ -54,7 +54,7 @@ const apiKeyStatus = computed(() => {
   if (p && !p.env_var_name) {
     return {
       label: t("connections.provider.keyNotSet"),
-      badge: "bg-muted text-muted-foreground",
+      badge: "bg-base-300 text-muted-foreground",
       dot: "bg-muted-foreground/50",
     };
   }
@@ -304,7 +304,7 @@ function toggleMenu(identifier: string) {
     <!-- Loading overlay -->
     <div
       v-if="loading"
-      class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+      class="absolute inset-0 z-50 flex items-center justify-center bg-base-100/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
         <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
@@ -314,10 +314,10 @@ function toggleMenu(identifier: string) {
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="router.back()"
       >
         {{ $t("common.goBack") }}
@@ -327,11 +327,11 @@ function toggleMenu(identifier: string) {
     <template v-if="provider && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             :aria-label="$t('connections.provider.backToProviders')"
             @click="router.push({ path: '/connections', query: { tab: 'providers' } })"
           >
@@ -339,7 +339,7 @@ function toggleMenu(identifier: string) {
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-              <AppIcon name="i-lucide-plug" class="size-3.5 text-primary-foreground" />
+              <AppIcon name="i-lucide-plug" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Provider
@@ -348,7 +348,7 @@ function toggleMenu(identifier: string) {
         </div>
 
         <button
-          class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
+          class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
           :disabled="saving"
           @click="handleSave"
         >
@@ -365,10 +365,10 @@ function toggleMenu(identifier: string) {
       <div class="flex-1 overflow-y-auto p-6">
         <div class="mx-auto max-w-2xl space-y-6">
           <!-- Main form card -->
-          <div class="rounded-xl border bg-card/50 p-5">
+          <div class="rounded-xl border bg-base-200/50 p-5">
             <!-- Provider type badge -->
             <div class="mb-5 flex items-center gap-3">
-              <div class="flex size-10 items-center justify-center rounded-lg bg-accent p-2">
+              <div class="flex size-10 items-center justify-center rounded-lg bg-base-300 p-2">
                 <img
                   :src="getIcon(provider.provider_type)"
                   :alt="provider.provider_type"
@@ -377,7 +377,7 @@ function toggleMenu(identifier: string) {
               </div>
               <div>
                 <span
-                  class="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-foreground uppercase"
+                  class="rounded-full bg-base-300 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-foreground uppercase"
                 >
                   {{ provider.provider_type }}
                 </span>
@@ -397,7 +397,7 @@ function toggleMenu(identifier: string) {
                   v-model="form.name"
                   type="text"
                   placeholder="Provider name"
-                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
@@ -412,7 +412,7 @@ function toggleMenu(identifier: string) {
                   v-model="form.base_url"
                   type="text"
                   placeholder="https://api.example.com/v1"
-                  class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                 />
               </label>
 
@@ -436,9 +436,7 @@ function toggleMenu(identifier: string) {
                   >
                     <span
                       class="size-4 rounded-full shadow-sm transition-transform"
-                      :class="
-                        form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
-                      "
+                      :class="form.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
                     />
                   </div>
                 </button>
@@ -447,7 +445,7 @@ function toggleMenu(identifier: string) {
           </div>
 
           <!-- API Key section -->
-          <div class="rounded-xl border bg-card/50 p-5">
+          <div class="rounded-xl border bg-base-200/50 p-5">
             <h2
               class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
@@ -458,7 +456,7 @@ function toggleMenu(identifier: string) {
                 <span class="text-sm text-muted-foreground">{{
                   $t("connections.provider.envVar")
                 }}</span>
-                <code class="rounded bg-accent px-2 py-0.5 text-xs text-foreground">
+                <code class="rounded bg-base-300 px-2 py-0.5 text-xs text-foreground">
                   {{ provider.env_var_name || "N/A" }}
                 </code>
               </div>
@@ -476,7 +474,7 @@ function toggleMenu(identifier: string) {
           </div>
 
           <!-- Available Models -->
-          <div class="rounded-xl border bg-card/50 p-5">
+          <div class="rounded-xl border bg-base-200/50 p-5">
             <div class="mb-4 flex items-center justify-between">
               <div>
                 <h2
@@ -493,7 +491,7 @@ function toggleMenu(identifier: string) {
                 </p>
               </div>
               <button
-                class="flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium text-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50"
+                class="flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium text-foreground transition-colors hover:bg-base-300 disabled:pointer-events-none disabled:opacity-50"
                 :disabled="syncing"
                 @click="handleSyncNow"
               >
@@ -517,7 +515,7 @@ function toggleMenu(identifier: string) {
                   v-model="modelSearchQuery"
                   type="text"
                   placeholder="Search models to add to the filter…"
-                  class="h-10 w-full rounded-lg border bg-muted/40 pr-9 pl-9 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-10 w-full rounded-lg border bg-base-300/40 pr-9 pl-9 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   @input="onSearchInput"
                   @focus="modelSearchQuery && (showSearchResults = true)"
                 />
@@ -530,7 +528,7 @@ function toggleMenu(identifier: string) {
                 <!-- Results dropdown -->
                 <div
                   v-if="showSearchResults && modelSearchQuery"
-                  class="absolute z-40 mt-1 w-full overflow-hidden rounded-lg border bg-popover shadow-lg"
+                  class="absolute z-40 mt-1 w-full overflow-hidden rounded-lg border bg-base-200 shadow-lg"
                 >
                   <div class="fixed inset-0 z-[-1]" @click="showSearchResults = false" />
                   <div
@@ -548,7 +546,7 @@ function toggleMenu(identifier: string) {
                   <ul v-else class="max-h-64 overflow-y-auto py-1">
                     <li v-for="r in searchResults" :key="r.identifier">
                       <button
-                        class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition-colors hover:bg-muted/60 disabled:cursor-not-allowed disabled:opacity-40"
+                        class="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition-colors hover:bg-base-300/60 disabled:cursor-not-allowed disabled:opacity-40"
                         :disabled="isFiltered(r.identifier) || savingFilter"
                         @click="addToFilter(r.identifier)"
                       >
@@ -607,7 +605,7 @@ function toggleMenu(identifier: string) {
             </div>
 
             <div v-else-if="modelsError" class="flex flex-col items-center gap-2 py-6 text-center">
-              <AppIcon name="i-lucide-alert-circle" class="size-5 text-destructive" />
+              <AppIcon name="i-lucide-alert-circle" class="size-5 text-error" />
               <p class="text-xs text-muted-foreground">{{ modelsError.message }}</p>
             </div>
 
@@ -625,7 +623,7 @@ function toggleMenu(identifier: string) {
               <li
                 v-for="model in availableModels"
                 :key="model.identifier"
-                class="relative flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2"
+                class="relative flex items-center justify-between rounded-lg bg-base-300/40 px-3 py-2"
               >
                 <div class="min-w-0 pr-4">
                   <p class="truncate text-sm text-foreground">{{ model.display_name }}</p>
@@ -655,7 +653,7 @@ function toggleMenu(identifier: string) {
                   <!-- Context Dropdown Menu -->
                   <div class="relative">
                     <button
-                      class="flex size-7 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                      class="flex size-7 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                       :disabled="pendingModelAction === model.identifier"
                       @click.stop="toggleMenu(model.identifier)"
                     >
@@ -677,7 +675,7 @@ function toggleMenu(identifier: string) {
                     >
                       <div
                         v-if="openMenuModel === model.identifier"
-                        class="absolute top-full right-0 z-50 mt-1 w-44 origin-top-right rounded-lg border bg-popover py-1 shadow-lg"
+                        class="absolute top-full right-0 z-50 mt-1 w-44 origin-top-right rounded-lg border bg-base-200 py-1 shadow-lg"
                       >
                         <!-- Click outside handler overlay -->
                         <div class="fixed inset-0 z-[-1]" @click.stop="openMenuModel = null" />
@@ -685,7 +683,7 @@ function toggleMenu(identifier: string) {
                         <!-- Load / Unload option -->
                         <button
                           v-if="isLocalProvider"
-                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-popover-foreground transition-colors hover:bg-muted/60"
+                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-base-content transition-colors hover:bg-base-300/60"
                           @click="
                             openMenuModel = null;
                             model.state === 'loaded'
@@ -703,7 +701,7 @@ function toggleMenu(identifier: string) {
                         <!-- Add as model (opens the create form prefilled) -->
                         <button
                           v-if="!isPersisted(model.identifier)"
-                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-popover-foreground transition-colors hover:bg-muted/60"
+                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-base-content transition-colors hover:bg-base-300/60"
                           @click="
                             openMenuModel = null;
                             handleAddModel(model);
@@ -723,7 +721,7 @@ function toggleMenu(identifier: string) {
                         <!-- Delete option (Ollama only) -->
                         <button
                           v-if="provider.provider_type === 'ollama'"
-                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-destructive transition-colors hover:bg-destructive/10"
+                          class="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-error transition-colors hover:bg-error/10"
                           @click="
                             openMenuModel = null;
                             handleDeleteModel(model.identifier);

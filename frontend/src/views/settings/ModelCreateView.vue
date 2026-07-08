@@ -146,11 +146,11 @@ onBeforeRouteLeave(() => {
   <div class="flex h-full flex-col overflow-hidden">
     <!-- Header -->
     <header
-      class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+      class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
     >
       <div class="flex items-center gap-3">
         <button
-          class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           aria-label="Back to models"
           @click="goBack"
         >
@@ -158,7 +158,7 @@ onBeforeRouteLeave(() => {
         </button>
         <div class="flex items-center gap-2">
           <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-            <AppIcon name="i-lucide-cpu" class="size-3.5 text-primary-foreground" />
+            <AppIcon name="i-lucide-cpu" class="size-3.5 text-primary-content" />
           </div>
           <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
             New Model
@@ -167,7 +167,7 @@ onBeforeRouteLeave(() => {
       </div>
 
       <button
-        class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50"
+        class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50"
         :disabled="saving || !canCreate"
         @click="handleCreate"
       >
@@ -184,7 +184,7 @@ onBeforeRouteLeave(() => {
     <div class="flex-1 overflow-y-auto p-6">
       <div class="mx-auto max-w-2xl space-y-6">
         <!-- Identity card -->
-        <div class="rounded-xl border bg-card/50 p-5">
+        <div class="rounded-xl border bg-base-200/50 p-5">
           <h2
             class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
           >
@@ -202,7 +202,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.name"
                 type="text"
                 placeholder="Model display name"
-                class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
             </label>
 
@@ -217,7 +217,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.model_identifier"
                 type="text"
                 placeholder="e.g. openai/gpt-4o"
-                class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
             </label>
 
@@ -235,7 +235,7 @@ onBeforeRouteLeave(() => {
                 class="w-full"
               >
                 <button
-                  class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
+                  class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
                 >
                   {{ familyName }}
                 </button>
@@ -258,7 +258,7 @@ onBeforeRouteLeave(() => {
               >
                 <button
                   :disabled="!form.model_family_id"
-                  class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {{ form.model_family_id ? providerName : "Select a family first" }}
                 </button>
@@ -266,7 +266,7 @@ onBeforeRouteLeave(() => {
             </label>
 
             <!-- OpenRouter routing -->
-            <div class="rounded-lg border bg-muted/20 p-3">
+            <div class="rounded-lg border bg-base-300/20 p-3">
               <div class="flex items-center justify-between gap-3">
                 <div class="min-w-0">
                   <span class="block text-sm text-foreground">Route via OpenRouter</span>
@@ -293,9 +293,7 @@ onBeforeRouteLeave(() => {
                     <span
                       class="size-4 rounded-full shadow-sm transition-transform duration-300"
                       :class="
-                        form.use_openrouter
-                          ? 'translate-x-4 bg-background'
-                          : 'translate-x-0 bg-white'
+                        form.use_openrouter ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
                       "
                     />
                   </div>
@@ -305,14 +303,14 @@ onBeforeRouteLeave(() => {
                 v-model="form.openrouter_identifier"
                 type="text"
                 placeholder="OpenRouter identifier, e.g. openai/gpt-4o"
-                class="mt-3 h-10 w-full rounded-lg border bg-muted/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="mt-3 h-10 w-full rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
             </div>
           </div>
         </div>
 
         <!-- Options card -->
-        <div class="rounded-xl border bg-card/50 p-5">
+        <div class="rounded-xl border bg-base-200/50 p-5">
           <div class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">Enabled</span>
             <button
@@ -328,7 +326,7 @@ onBeforeRouteLeave(() => {
               >
                 <span
                   class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                  :class="form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                  :class="form.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
                 />
               </div>
             </button>

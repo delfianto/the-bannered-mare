@@ -31,7 +31,7 @@ function handleKeyDown(e: KeyboardEvent) {
 <template>
   <div class="space-y-3">
     <div
-      class="flex min-h-[44px] flex-wrap items-center gap-2 rounded-lg border bg-muted/40 p-3 transition-all focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="flex min-h-[44px] flex-wrap items-center gap-2 rounded-lg border bg-base-300/40 p-3 transition-all focus-within:border-primary/40 focus-within:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
     >
       <span
         v-for="tag in tags"

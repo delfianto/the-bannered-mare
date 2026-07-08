@@ -46,10 +46,10 @@ function avatarSrc(chat: Chat): string {
 </script>
 
 <template>
-  <div class="flex h-full w-[300px] min-w-[300px] flex-col border-r bg-secondary">
+  <div class="flex h-full w-[300px] min-w-[300px] flex-col border-r bg-base-200">
     <!-- Search -->
     <div class="px-3 pt-4 pb-3">
-      <div class="flex items-center gap-2 rounded-lg border bg-background/60 px-3 py-2">
+      <div class="flex items-center gap-2 rounded-lg border bg-base-100/60 px-3 py-2">
         <AppIcon name="i-lucide-search" class="size-3.5 shrink-0 text-muted-foreground" />
         <input
           v-model="search"
@@ -80,7 +80,7 @@ function avatarSrc(chat: Chat): string {
         v-for="session in filtered"
         :key="session.id"
         class="group relative flex w-full items-start gap-3 rounded-xl p-3 text-left transition-all duration-200"
-        :class="session.id === activeSessionId ? 'bg-accent' : 'hover:bg-accent/50'"
+        :class="session.id === activeSessionId ? 'bg-base-300' : 'hover:bg-base-300/50'"
         @click="emit('select', session.id)"
       >
         <!-- Active bar -->

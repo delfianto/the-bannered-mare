@@ -138,7 +138,7 @@ function formatDate(iso: string): string {
     <!-- Loading overlay -->
     <div
       v-if="loading"
-      class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+      class="absolute inset-0 z-50 flex items-center justify-center bg-base-100/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
         <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
@@ -148,10 +148,10 @@ function formatDate(iso: string): string {
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="router.back()"
       >
         {{ $t("common.goBack") }}
@@ -161,11 +161,11 @@ function formatDate(iso: string): string {
     <template v-if="preset && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             :aria-label="$t('connections.preset.backToPresets')"
             @click="router.push({ path: '/connections', query: { tab: 'presets' } })"
           >
@@ -173,10 +173,7 @@ function formatDate(iso: string): string {
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-              <AppIcon
-                name="i-lucide-sliders-horizontal"
-                class="size-3.5 text-primary-foreground"
-              />
+              <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Preset
@@ -190,8 +187,8 @@ function formatDate(iso: string): string {
             class="flex h-9 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors"
             :class="
               confirmDelete
-                ? 'border-destructive bg-destructive/10 text-destructive'
-                : 'border-destructive/30 text-destructive hover:bg-destructive/10'
+                ? 'border-error bg-error/10 text-error'
+                : 'border-error/30 text-error hover:bg-error/10'
             "
             :disabled="deleting"
             @click="handleDelete"
@@ -212,7 +209,7 @@ function formatDate(iso: string): string {
 
           <!-- Save button -->
           <button
-            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
+            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
             :disabled="saving"
             @click="handleSave"
           >
@@ -232,7 +229,7 @@ function formatDate(iso: string): string {
           <!-- Left column (3 cols) -->
           <div class="space-y-6 lg:col-span-3">
             <!-- Basic Info card -->
-            <div class="rounded-xl border bg-card/50 p-5">
+            <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
@@ -250,7 +247,7 @@ function formatDate(iso: string): string {
                     v-model="form.name"
                     type="text"
                     placeholder="Preset name"
-                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </label>
 
@@ -265,7 +262,7 @@ function formatDate(iso: string): string {
                     v-model="form.description"
                     rows="3"
                     placeholder="Preset description"
-                    class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </label>
 
@@ -290,7 +287,7 @@ function formatDate(iso: string): string {
                       <span
                         class="size-4 rounded-full shadow-sm transition-transform duration-300"
                         :class="
-                          form.is_default ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
+                          form.is_default ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
                         "
                       />
                     </div>
@@ -300,7 +297,7 @@ function formatDate(iso: string): string {
             </div>
 
             <!-- Parameters card -->
-            <div class="rounded-xl border bg-card/50 p-5">
+            <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
@@ -317,7 +314,7 @@ function formatDate(iso: string): string {
                     v-model="param.key"
                     type="text"
                     placeholder="parameter_name"
-                    class="h-11 w-[200px] shrink-0 rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-[200px] shrink-0 rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                   <!-- Parameter value -->
                   <input
@@ -325,11 +322,11 @@ function formatDate(iso: string): string {
                     :type="isNumericValue(param.value) ? 'number' : 'text'"
                     :step="isNumericValue(param.value) ? 'any' : undefined"
                     placeholder="value"
-                    class="h-11 flex-1 rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 flex-1 rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                   <!-- Remove button -->
                   <button
-                    class="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    class="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-error/10 hover:text-error"
                     :aria-label="$t('connections.preset.removeParam')"
                     @click="removeParameter(index)"
                   >
@@ -350,7 +347,7 @@ function formatDate(iso: string): string {
           <!-- Right column (2 cols) -->
           <div class="space-y-6 lg:col-span-2">
             <!-- Metadata card -->
-            <div class="rounded-xl border bg-card/50 p-5">
+            <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
@@ -365,7 +362,7 @@ function formatDate(iso: string): string {
                     :class="
                       preset.is_default
                         ? 'bg-emerald-500/10 text-emerald-500'
-                        : 'bg-muted text-muted-foreground'
+                        : 'bg-base-300 text-muted-foreground'
                     "
                   >
                     <span
@@ -379,7 +376,7 @@ function formatDate(iso: string): string {
                 <!-- Set as Default button -->
                 <button
                   v-if="!preset.is_default"
-                  class="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+                  class="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
                   :disabled="saving"
                   @click="handleSetDefault"
                 >

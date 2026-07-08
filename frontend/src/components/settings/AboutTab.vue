@@ -4,10 +4,10 @@ import { APP_INFO } from "@/constants/appInfo";
 
 <template>
   <div class="flex animate-fade-in-up justify-center">
-    <div class="w-full max-w-md rounded-xl border bg-card/50 p-8 text-center">
+    <div class="w-full max-w-md rounded-xl border bg-base-200/50 p-8 text-center">
       <!-- App Icon -->
       <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-primary">
-        <AppIcon name="i-lucide-flame" class="size-8 text-primary-foreground" />
+        <AppIcon name="i-lucide-flame" class="size-8 text-primary-content" />
       </div>
 
       <!-- App Name -->
@@ -44,7 +44,7 @@ import { APP_INFO } from "@/constants/appInfo";
           :href="APP_INFO.github"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
         >
           <AppIcon name="i-lucide-github" class="size-4" />
           {{ $t("settings.about.viewGithub") }}

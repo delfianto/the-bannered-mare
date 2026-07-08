@@ -183,7 +183,7 @@ function formatDate(iso: string): string {
     <!-- Loading overlay -->
     <div
       v-if="loading"
-      class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+      class="absolute inset-0 z-50 flex items-center justify-center bg-base-100/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
         <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
@@ -193,10 +193,10 @@ function formatDate(iso: string): string {
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="router.back()"
       >
         {{ $t("common.goBack") }}
@@ -206,11 +206,11 @@ function formatDate(iso: string): string {
     <template v-if="model && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
-            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             :aria-label="$t('connections.model.backToModels')"
             @click="router.push({ path: '/connections', query: { tab: 'models' } })"
           >
@@ -218,7 +218,7 @@ function formatDate(iso: string): string {
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-              <AppIcon name="i-lucide-cpu" class="size-3.5 text-primary-foreground" />
+              <AppIcon name="i-lucide-cpu" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Model
@@ -232,8 +232,8 @@ function formatDate(iso: string): string {
             class="flex h-9 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors"
             :class="
               confirmDelete
-                ? 'border-destructive bg-destructive/10 text-destructive'
-                : 'border-destructive/30 text-destructive hover:bg-destructive/10'
+                ? 'border-error bg-error/10 text-error'
+                : 'border-error/30 text-error hover:bg-error/10'
             "
             :disabled="deleting"
             @click="handleDelete"
@@ -254,7 +254,7 @@ function formatDate(iso: string): string {
 
           <!-- Save button -->
           <button
-            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
+            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
             :disabled="saving"
             @click="handleSave"
           >
@@ -274,7 +274,7 @@ function formatDate(iso: string): string {
           <!-- Left column (3 cols) -->
           <div class="space-y-6 lg:col-span-3">
             <!-- Identity card -->
-            <div class="rounded-xl border bg-card/50 p-5">
+            <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
@@ -292,7 +292,7 @@ function formatDate(iso: string): string {
                     v-model="form.name"
                     type="text"
                     placeholder="Model display name"
-                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </label>
 
@@ -307,7 +307,7 @@ function formatDate(iso: string): string {
                     v-model="form.model_identifier"
                     type="text"
                     placeholder="e.g. gpt-4o, claude-4.5-sonnet"
-                    class="h-11 w-full rounded-lg border bg-muted/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </label>
 
@@ -325,7 +325,7 @@ function formatDate(iso: string): string {
                     class="w-full"
                   >
                     <button
-                      class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
+                      class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
                     >
                       {{ familyName }}
                     </button>
@@ -348,7 +348,7 @@ function formatDate(iso: string): string {
                     :disabled="!form.model_family_id"
                   >
                     <button
-                      class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
                       :disabled="!form.model_family_id"
                     >
                       {{ providerName }}
@@ -357,7 +357,7 @@ function formatDate(iso: string): string {
                 </label>
 
                 <!-- OpenRouter routing -->
-                <div class="rounded-lg border bg-muted/20 p-3">
+                <div class="rounded-lg border bg-base-300/20 p-3">
                   <div class="flex items-center justify-between gap-3">
                     <div class="min-w-0">
                       <span class="block text-sm text-foreground">Route via OpenRouter</span>
@@ -385,7 +385,7 @@ function formatDate(iso: string): string {
                           class="size-4 rounded-full shadow-sm transition-transform duration-300"
                           :class="
                             form.use_openrouter
-                              ? 'translate-x-4 bg-background'
+                              ? 'translate-x-4 bg-base-100'
                               : 'translate-x-0 bg-white'
                           "
                         />
@@ -396,14 +396,14 @@ function formatDate(iso: string): string {
                     v-model="form.openrouter_identifier"
                     type="text"
                     placeholder="OpenRouter identifier, e.g. openai/gpt-4o"
-                    class="mt-3 h-10 w-full rounded-lg border bg-muted/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="mt-3 h-10 w-full rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </div>
               </div>
             </div>
 
             <!-- Inference Parameters card -->
-            <div class="rounded-xl border bg-card/50 p-5">
+            <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
@@ -421,7 +421,7 @@ function formatDate(iso: string): string {
           <!-- Right column (2 cols) -->
           <div class="space-y-6 lg:col-span-2">
             <!-- Metadata card -->
-            <div class="rounded-xl border bg-card/50 p-5">
+            <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
@@ -447,7 +447,7 @@ function formatDate(iso: string): string {
                       <span
                         class="size-4 rounded-full shadow-sm transition-transform duration-300"
                         :class="
-                          form.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'
+                          form.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
                         "
                       />
                     </div>
@@ -474,7 +474,7 @@ function formatDate(iso: string): string {
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">Active Identifier</span>
                   <code
-                    class="max-w-[200px] truncate rounded bg-accent px-2 py-0.5 text-xs text-foreground"
+                    class="max-w-[200px] truncate rounded bg-base-300 px-2 py-0.5 text-xs text-foreground"
                   >
                     {{ model.active_identifier }}
                   </code>
