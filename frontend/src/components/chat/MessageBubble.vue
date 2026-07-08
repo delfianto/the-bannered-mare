@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Message } from "@/types/chat";
 import NarrativeText from "./NarrativeText.vue";
+import QuillTypingIndicator from "./QuillTypingIndicator.vue";
 
 const { t } = useI18n();
 
@@ -13,6 +14,7 @@ const props = defineProps<{
   characterAvatar?: string;
   alternativeCount?: number;
   currentAltIndex?: number;
+  streaming?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -23,6 +25,10 @@ const emit = defineEmits<{
 
 const hovered = ref(false);
 const isUser = computed(() => props.message.role === "user");
+
+// The response bubble is created empty before the first token arrives; while it
+// is still empty and streaming, show the composing (quill) animation in its place.
+const isPending = computed(() => props.streaming === true && !props.message.content);
 
 // Inline edit state
 const isEditing = ref(false);
@@ -173,12 +179,16 @@ const userActions = [
           </div>
         </template>
 
+        <!-- Composing animation — empty assistant bubble awaiting first token -->
+        <QuillTypingIndicator v-else-if="isPending" :character-name="characterName" />
+
         <!-- Normal display -->
         <NarrativeText v-else :content="message.content" />
       </div>
 
       <!-- Bottom row: actions + alt counter + timestamp -->
       <div
+        v-if="!isPending"
         class="mt-1.5 flex items-center gap-1"
         :class="isUser ? 'mr-1 flex-row-reverse' : 'ml-1'"
       >
