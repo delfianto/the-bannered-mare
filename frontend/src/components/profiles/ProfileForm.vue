@@ -35,6 +35,7 @@ const templateId = ref(NONE);
 const presetId = ref(NONE);
 const personaId = ref(NONE);
 const modelId = ref(NONE);
+const taskModelId = ref(NONE);
 
 watch(
   () => props.initial,
@@ -46,6 +47,7 @@ watch(
     presetId.value = p?.preset_id ?? NONE;
     personaId.value = p?.persona_id ?? NONE;
     modelId.value = p?.model_id ?? NONE;
+    taskModelId.value = p?.task_model_id ?? NONE;
   },
   { immediate: true },
 );
@@ -76,14 +78,22 @@ const personaOptions = computed(() => toOptions(props.personas));
 // been disabled, so opening that loadout to edit doesn't silently drop its model.
 const isModelActive = (m: ModelListItem) => m.enabled && m.provider_enabled;
 
-const modelOptions = computed(() => {
+function usableModels(selectedId: string): ModelListItem[] {
   const usable = props.models.filter(isModelActive);
-  if (modelId.value !== NONE && !usable.some((m) => m.id === modelId.value)) {
-    const current = props.models.find((m) => m.id === modelId.value);
+  if (selectedId !== NONE && !usable.some((m) => m.id === selectedId)) {
+    const current = props.models.find((m) => m.id === selectedId);
     if (current) usable.push(current);
   }
-  return toOptions(usable);
-});
+  return usable;
+}
+
+const modelOptions = computed(() => toOptions(usableModels(modelId.value)));
+
+// The task model's "none" means "same as the chat model", not "no model".
+const taskModelOptions = computed(() => [
+  { label: t("profiles.taskModelSame"), value: NONE },
+  ...usableModels(taskModelId.value).map((m) => ({ label: m.name, value: m.id })),
+]);
 
 function onSubmit() {
   if (!name.value.trim()) return;
@@ -95,6 +105,7 @@ function onSubmit() {
     preset_id: presetId.value === NONE ? null : presetId.value,
     persona_id: personaId.value === NONE ? null : personaId.value,
     model_id: modelId.value === NONE ? null : modelId.value,
+    task_model_id: taskModelId.value === NONE ? null : taskModelId.value,
   });
 }
 
@@ -235,6 +246,37 @@ const selectUi = {
               <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
+        </div>
+
+        <div>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("profiles.fields.taskModel")
+          }}</span>
+          <USelectMenu
+            v-model="taskModelId"
+            :items="taskModelOptions"
+            value-key="value"
+            :search-input="true"
+            :ui="selectUi"
+          >
+            <button
+              type="button"
+              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+            >
+              <span class="flex min-w-0 items-center gap-2">
+                <UIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
+                <span class="truncate">{{
+                  taskModelId === "__none__"
+                    ? $t("profiles.taskModelSame")
+                    : labelFor(models, taskModelId)
+                }}</span>
+              </span>
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+            </button>
+          </USelectMenu>
+          <p class="mt-1 text-[10px] text-muted-foreground/70">
+            {{ $t("profiles.taskModelHint") }}
+          </p>
         </div>
       </div>
 

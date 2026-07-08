@@ -114,6 +114,14 @@ class Chat(BaseModel):
         index=True,
         comment="Unique identifier of the LLM model used for this chat",
     )
+    task_model_id: Mapped[str | None] = mapped_column(
+        String(12),
+        ForeignKey("models.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Optional cheaper model for auxiliary calls (titles, suggestions); "
+        "falls back to model_id when unset",
+    )
     title: Mapped[str | None] = mapped_column(
         String(200),
         nullable=True,
@@ -162,7 +170,9 @@ class Chat(BaseModel):
     )
 
     character: Mapped[Character] = relationship(back_populates="chats")
-    model: Mapped[Model | None] = relationship(back_populates="chats")
+    model: Mapped[Model | None] = relationship(back_populates="chats", foreign_keys=[model_id])
+    # One-way: the task model is a plain reference, no reverse collection on Model.
+    task_model: Mapped[Model | None] = relationship(foreign_keys=[task_model_id])
     template: Mapped[PromptTemplate | None] = relationship(back_populates="chats")
     persona: Mapped[Persona | None] = relationship(back_populates="chats")
     preset: Mapped[Preset | None] = relationship(back_populates="chats")

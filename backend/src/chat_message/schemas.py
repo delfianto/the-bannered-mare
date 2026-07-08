@@ -78,6 +78,12 @@ class SuggestionResponse(BaseModel):
     suggestions: list[str]
 
 
+class TitleResponse(BaseModel):
+    """Result of auto-generating a chat title."""
+
+    title: str
+
+
 @dataclass
 class StreamEvent:
     """Typed SSE event emitted by the streaming pipeline."""

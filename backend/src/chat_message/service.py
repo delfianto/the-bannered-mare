@@ -151,6 +151,28 @@ class ChatMessageService:
         preset_params = chat.preset.parameters if chat.preset else None
         return ProviderGateway(chat.model.provider, chat.model, preset_parameters=preset_params)
 
+    def _build_task_gateway(self, chat: Chat) -> ProviderGateway:
+        """Gateway for auxiliary calls (titles, suggestions, future RAG query
+        building). Uses the chat's configured task model, falling back to the
+        main chat model. Runs at model defaults — RP preset params don't apply.
+        """
+        model = chat.task_model or chat.model
+        if model is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Chat does not have a valid model assigned.",
+            )
+        provider = model.provider
+        if not provider.has_api_key():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"API key not configured for provider '{provider.name}'. "
+                    f"Set {provider.get_env_var_name()}"
+                ),
+            )
+        return ProviderGateway(provider, model, preset_parameters=None)
+
     def _log_token_budget(self, api_messages: list[dict[str, Any]]) -> int:
         """Log estimated prompt token count and return the total."""
         total = self.tokenizer.count_messages(api_messages)
@@ -315,7 +337,6 @@ class ChatMessageService:
         - ``impersonate``: one drafted user message in the user's voice.
         """
         chat = await self._get_chat_by_id(chat_id)
-        self._validate_model_and_key(chat)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         activated_lore = self._get_activated_lore(chat, messages)
@@ -352,7 +373,7 @@ class ChatMessageService:
         else:
             api_messages = [*api_messages, {"role": "user", "content": instruction}]
 
-        gateway = self._build_gateway(chat)
+        gateway = self._build_task_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -384,6 +405,68 @@ class ChatMessageService:
             draft = content.strip().strip('"').strip()
             return [draft] if draft else []
         return self._parse_suggestion_list(content, count)
+
+    # --- Title generation (auxiliary; routed through the task model) ---
+
+    @staticmethod
+    def _clean_title(text: str) -> str:
+        """Reduce model output to a single clean title line."""
+        stripped = text.strip()
+        line = stripped.splitlines()[0] if stripped else ""
+        line = line.strip().strip('"').strip("'").strip()
+        line = re.sub(r"[.\s]+$", "", line)
+        return line[:200]
+
+    def _title_transcript(self, chat: Chat, messages: list[Message], max_chars: int = 1500) -> str:
+        """Compact speaker-tagged transcript of the latest turns for titling."""
+        char_name = chat.character.name if chat.character else "Character"
+        user_name = chat.persona.name if chat.persona else "User"
+        lines: list[str] = []
+        for msg in messages[-6:]:
+            speaker = user_name if msg.role == MessageRole.USER else char_name
+            text = " ".join(msg.content.split())
+            if text:
+                lines.append(f"{speaker}: {text}")
+        return "\n".join(lines)[:max_chars]
+
+    async def generate_title(self, chat_id: str) -> str:
+        """Generate and persist a concise chat title via the task model."""
+        chat = await self._get_chat_by_id(chat_id)
+        messages = await self.message_repo.find_by_chat_id(chat_id)
+        transcript = self._title_transcript(chat, messages)
+        if not transcript:
+            return chat.title or ""
+
+        instruction = (
+            "Generate a concise, specific title for the roleplay conversation below. "
+            "3-6 words, Title Case, no quotation marks, no trailing punctuation. Reply "
+            "with only the title.\n\n"
+            f"{transcript}"
+        )
+        api_messages = [{"role": "user", "content": instruction}]
+        gateway = self._build_task_gateway(chat)
+        start = time.perf_counter()
+        try:
+            response = await gateway.chat_completion(api_messages)
+        except Exception as e:
+            await self._record_llm_audit(
+                gateway=gateway,
+                api_messages=api_messages,
+                chat_id=chat_id,
+                latency_ms=(time.perf_counter() - start) * 1000,
+                error=e,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error communicating with AI provider: {e!s}",
+            ) from e
+
+        title = self._clean_title(response.content or "")
+        if title:
+            chat.title = title
+            _ = await self.chat_repo.update(chat)
+            await self.chat_repo.commit()
+        return chat.title or ""
 
     # --- Message Editing (6.1) ---
 

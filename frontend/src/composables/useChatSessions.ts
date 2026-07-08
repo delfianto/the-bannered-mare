@@ -125,6 +125,23 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
     }
   };
 
+  // Auto-generate a concise title (via the chat's task model) and patch it into
+  // the local session list. Best-effort — a failure just leaves the title unset.
+  const generateTitle = async (chatId: string): Promise<string | null> => {
+    try {
+      const { data, error: apiError } = await client.POST("/api/chats/{chat_id}/title", {
+        params: { path: { chat_id: chatId } },
+      });
+      if (apiError || !data?.title) return null;
+      const idx = chatSessions.value.findIndex((c) => c.id === chatId);
+      if (idx !== -1) chatSessions.value[idx] = { ...chatSessions.value[idx], title: data.title };
+      return data.title;
+    } catch (err) {
+      console.error("Error generating title:", err);
+      return null;
+    }
+  };
+
   onMounted(() => {
     loadSessions();
   });
@@ -139,5 +156,6 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
     updateChat,
     deleteChat,
     applyProfile,
+    generateTitle,
   };
 }

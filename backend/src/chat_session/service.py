@@ -214,6 +214,8 @@ class ChatService:
             chat.persona_id = profile.persona_id
         if profile.model_id is not None:
             self._set_model(chat, profile.model_id)
+        if profile.task_model_id is not None:
+            chat.task_model_id = profile.task_model_id
 
     def delete(self, chat_id: str) -> None:
         """Delete chat"""

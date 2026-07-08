@@ -105,6 +105,7 @@ class ChatResponse(BaseModel):
     template_id: str | None = None
     preset_id: str | None = None
     persona_id: str | None = None
+    task_model_id: str | None = None
     initial_profile_name: str | None = None
     last_profile_name: str | None = None
 
@@ -141,6 +142,7 @@ class ChatResponse(BaseModel):
             "template_id": data.template_id,
             "preset_id": data.preset_id,
             "persona_id": data.persona_id,
+            "task_model_id": data.task_model_id,
             "initial_profile_name": data.initial_profile_name,
             "last_profile_name": data.last_profile_name,
         }

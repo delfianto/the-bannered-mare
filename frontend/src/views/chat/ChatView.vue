@@ -27,6 +27,7 @@ const {
   updateChat,
   deleteChat,
   applyProfile,
+  generateTitle,
 } = useChatSessions({ pageSize: 30 });
 
 const { profiles } = useProfiles();
@@ -91,6 +92,18 @@ watch(
   () => messages.value.length,
   () => scrollToBottom(),
 );
+
+// Auto-title (once) after the first exchange, when the chat has no title yet.
+async function maybeGenerateTitle() {
+  const session = activeSession.value;
+  if (!session || (session.title || "").trim()) return;
+  if (messages.value.length < 2) return;
+  await generateTitle(session.id);
+}
+
+watch(isGenerating, (now, was) => {
+  if (was && !now) void maybeGenerateTitle();
+});
 
 // Tone options for #2 (impersonation): clicking drafts the user's next line in
 // their voice, steered by this tone, into the composer for editing.

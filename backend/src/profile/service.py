@@ -52,9 +52,10 @@ class ProfileService:
         preset_id: str | None = None,
         persona_id: str | None = None,
         model_id: str | None = None,
+        task_model_id: str | None = None,
     ) -> Profile:
         """Create new profile, validating any referenced entities exist."""
-        self._validate_refs(prompt_template_id, preset_id, persona_id, model_id)
+        self._validate_refs(prompt_template_id, preset_id, persona_id, model_id, task_model_id)
 
         if is_default:
             self.profile_repo.unset_all_defaults()
@@ -68,6 +69,7 @@ class ProfileService:
             preset_id=preset_id,
             persona_id=persona_id,
             model_id=model_id,
+            task_model_id=task_model_id,
         )
         created = self.profile_repo.create(profile)
         self.profile_repo.commit()
@@ -83,10 +85,11 @@ class ProfileService:
         preset_id: str | None = None,
         persona_id: str | None = None,
         model_id: str | None = None,
+        task_model_id: str | None = None,
     ) -> Profile:
         """Update profile. Provided FK ids are validated; None leaves a field unchanged."""
         profile = self.get_by_id(profile_id)
-        self._validate_refs(prompt_template_id, preset_id, persona_id, model_id)
+        self._validate_refs(prompt_template_id, preset_id, persona_id, model_id, task_model_id)
 
         if is_default:
             self.profile_repo.unset_all_defaults(exclude_id=profile_id)
@@ -105,6 +108,8 @@ class ProfileService:
             profile.persona_id = persona_id
         if model_id is not None:
             profile.model_id = model_id
+        if task_model_id is not None:
+            profile.task_model_id = task_model_id
 
         updated = self.profile_repo.update(profile)
         self.profile_repo.commit()
@@ -133,6 +138,7 @@ class ProfileService:
         preset_id: str | None,
         persona_id: str | None,
         model_id: str | None,
+        task_model_id: str | None = None,
     ) -> None:
         """Raise 404 for any provided reference that does not resolve to a row."""
         if prompt_template_id is not None and not self.template_repo.exists(prompt_template_id):
@@ -154,4 +160,9 @@ class ProfileService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Model with ID '{model_id}' not found",
+            )
+        if task_model_id is not None and not self.model_repo.exists(task_model_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Task model with ID '{task_model_id}' not found",
             )
