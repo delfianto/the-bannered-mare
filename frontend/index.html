@@ -13,7 +13,8 @@
         try {
           var mode = localStorage.getItem("theme-mode");
           var scheme = localStorage.getItem("color-scheme") || "amber";
-          var dark = mode === "dark" || (!mode && matchMedia("(prefers-color-scheme: dark)").matches);
+          var dark =
+            mode === "dark" || (!mode && matchMedia("(prefers-color-scheme: dark)").matches);
           document.documentElement.dataset.theme = "tbm-" + scheme + (dark ? "-dark" : "");
         } catch (e) {}
       })();

@@ -134,22 +134,22 @@ Data flows **View → Component → Composable → API Client**. Keep each layer
 
 For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Connection Management](../docs/architecture/frontend/llm-harness.md) documentation.
 
-| Composable                            | Purpose                                       |
-| ------------------------------------- | --------------------------------------------- |
-| `useChatSessions`                     | Chat list with cursor pagination              |
-| `useChatMessages`                     | Messages with SSE streaming, send, regenerate |
-| `useCharacters`                       | Character list with page pagination           |
-| `useCharacterForm`                    | Character CRUD with FormData mapping          |
-| `useProviders` / `useProvider`        | Provider list / single CRUD                   |
-| `useModels` / `useModel`              | Model list (+ filters) / single CRUD          |
-| `useModelFamilies` / `useModelFamily` | Family list / single CRUD                     |
-| `usePresets`                          | Preset list                                   |
-| `usePromptTemplates`                  | Template list                                 |
-| `usePromptFragments`                  | Fragment list                                 |
-| `useDataBank`                         | Data bank CRUD with scope filter              |
-| `useLibraryFilters`                   | Client-side character filtering               |
-| `useSidebar`                          | Sidebar collapse state (localStorage)         |
-| `useTheme`                            | Dark/light mode singleton (localStorage)      |
+| Composable                            | Purpose                                           |
+| ------------------------------------- | ------------------------------------------------- |
+| `useChatSessions`                     | Chat list with cursor pagination                  |
+| `useChatMessages`                     | Messages with SSE streaming, send, regenerate     |
+| `useCharacters`                       | Character list with page pagination               |
+| `useCharacterForm`                    | Character CRUD with FormData mapping              |
+| `useProviders` / `useProvider`        | Provider list / single CRUD                       |
+| `useModels` / `useModel`              | Model list (+ filters) / single CRUD              |
+| `useModelFamilies` / `useModelFamily` | Family list / single CRUD                         |
+| `usePresets`                          | Preset list                                       |
+| `usePromptTemplates`                  | Template list                                     |
+| `usePromptFragments`                  | Fragment list                                     |
+| `useDataBank`                         | Data bank CRUD with scope filter                  |
+| `useLibraryFilters`                   | Client-side character filtering                   |
+| `useSidebar`                          | Sidebar collapse state (localStorage)             |
+| `useTheme`                            | Dark/light mode singleton (localStorage)          |
 | `useAppToast`                         | Self-contained toast store (via `ToastContainer`) |
 
 ### 4.3 Key Architecture Decisions
@@ -242,8 +242,10 @@ Vite+ can also wire up agent/editor integration via `vp migrate --agent` / `vp c
 The UI layer is **DaisyUI 5** — CSS-only Tailwind component classes plus three globally-registered shared primitives (no import needed):
 
 ```vue
-<AppIcon name="i-lucide-*" />                          <!-- ALL icons (lucide-vue-next) -->
-<AppTooltip :text="..." side="right"> … </AppTooltip>  <!-- teleported hover tooltip -->
+<AppIcon name="i-lucide-*" />
+<!-- ALL icons (lucide-vue-next) -->
+<AppTooltip :text="..." side="right"> … </AppTooltip>
+<!-- teleported hover tooltip -->
 <SelectMenu v-model="v" :items="items" value-key="value"> <button>…</button> </SelectMenu>
 ```
 
