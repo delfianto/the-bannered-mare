@@ -70,7 +70,7 @@ class TestProfileService:
     def test_update(self, db: Session) -> None:
         service = _service(db)
         profile = service.create(name="Original")
-        updated = service.update(profile.id, name="Renamed")
+        updated = service.update(profile.id, {"name": "Renamed"})
 
         assert updated.name == "Renamed"
 
@@ -78,7 +78,7 @@ class TestProfileService:
         service = _service(db)
         profile = service.create(name="Loadout")
         with pytest.raises(HTTPException) as exc_info:
-            service.update(profile.id, preset_id="nonexistent")
+            service.update(profile.id, {"preset_id": "nonexistent"})
         assert exc_info.value.status_code == 404
 
     def test_set_default(self, db: Session) -> None:
