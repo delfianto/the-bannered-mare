@@ -12,6 +12,7 @@ interface ModelFilters {
   name?: string;
   provider_id?: string;
   model_family_id?: string;
+  enabled?: boolean;
 }
 
 export function useModels(options: UseModelsOptions = {}) {
@@ -49,6 +50,7 @@ export function useModels(options: UseModelsOptions = {}) {
       if (f.name) query.name__ilike = f.name;
       if (f.provider_id) query.provider_id = f.provider_id;
       if (f.model_family_id) query.model_family_id = f.model_family_id;
+      if (f.enabled !== undefined) query.enabled = f.enabled;
 
       const { data, error: apiError } = await client.GET("/api/models", {
         params: {
@@ -58,6 +60,7 @@ export function useModels(options: UseModelsOptions = {}) {
             name__ilike?: string | null;
             provider_id?: string | null;
             model_family_id?: string | null;
+            enabled?: boolean | null;
           },
         },
       });
@@ -92,6 +95,10 @@ export function useModels(options: UseModelsOptions = {}) {
     loadPage(1, { ...currentFilters.value, model_family_id: familyId });
   };
 
+  const filterByStatus = (enabled: boolean | undefined) => {
+    loadPage(1, { ...currentFilters.value, enabled });
+  };
+
   onMounted(() => {
     loadPage(1);
   });
@@ -108,5 +115,6 @@ export function useModels(options: UseModelsOptions = {}) {
     search,
     filterByProvider,
     filterByFamily,
+    filterByStatus,
   };
 }

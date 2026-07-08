@@ -663,6 +663,8 @@ export const handlers = [
     const url = new URL(request.url);
     const nameParam = url.searchParams.get("name") || url.searchParams.get("name__ilike");
     const providerParam = url.searchParams.get("provider_id");
+    const familyParam = url.searchParams.get("model_family_id");
+    const enabledParam = url.searchParams.get("enabled");
     const limit = parseInt(url.searchParams.get("limit") || "12", 10);
     const page = parseInt(url.searchParams.get("page") || "1", 10);
 
@@ -673,6 +675,13 @@ export const handlers = [
     }
     if (providerParam) {
       items = items.filter((m) => m.provider_id === providerParam);
+    }
+    if (familyParam) {
+      items = items.filter((m) => m.model_family_id === familyParam);
+    }
+    if (enabledParam !== null) {
+      const want = enabledParam === "true";
+      items = items.filter((m) => m.enabled === want);
     }
 
     const total = items.length;

@@ -352,6 +352,9 @@
     "noFragments": "No fragments found",
     "allProviders": "All Providers",
     "allFamilies": "All Families",
+    "allStatuses": "All Statuses",
+    "statusEnabled": "Enabled",
+    "statusDisabled": "Disabled",
     "searchModels": "Search models…",
     "noUrlConfigured": "No URL configured",
     "provider": {
