@@ -472,3 +472,24 @@ class TestChatMessageService:
         assert gateway.provider is provider
         assert gateway.active_identifier == "gpt-4o-mini"
         chat_repo.db.execute.assert_not_awaited()
+
+    def test_parse_suggestion_list_plain_json(self) -> None:
+        assert ChatMessageService._parse_suggestion_list('["a", "b", "c"]', 2) == ["a", "b"]
+
+    def test_parse_suggestion_list_repairs_doubled_quotes(self) -> None:
+        # Local models sometimes double the opening quote → invalid single-line
+        # JSON. Must recover the individual items, not one "[...]" blob.
+        raw = '[""Show me the dance.", "A little sugar sounds good.", "Tell me your secret."]'
+        assert ChatMessageService._parse_suggestion_list(raw, 3) == [
+            "Show me the dance.",
+            "A little sugar sounds good.",
+            "Tell me your secret.",
+        ]
+
+    def test_parse_suggestion_list_never_leaks_brackets(self) -> None:
+        # Whatever the malformation, an item must never still contain the array
+        # brackets/quotes (that's the bug the UI showed as [""text""]).
+        for raw in ('[""x", "y"]', '["x","y",]', "- x\n- y"):
+            items = ChatMessageService._parse_suggestion_list(raw, 5)
+            assert items, raw
+            assert all("[" not in i and "]" not in i for i in items), raw
