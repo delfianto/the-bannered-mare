@@ -1,6 +1,5 @@
 """Message business logic service (FULLY ASYNC)"""
 
-import json
 import re
 import time
 from collections.abc import AsyncIterator
@@ -39,6 +38,7 @@ from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
 from src.provider.gateway import ProviderGateway
 from src.provider.models import Provider
+from src.provider.normalize import parse_structured_list, sanitize_narrative
 from src.rag.retrieval_service import RetrievalService
 
 logger = get_logger(__name__)
@@ -335,46 +335,6 @@ class ChatMessageService:
 
     # --- Next-turn Suggestions (reply candidates / impersonation) ---
 
-    @staticmethod
-    def _parse_suggestion_list(text: str, count: int) -> list[str]:
-        """Best-effort parse of model output into suggestion strings.
-
-        Local models frequently emit slightly-malformed JSON — a doubled opening
-        quote (``[""a", "b"]``), a trailing comma, or the whole array on one line.
-        Try strict JSON, then a light repair, then pull the quoted segments out
-        directly, and finally fall back to one suggestion per line.
-        """
-        text = text.strip()
-        match = re.search(r"\[[\s\S]*\]", text)
-        if match:
-            blob = match.group(0)
-            # Strict first (never mangle valid JSON), then a repaired variant:
-            # collapse doubled quotes and drop trailing commas.
-            repaired = re.sub(r",\s*]", "]", blob.replace('""', '"'))
-            for candidate in (blob, repaired):
-                try:
-                    data = json.loads(candidate)
-                except json.JSONDecodeError, ValueError:
-                    continue
-                if isinstance(data, list):
-                    items = [str(x).strip() for x in data if str(x).strip()]
-                    if items:
-                        return items[:count]
-            # Still unparseable — extract the quoted segments directly so a
-            # malformed blob never leaks through as one giant "[...]" item.
-            quoted = [q.strip().strip('"').strip() for q in re.findall(r'"(.+?)"', blob, re.DOTALL)]
-            quoted = [q for q in quoted if q]
-            if quoted:
-                return quoted[:count]
-
-        items: list[str] = []
-        for raw_line in text.splitlines():
-            line = re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", raw_line.strip())
-            line = line.strip().strip("[]").strip().strip('"').strip()
-            if line:
-                items.append(line)
-        return items[:count]
-
     async def generate_suggestions(
         self, chat_id: str, mode: str = "reply", tone: str | None = None, count: int = 3
     ) -> list[str]:
@@ -471,7 +431,7 @@ class ChatMessageService:
         if mode == "impersonate":
             draft = content.strip().strip('"').strip()
             return [draft] if draft else []
-        return self._parse_suggestion_list(content, count)
+        return parse_structured_list(content, count)
 
     # --- Title generation (auxiliary; routed through the task model) ---
 
@@ -632,6 +592,10 @@ class ChatMessageService:
             if not reasoning:
                 assistant_content, reasoning = parse_reasoning_tags(assistant_content)
 
+            # Strip any HTML/graphics the model leaked into the prose before we
+            # store it, so history and token counts stay clean.
+            assistant_content = sanitize_narrative(assistant_content)
+
             token_count = response.usage.output_tokens or self.tokenizer.count_tokens(
                 assistant_content
             )
@@ -712,6 +676,9 @@ class ChatMessageService:
                 # Auto-parse think tags if API didn't provide reasoning
                 if not reasoning:
                     full_content, reasoning = parse_reasoning_tags(full_content)
+
+                # Strip leaked HTML/graphics before storing (UI also strips on render).
+                full_content = sanitize_narrative(full_content)
 
                 token_count = (
                     last_usage.output_tokens
@@ -892,7 +859,7 @@ class ChatMessageService:
             raw=response.raw,
         )
 
-        assistant_content = response.content
+        assistant_content = sanitize_narrative(response.content)
         token_count = response.usage.output_tokens or self.tokenizer.count_tokens(assistant_content)
 
         await self._store_alternative(last_message, assistant_content, token_count)
