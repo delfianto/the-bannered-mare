@@ -48,6 +48,45 @@ class TestOpenAIAdapter:
         payload = self.adapter.build_payload([], "gpt-4o", True, {})
         assert payload["stream"] is True
 
+    def test_build_payload_forwards_extra_samplers(self):
+        params = {
+            "top_k": 40,
+            "min_p": 0.05,
+            "top_a": 0.2,
+            "repetition_penalty": 1.1,
+            "repeat_penalty": 1.15,
+            "verbosity": "low",
+            "agent_count": 4,
+        }
+        payload = self.adapter.build_payload([], "some/model", False, params)
+        assert payload["top_k"] == 40
+        assert payload["min_p"] == 0.05
+        assert payload["top_a"] == 0.2
+        assert payload["repetition_penalty"] == 1.1
+        assert payload["repeat_penalty"] == 1.15
+        assert payload["verbosity"] == "low"
+        assert payload["agent_count"] == 4
+
+    def test_thinking_maps_to_openrouter_reasoning(self):
+        payload = self.adapter.build_payload(
+            [], "z-ai/glm-4.7", False, {"thinking": {"type": "enabled"}}
+        )
+        assert payload["reasoning"] == {"enabled": True}
+        assert "thinking" not in payload  # transformed, not passed raw
+
+    def test_thinking_disabled_maps_to_reasoning(self):
+        payload = self.adapter.build_payload(
+            [], "minimax/minimax-m3", False, {"thinking": {"type": "disabled"}}
+        )
+        assert payload["reasoning"] == {"enabled": False}
+
+    def test_reasoning_effort_suppresses_thinking_map(self):
+        # When effort is set it already controls reasoning; don't also emit the object.
+        params = {"reasoning_effort": "high", "thinking": {"type": "enabled"}}
+        payload = self.adapter.build_payload([], "z-ai/glm-5", False, params)
+        assert payload["reasoning_effort"] == "high"
+        assert "reasoning" not in payload
+
     def test_parse_response(self):
         data = {
             "choices": [{"message": {"content": "Hi!"}, "finish_reason": "stop"}],
@@ -215,9 +254,33 @@ class TestAnthropicAdapter:
         line = 'data: {"type":"ping"}'
         assert self.adapter.parse_stream_line(line) is None
 
-    def test_build_headers_includes_cache_beta(self):
+    def test_build_headers_includes_beta_flags(self):
         headers = self.adapter.build_headers("sk-ant-test")
-        assert headers["anthropic-beta"] == "prompt-caching-2024-07-31"
+        betas = headers["anthropic-beta"].split(",")
+        assert "prompt-caching-2024-07-31" in betas
+        assert "effort-2025-11-24" in betas
+
+    def test_effort_maps_to_output_config(self):
+        payload = self.adapter.build_payload([], "claude-opus-4-6", False, {"effort": "high"})
+        assert payload["output_config"] == {"effort": "high"}
+
+    def test_metadata_forwarded(self):
+        payload = self.adapter.build_payload(
+            [], "claude-opus-4-5", False, {"metadata": {"user_id": "u1"}}
+        )
+        assert payload["metadata"] == {"user_id": "u1"}
+
+    def test_thinking_adaptive_forwarded(self):
+        payload = self.adapter.build_payload(
+            [], "claude-sonnet-5", False, {"thinking": {"type": "adaptive"}}
+        )
+        assert payload["thinking"] == {"type": "adaptive"}
+
+    def test_thinking_disabled_forwarded(self):
+        payload = self.adapter.build_payload(
+            [], "claude-opus-4-6", False, {"thinking": {"type": "disabled"}}
+        )
+        assert payload["thinking"] == {"type": "disabled"}
 
     def test_parse_response_cache_tokens(self):
         data = {
@@ -300,6 +363,20 @@ class TestGeminiAdapter:
         }
         payload = self.adapter.build_payload([], "gemini-2.5-flash", False, params)
         assert payload["safetySettings"] == params["safety_settings"]
+
+    def test_thinking_budget_forwarded(self):
+        payload = self.adapter.build_payload([], "gemini-2.5-pro", False, {"thinking_budget": 2048})
+        assert payload["generationConfig"]["thinkingConfig"] == {"thinkingBudget": 2048}
+
+    def test_thinking_level_forwarded(self):
+        payload = self.adapter.build_payload([], "gemini-3-pro", False, {"thinking_level": "high"})
+        assert payload["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "high"}
+
+    def test_media_resolution_forwarded(self):
+        payload = self.adapter.build_payload(
+            [], "gemini-3-pro", False, {"media_resolution": "MEDIA_RESOLUTION_HIGH"}
+        )
+        assert payload["generationConfig"]["mediaResolution"] == "MEDIA_RESOLUTION_HIGH"
 
     def test_parse_response(self):
         data = {

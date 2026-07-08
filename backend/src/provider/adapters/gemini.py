@@ -104,6 +104,23 @@ class GeminiAdapter(ProviderAdapter):
         if "maxOutputTokens" not in generation_config and "max_tokens" in parameters:
             generation_config["maxOutputTokens"] = parameters["max_tokens"]
 
+        # Thinking controls: 2.5 uses thinkingBudget (int tokens), 3.x uses
+        # thinkingLevel (enum). They are mutually exclusive (sending both 400s), and
+        # a family declares only one, so at most one is present.
+        thinking_config: dict[str, Any] = {}
+        thinking_budget = parameters.get("thinking_budget")
+        if thinking_budget is not None:
+            thinking_config["thinkingBudget"] = thinking_budget
+        thinking_level = parameters.get("thinking_level")
+        if thinking_level is not None:
+            thinking_config["thinkingLevel"] = thinking_level
+        if thinking_config:
+            generation_config["thinkingConfig"] = thinking_config
+
+        media_resolution = parameters.get("media_resolution")
+        if media_resolution is not None:
+            generation_config["mediaResolution"] = media_resolution
+
         if generation_config:
             payload["generationConfig"] = generation_config
 
