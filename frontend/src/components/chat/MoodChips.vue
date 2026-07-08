@@ -3,6 +3,7 @@ import type { MoodChip } from "@/types/chat";
 
 defineProps<{
   chips: MoodChip[];
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -15,7 +16,8 @@ const emit = defineEmits<{
     <button
       v-for="(chip, i) in chips"
       :key="chip.id"
-      class="animate-fade-in-up rounded-full border bg-accent px-4 py-1.5 text-xs font-medium tracking-wide text-accent-foreground transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_12px_var(--color-primary)/0.15]"
+      :disabled="disabled"
+      class="animate-fade-in-up rounded-full border bg-accent px-4 py-1.5 text-xs font-medium tracking-wide text-accent-foreground transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_12px_var(--color-primary)/0.15] disabled:cursor-not-allowed disabled:opacity-50"
       :style="{ animationDelay: `${i * 60}ms` }"
       @click="emit('select', chip)"
     >

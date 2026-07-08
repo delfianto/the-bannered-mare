@@ -436,6 +436,34 @@ export const handlers = [
     }
   }),
 
+  // Next-turn suggestions (#1 reply candidates / #2 tone-steered impersonation)
+  http.post("/api/chats/:chatId/messages/suggestions", async ({ request }) => {
+    const body = (await request.json()) as {
+      mode?: "reply" | "impersonate";
+      tone?: string | null;
+      count?: number;
+    };
+    await delay(500);
+
+    if (body.mode === "impersonate") {
+      const tone = body.tone ? ` (${body.tone.toLowerCase()})` : "";
+      return HttpResponse.json({
+        suggestions: [
+          `Very well${tone} — I'll hear you out, but choose your next words carefully.`,
+        ],
+      });
+    }
+
+    const pool = [
+      "Ask her what she truly wants from this bargain.",
+      "Draw your blade and demand the truth.",
+      "Offer a quiet word of comfort and wait.",
+      "Change the subject — mention the storm outside.",
+      "Step back and study her expression before answering.",
+    ];
+    return HttpResponse.json({ suggestions: pool.slice(0, body.count ?? 3) });
+  }),
+
   // Edit message content
   http.put("/api/chats/:chatId/messages/:messageId", async ({ params, request }) => {
     const body = (await request.json()) as any;
