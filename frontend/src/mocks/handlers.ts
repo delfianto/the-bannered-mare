@@ -464,6 +464,15 @@ export const handlers = [
     return HttpResponse.json({ suggestions: pool.slice(0, body.count ?? 3) });
   }),
 
+  // Auto-generate a chat title (routed through the task model on the real backend)
+  http.post("/api/chats/:chatId/title", async ({ params }) => {
+    await delay(400);
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    const title = "A Bargain by Candlelight";
+    if (chat) chat.title = title;
+    return HttpResponse.json({ title });
+  }),
+
   // Edit message content
   http.put("/api/chats/:chatId/messages/:messageId", async ({ params, request }) => {
     const body = (await request.json()) as any;
@@ -1031,6 +1040,7 @@ export const handlers = [
       preset_id: body.preset_id ?? null,
       persona_id: body.persona_id ?? null,
       model_id: body.model_id ?? null,
+      task_model_id: body.task_model_id ?? null,
       source: "manual",
       source_filename: null,
       created_at: now,
@@ -1065,6 +1075,7 @@ export const handlers = [
     if (body.preset_id !== undefined) profile.preset_id = body.preset_id;
     if (body.persona_id !== undefined) profile.persona_id = body.persona_id;
     if (body.model_id !== undefined) profile.model_id = body.model_id;
+    if (body.task_model_id !== undefined) profile.task_model_id = body.task_model_id;
     profile.updated_at = new Date().toISOString();
 
     await delay(200);

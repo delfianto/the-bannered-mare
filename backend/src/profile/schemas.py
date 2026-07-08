@@ -23,6 +23,12 @@ class ProfileBase(BaseModel):
         default=None, max_length=12, description="Default persona to apply"
     )
     model_id: str | None = Field(default=None, max_length=12, description="Default model to apply")
+    task_model_id: str | None = Field(
+        default=None,
+        max_length=12,
+        description="Cheaper model for auxiliary calls (titles, suggestions); "
+        "falls back to the chat model when unset",
+    )
 
 
 class ProfileCreate(ProfileBase):
@@ -41,6 +47,7 @@ class ProfileUpdate(BaseModel):
     preset_id: str | None = Field(default=None, max_length=12)
     persona_id: str | None = Field(default=None, max_length=12)
     model_id: str | None = Field(default=None, max_length=12)
+    task_model_id: str | None = Field(default=None, max_length=12)
 
 
 class ProfileResponse(ProfileBase):

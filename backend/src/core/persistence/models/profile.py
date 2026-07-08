@@ -62,6 +62,14 @@ class Profile(BaseModel):
         index=True,
         comment="Default model applied to chats using this profile",
     )
+    task_model_id: Mapped[str | None] = mapped_column(
+        String(12),
+        ForeignKey("models.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Optional cheaper model for auxiliary calls (titles, suggestions); "
+        "falls back to the chat model when unset",
+    )
     source: Mapped[str] = mapped_column(
         String(20),
         default="manual",

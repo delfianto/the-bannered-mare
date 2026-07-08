@@ -40,6 +40,8 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
                 .joinedload(Model.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),
+                # Task model (auxiliary calls) only needs its provider for the gateway.
+                joinedload(Chat.task_model).joinedload(Model.provider),
                 joinedload(Chat.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),

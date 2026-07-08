@@ -49,11 +49,14 @@
     "confirmDelete": "Confirm?",
     "none": "None",
     "sourceSillyTavern": "SillyTavern",
+    "taskModelSame": "Same as chat model",
+    "taskModelHint": "Cheaper model for titles & suggestions. Saves tokens on paid APIs.",
     "fields": {
       "template": "Prompt Template",
       "preset": "Sampler Preset",
       "persona": "Persona",
-      "model": "Model"
+      "model": "Model",
+      "taskModel": "Task Model"
     },
     "form": {
       "newTitle": "New Profile",

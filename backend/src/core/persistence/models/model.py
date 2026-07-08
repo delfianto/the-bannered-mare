@@ -83,7 +83,9 @@ class Model(BaseModel):
     provider: Mapped[Provider] = relationship(back_populates="models")
     model_family: Mapped[ModelFamily] = relationship(back_populates="models")
     template: Mapped[PromptTemplate | None] = relationship(back_populates="models")
-    chats: Mapped[list[Chat]] = relationship(back_populates="model")
+    # Chat has two FKs to models (model_id + task_model_id); scope this reverse
+    # collection to the primary model_id.
+    chats: Mapped[list[Chat]] = relationship(back_populates="model", foreign_keys="Chat.model_id")
 
     @property
     def can_use_openrouter(self) -> bool:

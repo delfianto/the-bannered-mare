@@ -38,6 +38,7 @@ def create_profile(body: ProfileCreate, service: ProfileServiceDep):
         preset_id=body.preset_id,
         persona_id=body.persona_id,
         model_id=body.model_id,
+        task_model_id=body.task_model_id,
     )
 
 
@@ -59,6 +60,7 @@ def update_profile(profile_id: str, body: ProfileUpdate, service: ProfileService
         preset_id=body.preset_id,
         persona_id=body.persona_id,
         model_id=body.model_id,
+        task_model_id=body.task_model_id,
     )
 
 

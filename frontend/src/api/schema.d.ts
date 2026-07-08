@@ -633,6 +633,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/chats/{chat_id}/title": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Chat Title
+         * @description Generate and persist a concise title for the chat, using the task model
+         *     (falls back to the chat's main model when no task model is configured).
+         */
+        post: operations["generate_chat_title_api_chats__chat_id__title_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chats/{chat_id}": {
         parameters: {
             query?: never;
@@ -1956,6 +1977,8 @@ export interface components {
             preset_id?: string | null;
             /** Persona Id */
             persona_id?: string | null;
+            /** Task Model Id */
+            task_model_id?: string | null;
             /** Initial Profile Name */
             initial_profile_name?: string | null;
             /** Last Profile Name */
@@ -3408,6 +3431,11 @@ export interface components {
              * @description Default model to apply
              */
             model_id?: string | null;
+            /**
+             * Task Model Id
+             * @description Cheaper model for auxiliary calls (titles, suggestions); falls back to the chat model when unset
+             */
+            task_model_id?: string | null;
         };
         /**
          * ProfileResponse
@@ -3447,6 +3475,11 @@ export interface components {
              * @description Default model to apply
              */
             model_id?: string | null;
+            /**
+             * Task Model Id
+             * @description Cheaper model for auxiliary calls (titles, suggestions); falls back to the chat model when unset
+             */
+            task_model_id?: string | null;
             /** Id */
             id: string;
             /** Source */
@@ -3483,6 +3516,8 @@ export interface components {
             persona_id?: string | null;
             /** Model Id */
             model_id?: string | null;
+            /** Task Model Id */
+            task_model_id?: string | null;
         };
         /**
          * PromptTemplateCreate
@@ -3858,6 +3893,14 @@ export interface components {
             variables_used: {
                 [key: string]: string;
             };
+        };
+        /**
+         * TitleResponse
+         * @description Result of auto-generating a chat title.
+         */
+        TitleResponse: {
+            /** Title */
+            title: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -5209,6 +5252,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ChatResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_chat_title_api_chats__chat_id__title_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chat_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TitleResponse"];
                 };
             };
             /** @description Validation Error */
