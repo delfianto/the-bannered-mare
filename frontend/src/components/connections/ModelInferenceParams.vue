@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import ParamInput from "./ParamInput.vue";
+import AppTooltip from "@/components/shared/AppTooltip.vue";
 
 const props = defineProps<{
   familyParameters: Record<string, any>;
@@ -166,12 +167,12 @@ const sections = computed(() => {
           <div class="flex min-w-0 items-center gap-2">
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="truncate text-sm text-foreground">{{ getLabel(paramKey) }}</span>
-            <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
+            <AppTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
               <AppIcon
                 name="i-lucide-info"
                 class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
-            </UTooltip>
+            </AppTooltip>
           </div>
           <ParamInput
             :param-key="paramKey"
@@ -193,12 +194,12 @@ const sections = computed(() => {
           <div class="mb-2 flex items-center gap-2">
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
-            <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
+            <AppTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
               <AppIcon
                 name="i-lucide-info"
                 class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
-            </UTooltip>
+            </AppTooltip>
           </div>
           <ParamInput
             :param-key="paramKey"
@@ -220,12 +221,12 @@ const sections = computed(() => {
           <div class="mb-2 flex items-center gap-2">
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
-            <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
+            <AppTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
               <AppIcon
                 name="i-lucide-info"
                 class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
-            </UTooltip>
+            </AppTooltip>
           </div>
           <ParamInput
             :param-key="paramKey"

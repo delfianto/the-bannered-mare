@@ -6,6 +6,7 @@ import { APP_INFO } from "@/constants/appInfo";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useBookmarks } from "@/composables/useBookmarks";
+import AppTooltip from "@/components/shared/AppTooltip.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -89,11 +90,12 @@ const favorites = computed(() => {
       </div>
 
       <div v-else class="space-y-0.5">
-        <UTooltip
+        <AppTooltip
           v-for="item in navItems"
           :key="item.id"
           :text="item.label"
-          :content="{ side: 'right', sideOffset: 8 }"
+          side="right"
+          class="block"
         >
           <RouterLink
             :to="item.to"
@@ -110,7 +112,7 @@ const favorites = computed(() => {
             />
             <AppIcon :name="item.icon" class="size-[18px]" />
           </RouterLink>
-        </UTooltip>
+        </AppTooltip>
       </div>
     </nav>
 
@@ -158,11 +160,12 @@ const favorites = computed(() => {
 
         <!-- Collapsed: stacked avatars -->
         <template v-else>
-          <UTooltip
+          <AppTooltip
             v-for="char in favorites"
             :key="char.id"
             :text="char.name"
-            :content="{ side: 'right', sideOffset: 8 }"
+            side="right"
+            class="block"
           >
             <RouterLink
               :to="char.chatPath"
@@ -182,18 +185,14 @@ const favorites = computed(() => {
                 class="absolute right-2.5 bottom-1 size-2 rounded-full border-[1.5px] border-secondary bg-emerald-500"
               />
             </RouterLink>
-          </UTooltip>
+          </AppTooltip>
         </template>
       </div>
     </div>
 
     <!-- Footer: Settings + Theme Toggle -->
     <div class="space-y-0.5 border-t px-2 py-3">
-      <UTooltip
-        :text="$t('nav.settings')"
-        :content="{ side: 'right', sideOffset: 8 }"
-        :disabled="!collapsed"
-      >
+      <AppTooltip :text="$t('nav.settings')" side="right" :disabled="!collapsed" class="block">
         <RouterLink
           to="/settings"
           class="flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
@@ -205,12 +204,13 @@ const favorites = computed(() => {
           <AppIcon name="i-lucide-settings" class="size-[18px] shrink-0" />
           <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t("nav.settings") }}</span>
         </RouterLink>
-      </UTooltip>
+      </AppTooltip>
 
-      <UTooltip
+      <AppTooltip
         :text="$t('settings.interface.darkMode')"
-        :content="{ side: 'right', sideOffset: 8 }"
+        side="right"
         :disabled="!collapsed"
+        class="block"
       >
         <button
           class="flex w-full items-center rounded-lg py-2.5 transition-colors hover:bg-accent/50"
@@ -240,7 +240,7 @@ const favorites = computed(() => {
             />
           </div>
         </button>
-      </UTooltip>
+      </AppTooltip>
     </div>
   </aside>
 </template>

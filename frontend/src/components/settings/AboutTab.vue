@@ -22,7 +22,11 @@ import { APP_INFO } from "@/constants/appInfo";
 
       <!-- Version -->
       <div class="mt-4">
-        <UBadge :label="APP_INFO.version" size="md" variant="subtle" color="primary" />
+        <span
+          class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
+        >
+          {{ APP_INFO.version }}
+        </span>
       </div>
 
       <!-- Divider -->
@@ -36,14 +40,15 @@ import { APP_INFO } from "@/constants/appInfo";
 
       <!-- GitHub Link -->
       <div class="mt-4">
-        <UButton
-          :to="APP_INFO.github"
+        <a
+          :href="APP_INFO.github"
           target="_blank"
-          icon="i-lucide-github"
-          :label="$t('settings.about.viewGithub')"
-          variant="outline"
-          size="sm"
-        />
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        >
+          <AppIcon name="i-lucide-github" class="size-4" />
+          {{ $t("settings.about.viewGithub") }}
+        </a>
       </div>
 
       <!-- Author -->

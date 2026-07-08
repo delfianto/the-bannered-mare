@@ -15,8 +15,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <UApp>
-    <AppShell />
-    <ToastContainer />
-  </UApp>
+  <AppShell />
+  <ToastContainer />
 </template>
