@@ -207,6 +207,19 @@ class TestAnthropicAdapter:
         payload = self.adapter.build_payload([], "claude-sonnet-4-6", False, {"temperature": 1.5})
         assert payload["temperature"] == 1.0
 
+    def test_temperature_and_top_p_mutually_exclusive(self):
+        # Claude 400s if both are present — prefer temperature, drop top_p.
+        payload = self.adapter.build_payload(
+            [], "claude-haiku-4-5", False, {"temperature": 0.7, "top_p": 0.9}
+        )
+        assert payload["temperature"] == 0.7
+        assert "top_p" not in payload
+
+    def test_top_p_used_when_temperature_absent(self):
+        payload = self.adapter.build_payload([], "claude-haiku-4-5", False, {"top_p": 0.9})
+        assert payload["top_p"] == 0.9
+        assert "temperature" not in payload
+
     def test_parse_response(self):
         data = {
             "content": [{"type": "text", "text": "Ahoy!"}],
