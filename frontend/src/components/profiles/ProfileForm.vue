@@ -70,7 +70,20 @@ function labelFor(list: Named[], id: string) {
 const templateOptions = computed(() => toOptions(props.templates));
 const presetOptions = computed(() => toOptions(props.presets));
 const personaOptions = computed(() => toOptions(props.personas));
-const modelOptions = computed(() => toOptions(props.models));
+
+// A loadout should only offer usable models: enabled, and on an enabled provider.
+// A model already selected on an existing loadout is kept even if it has since
+// been disabled, so opening that loadout to edit doesn't silently drop its model.
+const isModelActive = (m: ModelListItem) => m.enabled && m.provider_enabled;
+
+const modelOptions = computed(() => {
+  const usable = props.models.filter(isModelActive);
+  if (modelId.value !== NONE && !usable.some((m) => m.id === modelId.value)) {
+    const current = props.models.find((m) => m.id === modelId.value);
+    if (current) usable.push(current);
+  }
+  return toOptions(usable);
+});
 
 function onSubmit() {
   if (!name.value.trim()) return;
