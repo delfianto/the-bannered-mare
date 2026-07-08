@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
 import type { components } from "@/api/schema";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
+import CollapsibleField from "@/components/discover/CollapsibleField.vue";
 import ProfilePickerModal from "@/components/profiles/ProfilePickerModal.vue";
 import { useCreateChat } from "@/composables/useCreateChat";
 
@@ -148,9 +149,14 @@ async function startTale() {
           class="animate-fade-in-up overflow-hidden rounded-xl border bg-card/50"
           style="animation-delay: 60ms"
         >
-          <!-- Avatar (full-bleed with gradient) -->
+          <!-- Avatar (full-bleed with gradient) — anchor to the top so a
+               portrait's face isn't cropped out by center-cover framing. -->
           <div class="relative h-72 overflow-hidden">
-            <img :src="avatarSrc()" :alt="character.name" class="size-full object-cover" />
+            <img
+              :src="avatarSrc()"
+              :alt="character.name"
+              class="size-full object-cover object-top"
+            />
             <div
               class="absolute inset-0 bg-linear-to-t from-card/95 via-transparent to-transparent"
             />
@@ -184,43 +190,27 @@ async function startTale() {
               </p>
             </div>
 
-            <!-- Description -->
-            <div v-if="character.description">
-              <h3
-                class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
-              >
-                {{ $t("characters.detail.description") }}
-              </h3>
-              <p class="text-sm leading-relaxed text-foreground">
-                {{ character.description }}
-              </p>
-            </div>
+            <!-- Long-form fields — collapsed by default, scrollable when open.
+                 Card creators often dump the entire character sheet into one of
+                 these (description especially), so they need a bounded viewport. -->
+            <CollapsibleField
+              v-if="character.description"
+              :label="$t('characters.detail.description')"
+              :content="character.description"
+            />
 
-            <!-- System Prompt Override -->
-            <div v-if="character.system_prompt">
-              <h3
-                class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
-              >
-                System Prompt Override
-              </h3>
-              <p
-                class="rounded-lg bg-muted/20 p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap text-foreground"
-              >
-                {{ character.system_prompt }}
-              </p>
-            </div>
+            <CollapsibleField
+              v-if="character.system_prompt"
+              label="System Prompt Override"
+              :content="character.system_prompt"
+              mono
+            />
 
-            <!-- Personality -->
-            <div v-if="character.personality">
-              <h3
-                class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
-              >
-                {{ $t("characters.detail.personality") }}
-              </h3>
-              <p class="text-sm leading-relaxed text-foreground">
-                {{ character.personality }}
-              </p>
-            </div>
+            <CollapsibleField
+              v-if="character.personality"
+              :label="$t('characters.detail.personality')"
+              :content="character.personality"
+            />
 
             <!-- First Message -->
             <div v-if="character.first_message">
@@ -253,16 +243,11 @@ async function startTale() {
             </div>
 
             <!-- Scenario -->
-            <div v-if="character.scenario">
-              <h3
-                class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
-              >
-                {{ $t("characters.detail.scenario") }}
-              </h3>
-              <p class="text-sm leading-relaxed text-foreground">
-                {{ character.scenario }}
-              </p>
-            </div>
+            <CollapsibleField
+              v-if="character.scenario"
+              :label="$t('characters.detail.scenario')"
+              :content="character.scenario"
+            />
           </div>
         </div>
       </div>
