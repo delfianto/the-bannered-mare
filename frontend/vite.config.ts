@@ -1,6 +1,6 @@
 import Terminal from "vite-plugin-terminal";
 import ViteYaml from "@modyfi/vite-plugin-yaml";
-import ui from "@nuxt/ui/vite";
+import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite-plus";
 import { fileURLToPath, URL } from "node:url";
@@ -14,14 +14,7 @@ export default defineConfig(({ command }) => {
   return {
     plugins: [
       vue(),
-      ui({
-        ui: {
-          colors: {
-            primary: "amber",
-            neutral: "stone",
-          },
-        },
-      }),
+      tailwindcss(),
       ViteYaml(),
       command === "serve" &&
         Terminal({
