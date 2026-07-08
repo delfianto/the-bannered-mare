@@ -190,13 +190,13 @@ async function setDefault(personaId: string) {
       <h3 class="font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase">
         {{ $t("settings.persona.title") }}
       </h3>
-      <UButton
-        icon="i-lucide-plus"
-        :label="$t('settings.persona.createPersona')"
-        size="sm"
-        variant="outline"
+      <button
+        class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         @click="openCreateForm"
-      />
+      >
+        <AppIcon name="i-lucide-plus" class="size-4" />
+        {{ $t("settings.persona.createPersona") }}
+      </button>
     </div>
 
     <!-- Inline Create/Edit Form -->
@@ -314,12 +314,11 @@ async function setDefault(personaId: string) {
               {{ persona.name }}
             </p>
             <button v-if="persona.is_default" class="cursor-default">
-              <UBadge
-                :label="$t('settings.persona.default')"
-                size="sm"
-                variant="subtle"
-                color="primary"
-              />
+              <span
+                class="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+              >
+                {{ $t("settings.persona.default") }}
+              </span>
             </button>
             <button
               v-else
@@ -327,13 +326,11 @@ async function setDefault(personaId: string) {
               title="Set as default"
               @click="setDefault(persona.id)"
             >
-              <UBadge
-                :label="$t('settings.persona.setDefault')"
-                size="sm"
-                variant="outline"
-                color="neutral"
-                class="cursor-pointer hover:bg-accent"
-              />
+              <span
+                class="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent"
+              >
+                {{ $t("settings.persona.setDefault") }}
+              </span>
             </button>
           </div>
           <p v-if="persona.description" class="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
@@ -343,13 +340,14 @@ async function setDefault(personaId: string) {
 
         <!-- Actions -->
         <div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <UButton
-            icon="i-lucide-pencil"
-            size="sm"
-            variant="ghost"
-            color="neutral"
+          <button
+            class="inline-flex size-8 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            title="Edit persona"
+            aria-label="Edit persona"
             @click="openEditForm(persona)"
-          />
+          >
+            <AppIcon name="i-lucide-pencil" class="size-4" />
+          </button>
           <button
             class="inline-flex size-8 items-center justify-center rounded-md text-sm transition-colors"
             :class="
