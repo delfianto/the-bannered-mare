@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "api:gen": "openapi-typescript ../openapi.json -o ./src/api/schema.d.ts",
+    "api:gen": "openapi-typescript ../openapi.json -o ./src/api/schema.d.ts && vp fmt src/api/schema.d.ts",
     "build": "vue-tsc -b && vp build",
     "dev": "VITE_USE_MOCKS=false vp dev --host",
     "dev:mock": "VITE_USE_MOCKS=true vp dev --host",

@@ -10,7 +10,9 @@ defineProps<{
 <template>
   <div class="flex items-center gap-2.5">
     <UIcon name="i-lucide-pen-tool" class="animate-quill-write size-4 text-primary" />
-    <span class="text-xs text-muted-foreground italic"> {{ characterName }} dips her quill... </span>
+    <span class="text-xs text-muted-foreground italic">
+      {{ characterName }} dips her quill...
+    </span>
     <div class="ml-1 flex items-center gap-1">
       <span
         v-for="i in 3"
