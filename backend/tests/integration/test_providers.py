@@ -19,6 +19,9 @@ from tests.integration.conftest import (
     has_openrouter_key,
 )
 
+# Live API calls — local only. CI excludes the suite via `pytest -m "not integration"`.
+pytestmark = pytest.mark.integration
+
 # ---------------------------------------------------------------------------
 # OpenAI
 # ---------------------------------------------------------------------------

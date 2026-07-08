@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import pytest_asyncio
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -19,6 +20,11 @@ from src.core.persistence.database import get_async_db_url
 from src.core.persistence.enums import ProviderType
 from src.provider.adapters.lmstudio import strip_v1_suffix
 from src.provider.gateway import ProviderGateway
+
+# Integration tests read provider keys from .env. The per-provider skip markers
+# (has_*_key) evaluate os.environ at import time, so .env must be loaded before
+# any test module is collected — this conftest is imported first, so load it here.
+_ = load_dotenv()
 
 
 def _pg_url() -> str | None:
@@ -81,6 +87,7 @@ def _make_model(
     model_id: str,
     family_params: dict[str, Any] | None = None,
     model_params: dict[str, Any] | None = None,
+    unsupported_params: list[str] | None = None,
 ) -> Any:
     """Create a mock Model ORM object with parameters."""
     model = MagicMock()
@@ -89,6 +96,9 @@ def _make_model(
     model.parameters = model_params or {}
     model.model_family = MagicMock()
     model.model_family.parameters = family_params or {}
+    # Must be a real list: the gateway strips family.unsupported_parameters, and a
+    # bare MagicMock here would not be iterable.
+    model.model_family.unsupported_parameters = unsupported_params or []
     return model
 
 
