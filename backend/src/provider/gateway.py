@@ -68,6 +68,23 @@ class ProviderGateway:
         if self.preset_parameters:
             effective_params.update(self.preset_parameters)
 
+        # Drop parameters the family explicitly rejects before they reach the
+        # provider. Family defaults never include these — only a model/preset
+        # override can, so a stale loadout can't 400 the request (e.g. temperature
+        # on a reasoning model, stop on Grok). The UI warns the user separately.
+        if family and family.unsupported_parameters:
+            unsupported = set(family.unsupported_parameters)
+            dropped = [key for key in effective_params if key in unsupported]
+            for key in dropped:
+                del effective_params[key]
+            if dropped:
+                logger.info(
+                    "Stripped unsupported parameters %s for model %s (family %s)",
+                    dropped,
+                    self.model.name,
+                    family.family_identifier,
+                )
+
         return effective_params
 
     def _handle_http_error(self, exc: httpx.HTTPStatusError) -> NoReturn:

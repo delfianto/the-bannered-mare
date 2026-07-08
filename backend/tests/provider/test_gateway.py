@@ -33,6 +33,7 @@ def mock_family() -> Any:
         "temperature": {"type": "float", "default": 1.0, "min_value": 0.0, "max_value": 2.0},
         "max_tokens": {"type": "int", "default": 2048, "min_value": 1},
     }
+    family.unsupported_parameters = []
     return family
 
 
@@ -67,6 +68,7 @@ def test_get_effective_parameters_family_defaults_only(mock_provider: Any) -> No
         "temperature": {"type": "float", "default": 0.9},
         "max_tokens": {"type": "int", "default": 4096},
     }
+    family.unsupported_parameters = []
 
     model = MagicMock()
     model.model_identifier = "gpt-4"
@@ -124,6 +126,7 @@ def test_get_effective_parameters_skips_null_defaults(mock_provider: Any) -> Non
         "temperature": {"type": "float", "default": None},
         "max_tokens": {"type": "int", "default": 1024},
     }
+    family.unsupported_parameters = []
 
     model = MagicMock()
     model.model_identifier = "gpt-4"
@@ -136,6 +139,33 @@ def test_get_effective_parameters_skips_null_defaults(mock_provider: Any) -> Non
 
     assert "temperature" not in params
     assert params["max_tokens"] == 1024
+
+
+def test_get_effective_parameters_strips_unsupported(mock_provider: Any) -> None:
+    """Params the family lists as unsupported are dropped from a model/preset override."""
+    family = MagicMock()
+    family.parameters = {"max_tokens": {"type": "int", "default": 8192}}
+    family.family_identifier = "openai/gpt-5-thinking"
+    # A reasoning model rejects sampling knobs (400 if sent).
+    family.unsupported_parameters = ["temperature", "top_p", "frequency_penalty"]
+
+    model = MagicMock()
+    model.model_identifier = "gpt-5.4"
+    model.name = "GPT-5.4"
+    model.use_openrouter = False
+    model.parameters = {"temperature": 0.8}  # stale model override
+    model.model_family = family
+
+    # A loadout preset that (wrongly) sets rejected knobs.
+    preset_params = {"top_p": 0.9, "frequency_penalty": 0.5, "max_tokens": 4096}
+    gateway = ProviderGateway(mock_provider, model, preset_parameters=preset_params)
+    params = gateway._get_effective_parameters()
+
+    assert "temperature" not in params
+    assert "top_p" not in params
+    assert "frequency_penalty" not in params
+    # Supported overrides survive.
+    assert params["max_tokens"] == 4096
 
 
 # --- chat_completion ---
