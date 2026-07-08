@@ -42,7 +42,7 @@ function resolve(
       >
         <span class="flex w-full items-center gap-2 text-sm font-medium text-foreground">
           {{ profile.name }}
-          <UIcon v-if="profile.is_default" name="i-lucide-star" class="size-3.5 text-primary" />
+          <AppIcon v-if="profile.is_default" name="i-lucide-star" class="size-3.5 text-primary" />
         </span>
         <span class="text-[11px] text-muted-foreground">
           {{

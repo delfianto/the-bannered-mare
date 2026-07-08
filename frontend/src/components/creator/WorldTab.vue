@@ -73,12 +73,12 @@ function handleImport(e: Event) {
         class="flex w-full items-center gap-2 border-b py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
         @click="lorebookOpen = !lorebookOpen"
       >
-        <UIcon
+        <AppIcon
           name="i-lucide-chevron-right"
           class="size-4 transition-transform"
           :class="lorebookOpen ? 'rotate-90' : ''"
         />
-        <UIcon name="i-lucide-book-open" class="size-3.5" />
+        <AppIcon name="i-lucide-book-open" class="size-3.5" />
         <span class="font-cinzel text-[11px] tracking-[0.08em] uppercase">{{
           $t("characters.form.lorebook")
         }}</span>
@@ -109,7 +109,7 @@ function handleImport(e: Event) {
           class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           @click="emit('addLorebook')"
         >
-          <UIcon name="i-lucide-plus" class="size-4" />
+          <AppIcon name="i-lucide-plus" class="size-4" />
           {{ $t("characters.form.addLorebook") }}
         </button>
       </div>
@@ -131,7 +131,7 @@ function handleImport(e: Event) {
         class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
         @click="importRef?.click()"
       >
-        <UIcon name="i-lucide-upload" class="size-5 text-muted-foreground" />
+        <AppIcon name="i-lucide-upload" class="size-5 text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">{{
           $t("characters.form.importCharacter")
         }}</span>
@@ -152,7 +152,7 @@ function handleImport(e: Event) {
         class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
         @click="emit('export')"
       >
-        <UIcon name="i-lucide-download" class="size-5 text-muted-foreground" />
+        <AppIcon name="i-lucide-download" class="size-5 text-muted-foreground" />
         <span class="text-sm font-medium text-foreground">{{
           $t("characters.form.exportJson")
         }}</span>

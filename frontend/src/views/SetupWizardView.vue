@@ -215,9 +215,9 @@ function finish() {
     <!-- Step indicator -->
     <div class="flex items-center justify-center gap-2 text-xs text-muted-foreground">
       <span :class="step >= 1 ? 'text-primary' : ''">1. Providers</span>
-      <UIcon name="i-lucide-chevron-right" class="size-3" />
+      <AppIcon name="i-lucide-chevron-right" class="size-3" />
       <span :class="step >= 2 ? 'text-primary' : ''">2. Profile</span>
-      <UIcon name="i-lucide-chevron-right" class="size-3" />
+      <AppIcon name="i-lucide-chevron-right" class="size-3" />
       <span :class="step >= 3 ? 'text-primary' : ''">3. Done</span>
     </div>
 
@@ -230,7 +230,7 @@ function finish() {
           Local Providers
         </h2>
         <div v-if="providersLoading" class="flex justify-center py-4">
-          <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
+          <AppIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
         </div>
         <div v-else-if="localProviders.length === 0" class="text-xs text-muted-foreground">
           No local providers configured.
@@ -242,7 +242,7 @@ function finish() {
             class="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2.5"
           >
             <span class="flex items-center gap-2 text-sm text-foreground">
-              <UIcon
+              <AppIcon
                 :name="providerTypeIcons[provider.provider_type] || 'i-lucide-settings'"
                 class="size-4 text-muted-foreground"
               />
@@ -252,7 +252,7 @@ function finish() {
               v-if="localStatus[provider.id]?.loading"
               class="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
-              <UIcon name="i-lucide-loader-2" class="size-3.5 animate-spin" />
+              <AppIcon name="i-lucide-loader-2" class="size-3.5 animate-spin" />
               Checking...
             </span>
             <span
@@ -286,7 +286,7 @@ function finish() {
             class="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2.5"
           >
             <span class="flex items-center gap-2 text-sm text-foreground">
-              <UIcon
+              <AppIcon
                 :name="providerTypeIcons[provider.provider_type] || 'i-lucide-settings'"
                 class="size-4 text-muted-foreground"
               />
@@ -322,7 +322,7 @@ function finish() {
           @click="step = 2"
         >
           Next
-          <UIcon name="i-lucide-arrow-right" class="size-4" />
+          <AppIcon name="i-lucide-arrow-right" class="size-4" />
         </button>
       </div>
     </div>
@@ -365,7 +365,7 @@ function finish() {
             class="flex flex-col items-center gap-3 rounded-xl border bg-card/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-accent"
             @click="createPath = 'manual'"
           >
-            <UIcon name="i-lucide-sliders-horizontal" class="size-8 text-primary" />
+            <AppIcon name="i-lucide-sliders-horizontal" class="size-8 text-primary" />
             <span class="font-cinzel text-sm font-semibold text-foreground">Create Manually</span>
             <span class="text-xs text-muted-foreground"
               >Pick a model, template, preset, and persona yourself.</span
@@ -375,7 +375,7 @@ function finish() {
             class="flex flex-col items-center gap-3 rounded-xl border bg-card/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-accent"
             @click="showImportModal = true"
           >
-            <UIcon name="i-lucide-upload" class="size-8 text-primary" />
+            <AppIcon name="i-lucide-upload" class="size-8 text-primary" />
             <span class="font-cinzel text-sm font-semibold text-foreground">Import ST Preset</span>
             <span class="text-xs text-muted-foreground"
               >Bring in a SillyTavern chat-completion preset.</span
@@ -404,7 +404,7 @@ function finish() {
               :disabled="creatingPersona || !quickPersonaName.trim()"
               @click="quickCreatePersona"
             >
-              <UIcon
+              <AppIcon
                 :name="creatingPersona ? 'i-lucide-loader-2' : 'i-lucide-plus'"
                 class="size-4"
                 :class="{ 'animate-spin': creatingPersona }"
@@ -447,12 +447,15 @@ function finish() {
                 class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
               >
                 <span class="flex min-w-0 items-center gap-2">
-                  <UIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
+                  <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
                   <span class="truncate">{{
                     labelFor(models, followUpModelId, "Select a model...")
                   }}</span>
                 </span>
-                <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+                <AppIcon
+                  name="i-lucide-chevron-down"
+                  class="size-4 shrink-0 text-muted-foreground"
+                />
               </button>
             </USelectMenu>
           </div>
@@ -475,7 +478,7 @@ function finish() {
                 :disabled="creatingPersona || !quickPersonaName.trim()"
                 @click="quickCreatePersona"
               >
-                <UIcon
+                <AppIcon
                   :name="creatingPersona ? 'i-lucide-loader-2' : 'i-lucide-plus'"
                   class="size-4"
                   :class="{ 'animate-spin': creatingPersona }"
@@ -497,12 +500,15 @@ function finish() {
                 class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
               >
                 <span class="flex min-w-0 items-center gap-2">
-                  <UIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
+                  <AppIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
                   <span class="truncate">{{
                     labelFor(personas, followUpPersonaId, "No persona")
                   }}</span>
                 </span>
-                <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+                <AppIcon
+                  name="i-lucide-chevron-down"
+                  class="size-4 shrink-0 text-muted-foreground"
+                />
               </button>
             </USelectMenu>
           </div>
@@ -513,7 +519,7 @@ function finish() {
               :disabled="finishingImport"
               @click="finishImportSetup"
             >
-              <UIcon
+              <AppIcon
                 :name="finishingImport ? 'i-lucide-loader-2' : 'i-lucide-check'"
                 class="size-4"
                 :class="{ 'animate-spin': finishingImport }"
@@ -545,7 +551,7 @@ function finish() {
       v-else
       class="flex flex-col items-center gap-4 rounded-xl border bg-card/50 p-10 text-center"
     >
-      <UIcon name="i-lucide-circle-check" class="size-10 text-emerald-500" />
+      <AppIcon name="i-lucide-circle-check" class="size-10 text-emerald-500" />
       <h2 class="font-cinzel text-lg font-semibold text-foreground">You're all set</h2>
       <p class="text-sm text-muted-foreground">
         Your first profile is ready. Head back and start a tale.

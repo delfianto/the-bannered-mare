@@ -53,7 +53,7 @@ const favorites = computed(() => {
           :aria-label="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           @click="toggleSidebar"
         >
-          <UIcon name="i-lucide-flame" class="size-5 text-primary-foreground" />
+          <AppIcon name="i-lucide-flame" class="size-5 text-primary-foreground" />
         </button>
         <h1
           v-if="!collapsed"
@@ -83,7 +83,7 @@ const favorites = computed(() => {
             v-if="isActive(item.to)"
             class="absolute top-1/2 left-1.5 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
           />
-          <UIcon :name="item.icon" class="size-5" />
+          <AppIcon :name="item.icon" class="size-5" />
           <span class="text-[11px] font-medium tracking-wide">{{ item.label }}</span>
         </RouterLink>
       </div>
@@ -108,7 +108,7 @@ const favorites = computed(() => {
               v-if="isActive(item.to)"
               class="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary"
             />
-            <UIcon :name="item.icon" class="size-[18px]" />
+            <AppIcon :name="item.icon" class="size-[18px]" />
           </RouterLink>
         </UTooltip>
       </div>
@@ -202,7 +202,7 @@ const favorites = computed(() => {
             isActive('/settings') ? 'bg-accent text-foreground' : '',
           ]"
         >
-          <UIcon name="i-lucide-settings" class="size-[18px] shrink-0" />
+          <AppIcon name="i-lucide-settings" class="size-[18px] shrink-0" />
           <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t("nav.settings") }}</span>
         </RouterLink>
       </UTooltip>
@@ -221,7 +221,7 @@ const favorites = computed(() => {
           @click="toggleTheme"
         >
           <div class="flex items-center" :class="collapsed ? '' : 'gap-2.5'">
-            <UIcon
+            <AppIcon
               :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
               class="size-[18px] shrink-0 text-primary"
             />

@@ -46,7 +46,7 @@ function timeAgo(dateStr: string): string {
 
     <!-- Loading -->
     <div v-if="loading" class="flex flex-1 items-center justify-center py-20">
-      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
+      <AppIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Empty state -->
@@ -81,14 +81,14 @@ function timeAgo(dateStr: string): string {
               :aria-label="$t('bookmarks.scrollLeft')"
               @click="scroll('left')"
             >
-              <UIcon name="i-lucide-chevron-left" class="size-4" />
+              <AppIcon name="i-lucide-chevron-left" class="size-4" />
             </button>
             <button
               class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               :aria-label="$t('bookmarks.scrollRight')"
               @click="scroll('right')"
             >
-              <UIcon name="i-lucide-chevron-right" class="size-4" />
+              <AppIcon name="i-lucide-chevron-right" class="size-4" />
             </button>
           </div>
         </div>
@@ -228,7 +228,7 @@ function timeAgo(dateStr: string): string {
                 class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
                 :aria-label="$t('bookmarks.removeBookmark')"
               >
-                <UIcon name="i-lucide-trash-2" class="size-4" />
+                <AppIcon name="i-lucide-trash-2" class="size-4" />
               </button>
             </div>
           </div>

@@ -307,14 +307,14 @@ function toggleMenu(identifier: string) {
       class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
-        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+        <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
 
     <!-- Error state -->
     <div v-if="error && !loading" class="flex flex-1 flex-col items-center justify-center gap-3">
-      <UIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
@@ -335,11 +335,11 @@ function toggleMenu(identifier: string) {
             :aria-label="$t('connections.provider.backToProviders')"
             @click="router.push({ path: '/connections', query: { tab: 'providers' } })"
           >
-            <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
+            <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-              <UIcon name="i-lucide-plug" class="size-3.5 text-primary-foreground" />
+              <AppIcon name="i-lucide-plug" class="size-3.5 text-primary-foreground" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
               Edit Provider
@@ -352,7 +352,7 @@ function toggleMenu(identifier: string) {
           :disabled="saving"
           @click="handleSave"
         >
-          <UIcon
+          <AppIcon
             :name="saving ? 'i-lucide-loader-2' : 'i-lucide-save'"
             class="size-4"
             :class="{ 'animate-spin': saving }"
@@ -497,7 +497,7 @@ function toggleMenu(identifier: string) {
                 :disabled="syncing"
                 @click="handleSyncNow"
               >
-                <UIcon
+                <AppIcon
                   :name="syncing ? 'i-lucide-loader-2' : 'i-lucide-refresh-cw'"
                   class="size-3.5"
                   :class="{ 'animate-spin': syncing }"
@@ -509,7 +509,7 @@ function toggleMenu(identifier: string) {
             <!-- Model filter: search + chips narrow the list below (empty = show all) -->
             <div class="mb-4 space-y-2">
               <div class="relative">
-                <UIcon
+                <AppIcon
                   name="i-lucide-search"
                   class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                 />
@@ -521,7 +521,7 @@ function toggleMenu(identifier: string) {
                   @input="onSearchInput"
                   @focus="modelSearchQuery && (showSearchResults = true)"
                 />
-                <UIcon
+                <AppIcon
                   v-if="searchingModels"
                   name="i-lucide-loader-2"
                   class="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground"
@@ -555,7 +555,7 @@ function toggleMenu(identifier: string) {
                         <span class="min-w-0 truncate font-mono text-xs text-foreground">{{
                           r.identifier
                         }}</span>
-                        <UIcon
+                        <AppIcon
                           :name="isFiltered(r.identifier) ? 'i-lucide-check' : 'i-lucide-plus'"
                           class="size-3.5 shrink-0"
                           :class="
@@ -585,7 +585,7 @@ function toggleMenu(identifier: string) {
                     aria-label="Remove from filter"
                     @click="removeFromFilter(id)"
                   >
-                    <UIcon name="i-lucide-x" class="size-3" />
+                    <AppIcon name="i-lucide-x" class="size-3" />
                   </button>
                 </span>
                 <button
@@ -603,11 +603,11 @@ function toggleMenu(identifier: string) {
             </div>
 
             <div v-if="modelsLoading" class="flex justify-center py-6">
-              <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
+              <AppIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
             </div>
 
             <div v-else-if="modelsError" class="flex flex-col items-center gap-2 py-6 text-center">
-              <UIcon name="i-lucide-alert-circle" class="size-5 text-destructive" />
+              <AppIcon name="i-lucide-alert-circle" class="size-5 text-destructive" />
               <p class="text-xs text-muted-foreground">{{ modelsError.message }}</p>
             </div>
 
@@ -659,12 +659,12 @@ function toggleMenu(identifier: string) {
                       :disabled="pendingModelAction === model.identifier"
                       @click.stop="toggleMenu(model.identifier)"
                     >
-                      <UIcon
+                      <AppIcon
                         v-if="pendingModelAction === model.identifier"
                         name="i-lucide-loader-2"
                         class="size-3.5 animate-spin"
                       />
-                      <UIcon v-else name="i-lucide-ellipsis-vertical" class="size-3.5" />
+                      <AppIcon v-else name="i-lucide-ellipsis-vertical" class="size-3.5" />
                     </button>
 
                     <Transition
@@ -693,7 +693,7 @@ function toggleMenu(identifier: string) {
                               : handleLoadModel(model.identifier);
                           "
                         >
-                          <UIcon
+                          <AppIcon
                             :name="model.state === 'loaded' ? 'i-lucide-square' : 'i-lucide-play'"
                             class="size-3.5"
                           />
@@ -709,14 +709,14 @@ function toggleMenu(identifier: string) {
                             handleAddModel(model);
                           "
                         >
-                          <UIcon name="i-lucide-plus" class="size-3.5" />
+                          <AppIcon name="i-lucide-plus" class="size-3.5" />
                           Add as Model…
                         </button>
                         <div
                           v-else
                           class="flex w-full cursor-not-allowed items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/60"
                         >
-                          <UIcon name="i-lucide-check" class="size-3.5 text-emerald-500" />
+                          <AppIcon name="i-lucide-check" class="size-3.5 text-emerald-500" />
                           Added
                         </div>
 
@@ -729,7 +729,7 @@ function toggleMenu(identifier: string) {
                             handleDeleteModel(model.identifier);
                           "
                         >
-                          <UIcon name="i-lucide-trash-2" class="size-3.5" />
+                          <AppIcon name="i-lucide-trash-2" class="size-3.5" />
                           Delete Model
                         </button>
                       </div>

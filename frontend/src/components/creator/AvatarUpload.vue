@@ -57,7 +57,7 @@ function onChange(e: Event) {
           <div
             class="flex flex-col items-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100"
           >
-            <UIcon name="i-lucide-camera" class="size-6 text-white" />
+            <AppIcon name="i-lucide-camera" class="size-6 text-white" />
             <span class="text-xs font-medium text-white">Change</span>
           </div>
         </div>
@@ -65,7 +65,7 @@ function onChange(e: Event) {
       <template v-else>
         <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4">
           <div class="flex size-12 items-center justify-center rounded-full bg-muted">
-            <UIcon
+            <AppIcon
               name="i-lucide-image-plus"
               class="size-6"
               :class="dragOver ? 'text-primary' : 'text-muted-foreground'"

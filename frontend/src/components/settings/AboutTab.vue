@@ -7,7 +7,7 @@ import { APP_INFO } from "@/constants/appInfo";
     <div class="w-full max-w-md rounded-xl border bg-card/50 p-8 text-center">
       <!-- App Icon -->
       <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-primary">
-        <UIcon name="i-lucide-flame" class="size-8 text-primary-foreground" />
+        <AppIcon name="i-lucide-flame" class="size-8 text-primary-foreground" />
       </div>
 
       <!-- App Name -->
@@ -30,7 +30,7 @@ import { APP_INFO } from "@/constants/appInfo";
 
       <!-- License -->
       <div class="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-        <UIcon name="i-lucide-scale" class="size-4" />
+        <AppIcon name="i-lucide-scale" class="size-4" />
         <span>{{ APP_INFO.license }}</span>
       </div>
 

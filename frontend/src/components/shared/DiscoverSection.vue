@@ -48,7 +48,7 @@ const filtered = computed(() => {
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-8">
-      <UIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
+      <AppIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-muted-foreground" />
     </div>
 
     <!-- Character Grid -->

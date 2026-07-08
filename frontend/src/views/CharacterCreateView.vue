@@ -157,7 +157,7 @@ function handleAvatarChange(file: File) {
       class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
     >
       <div class="flex flex-col items-center gap-3">
-        <UIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
+        <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />
         <span class="text-sm text-muted-foreground">{{ $t("common.loading") }}</span>
       </div>
     </div>
@@ -171,11 +171,11 @@ function handleAvatarChange(file: File) {
           class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="router.back()"
         >
-          <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
+          <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
         </button>
         <div class="flex items-center gap-2">
           <div class="flex size-6 items-center justify-center rounded-md bg-primary">
-            <UIcon name="i-lucide-flame" class="size-3.5 text-primary-foreground" />
+            <AppIcon name="i-lucide-flame" class="size-3.5 text-primary-foreground" />
           </div>
           <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
             {{ pageTitle }}
@@ -194,7 +194,7 @@ function handleAvatarChange(file: File) {
           :disabled="form.deleting.value"
           @click="handleDelete"
         >
-          <UIcon
+          <AppIcon
             :name="form.deleting.value ? 'i-lucide-loader-2' : 'i-lucide-trash-2'"
             class="size-4"
             :class="{ 'animate-spin': form.deleting.value }"
@@ -206,7 +206,7 @@ function handleAvatarChange(file: File) {
           class="flex h-9 items-center gap-2 rounded-lg border px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           @click="handleExport"
         >
-          <UIcon name="i-lucide-download" class="size-4" />
+          <AppIcon name="i-lucide-download" class="size-4" />
           {{ $t("common.export") }}
         </button>
         <button
@@ -219,7 +219,7 @@ function handleAvatarChange(file: File) {
           :disabled="form.saving.value"
           @click="handleSave"
         >
-          <UIcon
+          <AppIcon
             :name="form.saving.value ? 'i-lucide-loader-2' : 'i-lucide-save'"
             class="size-4"
             :class="{ 'animate-spin': form.saving.value }"
@@ -246,7 +246,7 @@ function handleAvatarChange(file: File) {
             "
             @click="activeTab = tab.id"
           >
-            <UIcon :name="tab.icon" class="size-4" />
+            <AppIcon :name="tab.icon" class="size-4" />
             <span style="letter-spacing: 0.03em">{{ tab.label }}</span>
             <span
               v-if="activeTab === tab.id"

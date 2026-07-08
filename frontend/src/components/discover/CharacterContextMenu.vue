@@ -22,7 +22,7 @@ const actions = [
       class="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/20"
       @click.stop="open = !open"
     >
-      <UIcon name="i-lucide-ellipsis-vertical" class="size-4" />
+      <AppIcon name="i-lucide-ellipsis-vertical" class="size-4" />
     </button>
 
     <Transition
@@ -55,7 +55,7 @@ const actions = [
             open = false;
           "
         >
-          <UIcon :name="item.icon" class="size-3.5" />
+          <AppIcon :name="item.icon" class="size-3.5" />
           {{ item.label }}
         </button>
       </div>

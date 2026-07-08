@@ -105,7 +105,7 @@ onUnmounted(() => {
       class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       @click="emit('back')"
     >
-      <UIcon name="i-lucide-arrow-left" class="size-[18px]" />
+      <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
     </button>
 
     <div class="flex items-center gap-3">
@@ -156,7 +156,7 @@ onUnmounted(() => {
           class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           @click="toggleMenu"
         >
-          <UIcon name="i-lucide-more-horizontal" class="size-[18px]" />
+          <AppIcon name="i-lucide-more-horizontal" class="size-[18px]" />
         </button>
 
         <!-- Dropdown Menu -->
@@ -168,7 +168,7 @@ onUnmounted(() => {
             class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent/50"
             @click="startRename"
           >
-            <UIcon name="i-lucide-pencil" class="size-4" />
+            <AppIcon name="i-lucide-pencil" class="size-4" />
             {{ $t("chat.rename") }}
           </button>
           <button
@@ -176,7 +176,7 @@ onUnmounted(() => {
             :class="confirmDelete ? 'text-destructive font-medium' : 'text-destructive'"
             @click="handleDelete"
           >
-            <UIcon name="i-lucide-trash-2" class="size-4" />
+            <AppIcon name="i-lucide-trash-2" class="size-4" />
             {{ confirmDelete ? $t("common.deleteConfirm") : $t("common.delete") }}
           </button>
         </div>

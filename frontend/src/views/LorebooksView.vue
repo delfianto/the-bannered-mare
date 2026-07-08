@@ -288,7 +288,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
           :title="$t('lorebooks.newLorebook')"
           @click="openNewLorebook"
         >
-          <UIcon name="i-lucide-plus" class="size-4" />
+          <AppIcon name="i-lucide-plus" class="size-4" />
         </button>
       </div>
       <div class="flex-1 space-y-1.5 overflow-y-auto px-3 pb-4">
@@ -316,7 +316,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
         </button>
 
         <div v-if="loading && lorebooks.length === 0" class="flex justify-center py-8">
-          <UIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
+          <AppIcon name="i-lucide-loader-2" class="size-5 animate-spin text-primary" />
         </div>
         <div
           v-else-if="lorebooks.length === 0"
@@ -426,7 +426,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 :title="$t('lorebooks.editLorebook')"
                 @click="openEditLorebook"
               >
-                <UIcon name="i-lucide-pencil" class="size-4" />
+                <AppIcon name="i-lucide-pencil" class="size-4" />
               </button>
               <button
                 class="flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm transition-colors"
@@ -438,14 +438,14 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 @click="onDeleteLorebook"
                 @mouseleave="pendingDeleteLb = null"
               >
-                <UIcon name="i-lucide-trash-2" class="size-4" />
+                <AppIcon name="i-lucide-trash-2" class="size-4" />
                 {{ pendingDeleteLb === currentLorebook.id ? $t("lorebooks.confirmDelete") : "" }}
               </button>
               <button
                 class="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 @click="openNewEntry"
               >
-                <UIcon name="i-lucide-plus" class="size-4" />
+                <AppIcon name="i-lucide-plus" class="size-4" />
                 {{ $t("lorebooks.addEntry") }}
               </button>
             </div>
@@ -480,7 +480,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
       <!-- Nothing selected -->
       <div v-else class="flex h-full items-center justify-center">
         <div class="text-center">
-          <UIcon name="i-lucide-book-open" class="mx-auto mb-2 size-8 text-muted-foreground/40" />
+          <AppIcon name="i-lucide-book-open" class="mx-auto mb-2 size-8 text-muted-foreground/40" />
           <p class="text-sm text-muted-foreground">{{ $t("lorebooks.selectPrompt") }}</p>
         </div>
       </div>

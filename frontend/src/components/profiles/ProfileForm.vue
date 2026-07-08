@@ -202,13 +202,13 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon
+                <AppIcon
                   name="i-lucide-sliders-horizontal"
                   class="size-4 shrink-0 text-muted-foreground"
                 />
                 <span class="truncate">{{ labelFor(presets, presetId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -229,10 +229,13 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-scroll-text" class="size-4 shrink-0 text-muted-foreground" />
+                <AppIcon
+                  name="i-lucide-scroll-text"
+                  class="size-4 shrink-0 text-muted-foreground"
+                />
                 <span class="truncate">{{ labelFor(templates, templateId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -254,14 +257,14 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
+                <AppIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
                 <span class="truncate">{{
                   taskModelId === "__none__"
                     ? $t("profiles.taskModelSame")
                     : labelFor(models, taskModelId)
                 }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -282,10 +285,10 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
+                <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
                 <span class="truncate">{{ labelFor(models, modelId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -306,10 +309,10 @@ const selectUi = {
               class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             >
               <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
+                <AppIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
                 <span class="truncate">{{ labelFor(personas, personaId) }}</span>
               </span>
-              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
           </USelectMenu>
         </div>
@@ -326,7 +329,7 @@ const selectUi = {
             @click="isDefault = !isDefault"
           >
             <span class="flex min-w-0 items-center gap-2">
-              <UIcon
+              <AppIcon
                 name="i-lucide-star"
                 class="size-4 shrink-0"
                 :class="isDefault ? 'text-primary' : 'text-muted-foreground'"
@@ -353,7 +356,7 @@ const selectUi = {
         v-if="unsupportedParams.length"
         class="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5"
       >
-        <UIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-amber-500" />
+        <AppIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-amber-500" />
         <div class="min-w-0 space-y-1.5">
           <p class="text-xs text-foreground">
             {{ t("profiles.unsupportedWarning", { model: labelFor(models, modelId) }) }}

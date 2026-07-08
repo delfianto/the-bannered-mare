@@ -66,7 +66,7 @@ function handleKeyDown(e: KeyboardEvent) {
     >
       <!-- Quill icon -->
       <div class="shrink-0">
-        <UIcon
+        <AppIcon
           name="i-lucide-pen-tool"
           class="size-[18px] transition-colors duration-300"
           :class="focused ? 'text-primary' : 'text-muted-foreground'"
@@ -99,7 +99,7 @@ function handleKeyDown(e: KeyboardEvent) {
         "
         @click="handleSend"
       >
-        <UIcon name="i-lucide-arrow-up" class="size-4" />
+        <AppIcon name="i-lucide-arrow-up" class="size-4" />
       </button>
     </div>
 

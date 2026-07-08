@@ -45,7 +45,7 @@ function handleKeyDown(e: KeyboardEvent) {
           :aria-label="'Remove tag ' + tag"
           @click="emit('remove', tag)"
         >
-          <UIcon name="i-lucide-x" class="size-2.5" />
+          <AppIcon name="i-lucide-x" class="size-2.5" />
         </button>
       </span>
       <input
@@ -65,7 +65,7 @@ function handleKeyDown(e: KeyboardEvent) {
         class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
         @click="emit('add', s)"
       >
-        <UIcon name="i-lucide-plus" class="size-3" />
+        <AppIcon name="i-lucide-plus" class="size-3" />
         {{ s }}
       </button>
     </div>

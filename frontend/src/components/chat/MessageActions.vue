@@ -40,7 +40,7 @@ const userActions = [
       class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       @click="emit('action', action.key)"
     >
-      <UIcon :name="action.icon" class="size-3.5" />
+      <AppIcon :name="action.icon" class="size-3.5" />
     </button>
   </div>
 </template>

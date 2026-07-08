@@ -31,7 +31,7 @@ const tabs = [
           "
           @click="emit('change', tab.id)"
         >
-          <UIcon :name="tab.icon" class="size-4" />
+          <AppIcon :name="tab.icon" class="size-4" />
           <span class="font-cinzel tracking-wide">{{ tab.label }}</span>
           <span
             v-if="activeTab === tab.id"

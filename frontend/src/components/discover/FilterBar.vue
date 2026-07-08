@@ -57,7 +57,7 @@ function sortLabel(value: SortOption): string {
             : 'border-border bg-muted/40 hover:border-muted-foreground/30'
         "
       >
-        <UIcon
+        <AppIcon
           name="i-lucide-search"
           class="size-4 shrink-0 transition-colors"
           :class="searchFocused ? 'text-primary' : 'text-muted-foreground'"
@@ -91,9 +91,9 @@ function sortLabel(value: SortOption): string {
       <button
         class="flex h-9 items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
       >
-        <UIcon name="i-lucide-arrow-up-down" class="size-3.5" />
+        <AppIcon name="i-lucide-arrow-up-down" class="size-3.5" />
         {{ sortLabel(sort) }}
-        <UIcon name="i-lucide-chevron-down" class="size-3.5" />
+        <AppIcon name="i-lucide-chevron-down" class="size-3.5" />
       </button>
     </USelectMenu>
 
@@ -107,7 +107,7 @@ function sortLabel(value: SortOption): string {
         "
         @click="emit('update:viewMode', 'grid')"
       >
-        <UIcon name="i-lucide-layout-grid" class="size-4" />
+        <AppIcon name="i-lucide-layout-grid" class="size-4" />
       </button>
       <div class="h-4 w-px bg-border" />
       <button
@@ -118,7 +118,7 @@ function sortLabel(value: SortOption): string {
         "
         @click="emit('update:viewMode', 'list')"
       >
-        <UIcon name="i-lucide-list" class="size-4" />
+        <AppIcon name="i-lucide-list" class="size-4" />
       </button>
     </div>
 
@@ -132,7 +132,7 @@ function sortLabel(value: SortOption): string {
       "
       @click="emit('update:selectMode', !selectMode)"
     >
-      <UIcon name="i-lucide-check-square" class="size-4" />
+      <AppIcon name="i-lucide-check-square" class="size-4" />
       {{ $t("characters.view.select") }}
     </button>
   </div>

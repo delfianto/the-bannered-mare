@@ -169,7 +169,7 @@ onMounted(fetchAll);
   <div class="mx-auto max-w-4xl animate-fade-in-up space-y-6">
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
+      <AppIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
     </div>
 
     <template v-else>
@@ -188,7 +188,7 @@ onMounted(fetchAll);
             :key="card.label"
             class="rounded-xl border bg-card/50 p-4 text-center"
           >
-            <UIcon :name="card.icon" class="mx-auto mb-1 size-4 text-muted-foreground" />
+            <AppIcon :name="card.icon" class="mx-auto mb-1 size-4 text-muted-foreground" />
             <p class="text-2xl font-bold text-foreground">{{ card.value }}</p>
             <p class="text-xs text-muted-foreground">{{ card.label }}</p>
           </div>
@@ -253,7 +253,7 @@ onMounted(fetchAll);
           "
           @click="activeSubTab = tab.id"
         >
-          <UIcon :name="tab.icon" class="mr-1 inline-block size-3.5 align-text-bottom" />
+          <AppIcon :name="tab.icon" class="mr-1 inline-block size-3.5 align-text-bottom" />
           {{ tab.label }}
         </button>
       </div>

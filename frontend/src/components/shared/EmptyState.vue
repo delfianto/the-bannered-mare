@@ -28,7 +28,7 @@ defineEmits<{
     <div class="relative mb-6">
       <div class="absolute inset-0 animate-pulse rounded-full bg-primary/20 blur-xl" />
       <div class="relative flex size-16 items-center justify-center rounded-full bg-primary/10">
-        <UIcon :name="icon" class="size-8 text-primary" />
+        <AppIcon :name="icon" class="size-8 text-primary" />
       </div>
     </div>
 
@@ -51,7 +51,7 @@ defineEmits<{
         class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         @click="$emit('action')"
       >
-        <UIcon name="i-lucide-plus" class="size-4" />
+        <AppIcon name="i-lucide-plus" class="size-4" />
         {{ actionLabel || $t("characters.createNew") }}
       </button>
     </slot>

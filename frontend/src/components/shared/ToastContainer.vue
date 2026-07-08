@@ -70,7 +70,7 @@ const getTypeClasses = (type: string) => {
           :class="[getTypeClasses(toast.type).border, getTypeClasses(toast.type).text]"
         >
           <div class="flex w-full items-start gap-3">
-            <UIcon
+            <AppIcon
               :name="getIcon(toast.type)"
               class="mt-0.5 size-5 shrink-0"
               :class="getTypeClasses(toast.type).icon"
@@ -91,7 +91,7 @@ const getTypeClasses = (type: string) => {
               class="flex size-5 shrink-0 items-center justify-center rounded text-current/60 transition-colors hover:bg-current/10 hover:text-current active:scale-95"
               @click="removeToast(toast.id)"
             >
-              <UIcon name="i-lucide-x" class="size-3.5" />
+              <AppIcon name="i-lucide-x" class="size-3.5" />
             </button>
           </div>
         </div>

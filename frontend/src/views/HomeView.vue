@@ -36,7 +36,10 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
 
       <template v-if="charsLoading || chatsLoading">
         <div class="flex flex-1 items-center justify-center py-16">
-          <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-muted-foreground" />
+          <AppIcon
+            name="i-lucide-loader-circle"
+            class="size-6 animate-spin text-muted-foreground"
+          />
         </div>
       </template>
       <template v-else-if="characters.length === 0 && chatSessions.length === 0">

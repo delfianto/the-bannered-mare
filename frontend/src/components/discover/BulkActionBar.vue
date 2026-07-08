@@ -32,14 +32,14 @@ defineEmits<{
           class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
           @click="$emit('export')"
         >
-          <UIcon name="i-lucide-download" class="size-3.5" />
+          <AppIcon name="i-lucide-download" class="size-3.5" />
           {{ $t("characters.bulkExport") }}
         </button>
         <button
           class="flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-destructive/90"
           @click="$emit('delete')"
         >
-          <UIcon name="i-lucide-trash-2" class="size-3.5" />
+          <AppIcon name="i-lucide-trash-2" class="size-3.5" />
           {{ $t("characters.bulkDelete") }}
         </button>
         <button
@@ -47,7 +47,7 @@ defineEmits<{
           class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
           @click="$emit('cancel')"
         >
-          <UIcon name="i-lucide-x" class="size-4" />
+          <AppIcon name="i-lucide-x" class="size-4" />
         </button>
       </div>
     </div>

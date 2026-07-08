@@ -109,7 +109,7 @@ const dialoguesOpen = ref(true);
         class="flex w-full items-center gap-2 border-b py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
         @click="dialoguesOpen = !dialoguesOpen"
       >
-        <UIcon
+        <AppIcon
           name="i-lucide-chevron-right"
           class="size-4 transition-transform"
           :class="dialoguesOpen ? 'rotate-90' : ''"
@@ -145,7 +145,7 @@ const dialoguesOpen = ref(true);
           class="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           @click="emit('addDialogue')"
         >
-          <UIcon name="i-lucide-plus" class="size-4" />
+          <AppIcon name="i-lucide-plus" class="size-4" />
           {{ $t("characters.form.addDialogue") }}
         </button>
       </div>

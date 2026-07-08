@@ -133,7 +133,7 @@ const sections = computed(() => {
         class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         @click="resetToDefaults"
       >
-        <UIcon name="i-lucide-rotate-ccw" class="size-3" />
+        <AppIcon name="i-lucide-rotate-ccw" class="size-3" />
         Reset to Defaults
       </button>
     </div>
@@ -142,7 +142,7 @@ const sections = computed(() => {
     <div v-for="section in sections" :key="section.key" class="space-y-3">
       <!-- Section header -->
       <div class="flex items-center gap-2">
-        <UIcon :name="section.icon" class="size-4 text-muted-foreground" />
+        <AppIcon :name="section.icon" class="size-4 text-muted-foreground" />
         <h3
           class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
@@ -167,7 +167,7 @@ const sections = computed(() => {
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="truncate text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
-              <UIcon
+              <AppIcon
                 name="i-lucide-info"
                 class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
@@ -194,7 +194,7 @@ const sections = computed(() => {
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
-              <UIcon
+              <AppIcon
                 name="i-lucide-info"
                 class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
@@ -221,7 +221,7 @@ const sections = computed(() => {
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <UTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
-              <UIcon
+              <AppIcon
                 name="i-lucide-info"
                 class="size-3.5 shrink-0 cursor-help text-muted-foreground/50"
               />
