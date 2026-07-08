@@ -128,16 +128,11 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               </p>
             </div>
           </div>
-          <USelectMenu
+          <SelectMenu
             v-model="currentLocale"
             :items="SUPPORTED_LOCALES.map((l) => ({ label: l.name, value: l.code }))"
             value-key="value"
             :search-input="false"
-            :ui="{
-              base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-              content: 'border bg-card ring-0 outline-none shadow-lg',
-              item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-            }"
           >
             <button
               class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
@@ -145,7 +140,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               {{ SUPPORTED_LOCALES.find((l) => l.code === currentLocale)?.name }}
               <AppIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
             </button>
-          </USelectMenu>
+          </SelectMenu>
         </div>
       </div>
     </section>

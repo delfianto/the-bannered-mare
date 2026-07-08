@@ -102,16 +102,11 @@ function openFamily(row: any) {
       </div>
 
       <!-- Provider-type filter (server-side via API) -->
-      <USelectMenu
+      <SelectMenu
         :model-value="selectedProviderType"
         :items="providerTypeItems"
         value-key="value"
         :search-input="false"
-        :ui="{
-          base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-          content: 'border bg-card ring-0 outline-none shadow-lg',
-          item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-        }"
         @update:model-value="handleProviderTypeFilter"
       >
         <button
@@ -120,7 +115,7 @@ function openFamily(row: any) {
           <AppIcon name="i-lucide-server" class="size-3.5" />
           {{ providerTypeLabel }}
         </button>
-      </USelectMenu>
+      </SelectMenu>
     </div>
 
     <!-- Loading -->

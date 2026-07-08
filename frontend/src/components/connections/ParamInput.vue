@@ -205,17 +205,12 @@ function updateObjectProp(key: string, val: unknown) {
 
   <!-- Enum select -->
   <template v-else-if="schemaType === 'enum'">
-    <USelectMenu
+    <SelectMenu
       v-model="selectValue"
       :items="(schema.str_values || []).map((v: string) => ({ label: v, value: v }))"
       value-key="value"
       :search-input="false"
       :class="layout === 'horizontal' ? 'max-w-[180px]' : 'w-full'"
-      :ui="{
-        base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-        content: 'border bg-card ring-0 outline-none shadow-lg',
-        item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-      }"
     >
       <button
         class="flex h-9 items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
@@ -224,7 +219,7 @@ function updateObjectProp(key: string, val: unknown) {
         <span class="truncate">{{ selectValue || "Select..." }}</span>
         <AppIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0 text-muted-foreground" />
       </button>
-    </USelectMenu>
+    </SelectMenu>
   </template>
 
   <!-- Number with range slider -->

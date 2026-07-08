@@ -29,12 +29,6 @@ const initialSnapshot = JSON.stringify(form);
 const saved = ref(false);
 const dirty = computed(() => !saved.value && JSON.stringify(form) !== initialSnapshot);
 
-const selectUi = {
-  base: "w-full border-none shadow-none ring-0 outline-none p-0 bg-transparent",
-  content: "w-[var(--reka-popper-anchor-width)] border bg-card ring-0 outline-none shadow-lg",
-  item: "text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent",
-};
-
 const selectedFamily = computed(() =>
   families.value.find((f: any) => f.id === form.model_family_id),
 );
@@ -234,19 +228,18 @@ onBeforeRouteLeave(() => {
               >
                 Model Family
               </span>
-              <USelectMenu
+              <SelectMenu
                 v-model="form.model_family_id"
                 :items="familyItems"
                 value-key="value"
                 class="w-full"
-                :ui="selectUi"
               >
                 <button
                   class="flex h-11 w-full items-center rounded-lg border bg-muted/40 px-4 text-sm text-foreground outline-none transition-all hover:border-muted-foreground/30"
                 >
                   {{ familyName }}
                 </button>
-              </USelectMenu>
+              </SelectMenu>
             </label>
 
             <!-- Provider -->
@@ -256,12 +249,11 @@ onBeforeRouteLeave(() => {
               >
                 Provider
               </span>
-              <USelectMenu
+              <SelectMenu
                 v-model="form.provider_id"
                 :items="providerItems"
                 value-key="value"
                 class="w-full"
-                :ui="selectUi"
                 :disabled="!form.model_family_id"
               >
                 <button
@@ -270,7 +262,7 @@ onBeforeRouteLeave(() => {
                 >
                   {{ form.model_family_id ? providerName : "Select a family first" }}
                 </button>
-              </USelectMenu>
+              </SelectMenu>
             </label>
 
             <!-- OpenRouter routing -->

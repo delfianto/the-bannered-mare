@@ -4,6 +4,7 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
 import AppIcon from "./components/shared/AppIcon.vue";
+import SelectMenu from "./components/shared/SelectMenu.vue";
 import "./assets/main.css";
 
 const app = createApp(App);
@@ -12,8 +13,9 @@ app.use(createPinia());
 app.use(i18n);
 app.use(router);
 
-// Global icon component (replaces Nuxt UI's globally-available <UIcon>).
+// Global components (replace Nuxt UI's globally-available primitives).
 app.component("AppIcon", AppIcon);
+app.component("SelectMenu", SelectMenu);
 
 async function prepareApp() {
   const useMocks = import.meta.env.VITE_USE_MOCKS === "true";

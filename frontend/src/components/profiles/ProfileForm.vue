@@ -145,12 +145,6 @@ function onSubmit() {
     task_model_id: taskModelId.value === NONE ? null : taskModelId.value,
   });
 }
-
-const selectUi = {
-  base: "border-none shadow-none ring-0 outline-none p-0 bg-transparent w-full",
-  content: "border bg-card ring-0 outline-none shadow-lg",
-  item: "text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent",
-};
 </script>
 
 <template>
@@ -190,12 +184,11 @@ const selectUi = {
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.preset")
           }}</span>
-          <USelectMenu
+          <SelectMenu
             v-model="presetId"
             :items="presetOptions"
             value-key="value"
             :search-input="false"
-            :ui="selectUi"
           >
             <button
               type="button"
@@ -210,19 +203,18 @@ const selectUi = {
               </span>
               <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
-          </USelectMenu>
+          </SelectMenu>
         </div>
 
         <div>
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.template")
           }}</span>
-          <USelectMenu
+          <SelectMenu
             v-model="templateId"
             :items="templateOptions"
             value-key="value"
             :search-input="false"
-            :ui="selectUi"
           >
             <button
               type="button"
@@ -237,19 +229,18 @@ const selectUi = {
               </span>
               <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
-          </USelectMenu>
+          </SelectMenu>
         </div>
 
         <div>
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.taskModel")
           }}</span>
-          <USelectMenu
+          <SelectMenu
             v-model="taskModelId"
             :items="taskModelOptions"
             value-key="value"
             :search-input="true"
-            :ui="selectUi"
           >
             <button
               type="button"
@@ -266,19 +257,18 @@ const selectUi = {
               </span>
               <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
-          </USelectMenu>
+          </SelectMenu>
         </div>
 
         <div>
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.model")
           }}</span>
-          <USelectMenu
+          <SelectMenu
             v-model="modelId"
             :items="modelOptions"
             value-key="value"
             :search-input="true"
-            :ui="selectUi"
           >
             <button
               type="button"
@@ -290,19 +280,18 @@ const selectUi = {
               </span>
               <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
-          </USelectMenu>
+          </SelectMenu>
         </div>
 
         <div>
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.persona")
           }}</span>
-          <USelectMenu
+          <SelectMenu
             v-model="personaId"
             :items="personaOptions"
             value-key="value"
             :search-input="false"
-            :ui="selectUi"
           >
             <button
               type="button"
@@ -314,7 +303,7 @@ const selectUi = {
               </span>
               <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
-          </USelectMenu>
+          </SelectMenu>
         </div>
 
         <div>

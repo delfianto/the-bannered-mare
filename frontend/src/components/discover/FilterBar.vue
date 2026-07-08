@@ -77,17 +77,7 @@ function sortLabel(value: SortOption): string {
     </div>
 
     <!-- Sort dropdown -->
-    <USelectMenu
-      v-model="selectedSort"
-      :items="sortItems"
-      value-key="value"
-      :search-input="false"
-      :ui="{
-        base: 'border-none shadow-none ring-0 outline-none p-0 bg-transparent',
-        content: 'border bg-card ring-0 outline-none shadow-lg',
-        item: 'text-muted-foreground data-highlighted:text-foreground data-highlighted:bg-accent',
-      }"
-    >
+    <SelectMenu v-model="selectedSort" :items="sortItems" value-key="value" :search-input="false">
       <button
         class="flex h-9 items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
       >
@@ -95,7 +85,7 @@ function sortLabel(value: SortOption): string {
         {{ sortLabel(sort) }}
         <AppIcon name="i-lucide-chevron-down" class="size-3.5" />
       </button>
-    </USelectMenu>
+    </SelectMenu>
 
     <!-- View mode toggle -->
     <div class="flex h-9 items-center rounded-lg border bg-muted/40">
