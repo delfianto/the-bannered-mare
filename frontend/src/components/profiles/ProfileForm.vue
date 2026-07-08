@@ -151,30 +151,6 @@ const selectUi = {
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.template")
-          }}</span>
-          <USelectMenu
-            v-model="templateId"
-            :items="templateOptions"
-            value-key="value"
-            :search-input="false"
-            :ui="selectUi"
-          >
-            <button
-              type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
-            >
-              <span class="flex min-w-0 items-center gap-2">
-                <UIcon name="i-lucide-scroll-text" class="size-4 shrink-0 text-muted-foreground" />
-                <span class="truncate">{{ labelFor(templates, templateId) }}</span>
-              </span>
-              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          </USelectMenu>
-        </div>
-
-        <div>
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.preset")
           }}</span>
           <USelectMenu
@@ -194,6 +170,30 @@ const selectUi = {
                   class="size-4 shrink-0 text-muted-foreground"
                 />
                 <span class="truncate">{{ labelFor(presets, presetId) }}</span>
+              </span>
+              <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+            </button>
+          </USelectMenu>
+        </div>
+
+        <div>
+          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+            $t("profiles.fields.template")
+          }}</span>
+          <USelectMenu
+            v-model="templateId"
+            :items="templateOptions"
+            value-key="value"
+            :search-input="false"
+            :ui="selectUi"
+          >
+            <button
+              type="button"
+              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
+            >
+              <span class="flex min-w-0 items-center gap-2">
+                <UIcon name="i-lucide-scroll-text" class="size-4 shrink-0 text-muted-foreground" />
+                <span class="truncate">{{ labelFor(templates, templateId) }}</span>
               </span>
               <UIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
             </button>
@@ -283,18 +283,23 @@ const selectUi = {
           }}</span>
           <button
             type="button"
-            class="flex h-11 w-full items-center justify-between rounded-lg border bg-muted/40 px-3 outline-none"
+            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground outline-none"
             role="switch"
             :aria-checked="isDefault"
             @click="isDefault = !isDefault"
           >
-            <UIcon
-              name="i-lucide-star"
-              class="size-4 shrink-0"
-              :class="isDefault ? 'text-primary' : 'text-muted-foreground'"
-            />
+            <span class="flex min-w-0 items-center gap-2">
+              <UIcon
+                name="i-lucide-star"
+                class="size-4 shrink-0"
+                :class="isDefault ? 'text-primary' : 'text-muted-foreground'"
+              />
+              <span class="truncate">{{
+                isDefault ? $t("profiles.form.defaultOn") : $t("profiles.form.defaultOff")
+              }}</span>
+            </span>
             <span
-              class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
+              class="flex h-[22px] w-10 shrink-0 items-center rounded-full px-[3px] transition-colors duration-300"
               :class="isDefault ? 'bg-primary' : 'bg-muted-foreground/40'"
             >
               <span
