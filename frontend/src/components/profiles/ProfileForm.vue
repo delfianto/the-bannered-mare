@@ -6,6 +6,7 @@ import type { PromptTemplate } from "@/composables/usePromptTemplates";
 import type { Preset } from "@/composables/usePresets";
 import type { Persona } from "@/composables/usePersonas";
 import type { ModelListItem } from "@/composables/useModels";
+import { useModelFamily } from "@/composables/useModelFamily";
 
 const props = defineProps<{
   initial?: Profile | null;
@@ -94,6 +95,42 @@ const taskModelOptions = computed(() => [
   { label: t("profiles.taskModelSame"), value: NONE },
   ...usableModels(taskModelId.value).map((m) => ({ label: m.name, value: m.id })),
 ]);
+
+// Warn when the chosen preset carries sampling knobs the chosen model's family
+// rejects — the backend strips these before sending (they'd 400 native APIs), so
+// the user should know they won't take effect. Fetch the selected model's family
+// detail (the list payload omits parameters/unsupported to stay light).
+const { family: selectedFamily, fetchFamily } = useModelFamily();
+let lastFamilyId: string | null = null;
+
+watch(
+  () => modelId.value,
+  (id) => {
+    if (id === NONE) return;
+    const familyId = props.models.find((m) => m.id === id)?.model_family_id;
+    if (familyId && familyId !== lastFamilyId) {
+      lastFamilyId = familyId;
+      void fetchFamily(familyId);
+    }
+  },
+  { immediate: true },
+);
+
+const selectedPreset = computed(() => props.presets.find((p) => p.id === presetId.value) ?? null);
+
+const unsupportedParams = computed<string[]>(() => {
+  const family = selectedFamily.value;
+  const preset = selectedPreset.value;
+  if (!family || !preset || modelId.value === NONE) return [];
+  // Guard against the brief window where a just-switched model's family is still
+  // loading and `selectedFamily` still holds the previous model's family.
+  const familyId = props.models.find((m) => m.id === modelId.value)?.model_family_id;
+  if (family.id !== familyId) return [];
+
+  const unsupported = new Set(family.unsupported_parameters ?? []);
+  const presetParams = (preset.parameters ?? {}) as Record<string, unknown>;
+  return Object.keys(presetParams).filter((key) => unsupported.has(key));
+});
 
 function onSubmit() {
   if (!name.value.trim()) return;
@@ -308,6 +345,28 @@ const selectUi = {
               />
             </span>
           </button>
+        </div>
+      </div>
+
+      <!-- Unsupported-parameter warning: preset knobs the chosen model rejects -->
+      <div
+        v-if="unsupportedParams.length"
+        class="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5"
+      >
+        <UIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-amber-500" />
+        <div class="min-w-0 space-y-1.5">
+          <p class="text-xs text-foreground">
+            {{ t("profiles.unsupportedWarning", { model: labelFor(models, modelId) }) }}
+          </p>
+          <div class="flex flex-wrap gap-1.5">
+            <span
+              v-for="p in unsupportedParams"
+              :key="p"
+              class="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[11px] text-amber-600 dark:text-amber-400"
+            >
+              {{ p }}
+            </span>
+          </div>
         </div>
       </div>
 
