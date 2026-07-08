@@ -305,6 +305,7 @@
     },
     "suggest": {
       "button": "Suggest replies",
+      "tones": "Tones for this scene",
       "loading": "Thinking…",
       "back": "Back to tones",
       "error": "Couldn't reach the model for suggestions."

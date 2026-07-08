@@ -10,6 +10,7 @@ import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
 import MoodChips from "@/components/chat/MoodChips.vue";
+import ReplySuggestions from "@/components/chat/ReplySuggestions.vue";
 import ParchmentInput from "@/components/chat/ParchmentInput.vue";
 import type { MoodChip } from "@/types/chat";
 import EmptyState from "@/components/shared/EmptyState.vue";
@@ -118,27 +119,38 @@ const MOOD_CHIPS: MoodChip[] = [
 const inputRef = ref<InstanceType<typeof ParchmentInput> | null>(null);
 const toast = useAppToast();
 
-// #1: dynamically generated reply candidates (clicking one sends it).
+// #1: model-generated reply candidates (clicking one sends it). Full sentences,
+// rendered as cards rather than pills.
 const replySuggestions = ref<string[]>([]);
-const replyChips = computed<MoodChip[]>(() =>
-  replySuggestions.value.map((text, i) => ({ id: `sg-${i}`, label: text })),
+
+// Tone chips: evergreen defaults by default, replaced by scene-specific tones
+// when the user asks for them (kept empty until then to stay instant + free).
+const sceneTones = ref<string[]>([]);
+const toneChips = computed<MoodChip[]>(() =>
+  sceneTones.value.length
+    ? sceneTones.value.map((tone, i) => ({ id: `tone-${i}`, label: tone }))
+    : MOOD_CHIPS,
 );
 
 function handleSend(text: string) {
   replySuggestions.value = [];
+  sceneTones.value = [];
   sendMessage(text);
   scrollToBottom();
 }
 
-// #1 — fetch contextual reply candidates and show them as chips.
+// #1 — fetch reply candidates (drafted on the main model for quality) as cards.
 async function loadSuggestions() {
   const items = await fetchSuggestions({ mode: "reply", count: 3 });
   if (items.length) replySuggestions.value = items;
   else toast.error(t("chat.suggest.error"));
 }
 
-function handleReplySelect(chip: MoodChip) {
-  handleSend(chip.label);
+// Scene-aware tone labels (cheap task model) — replaces the default chips.
+async function loadTones() {
+  const items = await fetchSuggestions({ mode: "tones", count: 5 });
+  if (items.length) sceneTones.value = items;
+  else toast.error(t("chat.suggest.error"));
 }
 
 // #2 — draft the user's next line in the chosen tone into the composer.
@@ -157,6 +169,9 @@ watch(
   () => route.params.chatId,
   (id) => {
     if (id && typeof id === "string") activeSessionId.value = id;
+    // Suggestions are scene-specific — don't carry them across chats.
+    replySuggestions.value = [];
+    sceneTones.value = [];
   },
 );
 
@@ -357,9 +372,13 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
 
           <!-- Suggestions bar (after the latest assistant reply) -->
           <div v-if="showMoodChips" class="flex flex-col items-center gap-1.5 py-2">
-            <!-- #1: dynamic reply candidates — click to send -->
-            <template v-if="replyChips.length">
-              <MoodChips :chips="replyChips" @select="handleReplySelect" />
+            <!-- #1: reply candidates — full lines as cards, click to send -->
+            <template v-if="replySuggestions.length">
+              <ReplySuggestions
+                :items="replySuggestions"
+                :disabled="isGenerating"
+                @select="handleSend"
+              />
               <button
                 class="text-[10px] text-muted-foreground transition-colors hover:text-primary"
                 @click="replySuggestions = []"
@@ -368,21 +387,31 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
               </button>
             </template>
 
-            <!-- #2: tone chips (draft into composer) + trigger for #1 -->
+            <!-- #2: tone chips (default or scene-specific) + the two actions -->
             <template v-else>
-              <MoodChips :chips="MOOD_CHIPS" :disabled="suggesting" @select="handleToneSelect" />
-              <button
-                :disabled="suggesting"
-                class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
-                @click="loadSuggestions"
-              >
-                <UIcon
-                  :name="suggesting ? 'i-lucide-loader-circle' : 'i-lucide-sparkles'"
-                  class="size-3.5"
-                  :class="{ 'animate-spin': suggesting }"
-                />
-                {{ suggesting ? $t("chat.suggest.loading") : $t("chat.suggest.button") }}
-              </button>
+              <MoodChips :chips="toneChips" :disabled="suggesting" @select="handleToneSelect" />
+              <div class="flex items-center gap-4">
+                <button
+                  :disabled="suggesting"
+                  class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
+                  @click="loadSuggestions"
+                >
+                  <UIcon
+                    :name="suggesting ? 'i-lucide-loader-circle' : 'i-lucide-sparkles'"
+                    class="size-3.5"
+                    :class="{ 'animate-spin': suggesting }"
+                  />
+                  {{ suggesting ? $t("chat.suggest.loading") : $t("chat.suggest.button") }}
+                </button>
+                <button
+                  :disabled="suggesting"
+                  class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
+                  @click="loadTones"
+                >
+                  <UIcon name="i-lucide-drama" class="size-3.5" />
+                  {{ $t("chat.suggest.tones") }}
+                </button>
+              </div>
             </template>
           </div>
         </div>

@@ -96,7 +96,7 @@ export function useChatMessages(
   const suggesting = ref(false);
 
   const fetchSuggestions = async (opts: {
-    mode: "reply" | "impersonate";
+    mode: "reply" | "impersonate" | "tones";
     tone?: string | null;
     count?: number;
   }): Promise<string[]> => {

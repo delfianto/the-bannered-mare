@@ -10856,7 +10856,8 @@
             "type": "string",
             "enum": [
               "reply",
-              "impersonate"
+              "impersonate",
+              "tones"
             ],
             "title": "Mode",
             "default": "reply"
@@ -10879,13 +10880,13 @@
             "maximum": 6.0,
             "minimum": 1.0,
             "title": "Count",
-            "description": "How many suggestions (reply mode)",
+            "description": "How many suggestions (reply/tones)",
             "default": 3
           }
         },
         "type": "object",
         "title": "SuggestionRequest",
-        "description": "Request for next-turn suggestions.\n\n- ``reply``: propose several short, distinct actions the user could send next.\n- ``impersonate``: draft a single user message in the user's voice, optionally\n  steered by ``tone`` (e.g. \"defiant\", \"tender\")."
+        "description": "Request for next-turn suggestions.\n\n- ``reply``: propose several short, distinct messages the user could send next.\n- ``impersonate``: draft a single user message in the user's voice, optionally\n  steered by ``tone`` (e.g. \"defiant\", \"tender\").\n- ``tones``: propose several short tone/approach labels for the current scene\n  (used to populate the tone chips, each then feeding ``impersonate``)."
       },
       "SuggestionResponse": {
         "properties": {

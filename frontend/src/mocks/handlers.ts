@@ -439,7 +439,7 @@ export const handlers = [
   // Next-turn suggestions (#1 reply candidates / #2 tone-steered impersonation)
   http.post("/api/chats/:chatId/messages/suggestions", async ({ request }) => {
     const body = (await request.json()) as {
-      mode?: "reply" | "impersonate";
+      mode?: "reply" | "impersonate" | "tones";
       tone?: string | null;
       count?: number;
     };
@@ -452,6 +452,17 @@ export const handlers = [
           `Very well${tone} — I'll hear you out, but choose your next words carefully.`,
         ],
       });
+    }
+
+    if (body.mode === "tones") {
+      const tones = [
+        "Stand your ground",
+        "De-escalate",
+        "Press for the truth",
+        "Feign indifference",
+        "Offer a truce",
+      ];
+      return HttpResponse.json({ suggestions: tones.slice(0, body.count ?? 5) });
     }
 
     const pool = [

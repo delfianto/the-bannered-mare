@@ -3795,9 +3795,11 @@ export interface components {
      * SuggestionRequest
      * @description Request for next-turn suggestions.
      *
-     *     - ``reply``: propose several short, distinct actions the user could send next.
+     *     - ``reply``: propose several short, distinct messages the user could send next.
      *     - ``impersonate``: draft a single user message in the user's voice, optionally
      *       steered by ``tone`` (e.g. "defiant", "tender").
+     *     - ``tones``: propose several short tone/approach labels for the current scene
+     *       (used to populate the tone chips, each then feeding ``impersonate``).
      */
     SuggestionRequest: {
       /**
@@ -3805,7 +3807,7 @@ export interface components {
        * @default reply
        * @enum {string}
        */
-      mode: "reply" | "impersonate";
+      mode: "reply" | "impersonate" | "tones";
       /**
        * Tone
        * @description Tone to steer the draft
@@ -3813,7 +3815,7 @@ export interface components {
       tone?: string | null;
       /**
        * Count
-       * @description How many suggestions (reply mode)
+       * @description How many suggestions (reply/tones)
        * @default 3
        */
       count: number;
