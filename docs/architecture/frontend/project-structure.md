@@ -124,9 +124,9 @@ walked through in [Main Screens](/architecture/frontend/main-screens).
 | `connections/` | Provider / model / family / template / preset / fragment management tabs and their inputs |
 | `creator/` | The character creator — tabs, avatar upload, dialogue and tag editors, live preview |
 | `discover/` | The character library — cards, list rows, filter bar, category pills, bulk actions |
-| `profiles/` | Loadout ("profile") cards, forms, and the picker modal |
+| `profiles/` | Loadout ("profile") cards, forms, the picker modal, and the persona tab |
 | `lorebooks/` | Lore entry cards and their edit form |
-| `settings/` | Settings tabs (interface, persona, logs, about) and the log detail modal |
+| `settings/` | Settings tabs (interface, logs, about) and the log detail modal |
 | `layout/` | App shell, navigation sidebar, page container |
 | `shared/` | Cross-feature building blocks used everywhere — `Modal`, `ConfirmModal`, `DataTable`, `AppPagination`, `SearchBar`, `EmptyState`, the toast container |
 

@@ -7,7 +7,8 @@ title: Prompt Building
 These resources decide *how* a prompt is assembled and *how* the model samples. A
 **template** lays out the prompt's structure; **fragments** are reusable blocks attached to
 templates; a **preset** is a named set of sampling parameters; and a **profile** is a
-loadout that bundles a template, preset, persona, and model into one selectable unit. How
+loadout that bundles a template, preset, persona, a model, and an optional cheaper **task
+model** (for auxiliary calls) into one selectable unit. How
 these feed the actual prompt is covered in
 [Prompt System](/architecture/backend/prompt-system); the relationships are in
 [the data model](/architecture/backend/data-model#prompt-building).
@@ -26,8 +27,8 @@ offset pagination.
 | `DELETE` | `/api/profiles/{id}` | Delete a profile. |
 | `POST` | `/api/profiles/{id}/default` | Mark this profile the default. |
 
-A profile is a **bundle of four references** — a prompt template, a preset, a persona, and
-a model — each optional. `ProfileResponse`:
+A profile is a **bundle of references** — a prompt template, a preset, a persona, a model,
+and an optional task model — each nullable. `ProfileResponse`:
 
 | Field | Type | Notes |
 |-------|------|-------|
@@ -35,10 +36,18 @@ a model — each optional. `ProfileResponse`:
 | `name` | string | **Required.** Unique. |
 | `description` | string \| null | Its purpose. |
 | `is_default` | boolean | Default loadout for new chats. |
-| `prompt_template_id`, `preset_id`, `persona_id`, `model_id` | string \| null | The four bundled references (all nullable). |
+| `prompt_template_id`, `preset_id`, `persona_id`, `model_id` | string \| null | The bundled references (all nullable). |
+| `task_model_id` | string \| null | Cheaper model for auxiliary calls (titles, suggestions). Null ⇒ *use the chat model*. |
 | `source` | string | `manual`, `sillytavern`, … — where it came from. |
 | `source_filename` | string \| null | Original filename if imported. |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
+
+::: tip Task model — saving tokens on paid APIs
+Titles and reply suggestions don't need your big roleplay model. Set `task_model_id` to a
+smaller or free model and those auxiliary calls route there instead; leave it null and they
+fall back to the chat's main model. `PUT /api/profiles/{id}` follows partial-update
+semantics — send `task_model_id: null` to *clear* it, or omit the key to leave it unchanged.
+:::
 
 Applying a profile to a chat is a [Conversations](/api/conversations#applying-a-profile)
 endpoint (`POST /api/chats/{id}/profile`) — it *copies* the profile's values onto the chat,

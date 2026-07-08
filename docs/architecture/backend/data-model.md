@@ -172,10 +172,12 @@ top to bottom (green): a `Character` owns its `Chat`s, a `Chat` owns its `Messag
 each `Message` its alternatives; a `Lorebook` owns its `LoreEntry`s; a `Provider` owns its
 `Model`s; a `PromptTemplate` and a `PromptFragment` jointly own the `TemplateFragment` rows
 that join them. The dashed arrows that cross a boundary are all references — a `Chat`
-*borrows* a model, template, preset, and persona but owns none of them. `Model` *needs*
-its `ModelFamily` (amber, protected). `Profile` is the odd one out: it owns nothing and is
-owned by nothing — it is a pure bundle of four references (see §4). Observability is a
-write-only sink nothing else points at.
+*borrows* a model, template, preset, and persona but owns none of them (plus an optional
+**task model** — a cheaper model for auxiliary calls like titles and suggestions, which
+falls back to the main model when unset). `Model` *needs* its `ModelFamily` (amber,
+protected). `Profile` is the odd one out: it owns nothing and is owned by nothing — it is a
+pure bundle of loadout references (see §4). Observability is a write-only sink nothing else
+points at.
 
 </template>
 </Figure>
@@ -184,8 +186,8 @@ write-only sink nothing else points at.
 
 `Chat` is the busiest entity in the schema and the one worth understanding in detail,
 because it is where a roleplay session is assembled at generation time. It sits at the
-center of one ownership relationship, four references, and a couple of provenance
-snapshots.
+center of one ownership relationship, four prompt-composition references (below), an
+optional task model for auxiliary calls, and a couple of provenance snapshots.
 
 <Figure tag="Figure 3" title="Everything a Chat pulls together" id="fig-chat-aggregate">
 <svg viewBox="0 0 820 540" role="img" aria-label="The Chat aggregate" style="font-family:var(--vp-font-family-base)">
@@ -251,8 +253,8 @@ referenced record is gone, the chat also stores plain-string **snapshots** —
 </Figure>
 
 Applying a **profile** (a loadout) to a chat — via `POST /api/chats/{id}/profile` — simply
-copies that profile's four references onto the chat and records its name in
-`last_profile_name`. The profile itself is never linked; only its values are copied. This
+copies that profile's references (template, preset, persona, model, and task model) onto the
+chat and records its name in `last_profile_name`. The profile itself is never linked; only its values are copied. This
 is why profiles can be edited or deleted freely without disturbing any chat that once used
 one.
 
@@ -273,7 +275,7 @@ column definitions live in the ORM models under
 
 | Entity | Table | Owns | References | Notes |
 |--------|-------|------|-----------|-------|
-| `Chat` | `chats` | `Message` | `Character` (owner), `Model`, `PromptTemplate`, `Persona`, `Preset` | The session. See [§3](#_3-the-chat-aggregate). Carries `model_name` / profile-name snapshots. |
+| `Chat` | `chats` | `Message` | `Character` (owner), `Model` (×2: main + optional task model), `PromptTemplate`, `Persona`, `Preset` | The session. See [§3](#_3-the-chat-aggregate). Carries `model_name` / profile-name snapshots. |
 | `Message` | `messages` | `MessageAlternative` | `Chat` (owner) | `role` (enum: user/assistant/system), `content`, cached `token_count`, optional `reasoning_content`, and `active_index` picking the live swipe. |
 | `MessageAlternative` | `message_alternatives` | — | `Message` (owner) | A regenerated "swipe". Ordered by `ordinal`. |
 
@@ -300,7 +302,7 @@ column definitions live in the ORM models under
 | `PromptFragment` | `prompt_fragments` | `TemplateFragment` | — | A reusable Jinja2 block (`fragment_type`: system/nsfw/jailbreak/instruction/context). `is_global` fragments are available to every template. |
 | `TemplateFragment` | `template_fragments` | — | `PromptTemplate` (owner), `PromptFragment` (owner) | The **many-to-many join** carrying `position`, `ordinal`, `depth`. Owned by *both* ends. |
 | `Preset` | `presets` | — | — | A named sampling-parameter set (`parameters` JSON). Referenced by `Chat`, `Profile`. |
-| `Profile` | `profiles` | — | `PromptTemplate`, `Preset`, `Persona`, `Model` (all references) | A loadout — a selectable bundle applied to a chat. Owns nothing; `source` / `source_filename` record where an imported one came from. |
+| `Profile` | `profiles` | — | `PromptTemplate`, `Preset`, `Persona`, `Model` (main + optional task model) — all references | A loadout — a selectable bundle applied to a chat. Owns nothing; `source` / `source_filename` record where an imported one came from. |
 
 ### Knowledge & RAG
 
