@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import HTTPException, status
+from sqlalchemy import select
 
 from src.audit.writer import audit_logger
 from src.chat_message.models import Message, MessageRole
@@ -27,6 +28,7 @@ from src.core.exceptions import (
 )
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
+from src.core.persistence.enums import ProviderType
 from src.core.persistence.models import MessageAlternative
 from src.core.schemas import PaginatedResponse, PaginationMeta
 from src.core.utils.reasoning import parse_reasoning_tags
@@ -36,6 +38,7 @@ from src.lore.service import LoreService
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
 from src.provider.gateway import ProviderGateway
+from src.provider.models import Provider
 from src.rag.retrieval_service import RetrievalService
 
 logger = get_logger(__name__)
@@ -141,7 +144,23 @@ class ChatMessageService:
                 detail=f"API key not configured for provider '{provider.name}'. Set {env_var_name}",
             )
 
-    def _build_gateway(self, chat: Chat) -> ProviderGateway:
+    async def _get_openrouter_provider(self) -> Provider:
+        """Resolve the OpenRouter provider row (its base URL + API key) used to
+        route models with use_openrouter=True. Looked up via the chat repo's async
+        session — there is no dedicated async provider repository.
+        """
+        result = await self.chat_repo.db.execute(
+            select(Provider).where(Provider.provider_type == ProviderType.OPENROUTER)
+        )
+        provider = result.scalar_one_or_none()
+        if provider is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="OpenRouter provider is not configured in the database.",
+            )
+        return provider
+
+    async def _build_gateway(self, chat: Chat) -> ProviderGateway:
         """Build a ProviderGateway with optional preset parameters."""
         if chat.model is None:
             raise HTTPException(
@@ -149,9 +168,17 @@ class ChatMessageService:
                 detail="Chat does not have a valid model assigned.",
             )
         preset_params = chat.preset.parameters if chat.preset else None
-        return ProviderGateway(chat.model.provider, chat.model, preset_parameters=preset_params)
+        # OpenRouter-routed models need the OpenRouter provider (base URL + key)
+        # passed explicitly; the gateway raises without it.
+        openrouter = await self._get_openrouter_provider() if chat.model.use_openrouter else None
+        return ProviderGateway(
+            chat.model.provider,
+            chat.model,
+            openrouter_provider=openrouter,
+            preset_parameters=preset_params,
+        )
 
-    def _build_task_gateway(self, chat: Chat) -> ProviderGateway:
+    async def _build_task_gateway(self, chat: Chat) -> ProviderGateway:
         """Gateway for auxiliary calls (titles, suggestions, future RAG query
         building). Uses the chat's configured task model, falling back to the
         main chat model. Runs at model defaults — RP preset params don't apply.
@@ -162,16 +189,24 @@ class ChatMessageService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
-        provider = model.provider
-        if not provider.has_api_key():
+        openrouter = await self._get_openrouter_provider() if model.use_openrouter else None
+        # When routing through OpenRouter, the API key that matters is
+        # OpenRouter's, not the model's home provider.
+        effective_provider = openrouter or model.provider
+        if not effective_provider.has_api_key():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
-                    f"API key not configured for provider '{provider.name}'. "
-                    f"Set {provider.get_env_var_name()}"
+                    f"API key not configured for provider '{effective_provider.name}'. "
+                    f"Set {effective_provider.get_env_var_name()}"
                 ),
             )
-        return ProviderGateway(provider, model, preset_parameters=None)
+        return ProviderGateway(
+            model.provider,
+            model,
+            openrouter_provider=openrouter,
+            preset_parameters=None,
+        )
 
     def _log_token_budget(self, api_messages: list[dict[str, Any]]) -> int:
         """Log estimated prompt token count and return the total."""
@@ -373,7 +408,7 @@ class ChatMessageService:
         else:
             api_messages = [*api_messages, {"role": "user", "content": instruction}]
 
-        gateway = self._build_task_gateway(chat)
+        gateway = await self._build_task_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -444,7 +479,7 @@ class ChatMessageService:
             f"{transcript}"
         )
         api_messages = [{"role": "user", "content": instruction}]
-        gateway = self._build_task_gateway(chat)
+        gateway = await self._build_task_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -514,7 +549,7 @@ class ChatMessageService:
 
         estimated_tokens = self._log_token_budget(api_messages)
 
-        gateway = self._build_gateway(chat)
+        gateway = await self._build_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -612,7 +647,7 @@ class ChatMessageService:
         last_usage = None
         last_finish_reason = None
 
-        gateway = self._build_gateway(chat)
+        gateway = await self._build_gateway(chat)
         start = time.perf_counter()
         try:
             async for chunk in gateway.chat_completion_stream(api_messages):
@@ -796,7 +831,7 @@ class ChatMessageService:
             chat, messages_for_prompt, activated_lore=activated_lore, rag_results=rag_results
         )
 
-        gateway = self._build_gateway(chat)
+        gateway = await self._build_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)

@@ -15,6 +15,7 @@ from src.chat_message import (
 from src.chat_message.schemas import StreamEvent
 from src.chat_session.models import Chat
 from src.chat_session.repository_async import AsyncChatRepository
+from src.core.persistence.enums import ProviderType
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.prompt_template.repository import PromptTemplateRepository
 from src.provider import Provider
@@ -409,3 +410,65 @@ class TestChatMessageService:
         result = await service._retrieve_rag_context(chat, messages)
 
         assert result is None
+
+    @pytest.mark.asyncio
+    async def test_build_task_gateway_routes_openrouter_model(self) -> None:
+        """Regression: a use_openrouter task model must receive the OpenRouter
+        provider, else the gateway raises and suggestions/titles 500."""
+        or_provider = MagicMock()
+        or_provider.provider_type = ProviderType.OPENROUTER
+        or_provider.get_base_url.return_value = "https://openrouter.ai/api/v1"
+        or_provider.get_api_key.return_value = "or-key"
+        or_provider.has_api_key.return_value = True
+        or_provider.name = "OpenRouter"
+
+        model = MagicMock()
+        model.use_openrouter = True
+        model.openrouter_identifier = "meta-llama/llama-3-8b-instruct:free"
+        model.model_identifier = "meta-llama/llama-3-8b-instruct"
+        model.provider = MagicMock()
+
+        chat = MagicMock()
+        chat.task_model = None
+        chat.model = model
+
+        chat_repo = MagicMock()
+        exec_result = MagicMock()
+        exec_result.scalar_one_or_none.return_value = or_provider
+        chat_repo.db.execute = AsyncMock(return_value=exec_result)
+
+        service = ChatMessageService(MagicMock(), chat_repo, MagicMock())
+        gateway = await service._build_task_gateway(chat)
+
+        assert gateway.provider is or_provider
+        assert gateway.active_identifier == "meta-llama/llama-3-8b-instruct:free"
+        assert gateway.base_url == "https://openrouter.ai/api/v1"
+
+    @pytest.mark.asyncio
+    async def test_build_task_gateway_direct_model_skips_openrouter(self) -> None:
+        """A direct (non-OpenRouter) task model must not trigger the OR lookup."""
+        provider = MagicMock()
+        provider.provider_type = ProviderType.OPENAI
+        provider.get_base_url.return_value = "https://api.openai.com/v1"
+        provider.get_api_key.return_value = "sk-x"
+        provider.has_api_key.return_value = True
+        provider.name = "OpenAI"
+
+        model = MagicMock()
+        model.use_openrouter = False
+        model.model_identifier = "gpt-4o-mini"
+        model.provider = provider
+
+        chat = MagicMock()
+        chat.task_model = None
+        chat.model = model
+
+        chat_repo = MagicMock()
+        chat_repo.db.execute = AsyncMock()
+
+        service = ChatMessageService(MagicMock(), chat_repo, MagicMock())
+        gateway = await service._build_task_gateway(chat)
+
+        assert gateway.provider is provider
+        assert gateway.active_identifier == "gpt-4o-mini"
+        chat_repo.db.execute.assert_not_awaited()
