@@ -296,6 +296,12 @@
       "defiantly": "Defiantly",
       "tenderly": "Tenderly"
     },
+    "suggest": {
+      "button": "Suggest replies",
+      "loading": "Thinking…",
+      "back": "Back to tones",
+      "error": "Couldn't reach the model for suggestions."
+    },
     "actions": {
       "regenerate": "Regenerate",
       "copy": "Copy",

@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useChatSessions } from "@/composables/useChatSessions";
 import { useChatMessages } from "@/composables/useChatMessages";
 import { useProfiles } from "@/composables/useProfiles";
+import { useAppToast } from "@/composables/useToast";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
@@ -34,6 +35,8 @@ const {
   messages,
   loading: messagesLoading,
   isGenerating,
+  suggesting,
+  fetchSuggestions,
   hasMore,
   sendMessage,
   loadMore,
@@ -89,6 +92,8 @@ watch(
   () => scrollToBottom(),
 );
 
+// Tone options for #2 (impersonation): clicking drafts the user's next line in
+// their voice, steered by this tone, into the composer for editing.
 const MOOD_CHIPS: MoodChip[] = [
   { id: "mood-1", label: t("chat.moods.boldly") },
   { id: "mood-2", label: t("chat.moods.caution") },
@@ -97,13 +102,37 @@ const MOOD_CHIPS: MoodChip[] = [
   { id: "mood-5", label: t("chat.moods.tenderly") },
 ];
 
+const inputRef = ref<InstanceType<typeof ParchmentInput> | null>(null);
+const toast = useAppToast();
+
+// #1: dynamically generated reply candidates (clicking one sends it).
+const replySuggestions = ref<string[]>([]);
+const replyChips = computed<MoodChip[]>(() =>
+  replySuggestions.value.map((text, i) => ({ id: `sg-${i}`, label: text })),
+);
+
 function handleSend(text: string) {
+  replySuggestions.value = [];
   sendMessage(text);
   scrollToBottom();
 }
 
-function handleMoodSelect(chip: MoodChip) {
-  handleSend(`*${chip.label}* "I understand the risks. Show me what lies within."`);
+// #1 — fetch contextual reply candidates and show them as chips.
+async function loadSuggestions() {
+  const items = await fetchSuggestions({ mode: "reply", count: 3 });
+  if (items.length) replySuggestions.value = items;
+  else toast.error(t("chat.suggest.error"));
+}
+
+function handleReplySelect(chip: MoodChip) {
+  handleSend(chip.label);
+}
+
+// #2 — draft the user's next line in the chosen tone into the composer.
+async function handleToneSelect(chip: MoodChip) {
+  const [draft] = await fetchSuggestions({ mode: "impersonate", tone: chip.label });
+  if (draft) inputRef.value?.setDraft(draft);
+  else toast.error(t("chat.suggest.error"));
 }
 
 function selectSession(id: string) {
@@ -313,13 +342,41 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
             @swipe="handleSwipe"
           />
 
-          <!-- Mood Chips -->
-          <MoodChips v-if="showMoodChips" :chips="MOOD_CHIPS" @select="handleMoodSelect" />
+          <!-- Suggestions bar (after the latest assistant reply) -->
+          <div v-if="showMoodChips" class="flex flex-col items-center gap-1.5 py-2">
+            <!-- #1: dynamic reply candidates — click to send -->
+            <template v-if="replyChips.length">
+              <MoodChips :chips="replyChips" @select="handleReplySelect" />
+              <button
+                class="text-[10px] text-muted-foreground transition-colors hover:text-primary"
+                @click="replySuggestions = []"
+              >
+                {{ $t("chat.suggest.back") }}
+              </button>
+            </template>
+
+            <!-- #2: tone chips (draft into composer) + trigger for #1 -->
+            <template v-else>
+              <MoodChips :chips="MOOD_CHIPS" :disabled="suggesting" @select="handleToneSelect" />
+              <button
+                :disabled="suggesting"
+                class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
+                @click="loadSuggestions"
+              >
+                <UIcon
+                  :name="suggesting ? 'i-lucide-loader-circle' : 'i-lucide-sparkles'"
+                  class="size-3.5"
+                  :class="{ 'animate-spin': suggesting }"
+                />
+                {{ suggesting ? $t("chat.suggest.loading") : $t("chat.suggest.button") }}
+              </button>
+            </template>
+          </div>
         </div>
       </div>
 
       <!-- Input -->
-      <ParchmentInput :disabled="isGenerating" @send="handleSend" />
+      <ParchmentInput ref="inputRef" :disabled="isGenerating" @send="handleSend" />
     </div>
 
     <!-- No session selected -->

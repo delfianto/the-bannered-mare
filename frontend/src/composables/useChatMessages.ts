@@ -92,6 +92,35 @@ export function useChatMessages(
   // Track if we are currently generating (prevents double clicks and triggers scroll)
   const isGenerating = ref(false);
 
+  // Next-turn suggestions (reply candidates / tone-steered impersonation)
+  const suggesting = ref(false);
+
+  const fetchSuggestions = async (opts: {
+    mode: "reply" | "impersonate";
+    tone?: string | null;
+    count?: number;
+  }): Promise<string[]> => {
+    const chatId = getChatId();
+    if (!chatId) return [];
+    suggesting.value = true;
+    try {
+      const { data, error: apiError } = await client.POST(
+        "/api/chats/{chat_id}/messages/suggestions",
+        {
+          params: { path: { chat_id: chatId } },
+          body: { mode: opts.mode, tone: opts.tone ?? null, count: opts.count ?? 3 },
+        },
+      );
+      if (apiError) throw new Error(`Failed to get suggestions: ${JSON.stringify(apiError)}`);
+      return data?.suggestions ?? [];
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Failed to get suggestions");
+      return [];
+    } finally {
+      suggesting.value = false;
+    }
+  };
+
   // Append an empty assistant bubble up front so the UI can show the "pending"
   // (quill) state inside it while we wait for the first token. readStream then
   // fills this same message as events arrive.
@@ -337,6 +366,8 @@ export function useChatMessages(
     hasMore,
     error,
     isGenerating,
+    suggesting,
+    fetchSuggestions,
     regenerate,
     loadMore,
     refresh,

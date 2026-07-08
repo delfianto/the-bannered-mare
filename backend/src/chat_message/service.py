@@ -1,5 +1,7 @@
 """Message business logic service (FULLY ASYNC)"""
 
+import json
+import re
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
@@ -273,6 +275,115 @@ class ChatMessageService:
             chat.updated_at = datetime.now(UTC)
             await self.chat_repo.update(chat)
             await self.chat_repo.commit()
+
+    # --- Next-turn Suggestions (reply candidates / impersonation) ---
+
+    @staticmethod
+    def _parse_suggestion_list(text: str, count: int) -> list[str]:
+        """Best-effort parse of model output into suggestion strings.
+
+        Prefers a JSON array (local models rarely honour strict JSON mode, so
+        this is lenient); falls back to one suggestion per line, stripping
+        list markers (bullets, numbering) and surrounding quotes.
+        """
+        text = text.strip()
+        match = re.search(r"\[[\s\S]*\]", text)
+        if match:
+            try:
+                data = json.loads(match.group(0))
+                if isinstance(data, list):
+                    items = [str(x).strip() for x in data if str(x).strip()]
+                    if items:
+                        return items[:count]
+            except json.JSONDecodeError, ValueError:
+                pass
+
+        items: list[str] = []
+        for raw_line in text.splitlines():
+            line = re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", raw_line.strip())
+            line = line.strip().strip('"').strip()
+            if line:
+                items.append(line)
+        return items[:count]
+
+    async def generate_suggestions(
+        self, chat_id: str, mode: str = "reply", tone: str | None = None, count: int = 3
+    ) -> list[str]:
+        """Generate next-turn suggestions using the chat's own model and context.
+
+        - ``reply``: several short candidate user turns (rendered as chips).
+        - ``impersonate``: one drafted user message in the user's voice.
+        """
+        chat = await self._get_chat_by_id(chat_id)
+        self._validate_model_and_key(chat)
+
+        messages = await self.message_repo.find_by_chat_id(chat_id)
+        activated_lore = self._get_activated_lore(chat, messages)
+        rag_results = await self._retrieve_rag_context(chat, messages)
+        api_messages = self.prompt_builder.build_api_messages(
+            chat, messages, activated_lore=activated_lore, rag_results=rag_results
+        )
+
+        user_name = chat.persona.name if chat.persona else "the user"
+        char_name = chat.character.name if chat.character else "the character"
+
+        if mode == "impersonate":
+            tone_clause = f" Give it a {tone} tone." if tone else ""
+            instruction = (
+                f"You are now writing on behalf of {user_name} (the human user), NOT {char_name}. "
+                f"Compose {user_name}'s next message in the first person, in their voice, "
+                f"continuing the scene naturally.{tone_clause} Output only the message text — no "
+                "quotation marks, no name label, and no commentary about the task."
+            )
+        else:
+            instruction = (
+                f"Do not continue the story as {char_name}. Instead, propose {count} distinct, "
+                f"short options for what {user_name} (the human user) could say or do next — each a "
+                "different tone or direction, each one or two sentences. Respond with ONLY a JSON "
+                'array of strings, e.g. ["...", "...", "..."].'
+            )
+
+        # Keep role alternation valid (some providers reject consecutive user
+        # turns): merge the directive into a trailing user message, else append.
+        if api_messages and api_messages[-1].get("role") == "user":
+            last = dict(api_messages[-1])
+            last["content"] = f"{last['content']}\n\n{instruction}"
+            api_messages = [*api_messages[:-1], last]
+        else:
+            api_messages = [*api_messages, {"role": "user", "content": instruction}]
+
+        gateway = self._build_gateway(chat)
+        start = time.perf_counter()
+        try:
+            response = await gateway.chat_completion(api_messages)
+        except Exception as e:
+            await self._record_llm_audit(
+                gateway=gateway,
+                api_messages=api_messages,
+                chat_id=chat_id,
+                latency_ms=(time.perf_counter() - start) * 1000,
+                error=e,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error communicating with AI provider: {e!s}",
+            ) from e
+
+        await self._record_llm_audit(
+            gateway=gateway,
+            api_messages=api_messages,
+            chat_id=chat_id,
+            latency_ms=(time.perf_counter() - start) * 1000,
+            content=response.content,
+            finish_reason=response.finish_reason,
+            usage=response.usage,
+        )
+
+        content = (response.content or "").strip()
+        if mode == "impersonate":
+            draft = content.strip().strip('"').strip()
+            return [draft] if draft else []
+        return self._parse_suggestion_list(content, count)
 
     # --- Message Editing (6.1) ---
 

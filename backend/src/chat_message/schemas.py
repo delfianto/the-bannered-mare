@@ -2,6 +2,7 @@
 
 from dataclasses import asdict, dataclass
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -56,6 +57,25 @@ class AlternativeResponse(BaseModel):
 
 # Paginated response type alias
 MessageListResponse = PaginatedResponse[MessageResponse]
+
+
+class SuggestionRequest(BaseModel):
+    """Request for next-turn suggestions.
+
+    - ``reply``: propose several short, distinct actions the user could send next.
+    - ``impersonate``: draft a single user message in the user's voice, optionally
+      steered by ``tone`` (e.g. "defiant", "tender").
+    """
+
+    mode: Literal["reply", "impersonate"] = "reply"
+    tone: str | None = Field(default=None, max_length=40, description="Tone to steer the draft")
+    count: int = Field(default=3, ge=1, le=6, description="How many suggestions (reply mode)")
+
+
+class SuggestionResponse(BaseModel):
+    """Generated suggestions. `reply` returns several; `impersonate` returns one."""
+
+    suggestions: list[str]
 
 
 @dataclass

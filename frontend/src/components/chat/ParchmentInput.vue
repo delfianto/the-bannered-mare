@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 
 defineProps<{
   disabled?: boolean;
@@ -14,6 +14,21 @@ const focused = ref(false);
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
 const canSend = computed(() => value.value.trim().length > 0);
+
+// Prefill the composer (e.g. with an impersonated draft) and focus it so the
+// user can edit before sending.
+function setDraft(text: string) {
+  value.value = text;
+  void nextTick(() => {
+    const el = textareaRef.value;
+    if (!el) return;
+    el.focus();
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 140) + "px";
+  });
+}
+
+defineExpose({ setDraft });
 
 function handleInput(e: Event) {
   const el = e.target as HTMLTextAreaElement;

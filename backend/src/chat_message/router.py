@@ -13,6 +13,8 @@ from src.chat_message.schemas import (
     MessageResponse,
     MessageUpdate,
     StreamEvent,
+    SuggestionRequest,
+    SuggestionResponse,
     stream_event_to_dict,
 )
 from src.chat_message.service import ChatMessageService
@@ -108,6 +110,24 @@ async def _handle_blocking(
 
     msg = await service.send_message(chat_id, message_data.content)  # type: ignore
     return MessageResponse.model_validate(msg)
+
+
+@router.post("/suggestions", response_model=SuggestionResponse)
+async def suggest_next_turn(
+    chat_id: str,
+    body: SuggestionRequest,
+    service: ChatMessageServiceDep,
+):
+    """Generate next-turn suggestions for the user.
+
+    - **reply**: several short candidate replies (rendered as clickable chips).
+    - **impersonate**: one drafted user message in the user's voice, optionally
+      steered by a `tone`.
+    """
+    suggestions = await service.generate_suggestions(
+        chat_id, mode=body.mode, tone=body.tone, count=body.count
+    )
+    return SuggestionResponse(suggestions=suggestions)
 
 
 @router.put("/{message_id}", response_model=MessageResponse)

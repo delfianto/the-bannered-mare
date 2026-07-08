@@ -2665,6 +2665,59 @@
         }
       }
     },
+    "/api/chats/{chat_id}/messages/suggestions": {
+      "post": {
+        "tags": [
+          "messages"
+        ],
+        "summary": "Suggest Next Turn",
+        "description": "Generate next-turn suggestions for the user.\n\n- **reply**: several short candidate replies (rendered as clickable chips).\n- **impersonate**: one drafted user message in the user's voice, optionally\n  steered by a `tone`.",
+        "operationId": "suggest_next_turn_api_chats__chat_id__messages_suggestions_post",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/chats/{chat_id}/messages/{message_id}": {
       "put": {
         "tags": [
@@ -10704,6 +10757,60 @@
         ],
         "title": "SecondaryLogic",
         "description": "Logic for combining primary and secondary keyword matches"
+      },
+      "SuggestionRequest": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "reply",
+              "impersonate"
+            ],
+            "title": "Mode",
+            "default": "reply"
+          },
+          "tone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tone",
+            "description": "Tone to steer the draft"
+          },
+          "count": {
+            "type": "integer",
+            "maximum": 6.0,
+            "minimum": 1.0,
+            "title": "Count",
+            "description": "How many suggestions (reply mode)",
+            "default": 3
+          }
+        },
+        "type": "object",
+        "title": "SuggestionRequest",
+        "description": "Request for next-turn suggestions.\n\n- ``reply``: propose several short, distinct actions the user could send next.\n- ``impersonate``: draft a single user message in the user's voice, optionally\n  steered by ``tone`` (e.g. \"defiant\", \"tender\")."
+      },
+      "SuggestionResponse": {
+        "properties": {
+          "suggestions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "suggestions"
+        ],
+        "title": "SuggestionResponse",
+        "description": "Generated suggestions. `reply` returns several; `impersonate` returns one."
       },
       "TemplateFragmentResponse": {
         "properties": {
