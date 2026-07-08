@@ -13,6 +13,7 @@ const emit = defineEmits<{
 
 const tabs = [
   { id: "profiles", label: t("profiles.tabs.profiles") || "Profiles", icon: "i-lucide-layers" },
+  { id: "personas", label: t("profiles.tabs.personas"), icon: "i-lucide-user-circle" },
   { id: "presets", label: t("connections.tabs.presets"), icon: "i-lucide-sliders-horizontal" },
   { id: "templates", label: t("connections.tabs.templates"), icon: "i-lucide-file-text" },
   { id: "fragments", label: t("connections.tabs.fragments"), icon: "i-lucide-puzzle" },

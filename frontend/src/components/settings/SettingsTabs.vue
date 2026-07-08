@@ -14,7 +14,6 @@ const emit = defineEmits<{
 
 const tabs = computed(() => [
   { id: "interface", label: t("settings.tabs.interface"), icon: "i-lucide-palette" },
-  { id: "persona", label: t("settings.tabs.persona"), icon: "i-lucide-user-circle" },
   { id: "logs", label: t("settings.tabs.logs"), icon: "i-lucide-scroll-text" },
   { id: "about", label: t("settings.tabs.about"), icon: "i-lucide-info" },
 ]);
