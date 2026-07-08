@@ -26,13 +26,21 @@ TEMPERATURE: NumericParameterSchema = {
     "max_value": 2.0,
 }
 
-# Anthropic caps temperature at 1.0 (values >1 are rejected natively; the
-# OpenAI-compat layer clamps them). Claude families use this instead of the 0–2
-# TEMPERATURE. Several open-weight vendors share the same 1.0 ceiling (GLM, Kimi,
-# MiniMax) but declare it inline.
+# Anthropic caps temperature at 1.0 (values >1 are rejected natively) and treats
+# temperature and top_p as MUTUALLY EXCLUSIVE — sending both 400s on Claude 4.x.
+# So neither carries a default: a plain request sends neither and Anthropic applies
+# its own default (temperature 1.0), and there's nothing to auto-pair into a 400.
+# The adapter additionally drops top_p if both are ever set together. Several
+# open-weight vendors share the 1.0 ceiling (GLM, Kimi, MiniMax) but declare it
+# inline.
 CLAUDE_TEMPERATURE: NumericParameterSchema = {
     "type": "float",
-    "default": 1.0,
+    "min_value": 0.0,
+    "max_value": 1.0,
+}
+
+CLAUDE_TOP_P: NumericParameterSchema = {
+    "type": "float",
     "min_value": 0.0,
     "max_value": 1.0,
 }
@@ -191,7 +199,7 @@ GEMINI_35_SAMPLING: dict[str, Any] = {
 # sampling parameters entirely; see CLAUDE_47_BASE.
 CLAUDE_45_BASE: dict[str, Any] = {
     "temperature": CLAUDE_TEMPERATURE,
-    "top_p": TOP_P,
+    "top_p": CLAUDE_TOP_P,
     "top_k": TOP_K,
     "stop_sequences": STOP_LIST,
     "stream": STREAM,
@@ -207,7 +215,7 @@ CLAUDE_45_BASE: dict[str, Any] = {
 
 CLAUDE_46_BASE: dict[str, Any] = {
     "temperature": CLAUDE_TEMPERATURE,
-    "top_p": TOP_P,
+    "top_p": CLAUDE_TOP_P,
     "top_k": TOP_K,
     "stop_sequences": STOP_LIST,
     "stream": STREAM,

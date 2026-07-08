@@ -11,10 +11,10 @@ from src.fixtures.model_families import ModelFamilySeedData
 from src.fixtures.parameter_definitions import (
     CLAUDE_47_BASE,
     CLAUDE_TEMPERATURE,
+    CLAUDE_TOP_P,
     STOP_LIST,
     STREAM,
     TOP_K,
-    TOP_P,
 )
 
 CLAUDE_OPUS_FAMILIES: list[ModelFamilySeedData] = [
@@ -27,7 +27,7 @@ CLAUDE_OPUS_FAMILIES: list[ModelFamilySeedData] = [
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 32768},
             "effort": {"type": "enum", "default": "high", "str_values": ["low", "medium", "high"]},
             "temperature": CLAUDE_TEMPERATURE,
-            "top_p": TOP_P,
+            "top_p": CLAUDE_TOP_P,
             "top_k": {**TOP_K, "max_value": 500},
             "stop_sequences": STOP_LIST,
             "stream": STREAM,
@@ -63,7 +63,7 @@ CLAUDE_OPUS_FAMILIES: list[ModelFamilySeedData] = [
                 "str_values": ["low", "medium", "high", "max"],
             },
             "temperature": CLAUDE_TEMPERATURE,
-            "top_p": TOP_P,
+            "top_p": CLAUDE_TOP_P,
             "top_k": {**TOP_K, "max_value": 500},
             "stop_sequences": STOP_LIST,
             "stream": STREAM,

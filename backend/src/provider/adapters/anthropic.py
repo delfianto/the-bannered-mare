@@ -76,12 +76,13 @@ class AnthropicAdapter(ProviderAdapter):
         # max_tokens is required by Anthropic
         payload["max_tokens"] = parameters.get("max_tokens", 4096)
 
+        # temperature and top_p are mutually exclusive on Claude 4.x (sending both
+        # 400s). Prefer temperature; only fall back to top_p when temperature is unset.
         temp = parameters.get("temperature")
+        top_p = parameters.get("top_p")
         if temp is not None:
             payload["temperature"] = min(float(temp), 1.0)
-
-        top_p = parameters.get("top_p")
-        if top_p is not None:
+        elif top_p is not None:
             payload["top_p"] = top_p
 
         top_k = parameters.get("top_k")
