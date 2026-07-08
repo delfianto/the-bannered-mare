@@ -60,7 +60,8 @@ live under `views/settings/`.
 - **Route**: `/loadouts`
 - **Role**: Manages roleplay "profiles" (loadouts) and the prompt-building resources they compose. Tabs via `?tab=`.
 - **Tabs**:
-  - **Profiles** (`ProfilesTab`): Named loadouts bundling a model, template, and preset.
+  - **Profiles** (`ProfilesTab`): Named loadouts bundling a model, template, preset, persona, and an optional task model.
+  - **Personas** (`PersonaTab`): The user's own roleplay identities (name + description). Moved here from Settings — it's a loadout building block like the rest.
   - **Presets** (`PresetsTab`): Inference-parameter sets (temperature, penalties, …).
   - **Templates** (`TemplatesTab`): Prompt templates — component order, system template, history limits.
   - **Fragments** (`FragmentsTab`): Reusable prompt fragments (system, NSFW, jailbreak, instruction, context).
@@ -89,14 +90,14 @@ live under `views/settings/`.
 
 ## 10. Settings & Detail Views (`views/settings/`)
 
-- **`SettingsView.vue`** (`/settings`, also the target of `/persona`) — App settings with tabs: **Interface**, **Persona**, **Logs**, and **About**.
+- **`SettingsView.vue`** (`/settings`) — App settings with tabs: **Interface**, **Logs**, and **About**. (Persona management moved to the **Loadouts** page — see §6.)
 - **Detail / edit pages** opened from Connections and Loadouts rows:
   - `ProviderView.vue` (`/settings/providers/:id`) — provider credentials, model sync, and load/unload actions (see [LLM Harness](llm-harness.md)).
   - `ModelCreateView.vue` (`/settings/models/create`) and `ModelView.vue` (`/settings/models/:id`) — create/edit a model.
   - `ModelFamilyView.vue` (`/settings/model-families/:id`) — edit a model family.
   - `TemplateView.vue`, `FragmentView.vue`, `PresetView.vue` (`/settings/templates|fragments|presets/:id`) — edit a prompt template, fragment, or preset.
 
-> A standalone `PersonaView.vue` file exists but is a stub and is not routed; the `/persona` route resolves to `SettingsView.vue`.
+> A standalone `PersonaView.vue` file exists but is a stub and is not routed; the legacy `/persona` route now redirects to `/loadouts?tab=personas`.
 
 
 ## 11. Setup Wizard (`SetupWizardView.vue`)

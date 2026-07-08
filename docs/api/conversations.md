@@ -21,6 +21,7 @@ relationships — a chat's one owner and four references — see
 | `PUT` | `/api/chats/{id}` | Update title, model, preset, or bookmark flag. |
 | `DELETE` | `/api/chats/{id}` | Delete a chat (cascades to its messages). |
 | `POST` | `/api/chats/{id}/profile` | Apply a profile (loadout) to the chat. |
+| `POST` | `/api/chats/{id}/title` | Auto-generate and persist a concise title. |
 
 ### The chat resource
 
@@ -36,6 +37,7 @@ a list renders without extra round-trips:
 | `character` | object | `{ id, name, avatar, avatar_thumbnail }`. |
 | `model` | object | `{ id, name }` — nullable fields (the model may have been deleted). |
 | `template_id`, `preset_id`, `persona_id` | string \| null | The referenced loadout axes. |
+| `task_model_id` | string \| null | Optional cheaper model for auxiliary calls; null ⇒ use `model`. |
 | `initial_profile_name`, `last_profile_name` | string \| null | Provenance snapshots (plain strings, not FKs). |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
 
@@ -60,13 +62,26 @@ and `is_bookmarked` — this is also how you **bookmark** a session.
 ### Applying a profile
 
 `POST /api/chats/{id}/profile` takes `{ "profile_id": "…" }` and **copies** that profile's
-four references (template, preset, persona, model) onto the chat, recording its name in
-`last_profile_name`. The profile is never linked — only its values are copied — so editing
-or deleting the profile afterward never disturbs the chat.
+references (template, preset, persona, model, and task model) onto the chat, recording its
+name in `last_profile_name`. The profile is never linked — only its values are copied — so
+editing or deleting the profile afterward never disturbs the chat.
 
 ```bash
 curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/profile \
   -H "Content-Type: application/json" -d '{ "profile_id": "aB3dEf6hIjK0" }'   # → ChatResponse
+```
+
+### Auto-generating a title
+
+`POST /api/chats/{id}/title` summarizes the recent turns into a short title, saves it to the
+chat, and returns `{ "title": "…" }`. The UI fires this once, right after the first
+user↔assistant exchange, when the chat has no title yet. Like all auxiliary calls it runs on
+the chat's **task model** (falling back to the main `model` when none is set — see
+[the task-model note](/api/prompt-building#profiles)), so titling need not spend the big
+model's tokens.
+
+```bash
+curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/title   # → { "title": "The Road to Ivarstead" }
 ```
 
 ## Messages
@@ -75,6 +90,7 @@ curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/profile \
 |--------|------|---------|
 | `GET` | `/api/chats/{id}/messages` | List a chat's messages (cursor-paginated). |
 | `POST` | `/api/chats/{id}/messages` | Send a message, or regenerate the last reply. |
+| `POST` | `/api/chats/{id}/messages/suggestions` | Suggest next-turn replies, or draft one in the user's voice. |
 | `PUT` | `/api/chats/{id}/messages/{message_id}` | Edit a message's content. |
 | `GET` | `/api/chats/{id}/messages/{message_id}/alternatives` | List a message's swipes. |
 | `PUT` | `/api/chats/{id}/messages/{message_id}/alternatives/{alternative_id}/activate` | Switch the active swipe. |
@@ -131,6 +147,36 @@ recounts its tokens. **Swipes** are alternative assistant responses: list them w
 `token_count`, `created_at`), and switch which one is live with `PUT
 …/alternatives/{alternative_id}/activate`, which returns the updated `MessageResponse` with
 its `active_index` moved.
+
+### Reply suggestions
+
+`POST /api/chats/{id}/messages/suggestions` generates next-turn ideas from the conversation
+so far. It **does not** send or store anything — it just returns `{ "suggestions": [...] }`.
+The request body picks the mode:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `mode` | `"reply"` \| `"impersonate"` | Default `"reply"`. |
+| `tone` | string \| null | Steers the draft's tone (mainly for `impersonate`), e.g. `"defiant"`. |
+| `count` | integer (1–6) | How many suggestions in `reply` mode. Default `3`. |
+
+- **`reply`** — several short, distinct options for what the user could say next (rendered as
+  clickable chips; clicking one sends it).
+- **`impersonate`** — one message drafted in the *user's* voice, optionally in `tone`
+  (dropped into the composer to edit before sending).
+
+Both run on the chat's **task model** (falling back to the main `model`), so cheap models can
+carry this without spending the roleplay model's budget.
+
+```bash
+# three contextual reply options
+curl -X POST "http://localhost:8000/api/chats/V1StGXR8Z5jd/messages/suggestions" \
+  -H "Content-Type: application/json" -d '{ "mode": "reply", "count": 3 }'
+
+# draft the user's next line, defiantly
+curl -X POST "http://localhost:8000/api/chats/V1StGXR8Z5jd/messages/suggestions" \
+  -H "Content-Type: application/json" -d '{ "mode": "impersonate", "tone": "defiant" }'
+```
 
 ## Bookmarks
 
