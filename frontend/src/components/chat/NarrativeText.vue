@@ -9,9 +9,21 @@ interface TextNode {
   key: string;
 }
 
+// Some models (especially uncensored finetunes) inject raw HTML "graphics"
+// blocks — e.g. `<!-- GFX_START --><div style="…">…</div>`. We render narrative
+// as escaped text, so those would show up as literal tags. Strip HTML comments
+// and tags (a tag must start with a letter, so a stray `<` in "5 < 10" survives).
+function stripHtml(raw: string): string {
+  return raw
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<\/?[a-zA-Z][^>]*>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 const nodes = computed<TextNode[]>(() => {
   const result: TextNode[] = [];
-  const paragraphs = props.content.split("\n\n");
+  const paragraphs = stripHtml(props.content).split("\n\n");
 
   paragraphs.forEach((para, pIdx) => {
     if (pIdx > 0) {
