@@ -78,8 +78,8 @@ function openFamily(row: any) {
           class="flex items-center gap-2 rounded-lg border px-3 transition-all duration-200"
           :class="
             searchFocused
-              ? 'border-primary/40 bg-background shadow-[0_0_0_3px_var(--color-primary)/0.08]'
-              : 'border-border bg-muted/40 hover:border-muted-foreground/30'
+              ? 'border-primary/40 bg-base-100 shadow-[0_0_0_3px_var(--color-primary)/0.08]'
+              : 'border-border bg-base-300/40 hover:border-muted-foreground/30'
           "
         >
           <AppIcon
@@ -110,7 +110,7 @@ function openFamily(row: any) {
         @update:model-value="handleProviderTypeFilter"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-server" class="size-3.5" />
           {{ providerTypeLabel }}
@@ -125,7 +125,7 @@ function openFamily(row: any) {
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
@@ -156,7 +156,7 @@ function openFamily(row: any) {
             <span
               v-for="pt in row.provider_types.slice(0, 4)"
               :key="pt"
-              class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
+              class="rounded-full bg-base-300 px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
             >
               {{ pt }}
             </span>

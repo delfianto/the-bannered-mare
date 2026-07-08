@@ -17,7 +17,7 @@ defineEmits<{
       class="rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200"
       :class="
         active === cat
-          ? 'bg-primary text-primary-foreground'
+          ? 'bg-primary text-primary-content'
           : 'border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground'
       "
       @click="$emit('change', cat)"

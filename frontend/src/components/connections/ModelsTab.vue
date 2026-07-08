@@ -152,8 +152,8 @@ async function handleToggleEnabled(row: any, event: Event) {
           class="flex items-center gap-2 rounded-lg border px-3 transition-all duration-200"
           :class="
             searchFocused
-              ? 'border-primary/40 bg-background shadow-[0_0_0_3px_var(--color-primary)/0.08]'
-              : 'border-border bg-muted/40 hover:border-muted-foreground/30'
+              ? 'border-primary/40 bg-base-100 shadow-[0_0_0_3px_var(--color-primary)/0.08]'
+              : 'border-border bg-base-300/40 hover:border-muted-foreground/30'
           "
         >
           <AppIcon
@@ -184,7 +184,7 @@ async function handleToggleEnabled(row: any, event: Event) {
         @update:model-value="handleProviderFilter"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-server" class="size-3.5" />
           {{ providerLabel }}
@@ -199,7 +199,7 @@ async function handleToggleEnabled(row: any, event: Event) {
         @update:model-value="handleFamilyFilter"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-layers" class="size-3.5" />
           {{ familyLabel }}
@@ -215,7 +215,7 @@ async function handleToggleEnabled(row: any, event: Event) {
         @update:model-value="handleStatusFilter"
       >
         <button
-          class="flex h-9 min-w-[150px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-[150px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-toggle-left" class="size-3.5" />
           {{ statusLabel }}
@@ -230,7 +230,7 @@ async function handleToggleEnabled(row: any, event: Event) {
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
@@ -272,7 +272,7 @@ async function handleToggleEnabled(row: any, event: Event) {
             >
               <span
                 class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                :class="row.enabled ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+                :class="row.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
               />
             </div>
           </button>

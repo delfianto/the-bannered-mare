@@ -61,7 +61,7 @@ function handleImport(e: Event) {
         :value="data.scenario"
         placeholder="You have descended into the ruins beneath the coastal city of Thornhaven, following rumors of the legendary Sunken Library…"
         rows="4"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-base-300/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'scenario', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>
@@ -128,7 +128,7 @@ function handleImport(e: Event) {
     <div class="grid grid-cols-2 gap-3">
       <button
         type="button"
-        class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
+        class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-base-300/30"
         @click="importRef?.click()"
       >
         <AppIcon name="i-lucide-upload" class="size-5 text-muted-foreground" />
@@ -149,7 +149,7 @@ function handleImport(e: Event) {
 
       <button
         type="button"
-        class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-accent/30"
+        class="flex flex-col items-center gap-2 rounded-xl border border-dashed py-5 transition-all hover:border-primary/40 hover:bg-base-300/30"
         @click="emit('export')"
       >
         <AppIcon name="i-lucide-download" class="size-5 text-muted-foreground" />

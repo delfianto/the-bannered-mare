@@ -64,7 +64,7 @@ function onChange(e: Event) {
       </template>
       <template v-else>
         <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4">
-          <div class="flex size-12 items-center justify-center rounded-full bg-muted">
+          <div class="flex size-12 items-center justify-center rounded-full bg-base-300">
             <AppIcon
               name="i-lucide-image-plus"
               class="size-6"

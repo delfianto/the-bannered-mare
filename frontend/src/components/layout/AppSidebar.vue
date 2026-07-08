@@ -42,7 +42,7 @@ const favorites = computed(() => {
 
 <template>
   <aside
-    class="hidden h-screen flex-col overflow-hidden border-r bg-secondary transition-[width,min-width] duration-300 ease-in-out lg:flex"
+    class="hidden h-screen flex-col overflow-hidden border-r bg-base-200 transition-[width,min-width] duration-300 ease-in-out lg:flex"
     :class="collapsed ? 'w-[68px] min-w-[68px]' : 'w-[260px] min-w-[260px]'"
   >
     <!-- Brand Mark -->
@@ -54,7 +54,7 @@ const favorites = computed(() => {
           :aria-label="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           @click="toggleSidebar"
         >
-          <AppIcon name="i-lucide-flame" class="size-5 text-primary-foreground" />
+          <AppIcon name="i-lucide-flame" class="size-5 text-primary-content" />
         </button>
         <h1
           v-if="!collapsed"
@@ -76,8 +76,8 @@ const favorites = computed(() => {
           :class="[
             navItems.length % 2 !== 0 && i === navItems.length - 1 ? 'col-span-2' : '',
             isActive(item.to)
-              ? 'bg-accent text-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
+              ? 'bg-base-300 text-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-base-300/50 hover:text-foreground',
           ]"
         >
           <span
@@ -102,8 +102,8 @@ const favorites = computed(() => {
             class="relative flex w-full items-center justify-center rounded-lg py-2.5 transition-colors duration-200"
             :class="
               isActive(item.to)
-                ? 'text-foreground bg-accent'
-                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                ? 'text-foreground bg-base-300'
+                : 'text-muted-foreground hover:text-foreground hover:bg-base-300/50'
             "
           >
             <span
@@ -139,8 +139,8 @@ const favorites = computed(() => {
             v-for="char in favorites"
             :key="char.id"
             :to="char.chatPath"
-            class="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-accent/50"
-            :class="route.path === char.chatPath ? 'bg-accent' : ''"
+            class="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-base-300/50"
+            :class="route.path === char.chatPath ? 'bg-base-300' : ''"
           >
             <div class="relative shrink-0">
               <img
@@ -149,7 +149,7 @@ const favorites = computed(() => {
                 class="size-10 rounded-full object-cover ring-1 ring-border"
               />
               <span
-                class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-secondary bg-emerald-500"
+                class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-200 bg-emerald-500"
               />
             </div>
             <p class="truncate text-sm font-medium text-foreground">
@@ -182,7 +182,7 @@ const favorites = computed(() => {
                 "
               />
               <span
-                class="absolute right-2.5 bottom-1 size-2 rounded-full border-[1.5px] border-secondary bg-emerald-500"
+                class="absolute right-2.5 bottom-1 size-2 rounded-full border-[1.5px] border-base-200 bg-emerald-500"
               />
             </RouterLink>
           </AppTooltip>
@@ -195,10 +195,10 @@ const favorites = computed(() => {
       <AppTooltip :text="$t('nav.settings')" side="right" :disabled="!collapsed" class="block">
         <RouterLink
           to="/settings"
-          class="flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+          class="flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground"
           :class="[
             collapsed ? 'justify-center px-0' : 'gap-3 px-3',
-            isActive('/settings') ? 'bg-accent text-foreground' : '',
+            isActive('/settings') ? 'bg-base-300 text-foreground' : '',
           ]"
         >
           <AppIcon name="i-lucide-settings" class="size-[18px] shrink-0" />
@@ -213,7 +213,7 @@ const favorites = computed(() => {
         class="block"
       >
         <button
-          class="flex w-full items-center rounded-lg py-2.5 transition-colors hover:bg-accent/50"
+          class="flex w-full items-center rounded-lg py-2.5 transition-colors hover:bg-base-300/50"
           :class="collapsed ? 'justify-center px-0' : 'justify-between px-3'"
           role="switch"
           :aria-checked="isDark"
@@ -236,7 +236,7 @@ const favorites = computed(() => {
           >
             <span
               class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="isDark ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+              :class="isDark ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
             />
           </div>
         </button>

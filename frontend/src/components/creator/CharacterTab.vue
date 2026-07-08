@@ -44,7 +44,7 @@ const emit = defineEmits<{
           <input
             :value="data.name"
             placeholder="Isolde Fenwick"
-            class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+            class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             @input="emit('update:field', 'name', ($event.target as HTMLInputElement).value)"
           />
         </FormField>
@@ -53,7 +53,7 @@ const emit = defineEmits<{
           <input
             :value="data.title"
             placeholder="Arcane Librarian of the Sunken Vaults"
-            class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+            class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             @input="emit('update:field', 'title', ($event.target as HTMLInputElement).value)"
           />
         </FormField>
@@ -79,7 +79,7 @@ const emit = defineEmits<{
             <input
               :value="data.age"
               placeholder="127"
-              class="h-11 w-full rounded-lg border bg-muted/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+              class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               @input="emit('update:field', 'age', ($event.target as HTMLInputElement).value)"
             />
           </FormField>
@@ -95,7 +95,7 @@ const emit = defineEmits<{
         :value="data.creatorNotes"
         placeholder="A model student makes their parents proud..."
         rows="2"
-        class="w-full resize-y rounded-lg border bg-muted/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="w-full resize-y rounded-lg border bg-base-300/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="emit('update:field', 'creatorNotes', ($event.target as HTMLTextAreaElement).value)"
       />
     </FormField>

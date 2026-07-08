@@ -26,9 +26,9 @@ const teaser = computed(() => props.content.replace(/\s+/g, " ").trim().slice(0,
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-lg border border-border/50 bg-background/40">
+  <div class="overflow-hidden rounded-lg border border-border/50 bg-base-100/40">
     <button
-      class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-accent/40"
+      class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-base-300/40"
       @click="open = !open"
     >
       <div class="flex min-w-0 items-center gap-2.5">

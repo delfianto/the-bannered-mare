@@ -47,7 +47,7 @@ function timeAgo(dateStr: string): string {
 
 <template>
   <div
-    class="group flex animate-fade-in-up items-center gap-4 rounded-xl border bg-card/50 px-4 py-3 transition-all duration-200 hover:bg-muted/40 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+    class="group flex animate-fade-in-up items-center gap-4 rounded-xl border bg-base-200/50 px-4 py-3 transition-all duration-200 hover:bg-base-300/40 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
     :style="{ animationDelay: `${index * 40}ms` }"
     @click="handleClick"
   >
@@ -55,9 +55,9 @@ function timeAgo(dateStr: string): string {
     <div v-if="selectMode" class="shrink-0">
       <div
         class="flex size-5 items-center justify-center rounded border-2 transition-colors"
-        :class="selected ? 'border-primary bg-primary' : 'border-border bg-muted/40'"
+        :class="selected ? 'border-primary bg-primary' : 'border-border bg-base-300/40'"
       >
-        <AppIcon v-if="selected" name="i-lucide-check" class="size-3.5 text-primary-foreground" />
+        <AppIcon v-if="selected" name="i-lucide-check" class="size-3.5 text-primary-content" />
       </div>
     </div>
 
@@ -84,7 +84,7 @@ function timeAgo(dateStr: string): string {
         <span
           v-for="tag in (character.tags ?? []).slice(0, 3)"
           :key="tag"
-          class="rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
+          class="rounded-full bg-base-300 px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
         >
           {{ tag }}
         </span>

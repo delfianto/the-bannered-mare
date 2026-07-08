@@ -11,8 +11,8 @@ const query = ref("");
       class="flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-300"
       :class="
         focused
-          ? 'border-primary bg-background shadow-[0_0_0_3px_var(--color-primary)/0.12]'
-          : 'border-border bg-muted/40 hover:border-muted-foreground/30'
+          ? 'border-primary bg-base-100 shadow-[0_0_0_3px_var(--color-primary)/0.12]'
+          : 'border-border bg-base-300/40 hover:border-muted-foreground/30'
       "
     >
       <AppIcon

@@ -52,10 +52,10 @@ function formatUrl(url: string | null): string {
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="refresh"
       >
         {{ $t("common.retry") }}
@@ -68,14 +68,14 @@ function formatUrl(url: string | null): string {
         v-for="(provider, index) in sortedProviders"
         :key="provider.id"
         :to="`/settings/providers/${provider.id}`"
-        class="group flex animate-fade-in-up cursor-pointer flex-col gap-2.5 rounded-xl border bg-card/50 p-3 transition-all hover:border-muted-foreground/20 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group flex animate-fade-in-up cursor-pointer flex-col gap-2.5 rounded-xl border bg-base-200/50 p-3 transition-all hover:border-muted-foreground/20 hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
       >
         <!-- Header: icon + name + enabled -->
         <div class="flex items-center justify-between gap-2">
           <div class="flex min-w-0 items-center gap-2">
             <div
-              class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent p-1.5"
+              class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-base-300 p-1.5"
             >
               <img
                 :src="getIcon(provider.provider_type)"

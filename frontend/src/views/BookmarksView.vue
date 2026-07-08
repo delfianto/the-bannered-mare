@@ -77,14 +77,14 @@ function timeAgo(dateStr: string): string {
           </div>
           <div class="flex items-center gap-1.5">
             <button
-              class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
               :aria-label="$t('bookmarks.scrollLeft')"
               @click="scroll('left')"
             >
               <AppIcon name="i-lucide-chevron-left" class="size-4" />
             </button>
             <button
-              class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
               :aria-label="$t('bookmarks.scrollRight')"
               @click="scroll('right')"
             >
@@ -98,7 +98,7 @@ function timeAgo(dateStr: string): string {
             v-for="(char, i) in characters"
             :key="char.id"
             :to="`/characters/${char.id}`"
-            class="group relative aspect-3/4 w-[220px] min-w-[220px] animate-fade-in-up cursor-pointer overflow-hidden rounded-xl border bg-card transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.12]"
+            class="group relative aspect-3/4 w-[220px] min-w-[220px] animate-fade-in-up cursor-pointer overflow-hidden rounded-xl border bg-base-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.12]"
             :style="{ animationDelay: `${i * 60}ms` }"
           >
             <img
@@ -147,7 +147,7 @@ function timeAgo(dateStr: string): string {
             v-for="(session, i) in sessions"
             :key="session.id"
             :to="`/chats/${session.id}`"
-            class="group flex animate-fade-in-up items-center gap-4 rounded-xl border bg-card/50 p-4 transition-all hover:bg-accent/30"
+            class="group flex animate-fade-in-up items-center gap-4 rounded-xl border bg-base-200/50 p-4 transition-all hover:bg-base-300/30"
             :style="{ animationDelay: `${i * 50 + 200}ms` }"
           >
             <img
@@ -191,7 +191,7 @@ function timeAgo(dateStr: string): string {
           <div
             v-for="(msg, i) in messages"
             :key="msg.id"
-            class="group animate-fade-in-up rounded-xl border bg-card/50 p-5 transition-all hover:shadow-lg"
+            class="group animate-fade-in-up rounded-xl border bg-base-200/50 p-5 transition-all hover:shadow-lg"
             :style="{ animationDelay: `${i * 60 + 300}ms` }"
           >
             <!-- Message header -->
@@ -225,7 +225,7 @@ function timeAgo(dateStr: string): string {
             <!-- Footer -->
             <div class="mt-4 flex items-center justify-end border-t border-border/30 pt-3">
               <button
-                class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+                class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-error"
                 :aria-label="$t('bookmarks.removeBookmark')"
               >
                 <AppIcon name="i-lucide-trash-2" class="size-4" />

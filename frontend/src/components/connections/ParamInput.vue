@@ -176,7 +176,7 @@ function updateObjectProp(key: string, val: unknown) {
       >
         <span
           class="size-4 rounded-full shadow-sm transition-transform"
-          :class="boolValue ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+          :class="boolValue ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
         />
       </div>
     </button>
@@ -197,7 +197,7 @@ function updateObjectProp(key: string, val: unknown) {
       >
         <span
           class="size-4 rounded-full shadow-sm transition-transform"
-          :class="enabledDisabledValue ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+          :class="enabledDisabledValue ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
         />
       </div>
     </button>
@@ -213,7 +213,7 @@ function updateObjectProp(key: string, val: unknown) {
       :class="layout === 'horizontal' ? 'max-w-[180px]' : 'w-full'"
     >
       <button
-        class="flex h-9 items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
+        class="flex h-9 items-center justify-between gap-2 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
         :class="layout === 'horizontal' ? 'w-[180px]' : 'w-full'"
       >
         <span class="truncate">{{ selectValue || "Select..." }}</span>
@@ -243,7 +243,7 @@ function updateObjectProp(key: string, val: unknown) {
         :max="schema.max_value"
         :step="step"
         :value="numberValue"
-        class="h-9 w-[90px] shrink-0 rounded-lg border bg-muted/40 px-3 text-center font-mono text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-9 w-[90px] shrink-0 rounded-lg border bg-base-300/40 px-3 text-center font-mono text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="numberValue = parseFloat(($event.target as HTMLInputElement).value)"
       />
     </div>
@@ -257,7 +257,7 @@ function updateObjectProp(key: string, val: unknown) {
       :min="schema.min_value"
       :max="schema.max_value"
       :value="numberValue"
-      class="h-9 rounded-lg border bg-muted/40 px-3 font-mono text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="h-9 rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
       :class="layout === 'horizontal' ? 'w-[120px]' : 'w-full'"
       @input="numberValue = parseFloat(($event.target as HTMLInputElement).value)"
     />
@@ -269,13 +269,13 @@ function updateObjectProp(key: string, val: unknown) {
       v-if="layout === 'vertical'"
       v-model="stringValue"
       rows="3"
-      class="w-full rounded-lg border bg-muted/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
     />
     <input
       v-else
       v-model="stringValue"
       type="text"
-      class="h-9 max-w-[280px] rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="h-9 max-w-[280px] rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
     />
   </template>
 
@@ -286,7 +286,7 @@ function updateObjectProp(key: string, val: unknown) {
         <span
           v-for="(tag, i) in tagItems"
           :key="i"
-          class="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-xs text-foreground"
+          class="inline-flex items-center gap-1 rounded-full bg-base-300 px-2.5 py-0.5 text-xs text-foreground"
         >
           {{ tag }}
           <button
@@ -301,7 +301,7 @@ function updateObjectProp(key: string, val: unknown) {
       <input
         type="text"
         placeholder="Type and press Enter"
-        class="h-9 w-full rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-9 w-full rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @keydown="handleTagKeydown"
       />
     </div>
@@ -313,7 +313,7 @@ function updateObjectProp(key: string, val: unknown) {
       <div
         v-for="(item, i) in listItems"
         :key="i"
-        class="rounded-lg border border-border/50 bg-muted/10 p-3"
+        class="rounded-lg border border-border/50 bg-base-300/10 p-3"
       >
         <div class="mb-1 text-[10px] font-medium text-muted-foreground uppercase">
           Item {{ i + 1 }}
@@ -363,7 +363,7 @@ function updateObjectProp(key: string, val: unknown) {
     <textarea
       v-model="jsonValue"
       rows="4"
-      class="w-full rounded-lg border bg-muted/40 px-4 py-3 font-mono text-xs text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-xs text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
       :class="layout === 'horizontal' ? 'max-w-[300px]' : ''"
     />
   </template>

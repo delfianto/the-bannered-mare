@@ -57,7 +57,7 @@ function handleKeyDown(e: KeyboardEvent) {
 <template>
   <div class="px-4 pt-2 pb-4">
     <div
-      class="relative flex items-center gap-3 rounded-xl border bg-card px-4 py-3 transition-all duration-300"
+      class="relative flex items-center gap-3 rounded-xl border bg-base-200 px-4 py-3 transition-all duration-300"
       :class="
         focused
           ? 'border-primary/40 shadow-[0_0_0_3px_var(--color-primary)/0.1,0_2px_16px_var(--color-primary)/0.08]'
@@ -94,8 +94,8 @@ function handleKeyDown(e: KeyboardEvent) {
         class="flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
         :class="
           canSend && !disabled
-            ? 'bg-primary text-primary-foreground shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]'
-            : 'cursor-not-allowed bg-muted text-muted-foreground'
+            ? 'bg-primary text-primary-content shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]'
+            : 'cursor-not-allowed bg-base-300 text-muted-foreground'
         "
         @click="handleSend"
       >

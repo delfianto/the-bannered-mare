@@ -70,7 +70,7 @@ function sourceTypeBadge(type: string): string {
     case "character":
       return "bg-amber-500/15 text-amber-400";
     default:
-      return "bg-accent text-foreground";
+      return "bg-base-300 text-foreground";
   }
 }
 
@@ -180,7 +180,7 @@ function scopeBadgeClass(scope: string): string {
     case "chat":
       return "bg-amber-500/15 text-amber-400";
     default:
-      return "bg-accent text-foreground";
+      return "bg-base-300 text-foreground";
   }
 }
 </script>
@@ -207,7 +207,7 @@ function scopeBadgeClass(scope: string): string {
         </div>
         <button
           v-if="entries.length > 0"
-          class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          class="flex items-center gap-2 rounded-lg border bg-base-200 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
           @click="openCreateForm"
         >
           <AppIcon name="i-lucide-plus" class="size-4" />
@@ -218,7 +218,7 @@ function scopeBadgeClass(scope: string): string {
 
     <div class="flex w-full flex-1 flex-col space-y-8">
       <!-- Inline Create/Edit Form -->
-      <div v-if="showForm" class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
+      <div v-if="showForm" class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
         <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
           {{ editingId ? $t("memory.form.editEntry") : $t("memory.form.newEntry") }}
         </h2>
@@ -231,7 +231,7 @@ function scopeBadgeClass(scope: string): string {
               v-model="formName"
               type="text"
               :placeholder="$t('memory.form.namePlaceholder')"
-              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+              class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </label>
           <label class="block">
@@ -240,7 +240,7 @@ function scopeBadgeClass(scope: string): string {
             }}</span>
             <select
               v-model="formScope"
-              class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+              class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
             >
               <option value="global">{{ $t("memory.scopes.global") }}</option>
               <option value="character">{{ $t("memory.scopes.character") }}</option>
@@ -255,18 +255,18 @@ function scopeBadgeClass(scope: string): string {
               v-model="formContent"
               rows="4"
               :placeholder="$t('memory.form.contentPlaceholder')"
-              class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+              class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </label>
           <div class="flex items-center gap-3">
             <button
-              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
               @click="saveForm"
             >
               {{ editingId ? $t("memory.form.saveChanges") : $t("memory.form.createEntry") }}
             </button>
             <button
-              class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
               @click="cancelForm"
             >
               {{ $t("common.cancel") }}
@@ -286,10 +286,10 @@ function scopeBadgeClass(scope: string): string {
 
         <!-- Error -->
         <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-          <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+          <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
           <p class="text-sm text-muted-foreground">{{ error.message }}</p>
           <button
-            class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+            class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
             @click="refresh()"
           >
             {{ $t("common.retry") }}
@@ -309,7 +309,7 @@ function scopeBadgeClass(scope: string): string {
         <template v-else>
           <!-- RAG Search Section -->
           <div
-            class="animate-fade-in-up rounded-xl border bg-card/50 p-5"
+            class="animate-fade-in-up rounded-xl border bg-base-200/50 p-5"
             style="animation-delay: 30ms"
           >
             <h2
@@ -329,12 +329,12 @@ function scopeBadgeClass(scope: string): string {
                   :placeholder="$t('memory.searchPlaceholder')"
                   aria-label="Semantic search"
                   autocomplete="off"
-                  class="w-full rounded-lg border bg-background py-2 pr-3 pl-10 text-sm text-foreground transition-shadow placeholder:text-muted-foreground/50 focus:shadow-[0_0_12px_var(--color-primary)/0.15] focus:ring-1 focus:ring-primary focus:outline-none"
+                  class="w-full rounded-lg border bg-base-100 py-2 pr-3 pl-10 text-sm text-foreground transition-shadow placeholder:text-muted-foreground/50 focus:shadow-[0_0_12px_var(--color-primary)/0.15] focus:ring-1 focus:ring-primary focus:outline-none"
                   @keydown.enter="onSearch"
                 />
               </div>
               <button
-                class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                class="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
                 :disabled="searchLoading || !searchQuery.trim()"
                 @click="onSearch"
               >
@@ -370,7 +370,7 @@ function scopeBadgeClass(scope: string): string {
               <div
                 v-for="(result, i) in searchResults"
                 :key="i"
-                class="rounded-lg border border-border/50 bg-background/50 p-4 transition-colors hover:bg-background/80"
+                class="rounded-lg border border-border/50 bg-base-100/50 p-4 transition-colors hover:bg-base-100/80"
               >
                 <div class="mb-2 flex items-center gap-2">
                   <span
@@ -401,8 +401,8 @@ function scopeBadgeClass(scope: string): string {
               class="rounded-full px-4 py-1.5 text-xs font-medium tracking-wide transition-colors"
               :class="
                 scopeFilter === scope.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-accent/60 text-muted-foreground hover:bg-accent hover:text-foreground'
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-300/60 text-muted-foreground hover:bg-base-300 hover:text-foreground'
               "
               @click="onScopeChange(scope.id)"
             >
@@ -425,7 +425,7 @@ function scopeBadgeClass(scope: string): string {
             <div
               v-for="(entry, index) in filteredEntries"
               :key="entry.id"
-              class="group relative flex animate-fade-in-up flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+              class="group relative flex animate-fade-in-up flex-col rounded-xl border bg-base-200/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
               :style="{ animationDelay: `${index * 30}ms` }"
             >
               <!-- Header -->
@@ -472,9 +472,7 @@ function scopeBadgeClass(scope: string): string {
                 </button>
                 <button
                   class="flex items-center gap-1"
-                  :class="
-                    pendingDeleteId === entry.id ? 'text-destructive!' : 'hover:text-destructive'
-                  "
+                  :class="pendingDeleteId === entry.id ? 'text-error!' : 'hover:text-error'"
                   @click.stop="onDeleteClick(entry.id)"
                   @mouseleave="cancelDelete"
                 >

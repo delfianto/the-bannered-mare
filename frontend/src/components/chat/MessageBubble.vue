@@ -115,7 +115,7 @@ const userActions = [
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
         :aria-label="$t('chat.swipe.previous')"
-        class="absolute top-1/2 -left-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
+        class="absolute top-1/2 -left-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-base-300/80 text-foreground transition-all hover:bg-base-300"
         @click="emit('swipe', message.id, 'left')"
       >
         <AppIcon name="i-lucide-chevron-left" class="size-4" />
@@ -125,7 +125,7 @@ const userActions = [
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
         :aria-label="$t('chat.swipe.next')"
-        class="absolute top-1/2 -right-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-accent/80 text-foreground transition-all hover:bg-accent"
+        class="absolute top-1/2 -right-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-full bg-base-300/80 text-foreground transition-all hover:bg-base-300"
         @click="emit('swipe', message.id, 'right')"
       >
         <AppIcon name="i-lucide-chevron-right" class="size-4" />
@@ -146,7 +146,7 @@ const userActions = [
         :class="[
           isUser
             ? 'rounded-tr-md border border-primary/20 bg-primary/10'
-            : 'rounded-tl-md border bg-muted',
+            : 'rounded-tl-md border bg-base-300',
           hovered
             ? isUser
               ? 'shadow-[0_4px_20px_var(--color-primary)/0.12]'
@@ -158,20 +158,20 @@ const userActions = [
         <template v-if="isEditing">
           <textarea
             v-model="editContent"
-            class="w-full resize-none rounded-lg border bg-muted/40 px-3 py-2 text-sm leading-relaxed text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/30"
+            class="w-full resize-none rounded-lg border bg-base-300/40 px-3 py-2 text-sm leading-relaxed text-foreground outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/30"
             rows="4"
             autofocus
             @keydown="handleEditKeydown"
           />
           <div class="mt-2 flex items-center justify-end gap-2">
             <button
-              class="rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              class="rounded-md px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
               @click="cancelEdit"
             >
               {{ $t("common.cancel") }}
             </button>
             <button
-              class="rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground transition-colors hover:bg-primary/90"
+              class="rounded-md bg-primary px-3 py-1.5 text-xs text-primary-content transition-colors hover:bg-primary/90"
               @click="saveEdit"
             >
               {{ $t("common.save") }}
@@ -208,7 +208,7 @@ const userActions = [
         <!-- Alternative counter badge (assistant only) -->
         <span
           v-if="hasAlternatives && !isUser"
-          class="rounded-full bg-accent/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+          class="rounded-full bg-base-300/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
         >
           {{ (currentAltIndex ?? 0) + 1 }} / {{ alternativeCount }}
         </span>

@@ -42,26 +42,13 @@
   }
 }
 
-/* ── Temporary bridge (removed in Phase 5) ──
-   Maps the shadcn-style utility names still used across the app to daisyUI's
-   theme vars, so bg-card / text-foreground / bg-muted / bg-accent / … keep
-   resolving until the codemod renames them to daisyUI's vocabulary. The
-   retained tokens (border/input/ring/muted-foreground) reference the runtime
-   custom properties emitted by each daisyUI theme and stay permanently. */
+/* ── Retained tokens ──
+   daisyUI has no equivalent for these, so the app keeps them: the muted
+   foreground tone, the hairline border/input color, and the focus ring — each
+   emitted per-theme in themes.css. Plus a `foreground` alias so the app's
+   text-foreground / bg-foreground read daisyUI's base-content. */
 @theme inline {
-  --color-background: var(--color-base-100);
   --color-foreground: var(--color-base-content);
-  --color-card: var(--color-base-200);
-  --color-card-foreground: var(--color-base-content);
-  --color-popover: var(--color-base-200);
-  --color-popover-foreground: var(--color-base-content);
-  --color-secondary: var(--color-base-200);
-  --color-secondary-foreground: var(--color-base-content);
-  --color-muted: var(--color-base-300);
-  --color-accent: var(--color-base-300);
-  --color-accent-foreground: var(--color-base-content);
-  --color-primary-foreground: var(--color-primary-content);
-  --color-destructive: var(--color-error);
   --color-muted-foreground: var(--color-muted-foreground);
   --color-border: var(--color-border);
   --color-input: var(--color-input);

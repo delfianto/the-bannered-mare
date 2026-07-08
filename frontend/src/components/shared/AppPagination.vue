@@ -48,7 +48,7 @@ function go(p: number) {
 
     <div class="flex items-center gap-1">
       <button
-        class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-40"
+        class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-base-300 disabled:pointer-events-none disabled:opacity-40"
         :disabled="page <= 1"
         aria-label="Previous page"
         @click="go(page - 1)"
@@ -64,7 +64,7 @@ function go(p: number) {
           :class="
             p === page
               ? 'border-primary/40 bg-primary/10 text-primary'
-              : 'text-muted-foreground hover:bg-accent'
+              : 'text-muted-foreground hover:bg-base-300'
           "
           :aria-current="p === page ? 'page' : undefined"
           @click="go(p as number)"
@@ -74,7 +74,7 @@ function go(p: number) {
       </template>
 
       <button
-        class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-40"
+        class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-base-300 disabled:pointer-events-none disabled:opacity-40"
         :disabled="page >= totalPages"
         aria-label="Next page"
         @click="go(page + 1)"

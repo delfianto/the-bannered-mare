@@ -35,7 +35,7 @@ function typeBadgeClass(type: string): string {
     case "jailbreak":
       return "bg-orange-500/15 text-orange-400";
     default:
-      return "bg-accent text-foreground";
+      return "bg-base-300 text-foreground";
   }
 }
 
@@ -61,7 +61,7 @@ const columns: DataTableColumn[] = [
         :class="
           unusedOnly
             ? 'border-amber-500/40 bg-amber-500/10 text-amber-500'
-            : 'text-muted-foreground hover:bg-accent'
+            : 'text-muted-foreground hover:bg-base-300'
         "
         @click="toggleUnusedOnly"
       >
@@ -80,10 +80,10 @@ const columns: DataTableColumn[] = [
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="refresh"
       >
         {{ $t("common.retry") }}

@@ -62,7 +62,7 @@ const responseMeta = computed(() => {
 });
 
 const roleColors: Record<string, string> = {
-  system: "bg-muted text-muted-foreground",
+  system: "bg-base-300 text-muted-foreground",
   user: "bg-blue-500/10 text-blue-500",
   assistant: "bg-primary/10 text-primary",
 };
@@ -121,7 +121,7 @@ function formatFullTimestamp(iso: string): string {
         </div>
         <pre
           v-if="httpLog.request_body"
-          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
+          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
           >{{ prettyJson(httpLog.request_body) }}</pre
         >
         <div v-else class="rounded-lg border border-dashed border-border/30 p-3 text-xs">
@@ -146,7 +146,7 @@ function formatFullTimestamp(iso: string): string {
         </div>
         <pre
           v-if="httpLog.response_body"
-          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
+          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
           >{{ prettyJson(httpLog.response_body) }}</pre
         >
         <div v-else class="rounded-lg border border-dashed border-border/30 p-3 text-xs">
@@ -194,14 +194,10 @@ function formatFullTimestamp(iso: string): string {
           </button>
         </div>
         <div class="max-h-80 space-y-2 overflow-auto rounded-lg border border-border/20 p-2">
-          <div
-            v-for="(msg, i) in requestMessages"
-            :key="i"
-            class="rounded-lg bg-background/60 p-2.5"
-          >
+          <div v-for="(msg, i) in requestMessages" :key="i" class="rounded-lg bg-base-100/60 p-2.5">
             <span
               class="mb-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
-              :class="roleColors[msg.role] ?? 'bg-muted text-muted-foreground'"
+              :class="roleColors[msg.role] ?? 'bg-base-300 text-muted-foreground'"
             >
               {{ msg.role }}
             </span>
@@ -230,7 +226,7 @@ function formatFullTimestamp(iso: string): string {
         <div v-if="responsePayload" class="space-y-2">
           <pre
             v-if="responseContent"
-            class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground"
+            class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground"
             >{{ responseContent }}</pre
           >
           <details v-if="responseReasoning" class="rounded-lg border border-border/20">
@@ -240,13 +236,13 @@ function formatFullTimestamp(iso: string): string {
               {{ $t("settings.logs.reasoning") }}
             </summary>
             <pre
-              class="max-h-64 overflow-auto border-t border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground"
+              class="max-h-64 overflow-auto border-t border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground"
               >{{ responseReasoning }}</pre
             >
           </details>
           <pre
             v-if="responseMeta && Object.keys(responseMeta).length"
-            class="overflow-x-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
+            class="overflow-x-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
             >{{ prettyJson(responseMeta) }}</pre
           >
         </div>
@@ -275,7 +271,7 @@ function formatFullTimestamp(iso: string): string {
           {{ $t("settings.logs.stackTrace") }}
         </h3>
         <pre
-          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
+          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
           >{{ errLog.stack_trace }}</pre
         >
       </div>
@@ -285,7 +281,7 @@ function formatFullTimestamp(iso: string): string {
           {{ $t("settings.logs.context") }}
         </h3>
         <pre
-          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-background/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
+          class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
           >{{ prettyJson(errLog.context) }}</pre
         >
       </div>

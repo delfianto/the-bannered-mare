@@ -45,14 +45,14 @@ function importAnother() {
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('close')" />
 
     <div
-      class="relative z-10 w-full max-w-lg animate-fade-in-up rounded-xl border bg-card p-6 shadow-xl"
+      class="relative z-10 w-full max-w-lg animate-fade-in-up rounded-xl border bg-base-200 p-6 shadow-xl"
     >
       <div class="mb-4 flex items-center justify-between">
         <h2 class="font-cinzel text-lg font-bold tracking-wide text-foreground">
           {{ $t("presetImport.title") }}
         </h2>
         <button
-          class="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           :aria-label="$t('common.cancel')"
           @click="emit('close')"
         >
@@ -118,13 +118,13 @@ function importAnother() {
 
         <div class="flex items-center gap-3">
           <button
-            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
             @click="emit('close')"
           >
             {{ $t("presetImport.done") }}
           </button>
           <button
-            class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             @click="importAnother"
           >
             {{ $t("presetImport.importAnother") }}
@@ -140,7 +140,7 @@ function importAnother() {
           :class="
             dragging
               ? 'border-primary bg-primary/5'
-              : 'border-border hover:border-primary/40 hover:bg-accent/30'
+              : 'border-border hover:border-primary/40 hover:bg-base-300/30'
           "
           :disabled="importing"
           @click="browse"
@@ -161,7 +161,7 @@ function importAnother() {
             <p class="mt-1 text-xs text-muted-foreground">{{ $t("presetImport.dropzoneHint") }}</p>
           </div>
         </button>
-        <p v-if="error" class="mt-3 text-sm text-destructive">{{ $t("presetImport.failed") }}</p>
+        <p v-if="error" class="mt-3 text-sm text-error">{{ $t("presetImport.failed") }}</p>
       </div>
     </div>
   </div>

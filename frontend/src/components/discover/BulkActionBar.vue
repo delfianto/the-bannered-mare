@@ -22,21 +22,21 @@ defineEmits<{
   >
     <div
       v-if="visible && selectedCount > 0"
-      class="flex items-center justify-between rounded-xl border bg-card px-4 py-2.5 shadow-lg"
+      class="flex items-center justify-between rounded-xl border bg-base-200 px-4 py-2.5 shadow-lg"
     >
       <p class="text-sm font-medium text-foreground">
         {{ $t("common.selected", { count: selectedCount }) }}
       </p>
       <div class="flex items-center gap-2">
         <button
-          class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+          class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300/60"
           @click="$emit('export')"
         >
           <AppIcon name="i-lucide-download" class="size-3.5" />
           {{ $t("characters.bulkExport") }}
         </button>
         <button
-          class="flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-destructive/90"
+          class="flex items-center gap-1.5 rounded-lg bg-error px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-error/90"
           @click="$emit('delete')"
         >
           <AppIcon name="i-lucide-trash-2" class="size-3.5" />
@@ -44,7 +44,7 @@ defineEmits<{
         </button>
         <button
           :aria-label="$t('characters.cancelSelection')"
-          class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+          class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-base-300/60 hover:text-foreground"
           @click="$emit('cancel')"
         >
           <AppIcon name="i-lucide-x" class="size-4" />

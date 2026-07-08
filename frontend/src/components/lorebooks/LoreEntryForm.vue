@@ -94,7 +94,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="animate-fade-in-up rounded-xl border bg-card/50 p-6">
+  <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
     <h3 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
       {{ initial ? $t("lorebooks.entryForm.editTitle") : $t("lorebooks.entryForm.newTitle") }}
     </h3>
@@ -108,7 +108,7 @@ function onSubmit() {
           v-model="name"
           type="text"
           :placeholder="$t('lorebooks.entryForm.namePlaceholder')"
-          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+          class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -120,7 +120,7 @@ function onSubmit() {
           v-model="keysText"
           type="text"
           :placeholder="$t('lorebooks.entryForm.keysPlaceholder')"
-          class="w-full rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+          class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -132,7 +132,7 @@ function onSubmit() {
           v-model="content"
           rows="4"
           :placeholder="$t('lorebooks.entryForm.contentPlaceholder')"
-          class="w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+          class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
         />
       </label>
 
@@ -143,7 +143,7 @@ function onSubmit() {
           }}</span>
           <select
             v-model="position"
-            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+            class="h-[38px] w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           >
             <option v-for="p in positions" :key="p.value" :value="p.value">{{ p.label }}</option>
           </select>
@@ -155,7 +155,7 @@ function onSubmit() {
           <input
             v-model.number="order"
             type="number"
-            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+            class="h-[38px] w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
         <label class="block">
@@ -165,7 +165,7 @@ function onSubmit() {
           <input
             v-model.number="priority"
             type="number"
-            class="h-[38px] w-full rounded-lg border bg-background px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+            class="h-[38px] w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
       </div>
@@ -173,7 +173,7 @@ function onSubmit() {
       <div class="flex flex-wrap gap-3">
         <button
           type="button"
-          class="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2"
+          class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
           role="switch"
           :aria-checked="enabled"
           @click="enabled = !enabled"
@@ -184,7 +184,7 @@ function onSubmit() {
           >
             <span
               class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-              :class="enabled ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
+              :class="enabled ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
             />
           </span>
           <span class="text-sm text-foreground">{{ $t("lorebooks.entryForm.enabled") }}</span>
@@ -192,7 +192,7 @@ function onSubmit() {
 
         <button
           type="button"
-          class="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2"
+          class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
           role="switch"
           :aria-checked="constant"
           @click="constant = !constant"
@@ -203,7 +203,7 @@ function onSubmit() {
           >
             <span
               class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-              :class="constant ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
+              :class="constant ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
             />
           </span>
           <span class="text-sm text-foreground">{{ $t("lorebooks.entryForm.constant") }}</span>
@@ -212,14 +212,14 @@ function onSubmit() {
 
       <div class="flex items-center gap-3 pt-1">
         <button
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
           :disabled="saving || !name.trim() || !content.trim()"
           @click="onSubmit"
         >
           {{ initial ? $t("lorebooks.entryForm.save") : $t("lorebooks.entryForm.add") }}
         </button>
         <button
-          class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="$emit('cancel')"
         >
           {{ $t("common.cancel") }}

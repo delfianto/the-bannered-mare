@@ -266,14 +266,14 @@ async function onFileSelected(event: Event) {
         <template v-if="!hasFilters" #action>
           <div class="flex items-center gap-3">
             <button
-              class="flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+              class="flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300/60"
               @click="openImportDialog"
             >
               <AppIcon name="i-lucide-download" class="size-4" />
               {{ $t("characters.importBtn") }}
             </button>
             <button
-              class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              class="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
               @click="navigateToCreate"
             >
               <AppIcon name="i-lucide-plus" class="size-4" />

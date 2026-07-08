@@ -44,7 +44,7 @@ function handleBlur(e: FocusEvent) {
       <input
         :value="open ? filter : modelValue"
         :placeholder="placeholder"
-        class="h-11 w-full rounded-lg border bg-muted/40 px-4 pr-10 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-11 w-full rounded-lg border bg-base-300/40 px-4 pr-10 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="
           filter = ($event.target as HTMLInputElement).value;
           open = true;
@@ -66,7 +66,7 @@ function handleBlur(e: FocusEvent) {
     </div>
     <div
       v-if="open && filtered.length > 0"
-      class="absolute inset-x-0 top-full z-30 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg"
+      class="absolute inset-x-0 top-full z-30 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-base-200 shadow-lg"
     >
       <button
         v-for="opt in filtered"
@@ -75,8 +75,8 @@ function handleBlur(e: FocusEvent) {
         class="w-full px-4 py-2.5 text-left text-sm transition-colors"
         :class="
           opt === modelValue
-            ? 'bg-accent font-medium text-foreground'
-            : 'text-foreground hover:bg-accent/50'
+            ? 'bg-base-300 font-medium text-foreground'
+            : 'text-foreground hover:bg-base-300/50'
         "
         @mousedown.prevent
         @click="select(opt)"

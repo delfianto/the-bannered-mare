@@ -27,7 +27,7 @@ const getTypeClasses = (type: string) => {
       };
     case "error":
       return {
-        border: "border-destructive/20 bg-red-50 dark:bg-red-950/85",
+        border: "border-error/20 bg-red-50 dark:bg-red-950/85",
         text: "text-red-900 dark:text-red-100",
         desc: "text-red-700 dark:text-red-300",
         icon: "text-red-600/90 dark:text-red-400",

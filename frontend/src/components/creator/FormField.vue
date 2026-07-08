@@ -19,7 +19,7 @@ defineProps<{
     <div v-if="charMax !== undefined" class="flex justify-end">
       <span
         class="text-[11px]"
-        :class="(charCount || 0) > charMax ? 'text-destructive' : 'text-muted-foreground'"
+        :class="(charCount || 0) > charMax ? 'text-error' : 'text-muted-foreground'"
       >
         {{ charCount || 0 }}/{{ charMax }}
       </span>

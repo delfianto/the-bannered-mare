@@ -98,11 +98,11 @@ onUnmounted(() => {
 
 <template>
   <header
-    class="z-10 flex h-[62px] shrink-0 items-center justify-between border-b bg-background/80 px-5 backdrop-blur-sm"
+    class="z-10 flex h-[62px] shrink-0 items-center justify-between border-b bg-base-100/80 px-5 backdrop-blur-sm"
   >
     <button
       :aria-label="$t('common.goBack')"
-      class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+      class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
       @click="emit('back')"
     >
       <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
@@ -116,7 +116,7 @@ onUnmounted(() => {
           class="size-9 rounded-full object-cover ring-2 ring-primary/30"
         />
         <div
-          class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-background bg-emerald-500"
+          class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-100 bg-emerald-500"
         />
       </div>
       <div class="text-center">
@@ -129,7 +129,7 @@ onUnmounted(() => {
         <template v-if="renaming">
           <input
             v-model="editTitle"
-            class="mt-0.5 w-full rounded border border-primary/40 bg-muted/40 px-1.5 py-0.5 text-center text-[11px] leading-tight text-foreground outline-none focus:ring-1 focus:ring-primary/30"
+            class="mt-0.5 w-full rounded border border-primary/40 bg-base-300/40 px-1.5 py-0.5 text-center text-[11px] leading-tight text-foreground outline-none focus:ring-1 focus:ring-primary/30"
             autofocus
             @keydown="handleRenameKeydown"
             @blur="saveRename"
@@ -153,7 +153,7 @@ onUnmounted(() => {
       <div ref="menuRef" class="relative">
         <button
           :aria-label="$t('chat.sessionMenu')"
-          class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="toggleMenu"
         >
           <AppIcon name="i-lucide-more-horizontal" class="size-[18px]" />
@@ -162,18 +162,18 @@ onUnmounted(() => {
         <!-- Dropdown Menu -->
         <div
           v-if="menuOpen"
-          class="absolute top-full right-0 mt-1 min-w-[160px] rounded-lg border bg-card py-1 shadow-lg"
+          class="absolute top-full right-0 mt-1 min-w-[160px] rounded-lg border bg-base-200 py-1 shadow-lg"
         >
           <button
-            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent/50"
+            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-base-300/50"
             @click="startRename"
           >
             <AppIcon name="i-lucide-pencil" class="size-4" />
             {{ $t("chat.rename") }}
           </button>
           <button
-            class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-accent/50"
-            :class="confirmDelete ? 'text-destructive font-medium' : 'text-destructive'"
+            class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-base-300/50"
+            :class="confirmDelete ? 'text-error font-medium' : 'text-error'"
             @click="handleDelete"
           >
             <AppIcon name="i-lucide-trash-2" class="size-4" />

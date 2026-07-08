@@ -22,7 +22,7 @@ const positionLabels: Record<string, string> = {
 
 <template>
   <div
-    class="group relative flex flex-col rounded-xl border bg-card/50 p-4 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+    class="group relative flex flex-col rounded-xl border bg-base-200/50 p-4 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
     :class="{ 'opacity-60': !entry.enabled }"
   >
     <!-- Header: name + enabled toggle -->
@@ -44,7 +44,7 @@ const positionLabels: Record<string, string> = {
         >
           <span
             class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-            :class="entry.enabled ? 'translate-x-[14px] bg-background' : 'translate-x-0 bg-white'"
+            :class="entry.enabled ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
           />
         </span>
       </button>
@@ -55,7 +55,7 @@ const positionLabels: Record<string, string> = {
       <span
         v-for="k in entry.keys ?? []"
         :key="k"
-        class="rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+        class="rounded-full bg-base-300 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
       >
         {{ k }}
       </span>
@@ -93,7 +93,7 @@ const positionLabels: Record<string, string> = {
         </button>
         <button
           class="flex items-center gap-1"
-          :class="pendingDelete ? 'text-destructive!' : 'hover:text-destructive'"
+          :class="pendingDelete ? 'text-error!' : 'hover:text-error'"
           @click="$emit('delete')"
         >
           <AppIcon name="i-lucide-trash-2" class="size-3" />

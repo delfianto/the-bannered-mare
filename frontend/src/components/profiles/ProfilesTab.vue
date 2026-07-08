@@ -105,7 +105,7 @@ function cancelDelete() {
     <!-- Header/Button Row inside the tab -->
     <div v-if="!showForm && !loading && profiles.length > 0" class="flex justify-end">
       <button
-        class="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+        class="flex items-center gap-2 rounded-lg border bg-base-200 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
         @click="openCreate"
       >
         <AppIcon name="i-lucide-plus" class="size-4" />
@@ -133,10 +133,10 @@ function cancelDelete() {
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="refresh()"
       >
         {{ $t("common.retry") }}

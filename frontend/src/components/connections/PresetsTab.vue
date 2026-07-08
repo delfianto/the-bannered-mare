@@ -21,7 +21,7 @@ function onImported() {
   <div>
     <div v-if="!loading && presets.length > 0" class="mb-4 flex justify-end">
       <button
-        class="flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+        class="flex items-center gap-2 rounded-lg border bg-base-200 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
         @click="showImport = true"
       >
         <AppIcon name="i-lucide-upload" class="size-4" />
@@ -38,10 +38,10 @@ function onImported() {
 
     <!-- Error -->
     <div v-else-if="error" class="flex flex-col items-center justify-center gap-3 py-20">
-      <AppIcon name="i-lucide-alert-circle" class="size-8 text-destructive" />
+      <AppIcon name="i-lucide-alert-circle" class="size-8 text-error" />
       <p class="text-sm text-muted-foreground">{{ error.message }}</p>
       <button
-        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+        class="rounded-lg border px-4 py-2 text-sm text-foreground transition-colors hover:bg-base-300"
         @click="refresh"
       >
         {{ $t("common.retry") }}
@@ -64,7 +64,7 @@ function onImported() {
         v-for="(preset, index) in presets"
         :key="preset.id"
         :to="`/settings/presets/${preset.id}`"
-        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-card/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-base-200/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
       >
         <!-- Header -->
@@ -76,7 +76,7 @@ function onImported() {
           </div>
           <span
             v-if="preset.is_default"
-            class="shrink-0 rounded-full bg-accent px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
+            class="shrink-0 rounded-full bg-base-300 px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
           >
             Default
           </span>

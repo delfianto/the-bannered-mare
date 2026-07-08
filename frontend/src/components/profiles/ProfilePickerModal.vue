@@ -37,7 +37,7 @@ function resolve(
         v-for="profile in profiles"
         :key="profile.id"
         type="button"
-        class="flex w-full flex-col items-start gap-0.5 rounded-lg border bg-muted/40 px-3 py-2.5 text-left transition-colors hover:border-primary/40 hover:bg-accent"
+        class="flex w-full flex-col items-start gap-0.5 rounded-lg border bg-base-300/40 px-3 py-2.5 text-left transition-colors hover:border-primary/40 hover:bg-base-300"
         @click="emit('choose', profile.id)"
       >
         <span class="flex w-full items-center gap-2 text-sm font-medium text-foreground">

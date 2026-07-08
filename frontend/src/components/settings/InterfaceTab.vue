@@ -52,7 +52,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
       >
         {{ $t("settings.interface.behavior") }}
       </h3>
-      <div class="space-y-5 rounded-xl border bg-card/50 p-5">
+      <div class="space-y-5 rounded-xl border bg-base-200/50 p-5">
         <!-- Stream Responses -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -76,7 +76,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           >
             <span
               class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="streamResponses ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+              :class="streamResponses ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
             />
           </button>
         </div>
@@ -107,7 +107,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           >
             <span
               class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="typingIndicator ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+              :class="typingIndicator ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
             />
           </button>
         </div>
@@ -135,7 +135,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             :search-input="false"
           >
             <button
-              class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-muted/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
+              class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
             >
               {{ SUPPORTED_LOCALES.find((l) => l.code === currentLocale)?.name }}
               <AppIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
@@ -152,7 +152,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
       >
         {{ $t("settings.interface.colorScheme") }}
       </h3>
-      <div class="space-y-5 rounded-xl border bg-card/50 p-5">
+      <div class="space-y-5 rounded-xl border bg-base-200/50 p-5">
         <!-- Dark mode toggle -->
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -179,7 +179,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           >
             <span
               class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="isDark ? 'translate-x-4 bg-background' : 'translate-x-0 bg-white'"
+              :class="isDark ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
             />
           </button>
         </div>
@@ -194,7 +194,9 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             :key="preset.id"
             class="group relative flex flex-col items-center gap-2 rounded-xl p-2.5 transition-all"
             :class="
-              colorScheme === preset.id ? 'ring-2 ring-primary bg-accent/30' : 'hover:bg-accent/20'
+              colorScheme === preset.id
+                ? 'ring-2 ring-primary bg-base-300/30'
+                : 'hover:bg-base-300/20'
             "
             :aria-label="`Select ${preset.name} color scheme`"
             @click="setColorScheme(preset.id)"
@@ -246,7 +248,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             <!-- Active checkmark -->
             <div
               v-if="colorScheme === preset.id"
-              class="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
+              class="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-content"
             >
               <AppIcon name="i-lucide-check" class="size-3" />
             </div>

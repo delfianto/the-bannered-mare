@@ -51,14 +51,14 @@ function avatarSrc(chat: Chat): string {
       <div class="flex items-center gap-1.5">
         <button
           :aria-label="$t('bookmarks.scrollLeft')"
-          class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="scroll('left')"
         >
           <AppIcon name="i-lucide-chevron-left" class="size-4" />
         </button>
         <button
           :aria-label="$t('bookmarks.scrollRight')"
-          class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="scroll('right')"
         >
           <AppIcon name="i-lucide-chevron-right" class="size-4" />
