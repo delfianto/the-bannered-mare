@@ -62,7 +62,7 @@ function timeAgo(dateStr: string): string {
     </div>
 
     <!-- Thumbnail -->
-    <div class="h-20 w-[60px] shrink-0 overflow-hidden rounded-lg">
+    <div class="h-20 w-15 shrink-0 overflow-hidden rounded-lg">
       <img :src="avatarSrc()" :alt="character.name" class="size-full object-cover" />
     </div>
 

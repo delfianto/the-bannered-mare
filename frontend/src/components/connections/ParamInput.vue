@@ -178,11 +178,11 @@ function updateObjectProp(key: string, val: unknown) {
       :items="(schema.str_values || []).map((v: string) => ({ label: v, value: v }))"
       value-key="value"
       :search-input="false"
-      :class="layout === 'horizontal' ? 'max-w-[180px]' : 'w-full'"
+      :class="layout === 'horizontal' ? 'max-w-45' : 'w-full'"
     >
       <button
         class="flex h-9 items-center justify-between gap-2 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
-        :class="layout === 'horizontal' ? 'w-[180px]' : 'w-full'"
+        :class="layout === 'horizontal' ? 'w-45' : 'w-full'"
       >
         <span class="truncate">{{ selectValue || "Select..." }}</span>
         <AppIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0 text-muted-foreground" />
@@ -192,10 +192,7 @@ function updateObjectProp(key: string, val: unknown) {
 
   <!-- Number with range slider -->
   <template v-else-if="(schemaType === 'int' || schemaType === 'float') && hasRange">
-    <div
-      class="flex items-center gap-3"
-      :class="layout === 'horizontal' ? 'max-w-[280px]' : 'w-full'"
-    >
+    <div class="flex items-center gap-3" :class="layout === 'horizontal' ? 'max-w-70' : 'w-full'">
       <input
         type="range"
         :min="schema.min_value"
@@ -211,7 +208,7 @@ function updateObjectProp(key: string, val: unknown) {
         :max="schema.max_value"
         :step="step"
         :value="numberValue"
-        class="h-9 w-[90px] shrink-0 rounded-lg border bg-base-300/40 px-3 text-center font-mono text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-9 w-22.5 shrink-0 rounded-lg border bg-base-300/40 px-3 text-center font-mono text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
         @input="numberValue = parseFloat(($event.target as HTMLInputElement).value)"
       />
     </div>
@@ -226,7 +223,7 @@ function updateObjectProp(key: string, val: unknown) {
       :max="schema.max_value"
       :value="numberValue"
       class="h-9 rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-      :class="layout === 'horizontal' ? 'w-[120px]' : 'w-full'"
+      :class="layout === 'horizontal' ? 'w-30' : 'w-full'"
       @input="numberValue = parseFloat(($event.target as HTMLInputElement).value)"
     />
   </template>
@@ -243,7 +240,7 @@ function updateObjectProp(key: string, val: unknown) {
       v-else
       v-model="stringValue"
       type="text"
-      class="h-9 max-w-[280px] rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="h-9 max-w-70 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
     />
   </template>
 
@@ -332,7 +329,7 @@ function updateObjectProp(key: string, val: unknown) {
       v-model="jsonValue"
       rows="4"
       class="w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-xs text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-      :class="layout === 'horizontal' ? 'max-w-[300px]' : ''"
+      :class="layout === 'horizontal' ? 'max-w-75' : ''"
     />
   </template>
 

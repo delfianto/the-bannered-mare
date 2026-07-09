@@ -35,7 +35,7 @@ const tabs = [
           <span class="font-cinzel tracking-wide">{{ tab.label }}</span>
           <span
             v-if="activeTab === tab.id"
-            class="absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-primary transition-all"
+            class="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary transition-all"
           />
         </button>
       </div>

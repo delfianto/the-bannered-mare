@@ -264,6 +264,7 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 
 - `AppIcon` for **ALL** icons — never a bare `<span class="i-lucide-*">`. Add new icons to `src/components/shared/icons.ts`.
 - Use `border` alone for card borders (the base layer sets `border-color: var(--color-border)` on all elements).
+- **Canonical classes over arbitrary values.** Always prefer a real scale/utility class over an equivalent arbitrary value: `h-15.5` not `h-[62px]`, `w-100` not `w-[400px]`, `size-5` not `size-[18px]`, `text-sm` not `text-[0.875rem]`, `tracking-widest` not `tracking-[0.1em]`. This is not just style — sizes on the rem spacing scale participate in the app-wide **Text Size** setting (root `font-size`, see §6.4 / `useFontSize.ts`), whereas a fixed `px` arbitrary value silently **won't scale**. Enforced by `tailwindcss/no-unnecessary-arbitrary-value` (run `bun run lint:tailwind`); editors' Tailwind IntelliSense flags the same ("The class `h-[62px]` can be written as `h-15.5`", messageId `suggestCanonicalClasses`). Reserve arbitrary `[...]` for values with **no** scale equivalent — custom shadows, `vh`/`%`, non-standard letter-spacing (`tracking-[0.08em]`), one-off colors.
 
 ### 6.3 Design System
 

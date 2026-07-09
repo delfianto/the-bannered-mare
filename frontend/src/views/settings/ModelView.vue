@@ -206,7 +206,7 @@ function formatDate(iso: string): string {
     <template v-if="model && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-15 shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
@@ -445,7 +445,7 @@ function formatDate(iso: string): string {
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">Active Identifier</span>
                   <code
-                    class="max-w-[200px] truncate rounded bg-base-300 px-2 py-0.5 text-xs text-foreground"
+                    class="max-w-50 truncate rounded bg-base-300 px-2 py-0.5 text-xs text-foreground"
                   >
                     {{ model.active_identifier }}
                   </code>

@@ -44,7 +44,7 @@ function openFragment(row: any) {
 }
 
 const columns: DataTableColumn[] = [
-  { key: "name", label: "Name", tdClass: "max-w-[280px] truncate font-medium text-foreground" },
+  { key: "name", label: "Name", tdClass: "max-w-70 truncate font-medium text-foreground" },
   { key: "type", label: "Type" },
   { key: "scope", label: "Scope" },
   { key: "usedBy", label: "Used By" },

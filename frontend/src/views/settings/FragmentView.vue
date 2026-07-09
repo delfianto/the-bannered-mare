@@ -126,7 +126,7 @@ function formatDate(iso: string): string {
     <template v-if="fragment && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-15 shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
@@ -281,7 +281,7 @@ function formatDate(iso: string): string {
               v-model="form.content"
               rows="8"
               :placeholder="$t('connections.fragment.contentPlaceholder')"
-              class="min-h-[200px] w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+              class="min-h-50 w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
             <p class="mt-2 text-[0.6875rem] text-muted-foreground/60">
               {{ $t("connections.fragment.contentHint") }}

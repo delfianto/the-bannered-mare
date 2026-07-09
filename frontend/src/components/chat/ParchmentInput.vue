@@ -79,7 +79,7 @@ function handleKeyDown(e: KeyboardEvent) {
         v-model="value"
         :placeholder="$t('chat.inputPlaceholder')"
         rows="1"
-        class="max-h-[140px] flex-1 resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+        class="max-h-35 flex-1 resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
         :disabled="disabled"
         @input="handleInput"
         @focus="focused = true"

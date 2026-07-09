@@ -46,9 +46,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       @click="toggle"
     >
       <AppIcon name="i-lucide-layers" class="size-3.5 shrink-0" />
-      <span class="max-w-[120px] truncate">{{
-        currentProfileName || $t("chat.profile.none")
-      }}</span>
+      <span class="max-w-30 truncate">{{ currentProfileName || $t("chat.profile.none") }}</span>
       <AppIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0" />
     </button>
 

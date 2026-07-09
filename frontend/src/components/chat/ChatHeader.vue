@@ -98,7 +98,7 @@ onUnmounted(() => {
 
 <template>
   <header
-    class="z-10 flex h-[62px] shrink-0 items-center justify-between border-b bg-base-100/80 px-5 backdrop-blur-sm"
+    class="z-10 flex h-15.5 shrink-0 items-center justify-between border-b bg-base-100/80 px-5 backdrop-blur-sm"
   >
     <button
       :aria-label="$t('common.goBack')"
@@ -162,7 +162,7 @@ onUnmounted(() => {
         <!-- Dropdown Menu -->
         <div
           v-if="menuOpen"
-          class="absolute top-full right-0 mt-1 min-w-[160px] rounded-lg border bg-base-200 py-1 shadow-lg"
+          class="absolute top-full right-0 mt-1 min-w-40 rounded-lg border bg-base-200 py-1 shadow-lg"
         >
           <button
             class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-base-300/50"

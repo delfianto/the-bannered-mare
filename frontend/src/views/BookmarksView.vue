@@ -98,7 +98,7 @@ function timeAgo(dateStr: string): string {
             v-for="(char, i) in characters"
             :key="char.id"
             :to="`/characters/${char.id}`"
-            class="group relative aspect-3/4 w-[220px] min-w-[220px] animate-fade-in-up cursor-pointer overflow-hidden rounded-xl border bg-base-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.12]"
+            class="group relative aspect-3/4 w-55 min-w-55 animate-fade-in-up cursor-pointer overflow-hidden rounded-xl border bg-base-200 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.12]"
             :style="{ animationDelay: `${i * 60}ms` }"
           >
             <img

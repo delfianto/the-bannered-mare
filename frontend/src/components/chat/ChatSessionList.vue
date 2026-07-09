@@ -46,7 +46,7 @@ function avatarSrc(chat: Chat): string {
 </script>
 
 <template>
-  <div class="flex h-full w-[300px] min-w-[300px] flex-col border-r bg-base-200">
+  <div class="flex h-full w-75 min-w-75 flex-col border-r bg-base-200">
     <!-- Search -->
     <div class="px-3 pt-4 pb-3">
       <div class="flex items-center gap-2 rounded-lg border bg-base-100/60 px-3 py-2">
@@ -86,7 +86,7 @@ function avatarSrc(chat: Chat): string {
         <!-- Active bar -->
         <span
           v-if="session.id === activeSessionId"
-          class="absolute top-1/2 left-0 h-6 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+          class="absolute top-1/2 left-0 h-6 w-0.75 -translate-y-1/2 rounded-full bg-primary"
         />
 
         <!-- Avatar -->
