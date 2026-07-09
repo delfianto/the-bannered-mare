@@ -76,13 +76,16 @@ const nodes = computed<TextNode[]>(() => {
   <div class="text-sm leading-[1.7] whitespace-pre-wrap">
     <template v-for="node in nodes" :key="node.key">
       <div v-if="node.type === 'break'" class="h-3" />
+      <!-- Narration / *actions*: the descriptive prose — italic, dimmed, so it
+           reads as stage direction. Spoken "dialogue" stays upright, full
+           strength, and a touch heavier so it stands out (RP convention). -->
       <em v-else-if="node.type === 'action'" class="text-muted-foreground italic">{{
         node.text
       }}</em>
-      <span v-else-if="node.type === 'dialogue'" class="font-normal text-foreground">{{
+      <span v-else-if="node.type === 'dialogue'" class="font-medium text-foreground">{{
         node.text
       }}</span>
-      <span v-else class="text-foreground">{{ node.text }}</span>
+      <span v-else class="text-muted-foreground italic">{{ node.text }}</span>
     </template>
   </div>
 </template>

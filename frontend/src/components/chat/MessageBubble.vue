@@ -109,8 +109,9 @@ const userActions = [
       />
     </div>
 
-    <!-- Message Card -->
-    <div class="relative max-w-[75%]">
+    <!-- Message Card — capped at a readable width so a wide message column still
+         reads comfortably while assistant (left) / user (right) separate clearly. -->
+    <div class="relative max-w-2xl">
       <!-- Swipe Left Arrow (assistant only) -->
       <button
         v-if="!isUser && (showSwipeArrows || hasAlternatives)"
