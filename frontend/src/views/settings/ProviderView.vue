@@ -6,6 +6,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useProvider } from "@/composables/useProvider";
 import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
+import ModelCreateModal from "@/components/connections/ModelCreateModal.vue";
 import anthropicIcon from "@/assets/icons/anthropic.svg";
 import googleIcon from "@/assets/icons/google.svg";
 import ollamaIcon from "@/assets/icons/ollama.svg";
@@ -274,20 +275,27 @@ async function handleDeleteModel(identifier: string) {
   }
 }
 
+// ── Add-as-Model modal (opens in place so cancelling leaves you here) ──
+const showAddModel = ref(false);
+const addModelPrefill = ref<
+  { provider_id?: string; model_identifier?: string; name?: string } | undefined
+>();
+
 // Don't persist immediately — open the create form prefilled so the user can
 // review, pick a model family, and confirm before it's saved.
 function handleAddModel(m: { identifier: string; display_name?: string }) {
   if (!provider.value) return;
-  router.push({
-    path: "/connections",
-    query: {
-      tab: "models",
-      create: "model",
-      provider_id: provider.value.id,
-      model_identifier: m.identifier,
-      name: m.display_name || m.identifier,
-    },
-  });
+  addModelPrefill.value = {
+    provider_id: provider.value.id,
+    model_identifier: m.identifier,
+    name: m.display_name || m.identifier,
+  };
+  showAddModel.value = true;
+}
+
+// Refresh the persisted list so the just-added model flips to "Added".
+function onModelCreated() {
+  if (provider.value) loadPersistedModels(1, { provider_id: provider.value.id });
 }
 
 const openMenuModel = ref<string | null>(null);
@@ -740,5 +748,13 @@ function toggleMenu(identifier: string) {
         </div>
       </div>
     </template>
+
+    <!-- Add-as-Model create modal (opens in place; cancel stays on this page) -->
+    <ModelCreateModal
+      :show="showAddModel"
+      :prefill="addModelPrefill"
+      @close="showAddModel = false"
+      @created="onModelCreated"
+    />
   </div>
 </template>

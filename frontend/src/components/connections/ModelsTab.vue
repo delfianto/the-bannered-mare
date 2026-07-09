@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { useModels } from "@/composables/useModels";
 import { useModel } from "@/composables/useModel";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { useAppToast } from "@/composables/useToast";
-import Modal from "@/components/shared/Modal.vue";
-import ModelForm from "./ModelForm.vue";
+import ModelCreateModal from "./ModelCreateModal.vue";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
 const { t } = useI18n();
 const router = useRouter();
-const route = useRoute();
-const { toggleFlags, createModel, saving } = useModel();
+const { toggleFlags } = useModel();
 const toast = useAppToast();
 
 const {
@@ -34,40 +32,14 @@ const { families } = useModelFamilies({ pageSize: 100 });
 
 // ── Create modal ─────────────────────────────────────────
 const showCreate = ref(false);
-const prefill = ref<
-  { provider_id?: string; model_identifier?: string; name?: string } | undefined
->();
 
 function openCreate() {
-  prefill.value = undefined;
   showCreate.value = true;
 }
 
-async function onCreate(payload: Record<string, unknown>) {
-  try {
-    await createModel(payload);
-    toast.success("Model created");
-    showCreate.value = false;
-    prefill.value = undefined;
-    await loadPage(1);
-  } catch {
-    toast.error("Failed to create model");
-  }
+function onCreated() {
+  loadPage(1);
 }
-
-// A provider's "Add as Model" action lands here with prefill params; open the
-// create modal seeded, then strip the params so a refresh doesn't re-open it.
-onMounted(() => {
-  if (route.query.create === "model") {
-    prefill.value = {
-      provider_id: (route.query.provider_id as string) || undefined,
-      model_identifier: (route.query.model_identifier as string) || undefined,
-      name: (route.query.name as string) || undefined,
-    };
-    showCreate.value = true;
-    router.replace({ query: { tab: "models" } });
-  }
-});
 
 const searchQuery = ref("");
 const searchFocused = ref(false);
@@ -195,16 +167,7 @@ async function handleToggleEnabled(row: any) {
     </Teleport>
 
     <!-- Create modal -->
-    <Modal :show="showCreate" :title="$t('connections.newModel')" max-width="2xl" @close="showCreate = false">
-      <ModelForm
-        :providers="providers"
-        :families="families"
-        :prefill="prefill"
-        :saving="saving"
-        @submit="onCreate"
-        @cancel="showCreate = false"
-      />
-    </Modal>
+    <ModelCreateModal :show="showCreate" @close="showCreate = false" @created="onCreated" />
 
     <!-- Filters row -->
     <div class="mb-6 flex animate-fade-in-up flex-wrap items-center gap-2">
