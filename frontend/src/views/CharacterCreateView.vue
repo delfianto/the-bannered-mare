@@ -293,7 +293,7 @@ function handleAvatarChange(file: File) {
 
       <!-- Preview Panel -->
       <div
-        class="hidden w-[340px] min-w-[340px] overflow-y-auto border-l bg-base-200/30 px-5 py-6 xl:block"
+        class="hidden w-[400px] min-w-[400px] overflow-y-auto border-l bg-base-200/30 px-5 py-6 xl:block"
       >
         <div class="sticky top-0">
           <p

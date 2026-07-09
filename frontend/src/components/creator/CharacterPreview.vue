@@ -51,7 +51,7 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
          view (no scrim / text overlay), that also doubles as the portrait
          dropzone (click or drag an image). -->
     <div
-      class="group relative aspect-3/4 cursor-pointer overflow-hidden rounded-xl border bg-base-200/50 transition-all"
+      class="group relative aspect-3/4 max-w-[360px] cursor-pointer overflow-hidden rounded-xl border bg-base-200/50 transition-all"
       :class="dragOver ? 'ring-2 ring-primary' : ''"
       @click="inputRef?.click()"
       @dragover.prevent="dragOver = true"
