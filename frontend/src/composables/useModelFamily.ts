@@ -27,6 +27,17 @@ export function useModelFamily() {
     }
   }
 
+  async function createFamily(payload: components["schemas"]["ModelFamilyCreate"]) {
+    saving.value = true;
+    try {
+      const { data, error: apiError } = await client.POST("/api/model-families", { body: payload });
+      if (apiError || !data) throw new Error("Failed to create model family");
+      return data;
+    } finally {
+      saving.value = false;
+    }
+  }
+
   async function saveFamily(id: string, updates: Record<string, unknown>) {
     saving.value = true;
     try {
@@ -57,5 +68,15 @@ export function useModelFamily() {
     }
   }
 
-  return { family, loading, saving, deleting, error, fetchFamily, saveFamily, deleteFamily };
+  return {
+    family,
+    loading,
+    saving,
+    deleting,
+    error,
+    fetchFamily,
+    createFamily,
+    saveFamily,
+    deleteFamily,
+  };
 }

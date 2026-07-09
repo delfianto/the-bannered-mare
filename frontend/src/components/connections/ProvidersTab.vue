@@ -45,6 +45,17 @@ function formatUrl(url: string | null): string {
 
 <template>
   <div>
+    <!-- Primary action lives on the tab bar (see ConnectionsTabs) -->
+    <Teleport defer to="#connections-tab-action">
+      <RouterLink
+        to="/settings/providers/create"
+        class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
+      >
+        <AppIcon name="i-lucide-plus" class="size-4" />
+        {{ $t("connections.newProvider") }}
+      </RouterLink>
+    </Teleport>
+
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
       <AppIcon name="i-lucide-loader-2" class="size-6 animate-spin text-primary" />

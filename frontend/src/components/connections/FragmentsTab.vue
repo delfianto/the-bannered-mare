@@ -54,6 +54,17 @@ const columns: DataTableColumn[] = [
 
 <template>
   <div>
+    <!-- Primary action lives on the tab bar (see ProfilesTabs) -->
+    <Teleport defer to="#loadout-tab-action">
+      <RouterLink
+        to="/settings/fragments/create"
+        class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
+      >
+        <AppIcon name="i-lucide-plus" class="size-4" />
+        {{ $t("connections.newFragment") }}
+      </RouterLink>
+    </Teleport>
+
     <!-- Filter bar -->
     <div class="mb-4 flex items-center justify-between">
       <button

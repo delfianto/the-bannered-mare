@@ -37,6 +37,17 @@ export function useProvider() {
     }
   }
 
+  async function createProvider(payload: components["schemas"]["ProviderCreate"]) {
+    saving.value = true;
+    try {
+      const { data, error: apiError } = await client.POST("/api/providers", { body: payload });
+      if (apiError || !data) throw new Error("Failed to create provider");
+      return data;
+    } finally {
+      saving.value = false;
+    }
+  }
+
   async function saveProvider(id: string, updates: Record<string, unknown>) {
     saving.value = true;
     try {
@@ -200,6 +211,7 @@ export function useProvider() {
     saving,
     error,
     fetchProvider,
+    createProvider,
     saveProvider,
     availableModels,
     modelsLoading,

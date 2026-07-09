@@ -39,6 +39,8 @@ const tabs = [
           />
         </button>
       </div>
+      <!-- Each tab teleports its primary action (New Provider, New Model, …) here -->
+      <div id="connections-tab-action" class="ml-auto flex items-center" />
     </div>
   </div>
 </template>

@@ -24,6 +24,21 @@ export function usePromptFragment() {
     }
   }
 
+  async function createFragment(payload: components["schemas"]["FragmentCreate"]) {
+    saving.value = true;
+    try {
+      const response = await fetch(`/api/prompt-fragments/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`Create failed: ${response.status}`);
+      return await response.json();
+    } finally {
+      saving.value = false;
+    }
+  }
+
   async function saveFragment(id: string, updates: Record<string, unknown>) {
     saving.value = true;
     try {
@@ -61,6 +76,7 @@ export function usePromptFragment() {
     deleting,
     error,
     fetchFragment,
+    createFragment,
     saveFragment,
     deleteFragment,
   };
