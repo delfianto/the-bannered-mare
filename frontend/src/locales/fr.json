@@ -4,6 +4,7 @@
     "saved": "Enregistré",
     "saving": "Enregistrement…",
     "cancel": "Annuler",
+    "done": "Terminé",
     "delete": "Supprimer",
     "deleteConfirm": "Confirmer la suppression ?",
     "deleting": "Suppression…",
@@ -147,7 +148,8 @@
       "importFileTypes": ".json ou carte TavernAI",
       "exportJson": "Exporter en JSON",
       "exportFileType": "Compatible TavernAI v2",
-      "completeness": "Complétude"
+      "completeness": "Complétude",
+      "advanced": "Avancé"
     },
     "bulkExport": "Exporter",
     "bulkDelete": "Supprimer",
