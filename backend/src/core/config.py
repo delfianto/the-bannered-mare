@@ -196,53 +196,53 @@ class Settings(BaseSettings):
     model_blacklist: list[str] = [
         # Image generation
         "dall-e",
+        "flux",
         "gpt-image",
+        "ideogram",
         "image",
         "imagen",
-        "flux",
-        "stable-diffusion",
-        "sdxl",
         "midjourney",
-        "ideogram",
         "recraft",
+        "sdxl",
+        "stable-diffusion",
         # Video generation
         "sora",
         "veo",
         # Audio / speech / music (TTS, STT, music generation)
-        "whisper",
-        "tts",
         "audio",
+        "lyria",
         "speech",
         "transcribe",
-        "lyria",
+        "tts",
+        "whisper",
         # Embeddings, retrieval & rerankers
-        "embed",
         "bge-",
-        "gte-",
-        "e5-",
         "clip-",
         "colbert",
+        "e5-",
+        "embed",
+        "gte-",
         "rerank",
         # Moderation / safety classifiers
-        "moderation",
         "guard",
-        "shield",
+        "moderation",
         "safety",  # e.g. nemotron content-safety
+        "shield",
         # Code / developer models
         "code",  # codestral, qwen *-coder, kimi-*-code, arcee coder, kat-coder…
         "devstral",
         # Legacy completion / base models (not chat-formatted)
-        "davinci",
         "babbage",
+        "davinci",
         # Specialised, non-conversational variants
-        "realtime",
         "computer-use",
-        "research",
         "ocr",
+        "realtime",
+        "research",
         "search",  # web-search-augmented (gpt-4o-search-preview, gpt-5-search-api)
         # Outdated or off-task chat variants
-        "gpt-3",  # GPT-3.x — obsolete for RP
         "codex",  # code-completion variants (e.g. gpt-5.x-codex)
+        "gpt-3",  # GPT-3.x — obsolete for RP
         "latest",  # rolling "*-latest" auto-alias pointers
         "remm",  # ReMM-SLERP — ancient L2-13B RP merge
     ]
@@ -253,15 +253,15 @@ class Settings(BaseSettings):
     # (auto / free / fusion / pareto / bodybuilder). Substring match, so
     # "bytedance" also covers "bytedance-seed". Override via MODEL_VENDOR_BLACKLIST.
     model_vendor_blacklist: list[str] = [
-        "openrouter",
-        "perplexity",
-        "cohere",
-        "reka",
         "bytedance",
-        "sakana",
-        "relace",
-        "perceptron",
+        "cohere",
         "morph",  # code fast-apply / edit
+        "openrouter",
+        "perceptron",
+        "perplexity",
+        "reka",
+        "relace",
+        "sakana",
         "writer",  # Palmyra — enterprise business writing
     ]
 
