@@ -15,10 +15,10 @@ const open = ref(false);
 const filter = ref("");
 const containerRef = ref<HTMLElement | null>(null);
 
+// Filter by what the user has actually typed. (Falling back to modelValue here
+// collapsed the list to the current selection, so you couldn't pick anything else.)
 const filtered = computed(() =>
-  props.options.filter((o) =>
-    o.toLowerCase().includes((filter.value || props.modelValue).toLowerCase()),
-  ),
+  props.options.filter((o) => o.toLowerCase().includes(filter.value.toLowerCase())),
 );
 
 function select(opt: string) {
