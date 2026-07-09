@@ -124,8 +124,7 @@ function openModel(row: any) {
 
 const togglingIds = ref<Set<string>>(new Set());
 
-async function handleToggleEnabled(row: any, event: Event) {
-  event.stopPropagation();
+async function handleToggleEnabled(row: any) {
   if (togglingIds.value.has(row.id)) return;
 
   const previous = row.enabled;
@@ -258,24 +257,13 @@ async function handleToggleEnabled(row: any, event: Event) {
         <template #cell-provider="{ row }">{{ providerNameFor(row.provider_id) }}</template>
         <template #cell-family="{ row }">{{ familyNameFor(row.model_family_id) }}</template>
         <template #cell-status="{ row }">
-          <button
-            role="switch"
-            :aria-checked="row.enabled"
-            :aria-label="row.enabled ? 'Disable model' : 'Enable model'"
-            class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+          <AppToggle
+            :model-value="row.enabled"
             :disabled="togglingIds.has(row.id)"
-            @click="handleToggleEnabled(row, $event)"
-          >
-            <div
-              class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-              :class="row.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
-            >
-              <span
-                class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                :class="row.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-              />
-            </div>
-          </button>
+            :aria-label="row.enabled ? 'Disable model' : 'Enable model'"
+            @click.stop
+            @change="handleToggleEnabled(row)"
+          />
         </template>
       </DataTable>
     </div>

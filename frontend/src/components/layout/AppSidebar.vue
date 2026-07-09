@@ -213,33 +213,31 @@ const favorites = computed(() => {
         class="block"
       >
         <button
-          class="flex w-full items-center rounded-lg py-2.5 transition-colors hover:bg-base-300/50"
-          :class="collapsed ? 'justify-center px-0' : 'justify-between px-3'"
-          role="switch"
-          :aria-checked="isDark"
+          v-if="collapsed"
+          class="flex w-full items-center justify-center rounded-lg py-2.5 transition-colors hover:bg-base-300/50"
           aria-label="Toggle theme"
           @click="toggleTheme"
         >
-          <div class="flex items-center" :class="collapsed ? '' : 'gap-2.5'">
+          <AppIcon
+            :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+            class="size-[18px] shrink-0 text-primary"
+          />
+        </button>
+        <label
+          v-else
+          class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-base-300/50"
+        >
+          <span class="flex items-center gap-2.5">
             <AppIcon
               :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
               class="size-[18px] shrink-0 text-primary"
             />
-            <span v-if="!collapsed" class="text-sm font-medium text-foreground">
+            <span class="text-sm font-medium text-foreground">
               {{ $t("settings.interface.darkMode") }}
             </span>
-          </div>
-          <div
-            v-if="!collapsed"
-            class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-            :class="isDark ? 'bg-primary' : 'bg-muted-foreground/40'"
-          >
-            <span
-              class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="isDark ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-            />
-          </div>
-        </button>
+          </span>
+          <AppToggle :model-value="isDark" aria-label="Toggle theme" @change="toggleTheme" />
+        </label>
       </AppTooltip>
     </div>
   </aside>

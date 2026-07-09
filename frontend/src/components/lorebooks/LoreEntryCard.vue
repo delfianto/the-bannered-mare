@@ -30,24 +30,13 @@ const positionLabels: Record<string, string> = {
       <h4 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
         {{ entry.name }}
       </h4>
-      <button
-        type="button"
-        role="switch"
-        :aria-checked="entry.enabled"
+      <AppToggle
         class="shrink-0"
+        :model-value="entry.enabled"
         :title="entry.enabled ? $t('lorebooks.enabled') : $t('lorebooks.disabled')"
-        @click="$emit('toggleEnabled')"
-      >
-        <span
-          class="flex h-[20px] w-9 items-center rounded-full px-[3px] transition-colors duration-300"
-          :class="entry.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
-        >
-          <span
-            class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-            :class="entry.enabled ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
-          />
-        </span>
-      </button>
+        :aria-label="entry.enabled ? $t('lorebooks.enabled') : $t('lorebooks.disabled')"
+        @change="$emit('toggleEnabled')"
+      />
     </div>
 
     <!-- Trigger keywords -->

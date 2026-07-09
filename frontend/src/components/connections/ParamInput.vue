@@ -163,44 +163,12 @@ function updateObjectProp(key: string, val: unknown) {
 <template>
   <!-- Boolean toggle -->
   <template v-if="schemaType === 'boolean'">
-    <button
-      class="cursor-pointer"
-      role="switch"
-      :aria-checked="boolValue"
-      :aria-label="paramKey"
-      @click="boolValue = !boolValue"
-    >
-      <div
-        class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
-        :class="boolValue ? 'bg-primary' : 'bg-muted-foreground/40'"
-      >
-        <span
-          class="size-4 rounded-full shadow-sm transition-transform"
-          :class="boolValue ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-        />
-      </div>
-    </button>
+    <AppToggle v-model="boolValue" :aria-label="paramKey" />
   </template>
 
   <!-- Enabled/Disabled enum as toggle -->
   <template v-else-if="isEnabledDisabledEnum">
-    <button
-      class="cursor-pointer"
-      role="switch"
-      :aria-checked="enabledDisabledValue"
-      :aria-label="paramKey"
-      @click="enabledDisabledValue = !enabledDisabledValue"
-    >
-      <div
-        class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
-        :class="enabledDisabledValue ? 'bg-primary' : 'bg-muted-foreground/40'"
-      >
-        <span
-          class="size-4 rounded-full shadow-sm transition-transform"
-          :class="enabledDisabledValue ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-        />
-      </div>
-    </button>
+    <AppToggle v-model="enabledDisabledValue" :aria-label="paramKey" />
   </template>
 
   <!-- Enum select -->

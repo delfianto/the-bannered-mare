@@ -5,6 +5,7 @@ import router from "./router";
 import i18n from "./i18n";
 import AppIcon from "./components/shared/AppIcon.vue";
 import SelectMenu from "./components/shared/SelectMenu.vue";
+import AppToggle from "./components/shared/AppToggle.vue";
 import "./assets/main.css";
 
 const app = createApp(App);
@@ -16,6 +17,7 @@ app.use(router);
 // Global components (replace Nuxt UI's globally-available primitives).
 app.component("AppIcon", AppIcon);
 app.component("SelectMenu", SelectMenu);
+app.component("AppToggle", AppToggle);
 
 async function prepareApp() {
   const useMocks = import.meta.env.VITE_USE_MOCKS === "true";

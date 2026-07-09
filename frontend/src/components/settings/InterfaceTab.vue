@@ -66,19 +66,11 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               </p>
             </div>
           </div>
-          <button
-            class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-            :class="streamResponses ? 'bg-primary' : 'bg-muted-foreground/40'"
-            role="switch"
-            :aria-checked="streamResponses"
+          <AppToggle
+            :model-value="streamResponses"
             aria-label="Stream responses"
-            @click="toggleStream"
-          >
-            <span
-              class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="streamResponses ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-            />
-          </button>
+            @change="toggleStream"
+          />
         </div>
 
         <!-- Divider -->
@@ -97,19 +89,11 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               </p>
             </div>
           </div>
-          <button
-            class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-            :class="typingIndicator ? 'bg-primary' : 'bg-muted-foreground/40'"
-            role="switch"
-            :aria-checked="typingIndicator"
+          <AppToggle
+            :model-value="typingIndicator"
             aria-label="Typing indicator"
-            @click="toggleTyping"
-          >
-            <span
-              class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="typingIndicator ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-            />
-          </button>
+            @change="toggleTyping"
+          />
         </div>
 
         <!-- Divider -->
@@ -169,19 +153,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               </p>
             </div>
           </div>
-          <button
-            class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-            :class="isDark ? 'bg-primary' : 'bg-muted-foreground/40'"
-            role="switch"
-            :aria-checked="isDark"
-            aria-label="Dark mode"
-            @click="toggleTheme"
-          >
-            <span
-              class="size-4 rounded-full shadow-sm transition-transform duration-300"
-              :class="isDark ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-            />
-          </button>
+          <AppToggle :model-value="isDark" aria-label="Dark mode" @change="toggleTheme" />
         </div>
 
         <!-- Divider -->
