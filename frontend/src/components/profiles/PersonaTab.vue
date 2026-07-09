@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
 import type { components } from "@/api/schema";
+import Modal from "@/components/shared/Modal.vue";
 
 const { t } = useI18n();
 
@@ -199,11 +200,13 @@ async function setDefault(personaId: string) {
       </button>
     </div>
 
-    <!-- Inline Create/Edit Form -->
-    <div v-if="showForm" class="mb-4 animate-fade-in-up rounded-xl border bg-base-200/50 p-5">
-      <h4 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-        {{ editingId ? $t("settings.persona.editPersona") : $t("settings.persona.newPersona") }}
-      </h4>
+    <!-- Create/Edit form (modal — keeps the list in view behind it) -->
+    <Modal
+      :show="showForm"
+      :title="editingId ? $t('settings.persona.editPersona') : $t('settings.persona.newPersona')"
+      max-width="xl"
+      @close="cancelForm"
+    >
       <div class="space-y-4">
         <label class="block">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
@@ -274,7 +277,7 @@ async function setDefault(personaId: string) {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
 
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-16">
