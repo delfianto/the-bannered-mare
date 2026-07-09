@@ -268,7 +268,7 @@ class ProviderService:
         if not force_refresh and settings.discovery_cache.enabled:
             cached = self.model_cache.get(provider.id)
             if cached is not None:
-                return cached, True
+                return self._filter_blacklisted(cached), True
 
         try:
             api_key = provider.get_api_key()
@@ -279,22 +279,24 @@ class ProviderService:
                 detail=f"Could not reach {provider.name}: {e}",
             ) from e
 
-        # Centralized non-text/unsupported models blacklist filter
-        blacklist = [k.lower() for k in settings.model_blacklist]
-        models = [
-            m
-            for m in models
-            if not any(k in m.identifier.lower() or k in m.display_name.lower() for k in blacklist)
-        ]
-
         provider.last_synced_at = utc_now()
         self.provider_repo.update(provider)
         self.provider_repo.commit()
 
+        # Cache the raw discovered list; the blacklist is applied on the way out
+        # so editing settings.model_blacklist takes effect without a re-sync.
         if settings.discovery_cache.enabled:
             self.model_cache.set(provider.id, models)
 
-        return models, False
+        return self._filter_blacklisted(models), False
+
+    @staticmethod
+    def _filter_blacklisted(models: list[DiscoveredModel]) -> list[DiscoveredModel]:
+        """Drop non-chat/non-RP models by matching name substrings against the
+        model identifier (see settings.model_blacklist). Identifier only — a
+        friendly display name may legitimately say e.g. "Research Preview"."""
+        blacklist = [k.lower() for k in settings.model_blacklist]
+        return [m for m in models if not any(k in m.identifier.lower() for k in blacklist)]
 
     @staticmethod
     def _apply_allow_list(
