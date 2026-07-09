@@ -57,6 +57,7 @@ class ChatCharacterResponse(BaseModel):
     id: str
     name: str
     avatar: str | None = None
+    avatar_large: str | None = None
     avatar_thumbnail: str | None = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
@@ -68,6 +69,16 @@ class ChatCharacterResponse(BaseModel):
         ):
             return f"/api/characters/{self.id}/avatar"
         return avatar
+
+    @field_serializer("avatar_large")
+    def serialize_avatar_large(self, avatar_large: str | None) -> str | None:
+        if avatar_large and not (
+            avatar_large.startswith("http://")
+            or avatar_large.startswith("https://")
+            or avatar_large.startswith("/")
+        ):
+            return f"/api/characters/{self.id}/avatar_large"
+        return avatar_large
 
     @field_serializer("avatar_thumbnail")
     def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:
@@ -121,6 +132,7 @@ class ChatResponse(BaseModel):
                     "id": data.get("character_id"),
                     "name": data.get("character_name"),
                     "avatar": data.get("avatar"),
+                    "avatar_large": data.get("avatar_large"),
                     "avatar_thumbnail": data.get("avatar_thumbnail"),
                 }
             if "model" not in data:

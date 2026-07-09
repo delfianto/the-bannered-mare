@@ -77,6 +77,27 @@ def get_persona_avatar(persona_id: str, service: PersonaServiceDep):
     return FileResponse(avatar_full_path)
 
 
+@router.get("/{persona_id}/avatar_large")
+def get_persona_avatar_large(persona_id: str, service: PersonaServiceDep):
+    """Serve the large (<=512px) full-portrait persona avatar"""
+    persona = service.get_by_id(persona_id)
+
+    if not persona.avatar_large:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Persona '{persona.name}' has no large avatar",
+        )
+
+    avatar_full_path = os.path.join(settings.storage_path, persona.avatar_large)
+    if not os.path.exists(avatar_full_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Large avatar file not found",
+        )
+
+    return FileResponse(avatar_full_path)
+
+
 @router.get("/{persona_id}/avatar_thumbnail")
 def get_persona_avatar_thumbnail(persona_id: str, service: PersonaServiceDep):
     """Serve persona avatar thumbnail image"""

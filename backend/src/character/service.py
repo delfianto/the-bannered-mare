@@ -104,8 +104,11 @@ class CharacterService:
         created = self.character_repo.create(character)
 
         if avatar:
-            original_path, thumbnail_path = await save_character_avatar(created.id, avatar)
+            original_path, large_path, thumbnail_path = await save_character_avatar(
+                created.id, avatar
+            )
             created.avatar = original_path
+            created.avatar_large = large_path
             created.avatar_thumbnail = thumbnail_path
             _ = self.character_repo.update(created)
 
@@ -186,8 +189,11 @@ class CharacterService:
 
         # Update avatar if provided
         if avatar:
-            original_path, thumbnail_path = await save_character_avatar(character.id, avatar)
+            original_path, large_path, thumbnail_path = await save_character_avatar(
+                character.id, avatar
+            )
             character.avatar = original_path
+            character.avatar_large = large_path
             character.avatar_thumbnail = thumbnail_path
 
         updated = self.character_repo.update(character)
@@ -372,8 +378,11 @@ class CharacterService:
                 file=io.BytesIO(file_data),
                 headers=Headers({"content-type": "image/png"}),
             )
-            original_path, thumbnail_path = await save_character_avatar(created.id, avatar_file)
+            original_path, large_path, thumbnail_path = await save_character_avatar(
+                created.id, avatar_file
+            )
             created.avatar = original_path
+            created.avatar_large = large_path
             created.avatar_thumbnail = thumbnail_path
             _ = self.character_repo.update(created)
 

@@ -42,8 +42,11 @@ class Character(BaseModel):
     avatar: Mapped[str | None] = mapped_column(
         String(255), nullable=True, comment="Path to the original avatar image file"
     )
+    avatar_large: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, comment="Path to the large (<=512px) full-portrait avatar"
+    )
     avatar_thumbnail: Mapped[str | None] = mapped_column(
-        String(255), nullable=True, comment="Path to the generated avatar thumbnail image"
+        String(255), nullable=True, comment="Path to the square head-crop avatar thumbnail"
     )
     scenario: Mapped[str | None] = mapped_column(
         Text, nullable=True, comment="Current scenario/situation for RP context"

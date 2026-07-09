@@ -105,6 +105,7 @@ class CharacterResponse(CharacterBase):
 
     id: str
     avatar: str | None
+    avatar_large: str | None
     avatar_thumbnail: str | None
     created_at: datetime
     updated_at: datetime
@@ -118,6 +119,16 @@ class CharacterResponse(CharacterBase):
         ):
             return f"/api/characters/{self.id}/avatar"
         return avatar
+
+    @field_serializer("avatar_large")
+    def serialize_avatar_large(self, avatar_large: str | None) -> str | None:
+        if avatar_large and not (
+            avatar_large.startswith("http://")
+            or avatar_large.startswith("https://")
+            or avatar_large.startswith("/")
+        ):
+            return f"/api/characters/{self.id}/avatar_large"
+        return avatar_large
 
     @field_serializer("avatar_thumbnail")
     def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:

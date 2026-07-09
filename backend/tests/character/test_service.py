@@ -121,7 +121,8 @@ class TestCharacterService:
             new_callable=AsyncMock,
             return_value=(
                 "avatars/char_123/avatar.png",
-                "avatars/char_123/avatar_thumbnail.png",
+                "avatars/char_123/avatar_large.jpg",
+                "avatars/char_123/avatar_thumbnail.jpg",
             ),
         ):
             character = await service.create(
@@ -130,7 +131,8 @@ class TestCharacterService:
             )
 
             assert character.avatar == "avatars/char_123/avatar.png"
-            assert character.avatar_thumbnail == "avatars/char_123/avatar_thumbnail.png"
+            assert character.avatar_large == "avatars/char_123/avatar_large.jpg"
+            assert character.avatar_thumbnail == "avatars/char_123/avatar_thumbnail.jpg"
 
     @pytest.mark.asyncio
     async def test_update_character_basic_fields(self, db: Session) -> None:

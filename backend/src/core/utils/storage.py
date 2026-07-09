@@ -10,7 +10,18 @@ from PIL import Image
 
 from src.core.config import settings
 
-THUMBNAIL_SIZE = (128, 128)
+# Derived avatar tiers generated from every upload:
+#   - large: bounded full portrait for the detail preview, home banner, grid.
+#   - head:  square crop of the head, shown as a circle for chat / small avatars.
+LARGE_SIZE = (512, 512)  # bounding box (aspect preserved, never upscaled)
+HEAD_SIZE = (256, 256)  # final square size of the head crop
+
+LARGE_FILENAME = "avatar_large.jpg"
+# Head crop keeps the historical filename so the existing column/endpoint still
+# points at it — the tier's meaning changed (128px full -> 256px head crop), the
+# path did not.
+HEAD_FILENAME = "avatar_thumbnail.jpg"
+
 MAX_AVATAR_SIZE = 20 * 1024 * 1024  # 20MB
 ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 MAX_DIMENSIONS = (4096, 4096)
@@ -67,9 +78,75 @@ async def validate_avatar(file: UploadFile) -> None:
         await file.seek(0)
 
 
-async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tuple[str, str]:
+def _crop_head_square(img: Image.Image) -> Image.Image:
     """
-    Generic function to save an avatar and generate a thumbnail.
+    Crop a square focused on the head.
+
+    Heads sit in the upper portion of a portrait, so we take the largest square
+    that fits, centre it horizontally, and anchor it near the top — nudged down
+    ~8% of the surplus height so the crown of the head isn't clipped. This is a
+    deliberately dependency-free heuristic: face detection is unreliable on the
+    stylised (anime) card art this app commonly imports.
+    """
+    w, h = img.size
+    side = min(w, h)
+    left = (w - side) // 2
+    top = int((h - side) * 0.08) if h > side else 0
+    return img.crop((left, top, left + side, top + side))
+
+
+def _find_original(entity_dir: str) -> str | None:
+    """Return the stored original avatar path (any extension), if present."""
+    if not os.path.isdir(entity_dir):
+        return None
+    for name in os.listdir(entity_dir):
+        if name.startswith("avatar_original"):
+            return os.path.join(entity_dir, name)
+    return None
+
+
+def generate_avatar_derivatives(entity_type: str, entity_id: str) -> tuple[str, str]:
+    """
+    (Re)generate the large + head-crop tiers from the stored original.
+
+    Reads ``avatar_original.*`` under the entity's storage dir and writes
+    ``avatar_large.jpg`` and ``avatar_thumbnail.jpg`` beside it. Returns their
+    storage-relative paths, or ``("", "")`` if the original is missing or
+    processing fails. Safe to call for a one-off backfill of existing avatars.
+    """
+    entity_dir = os.path.join(settings.storage_path, entity_type, entity_id)
+    original_full = _find_original(entity_dir)
+    if not original_full or not os.path.exists(original_full):
+        return "", ""
+
+    large_full = os.path.join(entity_dir, LARGE_FILENAME)
+    head_full = os.path.join(entity_dir, HEAD_FILENAME)
+
+    with Image.open(original_full) as src:
+        # JPEG has no alpha; flatten anything with transparency/palette to RGB.
+        rgb = src.convert("RGB") if src.mode != "RGB" else src
+
+        large = rgb.copy()
+        large.thumbnail(LARGE_SIZE)  # aspect preserved, never upscales
+        large.save(large_full, "JPEG", quality=88, optimize=True)
+
+        head = _crop_head_square(rgb)
+        if head.size != HEAD_SIZE:
+            head = head.resize(HEAD_SIZE, Image.Resampling.LANCZOS)
+        head.save(head_full, "JPEG", quality=85, optimize=True)
+
+    large_rel = f"{entity_type}/{entity_id}/{LARGE_FILENAME}"
+    head_rel = f"{entity_type}/{entity_id}/{HEAD_FILENAME}"
+    return large_rel, head_rel
+
+
+async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tuple[str, str, str]:
+    """
+    Save an avatar and generate its derived sizes.
+
+    Returns ``(original_path, large_path, head_path)`` as storage-relative paths;
+    the derived paths are empty strings if generation failed (the original is
+    still saved so a later backfill can retry).
     """
     # Validate before saving
     await validate_avatar(file)
@@ -81,51 +158,42 @@ async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tu
     if file_ext.lower() not in ALLOWED_EXTENSIONS:
         file_ext = ".png"
 
-    original_avatar_filename = f"avatar_original{file_ext}"
-    thumbnail_avatar_filename = f"avatar_thumbnail{file_ext}"
+    original_filename = f"avatar_original{file_ext}"
+    original_full_path = os.path.join(entity_dir, original_filename)
 
-    original_avatar_full_path = os.path.join(entity_dir, original_avatar_filename)
-    thumbnail_avatar_full_path = os.path.join(entity_dir, thumbnail_avatar_filename)
-
-    # Save original image (without EXIF stripping - we keep original as is but validated)
+    # Save original image as-is (validated, EXIF kept) — it backs export/download
+    # and every derived size is regenerated from it.
     file_content = await file.read()
-    async with aiofiles.open(original_avatar_full_path, "wb") as f:
+    async with aiofiles.open(original_full_path, "wb") as f:
         _ = await f.write(file_content)
 
-    # Generate and save thumbnail (always strips EXIF by default when resizing/saving)
+    original_relative_path = f"{entity_type}/{entity_id}/{original_filename}"
+
     try:
-        with Image.open(original_avatar_full_path) as img:
-            # Convert to RGB if necessary (e.g. for PNG with transparency being saved as JPEG)
-            if img.mode in ("RGBA", "P"):
-                img = img.convert("RGB")
-
-            img.thumbnail(THUMBNAIL_SIZE)
-            # Saving as JPEG for thumbnail efficiency
-            thumbnail_path_jpg = thumbnail_avatar_full_path.rsplit(".", 1)[0] + ".jpg"
-            img.save(thumbnail_path_jpg, "JPEG", quality=85, optimize=True)
-
-            thumbnail_relative_path = (
-                f"{entity_type}/{entity_id}/{os.path.basename(thumbnail_path_jpg)}"
-            )
+        large_relative_path, head_relative_path = generate_avatar_derivatives(
+            entity_type, entity_id
+        )
     except Exception as e:
-        print(f"Error generating thumbnail for {entity_type} {entity_id}: {e}")
-        return "", ""
+        print(f"Error generating avatar sizes for {entity_type} {entity_id}: {e}")
+        large_relative_path, head_relative_path = "", ""
 
-    original_relative_path = f"{entity_type}/{entity_id}/{original_avatar_filename}"
-
-    return original_relative_path, thumbnail_relative_path
+    return original_relative_path, large_relative_path, head_relative_path
 
 
-async def save_character_avatar(character_id: str, file: UploadFile) -> tuple[str, str]:
+async def save_character_avatar(character_id: str, file: UploadFile) -> tuple[str, str, str]:
     """
-    Save character avatar to storage and generate a thumbnail.
+    Save character avatar to storage and generate its derived sizes.
+
+    Returns ``(original_path, large_path, head_path)``.
     """
     return await _save_avatar("characters", character_id, file)
 
 
-async def save_persona_avatar(persona_id: str, file: UploadFile) -> tuple[str, str]:
+async def save_persona_avatar(persona_id: str, file: UploadFile) -> tuple[str, str, str]:
     """
-    Save persona avatar to storage and generate a thumbnail.
+    Save persona avatar to storage and generate its derived sizes.
+
+    Returns ``(original_path, large_path, head_path)``.
     """
     return await _save_avatar("personas", persona_id, file)
 
