@@ -1990,6 +1990,47 @@
         }
       }
     },
+    "/api/characters/{character_id}/avatar_large": {
+      "get": {
+        "tags": [
+          "characters"
+        ],
+        "summary": "Get Character Avatar Large",
+        "description": "Serve the large (<=512px) full-portrait avatar",
+        "operationId": "get_character_avatar_large_api_characters__character_id__avatar_large_get",
+        "parameters": [
+          {
+            "name": "character_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Character Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/characters/{character_id}/avatar_thumbnail": {
       "get": {
         "tags": [
@@ -3208,6 +3249,47 @@
         "summary": "Get Persona Avatar",
         "description": "Serve persona avatar image",
         "operationId": "get_persona_avatar_api_personas__persona_id__avatar_get",
+        "parameters": [
+          {
+            "name": "persona_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Persona Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/personas/{persona_id}/avatar_large": {
+      "get": {
+        "tags": [
+          "personas"
+        ],
+        "summary": "Get Persona Avatar Large",
+        "description": "Serve the large (<=512px) full-portrait persona avatar",
+        "operationId": "get_persona_avatar_large_api_personas__persona_id__avatar_large_get",
         "parameters": [
           {
             "name": "persona_id",
@@ -6389,6 +6471,17 @@
             ],
             "title": "Avatar"
           },
+          "avatar_large": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Large"
+          },
           "avatar_thumbnail": {
             "anyOf": [
               {
@@ -6416,6 +6509,7 @@
           "name",
           "id",
           "avatar",
+          "avatar_large",
           "avatar_thumbnail",
           "created_at",
           "updated_at"
@@ -6459,6 +6553,17 @@
               }
             ],
             "title": "Avatar"
+          },
+          "avatar_large": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Large"
           },
           "avatar_thumbnail": {
             "anyOf": [
@@ -9656,6 +9761,17 @@
               }
             ],
             "title": "Avatar"
+          },
+          "avatar_large": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Large"
           },
           "avatar_thumbnail": {
             "anyOf": [

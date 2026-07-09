@@ -14,6 +14,7 @@ class PersonaBase(BaseModel):
         default=None, max_length=50000, description="Persona description for RP context"
     )
     avatar: str | None = Field(default=None, max_length=255)
+    avatar_large: str | None = Field(default=None, max_length=255)
     avatar_thumbnail: str | None = Field(default=None, max_length=255)
     is_default: bool = Field(False, description="Set as default persona")
 
@@ -59,6 +60,16 @@ class PersonaResponse(PersonaBase):
         ):
             return f"/api/personas/{self.id}/avatar"
         return avatar
+
+    @field_serializer("avatar_large")
+    def serialize_avatar_large(self, avatar_large: str | None) -> str | None:
+        if avatar_large and not (
+            avatar_large.startswith("http://")
+            or avatar_large.startswith("https://")
+            or avatar_large.startswith("/")
+        ):
+            return f"/api/personas/{self.id}/avatar_large"
+        return avatar_large
 
     @field_serializer("avatar_thumbnail")
     def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:

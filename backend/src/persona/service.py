@@ -54,8 +54,11 @@ class PersonaService:
         created = self.persona_repo.create(persona)
 
         if avatar:
-            original_path, thumbnail_path = await save_persona_avatar(created.id, avatar)
+            original_path, large_path, thumbnail_path = await save_persona_avatar(
+                created.id, avatar
+            )
             created.avatar = original_path
+            created.avatar_large = large_path
             created.avatar_thumbnail = thumbnail_path
             _ = self.persona_repo.update(created)
 
@@ -86,8 +89,12 @@ class PersonaService:
 
         # Update avatar if provided
         if avatar:
-            original_path, _ = await save_persona_avatar(persona.id, avatar)
+            original_path, large_path, thumbnail_path = await save_persona_avatar(
+                persona.id, avatar
+            )
             persona.avatar = original_path
+            persona.avatar_large = large_path
+            persona.avatar_thumbnail = thumbnail_path
         updated = self.persona_repo.update(persona)
         self.persona_repo.commit()
 

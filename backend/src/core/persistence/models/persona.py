@@ -41,8 +41,11 @@ class Persona(BaseModel):
     avatar: Mapped[str | None] = mapped_column(
         String(255), nullable=True, comment="Path to the user persona avatar image"
     )
+    avatar_large: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, comment="Path to the large (<=512px) full-portrait avatar"
+    )
     avatar_thumbnail: Mapped[str | None] = mapped_column(
-        String(255), nullable=True, comment="Path to the user persona avatar thumbnail"
+        String(255), nullable=True, comment="Path to the square head-crop avatar thumbnail"
     )
 
     chats: Mapped[list[Chat]] = relationship(back_populates="persona")

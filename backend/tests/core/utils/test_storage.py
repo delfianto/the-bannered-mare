@@ -48,13 +48,20 @@ async def test_save_character_avatar(mock_settings: Any) -> None:
         mock_img.width = 100
         mock_img.height = 100
         mock_img.mode = "RGB"
+        mock_img.size = (100, 100)
+        # Image ops return the same mock so the derivation pipeline is a no-op
+        mock_img.convert.return_value = mock_img
+        mock_img.copy.return_value = mock_img
+        mock_img.crop.return_value = mock_img
+        mock_img.resize.return_value = mock_img
         # Setup context manager correctly
         mock_image_open.return_value.__enter__.return_value = mock_img
 
-        orig_path, thumb_path = await save_character_avatar("char123", mock_file)
+        orig_path, large_path, thumb_path = await save_character_avatar("char123", mock_file)
 
         assert "characters/char123/avatar_original.png" in orig_path
-        assert "characters/char123/avatar_thumbnail.jpg" in thumb_path  # We save thumbnails as jpg
+        assert "characters/char123/avatar_large.jpg" in large_path  # <=512px full portrait
+        assert "characters/char123/avatar_thumbnail.jpg" in thumb_path  # 256px head crop (jpg)
 
         # Verify directories were created
         assert os.path.exists(os.path.join(mock_settings.storage_path, "characters", "char123"))
