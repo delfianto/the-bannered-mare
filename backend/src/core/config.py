@@ -197,6 +197,7 @@ class Settings(BaseSettings):
         # Image generation
         "dall-e",
         "gpt-image",
+        "image",
         "imagen",
         "flux",
         "stable-diffusion",
@@ -233,6 +234,26 @@ class Settings(BaseSettings):
         "computer-use",
         "research",
         "ocr",
+        # Outdated or off-task chat variants
+        "gpt-3",  # GPT-3.x — obsolete for RP
+        "codex",  # code-completion variants (e.g. gpt-5.x-codex)
+        "latest",  # rolling "*-latest" auto-alias pointers
+        "remm",  # ReMM-SLERP — ancient L2-13B RP merge
+    ]
+
+    # Vendors — the identifier's first path segment (e.g. "perplexity" in
+    # "perplexity/sonar") — dropped wholesale from discovery: search-augmented,
+    # code-edit, or otherwise off-task for RP, plus OpenRouter's own meta-routers
+    # (auto / free / fusion / pareto / bodybuilder). Substring match, so
+    # "bytedance" also covers "bytedance-seed". Override via MODEL_VENDOR_BLACKLIST.
+    model_vendor_blacklist: list[str] = [
+        "openrouter",
+        "perplexity",
+        "cohere",
+        "reka",
+        "bytedance",
+        "sakana",
+        "relace",
     ]
 
     model_config = SettingsConfigDict(

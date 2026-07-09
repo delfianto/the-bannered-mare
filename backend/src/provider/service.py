@@ -298,24 +298,28 @@ class ProviderService:
 
     @staticmethod
     def _filter_blacklisted(models: list[DiscoveredModel]) -> list[DiscoveredModel]:
-        """Drop non-chat/non-RP models.
+        """Drop non-chat/non-RP models via three configurable rules.
 
-        Matches against the model **name** — the last path segment of the
-        identifier — not the vendor prefix, so an RP finetune like
-        ``sao10k/l3.3-euryale-70b`` isn't dropped for the "o1" hiding in its
-        vendor ("sa-o1-0k"). Two rules: the configurable
-        ``settings.model_blacklist`` substrings, plus the OpenAI o-series
-        reasoning models (o1/o3/o4…) which are pricey deep-thinkers ill-suited
-        to RP. Identifier only — a display name may read "Research Preview" on
-        an otherwise fine chat model.
+        The identifier splits as ``vendor/name`` (or just ``name`` for
+        vendor-less providers like OpenAI). Rules:
+        - ``settings.model_vendor_blacklist`` substrings vs the **vendor** —
+          whole vendors dropped (Perplexity, Cohere, OpenRouter meta-routers…).
+        - ``settings.model_blacklist`` substrings vs the **name** only (not the
+          vendor, so ``sao10k/l3.3-euryale-70b`` isn't nuked for the "o1" in
+          "sao10k"; and not the display name, which may read "Research Preview"
+          on a fine chat model).
+        - the OpenAI o-series reasoning models (o1/o3/o4…) by name prefix.
         """
-        blacklist = [k.lower() for k in settings.model_blacklist]
+        name_bl = [k.lower() for k in settings.model_blacklist]
+        vendor_bl = [k.lower() for k in settings.model_vendor_blacklist]
         kept: list[DiscoveredModel] = []
         for m in models:
-            name = m.identifier.rsplit("/", 1)[-1].lower()
+            vendor, _, name = m.identifier.lower().rpartition("/")
+            if vendor and any(v in vendor for v in vendor_bl):
+                continue
             if _REASONING_MODEL_RE.match(name):
                 continue
-            if any(k in name for k in blacklist):
+            if any(k in name for k in name_bl):
                 continue
             kept.append(m)
         return kept
