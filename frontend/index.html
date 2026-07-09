@@ -15,7 +15,26 @@
           var scheme = localStorage.getItem("color-scheme") || "amber";
           var dark =
             mode === "dark" || (!mode && matchMedia("(prefers-color-scheme: dark)").matches);
-          document.documentElement.dataset.theme = "tbm-" + scheme + (dark ? "-dark" : "");
+          var el = document.documentElement;
+          if (scheme === "custom") {
+            el.dataset.theme = "tbm-custom";
+            var c = JSON.parse(localStorage.getItem("custom-theme") || "{}");
+            var s = el.style;
+            if (c.base100) s.setProperty("--color-base-100", c.base100);
+            if (c.base200) s.setProperty("--color-base-200", c.base200);
+            if (c.base300) {
+              s.setProperty("--color-base-300", c.base300);
+              s.setProperty("--color-border", c.base300);
+              s.setProperty("--color-input", c.base300);
+            }
+            if (c.baseContent) s.setProperty("--color-base-content", c.baseContent);
+            if (c.primary) {
+              s.setProperty("--color-primary", c.primary);
+              s.setProperty("--color-ring", c.primary);
+            }
+          } else {
+            el.dataset.theme = "tbm-" + scheme + (dark ? "-dark" : "");
+          }
         } catch (e) {}
       })();
     </script>
