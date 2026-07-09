@@ -41,6 +41,8 @@ const tabs = [
           />
         </button>
       </div>
+      <!-- Each tab teleports its primary action (New Profile, Create Persona, …) here -->
+      <div id="loadout-tab-action" class="ml-auto flex items-center" />
     </div>
   </div>
 </template>
