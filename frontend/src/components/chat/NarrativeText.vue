@@ -82,7 +82,7 @@ const nodes = computed<TextNode[]>(() => {
       <em v-else-if="node.type === 'action'" class="text-muted-foreground italic">{{
         node.text
       }}</em>
-      <span v-else-if="node.type === 'dialogue'" class="font-medium text-foreground">{{
+      <span v-else-if="node.type === 'dialogue'" class="font-medium text-dialogue">{{
         node.text
       }}</span>
       <span v-else class="text-muted-foreground italic">{{ node.text }}</span>

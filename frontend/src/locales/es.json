@@ -344,7 +344,13 @@
       "textSize": "Tamaño del texto",
       "textSizeDescription": "Escala el texto de la interfaz para una lectura cómoda: se aplica en todas partes.",
       "textSizeSample": "El fuego de la taberna crepitaba mientras se inclinaba, su voz apenas un susurro.",
-      "resetTextSize": "Restablecer"
+      "resetTextSize": "Restablecer",
+      "chatWidth": "Ancho del chat",
+      "chatWidthDescription": "Qué tan ancha es la columna de conversación.",
+      "chatWidthNarrow": "Estrecho",
+      "chatWidthCozy": "Cómodo",
+      "chatWidthWide": "Ancho",
+      "chatWidthFull": "Completo"
     },
     "persona": {
       "title": "Tus personas",

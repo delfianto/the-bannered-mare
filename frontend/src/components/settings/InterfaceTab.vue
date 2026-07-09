@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useTheme } from "@/composables/useTheme";
 import { useCustomTheme } from "@/composables/useCustomTheme";
 import { useFontSize, MIN_FONT_SIZE, MAX_FONT_SIZE } from "@/composables/useFontSize";
+import { useChatWidth, CHAT_WIDTH_ORDER, type ChatWidth } from "@/composables/useChatWidth";
 import { COLOR_PRESETS } from "@/constants/colorPresets";
 import { SUPPORTED_LOCALES, setLocale } from "@/i18n";
 import ThemeEditor from "./ThemeEditor.vue";
@@ -11,7 +12,15 @@ import ThemeEditor from "./ThemeEditor.vue";
 const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
 const { custom } = useCustomTheme();
 const { fontSize, setFontSize, resetFontSize } = useFontSize();
+const { chatWidth, setChatWidth } = useChatWidth();
 const { locale } = useI18n();
+
+const chatWidthLabels: Record<ChatWidth, string> = {
+  narrow: "chatWidthNarrow",
+  cozy: "chatWidthCozy",
+  wide: "chatWidthWide",
+  full: "chatWidthFull",
+};
 
 const currentLocale = computed({
   get: () => locale.value,
@@ -104,6 +113,39 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           >
             {{ $t("settings.interface.resetTextSize") }}
           </button>
+        </div>
+
+        <div class="h-px bg-border" />
+
+        <!-- Chat width -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <AppIcon name="i-lucide-move-horizontal" class="size-5 text-primary" />
+            <div>
+              <p class="text-sm font-medium text-foreground">
+                {{ $t("settings.interface.chatWidth") }}
+              </p>
+              <p class="text-xs text-muted-foreground">
+                {{ $t("settings.interface.chatWidthDescription") }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-0.5 rounded-lg border bg-base-300/40 p-0.5">
+            <button
+              v-for="opt in CHAT_WIDTH_ORDER"
+              :key="opt"
+              type="button"
+              class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
+              :class="
+                chatWidth === opt
+                  ? 'bg-primary text-primary-content'
+                  : 'text-muted-foreground hover:text-foreground'
+              "
+              @click="setChatWidth(opt)"
+            >
+              {{ $t(`settings.interface.${chatWidthLabels[opt]}`) }}
+            </button>
+          </div>
         </div>
       </div>
     </section>

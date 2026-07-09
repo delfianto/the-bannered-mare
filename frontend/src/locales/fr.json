@@ -344,7 +344,13 @@
       "textSize": "Taille du texte",
       "textSizeDescription": "Ajuste la taille du texte de l'interface pour un confort de lecture — s'applique partout.",
       "textSizeSample": "Le feu de l'auberge crépitait tandis qu'elle se penchait, sa voix à peine plus qu'un murmure.",
-      "resetTextSize": "Réinitialiser"
+      "resetTextSize": "Réinitialiser",
+      "chatWidth": "Largeur du chat",
+      "chatWidthDescription": "La largeur de la colonne de conversation.",
+      "chatWidthNarrow": "Étroite",
+      "chatWidthCozy": "Confortable",
+      "chatWidthWide": "Large",
+      "chatWidthFull": "Pleine"
     },
     "persona": {
       "title": "Vos personnages",
