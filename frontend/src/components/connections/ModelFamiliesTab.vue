@@ -2,13 +2,33 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useModelFamilies } from "@/composables/useModelFamilies";
+import { useModelFamily } from "@/composables/useModelFamily";
 import { useProviders } from "@/composables/useProviders";
+import { useAppToast } from "@/composables/useToast";
+import type { components } from "@/api/schema";
+import Modal from "@/components/shared/Modal.vue";
+import ModelFamilyForm from "./ModelFamilyForm.vue";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
 const router = useRouter();
 const { families, loading, error, page, totalPages, loadPage, search, filterByProviderType } =
   useModelFamilies();
+const { createFamily, saving } = useModelFamily();
 const { providers } = useProviders();
+const toast = useAppToast();
+
+const showCreate = ref(false);
+
+async function onCreate(payload: components["schemas"]["ModelFamilyCreate"]) {
+  try {
+    await createFamily(payload);
+    toast.success("Model family created");
+    showCreate.value = false;
+    await loadPage(1);
+  } catch {
+    toast.error("Failed to create model family");
+  }
+}
 
 const searchQuery = ref("");
 const searchFocused = ref(false);
@@ -72,14 +92,19 @@ function openFamily(row: any) {
   <div>
     <!-- Primary action lives on the tab bar (see ConnectionsTabs) -->
     <Teleport defer to="#connections-tab-action">
-      <RouterLink
-        to="/settings/model-families/create"
+      <button
         class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
+        @click="showCreate = true"
       >
         <AppIcon name="i-lucide-plus" class="size-4" />
         {{ $t("connections.newFamily") }}
-      </RouterLink>
+      </button>
     </Teleport>
+
+    <!-- Create modal -->
+    <Modal :show="showCreate" :title="$t('connections.newFamily')" max-width="lg" @close="showCreate = false">
+      <ModelFamilyForm :saving="saving" @submit="onCreate" @cancel="showCreate = false" />
+    </Modal>
 
     <!-- Filters row -->
     <div class="mb-4 flex flex-wrap items-center gap-2">
