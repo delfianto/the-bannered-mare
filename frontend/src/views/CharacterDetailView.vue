@@ -157,27 +157,35 @@ async function startTale() {
               :alt="character.name"
               class="size-full object-cover object-top"
             />
-            <div
-              class="absolute inset-0 bg-linear-to-t from-base-200/95 via-transparent to-transparent"
-            />
+            <!-- Fixed dark scrim (not theme-tinted): the name is white over a
+                 guaranteed-dark bottom, so it reads on any portrait in any
+                 theme. A base-200 scrim went black-on-black when the image was
+                 dark where the name sits (e.g. a dark-shirted portrait, light
+                 mode). -->
+            <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
             <div class="absolute inset-x-0 bottom-0 p-6">
-              <h2 class="font-cinzel text-xl font-bold text-foreground drop-shadow-lg">
+              <h2 class="font-cinzel text-xl font-bold text-white drop-shadow-lg">
                 {{ character.name }}
               </h2>
-              <div v-if="character.tags?.length" class="mt-2 flex flex-wrap gap-1.5">
-                <span
-                  v-for="tag in character.tags"
-                  :key="tag"
-                  class="rounded-full border border-base-content/15 bg-base-content/10 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-base-content uppercase backdrop-blur-sm"
-                >
-                  {{ tag }}
-                </span>
-              </div>
             </div>
           </div>
 
           <!-- Content -->
           <div class="space-y-5 p-6">
+            <!-- Tags — kept below the portrait rather than overlaid: imported
+                 cards can carry dozens of tags that overflow the hero and defeat
+                 any fixed overlay text colour. On the card surface they always
+                 read and wrap cleanly. -->
+            <div v-if="character.tags?.length" class="flex flex-wrap gap-1.5">
+              <span
+                v-for="tag in character.tags"
+                :key="tag"
+                class="rounded-full bg-base-300 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-base-content uppercase"
+              >
+                {{ tag }}
+              </span>
+            </div>
+
             <!-- Creator Notes / Tagline -->
             <div v-if="character.creator_notes">
               <h3
