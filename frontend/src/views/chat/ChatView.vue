@@ -6,6 +6,7 @@ import { useChatSessions } from "@/composables/useChatSessions";
 import { useChatMessages } from "@/composables/useChatMessages";
 import { useProfiles } from "@/composables/useProfiles";
 import { useAppToast } from "@/composables/useToast";
+import { useSuggestionSettings } from "@/composables/useSuggestionSettings";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
@@ -73,7 +74,10 @@ const characterAvatar = computed(() => {
   );
 });
 
+const { replySuggestionsEnabled, autoGenerateTones } = useSuggestionSettings();
+
 const showMoodChips = computed(() => {
+  if (!replySuggestionsEnabled.value) return false;
   const last = messages.value[messages.value.length - 1];
   return last?.role === "assistant" && !isGenerating.value;
 });
@@ -152,6 +156,20 @@ async function loadTones() {
   if (items.length) sceneTones.value = items;
   else toast.error(t("chat.suggest.error"));
 }
+
+// Auto-generate scene tones (when enabled) as each assistant reply settles, so
+// the chips reflect the moment instead of showing static defaults until clicked.
+watch(showMoodChips, (show) => {
+  if (
+    show &&
+    replySuggestionsEnabled.value &&
+    autoGenerateTones.value &&
+    !sceneTones.value.length &&
+    !suggesting.value
+  ) {
+    void loadTones();
+  }
+});
 
 // #2 — draft the user's next line in the chosen tone into the composer.
 async function handleToneSelect(chip: MoodChip) {
@@ -404,6 +422,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
                   {{ suggesting ? $t("chat.suggest.loading") : $t("chat.suggest.button") }}
                 </button>
                 <button
+                  v-if="!autoGenerateTones"
                   :disabled="suggesting"
                   class="flex items-center gap-1.5 text-[0.6875rem] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
                   @click="loadTones"

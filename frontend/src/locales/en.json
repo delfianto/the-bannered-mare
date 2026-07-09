@@ -491,7 +491,11 @@
       "chatWidthNarrow": "Narrow",
       "chatWidthCozy": "Cozy",
       "chatWidthWide": "Wide",
-      "chatWidthFull": "Full"
+      "chatWidthFull": "Full",
+      "replySuggestions": "Reply Suggestions",
+      "replySuggestionsDescription": "Show tone chips and AI-suggested replies beneath each message.",
+      "autoTones": "Auto-generate Tones",
+      "autoTonesDescription": "Generate scene-specific tone chips automatically after each reply."
     },
     "persona": {
       "title": "Your Personas",

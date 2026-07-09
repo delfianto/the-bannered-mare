@@ -350,7 +350,11 @@
       "chatWidthNarrow": "Estrecho",
       "chatWidthCozy": "Cómodo",
       "chatWidthWide": "Ancho",
-      "chatWidthFull": "Completo"
+      "chatWidthFull": "Completo",
+      "replySuggestions": "Sugerencias de respuesta",
+      "replySuggestionsDescription": "Muestra chips de tono y respuestas sugeridas por IA bajo cada mensaje.",
+      "autoTones": "Generar tonos automáticamente",
+      "autoTonesDescription": "Genera chips de tono específicos de la escena automáticamente tras cada respuesta."
     },
     "persona": {
       "title": "Tus personas",

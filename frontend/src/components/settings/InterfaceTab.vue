@@ -5,6 +5,7 @@ import { useTheme } from "@/composables/useTheme";
 import { useCustomTheme } from "@/composables/useCustomTheme";
 import { useFontSize, MIN_FONT_SIZE, MAX_FONT_SIZE } from "@/composables/useFontSize";
 import { useChatWidth, CHAT_WIDTH_ORDER, type ChatWidth } from "@/composables/useChatWidth";
+import { useSuggestionSettings } from "@/composables/useSuggestionSettings";
 import { COLOR_PRESETS } from "@/constants/colorPresets";
 import { SUPPORTED_LOCALES, setLocale } from "@/i18n";
 import ThemeEditor from "./ThemeEditor.vue";
@@ -13,6 +14,7 @@ const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
 const { custom } = useCustomTheme();
 const { fontSize, setFontSize, resetFontSize } = useFontSize();
 const { chatWidth, setChatWidth } = useChatWidth();
+const { replySuggestionsEnabled, autoGenerateTones } = useSuggestionSettings();
 const { locale } = useI18n();
 
 const chatWidthLabels: Record<ChatWidth, string> = {
@@ -160,6 +162,56 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           {{ $t("settings.interface.behavior") }}
         </h3>
         <div class="space-y-5 rounded-xl border bg-base-200/50 p-5">
+          <!-- Reply suggestions (master switch for the whole suggestions bar) -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <AppIcon name="i-lucide-sparkles" class="size-5 text-primary" />
+              <div>
+                <p class="text-sm font-medium text-foreground">
+                  {{ $t("settings.interface.replySuggestions") }}
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {{ $t("settings.interface.replySuggestionsDescription") }}
+                </p>
+              </div>
+            </div>
+            <AppToggle
+              :model-value="replySuggestionsEnabled"
+              aria-label="Enable reply suggestions"
+              @change="replySuggestionsEnabled = !replySuggestionsEnabled"
+            />
+          </div>
+
+          <!-- Divider -->
+          <div class="h-px bg-border" />
+
+          <!-- Auto-generate tone (only meaningful while the master is on) -->
+          <div
+            class="flex items-center justify-between transition-opacity"
+            :class="replySuggestionsEnabled ? '' : 'opacity-50'"
+          >
+            <div class="flex items-center gap-3">
+              <AppIcon name="i-lucide-drama" class="size-5 text-primary" />
+              <div>
+                <p class="text-sm font-medium text-foreground">
+                  {{ $t("settings.interface.autoTones") }}
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {{ $t("settings.interface.autoTonesDescription") }}
+                </p>
+              </div>
+            </div>
+            <AppToggle
+              :model-value="autoGenerateTones"
+              :disabled="!replySuggestionsEnabled"
+              aria-label="Auto-generate tone"
+              @change="autoGenerateTones = !autoGenerateTones"
+            />
+          </div>
+
+          <!-- Divider -->
+          <div class="h-px bg-border" />
+
           <!-- Stream Responses -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
