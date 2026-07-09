@@ -316,25 +316,11 @@ function formatDate(iso: string): string {
                   >
                     {{ $t("connections.template.isDefault") }}
                   </label>
-                  <button
-                    role="switch"
-                    :aria-checked="form.is_default"
+                  <AppToggle
+                    :model-value="form.is_default"
                     aria-label="Default template"
-                    class="cursor-pointer"
-                    @click="toggleDefault"
-                  >
-                    <div
-                      class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                      :class="form.is_default ? 'bg-primary' : 'bg-muted-foreground/40'"
-                    >
-                      <span
-                        class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                        :class="
-                          form.is_default ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
-                        "
-                      />
-                    </div>
-                  </button>
+                    @change="toggleDefault"
+                  />
                 </div>
               </div>
             </div>
@@ -377,29 +363,11 @@ function formatDate(iso: string): string {
                     />
                     <span class="text-sm text-foreground">{{ humanize(component) }}</span>
                   </div>
-                  <button
-                    role="switch"
-                    :aria-checked="form.components_enabled[component]"
+                  <AppToggle
+                    :model-value="form.components_enabled[component]"
                     :aria-label="component"
-                    class="cursor-pointer"
-                    @click="toggleComponent(component)"
-                  >
-                    <div
-                      class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                      :class="
-                        form.components_enabled[component] ? 'bg-primary' : 'bg-muted-foreground/40'
-                      "
-                    >
-                      <span
-                        class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                        :class="
-                          form.components_enabled[component]
-                            ? 'translate-x-4 bg-base-100'
-                            : 'translate-x-0 bg-white'
-                        "
-                      />
-                    </div>
-                  </button>
+                    @change="toggleComponent(component)"
+                  />
                 </div>
               </div>
               <p v-else class="text-sm text-muted-foreground">

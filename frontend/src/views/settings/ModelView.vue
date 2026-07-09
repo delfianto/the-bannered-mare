@@ -369,28 +369,13 @@ function formatDate(iso: string): string {
                         }}
                       </span>
                     </div>
-                    <button
-                      role="switch"
-                      :aria-checked="form.use_openrouter"
-                      aria-label="Route via OpenRouter"
-                      class="shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    <AppToggle
+                      class="shrink-0"
+                      :model-value="form.use_openrouter"
                       :disabled="!canUseOpenrouter"
-                      @click="toggleUseOpenrouter"
-                    >
-                      <div
-                        class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                        :class="form.use_openrouter ? 'bg-primary' : 'bg-muted-foreground/40'"
-                      >
-                        <span
-                          class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                          :class="
-                            form.use_openrouter
-                              ? 'translate-x-4 bg-base-100'
-                              : 'translate-x-0 bg-white'
-                          "
-                        />
-                      </div>
-                    </button>
+                      aria-label="Route via OpenRouter"
+                      @change="toggleUseOpenrouter"
+                    />
                   </div>
                   <input
                     v-model="form.openrouter_identifier"
@@ -433,25 +418,11 @@ function formatDate(iso: string): string {
                   <span class="text-sm text-muted-foreground">{{
                     $t("connections.model.enabled")
                   }}</span>
-                  <button
-                    role="switch"
-                    :aria-checked="form.enabled"
+                  <AppToggle
+                    :model-value="form.enabled"
                     aria-label="Enabled"
-                    class="cursor-pointer"
-                    @click="toggleEnabled"
-                  >
-                    <div
-                      class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                      :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
-                    >
-                      <span
-                        class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                        :class="
-                          form.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
-                        "
-                      />
-                    </div>
-                  </button>
+                    @change="toggleEnabled"
+                  />
                 </div>
 
                 <div class="h-px bg-border/50" />

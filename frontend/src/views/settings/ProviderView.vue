@@ -423,23 +423,11 @@ function toggleMenu(identifier: string) {
                 >
                   {{ $t("connections.provider.enabled") }}
                 </label>
-                <button
-                  role="switch"
-                  :aria-checked="form.enabled"
+                <AppToggle
+                  :model-value="form.enabled"
                   aria-label="Enabled"
-                  class="cursor-pointer"
-                  @click="toggleEnabled"
-                >
-                  <div
-                    class="flex h-[22px] w-10 items-center rounded-full px-[3px]"
-                    :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
-                  >
-                    <span
-                      class="size-4 rounded-full shadow-sm transition-transform"
-                      :class="form.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-                    />
-                  </div>
-                </button>
+                  @change="toggleEnabled"
+                />
               </div>
             </div>
           </div>

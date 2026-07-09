@@ -273,25 +273,11 @@ function formatDate(iso: string): string {
                   >
                     {{ $t("connections.preset.isDefault") }}
                   </label>
-                  <button
-                    role="switch"
-                    :aria-checked="form.is_default"
+                  <AppToggle
+                    :model-value="form.is_default"
                     aria-label="Default preset"
-                    class="cursor-pointer"
-                    @click="toggleDefault"
-                  >
-                    <div
-                      class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                      :class="form.is_default ? 'bg-primary' : 'bg-muted-foreground/40'"
-                    >
-                      <span
-                        class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                        :class="
-                          form.is_default ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
-                        "
-                      />
-                    </div>
-                  </button>
+                    @change="toggleDefault"
+                  />
                 </div>
               </div>
             </div>

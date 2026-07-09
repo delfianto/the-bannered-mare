@@ -227,24 +227,12 @@ async function toggleEntry(entry: LoreEntryResponse) {
               class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
             />
           </label>
-          <button
-            type="button"
-            class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
-            role="switch"
-            :aria-checked="lbIsGlobal"
-            @click="lbIsGlobal = !lbIsGlobal"
+          <label
+            class="flex cursor-pointer items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
           >
-            <span
-              class="flex h-[20px] w-9 items-center rounded-full px-[3px] transition-colors duration-300"
-              :class="lbIsGlobal ? 'bg-primary' : 'bg-muted-foreground/40'"
-            >
-              <span
-                class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-                :class="lbIsGlobal ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
-              />
-            </span>
+            <AppToggle v-model="lbIsGlobal" />
             <span class="text-sm text-foreground">{{ $t("lorebooks.form.isGlobal") }}</span>
-          </button>
+          </label>
           <div class="flex items-center gap-3 pt-1">
             <button
               class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
@@ -358,24 +346,12 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
               />
             </label>
-            <button
-              type="button"
-              class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
-              role="switch"
-              :aria-checked="lbIsGlobal"
-              @click="lbIsGlobal = !lbIsGlobal"
+            <label
+              class="flex cursor-pointer items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
             >
-              <span
-                class="flex h-[20px] w-9 items-center rounded-full px-[3px] transition-colors duration-300"
-                :class="lbIsGlobal ? 'bg-primary' : 'bg-muted-foreground/40'"
-              >
-                <span
-                  class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-                  :class="lbIsGlobal ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
-                />
-              </span>
+              <AppToggle v-model="lbIsGlobal" />
               <span class="text-sm text-foreground">{{ $t("lorebooks.form.isGlobal") }}</span>
-            </button>
+            </label>
             <div class="flex items-center gap-3 pt-1">
               <button
                 class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"

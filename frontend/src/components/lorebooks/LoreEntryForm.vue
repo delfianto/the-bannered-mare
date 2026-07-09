@@ -171,43 +171,19 @@ function onSubmit() {
       </div>
 
       <div class="flex flex-wrap gap-3">
-        <button
-          type="button"
-          class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
-          role="switch"
-          :aria-checked="enabled"
-          @click="enabled = !enabled"
+        <label
+          class="flex cursor-pointer items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
         >
-          <span
-            class="flex h-[20px] w-9 items-center rounded-full px-[3px] transition-colors duration-300"
-            :class="enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
-          >
-            <span
-              class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-              :class="enabled ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
-            />
-          </span>
+          <AppToggle v-model="enabled" />
           <span class="text-sm text-foreground">{{ $t("lorebooks.entryForm.enabled") }}</span>
-        </button>
+        </label>
 
-        <button
-          type="button"
-          class="flex items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
-          role="switch"
-          :aria-checked="constant"
-          @click="constant = !constant"
+        <label
+          class="flex cursor-pointer items-center gap-2 rounded-lg border bg-base-300/40 px-3 py-2"
         >
-          <span
-            class="flex h-[20px] w-9 items-center rounded-full px-[3px] transition-colors duration-300"
-            :class="constant ? 'bg-primary' : 'bg-muted-foreground/40'"
-          >
-            <span
-              class="size-3.5 rounded-full shadow-sm transition-transform duration-300"
-              :class="constant ? 'translate-x-[14px] bg-base-100' : 'translate-x-0 bg-white'"
-            />
-          </span>
+          <AppToggle v-model="constant" />
           <span class="text-sm text-foreground">{{ $t("lorebooks.entryForm.constant") }}</span>
-        </button>
+        </label>
       </div>
 
       <div class="flex items-center gap-3 pt-1">

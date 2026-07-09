@@ -310,12 +310,8 @@ function onSubmit() {
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.form.setDefault")
           }}</span>
-          <button
-            type="button"
-            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
-            role="switch"
-            :aria-checked="isDefault"
-            @click="isDefault = !isDefault"
+          <label
+            class="flex h-11 w-full cursor-pointer items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground"
           >
             <span class="flex min-w-0 items-center gap-2">
               <AppIcon
@@ -327,16 +323,8 @@ function onSubmit() {
                 isDefault ? $t("profiles.form.defaultOn") : $t("profiles.form.defaultOff")
               }}</span>
             </span>
-            <span
-              class="flex h-[22px] w-10 shrink-0 items-center rounded-full px-[3px] transition-colors duration-300"
-              :class="isDefault ? 'bg-primary' : 'bg-muted-foreground/40'"
-            >
-              <span
-                class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                :class="isDefault ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-              />
-            </span>
-          </button>
+            <AppToggle v-model="isDefault" />
+          </label>
         </div>
       </div>
 

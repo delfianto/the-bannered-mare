@@ -278,26 +278,13 @@ onBeforeRouteLeave(() => {
                     }}
                   </span>
                 </div>
-                <button
-                  role="switch"
-                  :aria-checked="form.use_openrouter"
-                  aria-label="Route via OpenRouter"
-                  class="shrink-0 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                <AppToggle
+                  class="shrink-0"
+                  :model-value="form.use_openrouter"
                   :disabled="!canUseOpenrouter"
-                  @click="toggleUseOpenrouter"
-                >
-                  <div
-                    class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                    :class="form.use_openrouter ? 'bg-primary' : 'bg-muted-foreground/40'"
-                  >
-                    <span
-                      class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                      :class="
-                        form.use_openrouter ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'
-                      "
-                    />
-                  </div>
-                </button>
+                  aria-label="Route via OpenRouter"
+                  @change="toggleUseOpenrouter"
+                />
               </div>
               <input
                 v-model="form.openrouter_identifier"
@@ -313,23 +300,7 @@ onBeforeRouteLeave(() => {
         <div class="rounded-xl border bg-base-200/50 p-5">
           <div class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">Enabled</span>
-            <button
-              role="switch"
-              :aria-checked="form.enabled"
-              aria-label="Enabled"
-              class="cursor-pointer"
-              @click="toggleEnabled"
-            >
-              <div
-                class="flex h-[22px] w-10 items-center rounded-full px-[3px] transition-colors duration-300"
-                :class="form.enabled ? 'bg-primary' : 'bg-muted-foreground/40'"
-              >
-                <span
-                  class="size-4 rounded-full shadow-sm transition-transform duration-300"
-                  :class="form.enabled ? 'translate-x-4 bg-base-100' : 'translate-x-0 bg-white'"
-                />
-              </div>
-            </button>
+            <AppToggle :model-value="form.enabled" aria-label="Enabled" @change="toggleEnabled" />
           </div>
           <p class="mt-3 text-[11px] text-muted-foreground/70">
             Inference parameters can be tuned after the model is created.
