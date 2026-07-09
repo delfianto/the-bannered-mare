@@ -4,6 +4,7 @@
     "saved": "Gespeichert",
     "saving": "Speichern…",
     "cancel": "Abbrechen",
+    "done": "Fertig",
     "delete": "Löschen",
     "deleteConfirm": "Löschen bestätigen?",
     "deleting": "Löschen…",
@@ -53,7 +54,7 @@
     "createFirst": "Erstellen Sie Ihren ersten Charakter, um Geschichten voller Abenteuer und Wunder zu weben.",
     "importing": "Charakter wird importiert…",
     "imported": "Charakter importiert",
-    "importSuccess": "\u201E{name}\u201C wurde erfolgreich in Ihre Bibliothek importiert.",
+    "importSuccess": "„{name}“ wurde erfolgreich in Ihre Bibliothek importiert.",
     "importFailed": "Import fehlgeschlagen",
     "importError": "Die Charakterdatei konnte nicht importiert werden. Bitte versuchen Sie es erneut.",
     "notFound": "Charakter nicht gefunden",
@@ -147,7 +148,8 @@
       "importFileTypes": ".json oder TavernAI-Karte",
       "exportJson": "Als JSON exportieren",
       "exportFileType": "TavernAI v2-kompatibel",
-      "completeness": "Vollständigkeit"
+      "completeness": "Vollständigkeit",
+      "advanced": "Erweitert"
     },
     "bulkExport": "Exportieren",
     "bulkDelete": "Löschen",
@@ -314,7 +316,7 @@
       "saveChanges": "Änderungen speichern",
       "createEntry": "Eintrag erstellen"
     },
-    "searchNoResults": "Keine Ergebnisse gefunden f\u00FCr \u201E{query}\u201C",
+    "searchNoResults": "Keine Ergebnisse gefunden für „{query}“",
     "matchPercent": "{score} % Übereinstimmung",
     "noEntries": "Keine Einträge gefunden",
     "confirmDelete": "Bestätigen?"

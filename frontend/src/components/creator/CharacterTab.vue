@@ -6,6 +6,7 @@ import FormField from "./FormField.vue";
 import Combobox from "./Combobox.vue";
 import TagInput from "./TagInput.vue";
 import AvatarUpload from "./AvatarUpload.vue";
+import AutoTextarea from "./AutoTextarea.vue";
 
 const { t } = useI18n();
 
@@ -88,15 +89,31 @@ const emit = defineEmits<{
     </div>
 
     <FormField
+      :label="t('characters.form.description')"
+      :hint="t('characters.form.descriptionHint')"
+      :char-count="data.description.length"
+      :char-max="12000"
+    >
+      <AutoTextarea
+        :model-value="data.description"
+        placeholder="Elara Moonwhisper is a half-elf arcanist who has dedicated her considerable lifespan to preserving the knowledge of the Sunken Library…"
+        :min-rows="6"
+        :label="t('characters.form.description')"
+        @update:model-value="emit('update:field', 'description', $event)"
+      />
+    </FormField>
+
+    <FormField
       :label="t('characters.form.creatorNotes')"
       :hint="t('characters.form.creatorNotesHint')"
     >
-      <textarea
-        :value="data.creatorNotes"
+      <AutoTextarea
+        :model-value="data.creatorNotes || ''"
         placeholder="A model student makes their parents proud..."
-        rows="2"
-        class="w-full resize-y rounded-lg border bg-base-300/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-        @input="emit('update:field', 'creatorNotes', ($event.target as HTMLTextAreaElement).value)"
+        :min-rows="2"
+        :max-vh="35"
+        :label="t('characters.form.creatorNotes')"
+        @update:model-value="emit('update:field', 'creatorNotes', $event)"
       />
     </FormField>
 

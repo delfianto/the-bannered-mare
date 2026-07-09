@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import type { CharacterData, LorebookEntry } from "@/types/creator";
 import FormField from "./FormField.vue";
 import LorebookEntryCard from "./LorebookEntryCard.vue";
+import AutoTextarea from "./AutoTextarea.vue";
 
 const { t } = useI18n();
 
@@ -21,6 +22,7 @@ const emit = defineEmits<{
 }>();
 
 const lorebookOpen = ref(true);
+const advancedOpen = ref(false);
 const importRef = ref<HTMLInputElement | null>(null);
 
 function handleImport(e: Event) {
@@ -57,12 +59,12 @@ function handleImport(e: Event) {
       :char-count="data.scenario.length"
       :char-max="2000"
     >
-      <textarea
-        :value="data.scenario"
+      <AutoTextarea
+        :model-value="data.scenario"
         placeholder="You have descended into the ruins beneath the coastal city of Thornhaven, following rumors of the legendary Sunken Library…"
-        rows="4"
-        class="w-full resize-y rounded-lg border bg-base-300/40 px-4 py-3 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-        @input="emit('update:field', 'scenario', ($event.target as HTMLTextAreaElement).value)"
+        :min-rows="4"
+        :label="t('characters.form.scenario')"
+        @update:model-value="emit('update:field', 'scenario', $event)"
       />
     </FormField>
 
@@ -112,6 +114,43 @@ function handleImport(e: Event) {
           <AppIcon name="i-lucide-plus" class="size-4" />
           {{ $t("characters.form.addLorebook") }}
         </button>
+      </div>
+    </div>
+
+    <!-- Advanced — power-user overrides, collapsed by default so they don't
+         clutter the common path. -->
+    <div>
+      <button
+        type="button"
+        class="flex w-full items-center gap-2 border-b py-2 text-sm font-medium text-foreground transition-colors hover:text-primary"
+        @click="advancedOpen = !advancedOpen"
+      >
+        <AppIcon
+          name="i-lucide-chevron-right"
+          class="size-4 transition-transform"
+          :class="advancedOpen ? 'rotate-90' : ''"
+        />
+        <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5" />
+        <span class="font-cinzel text-[11px] tracking-[0.08em] uppercase">{{
+          $t("characters.form.advanced")
+        }}</span>
+      </button>
+
+      <div v-if="advancedOpen" class="pt-4">
+        <FormField
+          :label="t('characters.form.systemPrompt')"
+          :hint="t('characters.form.systemPromptHint')"
+          :char-count="data.systemPrompt?.length || 0"
+          :char-max="12000"
+        >
+          <AutoTextarea
+            :model-value="data.systemPrompt || ''"
+            placeholder="Custom system instructions for the LLM behavior…"
+            :min-rows="4"
+            :label="t('characters.form.systemPrompt')"
+            @update:model-value="emit('update:field', 'systemPrompt', $event)"
+          />
+        </FormField>
       </div>
     </div>
 
