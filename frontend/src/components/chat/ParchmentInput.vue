@@ -55,7 +55,7 @@ function handleKeyDown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="px-4 pt-2 pb-4">
+  <div class="mx-auto w-full max-w-6xl px-4 pt-2 pb-4">
     <div
       class="relative flex items-center gap-3 rounded-xl border bg-base-200 px-4 py-3 transition-all duration-300"
       :class="
