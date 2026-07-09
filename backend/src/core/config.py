@@ -227,6 +227,10 @@ class Settings(BaseSettings):
         "moderation",
         "guard",
         "shield",
+        "safety",  # e.g. nemotron content-safety
+        # Code / developer models
+        "code",  # codestral, qwen *-coder, kimi-*-code, arcee coder, kat-coder…
+        "devstral",
         # Legacy completion / base models (not chat-formatted)
         "davinci",
         "babbage",
@@ -235,6 +239,7 @@ class Settings(BaseSettings):
         "computer-use",
         "research",
         "ocr",
+        "search",  # web-search-augmented (gpt-4o-search-preview, gpt-5-search-api)
         # Outdated or off-task chat variants
         "gpt-3",  # GPT-3.x — obsolete for RP
         "codex",  # code-completion variants (e.g. gpt-5.x-codex)
@@ -256,6 +261,9 @@ class Settings(BaseSettings):
         "sakana",
         "relace",
         "perceptron",
+        "morph",  # code fast-apply / edit
+        "poolside",  # Laguna code models
+        "writer",  # Palmyra — enterprise business writing
     ]
 
     model_config = SettingsConfigDict(
