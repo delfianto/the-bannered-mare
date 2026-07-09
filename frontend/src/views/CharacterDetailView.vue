@@ -168,7 +168,7 @@ async function startTale() {
                 <span
                   v-for="tag in character.tags"
                   :key="tag"
-                  class="rounded-full border border-white/10 bg-white/15 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm"
+                  class="rounded-full border border-base-content/15 bg-base-content/10 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-base-content uppercase backdrop-blur-sm"
                 >
                   {{ tag }}
                 </span>
