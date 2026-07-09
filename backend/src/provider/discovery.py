@@ -133,6 +133,28 @@ class LMStudioDiscoveryClient:
         raise NotImplementedError("LM Studio does not support model deletion via API")
 
 
+_ACRONYMS = {"gpt": "GPT", "tts": "TTS", "hd": "HD", "ai": "AI", "llm": "LLM"}
+
+
+def _humanize_model_id(model_id: str) -> str:
+    """Best-effort friendly name for providers that only return raw ids (OpenAI).
+
+    e.g. ``gpt-4o-mini`` -> ``GPT 4o Mini``. Version-ish tokens (``4o``, ``3.5``)
+    are left as-is; a leading vendor prefix (``vendor/model``) is dropped.
+    """
+    tail = model_id.rsplit("/", 1)[-1]
+    words: list[str] = []
+    for tok in tail.replace("_", "-").split("-"):
+        low = tok.lower()
+        if low in _ACRONYMS:
+            words.append(_ACRONYMS[low])
+        elif tok[:1].isalpha() and not any(c.isdigit() for c in tok):
+            words.append(tok.capitalize())
+        else:
+            words.append(tok)
+    return " ".join(w for w in words if w)
+
+
 class OpenAIDiscoveryClient:
     """OpenAI compatible model listing."""
 
@@ -150,10 +172,13 @@ class OpenAIDiscoveryClient:
             model_id = m.get("id")
             if not model_id:
                 continue
+            # OpenRouter (and some OpenAI-compatible gateways) return a friendly
+            # `name`; OpenAI's /v1/models returns only ids, so humanize those.
+            friendly = m.get("name")
             models.append(
                 DiscoveredModel(
                     identifier=model_id,
-                    display_name=model_id,
+                    display_name=friendly or _humanize_model_id(model_id),
                     state="loaded",
                     size_bytes=None,
                     quantization=None,
