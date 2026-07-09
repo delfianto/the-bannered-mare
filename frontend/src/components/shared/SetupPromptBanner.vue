@@ -27,7 +27,8 @@ function dismiss() {
 <template>
   <div
     v-if="!loading && !dismissed && !hasReadyProfile"
-    class="flex items-center justify-between gap-4 rounded-xl border border-primary/30 bg-primary/5 p-4"
+    class="flex animate-fade-in-up items-center justify-between gap-4 rounded-xl border border-primary/30 bg-primary/5 p-4"
+    style="animation-delay: 40ms"
   >
     <div class="flex items-center gap-3">
       <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15">

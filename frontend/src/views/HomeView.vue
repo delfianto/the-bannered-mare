@@ -29,10 +29,8 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
     </template>
 
     <div class="flex w-full flex-1 flex-col space-y-8">
-      <!-- Setup prompt (only shown when no profiles exist yet) -->
-      <div class="animate-fade-in-up" style="animation-delay: 40ms">
-        <SetupPromptBanner />
-      </div>
+      <!-- Setup prompt (renders nothing once a ready profile exists — no gap) -->
+      <SetupPromptBanner />
 
       <template v-if="charsLoading || chatsLoading">
         <div class="flex flex-1 items-center justify-center py-16">
