@@ -344,7 +344,13 @@
       "textSize": "Textgröße",
       "textSizeDescription": "Skaliere den Text der Oberfläche für angenehmes Lesen – gilt überall.",
       "textSizeSample": "Das Kaminfeuer der Taverne knisterte, als sie sich vorbeugte, ihre Stimme kaum lauter als ein Flüstern.",
-      "resetTextSize": "Auf Standard zurücksetzen"
+      "resetTextSize": "Auf Standard zurücksetzen",
+      "chatWidth": "Chat-Breite",
+      "chatWidthDescription": "Wie breit die Unterhaltungsspalte ist.",
+      "chatWidthNarrow": "Schmal",
+      "chatWidthCozy": "Gemütlich",
+      "chatWidthWide": "Breit",
+      "chatWidthFull": "Voll"
     },
     "persona": {
       "title": "Ihre Personas",

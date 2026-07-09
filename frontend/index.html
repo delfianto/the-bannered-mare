@@ -16,6 +16,13 @@
           if (!fs || fs < 14 || fs > 24) fs = 18;
           document.documentElement.style.fontSize = fs + "px";
 
+          // Chat column width preference.
+          var cwMap = { narrow: "56rem", cozy: "72rem", wide: "88rem", full: "100%" };
+          document.documentElement.style.setProperty(
+            "--chat-max-width",
+            cwMap[localStorage.getItem("chat-width")] || "72rem",
+          );
+
           var mode = localStorage.getItem("theme-mode");
           var scheme = localStorage.getItem("color-scheme") || "amber";
           var dark =

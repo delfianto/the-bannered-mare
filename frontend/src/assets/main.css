@@ -53,6 +53,10 @@
   --color-border: var(--color-border);
   --color-input: var(--color-input);
   --color-ring: var(--color-ring);
+  /* Spoken dialogue in RP chat — the text colour tinted toward the theme
+     accent, so it reads as a distinct hue while staying legible. Derived, so
+     it adapts to every palette (and the custom theme) automatically. */
+  --color-dialogue: color-mix(in oklab, var(--color-primary) 50%, var(--color-base-content));
 }
 
 @layer base {

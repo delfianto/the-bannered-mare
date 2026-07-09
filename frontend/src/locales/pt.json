@@ -344,7 +344,13 @@
       "textSize": "Tamanho do texto",
       "textSizeDescription": "Ajuste o tamanho do texto da interface para leitura confortável — aplica-se em todo lugar.",
       "textSizeSample": "A lareira da taverna crepitava enquanto ela se inclinava, sua voz pouco mais que um sussurro.",
-      "resetTextSize": "Redefinir"
+      "resetTextSize": "Redefinir",
+      "chatWidth": "Largura do chat",
+      "chatWidthDescription": "Quão larga é a coluna da conversa.",
+      "chatWidthNarrow": "Estreito",
+      "chatWidthCozy": "Confortável",
+      "chatWidthWide": "Largo",
+      "chatWidthFull": "Cheio"
     },
     "persona": {
       "title": "Suas personas",

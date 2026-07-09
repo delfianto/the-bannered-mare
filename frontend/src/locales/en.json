@@ -485,7 +485,13 @@
       "textSize": "Text Size",
       "textSizeDescription": "Scale the interface text for comfortable reading — applies everywhere.",
       "textSizeSample": "The tavern's hearth crackled as she leaned in, her voice barely above a whisper.",
-      "resetTextSize": "Reset to default"
+      "resetTextSize": "Reset to default",
+      "chatWidth": "Chat Width",
+      "chatWidthDescription": "How wide the conversation column is.",
+      "chatWidthNarrow": "Narrow",
+      "chatWidthCozy": "Cozy",
+      "chatWidthWide": "Wide",
+      "chatWidthFull": "Full"
     },
     "persona": {
       "title": "Your Personas",
