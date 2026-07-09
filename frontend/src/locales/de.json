@@ -350,7 +350,11 @@
       "chatWidthNarrow": "Schmal",
       "chatWidthCozy": "Gemütlich",
       "chatWidthWide": "Breit",
-      "chatWidthFull": "Voll"
+      "chatWidthFull": "Voll",
+      "replySuggestions": "Antwortvorschläge",
+      "replySuggestionsDescription": "Stimmungs-Chips und KI-Antwortvorschläge unter jeder Nachricht anzeigen.",
+      "autoTones": "Töne automatisch erzeugen",
+      "autoTonesDescription": "Szenenspezifische Stimmungs-Chips automatisch nach jeder Antwort erzeugen."
     },
     "persona": {
       "title": "Ihre Personas",

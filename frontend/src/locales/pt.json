@@ -350,7 +350,11 @@
       "chatWidthNarrow": "Estreito",
       "chatWidthCozy": "Confortável",
       "chatWidthWide": "Largo",
-      "chatWidthFull": "Cheio"
+      "chatWidthFull": "Cheio",
+      "replySuggestions": "Sugestões de resposta",
+      "replySuggestionsDescription": "Mostra chips de tom e respostas sugeridas por IA sob cada mensagem.",
+      "autoTones": "Gerar tons automaticamente",
+      "autoTonesDescription": "Gera chips de tom específicos da cena automaticamente após cada resposta."
     },
     "persona": {
       "title": "Suas personas",

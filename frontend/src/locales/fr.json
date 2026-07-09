@@ -350,7 +350,11 @@
       "chatWidthNarrow": "Étroite",
       "chatWidthCozy": "Confortable",
       "chatWidthWide": "Large",
-      "chatWidthFull": "Pleine"
+      "chatWidthFull": "Pleine",
+      "replySuggestions": "Suggestions de réponse",
+      "replySuggestionsDescription": "Affiche des puces de ton et des réponses suggérées par l'IA sous chaque message.",
+      "autoTones": "Générer les tons automatiquement",
+      "autoTonesDescription": "Génère des puces de ton adaptées à la scène après chaque réponse."
     },
     "persona": {
       "title": "Vos personnages",
