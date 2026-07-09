@@ -262,7 +262,6 @@ class Settings(BaseSettings):
         "relace",
         "perceptron",
         "morph",  # code fast-apply / edit
-        "poolside",  # Laguna code models
         "writer",  # Palmyra — enterprise business writing
     ]
 
