@@ -34,8 +34,10 @@ function timeAgo(dateStr: string): string {
 }
 
 function avatarSrc(chat: Chat): string {
+  // Large tier: this is a full-bleed banner, so the head-crop thumbnail would be
+  // too tightly cropped — use the large full portrait.
   return (
-    chat.character.avatar_thumbnail ||
+    chat.character.avatar_large ||
     chat.character.avatar ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=600`
   );

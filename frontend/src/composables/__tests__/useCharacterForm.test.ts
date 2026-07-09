@@ -58,6 +58,7 @@ describe("useCharacterForm - species and age fields", () => {
       first_message: "Hello class",
       tags: ["Teacher"],
       avatar: "/api/characters/ej2Ymmz9-5lO/avatar",
+      avatar_large: "/api/characters/ej2Ymmz9-5lO/avatar_large",
       avatar_thumbnail: "/api/characters/ej2Ymmz9-5lO/avatar_thumbnail",
       creator_notes: "Janitor import",
       system_prompt: "Strict prompt",

@@ -26,9 +26,11 @@ function handleClick() {
 }
 
 function avatarSrc(): string {
+  // Large tier: full 3:4 portrait shown at ~card width. The large avatar keeps
+  // it sharp while being far lighter than serving the original to a whole grid.
   return (
+    props.character.avatar_large ||
     props.character.avatar ||
-    props.character.avatar_thumbnail ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`
   );
 }
