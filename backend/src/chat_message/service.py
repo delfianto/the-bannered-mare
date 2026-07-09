@@ -351,56 +351,65 @@ class ChatMessageService:
         chat = await self._get_chat_by_id(chat_id)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
-        activated_lore = self._get_activated_lore(chat, messages)
-        rag_results = await self._retrieve_rag_context(chat, messages)
-        api_messages = self.prompt_builder.build_api_messages(
-            chat, messages, activated_lore=activated_lore, rag_results=rag_results
-        )
-
         user_name = chat.persona.name if chat.persona else "the user"
         char_name = chat.character.name if chat.character else "the character"
 
-        if mode == "impersonate":
-            tone_clause = f" Give it a {tone} tone." if tone else ""
+        if mode == "tones":
+            # Tone chips are throwaway metadata — a few emotional-direction labels.
+            # They don't need the system prompt, character card, persona, lorebook,
+            # RAG or full history, so we skip build_api_messages entirely and send a
+            # compact recent transcript to the cheap task model (the same lean shape
+            # as title generation). This drops the request from ~5.7K prompt tokens
+            # to a few hundred for ~46 tokens of output.
+            transcript = self._recent_transcript(chat, messages)
             instruction = (
-                f"You are now writing on behalf of {user_name} (the human user), NOT {char_name}. "
-                f"Compose {user_name}'s next message in the first person, in their voice, "
-                f"continuing the scene naturally.{tone_clause} Output only the message text — no "
-                "quotation marks, no name label, and no commentary about the task."
-            )
-        elif mode == "tones":
-            instruction = (
+                f"Below is the recent exchange in a roleplay between {user_name} (the human "
+                f"user) and {char_name}:\n\n{transcript}\n\n"
                 f"Suggest {count} short labels (1-3 words each) for distinct tones or approaches "
-                f"{user_name} (the human user) could take in their next message, fitting the "
-                f"current scene and what {char_name} just said or did. Vary the emotional "
-                'direction. Style examples only (do not reuse): "Stand your ground", '
-                '"De-escalate", "Flirt back". Respond with ONLY a JSON array of strings.'
+                f"{user_name} could take in their next message, fitting the scene and what "
+                f"{char_name} just said or did. Vary the emotional direction. Style examples "
+                'only (do not reuse): "Stand your ground", "De-escalate", "Flirt back". '
+                "Respond with ONLY a JSON array of strings."
             )
+            api_messages = [{"role": "user", "content": instruction}]
+            gateway = await self._build_task_gateway(chat)
         else:
-            instruction = (
-                f"Do not continue the story as {char_name}. Instead, propose {count} distinct, "
-                f"short options for what {user_name} (the human user) could say next — written in "
-                f"{user_name}'s voice and grounded in what {char_name} just said or did, each a "
-                "different tone or direction, one or two sentences. Respond with ONLY a JSON "
-                'array of strings, e.g. ["...", "...", "..."].'
+            # reply / impersonate become the user's actual next message, so they run
+            # on the main model with the full scene context for quality.
+            activated_lore = self._get_activated_lore(chat, messages)
+            rag_results = await self._retrieve_rag_context(chat, messages)
+            api_messages = self.prompt_builder.build_api_messages(
+                chat, messages, activated_lore=activated_lore, rag_results=rag_results
             )
 
-        # Keep role alternation valid (some providers reject consecutive user
-        # turns): merge the directive into a trailing user message, else append.
-        if api_messages and api_messages[-1].get("role") == "user":
-            last = dict(api_messages[-1])
-            last["content"] = f"{last['content']}\n\n{instruction}"
-            api_messages = [*api_messages[:-1], last]
-        else:
-            api_messages = [*api_messages, {"role": "user", "content": instruction}]
+            if mode == "impersonate":
+                tone_clause = f" Give it a {tone} tone." if tone else ""
+                instruction = (
+                    f"You are now writing on behalf of {user_name} (the human user), NOT "
+                    f"{char_name}. Compose {user_name}'s next message in the first person, in "
+                    f"their voice, continuing the scene naturally.{tone_clause} Output only the "
+                    "message text — no quotation marks, no name label, and no commentary about "
+                    "the task."
+                )
+            else:
+                instruction = (
+                    f"Do not continue the story as {char_name}. Instead, propose {count} "
+                    f"distinct, short options for what {user_name} (the human user) could say "
+                    f"next — written in {user_name}'s voice and grounded in what {char_name} "
+                    "just said or did, each a different tone or direction, one or two sentences. "
+                    'Respond with ONLY a JSON array of strings, e.g. ["...", "...", "..."].'
+                )
 
-        # Drafted content (reply/impersonate) becomes the user's message → main
-        # model; tone labels are throwaway → cheap task model.
-        gateway = (
-            await self._build_task_gateway(chat)
-            if mode == "tones"
-            else await self._build_gateway(chat)
-        )
+            # Keep role alternation valid (some providers reject consecutive user
+            # turns): merge the directive into a trailing user message, else append.
+            if api_messages and api_messages[-1].get("role") == "user":
+                last = dict(api_messages[-1])
+                last["content"] = f"{last['content']}\n\n{instruction}"
+                api_messages = [*api_messages[:-1], last]
+            else:
+                api_messages = [*api_messages, {"role": "user", "content": instruction}]
+
+            gateway = await self._build_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -455,6 +464,27 @@ class ChatMessageService:
             if text:
                 lines.append(f"{speaker}: {text}")
         return "\n".join(lines)[:max_chars]
+
+    def _recent_transcript(
+        self, chat: Chat, messages: list[Message], turns: int = 4, per_msg: int = 600
+    ) -> str:
+        """Compact recent transcript for cheap auxiliary calls (tone chips).
+
+        Unlike ``_title_transcript`` this caps each message individually so the
+        latest turn (the one tones react to) is always kept intact, rather than
+        truncating the whole joined string from the end.
+        """
+        char_name = chat.character.name if chat.character else "Character"
+        user_name = chat.persona.name if chat.persona else "User"
+        lines: list[str] = []
+        for msg in messages[-turns:]:
+            speaker = user_name if msg.role == MessageRole.USER else char_name
+            text = " ".join(msg.content.split())
+            if len(text) > per_msg:
+                text = text[:per_msg].rstrip() + "…"
+            if text:
+                lines.append(f"{speaker}: {text}")
+        return "\n".join(lines)
 
     async def generate_title(self, chat_id: str) -> str:
         """Generate and persist a concise chat title via the task model."""
