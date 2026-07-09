@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useProviders } from "@/composables/useProviders";
+import { useProvider } from "@/composables/useProvider";
+import { useAppToast } from "@/composables/useToast";
+import type { components } from "@/api/schema";
+import Modal from "@/components/shared/Modal.vue";
+import ProviderForm from "./ProviderForm.vue";
 
 const { t } = useI18n();
 
@@ -14,6 +19,21 @@ import xaiIcon from "@/assets/icons/xai.svg";
 import otherIcon from "@/assets/icons/other.svg";
 
 const { providers, loading, error, refresh } = useProviders();
+const { createProvider, saving } = useProvider();
+const toast = useAppToast();
+
+const showCreate = ref(false);
+
+async function onCreate(payload: components["schemas"]["ProviderCreate"]) {
+  try {
+    await createProvider(payload);
+    toast.success("Provider created");
+    showCreate.value = false;
+    await refresh();
+  } catch {
+    toast.error("Failed to create provider");
+  }
+}
 
 const sortedProviders = computed(() =>
   [...providers.value].sort((a, b) => a.name.localeCompare(b.name)),
@@ -47,13 +67,13 @@ function formatUrl(url: string | null): string {
   <div>
     <!-- Primary action lives on the tab bar (see ConnectionsTabs) -->
     <Teleport defer to="#connections-tab-action">
-      <RouterLink
-        to="/settings/providers/create"
+      <button
         class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
+        @click="showCreate = true"
       >
         <AppIcon name="i-lucide-plus" class="size-4" />
         {{ $t("connections.newProvider") }}
-      </RouterLink>
+      </button>
     </Teleport>
 
     <!-- Loading -->
@@ -128,5 +148,15 @@ function formatUrl(url: string | null): string {
         </div>
       </RouterLink>
     </div>
+
+    <!-- Create modal -->
+    <Modal
+      :show="showCreate"
+      :title="$t('connections.newProvider')"
+      max-width="lg"
+      @close="showCreate = false"
+    >
+      <ProviderForm :saving="saving" @submit="onCreate" @cancel="showCreate = false" />
+    </Modal>
   </div>
 </template>

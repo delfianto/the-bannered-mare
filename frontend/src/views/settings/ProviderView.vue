@@ -279,8 +279,10 @@ async function handleDeleteModel(identifier: string) {
 function handleAddModel(m: { identifier: string; display_name?: string }) {
   if (!provider.value) return;
   router.push({
-    name: "model-create",
+    path: "/connections",
     query: {
+      tab: "models",
+      create: "model",
       provider_id: provider.value.id,
       model_identifier: m.identifier,
       name: m.display_name || m.identifier,

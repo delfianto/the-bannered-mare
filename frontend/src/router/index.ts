@@ -58,29 +58,14 @@ const routes = [
     component: () => import("@/views/settings/SettingsView.vue"),
   },
   {
-    path: "/settings/providers/create",
-    name: "provider-create",
-    component: () => import("@/views/settings/ProviderCreateView.vue"),
-  },
-  {
     path: "/settings/providers/:id",
     name: "provider-edit",
     component: () => import("@/views/settings/ProviderView.vue"),
   },
   {
-    path: "/settings/models/create",
-    name: "model-create",
-    component: () => import("@/views/settings/ModelCreateView.vue"),
-  },
-  {
     path: "/settings/models/:id",
     name: "model-edit",
     component: () => import("@/views/settings/ModelView.vue"),
-  },
-  {
-    path: "/settings/model-families/create",
-    name: "model-family-create",
-    component: () => import("@/views/settings/ModelFamilyCreateView.vue"),
   },
   {
     path: "/settings/model-families/:id",
