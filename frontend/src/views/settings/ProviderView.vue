@@ -160,9 +160,13 @@ async function clearFilter() {
 
 onMounted(async () => {
   const id = route.params.id as string;
-  await fetchProvider(id);
-  await fetchAvailableModels(id);
-  await loadPersistedModels(1, { provider_id: id });
+  // Independent (all keyed by id) — fetch in parallel so the page isn't gated
+  // on three sequential round-trips.
+  await Promise.all([
+    fetchProvider(id),
+    fetchAvailableModels(id),
+    loadPersistedModels(1, { provider_id: id }),
+  ]);
 });
 
 watch(provider, (p) => {
