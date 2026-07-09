@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "api:gen": "openapi-typescript ../openapi.json -o ./src/api/schema.d.ts && vp fmt src/api/schema.d.ts",
-    "build": "vue-tsc -b && vp build",
+    "build": "vue-tsc -b && tsgo -p tsconfig.native.json && vp build",
     "dev": "VITE_USE_MOCKS=false vp dev --host",
     "dev:mock": "VITE_USE_MOCKS=true vp dev --host",
     "fmt": "vp fmt src AGENTS.md vite.config.ts",
@@ -13,7 +13,8 @@
     "lint": "vp lint",
     "lint:tailwind": "eslint src/",
     "preview": "vp preview",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "typecheck:native": "tsgo -p tsconfig.native.json"
   },
   "dependencies": {
     "@vueuse/core": "^14.3.0",
@@ -34,6 +35,7 @@
     "@types/markdown-it": "^14.1.2",
     "@typescript-eslint/eslint-plugin": "^8.62.1",
     "@typescript-eslint/parser": "^8.62.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260707.2",
     "@vitejs/plugin-vue": "^6.0.7",
     "daisyui": "^5.6.16",
     "eslint": "^10.6.0",
