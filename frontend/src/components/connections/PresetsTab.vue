@@ -19,15 +19,17 @@ function onImported() {
 
 <template>
   <div>
-    <div v-if="!loading && presets.length > 0" class="mb-4 flex justify-end">
+    <!-- Primary action lives on the tab bar (see ProfilesTabs) -->
+    <Teleport defer to="#loadout-tab-action">
       <button
-        class="flex items-center gap-2 rounded-lg border bg-base-200 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
+        v-if="!loading && presets.length > 0"
+        class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
         @click="showImport = true"
       >
         <AppIcon name="i-lucide-upload" class="size-4" />
         {{ $t("presetImport.button") }}
       </button>
-    </div>
+    </Teleport>
 
     <ImportPresetModal v-if="showImport" @close="showImport = false" @imported="onImported" />
 

@@ -186,19 +186,16 @@ async function setDefault(personaId: string) {
 
 <template>
   <div class="mx-auto max-w-2xl animate-fade-in-up">
-    <!-- Header Row -->
-    <div class="mb-4 flex items-center justify-between">
-      <h3 class="font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase">
-        {{ $t("settings.persona.title") }}
-      </h3>
+    <!-- Primary action lives on the tab bar (see ProfilesTabs) -->
+    <Teleport defer to="#loadout-tab-action">
       <button
-        class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
+        class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
         @click="openCreateForm"
       >
         <AppIcon name="i-lucide-plus" class="size-4" />
         {{ $t("settings.persona.createPersona") }}
       </button>
-    </div>
+    </Teleport>
 
     <!-- Create/Edit form (modal — keeps the list in view behind it) -->
     <Modal

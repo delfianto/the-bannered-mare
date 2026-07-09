@@ -103,16 +103,17 @@ function cancelDelete() {
 
 <template>
   <div class="space-y-6">
-    <!-- Header/Button Row inside the tab -->
-    <div v-if="!loading && profiles.length > 0" class="flex justify-end">
+    <!-- Primary action lives on the tab bar (see ProfilesTabs) -->
+    <Teleport defer to="#loadout-tab-action">
       <button
-        class="flex items-center gap-2 rounded-lg border bg-base-200 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
+        v-if="!loading && profiles.length > 0"
+        class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
         @click="openCreate"
       >
         <AppIcon name="i-lucide-plus" class="size-4" />
         {{ $t("profiles.newProfile") }}
       </button>
-    </div>
+    </Teleport>
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
