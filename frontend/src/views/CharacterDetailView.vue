@@ -51,10 +51,10 @@ onMounted(async () => {
 
 function portraitSrc(): string {
   if (!character.value) return "";
-  // Thumbnail first — the portrait is shown as a contained card, not a
-  // full-bleed hero, so the lighter asset is plenty and saves bandwidth.
+  // Large tier: the contained portrait card renders at a few hundred px, so the
+  // <=512px large avatar is sharp while staying far lighter than the original.
   return (
-    character.value.avatar_thumbnail ||
+    character.value.avatar_large ||
     character.value.avatar ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(character.value.name)}&background=C9922E&color=fff&size=600`
   );

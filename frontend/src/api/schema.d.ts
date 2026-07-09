@@ -529,6 +529,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/characters/{character_id}/avatar_large": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Character Avatar Large
+     * @description Serve the large (<=512px) full-portrait avatar
+     */
+    get: operations["get_character_avatar_large_api_characters__character_id__avatar_large_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/characters/{character_id}/avatar_thumbnail": {
     parameters: {
       query?: never;
@@ -878,6 +898,26 @@ export interface paths {
      * @description Serve persona avatar image
      */
     get: operations["get_persona_avatar_api_personas__persona_id__avatar_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/personas/{persona_id}/avatar_large": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Persona Avatar Large
+     * @description Serve the large (<=512px) full-portrait persona avatar
+     */
+    get: operations["get_persona_avatar_large_api_personas__persona_id__avatar_large_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1866,6 +1906,8 @@ export interface components {
       id: string;
       /** Avatar */
       avatar: string | null;
+      /** Avatar Large */
+      avatar_large: string | null;
       /** Avatar Thumbnail */
       avatar_thumbnail: string | null;
       /**
@@ -1901,6 +1943,8 @@ export interface components {
       name: string;
       /** Avatar */
       avatar?: string | null;
+      /** Avatar Large */
+      avatar_large?: string | null;
       /** Avatar Thumbnail */
       avatar_thumbnail?: string | null;
     };
@@ -3292,6 +3336,8 @@ export interface components {
       description?: string | null;
       /** Avatar */
       avatar?: string | null;
+      /** Avatar Large */
+      avatar_large?: string | null;
       /** Avatar Thumbnail */
       avatar_thumbnail?: string | null;
       /**
@@ -5078,6 +5124,37 @@ export interface operations {
       };
     };
   };
+  get_character_avatar_large_api_characters__character_id__avatar_large_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        character_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
   get_character_avatar_thumbnail_api_characters__character_id__avatar_thumbnail_get: {
     parameters: {
       query?: never;
@@ -5813,6 +5890,37 @@ export interface operations {
     };
   };
   get_persona_avatar_api_personas__persona_id__avatar_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        persona_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_persona_avatar_large_api_personas__persona_id__avatar_large_get: {
     parameters: {
       query?: never;
       header?: never;

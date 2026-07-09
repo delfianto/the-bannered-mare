@@ -110,6 +110,7 @@ export const handlers = [
       creator: (formData.get("creator") as string) || null,
       version: Number(formData.get("version")) || 1,
       avatar: avatarValue || null,
+      avatar_large: avatarValue || null,
       avatar_thumbnail: avatarValue || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -169,6 +170,7 @@ export const handlers = [
     const avatarValue = formData.get("avatar") as string | null;
     if (avatarValue !== null) {
       existing.avatar = avatarValue;
+      existing.avatar_large = avatarValue;
       existing.avatar_thumbnail = avatarValue;
     }
 
@@ -235,6 +237,7 @@ export const handlers = [
         id: body.character_id,
         name: character?.name || "Unknown",
         avatar: character?.avatar || null,
+        avatar_large: character?.avatar_large || null,
         avatar_thumbnail: character?.avatar_thumbnail || null,
       },
       model: {
@@ -1420,6 +1423,7 @@ export const handlers = [
       creator: "Import",
       version: 1,
       avatar: null,
+      avatar_large: null,
       avatar_thumbnail: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -1446,6 +1450,7 @@ export const handlers = [
       description: (formData.get("description") as string) || null,
       is_default: formData.get("is_default") === "true",
       avatar: (formData.get("avatar") as string) || null,
+      avatar_large: (formData.get("avatar") as string) || null,
       avatar_thumbnail: (formData.get("avatar") as string) || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -1485,6 +1490,7 @@ export const handlers = [
     const avatar = formData.get("avatar") as string | null;
     if (avatar !== null) {
       persona.avatar = avatar || null;
+      persona.avatar_large = avatar || null;
       persona.avatar_thumbnail = avatar || null;
     }
 
