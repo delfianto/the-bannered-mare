@@ -49,16 +49,16 @@ function handleProviderTypeFilter(value: string) {
 }
 
 const columns: DataTableColumn[] = [
-  { key: "name", label: "Name", tdClass: "max-w-[220px] truncate font-medium text-foreground" },
+  { key: "name", label: "Name", tdClass: "max-w-55 truncate font-medium text-foreground" },
   {
     key: "family_identifier",
     label: "Identifier",
-    tdClass: "max-w-[200px] truncate font-mono text-xs text-muted-foreground",
+    tdClass: "max-w-50 truncate font-mono text-xs text-muted-foreground",
   },
   {
     key: "description",
     label: "Description",
-    tdClass: "max-w-[320px] truncate text-xs text-muted-foreground",
+    tdClass: "max-w-80 truncate text-xs text-muted-foreground",
   },
   { key: "providers", label: "Providers" },
 ];
@@ -73,7 +73,7 @@ function openFamily(row: any) {
     <!-- Filters row -->
     <div class="mb-4 flex flex-wrap items-center gap-2">
       <!-- Search -->
-      <div class="relative min-w-[200px] flex-1">
+      <div class="relative min-w-50 flex-1">
         <div
           class="flex items-center gap-2 rounded-lg border px-3 transition-all duration-200"
           :class="
@@ -110,7 +110,7 @@ function openFamily(row: any) {
         @update:model-value="handleProviderTypeFilter"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-40 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-server" class="size-3.5" />
           {{ providerTypeLabel }}

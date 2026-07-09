@@ -43,7 +43,7 @@ const favorites = computed(() => {
 <template>
   <aside
     class="hidden h-screen flex-col overflow-hidden border-r bg-base-200 transition-[width,min-width] duration-300 ease-in-out lg:flex"
-    :class="collapsed ? 'w-[4.25rem] min-w-[4.25rem]' : 'w-[16.25rem] min-w-[16.25rem]'"
+    :class="collapsed ? 'w-17 min-w-17' : 'w-65 min-w-65'"
   >
     <!-- Brand Mark -->
     <div class="pt-6 pb-4" :class="collapsed ? 'px-3' : 'px-6'">
@@ -82,7 +82,7 @@ const favorites = computed(() => {
         >
           <span
             v-if="isActive(item.to)"
-            class="absolute top-1/2 left-1.5 h-4 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+            class="absolute top-1/2 left-1.5 h-4 w-0.75 -translate-y-1/2 rounded-full bg-primary"
           />
           <AppIcon :name="item.icon" class="size-5" />
           <span class="text-[0.6875rem] font-medium tracking-wide">{{ item.label }}</span>
@@ -108,7 +108,7 @@ const favorites = computed(() => {
           >
             <span
               v-if="isActive(item.to)"
-              class="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary"
+              class="absolute top-1/2 left-0 h-5 w-0.75 -translate-y-1/2 rounded-full bg-primary"
             />
             <AppIcon :name="item.icon" class="size-5" />
           </RouterLink>

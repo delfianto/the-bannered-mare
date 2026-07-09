@@ -107,11 +107,11 @@ function familyNameFor(id: string): string {
 }
 
 const columns: DataTableColumn[] = [
-  { key: "name", label: "Name", tdClass: "max-w-[240px] truncate font-medium text-foreground" },
+  { key: "name", label: "Name", tdClass: "max-w-60 truncate font-medium text-foreground" },
   {
     key: "model_identifier",
     label: "Identifier",
-    tdClass: "max-w-[220px] truncate font-mono text-xs text-muted-foreground",
+    tdClass: "max-w-55 truncate font-mono text-xs text-muted-foreground",
   },
   { key: "provider", label: "Provider", tdClass: "text-xs text-muted-foreground" },
   { key: "family", label: "Family", tdClass: "text-xs text-muted-foreground" },
@@ -146,7 +146,7 @@ async function handleToggleEnabled(row: any) {
     <!-- Filters row -->
     <div class="mb-6 flex animate-fade-in-up flex-wrap items-center gap-2">
       <!-- Search -->
-      <div class="relative min-w-[200px] flex-1">
+      <div class="relative min-w-50 flex-1">
         <div
           class="flex items-center gap-2 rounded-lg border px-3 transition-all duration-200"
           :class="
@@ -183,7 +183,7 @@ async function handleToggleEnabled(row: any) {
         @update:model-value="handleProviderFilter"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-40 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-server" class="size-3.5" />
           {{ providerLabel }}
@@ -198,7 +198,7 @@ async function handleToggleEnabled(row: any) {
         @update:model-value="handleFamilyFilter"
       >
         <button
-          class="flex h-9 min-w-[160px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-40 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-layers" class="size-3.5" />
           {{ familyLabel }}
@@ -214,7 +214,7 @@ async function handleToggleEnabled(row: any) {
         @update:model-value="handleStatusFilter"
       >
         <button
-          class="flex h-9 min-w-[150px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
+          class="flex h-9 min-w-37.5 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-muted-foreground transition-all outline-none hover:border-muted-foreground/30"
         >
           <AppIcon name="i-lucide-toggle-left" class="size-3.5" />
           {{ statusLabel }}

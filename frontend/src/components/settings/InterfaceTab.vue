@@ -182,7 +182,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             :search-input="false"
           >
             <button
-              class="flex h-9 min-w-[140px] items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
+              class="flex h-9 min-w-35 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
             >
               {{ SUPPORTED_LOCALES.find((l) => l.code === currentLocale)?.name }}
               <AppIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
@@ -242,7 +242,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             >
               <div class="flex h-full">
                 <!-- Sidebar strip -->
-                <div class="w-[10px] shrink-0" :style="{ backgroundColor: previewBg(preset) }">
+                <div class="w-2.5 shrink-0" :style="{ backgroundColor: previewBg(preset) }">
                   <div
                     class="mx-auto mt-2 size-1.5 rounded-full"
                     :style="{ backgroundColor: preset.preview.primary }"
@@ -251,10 +251,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
                 <!-- Main content area -->
                 <div class="flex flex-1 flex-col" :style="{ backgroundColor: previewBg(preset) }">
                   <!-- Header bar -->
-                  <div
-                    class="h-[6px] w-full"
-                    :style="{ backgroundColor: preset.preview.primary }"
-                  />
+                  <div class="h-1.5 w-full" :style="{ backgroundColor: preset.preview.primary }" />
                   <!-- Content placeholder -->
                   <div class="flex-1 p-1.5">
                     <div
@@ -312,14 +309,14 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
             >
               <div class="flex h-full" :style="{ backgroundColor: custom.base100 }">
-                <div class="w-[10px] shrink-0" :style="{ backgroundColor: custom.base200 }">
+                <div class="w-2.5 shrink-0" :style="{ backgroundColor: custom.base200 }">
                   <div
                     class="mx-auto mt-2 size-1.5 rounded-full"
                     :style="{ backgroundColor: custom.primary }"
                   />
                 </div>
                 <div class="flex flex-1 flex-col">
-                  <div class="h-[6px] w-full" :style="{ backgroundColor: custom.primary }" />
+                  <div class="h-1.5 w-full" :style="{ backgroundColor: custom.primary }" />
                   <div class="flex flex-1 items-center justify-center">
                     <AppIcon
                       name="i-lucide-palette"

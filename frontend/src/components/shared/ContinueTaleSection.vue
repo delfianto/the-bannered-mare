@@ -78,7 +78,7 @@ function avatarSrc(chat: Chat): string {
         v-for="(session, i) in sessions"
         :key="session.id"
         :to="{ name: 'chat', params: { chatId: session.id } }"
-        class="group relative h-[160px] w-[280px] shrink-0 animate-fade-in-up cursor-pointer overflow-hidden rounded-xl"
+        class="group relative h-40 w-70 shrink-0 animate-fade-in-up cursor-pointer overflow-hidden rounded-xl"
         :style="{ animationDelay: `${i * 80}ms` }"
       >
         <!-- Background image -->

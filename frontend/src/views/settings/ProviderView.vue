@@ -327,7 +327,7 @@ function toggleMenu(identifier: string) {
     <template v-if="provider && !loading">
       <!-- Header -->
       <header
-        class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
+        class="z-20 flex h-15 shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
       >
         <div class="flex items-center gap-3">
           <button
@@ -566,7 +566,7 @@ function toggleMenu(identifier: string) {
                   :key="id"
                   class="inline-flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pr-1 pl-2.5 text-[0.6875rem] font-medium text-primary"
                 >
-                  <span class="max-w-[220px] truncate font-mono">{{ id }}</span>
+                  <span class="max-w-55 truncate font-mono">{{ id }}</span>
                   <button
                     class="flex size-4 items-center justify-center rounded-full transition-colors hover:bg-primary/20 disabled:opacity-50"
                     :disabled="savingFilter"

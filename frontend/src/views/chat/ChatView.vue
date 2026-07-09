@@ -317,7 +317,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
         class="flex-1 overflow-y-auto px-5 py-6"
         style="scroll-behavior: smooth"
       >
-        <div class="mx-auto max-w-[720px] space-y-5">
+        <div class="mx-auto max-w-180 space-y-5">
           <!-- Load More -->
           <div v-if="hasMore" class="flex justify-center py-2">
             <button

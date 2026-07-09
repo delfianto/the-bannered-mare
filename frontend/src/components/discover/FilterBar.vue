@@ -48,7 +48,7 @@ function sortLabel(value: SortOption): string {
 <template>
   <div class="relative z-30 flex flex-wrap items-center gap-2">
     <!-- Search -->
-    <div class="relative min-w-[200px] flex-1">
+    <div class="relative min-w-50 flex-1">
       <div
         class="flex items-center gap-2 rounded-lg border px-3 transition-all duration-200"
         :class="

@@ -146,7 +146,7 @@ onBeforeRouteLeave(() => {
   <div class="flex h-full flex-col overflow-hidden">
     <!-- Header -->
     <header
-      class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
+      class="z-20 flex h-15 shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
     >
       <div class="flex items-center gap-3">
         <button

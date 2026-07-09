@@ -99,9 +99,7 @@ function removeKeyword(kw: string) {
         <span class="text-xs font-medium text-muted-foreground">{{
           t("characters.form.keywords")
         }}</span>
-        <div
-          class="flex min-h-[36px] flex-wrap items-center gap-1.5 rounded-lg border bg-base-100 p-2"
-        >
+        <div class="flex min-h-9 flex-wrap items-center gap-1.5 rounded-lg border bg-base-100 p-2">
           <span
             v-for="kw in entry.keywords"
             :key="kw"
@@ -120,7 +118,7 @@ function removeKeyword(kw: string) {
           <input
             v-model="keywordInput"
             :placeholder="t('characters.form.addKeywordPlaceholder')"
-            class="min-w-[60px] flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
+            class="min-w-15 flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
             @keydown.enter.prevent="addKeyword"
           />
         </div>

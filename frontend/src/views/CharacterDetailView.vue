@@ -263,7 +263,7 @@ async function startTale() {
              at the same size as the creator's live-preview portrait (uniformity)
              and doesn't balloon on wide screens. -->
         <div
-          class="animate-fade-in-up hidden max-w-[360px] overflow-hidden rounded-xl border bg-base-200/50 lg:block"
+          class="animate-fade-in-up hidden max-w-90 overflow-hidden rounded-xl border bg-base-200/50 lg:block"
           style="animation-delay: 60ms"
         >
           <img

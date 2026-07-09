@@ -164,7 +164,7 @@ function handleAvatarChange(file: File) {
 
     <!-- Header -->
     <header
-      class="z-20 flex h-[60px] shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
+      class="z-20 flex h-15 shrink-0 items-center justify-between border-b bg-base-100/80 px-6 backdrop-blur-sm"
     >
       <div class="flex items-center gap-3">
         <button
@@ -234,7 +234,7 @@ function handleAvatarChange(file: File) {
     <!-- Tab Nav -->
     <div class="shrink-0 border-b bg-base-100/60">
       <div class="flex items-center gap-1 px-8">
-        <div class="mx-auto flex max-w-[580px] items-center gap-1">
+        <div class="mx-auto flex max-w-145 items-center gap-1">
           <button
             v-for="tab in tabs"
             :key="tab.id"
@@ -250,7 +250,7 @@ function handleAvatarChange(file: File) {
             <span style="letter-spacing: 0.03em">{{ tab.label }}</span>
             <span
               v-if="activeTab === tab.id"
-              class="absolute inset-x-2 bottom-0 h-[2px] rounded-full bg-primary transition-all"
+              class="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary transition-all"
             />
           </button>
         </div>
@@ -261,7 +261,7 @@ function handleAvatarChange(file: File) {
     <div class="flex flex-1 overflow-hidden">
       <!-- Form Panel -->
       <div class="flex-1 overflow-y-auto px-8 py-6" style="min-width: 0">
-        <div class="mx-auto max-w-[580px]">
+        <div class="mx-auto max-w-145">
           <CharacterTab
             v-if="activeTab === 'character'"
             :data="form.data"
@@ -293,7 +293,7 @@ function handleAvatarChange(file: File) {
 
       <!-- Preview Panel -->
       <div
-        class="hidden w-[400px] min-w-[400px] overflow-y-auto border-l bg-base-200/30 px-5 py-6 xl:block"
+        class="hidden w-100 min-w-100 overflow-y-auto border-l bg-base-200/30 px-5 py-6 xl:block"
       >
         <div class="sticky top-0">
           <p

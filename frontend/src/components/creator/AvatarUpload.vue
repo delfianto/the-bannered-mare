@@ -34,7 +34,7 @@ function onChange(e: Event) {
   <div class="space-y-2">
     <label class="pl-0.5 text-sm font-medium text-foreground">Portrait</label>
     <div
-      class="relative aspect-3/4 w-full max-w-[200px] cursor-pointer overflow-hidden rounded-xl transition-all hover:scale-[1.01]"
+      class="relative aspect-3/4 w-full max-w-50 cursor-pointer overflow-hidden rounded-xl transition-all hover:scale-[1.01]"
       :class="
         avatarUrl
           ? 'border-2 border-border'

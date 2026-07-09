@@ -266,7 +266,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
   <!-- Split Sidebar/Detail layout when there are lorebooks -->
   <div v-else class="flex h-full overflow-hidden">
     <!-- Left: lorebook list -->
-    <div class="flex w-[300px] shrink-0 flex-col border-r">
+    <div class="flex w-75 shrink-0 flex-col border-r">
       <div class="flex items-center justify-between px-5 pt-6 pb-3">
         <h1 class="font-cinzel text-lg font-bold tracking-wide text-foreground">
           {{ $t("lorebooks.title") }}

@@ -143,7 +143,7 @@ function onSubmit() {
           }}</span>
           <select
             v-model="position"
-            class="h-[38px] w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+            class="h-9.5 w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           >
             <option v-for="p in positions" :key="p.value" :value="p.value">{{ p.label }}</option>
           </select>
@@ -155,7 +155,7 @@ function onSubmit() {
           <input
             v-model.number="order"
             type="number"
-            class="h-[38px] w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+            class="h-9.5 w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
         <label class="block">
@@ -165,7 +165,7 @@ function onSubmit() {
           <input
             v-model.number="priority"
             type="number"
-            class="h-[38px] w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+            class="h-9.5 w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
           />
         </label>
       </div>

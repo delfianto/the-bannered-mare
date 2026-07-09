@@ -55,7 +55,7 @@ const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 26
          view (no scrim / text overlay), that also doubles as the portrait
          dropzone (click or drag an image). -->
     <div
-      class="group relative aspect-3/4 max-w-[360px] cursor-pointer overflow-hidden rounded-xl border bg-base-200/50 transition-all"
+      class="group relative aspect-3/4 max-w-90 cursor-pointer overflow-hidden rounded-xl border bg-base-200/50 transition-all"
       :class="dragOver ? 'ring-2 ring-primary' : ''"
       @click="inputRef?.click()"
       @dragover.prevent="dragOver = true"
@@ -100,7 +100,7 @@ const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 26
     <div class="space-y-2 rounded-xl border bg-base-200 p-4">
       <div class="flex items-center justify-between">
         <div
-          class="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+          class="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase"
         >
           <AppIcon name="i-lucide-message-circle" class="size-3" />
           {{ $t("characters.form.greeting") }}
@@ -127,9 +127,7 @@ const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 26
 
     <!-- Completeness -->
     <div class="rounded-xl border bg-base-200 p-4">
-      <p
-        class="mb-2 text-[0.625rem] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
-      >
+      <p class="mb-2 text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase">
         {{ $t("characters.form.completeness") }}
       </p>
       <div class="flex items-center gap-3">
