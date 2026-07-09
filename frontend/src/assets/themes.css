@@ -450,3 +450,41 @@
   --depth: 0;
   --noise: 0;
 }
+
+/* ── Custom (user-authored; colors overridden at runtime by useCustomTheme) ── */
+@plugin "daisyui/theme" {
+  name: "tbm-custom";
+  color-scheme: light;
+  --color-base-100: #ffffff;
+  --color-base-200: #faf7f2;
+  --color-base-300: #f5f0e8;
+  --color-base-content: #2c2418;
+  --color-primary: #c9922e;
+  --color-primary-content: #ffffff;
+  --color-secondary: #c9922e;
+  --color-secondary-content: #ffffff;
+  --color-accent: #c9922e;
+  --color-accent-content: #ffffff;
+  --color-neutral: #2c2418;
+  --color-neutral-content: #ffffff;
+  --color-info: #4a7aaf;
+  --color-info-content: #ffffff;
+  --color-success: #5c8a6c;
+  --color-success-content: #ffffff;
+  --color-warning: #c9922e;
+  --color-warning-content: #ffffff;
+  --color-error: #b84233;
+  --color-error-content: #ffffff;
+  --color-border: #e8dfd0;
+  --color-input: #e8dfd0;
+  --color-ring: #c9922e;
+  --color-muted-foreground: #7a6e5d;
+  --radius-selector: 0.625rem;
+  --radius-field: 0.625rem;
+  --radius-box: 0.875rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}

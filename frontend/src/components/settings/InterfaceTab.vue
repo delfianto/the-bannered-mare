@@ -2,10 +2,13 @@
 import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "@/composables/useTheme";
+import { useCustomTheme } from "@/composables/useCustomTheme";
 import { COLOR_PRESETS } from "@/constants/colorPresets";
 import { SUPPORTED_LOCALES, setLocale } from "@/i18n";
+import ThemeEditor from "./ThemeEditor.vue";
 
 const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
+const { custom } = useCustomTheme();
 const { locale } = useI18n();
 
 const currentLocale = computed({
@@ -233,7 +236,60 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               <p class="text-[9px] text-muted-foreground">{{ preset.description }}</p>
             </div>
           </button>
+
+          <!-- Custom theme card -->
+          <button
+            class="group relative flex flex-col items-center gap-2 rounded-xl p-2.5 transition-all"
+            :class="
+              colorScheme === 'custom'
+                ? 'bg-base-300/30 ring-2 ring-primary'
+                : 'hover:bg-base-300/20'
+            "
+            aria-label="Custom theme"
+            @click="setColorScheme('custom')"
+          >
+            <div
+              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
+            >
+              <div class="flex h-full" :style="{ backgroundColor: custom.base100 }">
+                <div class="w-[10px] shrink-0" :style="{ backgroundColor: custom.base200 }">
+                  <div
+                    class="mx-auto mt-2 size-1.5 rounded-full"
+                    :style="{ backgroundColor: custom.primary }"
+                  />
+                </div>
+                <div class="flex flex-1 flex-col">
+                  <div class="h-[6px] w-full" :style="{ backgroundColor: custom.primary }" />
+                  <div class="flex flex-1 items-center justify-center">
+                    <AppIcon
+                      name="i-lucide-palette"
+                      class="size-4"
+                      :style="{ color: custom.primary }"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active checkmark -->
+            <div
+              v-if="colorScheme === 'custom'"
+              class="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-content"
+            >
+              <AppIcon name="i-lucide-check" class="size-3" />
+            </div>
+
+            <!-- Label -->
+            <div class="text-center">
+              <p class="font-cinzel text-[11px] font-semibold tracking-wide text-foreground">
+                Custom
+              </p>
+              <p class="text-[9px] text-muted-foreground">Your own palette</p>
+            </div>
+          </button>
         </div>
+
+        <ThemeEditor v-if="colorScheme === 'custom'" />
       </div>
     </section>
   </div>

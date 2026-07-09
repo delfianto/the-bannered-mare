@@ -1,4 +1,5 @@
 import { ref, watch } from "vue";
+import { applyCustomTheme, clearCustomTheme } from "./useCustomTheme";
 
 // Singleton state — shared across all components
 const isDark = ref(false);
@@ -12,8 +13,16 @@ function themeName(palette: string, dark: boolean) {
 }
 
 function applyTheme() {
-  // daisyUI switches themes via the data-theme attribute on <html>.
-  document.documentElement.dataset.theme = themeName(colorScheme.value, isDark.value);
+  // daisyUI switches themes via the data-theme attribute on <html>. The custom
+  // theme uses a fixed name plus runtime inline color overrides (useCustomTheme).
+  const el = document.documentElement;
+  if (colorScheme.value === "custom") {
+    el.dataset.theme = "tbm-custom";
+    applyCustomTheme();
+  } else {
+    clearCustomTheme();
+    el.dataset.theme = themeName(colorScheme.value, isDark.value);
+  }
 }
 
 function init() {
