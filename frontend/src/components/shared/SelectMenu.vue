@@ -29,6 +29,7 @@ const open = ref(false);
 const query = ref("");
 const highlighted = ref(0);
 const root = ref<HTMLElement | null>(null);
+const trigger = ref<HTMLElement | null>(null);
 const menu = ref<HTMLElement | null>(null);
 const searchEl = ref<HTMLInputElement | null>(null);
 const menuStyle = ref<Record<string, string>>({});
@@ -42,7 +43,11 @@ const filtered = computed(() => {
 watch(query, () => (highlighted.value = 0));
 
 function position() {
-  const el = root.value;
+  // Measure the actual trigger element (the slotted button), not the root — the
+  // button carries the real width (w-full fills its field; max-w/compact stays
+  // narrow), so the teleported menu matches it in every layout.
+  const el =
+    (trigger.value?.firstElementChild as HTMLElement | null) ?? trigger.value ?? root.value;
   if (!el) return;
   const r = el.getBoundingClientRect();
   const below = window.innerHeight - r.bottom;
@@ -129,8 +134,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="root" class="relative inline-block" @keydown="onKeydown">
-    <div @click.prevent="toggle">
+  <div ref="root" class="relative" @keydown="onKeydown">
+    <div ref="trigger" @click.prevent="toggle">
       <slot />
     </div>
     <Teleport to="body">
