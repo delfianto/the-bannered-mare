@@ -255,6 +255,7 @@ class Settings(BaseSettings):
         "bytedance",
         "sakana",
         "relace",
+        "perceptron",
     ]
 
     model_config = SettingsConfigDict(
