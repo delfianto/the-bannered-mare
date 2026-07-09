@@ -42,6 +42,7 @@
     "msw": "^2.14.6",
     "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
     "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.2",
     "vite-plugin-terminal": "^1.4.0",
@@ -49,7 +50,6 @@
     "vue-tsc": "^3.3.4"
   },
   "overrides": {
-    "typescript": "npm:typescript-native-bridge@0.0.0",
     "vite": "npm:@voidzero-dev/vite-plus-core@latest",
     "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
   },
@@ -58,8 +58,5 @@
     "workerDirectory": [
       "public"
     ]
-  },
-  "trustedDependencies": [
-    "typescript-native-bridge"
-  ]
+  }
 }

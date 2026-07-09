@@ -98,7 +98,7 @@ src/
 - **Package Manager:** Bun (managed by `vp`; `vp install`, or `bun install` directly)
 - **Framework:** Vue 3.5 — always `<script setup lang="ts">` Composition API
 - **Build Bundler:** Vite 8 powered by Rolldown (Rust); Oxc transforms + Lightning CSS minify
-- **Language:** TypeScript **7** (strict) — the native (Go) compiler. `vue-tsc` runs on it via **`typescript-native-bridge`** (TNB): the `typescript` package is overridden (`package.json` → `overrides`) to the `tsgo`-backed fork, so the whole app — **including `.vue`** — type-checks against native TS7. TNB is experimental (v0.0.0); parity with classic TS isn't 100%, so if it regresses, the escape hatch is reverting that override to `typescript@6`.
+- **Language:** TypeScript 6 (strict mode)
 - **UI Library:** DaisyUI 5 — a CSS-only Tailwind plugin (component _classes_, no JS runtime). Interactive behavior lives in shared Vue primitives (`AppIcon`, `AppTooltip`, `SelectMenu`) under `src/components/shared/`, registered globally in `main.ts`.
 - **Styling:** Tailwind CSS v4 via `@tailwindcss/vite`; DaisyUI themes (`tbm-*`) + retained CSS variables
 - **State:** Pinia for global state, composables for feature-scoped state
@@ -155,7 +155,7 @@ For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Conne
 ### 4.3 Key Architecture Decisions
 
 - **DaisyUI, not a component runtime:** Migrated off Nuxt UI v4 to DaisyUI 5 (a CSS-only Tailwind plugin). Behavior lives in three globally-registered shared primitives — `AppIcon`, `AppTooltip`, `SelectMenu`; everything else is hand-rolled Tailwind using DaisyUI's token vocabulary.
-- **Native TS7 via TNB:** `typescript` is overridden to `typescript-native-bridge` (Johnson Chu's `tsgo`-backed fork of the `typescript` package), so `vue-tsc`/`tsc`/type-aware tooling run on the native TypeScript 7 compiler over the whole app (incl `.vue`). Experimental (v0.0.0); needs per-platform native binaries (bun `trustedDependencies`). Escape hatch: revert the `overrides` entry to `typescript@6`.
+- **TypeScript 7 deferred:** the code is TS7-clean (passes native `tsgo`), and `typescript-native-bridge` can even run `vue-tsc` on TS7 incl `.vue` — but TNB is macOS-only at v0.0.0 (no Linux binary; breaks `ubuntu-latest` CI), so we stay on `typescript@6` + `vue-tsc`. Revisit when TNB ships prebuilt binaries or `vue-tsc` supports native TS7.
 - **API types directly:** Components use `components["schemas"]["CharacterResponse"]` etc. from the generated schema. No parallel/duplicate type systems.
 - **Avatar URLs from API:** Use the `avatar` / `avatar_thumbnail` fields directly. Don't route through `getAvatarUrl()` (it generates endpoints not mocked in MSW).
 - **Singleton theme:** `useTheme()` shares one `isDark` ref across all components.
@@ -188,14 +188,14 @@ vp dev --host                # Dev server (port 5173)
 vp lint                      # Lint with Oxlint
 vp fmt .                     # Format with Oxfmt (vp fmt . --check to verify only)
 vp check                     # fmt + lint + type-check in one pass
-bun run typecheck            # whole app via vue-tsc on native TS 7 (TNB), --noEmit
-bun run build                # FINAL GATE: vue-tsc -b && vp build  (vue-tsc = native TS 7)
+bun run typecheck            # Type-check only (vue-tsc --noEmit)
+bun run build                # FINAL GATE: vue-tsc -b && vp build
 
 # Schema
 bun run api:gen              # Regenerate schema.d.ts from the root openapi.json
 ```
 
-`bun run build` (`vue-tsc -b && vp build`) is the authoritative check — a strict native-TypeScript-7 type-check of the whole app (via TNB), then the production Rolldown build. A task is not done until it passes.
+`bun run build` (`vue-tsc -b && vp build`) is the authoritative check — strict Vue type-check followed by the production Rolldown build. A task is not done until it passes.
 
 > **vp on PATH:** the installer added `vp` to your shell profile (restart your terminal). It lives in `~/.vite-plus/bin`; if a script or hook can't find `vp`, prepend that directory to `PATH`. The Claude Code hooks do this themselves.
 
