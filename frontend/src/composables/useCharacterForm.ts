@@ -79,16 +79,15 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
     if (data.species) fd.append("species", data.species);
     if (data.age) fd.append("age", data.age);
 
-    if (data.tags.length > 0) {
-      fd.append("tags", JSON.stringify(data.tags));
-    }
+    // Always send tags and example_dialogues (even when empty) so that clearing
+    // them on edit actually persists — the backend only updates a field when it
+    // receives one, so omitting the field left the old value in place.
+    fd.append("tags", JSON.stringify(data.tags));
 
-    if (data.exampleDialogues.length > 0) {
-      const dialogueStrings = data.exampleDialogues.map(
-        (d) => `<START>\nUser: ${d.userMessage}\nCharacter: ${d.characterReply}`,
-      );
-      fd.append("example_dialogues", JSON.stringify(dialogueStrings));
-    }
+    const dialogueStrings = data.exampleDialogues.map(
+      (d) => `<START>\nUser: ${d.userMessage}\nCharacter: ${d.characterReply}`,
+    );
+    fd.append("example_dialogues", JSON.stringify(dialogueStrings));
 
     if (data.gender) {
       const genderLower = data.gender.toLowerCase();
@@ -120,7 +119,9 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
     data.greeting = res.first_message || "";
     data.scenario = res.scenario || "";
     data.tags = res.tags || [];
-    data.avatarUrl = res.avatar || "";
+    // Prefer the large tier so the creator preview matches the detail view's
+    // portrait (same asset), not the heavy full-size original.
+    data.avatarUrl = res.avatar_large || res.avatar || "";
     data.avatarFile = null;
     data.creatorNotes = res.creator_notes || "";
     data.systemPrompt = res.system_prompt || "";
@@ -138,16 +139,27 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       data.gender = "";
     }
 
-    // Map example_dialogues back to DialoguePair[]
+    // Map example_dialogues back to DialoguePair[]. A well-formed exchange has
+    // explicit User:/Character: markers; anything else (freeform mes_example
+    // imported from a card) is preserved verbatim in the reply field so an
+    // edit + save round-trip never silently destroys it.
     if (res.example_dialogues && res.example_dialogues.length > 0) {
       data.exampleDialogues = res.example_dialogues.map((text, idx) => {
-        // Parse "<START>\nUser: ...\nCharacter: ..." format
-        const userMatch = text.match(/User:\s*([\s\S]*?)(?:\nCharacter:|$)/);
-        const charMatch = text.match(/Character:\s*([\s\S]*?)$/);
+        const id = `dlg-${Date.now()}-${idx}`;
+        const hasMarkers = /(^|\n)\s*(user|char(acter)?)\s*:/i.test(text);
+        if (hasMarkers) {
+          const userMatch = text.match(/User:\s*([\s\S]*?)(?:\nCharacter:|$)/i);
+          const charMatch = text.match(/Character:\s*([\s\S]*?)$/i);
+          return {
+            id,
+            userMessage: userMatch ? userMatch[1].trim() : "",
+            characterReply: charMatch ? charMatch[1].trim() : "",
+          };
+        }
         return {
-          id: `dlg-${Date.now()}-${idx}`,
-          userMessage: userMatch ? userMatch[1].trim() : "",
-          characterReply: charMatch ? charMatch[1].trim() : "",
+          id,
+          userMessage: "",
+          characterReply: text.replace(/^\s*<START>\s*/i, "").trim(),
         };
       });
     } else {
