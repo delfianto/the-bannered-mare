@@ -180,7 +180,7 @@ function onSubmit() {
 
       <!-- Loadout selectors -->
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
+        <div class="sm:order-1">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.preset")
           }}</span>
@@ -206,7 +206,7 @@ function onSubmit() {
           </SelectMenu>
         </div>
 
-        <div>
+        <div class="sm:order-3">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.template")
           }}</span>
@@ -232,7 +232,7 @@ function onSubmit() {
           </SelectMenu>
         </div>
 
-        <div>
+        <div class="sm:order-4">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.taskModel")
           }}</span>
@@ -260,7 +260,7 @@ function onSubmit() {
           </SelectMenu>
         </div>
 
-        <div>
+        <div class="sm:order-2">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.model")
           }}</span>
@@ -283,7 +283,7 @@ function onSubmit() {
           </SelectMenu>
         </div>
 
-        <div>
+        <div class="sm:order-5">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.fields.persona")
           }}</span>
@@ -306,7 +306,7 @@ function onSubmit() {
           </SelectMenu>
         </div>
 
-        <div>
+        <div class="sm:order-6">
           <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
             $t("profiles.form.setDefault")
           }}</span>
