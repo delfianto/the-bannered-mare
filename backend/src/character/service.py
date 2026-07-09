@@ -12,6 +12,7 @@ from src.character.card_parser import (
     export_card_png,
     parse_card_json,
     parse_card_png,
+    split_example_dialogues,
 )
 from src.character.models import Character
 from src.character.repository import CharacterRepository
@@ -235,10 +236,11 @@ class CharacterService:
                 detail=f"Failed to parse character card: {e}",
             ) from e
 
-        # Map example_dialogues: V2 stores as a single string, we store as list
-        example_list = None
-        if card.example_dialogues:
-            example_list = [card.example_dialogues]
+        # Map example_dialogues: cards store one freeform mes_example string with
+        # <START>-delimited blocks — store one entry per block, dropping empties,
+        # rather than dumping the whole thing into a single giant "example".
+        blocks = split_example_dialogues(card.example_dialogues)
+        example_list = blocks or None
 
         # Map gender string to Gender enum or OTHERS
         gender_enum = None

@@ -11,9 +11,29 @@ from src.character.card_parser import (
     export_card_png,
     parse_card_json,
     parse_card_png,
+    split_example_dialogues,
 )
 
 HOMEROOM_PNG = Path(__file__).parent.parent / "data" / "homeroom.png"
+
+
+class TestSplitExampleDialogues:
+    def test_empty(self):
+        assert split_example_dialogues("") == []
+        assert split_example_dialogues("   \n  ") == []
+
+    def test_no_marker_is_single_block(self):
+        assert split_example_dialogues("Just one example.") == ["Just one example."]
+
+    def test_splits_on_start_and_drops_empties(self):
+        raw = "<START>\nUser: hi\nChar: hello<START>\nUser: bye\nChar: cya<START>\n  "
+        assert split_example_dialogues(raw) == [
+            "User: hi\nChar: hello",
+            "User: bye\nChar: cya",
+        ]
+
+    def test_leading_marker_produces_no_empty_first_block(self):
+        assert split_example_dialogues("<START>\nfreeform text") == ["freeform text"]
 
 
 class TestParseCardJson:
