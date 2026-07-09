@@ -47,11 +47,12 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
 
 <template>
   <div class="space-y-4">
-    <!-- Character Card — also the portrait dropzone (click or drag an image). -->
+    <!-- Character portrait — a clean contained thumbnail matching the detail
+         view (no scrim / text overlay), that also doubles as the portrait
+         dropzone (click or drag an image). -->
     <div
-      class="group relative aspect-3/4 max-h-[280px] cursor-pointer overflow-hidden rounded-xl transition-all"
+      class="group relative aspect-3/4 cursor-pointer overflow-hidden rounded-xl border bg-base-200/50 transition-all"
       :class="dragOver ? 'ring-2 ring-primary' : ''"
-      style="box-shadow: 0 4px 20px var(--color-foreground) / 0.08"
       @click="inputRef?.click()"
       @dragover.prevent="dragOver = true"
       @dragleave="dragOver = false"
@@ -63,22 +64,20 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         :alt="data.name"
         class="absolute inset-0 size-full object-cover object-top"
       />
-      <div v-else class="absolute inset-0 flex items-center justify-center bg-base-300">
-        <AppIcon name="i-lucide-user" class="size-16 text-muted-foreground/30" />
-      </div>
-      <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
 
-      <!-- Upload affordance: hint when empty, hover overlay when a portrait exists. -->
+      <!-- Empty state -->
       <div
-        v-if="!data.avatarUrl"
-        class="absolute inset-0 flex flex-col items-center justify-center gap-2"
-        :class="dragOver ? 'text-primary' : 'text-white/60'"
+        v-else
+        class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-base-300"
+        :class="dragOver ? 'text-primary' : 'text-muted-foreground/50'"
       >
         <AppIcon name="i-lucide-image-plus" class="size-8" />
         <span class="text-[11px] font-medium">Drop image or click</span>
       </div>
+
+      <!-- Hover affordance when a portrait exists -->
       <div
-        v-else
+        v-if="data.avatarUrl"
         class="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/40"
       >
         <div
@@ -90,30 +89,6 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
       </div>
 
       <input ref="inputRef" type="file" accept="image/*" class="hidden" @change="onChange" />
-
-      <div v-if="data.tags.length > 0" class="absolute top-3 left-3 flex flex-wrap gap-1">
-        <span
-          v-for="tag in data.tags.slice(0, 3)"
-          :key="tag"
-          class="rounded-full border border-white/10 bg-white/15 px-2 py-0.5 text-[9px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm"
-        >
-          {{ tag }}
-        </span>
-      </div>
-
-      <div class="absolute inset-x-0 bottom-0 p-4">
-        <h3
-          class="truncate font-cinzel text-sm font-semibold text-white drop-shadow-lg"
-          style="letter-spacing: 0.02em"
-        >
-          {{ data.name || "Unnamed Character" }}
-        </h3>
-        <p v-if="data.title" class="mt-0.5 truncate text-[11px] text-white/60">{{ data.title }}</p>
-        <p v-if="data.species" class="mt-1 text-[10px] text-white/40">
-          {{ data.species }}{{ data.gender ? ` · ${data.gender}` : ""
-          }}{{ data.age ? ` · ${data.age}` : "" }}
-        </p>
-      </div>
     </div>
 
     <!-- Greeting Preview -->
