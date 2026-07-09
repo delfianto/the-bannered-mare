@@ -208,13 +208,13 @@ const userActions = [
         <!-- Alternative counter badge (assistant only) -->
         <span
           v-if="hasAlternatives && !isUser"
-          class="rounded-full bg-base-300/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+          class="rounded-full bg-base-300/60 px-2 py-0.5 text-[0.625rem] font-medium text-muted-foreground"
         >
           {{ (currentAltIndex ?? 0) + 1 }} / {{ alternativeCount }}
         </span>
 
         <!-- Timestamp -->
-        <p class="text-[10px] text-muted-foreground">
+        <p class="text-[0.625rem] text-muted-foreground">
           {{ formattedTime }}
         </p>
       </div>

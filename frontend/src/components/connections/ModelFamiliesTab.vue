@@ -156,11 +156,14 @@ function openFamily(row: any) {
             <span
               v-for="pt in row.provider_types.slice(0, 4)"
               :key="pt"
-              class="rounded-full bg-base-300 px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
+              class="rounded-full bg-base-300 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-foreground uppercase"
             >
               {{ pt }}
             </span>
-            <span v-if="row.provider_types.length > 4" class="text-[10px] text-muted-foreground">
+            <span
+              v-if="row.provider_types.length > 4"
+              class="text-[0.625rem] text-muted-foreground"
+            >
               +{{ row.provider_types.length - 4 }}
             </span>
           </div>

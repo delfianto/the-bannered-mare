@@ -283,13 +283,15 @@ function formatDate(iso: string): string {
               :placeholder="$t('connections.fragment.contentPlaceholder')"
               class="min-h-[200px] w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
             />
-            <p class="mt-2 text-[11px] text-muted-foreground/60">
+            <p class="mt-2 text-[0.6875rem] text-muted-foreground/60">
               {{ $t("connections.fragment.contentHint") }}
             </p>
           </div>
 
           <!-- Metadata -->
-          <div class="flex items-center justify-between px-1 text-[11px] text-muted-foreground/60">
+          <div
+            class="flex items-center justify-between px-1 text-[0.6875rem] text-muted-foreground/60"
+          >
             <span>Created {{ formatDate(fragment.created_at) }}</span>
             <span>Updated {{ formatDate(fragment.updated_at) }}</span>
           </div>

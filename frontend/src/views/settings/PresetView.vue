@@ -384,7 +384,7 @@ function formatDate(iso: string): string {
 
                 <!-- Timestamps -->
                 <div class="border-t border-border/50 pt-3">
-                  <div class="space-y-1.5 text-[11px] text-muted-foreground/60">
+                  <div class="space-y-1.5 text-[0.6875rem] text-muted-foreground/60">
                     <div class="flex justify-between">
                       <span>Created</span>
                       <span>{{ formatDate(preset.created_at) }}</span>

@@ -76,7 +76,7 @@ const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 26
         :class="dragOver ? 'text-primary' : 'text-muted-foreground/50'"
       >
         <AppIcon name="i-lucide-image-plus" class="size-8" />
-        <span class="text-[11px] font-medium">Drop image or click</span>
+        <span class="text-[0.6875rem] font-medium">Drop image or click</span>
       </div>
 
       <!-- Hover affordance when a portrait exists -->
@@ -100,7 +100,7 @@ const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 26
     <div class="space-y-2 rounded-xl border bg-base-200 p-4">
       <div class="flex items-center justify-between">
         <div
-          class="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+          class="flex items-center gap-1.5 text-[0.625rem] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
         >
           <AppIcon name="i-lucide-message-circle" class="size-3" />
           {{ $t("characters.form.greeting") }}
@@ -127,7 +127,9 @@ const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 26
 
     <!-- Completeness -->
     <div class="rounded-xl border bg-base-200 p-4">
-      <p class="mb-2 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase">
+      <p
+        class="mb-2 text-[0.625rem] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+      >
         {{ $t("characters.form.completeness") }}
       </p>
       <div class="flex items-center gap-3">
@@ -150,7 +152,7 @@ const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 26
           <p class="text-sm font-medium text-foreground">
             {{ completeness.filled }} / {{ completeness.total }}
           </p>
-          <p class="text-[11px] text-muted-foreground">
+          <p class="text-[0.6875rem] text-muted-foreground">
             <span v-if="pct >= 100" class="flex items-center gap-1 text-primary">
               <AppIcon name="i-lucide-check" class="size-3" /> Character complete
             </span>

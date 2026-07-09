@@ -340,7 +340,11 @@
       "languageDescription": "Escolha seu idioma preferido",
       "colorScheme": "Esquema de cores",
       "darkMode": "Modo escuro",
-      "darkModeDescription": "Alternar entre aparência clara e escura"
+      "darkModeDescription": "Alternar entre aparência clara e escura",
+      "textSize": "Tamanho do texto",
+      "textSizeDescription": "Ajuste o tamanho do texto da interface para leitura confortável — aplica-se em todo lugar.",
+      "textSizeSample": "A lareira da taverna crepitava enquanto ela se inclinava, sua voz pouco mais que um sussurro.",
+      "resetTextSize": "Redefinir"
     },
     "persona": {
       "title": "Suas personas",

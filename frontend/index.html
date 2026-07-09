@@ -11,6 +11,11 @@
       // Set the daisyUI theme before paint to avoid a flash of the default theme.
       (function () {
         try {
+          // Root font size (rem base) — applied before paint so text doesn't reflow.
+          var fs = parseInt(localStorage.getItem("font-size"), 10);
+          if (!fs || fs < 14 || fs > 24) fs = 18;
+          document.documentElement.style.fontSize = fs + "px";
+
           var mode = localStorage.getItem("theme-mode");
           var scheme = localStorage.getItem("color-scheme") || "amber";
           var dark =

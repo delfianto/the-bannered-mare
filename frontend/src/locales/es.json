@@ -340,7 +340,11 @@
       "languageDescription": "Elige tu idioma preferido",
       "colorScheme": "Esquema de colores",
       "darkMode": "Modo oscuro",
-      "darkModeDescription": "Alternar entre apariencia clara y oscura"
+      "darkModeDescription": "Alternar entre apariencia clara y oscura",
+      "textSize": "Tamaño del texto",
+      "textSizeDescription": "Escala el texto de la interfaz para una lectura cómoda: se aplica en todas partes.",
+      "textSizeSample": "El fuego de la taberna crepitaba mientras se inclinaba, su voz apenas un susurro.",
+      "resetTextSize": "Restablecer"
     },
     "persona": {
       "title": "Tus personas",

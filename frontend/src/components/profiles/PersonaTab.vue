@@ -315,7 +315,7 @@ async function setDefault(personaId: string) {
             </p>
             <button v-if="persona.is_default" class="cursor-default">
               <span
-                class="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+                class="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary"
               >
                 {{ $t("settings.persona.default") }}
               </span>
@@ -327,7 +327,7 @@ async function setDefault(personaId: string) {
               @click="setDefault(persona.id)"
             >
               <span
-                class="inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-base-300"
+                class="inline-flex items-center rounded-md border px-2 py-0.5 text-[0.6875rem] font-medium text-muted-foreground transition-colors hover:bg-base-300"
               >
                 {{ $t("settings.persona.setDefault") }}
               </span>

@@ -113,7 +113,7 @@ const columns: DataTableColumn[] = [
     >
       <template #cell-type="{ row }">
         <span
-          class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+          class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
           :class="typeBadgeClass(row.fragment_type)"
         >
           {{ row.fragment_type }}
@@ -126,7 +126,7 @@ const columns: DataTableColumn[] = [
       <template #cell-usedBy="{ row }">
         <span
           v-if="(row.used_by ?? []).length === 0"
-          class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500"
+          class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[0.6875rem] font-medium text-amber-500"
         >
           Unused
         </span>

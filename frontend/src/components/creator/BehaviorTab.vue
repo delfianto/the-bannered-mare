@@ -85,7 +85,7 @@ const dialoguesOpen = ref(true);
           class="size-4 transition-transform"
           :class="dialoguesOpen ? 'rotate-90' : ''"
         />
-        <span class="font-cinzel text-[11px] tracking-[0.08em] uppercase">{{
+        <span class="font-cinzel text-[0.6875rem] tracking-[0.08em] uppercase">{{
           $t("characters.form.exampleDialogues")
         }}</span>
         <span class="ml-auto text-xs text-muted-foreground">

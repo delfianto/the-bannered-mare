@@ -377,11 +377,13 @@ function toggleMenu(identifier: string) {
               </div>
               <div>
                 <span
-                  class="rounded-full bg-base-300 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-foreground uppercase"
+                  class="rounded-full bg-base-300 px-2.5 py-0.5 text-[0.625rem] font-medium tracking-wide text-foreground uppercase"
                 >
                   {{ provider.provider_type }}
                 </span>
-                <p class="mt-0.5 text-[10px] text-muted-foreground">Provider Type (read-only)</p>
+                <p class="mt-0.5 text-[0.625rem] text-muted-foreground">
+                  Provider Type (read-only)
+                </p>
               </div>
             </div>
 
@@ -470,7 +472,7 @@ function toggleMenu(identifier: string) {
                 >
                   Available Models
                 </h2>
-                <p class="mt-0.5 text-[10px] text-muted-foreground">
+                <p class="mt-0.5 text-[0.625rem] text-muted-foreground">
                   {{
                     provider.last_synced_at
                       ? `Last synced ${timeAgo(provider.last_synced_at)}`
@@ -556,13 +558,13 @@ function toggleMenu(identifier: string) {
 
               <!-- Active filter chips -->
               <div v-if="allowedModels.length > 0" class="flex flex-wrap items-center gap-1.5">
-                <span class="text-[10px] tracking-wide text-muted-foreground uppercase"
+                <span class="text-[0.625rem] tracking-wide text-muted-foreground uppercase"
                   >Filter:</span
                 >
                 <span
                   v-for="id in allowedModels"
                   :key="id"
-                  class="inline-flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pr-1 pl-2.5 text-[11px] font-medium text-primary"
+                  class="inline-flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pr-1 pl-2.5 text-[0.6875rem] font-medium text-primary"
                 >
                   <span class="max-w-[220px] truncate font-mono">{{ id }}</span>
                   <button
@@ -575,14 +577,14 @@ function toggleMenu(identifier: string) {
                   </button>
                 </span>
                 <button
-                  class="ml-1 text-[10px] text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline disabled:opacity-50"
+                  class="ml-1 text-[0.625rem] text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline disabled:opacity-50"
                   :disabled="savingFilter"
                   @click="clearFilter"
                 >
                   Clear all
                 </button>
               </div>
-              <p v-else class="text-[10px] text-muted-foreground">
+              <p v-else class="text-[0.625rem] text-muted-foreground">
                 No filter set — showing all discovered models. Search above to show only specific
                 ones.
               </p>
@@ -615,7 +617,7 @@ function toggleMenu(identifier: string) {
               >
                 <div class="min-w-0 pr-4">
                   <p class="truncate text-sm text-foreground">{{ model.display_name }}</p>
-                  <p class="text-[10px] text-muted-foreground">
+                  <p class="text-[0.625rem] text-muted-foreground">
                     {{
                       [formatSize(model.size_bytes), model.quantization].filter(Boolean).join(" • ")
                     }}
@@ -624,7 +626,7 @@ function toggleMenu(identifier: string) {
                 <div class="flex shrink-0 items-center gap-2">
                   <span
                     v-if="isLocalProvider"
-                    class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                    class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.625rem] font-medium"
                     :class="
                       model.state === 'loaded'
                         ? 'bg-emerald-500/10 text-emerald-500'
@@ -727,7 +729,9 @@ function toggleMenu(identifier: string) {
           </div>
 
           <!-- Timestamps -->
-          <div class="flex items-center justify-between px-1 text-[11px] text-muted-foreground/60">
+          <div
+            class="flex items-center justify-between px-1 text-[0.6875rem] text-muted-foreground/60"
+          >
             <span>Created {{ formatDate(provider.created_at) }}</span>
             <span>Updated {{ formatDate(provider.updated_at) }}</span>
           </div>

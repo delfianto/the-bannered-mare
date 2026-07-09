@@ -73,7 +73,7 @@ const nodes = computed<TextNode[]>(() => {
 </script>
 
 <template>
-  <div class="text-[14px] leading-[1.7] whitespace-pre-wrap">
+  <div class="text-[0.875rem] leading-[1.7] whitespace-pre-wrap">
     <template v-for="node in nodes" :key="node.key">
       <div v-if="node.type === 'break'" class="h-3" />
       <em v-else-if="node.type === 'action'" class="text-muted-foreground italic">{{

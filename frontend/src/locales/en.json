@@ -481,7 +481,11 @@
       "languageDescription": "Choose your preferred language",
       "colorScheme": "Color Scheme",
       "darkMode": "Dark Mode",
-      "darkModeDescription": "Switch between light and dark appearance"
+      "darkModeDescription": "Switch between light and dark appearance",
+      "textSize": "Text Size",
+      "textSizeDescription": "Scale the interface text for comfortable reading — applies everywhere.",
+      "textSizeSample": "The tavern's hearth crackled as she leaned in, her voice barely above a whisper.",
+      "resetTextSize": "Reset to default"
     },
     "persona": {
       "title": "Your Personas",

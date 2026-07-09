@@ -97,7 +97,7 @@ function avatarSrc(chat: Chat): string {
             {{ session.title || $t("chat.untitled") }}
           </h3>
           <p class="mb-2 text-xs text-white/70">with {{ session.character.name }}</p>
-          <div class="flex items-center gap-3 text-[11px] text-white/60">
+          <div class="flex items-center gap-3 text-[0.6875rem] text-white/60">
             <span class="flex items-center gap-1">
               <AppIcon name="i-lucide-clock" class="size-3" />
               {{ timeAgo(session.updated_at) }}

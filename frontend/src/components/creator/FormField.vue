@@ -13,12 +13,12 @@ defineProps<{
       <label class="pl-0.5 text-sm font-medium text-foreground" style="letter-spacing: 0.01em">
         {{ label }}
       </label>
-      <span v-if="hint" class="text-[11px] text-muted-foreground italic">{{ hint }}</span>
+      <span v-if="hint" class="text-[0.6875rem] text-muted-foreground italic">{{ hint }}</span>
     </div>
     <slot />
     <div v-if="charMax !== undefined" class="flex justify-end">
       <span
-        class="text-[11px]"
+        class="text-[0.6875rem]"
         :class="(charCount || 0) > charMax ? 'text-error' : 'text-muted-foreground'"
       >
         {{ charCount || 0 }}/{{ charMax }}

@@ -81,7 +81,7 @@ function avatarSrc(): string {
       </h3>
       <p
         v-if="character.creator_notes || character.description"
-        class="mb-2 line-clamp-3 text-[11px] leading-relaxed text-white/60"
+        class="mb-2 line-clamp-3 text-[0.6875rem] leading-relaxed text-white/60"
       >
         {{ character.creator_notes || character.description }}
       </p>
@@ -89,7 +89,7 @@ function avatarSrc(): string {
         <span
           v-for="tag in character.tags.slice(0, 3)"
           :key="tag"
-          class="rounded-full border border-white/10 bg-white/15 px-2 py-0.5 text-[9px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm"
+          class="rounded-full border border-white/10 bg-white/15 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm"
         >
           {{ tag }}
         </span>

@@ -64,7 +64,7 @@ function avatarSrc(chat: Chat): string {
 
     <!-- Label -->
     <p
-      class="mb-1.5 px-5 text-[10px] font-semibold tracking-widest text-muted-foreground uppercase"
+      class="mb-1.5 px-5 text-[0.625rem] font-semibold tracking-widest text-muted-foreground uppercase"
     >
       {{ $t("chat.activeTales") }}
     </p>
@@ -104,16 +104,16 @@ function avatarSrc(chat: Chat): string {
             <p class="truncate text-sm font-medium text-foreground">
               {{ session.character.name }}
             </p>
-            <span class="shrink-0 text-[10px] text-muted-foreground">
+            <span class="shrink-0 text-[0.625rem] text-muted-foreground">
               {{ timeAgo(session.updated_at) }}
             </span>
           </div>
-          <p class="mt-0.5 truncate font-cinzel text-[11px] text-primary/80">
+          <p class="mt-0.5 truncate font-cinzel text-[0.6875rem] text-primary/80">
             {{ session.title || $t("chat.untitled") }}
           </p>
           <p
             v-if="session.preview"
-            class="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-muted-foreground italic"
+            class="mt-0.5 line-clamp-1 text-[0.6875rem] leading-relaxed text-muted-foreground italic"
           >
             {{ session.preview }}
           </p>
