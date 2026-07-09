@@ -259,9 +259,11 @@ async function startTale() {
       <!-- Right column (1 col) -->
       <div class="space-y-6">
         <!-- Portrait — desktop only (on mobile it sits at the top of the page).
-             Shown above the details, per the desktop layout. -->
+             Shown above the details, per the desktop layout. Capped so it renders
+             at the same size as the creator's live-preview portrait (uniformity)
+             and doesn't balloon on wide screens. -->
         <div
-          class="animate-fade-in-up hidden overflow-hidden rounded-xl border bg-base-200/50 lg:block"
+          class="animate-fade-in-up hidden max-w-[360px] overflow-hidden rounded-xl border bg-base-200/50 lg:block"
           style="animation-delay: 60ms"
         >
           <img
