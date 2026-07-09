@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import type { CharacterData } from "@/types/creator";
 import NarrativeText from "@/components/chat/NarrativeText.vue";
+import Modal from "@/components/shared/Modal.vue";
 
 const props = defineProps<{
   data: CharacterData;
@@ -42,7 +43,10 @@ const pct = computed(() =>
 const circumference = 2 * Math.PI * 18;
 const offset = computed(() => circumference - (pct.value / 100) * circumference);
 
-const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "");
+const greetingExpanded = ref(false);
+// Roughly the number of characters that fills the capped preview height; beyond
+// this we fade the bottom to hint there's more (and the expand button opens it).
+const greetingOverflows = computed(() => (props.data.greeting?.length || 0) > 260);
 </script>
 
 <template>
@@ -91,16 +95,32 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
       <input ref="inputRef" type="file" accept="image/*" class="hidden" @change="onChange" />
     </div>
 
-    <!-- Greeting Preview -->
+    <!-- Greeting Preview — height-capped so the panel never needs to scroll;
+         the expand button opens the full greeting in a modal. -->
     <div class="space-y-2 rounded-xl border bg-base-200 p-4">
-      <div
-        class="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
-      >
-        <AppIcon name="i-lucide-message-circle" class="size-3" />
-        {{ $t("characters.form.greeting") }}
+      <div class="flex items-center justify-between">
+        <div
+          class="flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase"
+        >
+          <AppIcon name="i-lucide-message-circle" class="size-3" />
+          {{ $t("characters.form.greeting") }}
+        </div>
+        <button
+          v-if="data.greeting"
+          type="button"
+          class="flex size-6 items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-base-300 hover:text-foreground"
+          :aria-label="$t('characters.form.greeting')"
+          @click="greetingExpanded = true"
+        >
+          <AppIcon name="i-lucide-maximize-2" class="size-3" />
+        </button>
       </div>
-      <div v-if="greetingPreview" class="text-xs leading-[1.7]">
-        <NarrativeText :content="greetingPreview + (data.greeting.length > 300 ? '...' : '')" />
+      <div v-if="data.greeting" class="relative max-h-40 overflow-hidden">
+        <NarrativeText :content="data.greeting" />
+        <div
+          v-if="greetingOverflows"
+          class="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-base-200 to-transparent"
+        />
       </div>
       <span v-else class="text-xs text-muted-foreground italic">No greeting set yet...</span>
     </div>
@@ -140,5 +160,17 @@ const greetingPreview = computed(() => props.data.greeting?.slice(0, 300) || "")
         </div>
       </div>
     </div>
+
+    <!-- Full greeting preview — greetings are short, so a modest modal is plenty. -->
+    <Modal
+      :show="greetingExpanded"
+      :title="$t('characters.form.greeting')"
+      max-width="xl"
+      @close="greetingExpanded = false"
+    >
+      <div class="max-h-[60vh] overflow-y-auto text-foreground">
+        <NarrativeText :content="data.greeting" />
+      </div>
+    </Modal>
   </div>
 </template>
