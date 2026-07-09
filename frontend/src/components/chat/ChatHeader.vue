@@ -105,7 +105,7 @@ onUnmounted(() => {
       class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
       @click="emit('back')"
     >
-      <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
+      <AppIcon name="i-lucide-arrow-left" class="size-5" />
     </button>
 
     <div class="flex items-center gap-3">
@@ -156,7 +156,7 @@ onUnmounted(() => {
           class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="toggleMenu"
         >
-          <AppIcon name="i-lucide-more-horizontal" class="size-[18px]" />
+          <AppIcon name="i-lucide-more-horizontal" class="size-5" />
         </button>
 
         <!-- Dropdown Menu -->

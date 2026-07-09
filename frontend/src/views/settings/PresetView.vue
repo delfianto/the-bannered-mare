@@ -169,7 +169,7 @@ function formatDate(iso: string): string {
             :aria-label="$t('connections.preset.backToPresets')"
             @click="router.push({ path: '/connections', query: { tab: 'presets' } })"
           >
-            <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
+            <AppIcon name="i-lucide-arrow-left" class="size-5" />
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
