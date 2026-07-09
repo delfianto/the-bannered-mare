@@ -11,6 +11,7 @@ import { useAppToast } from "@/composables/useToast";
 import ProfileCard from "@/components/profiles/ProfileCard.vue";
 import ProfileForm from "@/components/profiles/ProfileForm.vue";
 import EmptyState from "@/components/shared/EmptyState.vue";
+import Modal from "@/components/shared/Modal.vue";
 
 const { t } = useI18n();
 const toast = useAppToast();
@@ -103,7 +104,7 @@ function cancelDelete() {
 <template>
   <div class="space-y-6">
     <!-- Header/Button Row inside the tab -->
-    <div v-if="!showForm && !loading && profiles.length > 0" class="flex justify-end">
+    <div v-if="!loading && profiles.length > 0" class="flex justify-end">
       <button
         class="flex items-center gap-2 rounded-lg border bg-base-200 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
         @click="openCreate"
@@ -112,19 +113,6 @@ function cancelDelete() {
         {{ $t("profiles.newProfile") }}
       </button>
     </div>
-
-    <!-- Create / Edit form -->
-    <ProfileForm
-      v-if="showForm"
-      :initial="editing"
-      :templates="templates"
-      :presets="presets"
-      :personas="personas"
-      :models="models"
-      :saving="saving"
-      @submit="onSubmit"
-      @cancel="cancelForm"
-    />
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20">
@@ -145,7 +133,7 @@ function cancelDelete() {
 
     <!-- Empty -->
     <EmptyState
-      v-else-if="profiles.length === 0 && !showForm"
+      v-else-if="profiles.length === 0"
       icon="i-lucide-layers"
       :title="t('profiles.empty') || 'No Profiles'"
       description="Create a configuration profile to customize your character interaction settings."
@@ -154,7 +142,7 @@ function cancelDelete() {
     />
 
     <!-- Profile grid -->
-    <div v-else-if="!showForm" class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+    <div v-else class="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <ProfileCard
         v-for="(profile, index) in profiles"
         :key="profile.id"
@@ -172,5 +160,24 @@ function cancelDelete() {
         @mouseleave="cancelDelete"
       />
     </div>
+
+    <!-- Create / Edit form (modal — keeps the list in view behind it) -->
+    <Modal
+      :show="showForm"
+      :title="editing ? $t('profiles.form.editTitle') : $t('profiles.form.newTitle')"
+      max-width="4xl"
+      @close="cancelForm"
+    >
+      <ProfileForm
+        :initial="editing"
+        :templates="templates"
+        :presets="presets"
+        :personas="personas"
+        :models="models"
+        :saving="saving"
+        @submit="onSubmit"
+        @cancel="cancelForm"
+      />
+    </Modal>
   </div>
 </template>

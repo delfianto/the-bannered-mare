@@ -148,224 +148,210 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
-    <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-      {{ initial ? $t("profiles.form.editTitle") : $t("profiles.form.newTitle") }}
-    </h2>
+  <div class="space-y-4">
+    <label class="block">
+      <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+        $t("profiles.form.name")
+      }}</span>
+      <input
+        v-model="name"
+        type="text"
+        :placeholder="$t('profiles.form.namePlaceholder')"
+        class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+      />
+    </label>
 
-    <div class="space-y-4">
-      <label class="block">
+    <label class="block">
+      <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+        $t("profiles.form.description")
+      }}</span>
+      <textarea
+        v-model="description"
+        rows="2"
+        :placeholder="$t('profiles.form.descriptionPlaceholder')"
+        class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
+      />
+    </label>
+
+    <!-- Loadout selectors -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="sm:order-1">
         <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-          $t("profiles.form.name")
+          $t("profiles.fields.preset")
         }}</span>
-        <input
-          v-model="name"
-          type="text"
-          :placeholder="$t('profiles.form.namePlaceholder')"
-          class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
-        />
-      </label>
-
-      <label class="block">
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-          $t("profiles.form.description")
-        }}</span>
-        <textarea
-          v-model="description"
-          rows="2"
-          :placeholder="$t('profiles.form.descriptionPlaceholder')"
-          class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
-        />
-      </label>
-
-      <!-- Loadout selectors -->
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="sm:order-1">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.preset")
-          }}</span>
-          <SelectMenu
-            v-model="presetId"
-            :items="presetOptions"
-            value-key="value"
-            :search-input="false"
-          >
-            <button
-              type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
-            >
-              <span class="flex min-w-0 items-center gap-2">
-                <AppIcon
-                  name="i-lucide-sliders-horizontal"
-                  class="size-4 shrink-0 text-muted-foreground"
-                />
-                <span class="truncate">{{ labelFor(presets, presetId) }}</span>
-              </span>
-              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          </SelectMenu>
-        </div>
-
-        <div class="sm:order-3">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.template")
-          }}</span>
-          <SelectMenu
-            v-model="templateId"
-            :items="templateOptions"
-            value-key="value"
-            :search-input="false"
-          >
-            <button
-              type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
-            >
-              <span class="flex min-w-0 items-center gap-2">
-                <AppIcon
-                  name="i-lucide-scroll-text"
-                  class="size-4 shrink-0 text-muted-foreground"
-                />
-                <span class="truncate">{{ labelFor(templates, templateId) }}</span>
-              </span>
-              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          </SelectMenu>
-        </div>
-
-        <div class="sm:order-4">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.taskModel")
-          }}</span>
-          <SelectMenu
-            v-model="taskModelId"
-            :items="taskModelOptions"
-            value-key="value"
-            :search-input="true"
-          >
-            <button
-              type="button"
-              :title="$t('profiles.taskModelHint')"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
-            >
-              <span class="flex min-w-0 items-center gap-2">
-                <AppIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
-                <span class="truncate">{{
-                  taskModelId === "__none__"
-                    ? $t("profiles.taskModelSame")
-                    : labelFor(models, taskModelId)
-                }}</span>
-              </span>
-              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          </SelectMenu>
-        </div>
-
-        <div class="sm:order-2">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.model")
-          }}</span>
-          <SelectMenu
-            v-model="modelId"
-            :items="modelOptions"
-            value-key="value"
-            :search-input="true"
-          >
-            <button
-              type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
-            >
-              <span class="flex min-w-0 items-center gap-2">
-                <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
-                <span class="truncate">{{ labelFor(models, modelId) }}</span>
-              </span>
-              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          </SelectMenu>
-        </div>
-
-        <div class="sm:order-5">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.fields.persona")
-          }}</span>
-          <SelectMenu
-            v-model="personaId"
-            :items="personaOptions"
-            value-key="value"
-            :search-input="false"
-          >
-            <button
-              type="button"
-              class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
-            >
-              <span class="flex min-w-0 items-center gap-2">
-                <AppIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
-                <span class="truncate">{{ labelFor(personas, personaId) }}</span>
-              </span>
-              <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          </SelectMenu>
-        </div>
-
-        <div class="sm:order-6">
-          <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
-            $t("profiles.form.setDefault")
-          }}</span>
-          <label
-            class="flex h-11 w-full cursor-pointer items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground"
+        <SelectMenu
+          v-model="presetId"
+          :items="presetOptions"
+          value-key="value"
+          :search-input="false"
+        >
+          <button
+            type="button"
+            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
           >
             <span class="flex min-w-0 items-center gap-2">
               <AppIcon
-                name="i-lucide-star"
-                class="size-4 shrink-0"
-                :class="isDefault ? 'text-primary' : 'text-muted-foreground'"
+                name="i-lucide-sliders-horizontal"
+                class="size-4 shrink-0 text-muted-foreground"
               />
+              <span class="truncate">{{ labelFor(presets, presetId) }}</span>
+            </span>
+            <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        </SelectMenu>
+      </div>
+
+      <div class="sm:order-3">
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("profiles.fields.template")
+        }}</span>
+        <SelectMenu
+          v-model="templateId"
+          :items="templateOptions"
+          value-key="value"
+          :search-input="false"
+        >
+          <button
+            type="button"
+            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
+          >
+            <span class="flex min-w-0 items-center gap-2">
+              <AppIcon name="i-lucide-scroll-text" class="size-4 shrink-0 text-muted-foreground" />
+              <span class="truncate">{{ labelFor(templates, templateId) }}</span>
+            </span>
+            <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        </SelectMenu>
+      </div>
+
+      <div class="sm:order-4">
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("profiles.fields.taskModel")
+        }}</span>
+        <SelectMenu
+          v-model="taskModelId"
+          :items="taskModelOptions"
+          value-key="value"
+          :search-input="true"
+        >
+          <button
+            type="button"
+            :title="$t('profiles.taskModelHint')"
+            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
+          >
+            <span class="flex min-w-0 items-center gap-2">
+              <AppIcon name="i-lucide-zap" class="size-4 shrink-0 text-muted-foreground" />
               <span class="truncate">{{
-                isDefault ? $t("profiles.form.defaultOn") : $t("profiles.form.defaultOff")
+                taskModelId === "__none__"
+                  ? $t("profiles.taskModelSame")
+                  : labelFor(models, taskModelId)
               }}</span>
             </span>
-            <AppToggle v-model="isDefault" />
-          </label>
-        </div>
+            <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        </SelectMenu>
       </div>
 
-      <!-- Unsupported-parameter warning: preset knobs the chosen model rejects -->
-      <div
-        v-if="unsupportedParams.length"
-        class="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5"
-      >
-        <AppIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-amber-500" />
-        <div class="min-w-0 space-y-1.5">
-          <p class="text-xs text-foreground">
-            {{ t("profiles.unsupportedWarning", { model: labelFor(models, modelId) }) }}
-          </p>
-          <div class="flex flex-wrap gap-1.5">
-            <span
-              v-for="p in unsupportedParams"
-              :key="p"
-              class="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[0.6875rem] text-amber-600 dark:text-amber-400"
-            >
-              {{ p }}
+      <div class="sm:order-2">
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("profiles.fields.model")
+        }}</span>
+        <SelectMenu v-model="modelId" :items="modelOptions" value-key="value" :search-input="true">
+          <button
+            type="button"
+            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
+          >
+            <span class="flex min-w-0 items-center gap-2">
+              <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
+              <span class="truncate">{{ labelFor(models, modelId) }}</span>
             </span>
-          </div>
-        </div>
+            <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        </SelectMenu>
       </div>
 
-      <!-- Footer -->
-      <div class="flex items-center gap-3 pt-1">
-        <button
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
-          :disabled="saving || !name.trim()"
-          @click="onSubmit"
+      <div class="sm:order-5">
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("profiles.fields.persona")
+        }}</span>
+        <SelectMenu
+          v-model="personaId"
+          :items="personaOptions"
+          value-key="value"
+          :search-input="false"
         >
-          {{ initial ? $t("profiles.form.save") : $t("profiles.form.create") }}
-        </button>
-        <button
-          class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
-          @click="$emit('cancel')"
-        >
-          {{ $t("common.cancel") }}
-        </button>
+          <button
+            type="button"
+            class="flex h-11 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none"
+          >
+            <span class="flex min-w-0 items-center gap-2">
+              <AppIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
+              <span class="truncate">{{ labelFor(personas, personaId) }}</span>
+            </span>
+            <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        </SelectMenu>
       </div>
+
+      <div class="sm:order-6">
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("profiles.form.setDefault")
+        }}</span>
+        <label
+          class="flex h-11 w-full cursor-pointer items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground"
+        >
+          <span class="flex min-w-0 items-center gap-2">
+            <AppIcon
+              name="i-lucide-star"
+              class="size-4 shrink-0"
+              :class="isDefault ? 'text-primary' : 'text-muted-foreground'"
+            />
+            <span class="truncate">{{
+              isDefault ? $t("profiles.form.defaultOn") : $t("profiles.form.defaultOff")
+            }}</span>
+          </span>
+          <AppToggle v-model="isDefault" />
+        </label>
+      </div>
+    </div>
+
+    <!-- Unsupported-parameter warning: preset knobs the chosen model rejects -->
+    <div
+      v-if="unsupportedParams.length"
+      class="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5"
+    >
+      <AppIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-amber-500" />
+      <div class="min-w-0 space-y-1.5">
+        <p class="text-xs text-foreground">
+          {{ t("profiles.unsupportedWarning", { model: labelFor(models, modelId) }) }}
+        </p>
+        <div class="flex flex-wrap gap-1.5">
+          <span
+            v-for="p in unsupportedParams"
+            :key="p"
+            class="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[0.6875rem] text-amber-600 dark:text-amber-400"
+          >
+            {{ p }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center gap-3 pt-1">
+      <button
+        class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
+        :disabled="saving || !name.trim()"
+        @click="onSubmit"
+      >
+        {{ initial ? $t("profiles.form.save") : $t("profiles.form.create") }}
+      </button>
+      <button
+        class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
+        @click="$emit('cancel')"
+      >
+        {{ $t("common.cancel") }}
+      </button>
     </div>
   </div>
 </template>
