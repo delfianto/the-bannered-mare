@@ -44,12 +44,12 @@ function avatarSrc(): string {
         <span
           v-for="tag in character.tags.slice(0, 3)"
           :key="tag"
-          class="rounded-full border border-white/10 bg-white/15 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm"
+          class="rounded-full border border-white/10 bg-white/15 px-2 py-0.5 text-[0.625rem] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm"
         >
           {{ tag }}
         </span>
       </div>
-      <p v-if="character.creator" class="mt-2 text-[11px] text-white/50">
+      <p v-if="character.creator" class="mt-2 text-[0.6875rem] text-white/50">
         by {{ character.creator }}
       </p>
     </div>

@@ -44,7 +44,7 @@ const positionLabels: Record<string, string> = {
       <span
         v-for="k in entry.keys ?? []"
         :key="k"
-        class="rounded-full bg-base-300 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+        class="rounded-full bg-base-300 px-2 py-0.5 text-[0.625rem] font-medium text-muted-foreground"
       >
         {{ k }}
       </span>
@@ -59,7 +59,7 @@ const positionLabels: Record<string, string> = {
 
     <!-- Footer: meta + hover actions -->
     <div class="flex items-center justify-between border-t border-border/30 pt-2.5">
-      <div class="flex items-center gap-3 text-[10px] text-muted-foreground">
+      <div class="flex items-center gap-3 text-[0.625rem] text-muted-foreground">
         <span class="flex items-center gap-1">
           <AppIcon name="i-lucide-map-pin" class="size-3" />
           {{ positionLabels[entry.position] ?? entry.position }}
@@ -74,7 +74,7 @@ const positionLabels: Record<string, string> = {
         </span>
       </div>
       <div
-        class="flex items-center gap-2 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+        class="flex items-center gap-2 text-[0.625rem] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
       >
         <button class="flex items-center gap-1 hover:text-foreground" @click="$emit('edit')">
           <AppIcon name="i-lucide-pencil" class="size-3" />

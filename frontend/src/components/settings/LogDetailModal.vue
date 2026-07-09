@@ -99,7 +99,9 @@ function formatFullTimestamp(iso: string): string {
         <span>{{ httpLog.latency_ms.toFixed(0) }}ms</span>
         <span v-if="httpLog.client_ip">{{ httpLog.client_ip }}</span>
         <span>{{ formatFullTimestamp(httpLog.created_at) }}</span>
-        <span class="font-mono text-[10px] text-muted-foreground/60">{{ httpLog.request_id }}</span>
+        <span class="font-mono text-[0.625rem] text-muted-foreground/60">{{
+          httpLog.request_id
+        }}</span>
       </div>
       <p v-if="httpLog.user_agent" class="truncate text-xs text-muted-foreground/70">
         {{ httpLog.user_agent }}
@@ -113,7 +115,7 @@ function formatFullTimestamp(iso: string): string {
           </h3>
           <button
             v-if="httpLog.request_body"
-            class="text-[11px] text-muted-foreground hover:text-foreground"
+            class="text-[0.6875rem] text-muted-foreground hover:text-foreground"
             @click="copy(prettyJson(httpLog.request_body), 'req')"
           >
             {{ copiedKey === "req" ? $t("common.copied") : $t("common.copy") }}
@@ -138,7 +140,7 @@ function formatFullTimestamp(iso: string): string {
           </h3>
           <button
             v-if="httpLog.response_body"
-            class="text-[11px] text-muted-foreground hover:text-foreground"
+            class="text-[0.6875rem] text-muted-foreground hover:text-foreground"
             @click="copy(prettyJson(httpLog.response_body), 'res')"
           >
             {{ copiedKey === "res" ? $t("common.copied") : $t("common.copy") }}
@@ -161,7 +163,7 @@ function formatFullTimestamp(iso: string): string {
       <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
         <span class="font-mono text-foreground">{{ llmLog.provider }} / {{ llmLog.model }}</span>
         <span
-          class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+          class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
           :class="
             llmLog.status === 'success'
               ? 'bg-emerald-500/10 text-emerald-500'
@@ -187,7 +189,7 @@ function formatFullTimestamp(iso: string): string {
             {{ $t("settings.logs.request") }}
           </h3>
           <button
-            class="text-[11px] text-muted-foreground hover:text-foreground"
+            class="text-[0.6875rem] text-muted-foreground hover:text-foreground"
             @click="copy(prettyJson(llmLog.request_payload), 'req')"
           >
             {{ copiedKey === "req" ? $t("common.copied") : $t("common.copy") }}
@@ -196,7 +198,7 @@ function formatFullTimestamp(iso: string): string {
         <div class="max-h-80 space-y-2 overflow-auto rounded-lg border border-border/20 p-2">
           <div v-for="(msg, i) in requestMessages" :key="i" class="rounded-lg bg-base-100/60 p-2.5">
             <span
-              class="mb-1 inline-block rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+              class="mb-1 inline-block rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
               :class="roleColors[msg.role] ?? 'bg-base-300 text-muted-foreground'"
             >
               {{ msg.role }}
@@ -217,7 +219,7 @@ function formatFullTimestamp(iso: string): string {
           </h3>
           <button
             v-if="responsePayload"
-            class="text-[11px] text-muted-foreground hover:text-foreground"
+            class="text-[0.6875rem] text-muted-foreground hover:text-foreground"
             @click="copy(prettyJson(responsePayload), 'res')"
           >
             {{ copiedKey === "res" ? $t("common.copied") : $t("common.copy") }}
@@ -256,7 +258,7 @@ function formatFullTimestamp(iso: string): string {
       <!-- Meta -->
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <span
-          class="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-medium tracking-wide text-red-500 uppercase"
+          class="rounded-full bg-red-500/10 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-red-500 uppercase"
         >
           {{ errLog.error_type }}
         </span>

@@ -270,7 +270,7 @@ onBeforeRouteLeave(() => {
               <div class="flex items-center justify-between gap-3">
                 <div class="min-w-0">
                   <span class="block text-sm text-foreground">Route via OpenRouter</span>
-                  <span class="text-[10px] text-muted-foreground">
+                  <span class="text-[0.625rem] text-muted-foreground">
                     {{
                       canUseOpenrouter
                         ? "Available on OpenRouter"
@@ -302,7 +302,7 @@ onBeforeRouteLeave(() => {
             <span class="text-sm text-muted-foreground">Enabled</span>
             <AppToggle :model-value="form.enabled" aria-label="Enabled" @change="toggleEnabled" />
           </div>
-          <p class="mt-3 text-[11px] text-muted-foreground/70">
+          <p class="mt-3 text-[0.6875rem] text-muted-foreground/70">
             Inference parameters can be tuned after the model is created.
           </p>
         </div>

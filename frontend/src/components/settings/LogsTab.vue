@@ -203,7 +203,7 @@ onMounted(fetchAll);
             class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border/30 bg-base-300/10 px-3 py-2"
           >
             <span
-              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+              class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
               :class="providerColors[row.provider] ?? 'bg-base-300 text-muted-foreground'"
             >
               {{ row.provider }}
@@ -219,7 +219,7 @@ onMounted(fetchAll);
               formatDuration(row.avg_latency_ms)
             }}</span>
             <span
-              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
+              class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide"
               :class="
                 rowSuccessRate(row) >= 95
                   ? 'bg-emerald-500/10 text-emerald-500'
@@ -272,7 +272,7 @@ onMounted(fetchAll);
         >
           <!-- Method -->
           <span
-            class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+            class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
             :class="methodColors[log.method] ?? 'bg-base-300 text-muted-foreground'"
           >
             {{ log.method }}
@@ -283,7 +283,7 @@ onMounted(fetchAll);
 
           <!-- Status code -->
           <span
-            class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
+            class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide"
             :class="
               log.status_code < 300
                 ? 'bg-emerald-500/10 text-emerald-500'
@@ -302,7 +302,9 @@ onMounted(fetchAll);
           <span class="text-xs text-muted-foreground">{{ formatDuration(log.latency_ms) }}</span>
 
           <!-- Request ID -->
-          <span class="font-mono text-[10px] text-muted-foreground/60">{{ log.request_id }}</span>
+          <span class="font-mono text-[0.625rem] text-muted-foreground/60">{{
+            log.request_id
+          }}</span>
 
           <!-- Timestamp -->
           <span class="text-xs text-muted-foreground">{{ formatTimestamp(log.created_at) }}</span>
@@ -324,7 +326,7 @@ onMounted(fetchAll);
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <!-- Provider -->
             <span
-              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+              class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
               :class="providerColors[log.provider] ?? 'bg-base-300 text-muted-foreground'"
             >
               {{ log.provider }}
@@ -335,7 +337,7 @@ onMounted(fetchAll);
 
             <!-- Status -->
             <span
-              class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+              class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
               :class="
                 log.status === 'success'
                   ? 'bg-emerald-500/10 text-emerald-500'
@@ -387,7 +389,7 @@ onMounted(fetchAll);
         >
           <!-- Error type -->
           <span
-            class="rounded-full bg-red-500/10 px-2 py-0.5 text-[9px] font-medium tracking-wide text-red-500 uppercase"
+            class="rounded-full bg-red-500/10 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-red-500 uppercase"
           >
             {{ err.error_type }}
           </span>

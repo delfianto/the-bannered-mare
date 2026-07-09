@@ -84,11 +84,11 @@ function timeAgo(dateStr: string): string {
         <span
           v-for="tag in (character.tags ?? []).slice(0, 3)"
           :key="tag"
-          class="rounded-full bg-base-300 px-2 py-0.5 text-[9px] font-medium tracking-wide text-foreground uppercase"
+          class="rounded-full bg-base-300 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-foreground uppercase"
         >
           {{ tag }}
         </span>
-        <span v-if="character.gender" class="text-[10px] text-muted-foreground">
+        <span v-if="character.gender" class="text-[0.625rem] text-muted-foreground">
           {{ character.gender }}
         </span>
       </div>

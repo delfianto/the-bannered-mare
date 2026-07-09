@@ -285,7 +285,7 @@ function formatDate(iso: string): string {
                 <div class="flex items-center gap-2">
                   <code class="text-sm font-semibold text-primary">{{ key }}</code>
                   <span
-                    class="rounded bg-base-300 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground uppercase"
+                    class="rounded bg-base-300 px-1.5 py-0.5 text-[0.625rem] font-medium text-muted-foreground uppercase"
                   >
                     {{ getParamType(schema) }}
                   </span>
@@ -330,7 +330,9 @@ function formatDate(iso: string): string {
           </div>
 
           <!-- Timestamps -->
-          <div class="flex items-center justify-between px-1 text-[11px] text-muted-foreground/60">
+          <div
+            class="flex items-center justify-between px-1 text-[0.6875rem] text-muted-foreground/60"
+          >
             <span>Created {{ formatDate(family.created_at) }}</span>
             <span>Updated {{ formatDate(family.updated_at) }}</span>
           </div>

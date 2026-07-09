@@ -62,7 +62,7 @@ function handleKeyDown(e: KeyboardEvent) {
         v-for="s in availableSuggestions"
         :key="s"
         type="button"
-        class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+        class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[0.6875rem] font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
         @click="emit('add', s)"
       >
         <AppIcon name="i-lucide-plus" class="size-3" />

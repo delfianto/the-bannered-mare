@@ -340,7 +340,11 @@
       "languageDescription": "Choisissez votre langue préférée",
       "colorScheme": "Palette de couleurs",
       "darkMode": "Mode sombre",
-      "darkModeDescription": "Basculer entre l'apparence claire et sombre"
+      "darkModeDescription": "Basculer entre l'apparence claire et sombre",
+      "textSize": "Taille du texte",
+      "textSizeDescription": "Ajuste la taille du texte de l'interface pour un confort de lecture — s'applique partout.",
+      "textSizeSample": "Le feu de l'auberge crépitait tandis qu'elle se penchait, sa voix à peine plus qu'un murmure.",
+      "resetTextSize": "Réinitialiser"
     },
     "persona": {
       "title": "Vos personnages",

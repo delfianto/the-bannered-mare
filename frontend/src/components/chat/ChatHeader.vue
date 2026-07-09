@@ -129,14 +129,14 @@ onUnmounted(() => {
         <template v-if="renaming">
           <input
             v-model="editTitle"
-            class="mt-0.5 w-full rounded border border-primary/40 bg-base-300/40 px-1.5 py-0.5 text-center text-[11px] leading-tight text-foreground outline-none focus:ring-1 focus:ring-primary/30"
+            class="mt-0.5 w-full rounded border border-primary/40 bg-base-300/40 px-1.5 py-0.5 text-center text-[0.6875rem] leading-tight text-foreground outline-none focus:ring-1 focus:ring-primary/30"
             autofocus
             @keydown="handleRenameKeydown"
             @blur="saveRename"
           />
         </template>
         <template v-else>
-          <p class="mt-0.5 text-[11px] leading-tight text-muted-foreground">
+          <p class="mt-0.5 text-[0.6875rem] leading-tight text-muted-foreground">
             {{ sessionTitle }}
           </p>
         </template>

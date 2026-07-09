@@ -196,7 +196,7 @@ function scopeBadgeClass(scope: string): string {
             </h1>
             <span
               v-if="ragIndexedCount !== null"
-              class="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-medium text-emerald-400"
+              class="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[0.625rem] font-medium text-emerald-400"
             >
               {{ $t("memory.indexed", { count: ragIndexedCount }) }}
             </span>
@@ -374,13 +374,13 @@ function scopeBadgeClass(scope: string): string {
               >
                 <div class="mb-2 flex items-center gap-2">
                   <span
-                    class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+                    class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
                     :class="sourceTypeBadge(result.source_type)"
                   >
                     {{ result.source_type.replace("_", " ") }}
                   </span>
                   <span
-                    class="rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide"
+                    class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide"
                     :class="scoreColor(result.score)"
                   >
                     {{ $t("memory.matchPercent", { score: (result.score * 100).toFixed(0) }) }}
@@ -434,7 +434,7 @@ function scopeBadgeClass(scope: string): string {
                   {{ entry.name }}
                 </h3>
                 <span
-                  class="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-medium tracking-wide uppercase"
+                  class="shrink-0 rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
                   :class="scopeBadgeClass(entry.scope)"
                 >
                   {{ entry.scope }}
@@ -451,7 +451,7 @@ function scopeBadgeClass(scope: string): string {
 
               <!-- Bottom details -->
               <div
-                class="space-y-1.5 border-t border-border/30 pt-3 text-[11px] text-muted-foreground"
+                class="space-y-1.5 border-t border-border/30 pt-3 text-[0.6875rem] text-muted-foreground"
               >
                 <div class="flex items-center gap-1.5">
                   <AppIcon name="i-lucide-clock" class="size-3 shrink-0" />
@@ -461,7 +461,7 @@ function scopeBadgeClass(scope: string): string {
 
               <!-- Action buttons (bottom-right) -->
               <div
-                class="absolute right-3 bottom-3 flex items-center gap-2 text-[10px] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+                class="absolute right-3 bottom-3 flex items-center gap-2 text-[0.625rem] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
               >
                 <button
                   class="flex items-center gap-1 hover:text-foreground"

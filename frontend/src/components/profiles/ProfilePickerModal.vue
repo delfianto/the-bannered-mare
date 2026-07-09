@@ -44,7 +44,7 @@ function resolve(
           {{ profile.name }}
           <AppIcon v-if="profile.is_default" name="i-lucide-star" class="size-3.5 text-primary" />
         </span>
-        <span class="text-[11px] text-muted-foreground">
+        <span class="text-[0.6875rem] text-muted-foreground">
           {{
             [resolve(models, profile.model_id), resolve(templates, profile.prompt_template_id)]
               .filter(Boolean)

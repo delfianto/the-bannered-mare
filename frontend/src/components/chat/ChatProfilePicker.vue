@@ -57,7 +57,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
       class="absolute top-full right-0 z-20 mt-1 w-64 rounded-lg border bg-base-200 py-1 shadow-lg"
     >
       <div
-        class="px-3 py-1.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase"
+        class="px-3 py-1.5 text-[0.625rem] font-semibold tracking-wider text-muted-foreground uppercase"
       >
         {{ $t("chat.profile.title") }}
       </div>
@@ -75,7 +75,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
         />
         <span class="min-w-0">
           <span class="block truncate font-cinzel text-sm text-foreground">{{ p.name }}</span>
-          <span v-if="p.description" class="block truncate text-[11px] text-muted-foreground">
+          <span v-if="p.description" class="block truncate text-[0.6875rem] text-muted-foreground">
             {{ p.description }}
           </span>
         </span>
@@ -95,7 +95,7 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
         {{ $t("chat.profile.manage") }}
       </button>
 
-      <p class="px-3 py-1.5 text-[10px] leading-snug text-muted-foreground/70">
+      <p class="px-3 py-1.5 text-[0.625rem] leading-snug text-muted-foreground/70">
         {{ $t("chat.profile.hint") }}
       </p>
     </div>

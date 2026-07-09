@@ -3,12 +3,14 @@ import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "@/composables/useTheme";
 import { useCustomTheme } from "@/composables/useCustomTheme";
+import { useFontSize, MIN_FONT_SIZE, MAX_FONT_SIZE } from "@/composables/useFontSize";
 import { COLOR_PRESETS } from "@/constants/colorPresets";
 import { SUPPORTED_LOCALES, setLocale } from "@/i18n";
 import ThemeEditor from "./ThemeEditor.vue";
 
 const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
 const { custom } = useCustomTheme();
+const { fontSize, setFontSize, resetFontSize } = useFontSize();
 const { locale } = useI18n();
 
 const currentLocale = computed({
@@ -48,6 +50,64 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
 <template>
   <div class="mx-auto max-w-2xl animate-fade-in-up space-y-8">
+    <!-- Text Size Section -->
+    <section>
+      <h3
+        class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+      >
+        {{ $t("settings.interface.textSize") }}
+      </h3>
+      <div class="space-y-4 rounded-xl border bg-base-200/50 p-5">
+        <div class="flex items-start gap-3">
+          <AppIcon name="i-lucide-type" class="mt-0.5 size-5 text-primary" />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-medium text-foreground">
+              {{ $t("settings.interface.textSize") }}
+            </p>
+            <p class="text-xs text-muted-foreground">
+              {{ $t("settings.interface.textSizeDescription") }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Slider — dragging rescales the whole app live -->
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-muted-foreground">A</span>
+          <input
+            type="range"
+            :min="MIN_FONT_SIZE"
+            :max="MAX_FONT_SIZE"
+            step="1"
+            :value="fontSize"
+            class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-base-300 accent-primary"
+            :aria-label="$t('settings.interface.textSize')"
+            @input="setFontSize(Number(($event.target as HTMLInputElement).value))"
+          />
+          <span class="text-lg text-muted-foreground">A</span>
+          <span class="w-11 shrink-0 text-right text-sm font-medium text-foreground tabular-nums"
+            >{{ fontSize }}px</span
+          >
+        </div>
+
+        <!-- Live sample -->
+        <div class="rounded-lg border bg-base-100/50 p-4">
+          <p class="leading-relaxed text-foreground">
+            {{ $t("settings.interface.textSizeSample") }}
+          </p>
+        </div>
+
+        <div class="flex justify-end">
+          <button
+            type="button"
+            class="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+            @click="resetFontSize"
+          >
+            {{ $t("settings.interface.resetTextSize") }}
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- Behavior Section -->
     <section>
       <h3
@@ -230,10 +290,10 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
             <!-- Label -->
             <div class="text-center">
-              <p class="font-cinzel text-[11px] font-semibold tracking-wide text-foreground">
+              <p class="font-cinzel text-[0.6875rem] font-semibold tracking-wide text-foreground">
                 {{ preset.name }}
               </p>
-              <p class="text-[9px] text-muted-foreground">{{ preset.description }}</p>
+              <p class="text-[0.5625rem] text-muted-foreground">{{ preset.description }}</p>
             </div>
           </button>
 
@@ -281,10 +341,10 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
             <!-- Label -->
             <div class="text-center">
-              <p class="font-cinzel text-[11px] font-semibold tracking-wide text-foreground">
+              <p class="font-cinzel text-[0.6875rem] font-semibold tracking-wide text-foreground">
                 Custom
               </p>
-              <p class="text-[9px] text-muted-foreground">Your own palette</p>
+              <p class="text-[0.5625rem] text-muted-foreground">Your own palette</p>
             </div>
           </button>
         </div>

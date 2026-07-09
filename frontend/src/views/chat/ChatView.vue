@@ -338,7 +338,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
                 >
                   {{ activeSession.title || $t("chat.untitled") }}
                 </p>
-                <p class="mt-0.5 text-[10px] text-muted-foreground/60">
+                <p class="mt-0.5 text-[0.625rem] text-muted-foreground/60">
                   {{ $t("chat.sessionBegan") }} ·
                   {{ new Date(activeSession.created_at).toLocaleDateString() }}
                 </p>
@@ -380,7 +380,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
                 @select="handleSend"
               />
               <button
-                class="text-[10px] text-muted-foreground transition-colors hover:text-primary"
+                class="text-[0.625rem] text-muted-foreground transition-colors hover:text-primary"
                 @click="replySuggestions = []"
               >
                 {{ $t("chat.suggest.back") }}
@@ -393,7 +393,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
               <div class="flex items-center gap-4">
                 <button
                   :disabled="suggesting"
-                  class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
+                  class="flex items-center gap-1.5 text-[0.6875rem] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
                   @click="loadSuggestions"
                 >
                   <AppIcon
@@ -405,7 +405,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
                 </button>
                 <button
                   :disabled="suggesting"
-                  class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
+                  class="flex items-center gap-1.5 text-[0.6875rem] font-medium text-muted-foreground transition-colors hover:text-primary disabled:opacity-50"
                   @click="loadTones"
                 >
                   <AppIcon name="i-lucide-drama" class="size-3.5" />
