@@ -32,10 +32,11 @@ export default [
       "tailwindcss/classnames-order": "warn",
       "tailwindcss/enforces-shorthand": "warn",
       // Prefer canonical scale classes over equivalent arbitrary values
-      // (e.g. h-[62px] -> h-15.5). Keeps utilities on the rem spacing scale so
-      // they participate in the app-wide text-size scaling. (messageId:
-      // suggestCanonicalClasses)
-      "tailwindcss/no-unnecessary-arbitrary-value": "warn",
+      // (e.g. text-[0.875rem] -> text-sm). "error" so CI fails on it. Note this
+      // rule only catches NAMED scales; dynamic spacing (h-[62px] -> h-15.5) is
+      // gated by scripts/canonical-classes.mjs (bun run lint:canonical).
+      // (messageId: suggestCanonicalClasses)
+      "tailwindcss/no-unnecessary-arbitrary-value": "error",
       "tailwindcss/no-custom-classname": "off",
       "vue/multi-word-component-names": "off",
       "vue/max-attributes-per-line": "off",

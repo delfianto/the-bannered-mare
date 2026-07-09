@@ -12,6 +12,8 @@
     "fmt:check": "vp fmt --check src AGENTS.md vite.config.ts",
     "lint": "vp lint",
     "lint:tailwind": "eslint src/",
+    "lint:canonical": "bun scripts/canonical-classes.mjs",
+    "lint:canonical:fix": "bun scripts/canonical-classes.mjs --fix",
     "preview": "vp preview",
     "typecheck": "vue-tsc --noEmit"
   },

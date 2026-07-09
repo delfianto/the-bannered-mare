@@ -41,6 +41,14 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      # Canonical Tailwind classes: eslint catches named scales (text-sm,
+      # tracking-widest); the script catches dynamic spacing (h-15.5, w-100).
+      - name: Tailwind Lint
+        run: bun run lint:tailwind
+
+      - name: Canonical Classes
+        run: bun run lint:canonical
+
       - name: Type Check
         run: bun run typecheck
 
