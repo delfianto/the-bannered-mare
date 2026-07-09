@@ -335,7 +335,7 @@ function toggleMenu(identifier: string) {
             :aria-label="$t('connections.provider.backToProviders')"
             @click="router.push({ path: '/connections', query: { tab: 'providers' } })"
           >
-            <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
+            <AppIcon name="i-lucide-arrow-left" class="size-5" />
           </button>
           <div class="flex items-center gap-2">
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">

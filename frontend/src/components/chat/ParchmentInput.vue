@@ -68,7 +68,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <div class="shrink-0">
         <AppIcon
           name="i-lucide-pen-tool"
-          class="size-[18px] transition-colors duration-300"
+          class="size-5 transition-colors duration-300"
           :class="focused ? 'text-primary' : 'text-muted-foreground'"
         />
       </div>

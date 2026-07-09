@@ -17,7 +17,7 @@ const query = ref("");
     >
       <AppIcon
         name="i-lucide-search"
-        class="size-[18px] shrink-0 transition-colors duration-300"
+        class="size-5 shrink-0 transition-colors duration-300"
         :class="focused ? 'text-primary' : 'text-muted-foreground'"
       />
       <input

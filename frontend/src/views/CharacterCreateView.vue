@@ -171,7 +171,7 @@ function handleAvatarChange(file: File) {
           class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
           @click="router.back()"
         >
-          <AppIcon name="i-lucide-arrow-left" class="size-[18px]" />
+          <AppIcon name="i-lucide-arrow-left" class="size-5" />
         </button>
         <div class="flex items-center gap-2">
           <div class="flex size-6 items-center justify-center rounded-md bg-primary">

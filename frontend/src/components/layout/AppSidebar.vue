@@ -110,7 +110,7 @@ const favorites = computed(() => {
               v-if="isActive(item.to)"
               class="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary"
             />
-            <AppIcon :name="item.icon" class="size-[18px]" />
+            <AppIcon :name="item.icon" class="size-5" />
           </RouterLink>
         </AppTooltip>
       </div>
@@ -201,7 +201,7 @@ const favorites = computed(() => {
             isActive('/settings') ? 'bg-base-300 text-foreground' : '',
           ]"
         >
-          <AppIcon name="i-lucide-settings" class="size-[18px] shrink-0" />
+          <AppIcon name="i-lucide-settings" class="size-5 shrink-0" />
           <span v-if="!collapsed" style="letter-spacing: 0.04em">{{ $t("nav.settings") }}</span>
         </RouterLink>
       </AppTooltip>
@@ -220,7 +220,7 @@ const favorites = computed(() => {
         >
           <AppIcon
             :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-            class="size-[18px] shrink-0 text-primary"
+            class="size-5 shrink-0 text-primary"
           />
         </button>
         <label
@@ -230,7 +230,7 @@ const favorites = computed(() => {
           <span class="flex items-center gap-2.5">
             <AppIcon
               :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-              class="size-[18px] shrink-0 text-primary"
+              class="size-5 shrink-0 text-primary"
             />
             <span class="text-sm font-medium text-foreground">
               {{ $t("settings.interface.darkMode") }}
