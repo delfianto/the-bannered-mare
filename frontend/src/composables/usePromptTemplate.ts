@@ -29,6 +29,21 @@ export function usePromptTemplate() {
     }
   }
 
+  async function createTemplate(payload: components["schemas"]["PromptTemplateCreate"]) {
+    saving.value = true;
+    try {
+      const response = await fetch(`/api/prompt-templates/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error(`Create failed: ${response.status}`);
+      return await response.json();
+    } finally {
+      saving.value = false;
+    }
+  }
+
   async function saveTemplate(id: string, updates: Record<string, unknown>) {
     saving.value = true;
     try {
@@ -121,6 +136,7 @@ export function usePromptTemplate() {
     previewing,
     error,
     fetchTemplate,
+    createTemplate,
     saveTemplate,
     deleteTemplate,
     previewTemplate,

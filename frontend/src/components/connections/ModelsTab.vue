@@ -143,6 +143,17 @@ async function handleToggleEnabled(row: any) {
 
 <template>
   <div>
+    <!-- Primary action lives on the tab bar (see ConnectionsTabs) -->
+    <Teleport defer to="#connections-tab-action">
+      <RouterLink
+        to="/settings/models/create"
+        class="inline-flex items-center gap-1.5 rounded-lg border bg-base-200 px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-base-300"
+      >
+        <AppIcon name="i-lucide-plus" class="size-4" />
+        {{ $t("connections.newModel") }}
+      </RouterLink>
+    </Teleport>
+
     <!-- Filters row -->
     <div class="mb-6 flex animate-fade-in-up flex-wrap items-center gap-2">
       <!-- Search -->

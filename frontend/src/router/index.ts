@@ -58,6 +58,11 @@ const routes = [
     component: () => import("@/views/settings/SettingsView.vue"),
   },
   {
+    path: "/settings/providers/create",
+    name: "provider-create",
+    component: () => import("@/views/settings/ProviderCreateView.vue"),
+  },
+  {
     path: "/settings/providers/:id",
     name: "provider-edit",
     component: () => import("@/views/settings/ProviderView.vue"),
@@ -73,14 +78,29 @@ const routes = [
     component: () => import("@/views/settings/ModelView.vue"),
   },
   {
+    path: "/settings/model-families/create",
+    name: "model-family-create",
+    component: () => import("@/views/settings/ModelFamilyCreateView.vue"),
+  },
+  {
     path: "/settings/model-families/:id",
     name: "model-family-edit",
     component: () => import("@/views/settings/ModelFamilyView.vue"),
   },
   {
+    path: "/settings/templates/create",
+    name: "template-create",
+    component: () => import("@/views/settings/TemplateCreateView.vue"),
+  },
+  {
     path: "/settings/templates/:id",
     name: "template-edit",
     component: () => import("@/views/settings/TemplateView.vue"),
+  },
+  {
+    path: "/settings/fragments/create",
+    name: "fragment-create",
+    component: () => import("@/views/settings/FragmentCreateView.vue"),
   },
   {
     path: "/settings/fragments/:id",
