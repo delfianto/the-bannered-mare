@@ -9,12 +9,28 @@ Handles:
 import base64
 import io
 import json
+import re
 import struct
 import zlib
 from dataclasses import dataclass, field
 from typing import Any
 
 from PIL import Image
+
+
+def split_example_dialogues(mes_example: str) -> list[str]:
+    """Split a TavernCard ``mes_example`` string into individual example blocks.
+
+    Cards store example chats as one freeform string with each example delimited
+    by a ``<START>`` marker (SillyTavern convention). We return one entry per
+    non-empty block with the marker stripped; a card with no markers becomes a
+    single block, and empty/whitespace-only blocks (e.g. a bare ``<START>``
+    template) are dropped so they don't become bogus example dialogues.
+    """
+    if not mes_example or not mes_example.strip():
+        return []
+    parts = re.split(r"<START>", mes_example, flags=re.IGNORECASE)
+    return [block for part in parts if (block := part.strip())]
 
 
 @dataclass

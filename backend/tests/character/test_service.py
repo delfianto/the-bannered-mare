@@ -297,7 +297,8 @@ class TestCharacterService:
         assert character.alternate_greetings == ["Hail!", "Welcome!"]
         assert character.tags == ["fantasy", "hero"]
         assert character.version == 2
-        assert character.example_dialogues == ["<START>\nUser: Hello\nHero: Well met!"]
+        # Import splits mes_example on <START> and strips the marker per block.
+        assert character.example_dialogues == ["User: Hello\nHero: Well met!"]
 
     def test_export_as_json(self, db: Session) -> None:
         """Test exporting a character as TavernCard V2 JSON"""
