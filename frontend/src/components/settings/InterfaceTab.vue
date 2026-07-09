@@ -12,7 +12,7 @@ import ThemeEditor from "./ThemeEditor.vue";
 
 const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
 const { custom } = useCustomTheme();
-const { fontSize, setFontSize, resetFontSize } = useFontSize();
+const { fontSize, setFontSize } = useFontSize();
 const { chatWidth, setChatWidth } = useChatWidth();
 const { replySuggestionsEnabled, autoGenerateTones } = useSuggestionSettings();
 const { locale } = useI18n();
@@ -61,16 +61,16 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
 <template>
   <div class="mx-auto max-w-5xl animate-fade-in-up space-y-8">
-    <!-- Text Size + Behavior sit side by side on desktop -->
-    <div class="grid items-start gap-8 lg:grid-cols-2">
-      <!-- Text Size Section -->
-      <section>
+    <!-- Text Size + Behavior sit side by side on desktop, matched in height -->
+    <div class="grid gap-8 lg:grid-cols-2">
+      <!-- Reading Section (text size + chat width) -->
+      <section class="flex flex-col">
         <h3
           class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
         >
-          {{ $t("settings.interface.textSize") }}
+          {{ $t("settings.interface.reading") }}
         </h3>
-        <div class="space-y-4 rounded-xl border bg-base-200/50 p-5">
+        <div class="flex flex-1 flex-col gap-4 rounded-xl border bg-base-200/50 p-5">
           <div class="flex items-start gap-3">
             <AppIcon name="i-lucide-type" class="mt-0.5 size-5 text-primary" />
             <div class="min-w-0 flex-1">
@@ -102,21 +102,11 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             >
           </div>
 
-          <!-- Live sample -->
-          <div class="rounded-lg border bg-base-100/50 p-4">
+          <!-- Live sample — grows to fill the card so Chat Width sits flush at the bottom -->
+          <div class="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-base-100/50 p-4">
             <p class="leading-relaxed text-foreground">
               {{ $t("settings.interface.textSizeSample") }}
             </p>
-          </div>
-
-          <div class="flex justify-end">
-            <button
-              type="button"
-              class="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-              @click="resetFontSize"
-            >
-              {{ $t("settings.interface.resetTextSize") }}
-            </button>
           </div>
 
           <div class="h-px bg-border" />
@@ -155,13 +145,13 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
       </section>
 
       <!-- Behavior Section -->
-      <section>
+      <section class="flex flex-col">
         <h3
           class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("settings.interface.behavior") }}
         </h3>
-        <div class="space-y-5 rounded-xl border bg-base-200/50 p-5">
+        <div class="flex-1 space-y-5 rounded-xl border bg-base-200/50 p-5">
           <!-- Reply suggestions (master switch for the whole suggestions bar) -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
