@@ -208,12 +208,13 @@ class Settings(BaseSettings):
         # Video generation
         "sora",
         "veo",
-        # Audio / speech (TTS, STT)
+        # Audio / speech / music (TTS, STT, music generation)
         "whisper",
         "tts",
         "audio",
         "speech",
         "transcribe",
+        "lyria",
         # Embeddings, retrieval & rerankers
         "embed",
         "bge-",
