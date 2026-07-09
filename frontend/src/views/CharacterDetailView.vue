@@ -49,11 +49,13 @@ onMounted(async () => {
   }
 });
 
-function avatarSrc(): string {
+function portraitSrc(): string {
   if (!character.value) return "";
+  // Thumbnail first — the portrait is shown as a contained card, not a
+  // full-bleed hero, so the lighter asset is plenty and saves bandwidth.
   return (
-    character.value.avatar ||
     character.value.avatar_thumbnail ||
+    character.value.avatar ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(character.value.name)}&background=C9922E&color=fff&size=600`
   );
 }
@@ -144,32 +146,26 @@ async function startTale() {
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <!-- Left column (2 cols) -->
       <div class="space-y-6 lg:col-span-2">
-        <!-- Character Card with Avatar -->
+        <!-- Portrait — mobile only; on desktop it moves to the top of the right
+             column, beside the details. A contained thumbnail rather than a
+             full-bleed hero, so no text ever sits over the image and contrast
+             stops being a problem entirely. -->
+        <div
+          class="animate-fade-in-up overflow-hidden rounded-xl border bg-base-200/50 lg:hidden"
+          style="animation-delay: 60ms"
+        >
+          <img
+            :src="portraitSrc()"
+            :alt="character.name"
+            class="h-72 w-full object-cover object-top"
+          />
+        </div>
+
+        <!-- Character info card -->
         <div
           class="animate-fade-in-up overflow-hidden rounded-xl border bg-base-200/50"
           style="animation-delay: 60ms"
         >
-          <!-- Avatar (full-bleed with gradient) — anchor to the top so a
-               portrait's face isn't cropped out by center-cover framing. -->
-          <div class="relative h-72 overflow-hidden">
-            <img
-              :src="avatarSrc()"
-              :alt="character.name"
-              class="size-full object-cover object-top"
-            />
-            <!-- Fixed dark scrim (not theme-tinted): the name is white over a
-                 guaranteed-dark bottom, so it reads on any portrait in any
-                 theme. A base-200 scrim went black-on-black when the image was
-                 dark where the name sits (e.g. a dark-shirted portrait, light
-                 mode). -->
-            <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
-            <div class="absolute inset-x-0 bottom-0 p-6">
-              <h2 class="font-cinzel text-xl font-bold text-white drop-shadow-lg">
-                {{ character.name }}
-              </h2>
-            </div>
-          </div>
-
           <!-- Content -->
           <div class="space-y-5 p-6">
             <!-- Tags — kept below the portrait rather than overlaid: imported
@@ -262,6 +258,19 @@ async function startTale() {
 
       <!-- Right column (1 col) -->
       <div class="space-y-6">
+        <!-- Portrait — desktop only (on mobile it sits at the top of the page).
+             Shown above the details, per the desktop layout. -->
+        <div
+          class="animate-fade-in-up hidden overflow-hidden rounded-xl border bg-base-200/50 lg:block"
+          style="animation-delay: 60ms"
+        >
+          <img
+            :src="portraitSrc()"
+            :alt="character.name"
+            class="aspect-3/4 w-full object-cover object-top"
+          />
+        </div>
+
         <!-- Metadata Card -->
         <div
           class="animate-fade-in-up rounded-xl border bg-base-200/50 p-4"
