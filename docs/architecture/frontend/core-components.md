@@ -14,7 +14,7 @@ styled with Tailwind CSS and DaisyUI 5 primitives.
   - Exposes the main navigation entries: **Home**, **Sessions** (`/chats`), **Discover** (`/characters`), **Lorebooks**, **Data Bank** (`/memory`), **Bookmarks**, **Connections**, and **Loadouts** (`/loadouts`, the profiles page).
   - Renders the app name as the **Brand Wordmark** using the `font-cinzel` heading font (the `font-medieval` BlackChancery face is used elsewhere for the wordmark).
   - Shows a **Favorites** list of recent bookmarked sessions (avatars linking straight into a chat).
-  - Footer holds the **Settings** link and the **Theme Switcher** — a custom toggle button (not `USwitch`) wired to `useTheme().toggleTheme()`.
+  - Footer holds the **Settings** link and the **Theme Switcher** — an `AppToggle` (DaisyUI `toggle`) when expanded, or an icon button when collapsed, wired to `useTheme().toggleTheme()`.
 
 
 ## 2. Message and Narrative Rendering
@@ -60,3 +60,18 @@ styled with Tailwind CSS and DaisyUI 5 primitives.
 - **`ProfilePickerModal.vue`**: Shown when starting a new tale and more than one profile (loadout) exists. Lists the profiles with their resolved model and template names and emits the chosen `profileId`.
 - **`ImportPresetModal.vue`**: Handles importing a SillyTavern preset JSON via file browse or drag-and-drop, driving `usePresetImport` and reporting the `STImportResult`.
 - **`SetupPromptBanner.vue`**: Inline banner (rendered on Home) that nudges users to create their first profile when no profile with a model attached exists. It links to `/setup` and can be dismissed (persisted to `localStorage` under `"bannered-mare:setup-dismissed"`).
+
+
+## 6. Shared UI Primitives
+
+DaisyUI is CSS-only, so the app's interactive building blocks live as a small set of shared Vue
+components under `components/shared/`, registered globally in `main.ts` (usable in any template
+without an import):
+
+- **`AppIcon`**: the single icon component, backed by `lucide-vue-next` (a name → component registry in `icons.ts`). Always `<AppIcon name="i-lucide-*" />` — never a raw icon `<span>`.
+- **`AppTooltip`**: a hover/focus tooltip that **teleports** its bubble to `<body>`, so it escapes ancestor `overflow-hidden` (e.g. the collapsed sidebar). Props: `text`, `side`, `disabled`.
+- **`SelectMenu`**: a searchable, teleported dropdown — the replacement for a listbox. Supports `v-model`, `items`, `value-key`, `search-input`, and keyboard navigation; the default slot is the trigger button, and the listbox width matches it automatically.
+- **`AppToggle`**: a DaisyUI `toggle` switch (`v-model` / `change` / `disabled`) used for every on/off control.
+
+Everything else is hand-rolled Tailwind using DaisyUI's component classes (`btn`, `badge`, `tabs`,
+`card`, …) and the token utilities described in the [Design System](./design-system).

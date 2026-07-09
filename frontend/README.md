@@ -70,7 +70,7 @@ src/
 │   ├── discover/           # Character library grid/list + filters
 │   ├── layout/             # AppShell, AppSidebar
 │   ├── settings/           # Settings page tabs
-│   └── shared/             # Cross-feature reusable components
+│   └── shared/             # Reusable primitives (AppIcon, AppTooltip, SelectMenu, AppToggle) + more
 ├── composables/            # Feature-scoped state + API fetchers (use* prefix)
 ├── constants/              # Static data (app info, categories, options)
 ├── locales/                # vue-i18n translation catalogs
@@ -91,6 +91,10 @@ Data flows **View → Component → Composable → API Client**. Each layer has 
 - **Component** (`components/`): presentation and interaction only. No API calls or store mutations.
 - **Composable** (`composables/use*.ts`): feature state, data fetching, orchestration.
 - **API Client** (`api/client.ts`): the only layer that speaks HTTP.
+
+## Theming
+
+Styling is **DaisyUI 5** on Tailwind v4. Six palettes — Amber Dawn, Emerald Glade, Sapphire Archive, Crimson Sanctum, Violet Arcane, Obsidian Night — each with light + dark variants, ship as DaisyUI themes switched via the `data-theme` attribute (`src/assets/themes.css`). Users can also **build their own theme**: Settings → Interface has a live colour editor (the **Custom** palette) that applies and persists a custom DaisyUI theme. Details in the [Design System](../docs/architecture/frontend/design-system.md) doc.
 
 ## Mock Mode
 
