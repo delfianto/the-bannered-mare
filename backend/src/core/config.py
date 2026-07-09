@@ -187,22 +187,52 @@ class Settings(BaseSettings):
         default=None, description="Initial base URL for the seeded LM Studio provider"
     )
 
+    # Case-insensitive substrings matched against a model's identifier; any hit
+    # drops it from discovery. These name fragments mark non-chat / non-RP model
+    # families (image, video, audio, embeddings, retrieval, moderation, legacy
+    # completion, and specialised tooling variants) that would only clutter the
+    # picker — nobody roleplays with an embedding or "deep-research" model.
+    # Override wholesale via the MODEL_BLACKLIST env var (JSON array).
     model_blacklist: list[str] = [
+        # Image generation
         "dall-e",
-        "whisper",
-        "tts-",
-        "embedding",
-        "moderation",
+        "gpt-image",
+        "imagen",
         "flux",
         "stable-diffusion",
-        "imagen",
+        "sdxl",
+        "midjourney",
+        "ideogram",
+        "recraft",
+        # Video generation
         "sora",
         "veo",
-        "audio-",
+        # Audio / speech (TTS, STT)
+        "whisper",
+        "tts",
+        "audio",
+        "speech",
+        "transcribe",
+        # Embeddings, retrieval & rerankers
+        "embed",
         "bge-",
+        "gte-",
+        "e5-",
         "clip-",
-        "rerank",
         "colbert",
+        "rerank",
+        # Moderation / safety classifiers
+        "moderation",
+        "guard",
+        "shield",
+        # Legacy completion / base models (not chat-formatted)
+        "davinci",
+        "babbage",
+        # Specialised, non-conversational variants
+        "realtime",
+        "computer-use",
+        "research",
+        "ocr",
     ]
 
     model_config = SettingsConfigDict(
