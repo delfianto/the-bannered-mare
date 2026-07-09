@@ -190,12 +190,13 @@ class ProviderService:
     def list_available_models(
         self, provider_id: str, *, force_refresh: bool = False
     ) -> AvailableModelsResponse:
-        """List a provider's live models, narrowed by its curated allow-list.
+        """List a provider's models, narrowed by its curated allow-list.
 
-        Serves from the in-process cache unless force_refresh is set or the
-        cache is disabled via settings. A live fetch updates last_synced_at.
-        When ``allowed_models`` is non-empty, only those identifiers are
-        returned; otherwise the full discovered list is.
+        Serves from the persistent cache (memory + disk on STORAGE_PATH) even
+        when stale, so this is near-instant; a live provider fetch happens only
+        on a cold cache or when force_refresh (Sync) is set, which also updates
+        last_synced_at. When ``allowed_models`` is non-empty, only those
+        identifiers are returned; otherwise the full discovered list is.
         """
         provider = self.get_by_id(provider_id)
         models, from_cache = self._fetch_discovered_models(provider, force_refresh=force_refresh)
@@ -253,8 +254,9 @@ class ProviderService:
     ) -> tuple[list[DiscoveredModel], bool]:
         """Return the full (blacklist-filtered) discovered list and a cache flag.
 
-        Shared by the available/sync/search/filter paths so the provider's API
-        is hit at most once per cache window no matter which one is called.
+        Shared by the available/sync/search/filter paths. Reads serve the cached
+        list (stale included); the provider's API is hit only on a cold cache or
+        force_refresh, so it's never a per-request or per-TTL-expiry cost.
         """
         client = get_discovery_client(provider.provider_type)
         if client is None:
@@ -264,7 +266,7 @@ class ProviderService:
             )
 
         if not force_refresh and settings.discovery_cache.enabled:
-            cached = self.model_cache.get(provider.id, settings.discovery_cache.ttl_seconds)
+            cached = self.model_cache.get(provider.id)
             if cached is not None:
                 return cached, True
 
