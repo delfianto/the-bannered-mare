@@ -81,6 +81,31 @@ const selectValue = computed({
   },
 });
 
+// Enum values are stored as raw API tokens (e.g. "MEDIA_RESOLUTION_HIGH",
+// "BLOCK_MEDIUM_AND_ABOVE", "minimal") but shown human-friendly: strip the known
+// API prefix, de-underscore, and sentence-case — keeping the raw value as the
+// stored value. A few tiers read better with an explicit label.
+const ENUM_LABEL_OVERRIDES: Record<string, string> = { xhigh: "Extra High" };
+
+function humanizeEnumValue(v: string): string {
+  if (v in ENUM_LABEL_OVERRIDES) return ENUM_LABEL_OVERRIDES[v];
+  const cleaned = v
+    .replace(/^(MEDIA_RESOLUTION|HARM_CATEGORY|HARM_BLOCK_THRESHOLD)_/, "")
+    .replace(/_/g, " ")
+    .trim()
+    .toLowerCase();
+  return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : v;
+}
+
+const enumItems = computed(() =>
+  ((props.schema?.str_values as string[] | undefined) || []).map((v) => ({
+    label: humanizeEnumValue(v),
+    value: v,
+  })),
+);
+
+const selectLabel = computed(() => (selectValue.value ? humanizeEnumValue(selectValue.value) : ""));
+
 const jsonValue = computed({
   get: () => {
     try {
@@ -175,16 +200,16 @@ function updateObjectProp(key: string, val: unknown) {
   <template v-else-if="schemaType === 'enum'">
     <SelectMenu
       v-model="selectValue"
-      :items="(schema.str_values || []).map((v: string) => ({ label: v, value: v }))"
+      :items="enumItems"
       value-key="value"
       :search-input="false"
-      :class="layout === 'horizontal' ? 'max-w-45' : 'w-full'"
+      :class="layout === 'horizontal' ? 'max-w-56' : 'w-full'"
     >
       <button
         class="flex h-9 items-center justify-between gap-2 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30"
-        :class="layout === 'horizontal' ? 'w-45' : 'w-full'"
+        :class="layout === 'horizontal' ? 'w-56' : 'w-full'"
       >
-        <span class="truncate">{{ selectValue || "Select..." }}</span>
+        <span class="truncate">{{ selectLabel || "Select..." }}</span>
         <AppIcon name="i-lucide-chevron-down" class="size-3.5 shrink-0 text-muted-foreground" />
       </button>
     </SelectMenu>
@@ -351,13 +376,13 @@ function updateObjectProp(key: string, val: unknown) {
 .param-slider::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 9999px;
-  background: var(--border);
+  background: color-mix(in oklab, var(--color-base-content) 22%, transparent);
 }
 
 .param-slider::-moz-range-track {
   height: 6px;
   border-radius: 9999px;
-  background: var(--border);
+  background: color-mix(in oklab, var(--color-base-content) 22%, transparent);
 }
 
 /* Thumb */
@@ -367,7 +392,7 @@ function updateObjectProp(key: string, val: unknown) {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--color-primary);
   margin-top: -5px;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
@@ -377,7 +402,7 @@ function updateObjectProp(key: string, val: unknown) {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--color-primary);
   border: none;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
