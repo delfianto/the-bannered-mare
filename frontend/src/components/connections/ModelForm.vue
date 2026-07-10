@@ -3,7 +3,7 @@ import { reactive, computed, watch } from "vue";
 import { providersForFamily } from "@/utils/modelProviderFilter";
 
 const props = defineProps<{
-  providers: { id: string; name: string }[];
+  providers: { id: string; name: string; identifier_style?: string; identifier_hint?: string }[];
   families: { id: string; name: string }[];
   prefill?: { provider_id?: string; model_identifier?: string; name?: string };
   saving?: boolean;
@@ -38,6 +38,11 @@ const familyItems = computed(() =>
 );
 const providerName = computed(
   () => props.providers.find((p: any) => p.id === form.provider_id)?.name || "Select a provider",
+);
+// The identifier scheme depends on the chosen provider (the route): OpenRouter
+// wants a vendor/model slug, native/OpenCode take the bare name, etc.
+const identifierHint = computed(
+  () => props.providers.find((p: any) => p.id === form.provider_id)?.identifier_hint || "",
 );
 const familyName = computed(
   () => familyItems.value.find((i) => i.value === form.model_family_id)?.label || "Select a family",
@@ -108,6 +113,9 @@ function onSubmit() {
         placeholder="e.g. openai/gpt-4o"
         class="w-full rounded-lg border bg-base-100 px-3 py-2 font-mono text-sm text-foreground placeholder:font-sans placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
       />
+      <p v-if="identifierHint" class="mt-1 text-xs text-muted-foreground/70">
+        {{ identifierHint }}
+      </p>
     </label>
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

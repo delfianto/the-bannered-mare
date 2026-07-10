@@ -135,4 +135,13 @@ class ProviderResponse(BaseModel):
     api_key_configured: bool = Field(description="Whether API key is available in environment")
     env_var_name: str | None = Field(description="Expected environment variable name for API key")
 
+    # Static naming metadata (derived from provider type). A model's identifier
+    # scheme depends on its provider — the provider is the route.
+    identifier_style: str = Field(
+        description="Short label for this provider's model-identifier scheme (e.g. vendor/model)"
+    )
+    identifier_hint: str = Field(
+        description="Human-friendly explanation of the identifier scheme, with an example"
+    )
+
     model_config = ConfigDict(from_attributes=True)

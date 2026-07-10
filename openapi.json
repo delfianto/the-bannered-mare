@@ -10568,6 +10568,16 @@
             ],
             "title": "Env Var Name",
             "description": "Expected environment variable name for API key"
+          },
+          "identifier_style": {
+            "type": "string",
+            "title": "Identifier Style",
+            "description": "Short label for this provider's model-identifier scheme (e.g. vendor/model)"
+          },
+          "identifier_hint": {
+            "type": "string",
+            "title": "Identifier Hint",
+            "description": "Human-friendly explanation of the identifier scheme, with an example"
           }
         },
         "type": "object",
@@ -10580,7 +10590,9 @@
           "created_at",
           "updated_at",
           "api_key_configured",
-          "env_var_name"
+          "env_var_name",
+          "identifier_style",
+          "identifier_hint"
         ],
         "title": "ProviderResponse",
         "description": "Schema for provider responses"

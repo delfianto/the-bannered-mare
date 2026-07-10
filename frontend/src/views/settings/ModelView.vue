@@ -86,10 +86,14 @@ const familyItems = computed(() =>
     .map((f: any) => ({ label: f.name, value: f.id })),
 );
 
-const providerName = computed(() => {
-  const provider = settingsStore.providers.find((p: any) => p.id === form.provider_id);
-  return provider?.name || form.provider_id;
-});
+const selectedProvider = computed(() =>
+  settingsStore.providers.find((p: any) => p.id === form.provider_id),
+);
+const providerName = computed(() => selectedProvider.value?.name || form.provider_id);
+// Identifier scheme is provider-specific (the provider is the route): OpenRouter
+// takes a vendor/model slug, native/OpenCode take the bare name.
+const identifierStyle = computed(() => (selectedProvider.value as any)?.identifier_style || "");
+const identifierHint = computed(() => (selectedProvider.value as any)?.identifier_hint || "");
 const familyName = computed(
   () =>
     familyItems.value.find((i) => i.value === form.model_family_id)?.label ||
@@ -285,6 +289,9 @@ function formatDate(iso: string): string {
                     placeholder="e.g. gpt-4o, claude-4.5-sonnet"
                     class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
+                  <p v-if="identifierHint" class="mt-1.5 text-xs text-muted-foreground/70">
+                    {{ identifierHint }}
+                  </p>
                 </label>
 
                 <!-- Model Family -->
@@ -331,7 +338,6 @@ function formatDate(iso: string): string {
                     </button>
                   </SelectMenu>
                 </label>
-
               </div>
             </div>
 
@@ -387,6 +393,20 @@ function formatDate(iso: string): string {
                       :class="model.provider_enabled ? 'bg-emerald-500' : 'bg-red-500'"
                     />
                   </div>
+                </div>
+
+                <!-- Identifier naming scheme (depends on the provider/route) -->
+                <div v-if="identifierStyle" class="flex items-center justify-between">
+                  <span class="text-sm text-muted-foreground">{{
+                    $t("connections.model.identifierFormat")
+                  }}</span>
+                  <AppTooltip :text="identifierHint" side="left">
+                    <span
+                      class="rounded-md border bg-base-300/40 px-2 py-0.5 font-mono text-xs text-foreground"
+                    >
+                      {{ identifierStyle }}
+                    </span>
+                  </AppTooltip>
                 </div>
 
                 <!-- Timestamps -->

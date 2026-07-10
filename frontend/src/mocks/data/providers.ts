@@ -14,6 +14,8 @@ export const providers: Provider[] = [
     updated_at: NOW,
     api_key_configured: true,
     env_var_name: "OPENAI_API_KEY",
+    identifier_style: "bare name",
+    identifier_hint: "Bare model name, no vendor prefix — e.g. gpt-5.6 or gpt-4o-mini.",
   },
   {
     id: "prov-anthropic",
@@ -25,6 +27,8 @@ export const providers: Provider[] = [
     updated_at: NOW,
     api_key_configured: true,
     env_var_name: "ANTHROPIC_API_KEY",
+    identifier_style: "bare name",
+    identifier_hint: "Bare model name, no vendor prefix — e.g. claude-opus-4-8.",
   },
   {
     id: "prov-google",
@@ -36,6 +40,8 @@ export const providers: Provider[] = [
     updated_at: NOW,
     api_key_configured: true,
     env_var_name: "GOOGLE_API_KEY",
+    identifier_style: "bare name",
+    identifier_hint: "Bare model name, no vendor prefix — e.g. gemini-3.5-flash.",
   },
   {
     id: "prov-openrouter",
@@ -47,6 +53,9 @@ export const providers: Provider[] = [
     updated_at: NOW,
     api_key_configured: true,
     env_var_name: "OPENROUTER_API_KEY",
+    identifier_style: "vendor/model",
+    identifier_hint:
+      "Vendor-prefixed slug author/model — e.g. openai/gpt-5.6 or deepseek/deepseek-v4-flash. Optional :free / :nitro / :floor variant suffix; a leading ~ pins the latest in a family.",
   },
   {
     id: "prov-xai",
@@ -58,6 +67,8 @@ export const providers: Provider[] = [
     updated_at: NOW,
     api_key_configured: true,
     env_var_name: "XAI_API_KEY",
+    identifier_style: "bare name",
+    identifier_hint: "Bare model name, no vendor prefix — e.g. grok-4.5.",
   },
   {
     id: "prov-ollama",
@@ -70,6 +81,8 @@ export const providers: Provider[] = [
     last_synced_at: null,
     api_key_configured: true,
     env_var_name: null,
+    identifier_style: "name:tag",
+    identifier_hint: "Model name with an optional :tag — e.g. llama3.1:8b or qwen2.5:14b-instruct.",
   },
   {
     id: "prov-lmstudio",
@@ -82,5 +95,7 @@ export const providers: Provider[] = [
     last_synced_at: null,
     api_key_configured: true,
     env_var_name: null,
+    identifier_style: "bare key",
+    identifier_hint: "The loaded model's key — e.g. qwen2.5-7b-instruct.",
   },
 ];

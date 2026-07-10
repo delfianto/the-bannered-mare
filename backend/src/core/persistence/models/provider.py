@@ -28,6 +28,11 @@ class ProviderConfig:
     env_var_name: str | None
     default_base_url: str
     requires_api_key: bool
+    # Model identifiers are provider-specific: aggregators (OpenRouter) prepend a
+    # vendor slug (``author/model``), native and OpenCode endpoints take the bare
+    # name, Ollama uses ``name:tag``. Surfaced in the UI so users know what to type.
+    identifier_style: str
+    identifier_hint: str
 
 
 PROVIDER_CONFIGS: dict[ProviderType, ProviderConfig] = {
@@ -36,60 +41,87 @@ PROVIDER_CONFIGS: dict[ProviderType, ProviderConfig] = {
         env_var_name="OPENAI_API_KEY",
         default_base_url="https://api.openai.com/v1",
         requires_api_key=True,
+        identifier_style="bare name",
+        identifier_hint="Bare model name, no vendor prefix — e.g. gpt-5.6 or gpt-4o-mini.",
     ),
     ProviderType.ANTHROPIC: ProviderConfig(
         display_name="Anthropic",
         env_var_name="ANTHROPIC_API_KEY",
         default_base_url="https://api.anthropic.com/v1",
         requires_api_key=True,
+        identifier_style="bare name",
+        identifier_hint="Bare model name, no vendor prefix — e.g. claude-opus-4-8.",
     ),
     ProviderType.GOOGLE: ProviderConfig(
         display_name="Google AI",
         env_var_name="GOOGLE_API_KEY",
         default_base_url="https://generativelanguage.googleapis.com",
         requires_api_key=True,
+        identifier_style="bare name",
+        identifier_hint="Bare model name, no vendor prefix — e.g. gemini-3.5-flash.",
     ),
     ProviderType.OPENROUTER: ProviderConfig(
         display_name="OpenRouter",
         env_var_name="OPENROUTER_API_KEY",
         default_base_url="https://openrouter.ai/api/v1",
         requires_api_key=True,
+        identifier_style="vendor/model",
+        identifier_hint=(
+            "Vendor-prefixed slug author/model — e.g. openai/gpt-5.6 or "
+            "deepseek/deepseek-v4-flash. Optional :free / :nitro / :floor variant "
+            "suffix; a leading ~ pins the latest in a family."
+        ),
     ),
     ProviderType.XAI: ProviderConfig(
         display_name="xAI",
         env_var_name="XAI_API_KEY",
         default_base_url="https://api.x.ai/v1",
         requires_api_key=True,
+        identifier_style="bare name",
+        identifier_hint="Bare model name, no vendor prefix — e.g. grok-4.5.",
     ),
     ProviderType.OLLAMA: ProviderConfig(
         display_name="Ollama",
         env_var_name=None,
         default_base_url="http://localhost:11434",
         requires_api_key=False,
+        identifier_style="name:tag",
+        identifier_hint="Model name with an optional :tag — e.g. llama3.1:8b or qwen2.5:14b-instruct.",
     ),
     ProviderType.LMSTUDIO: ProviderConfig(
         display_name="LM Studio",
         env_var_name=None,
         default_base_url="http://localhost:1234",
         requires_api_key=False,
+        identifier_style="bare key",
+        identifier_hint="The loaded model's key — e.g. qwen2.5-7b-instruct.",
     ),
     ProviderType.OPENCODE: ProviderConfig(
         display_name="OpenCode Zen",
         env_var_name="OPENCODE_ZEN_API_KEY",
         default_base_url="https://opencode.ai/zen/v1",
         requires_api_key=True,
+        identifier_style="bare name",
+        identifier_hint=(
+            "Bare model name, no vendor prefix — e.g. deepseek-v4-flash or glm-5.2. "
+            "(The opencode/ prefix is only for OpenCode's own config, not the API.)"
+        ),
     ),
     ProviderType.OPENCODE_GO: ProviderConfig(
         display_name="OpenCode Go",
         env_var_name="OPENCODE_GO_API_KEY",
         default_base_url="https://opencode.ai/zen/go/v1",
         requires_api_key=True,
+        identifier_style="bare name",
+        identifier_hint="Bare model name, no vendor prefix — e.g. deepseek-v4-flash.",
     ),
     ProviderType.CUSTOM: ProviderConfig(
         display_name="Custom",
         env_var_name=None,
         default_base_url="",
         requires_api_key=True,
+        identifier_style="provider-defined",
+        identifier_hint="Whatever identifier the upstream OpenAI-compatible API expects.",
     ),
 }
 
@@ -143,6 +175,14 @@ class Provider(BaseModel):
     @property
     def env_var_name(self) -> str | None:
         return self.get_env_var_name()
+
+    @property
+    def identifier_style(self) -> str:
+        return PROVIDER_CONFIGS[self.provider_type].identifier_style
+
+    @property
+    def identifier_hint(self) -> str:
+        return PROVIDER_CONFIGS[self.provider_type].identifier_hint
 
     def get_api_key(self) -> str | None:
         config = PROVIDER_CONFIGS[self.provider_type]
