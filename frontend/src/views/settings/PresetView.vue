@@ -104,7 +104,7 @@ async function handleDelete() {
   try {
     await deletePreset(preset.value.id);
     toast.success("Preset deleted");
-    router.push({ path: "/connections", query: { tab: "presets" } });
+    router.push({ path: "/loadouts", query: { tab: "presets" } });
   } catch {
     toast.error("Failed to delete preset");
     confirmDelete.value = false;
@@ -167,7 +167,7 @@ function formatDate(iso: string): string {
           <button
             class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             :aria-label="$t('connections.preset.backToPresets')"
-            @click="router.push({ path: '/connections', query: { tab: 'presets' } })"
+            @click="router.push({ path: '/loadouts', query: { tab: 'presets' } })"
           >
             <AppIcon name="i-lucide-arrow-left" class="size-5" />
           </button>

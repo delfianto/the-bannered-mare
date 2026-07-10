@@ -131,7 +131,7 @@ async function handleDelete() {
   try {
     await deleteTemplate(template.value.id);
     toast.success("Template deleted");
-    router.push({ path: "/connections", query: { tab: "templates" } });
+    router.push({ path: "/loadouts", query: { tab: "templates" } });
   } catch (e) {
     toast.error("Failed to delete template");
     confirmDelete.value = false;
@@ -210,7 +210,7 @@ function formatDate(iso: string): string {
           <button
             class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             :aria-label="$t('connections.template.backToTemplates')"
-            @click="router.push({ path: '/connections', query: { tab: 'templates' } })"
+            @click="router.push({ path: '/loadouts', query: { tab: 'templates' } })"
           >
             <AppIcon name="i-lucide-arrow-left" class="size-5" />
           </button>
