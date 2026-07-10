@@ -28,27 +28,16 @@ class ProviderGateway:
         self,
         provider: Provider,
         model: Model,
-        routing_provider: Provider | None = None,
         preset_parameters: dict[str, Any] | None = None,
     ):
         self.model = model
         self.preset_parameters = preset_parameters
-
-        # Route through the override provider when the model declares one; else
-        # use its native provider. The adapter is chosen by the effective
-        # provider's type — aggregators (OpenRouter/OpenCode) map to the OpenAI
-        # adapter via the registry, so no format is special-cased here.
-        if model.routing_provider_id:
-            if routing_provider is None:
-                raise ValueError("Routing provider is required for models with a routing override")
-            effective = routing_provider
-        else:
-            effective = provider
-
-        self.provider = effective
-        self.active_identifier = model.active_identifier
-        self.adapter: ProviderAdapter = get_adapter(effective.provider_type)
-
+        # The adapter is chosen by the provider's type — aggregators
+        # (OpenRouter/OpenCode) map to the OpenAI adapter via the registry, so no
+        # format is special-cased here.
+        self.provider = provider
+        self.active_identifier = model.model_identifier
+        self.adapter: ProviderAdapter = get_adapter(provider.provider_type)
         self.base_url = (self.provider.get_base_url()).rstrip("/")
         self.api_key = self.provider.get_api_key()
 

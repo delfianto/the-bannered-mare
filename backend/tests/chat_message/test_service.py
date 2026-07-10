@@ -412,35 +412,6 @@ class TestChatMessageService:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_build_task_gateway_routes_via_override(self) -> None:
-        """A task model with a routing override receives the routing provider
-        (eager-loaded), else the gateway raises and suggestions/titles 500."""
-        routing_provider = MagicMock()
-        routing_provider.provider_type = ProviderType.OPENROUTER
-        routing_provider.get_base_url.return_value = "https://openrouter.ai/api/v1"
-        routing_provider.get_api_key.return_value = "or-key"
-        routing_provider.has_api_key.return_value = True
-        routing_provider.name = "OpenRouter"
-
-        model = MagicMock()
-        model.routing_provider_id = "prov_or"
-        model.routing_provider = routing_provider
-        model.active_identifier = "meta-llama/llama-3-8b-instruct:free"
-        model.model_identifier = "meta-llama/llama-3-8b-instruct"
-        model.provider = MagicMock()
-
-        chat = MagicMock()
-        chat.task_model = None
-        chat.model = model
-
-        service = ChatMessageService(MagicMock(), MagicMock(), MagicMock())
-        gateway = await service._build_task_gateway(chat)
-
-        assert gateway.provider is routing_provider
-        assert gateway.active_identifier == "meta-llama/llama-3-8b-instruct:free"
-        assert gateway.base_url == "https://openrouter.ai/api/v1"
-
-    @pytest.mark.asyncio
     async def test_build_task_gateway_native_model_uses_own_provider(self) -> None:
         """A native (non-routed) task model uses its own provider."""
         provider = MagicMock()

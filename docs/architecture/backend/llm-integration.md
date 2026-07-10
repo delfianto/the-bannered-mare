@@ -20,10 +20,10 @@ Three core database models describe LLM connectivity:
    (temperature, frequency penalty, and so on) and configuration such as prompt-structure
    templates.
 3. **Model** — a concrete, selectable model (e.g., `gpt-4o` or `llama3`) linked to one
-   native Provider and one ModelFamily. It inherits parameters from its family and supports
-   per-model overrides. A model may also carry an optional **routing override**
-   (`routing_provider_id` + `routing_identifier`) that reroutes it through a different
-   provider — see [Provider Routing](#provider-routing).
+   Provider and one ModelFamily. It inherits parameters from its family and supports per-model
+   overrides. Its Provider is chosen from the family's `provider_types` and is the route — the
+   *same* base model reachable through several providers (DeepSeek V4 via OpenRouter or OpenCode)
+   is one Model row per provider. See [Provider selection](#provider-selection).
 
 ## 2. The Stateless Adapter Pattern
 
@@ -118,27 +118,27 @@ order, each layer overriding the one before it:
 2. **Model parameters** — per-model overrides.
 3. **Preset parameters** — user-specified overrides for the chat session.
 
-### Provider Routing
+### Provider selection
 
-By default a model runs on its own native `provider_id`. A model may instead carry a
-**routing override** — `routing_provider_id` (an FK to any provider) plus `routing_identifier`
-(its id on that provider). When set, the gateway resolves the *effective* provider (the routing
-override, else native), uses that provider's base URL and API key, sends `active_identifier`
-(= `routing_identifier` when routed, else `model_identifier`), and selects the adapter from the
-effective provider's type via the registry. Nothing is special-cased: OpenRouter, OpenCode
-Zen/Go, and any other aggregator are just OpenAI-compatible providers a model can point at.
+A model runs on exactly one provider (`provider_id`) using `model_identifier` — the id that
+provider knows it by. **The provider _is_ the route:** the gateway uses that provider's base URL
+and API key, sends `model_identifier`, and selects the adapter from the provider's type via the
+registry. Nothing is special-cased — OpenRouter, OpenCode Zen/Go, and any other aggregator are
+just OpenAI-compatible providers a model can point at.
 
-This makes aggregators first-class **without duplicating models**. "DeepSeek V4 Flash" is one
-logical model — one family, one parameter schema — and you choose whether it runs natively, via
-OpenRouter, via OpenCode Go, and so on, by picking its route. A routing override is valid only
-when the routing provider's type is in the family's `provider_types` (enforced on
-create/update), so a model can never be routed somewhere its family can't run.
+A model's provider must be one of its family's `provider_types` (enforced on create/update), so
+a model can never point at a provider its family can't run on. Because a base model (the family)
+has no single "home", the *same* model reachable via several providers is simply several Model
+rows — e.g. "DeepSeek V4 Flash" on OpenRouter and on OpenCode Go — sharing one family, hence one
+parameter schema. (There is deliberately no separate "route override": a native provider plus an
+override provider produced nonsensical states like OpenRouter-routed-to-HuggingFace; the single
+provider selection is the whole story.)
 
-**Adding a new aggregator** (e.g. Hugging Face Inference) is therefore a configuration change,
-not a gateway change: add the `ProviderType`, a `PROVIDER_CONFIGS` entry (default base URL +
-env var), and a discovery-client registration, then add the new type to the relevant families'
-`provider_types`. Models can immediately be routed to it — and no new adapter is needed when it
-speaks the OpenAI wire format.
+**Adding a new aggregator** (e.g. Hugging Face Inference) is a configuration change, not a
+gateway change: add the `ProviderType`, a `PROVIDER_CONFIGS` entry (default base URL + env var),
+and a discovery-client registration, then add the new type to the relevant families'
+`provider_types`. Models can then be created on it — and no new adapter is needed when it speaks
+the OpenAI wire format.
 
 ### Exception Normalization
 

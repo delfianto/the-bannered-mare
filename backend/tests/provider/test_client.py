@@ -23,8 +23,6 @@ def mock_provider() -> Any:
 def mock_model() -> Any:
     model = MagicMock()
     model.model_identifier = "gpt-4"
-    model.routing_provider_id = None
-    model.active_identifier = "gpt-4"
     model.parameters = {"temperature": 0.7}
     model.model_family = MagicMock()
     model.model_family.parameters = {"max_tokens": {"type": "int", "default": 2000}}
