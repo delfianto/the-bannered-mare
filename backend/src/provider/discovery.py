@@ -156,9 +156,10 @@ _CASING_PREFIXES = sorted(_NAME_CASING, key=len, reverse=True)
 def _humanize_model_id(model_id: str) -> str:
     """Best-effort friendly name for providers that only return raw ids (OpenAI).
 
-    e.g. ``gpt-4o-mini`` -> ``GPT 4o Mini``. Version-ish tokens (``4o``, ``3.5``)
-    are left as-is; a brand fused to its version (``qwen3.7`` -> ``Qwen 3.7``) is
-    split; a leading vendor prefix (``vendor/model``) is dropped.
+    e.g. ``gpt-4o-mini`` -> ``GPT 4o Mini``. Number-led version tokens (``4o``,
+    ``3.5``) are left as-is; letter-led ones get a leading capital (``m3`` ->
+    ``M3``, ``hy3`` -> ``Hy3``). A brand fused to its version (``qwen3.7`` ->
+    ``Qwen 3.7``) is split; a leading vendor prefix (``vendor/model``) is dropped.
     """
     tail = model_id.rsplit("/", 1)[-1]
     words: list[str] = []
@@ -180,8 +181,11 @@ def _humanize_model_id(model_id: str) -> str:
         if fused:
             words.append(_NAME_CASING[fused])
             words.append(tok[len(fused) :])
-        elif tok[:1].isalpha() and not any(c.isdigit() for c in tok):
-            words.append(tok.capitalize())
+        elif tok[:1].isalpha():
+            # Capitalize the leading letter. Pure words also lowercase the tail
+            # ("mini" -> "Mini"); version tokens keep theirs ("m3" -> "M3",
+            # "hy3" -> "Hy3", "v2.5" -> "V2.5").
+            words.append(tok.capitalize() if tok.isalpha() else tok[:1].upper() + tok[1:])
         else:
             words.append(tok)
     return " ".join(w for w in words if w)
