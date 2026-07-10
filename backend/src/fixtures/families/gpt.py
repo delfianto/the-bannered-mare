@@ -173,4 +173,55 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             ],
         },
     },
+    {
+        "name": "OpenAI GPT-5.6",
+        "family_identifier": "openai/gpt-5.6",
+        "description": (
+            "OpenAI GPT-5.6 reasoning models (Sol / Terra / Luna). Responses-API reasoning "
+            "with an expanded reasoning_effort scale (none-max, default medium) plus verbosity "
+            "and a pro reasoning mode; sampling parameters are removed. 1.05M context, 128K "
+            "max output. Sol is the flagship, Terra the balanced everyday tier, Luna the "
+            "fastest. Served via OpenAI or OpenRouter."
+        ),
+        "provider_types": ["openai", "openrouter", "opencode"],
+        "parameters": {
+            "max_completion_tokens": {
+                "type": "int",
+                "default": 8192,
+                "min_value": 1,
+                "max_value": 128000,
+            },
+            # 5.6 widens the scale beyond 5.4/5.5: adds "none" (reasoning off) and "max".
+            "reasoning_effort": {
+                "type": "enum",
+                "default": "medium",
+                "str_values": ["none", "low", "medium", "high", "xhigh", "max"],
+            },
+            "verbosity": {
+                "type": "enum",
+                "default": "medium",
+                "str_values": ["low", "medium", "high"],
+            },
+            "summary": {
+                "type": "enum",
+                "default": "auto",
+                "str_values": ["concise", "detailed", "auto"],
+            },
+            **OPENAI_THINKING_COMMON,
+        },
+        "unsupported_parameters": _UNSUPPORTED_THINKING,
+        "extra_metadata": {
+            "lineage": "gpt",
+            "developer": "openai",
+            "context_window": 1050000,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            # `gpt-5.6` alias routes to Sol; pro reasoning mode is a Sol-tier quality boost.
+            "note": (
+                "reasoning_effort adds none + max on 5.6; pro reasoning mode on Sol; "
+                "gpt-5.6 alias routes to gpt-5.6-sol"
+            ),
+            "models": ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+        },
+    },
 ]

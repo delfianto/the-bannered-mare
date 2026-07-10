@@ -51,4 +51,21 @@ XAI_MODELS: list[ModelSeedData] = [
         "enabled": True,
         "use_openrouter": False,
     },
+    # --- Grok 4.5 ---
+    {
+        "name": "Grok 4.5",
+        "model_identifier": "grok-4.5",
+        "openrouter_identifier": "x-ai/grok-4.5",
+        "family_identifier": "xai/grok-4.5",
+        "provider_type": "xai",
+        # Family default effort is high; RP favors a lower effort for snappier turns.
+        "parameters": {
+            "max_completion_tokens": 4096,
+            "temperature": 0.9,
+            "top_p": 0.92,
+            "reasoning_effort": "low",
+        },
+        "enabled": True,
+        "use_openrouter": False,
+    },
 ]
