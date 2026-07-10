@@ -26,6 +26,15 @@ class TestHumanizeModelId:
         assert _humanize_model_id("minimax-m3") == "MiniMax m3"
         assert _humanize_model_id("mimo-v2.5-pro") == "MiMo v2.5 Pro"
 
+    def test_brand_fused_to_version_split(self) -> None:
+        # Qwen fuses brand + version in its ids (qwen3.7); split and case it.
+        assert _humanize_model_id("qwen3.7-max") == "Qwen 3.7 Max"
+        assert _humanize_model_id("qwen3.6-plus") == "Qwen 3.6 Plus"
+
+    def test_prefix_split_requires_digit(self) -> None:
+        # A word that merely starts with a known prefix must not be split.
+        assert _humanize_model_id("airoboros-70b") == "Airoboros 70b"
+
     def test_vendor_prefix_dropped(self) -> None:
         assert _humanize_model_id("z-ai/glm-5") == "GLM 5"
 
