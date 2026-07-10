@@ -133,7 +133,7 @@ class LMStudioDiscoveryClient:
         raise NotImplementedError("LM Studio does not support model deletion via API")
 
 
-_ACRONYMS = {"gpt": "GPT", "tts": "TTS", "hd": "HD", "ai": "AI", "llm": "LLM"}
+_ACRONYMS = {"gpt": "GPT", "glm": "GLM", "tts": "TTS", "hd": "HD", "ai": "AI", "llm": "LLM"}
 
 
 def _humanize_model_id(model_id: str) -> str:

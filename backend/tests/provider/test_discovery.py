@@ -9,8 +9,19 @@ from src.provider.discovery import (
     LMStudioDiscoveryClient,
     OllamaDiscoveryClient,
     OpenAIDiscoveryClient,
+    _humanize_model_id,
     get_discovery_client,
 )
+
+
+class TestHumanizeModelId:
+    def test_acronyms_uppercased(self) -> None:
+        # gpt and glm are acronyms — both fully uppercased, version tokens left as-is.
+        assert _humanize_model_id("gpt-4o-mini") == "GPT 4o Mini"
+        assert _humanize_model_id("glm-5.2") == "GLM 5.2"
+
+    def test_vendor_prefix_dropped(self) -> None:
+        assert _humanize_model_id("z-ai/glm-5") == "GLM 5"
 
 
 def _mock_response(json_data: dict) -> MagicMock:
