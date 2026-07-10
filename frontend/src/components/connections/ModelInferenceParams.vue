@@ -164,7 +164,7 @@ const sections = computed(() => {
           :key="paramKey"
           class="flex items-center justify-between gap-3 rounded-lg border border-border/30 bg-base-300/10 px-3 py-2"
         >
-          <div class="flex min-w-0 items-center gap-2">
+          <div class="flex min-w-0 flex-1 items-center gap-2">
             <span v-if="isOverridden(paramKey)" class="size-1.5 shrink-0 rounded-full bg-primary" />
             <span class="truncate text-sm text-foreground">{{ getLabel(paramKey) }}</span>
             <AppTooltip v-if="getTooltip(paramKey)" :text="getTooltip(paramKey)">
@@ -174,13 +174,15 @@ const sections = computed(() => {
               />
             </AppTooltip>
           </div>
-          <ParamInput
-            :param-key="paramKey"
-            :schema="familyParameters[paramKey]"
-            :model-value="getValue(paramKey)"
-            layout="horizontal"
-            @update:model-value="(val: unknown) => updateParam(paramKey, val)"
-          />
+          <div class="shrink-0">
+            <ParamInput
+              :param-key="paramKey"
+              :schema="familyParameters[paramKey]"
+              :model-value="getValue(paramKey)"
+              layout="horizontal"
+              @update:model-value="(val: unknown) => updateParam(paramKey, val)"
+            />
+          </div>
         </div>
       </div>
 
