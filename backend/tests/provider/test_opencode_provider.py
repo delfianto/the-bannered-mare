@@ -14,7 +14,7 @@ class TestOpenCodeProviderConfig:
     def test_zen_config(self) -> None:
         config = PROVIDER_CONFIGS[ProviderType.OPENCODE]
         assert config.display_name == "OpenCode Zen"
-        assert config.env_var_name == "OPENCODE_API_KEY"
+        assert config.env_var_name == "OPENCODE_ZEN_API_KEY"
         assert config.default_base_url == "https://opencode.ai/zen/v1"
         assert config.requires_api_key is True
 
@@ -46,9 +46,9 @@ class TestOpenCodeAdapter:
 
 class TestOpenCodeApiKey:
     def test_zen_reads_fixed_env_var(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("OPENCODE_API_KEY", "sk-zen")
+        monkeypatch.setenv("OPENCODE_ZEN_API_KEY", "sk-zen")
         provider = Provider(name="OpenCode Zen", provider_type=ProviderType.OPENCODE)
-        assert provider.get_env_var_name() == "OPENCODE_API_KEY"
+        assert provider.get_env_var_name() == "OPENCODE_ZEN_API_KEY"
         assert provider.get_api_key() == "sk-zen"
         assert provider.has_api_key() is True
         headers = get_adapter(provider.provider_type).build_headers(provider.get_api_key())

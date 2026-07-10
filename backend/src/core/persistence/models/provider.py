@@ -75,7 +75,7 @@ PROVIDER_CONFIGS: dict[ProviderType, ProviderConfig] = {
     ),
     ProviderType.OPENCODE: ProviderConfig(
         display_name="OpenCode Zen",
-        env_var_name="OPENCODE_API_KEY",
+        env_var_name="OPENCODE_ZEN_API_KEY",
         default_base_url="https://opencode.ai/zen/v1",
         requires_api_key=True,
     ),
