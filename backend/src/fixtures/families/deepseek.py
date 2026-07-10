@@ -28,7 +28,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
         "name": "DeepSeek V3",
         "family_identifier": "deepseek/deepseek-v3",
         "description": "DeepSeek V3.1 / V3.2 chat models. 128K context, standard sampling.",
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 65536},
             **_DEEPSEEK_CHAT,
@@ -46,7 +46,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
         "name": "DeepSeek V4",
         "family_identifier": "deepseek/deepseek-v4",
         "description": "DeepSeek V4 chat models (Pro / Flash). 128K context, standard sampling.",
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 65536},
             **_DEEPSEEK_CHAT,
@@ -67,7 +67,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
             "DeepSeek R1 reasoner. Thinking model — temperature/top_p and penalties are "
             "ignored by the API."
         ),
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 65536},
         },

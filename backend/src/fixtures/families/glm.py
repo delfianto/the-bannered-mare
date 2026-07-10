@@ -35,7 +35,7 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
             "Zhipu/Z.ai GLM-4.5 / 4.6 / 4.7 (incl. Air, Flash). Hybrid thinking, "
             "temperature capped at 1.0, 200K context. Routed via OpenRouter."
         ),
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 128000},
             **_GLM_BASE,
@@ -59,7 +59,7 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
             "Zhipu/Z.ai GLM-5 / 5.1 (incl. Turbo). Forced thinking with reasoning_effort "
             "(GLM-5.1), temperature capped at 1.0, up to ~262K context. Routed via OpenRouter."
         ),
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 128000},
             # GLM-5.1 only; GLM-5 / 5-Turbo simply omit it.

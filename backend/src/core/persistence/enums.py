@@ -21,6 +21,8 @@ class ProviderType(enum.StrEnum):
     OPENROUTER = "openrouter"
     OLLAMA = "ollama"
     LMSTUDIO = "lmstudio"
+    OPENCODE = "opencode"
+    OPENCODE_GO = "opencode_go"
     CUSTOM = "custom"
 
 

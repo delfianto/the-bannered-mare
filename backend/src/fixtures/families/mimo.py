@@ -28,7 +28,7 @@ MIMO_FAMILIES: list[ModelFamilySeedData] = [
             "Pro is a 1.02T MoE (42B active). top_k/min_p/repetition_penalty are Pro-only. "
             "Routed via OpenRouter."
         ),
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 131072},
             "temperature": TEMPERATURE,

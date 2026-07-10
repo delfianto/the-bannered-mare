@@ -3753,6 +3753,8 @@ export interface components {
       | "openrouter"
       | "ollama"
       | "lmstudio"
+      | "opencode"
+      | "opencode_go"
       | "custom";
     /**
      * ProviderUpdate

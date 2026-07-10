@@ -43,7 +43,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         "name": "OpenAI GPT-4o",
         "family_identifier": "openai/gpt-4o",
         "description": "OpenAI GPT-4o family (incl. mini). 128K context, multimodal, classic sampling.",
-        "provider_types": ["openai", "openrouter"],
+        "provider_types": ["openai", "openrouter", "opencode"],
         "parameters": {
             "max_completion_tokens": {
                 "type": "int",
@@ -67,7 +67,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         "name": "OpenAI GPT-4.1",
         "family_identifier": "openai/gpt-4.1",
         "description": "OpenAI GPT-4.1 family (incl. mini, nano). 1M context, classic sampling.",
-        "provider_types": ["openai", "openrouter"],
+        "provider_types": ["openai", "openrouter", "opencode"],
         "parameters": {
             "max_completion_tokens": {
                 "type": "int",
@@ -94,7 +94,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "OpenAI GPT-5 chat models (5, 5.1, 5.2, 5.3, chat-latest) — non-reasoning, "
             "classic sampling. Up to 400K context."
         ),
-        "provider_types": ["openai", "openrouter"],
+        "provider_types": ["openai", "openrouter", "opencode"],
         "parameters": {
             "max_completion_tokens": {
                 "type": "int",
@@ -128,7 +128,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "reasoning via reasoning_effort + verbosity; sampling parameters are removed. "
             "Up to ~1M context."
         ),
-        "provider_types": ["openai", "openrouter"],
+        "provider_types": ["openai", "openrouter", "opencode"],
         "parameters": {
             "max_completion_tokens": {
                 "type": "int",
