@@ -141,6 +141,7 @@ _NAME_CASING = {
     "deepseek": "DeepSeek",
     "minimax": "MiniMax",
     "mimo": "MiMo",
+    "qwen": "Qwen",
     "tts": "TTS",
     "hd": "HD",
     "ai": "AI",
@@ -148,11 +149,16 @@ _NAME_CASING = {
 }
 
 
+# Longest-first so a fused brand splits on its longest known prefix.
+_CASING_PREFIXES = sorted(_NAME_CASING, key=len, reverse=True)
+
+
 def _humanize_model_id(model_id: str) -> str:
     """Best-effort friendly name for providers that only return raw ids (OpenAI).
 
     e.g. ``gpt-4o-mini`` -> ``GPT 4o Mini``. Version-ish tokens (``4o``, ``3.5``)
-    are left as-is; a leading vendor prefix (``vendor/model``) is dropped.
+    are left as-is; a brand fused to its version (``qwen3.7`` -> ``Qwen 3.7``) is
+    split; a leading vendor prefix (``vendor/model``) is dropped.
     """
     tail = model_id.rsplit("/", 1)[-1]
     words: list[str] = []
@@ -160,6 +166,20 @@ def _humanize_model_id(model_id: str) -> str:
         low = tok.lower()
         if low in _NAME_CASING:
             words.append(_NAME_CASING[low])
+            continue
+        # Brand/acronym fused to a version tag, e.g. ``qwen3.7`` -> ``Qwen`` + ``3.7``.
+        # The digit guard prevents false splits like ``airoboros`` (ai + roboros).
+        fused = next(
+            (
+                p
+                for p in _CASING_PREFIXES
+                if low.startswith(p) and low[len(p) : len(p) + 1].isdigit()
+            ),
+            None,
+        )
+        if fused:
+            words.append(_NAME_CASING[fused])
+            words.append(tok[len(fused) :])
         elif tok[:1].isalpha() and not any(c.isdigit() for c in tok):
             words.append(tok.capitalize())
         else:
