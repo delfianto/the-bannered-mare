@@ -22,8 +22,8 @@ const form = reactive({
   model_identifier: "",
   provider_id: "",
   model_family_id: "",
-  use_openrouter: false,
-  openrouter_identifier: "",
+  routing_provider_id: "",
+  routing_identifier: "",
   enabled: true,
   parameters: {} as Record<string, unknown>,
 });
@@ -43,8 +43,8 @@ watch(model, (m) => {
     form.model_identifier = m.model_identifier;
     form.provider_id = m.provider_id;
     form.model_family_id = m.model_family_id;
-    form.use_openrouter = m.use_openrouter;
-    form.openrouter_identifier = m.openrouter_identifier || "";
+    form.routing_provider_id = m.routing_provider_id || "";
+    form.routing_identifier = m.routing_identifier || "";
     form.enabled = m.enabled;
     form.parameters = m.parameters ? { ...m.parameters } : {};
   }
@@ -63,19 +63,13 @@ function onUpdateParameters(params: Record<string, unknown>) {
   form.parameters = params;
 }
 
-// A model is available on OpenRouter iff it has an OpenRouter identifier.
-const canUseOpenrouter = computed(() => !!form.openrouter_identifier.trim());
+const isRouted = computed(() => !!form.routing_provider_id);
 
-function toggleUseOpenrouter() {
-  if (!canUseOpenrouter.value) return;
-  form.use_openrouter = !form.use_openrouter;
-}
-
-// Clearing the identifier makes it unroutable — turn routing off to stay consistent.
+// Clearing the route (back to Native) drops the now-meaningless identifier.
 watch(
-  () => form.openrouter_identifier,
+  () => form.routing_provider_id,
   (v) => {
-    if (!v.trim()) form.use_openrouter = false;
+    if (!v) form.routing_identifier = "";
   },
 );
 
@@ -117,6 +111,18 @@ const familyName = computed(
     form.model_family_id,
 );
 
+// "Route via": native provider, or any other provider the family supports.
+const routeItems = computed(() => [
+  { label: "Native — use the model's own provider", value: "" },
+  ...providersForFamily(settingsStore.providers as any, selectedFamily.value as any)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((p) => ({ label: `Route via ${p.name}`, value: p.id })),
+]);
+const routeName = computed(
+  () => routeItems.value.find((i) => i.value === form.routing_provider_id)?.label || "Native",
+);
+
 async function handleSave() {
   if (!model.value) return;
   const updates: Record<string, unknown> = {};
@@ -126,10 +132,10 @@ async function handleSave() {
   if (form.provider_id !== model.value.provider_id) updates.provider_id = form.provider_id;
   if (form.model_family_id !== model.value.model_family_id)
     updates.model_family_id = form.model_family_id;
-  if (form.use_openrouter !== model.value.use_openrouter)
-    updates.use_openrouter = form.use_openrouter;
-  if ((form.openrouter_identifier || "") !== (model.value.openrouter_identifier || ""))
-    updates.openrouter_identifier = form.openrouter_identifier || null;
+  if ((form.routing_provider_id || "") !== (model.value.routing_provider_id || ""))
+    updates.routing_provider_id = form.routing_provider_id || null;
+  if ((form.routing_identifier || "") !== (model.value.routing_identifier || ""))
+    updates.routing_identifier = form.routing_identifier || null;
   if (form.enabled !== model.value.enabled) updates.enabled = form.enabled;
   if (JSON.stringify(form.parameters) !== JSON.stringify(model.value.parameters ?? {}))
     updates.parameters = form.parameters;
@@ -356,34 +362,39 @@ function formatDate(iso: string): string {
                   </SelectMenu>
                 </label>
 
-                <!-- OpenRouter routing -->
-                <div class="rounded-lg border bg-base-300/20 p-3">
-                  <div class="flex items-center justify-between gap-3">
-                    <div class="min-w-0">
-                      <span class="block text-sm text-foreground">Route via OpenRouter</span>
-                      <span class="text-[0.625rem] text-muted-foreground">
-                        {{
-                          canUseOpenrouter
-                            ? "Available on OpenRouter"
-                            : "Add an OpenRouter identifier below to enable"
-                        }}
-                      </span>
-                    </div>
-                    <AppToggle
-                      class="shrink-0"
-                      :model-value="form.use_openrouter"
-                      :disabled="!canUseOpenrouter"
-                      aria-label="Route via OpenRouter"
-                      @change="toggleUseOpenrouter"
-                    />
-                  </div>
+                <!-- Routing override -->
+                <label class="block">
+                  <span
+                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  >
+                    Route via
+                  </span>
+                  <SelectMenu
+                    v-model="form.routing_provider_id"
+                    :items="routeItems"
+                    value-key="value"
+                    :search-input="false"
+                    class="w-full"
+                    :disabled="!form.model_family_id"
+                  >
+                    <button
+                      class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      :disabled="!form.model_family_id"
+                    >
+                      {{ routeName }}
+                    </button>
+                  </SelectMenu>
                   <input
-                    v-model="form.openrouter_identifier"
+                    v-if="isRouted"
+                    v-model="form.routing_identifier"
                     type="text"
-                    placeholder="OpenRouter identifier, e.g. openai/gpt-4o"
+                    placeholder="Model id on the routing provider, e.g. deepseek-v4-flash"
                     class="mt-3 h-10 w-full rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
-                </div>
+                  <span v-else class="mt-1.5 block text-[0.625rem] text-muted-foreground">
+                    Uses the model's own provider ({{ providerName }}).
+                  </span>
+                </label>
               </div>
             </div>
 

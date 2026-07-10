@@ -133,7 +133,9 @@ class Provider(BaseModel):
     )
 
     models: Mapped[list[Model]] = relationship(
-        back_populates="provider", cascade="all, delete-orphan"
+        back_populates="provider",
+        cascade="all, delete-orphan",
+        foreign_keys="Model.provider_id",
     )
 
     @property

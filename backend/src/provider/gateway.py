@@ -16,7 +16,6 @@ from src.core.exceptions import (
 from src.model.models import Model
 from src.provider.adapters import CompletionResponse, StreamChunk, get_adapter
 from src.provider.adapters.base import ProviderAdapter
-from src.provider.adapters.openai import OpenAIAdapter
 from src.provider.models import Provider
 
 logger = logging.getLogger(__name__)
@@ -29,24 +28,26 @@ class ProviderGateway:
         self,
         provider: Provider,
         model: Model,
-        openrouter_provider: Provider | None = None,
+        routing_provider: Provider | None = None,
         preset_parameters: dict[str, Any] | None = None,
     ):
         self.model = model
         self.preset_parameters = preset_parameters
 
-        if model.use_openrouter:
-            if not openrouter_provider:
-                raise ValueError(
-                    "OpenRouter provider is required for models using OpenRouter routing"
-                )
-            self.provider = openrouter_provider
-            self.active_identifier = model.openrouter_identifier or model.model_identifier
-            self.adapter: ProviderAdapter = OpenAIAdapter()
+        # Route through the override provider when the model declares one; else
+        # use its native provider. The adapter is chosen by the effective
+        # provider's type — aggregators (OpenRouter/OpenCode) map to the OpenAI
+        # adapter via the registry, so no format is special-cased here.
+        if model.routing_provider_id:
+            if routing_provider is None:
+                raise ValueError("Routing provider is required for models with a routing override")
+            effective = routing_provider
         else:
-            self.provider = provider
-            self.active_identifier = model.model_identifier
-            self.adapter = get_adapter(provider.provider_type)
+            effective = provider
+
+        self.provider = effective
+        self.active_identifier = model.active_identifier
+        self.adapter: ProviderAdapter = get_adapter(effective.provider_type)
 
         self.base_url = (self.provider.get_base_url()).rstrip("/")
         self.api_key = self.provider.get_api_key()

@@ -9,11 +9,18 @@ from src.model.models import Model
 from src.model.repository import ModelRepository
 from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
-from src.provider.models import Provider, ProviderType
+from src.provider.models import Provider
 from src.provider.repository import ProviderRepository
 
 if TYPE_CHECKING:
     from src.chat_session.repository import ChatRepository
+
+
+class _Unset:
+    """Sentinel distinguishing an omitted update argument from an explicit None."""
+
+
+_UNSET = _Unset()
 
 
 class ModelService:
@@ -146,14 +153,51 @@ class ModelService:
                     detail=f"Parameter '{name}' must be one of: {', '.join(map(str, allowed))}.",
                 )
 
+    def _validate_routing(
+        self,
+        routing_provider_id: str | None,
+        routing_identifier: str | None,
+        model_family: ModelFamily,
+    ) -> Provider | None:
+        """Validate an optional routing override against the family.
+
+        Returns the routing provider, or None when the model uses its native
+        provider. Raises if the routing provider is missing, its type isn't in
+        the family's supported set, or the identifier is empty.
+        """
+        if routing_provider_id is None:
+            return None
+        routing_provider = self.provider_repo.find_by_id(routing_provider_id)
+        if not routing_provider:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Routing provider with ID '{routing_provider_id}' not found",
+            )
+        if routing_provider.provider_type.value not in model_family.provider_types:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Routing provider '{routing_provider.name}' "
+                    f"({routing_provider.provider_type.value}) cannot serve model family "
+                    f"'{model_family.name}'. "
+                    f"Supported: {', '.join(model_family.provider_types) or 'none'}."
+                ),
+            )
+        if not routing_identifier:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="routing_identifier is required when routing_provider_id is set",
+            )
+        return routing_provider
+
     def create(
         self,
         name: str,
         provider_id: str,
         model_identifier: str,
         model_family_id: str,
-        openrouter_identifier: str | None = None,
-        use_openrouter: bool = False,
+        routing_provider_id: str | None = None,
+        routing_identifier: str | None = None,
         template_id: str | None = None,
         parameters: dict[str, Any] | None = None,
         enabled: bool = True,
@@ -169,13 +213,6 @@ class ModelService:
                 detail=f"Provider with ID '{provider_id}' not found",
             )
 
-        if not provider.has_api_key():
-            env_var_name = provider.get_env_var_name()
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot create model: Provider '{provider.name}' requires {env_var_name} environment variable.",
-            )
-
         model_family = self.family_repo.find_by_id(model_family_id)
         if not model_family:
             raise HTTPException(
@@ -183,7 +220,7 @@ class ModelService:
                 detail=f"Model Family with ID '{model_family_id}' not found",
             )
 
-        # The model's own provider must be one the family can actually run on.
+        # The model's native provider must be one the family can actually run on.
         if provider.provider_type.value not in model_family.provider_types:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -194,18 +231,20 @@ class ModelService:
                 ),
             )
 
-        # Validate OpenRouter routing
-        if use_openrouter:
-            if "openrouter" not in model_family.provider_types:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Model family '{model_family.name}' does not support OpenRouter routing",
-                )
-            if not openrouter_identifier:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="OpenRouter identifier is required when use_openrouter is True",
-                )
+        # The effective provider (routing override if set, else native) is the
+        # one whose API key is actually used, so it's the one that must have one.
+        routing_provider = self._validate_routing(
+            routing_provider_id, routing_identifier, model_family
+        )
+        effective_provider = routing_provider or provider
+        if not effective_provider.has_api_key():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Cannot create model: Provider '{effective_provider.name}' requires "
+                    f"{effective_provider.get_env_var_name()} environment variable."
+                ),
+            )
 
         self._validate_parameters(parameters, model_family)
 
@@ -213,8 +252,8 @@ class ModelService:
             name=name,
             provider_id=provider_id,
             model_identifier=model_identifier,
-            openrouter_identifier=openrouter_identifier,
-            use_openrouter=use_openrouter,
+            routing_provider_id=routing_provider_id,
+            routing_identifier=routing_identifier,
             model_family_id=model_family_id,
             template_id=template_id,
             parameters=parameters,
@@ -230,8 +269,8 @@ class ModelService:
         name: str | None = None,
         provider_id: str | None = None,
         model_identifier: str | None = None,
-        openrouter_identifier: str | None = None,
-        use_openrouter: bool | None = None,
+        routing_provider_id: str | None | _Unset = _UNSET,
+        routing_identifier: str | None | _Unset = _UNSET,
         model_family_id: str | None = None,
         template_id: str | None = None,
         parameters: dict[str, Any] | None = None,
@@ -248,8 +287,6 @@ class ModelService:
 
         if model_identifier is not None:
             model.model_identifier = model_identifier
-        if openrouter_identifier is not None:
-            model.openrouter_identifier = openrouter_identifier
         if template_id is not None:
             model.template_id = template_id
         if enabled is not None:
@@ -294,26 +331,28 @@ class ModelService:
                     ),
                 )
 
-        new_use_openrouter = use_openrouter if use_openrouter is not None else model.use_openrouter
-        new_or_id = (
-            openrouter_identifier
-            if openrouter_identifier is not None
-            else model.openrouter_identifier
+        # Routing override: re-validate when it's touched, or when the family
+        # changed (the existing route must still be valid for the new family).
+        routing_touched = not isinstance(routing_provider_id, _Unset) or not isinstance(
+            routing_identifier, _Unset
         )
-
-        if use_openrouter is not None or family_changed or openrouter_identifier is not None:
-            if new_use_openrouter:
-                if "openrouter" not in target_family.provider_types:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"Model family '{target_family.name}' does not support OpenRouter routing",
-                    )
-                if not new_or_id:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="OpenRouter identifier is required when use_openrouter is True",
-                    )
-            model.use_openrouter = new_use_openrouter
+        if routing_touched or family_changed:
+            new_routing_provider_id = (
+                model.routing_provider_id
+                if isinstance(routing_provider_id, _Unset)
+                else routing_provider_id
+            )
+            new_routing_identifier = (
+                model.routing_identifier
+                if isinstance(routing_identifier, _Unset)
+                else routing_identifier
+            )
+            routing_provider = self._validate_routing(
+                new_routing_provider_id, new_routing_identifier, target_family
+            )
+            model.routing_provider_id = new_routing_provider_id
+            # Clear the stale identifier when reverting to the native provider.
+            model.routing_identifier = new_routing_identifier if routing_provider else None
 
         target_parameters = model.parameters
         params_changed = False
@@ -343,41 +382,16 @@ class ModelService:
         self.model_repo.commit()
         return updated
 
-    def update_flags(
-        self,
-        model_id: str,
-        enabled: bool | None = None,
-        use_openrouter: bool | None = None,
-    ) -> Model:
-        """Update model flags with validation"""
+    def update_flags(self, model_id: str, enabled: bool | None = None) -> Model:
+        """Update model flags (enabled). Routing changes go through update()."""
         model = self.get_by_id(model_id)
 
         if enabled is not None:
             model.enabled = enabled
 
-        if use_openrouter is not None:
-            # A model can route via OpenRouter iff it has an OpenRouter identifier
-            # (that presence is exactly what can_use_openrouter now reflects).
-            if use_openrouter and not model.openrouter_identifier:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="OpenRouter identifier must be set before enabling OpenRouter routing",
-                )
-            model.use_openrouter = use_openrouter
-
         updated = self.model_repo.update(model)
         self.model_repo.commit()
         return updated
-
-    def get_openrouter_provider(self) -> Provider:
-        """Helper to get OpenRouter provider"""
-        provider = self.provider_repo.find_by_type(ProviderType.OPENROUTER)
-        if not provider:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="OpenRouter provider not configured in database",
-            )
-        return provider
 
     def delete(self, model_id: str) -> None:
         """Delete model definition"""

@@ -35,13 +35,15 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
             .options(
                 joinedload(Chat.character),
                 joinedload(Chat.model).joinedload(Model.provider),
+                joinedload(Chat.model).joinedload(Model.routing_provider),
                 joinedload(Chat.model).joinedload(Model.model_family),
                 joinedload(Chat.model)
                 .joinedload(Model.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),
-                # Task model (auxiliary calls) only needs its provider for the gateway.
+                # Task model (auxiliary calls) needs its provider(s) for the gateway.
                 joinedload(Chat.task_model).joinedload(Model.provider),
+                joinedload(Chat.task_model).joinedload(Model.routing_provider),
                 joinedload(Chat.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),

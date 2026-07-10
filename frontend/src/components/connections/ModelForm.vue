@@ -19,8 +19,8 @@ const form = reactive({
   model_identifier: props.prefill?.model_identifier || "",
   provider_id: props.prefill?.provider_id || "",
   model_family_id: "",
-  use_openrouter: false,
-  openrouter_identifier: "",
+  routing_provider_id: "",
+  routing_identifier: "",
   enabled: true,
 });
 
@@ -44,18 +44,24 @@ const providerName = computed(
 const familyName = computed(
   () => familyItems.value.find((i) => i.value === form.model_family_id)?.label || "Select a family",
 );
-// A model is available on OpenRouter iff it has an OpenRouter identifier.
-const canUseOpenrouter = computed(() => !!form.openrouter_identifier.trim());
-
-function toggleUseOpenrouter() {
-  if (!canUseOpenrouter.value) return;
-  form.use_openrouter = !form.use_openrouter;
-}
+// "Route via" options: the model's native provider, or any other provider the
+// family supports (aggregators like OpenRouter / OpenCode Go / Zen).
+const routeItems = computed(() => [
+  { label: "Native — use the model's own provider", value: "" },
+  ...providersForFamily(props.providers as any, selectedFamily.value as any)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((p) => ({ label: `Route via ${p.name}`, value: p.id })),
+]);
+const routeName = computed(
+  () => routeItems.value.find((i) => i.value === form.routing_provider_id)?.label || "Native",
+);
+const isRouted = computed(() => !!form.routing_provider_id);
 
 watch(
-  () => form.openrouter_identifier,
+  () => form.routing_provider_id,
   (v) => {
-    if (!v.trim()) form.use_openrouter = false;
+    if (!v) form.routing_identifier = "";
   },
 );
 
@@ -83,7 +89,8 @@ const canCreate = computed(
     !!form.name.trim() &&
     !!form.model_identifier.trim() &&
     !!form.provider_id &&
-    !!form.model_family_id,
+    !!form.model_family_id &&
+    (!isRouted.value || !!form.routing_identifier.trim()),
 );
 
 function toggleEnabled() {
@@ -97,8 +104,8 @@ function onSubmit() {
     model_identifier: form.model_identifier.trim(),
     provider_id: form.provider_id,
     model_family_id: form.model_family_id,
-    use_openrouter: form.use_openrouter,
-    openrouter_identifier: form.openrouter_identifier.trim() || null,
+    routing_provider_id: form.routing_provider_id || null,
+    routing_identifier: isRouted.value ? form.routing_identifier.trim() || null : null,
     enabled: form.enabled,
   });
 }
@@ -166,33 +173,36 @@ function onSubmit() {
       </div>
     </div>
 
-    <!-- OpenRouter routing -->
+    <!-- Routing override -->
     <div class="rounded-lg border bg-base-100 p-3">
-      <div class="flex items-center justify-between gap-3">
-        <div class="min-w-0">
-          <span class="block text-sm text-foreground">Route via OpenRouter</span>
-          <span class="text-[0.625rem] text-muted-foreground">
-            {{
-              canUseOpenrouter
-                ? "Available on OpenRouter"
-                : "Add an OpenRouter identifier below to enable"
-            }}
-          </span>
-        </div>
-        <AppToggle
-          class="shrink-0"
-          :model-value="form.use_openrouter"
-          :disabled="!canUseOpenrouter"
-          aria-label="Route via OpenRouter"
-          @change="toggleUseOpenrouter"
-        />
-      </div>
+      <span class="mb-1 block text-xs font-medium text-muted-foreground">Route via</span>
+      <SelectMenu
+        v-model="form.routing_provider_id"
+        :items="routeItems"
+        value-key="value"
+        :disabled="!form.model_family_id"
+      >
+        <button
+          type="button"
+          :disabled="!form.model_family_id"
+          class="flex h-10 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-100 px-3 text-sm text-foreground outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span class="truncate">{{
+            form.model_family_id ? routeName : "Select a family first"
+          }}</span>
+          <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
+        </button>
+      </SelectMenu>
       <input
-        v-model="form.openrouter_identifier"
+        v-if="isRouted"
+        v-model="form.routing_identifier"
         type="text"
-        placeholder="OpenRouter identifier, e.g. openai/gpt-4o"
+        placeholder="Model id on the routing provider, e.g. deepseek-v4-flash"
         class="mt-3 w-full rounded-lg border bg-base-100 px-3 py-2 font-mono text-sm text-foreground placeholder:font-sans placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
       />
+      <span v-else class="mt-1 block text-[0.625rem] text-muted-foreground">
+        Uses the model's own provider ({{ providerName }}).
+      </span>
     </div>
 
     <!-- Enabled -->
