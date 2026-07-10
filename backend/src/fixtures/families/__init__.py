@@ -21,6 +21,7 @@ from src.fixtures.families.minimax import MINIMAX_FAMILIES
 from src.fixtures.families.mistral import MISTRAL_FAMILIES
 from src.fixtures.families.openrouter import OPENROUTER_FAMILIES
 from src.fixtures.families.poolside import POOLSIDE_FAMILIES
+from src.fixtures.families.qwen import QWEN_FAMILIES
 from src.fixtures.model_families import ModelFamilySeedData
 
 MODEL_FAMILIES_SEED_DATA: list[ModelFamilySeedData] = [
@@ -39,6 +40,7 @@ MODEL_FAMILIES_SEED_DATA: list[ModelFamilySeedData] = [
     *LLAMA_FAMILIES,
     *MIMO_FAMILIES,
     *MINIMAX_FAMILIES,
+    *QWEN_FAMILIES,
     *POOLSIDE_FAMILIES,
     *OPENROUTER_FAMILIES,
 ]

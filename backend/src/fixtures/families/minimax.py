@@ -37,7 +37,7 @@ MINIMAX_FAMILIES: list[ModelFamilySeedData] = [
             "MiniMax M2.5 / M2.7. 204K context. Recommended temp 1.0 / top_p 0.95 / "
             "top_k 20-40. Thinking is always on (cannot be disabled). Routed via OpenRouter."
         ),
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 131072},
             "temperature": _MINIMAX_TEMPERATURE,
@@ -62,7 +62,7 @@ MINIMAX_FAMILIES: list[ModelFamilySeedData] = [
             "MiniMax M3. 1M context, up to 512K output. Toggleable thinking "
             "(adaptive/disabled); top_k and penalties removed. Routed via OpenRouter."
         ),
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 512000},
             "temperature": _MINIMAX_TEMPERATURE,

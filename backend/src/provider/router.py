@@ -144,17 +144,34 @@ def persist_provider_model(
         return existing
 
     lower_id = action_data.model_identifier.lower()
+
+    # Best-effort lineage guess for a model persisted from discovery. Rules are
+    # ordered most-specific first; the first whose every keyword appears in the
+    # model id wins and resolves to the first family whose name matches the SQL
+    # pattern. Falls back to any family (model_family_id is non-nullable) — the
+    # user can correct the family afterwards.
+    family_match_rules: list[tuple[tuple[str, ...], str]] = [
+        (("deepseek", "r1"), "%r1%"),
+        (("deepseek", "v4"), "%deepseek v4%"),
+        (("deepseek",), "%deepseek%"),
+        (("glm-5",), "%glm 5%"),
+        (("glm",), "%glm%"),
+        (("minimax-m3",), "%minimax m3%"),
+        (("minimax",), "%minimax%"),
+        (("kimi",), "%kimi%"),
+        (("mimo",), "%mimo%"),
+        (("qwen",), "%qwen%"),
+        (("gemma",), "%gemma%"),
+        (("mistral",), "%mistral%"),
+        (("llama",), "%llama%"),
+    ]
+
     family = None
-    if "deepseek" in lower_id and "r1" in lower_id:
-        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%r1%")).first()
-    if not family and "deepseek" in lower_id:
-        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%deepseek%")).first()
-    if not family and "gemma" in lower_id:
-        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%gemma%")).first()
-    if not family and "mistral" in lower_id:
-        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%mistral%")).first()
-    if not family and "llama" in lower_id:
-        family = db.query(ModelFamily).filter(ModelFamily.name.ilike("%llama%")).first()
+    for keywords, name_pattern in family_match_rules:
+        if all(keyword in lower_id for keyword in keywords):
+            family = db.query(ModelFamily).filter(ModelFamily.name.ilike(name_pattern)).first()
+            if family:
+                break
 
     if not family:
         family = db.query(ModelFamily).first()

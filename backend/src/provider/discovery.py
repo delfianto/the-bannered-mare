@@ -288,6 +288,8 @@ _REGISTRY: dict[ProviderType, ModelDiscoveryClient] = {
     ProviderType.GOOGLE: GoogleDiscoveryClient(),
     ProviderType.OPENROUTER: OpenAIDiscoveryClient(),
     ProviderType.XAI: OpenAIDiscoveryClient(),
+    ProviderType.OPENCODE: OpenAIDiscoveryClient(),
+    ProviderType.OPENCODE_GO: OpenAIDiscoveryClient(),
     ProviderType.CUSTOM: OpenAIDiscoveryClient(),
 }
 

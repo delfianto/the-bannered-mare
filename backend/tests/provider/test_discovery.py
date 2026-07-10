@@ -33,6 +33,12 @@ class TestGetDiscoveryClient:
         assert isinstance(get_discovery_client(ProviderType.XAI), OpenAIDiscoveryClient)
         assert isinstance(get_discovery_client(ProviderType.CUSTOM), OpenAIDiscoveryClient)
 
+    def test_opencode_providers_supported(self) -> None:
+        # Discovery has no fallback (unlike the adapter registry), so both plans
+        # must be registered explicitly or model sync would return None.
+        assert isinstance(get_discovery_client(ProviderType.OPENCODE), OpenAIDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.OPENCODE_GO), OpenAIDiscoveryClient)
+
 
 class TestOllamaDiscoveryClient:
     def setup_method(self):

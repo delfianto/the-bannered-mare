@@ -73,6 +73,18 @@ PROVIDER_CONFIGS: dict[ProviderType, ProviderConfig] = {
         default_base_url="http://localhost:1234",
         requires_api_key=False,
     ),
+    ProviderType.OPENCODE: ProviderConfig(
+        display_name="OpenCode Zen",
+        env_var_name="OPENCODE_API_KEY",
+        default_base_url="https://opencode.ai/zen/v1",
+        requires_api_key=True,
+    ),
+    ProviderType.OPENCODE_GO: ProviderConfig(
+        display_name="OpenCode Go",
+        env_var_name="OPENCODE_GO_API_KEY",
+        default_base_url="https://opencode.ai/zen/go/v1",
+        requires_api_key=True,
+    ),
     ProviderType.CUSTOM: ProviderConfig(
         display_name="Custom",
         env_var_name=None,

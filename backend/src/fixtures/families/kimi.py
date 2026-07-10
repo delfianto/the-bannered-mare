@@ -23,7 +23,7 @@ KIMI_FAMILIES: list[ModelFamilySeedData] = [
             "Moonshot Kimi K2.5 / K2.6 (OpenAI/Anthropic-compatible). 256K context, full "
             "sampling surface plus reasoning_effort. Routed via OpenRouter."
         ),
-        "provider_types": ["openrouter"],
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 65536},
             # Moonshot caps temperature at 1.0 (not 2.0). Thinking mode wants ~1.0,

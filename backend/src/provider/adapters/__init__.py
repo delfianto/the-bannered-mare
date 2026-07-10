@@ -21,6 +21,8 @@ _REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
     ProviderType.OPENROUTER: OpenAIAdapter,
     ProviderType.OLLAMA: OllamaAdapter,
     ProviderType.LMSTUDIO: LMStudioAdapter,
+    ProviderType.OPENCODE: OpenAIAdapter,
+    ProviderType.OPENCODE_GO: OpenAIAdapter,
     ProviderType.CUSTOM: OpenAIAdapter,
 }
 

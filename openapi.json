@@ -10733,6 +10733,8 @@
           "openrouter",
           "ollama",
           "lmstudio",
+          "opencode",
+          "opencode_go",
           "custom"
         ],
         "title": "ProviderType",
