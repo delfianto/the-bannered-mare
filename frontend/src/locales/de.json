@@ -233,6 +233,7 @@
     "model": {
       "name": "Name",
       "identifier": "Modellbezeichner",
+      "identifierFormat": "Bezeichnerformat",
       "provider": "Anbieter",
       "enabled": "Aktiviert",
       "onlyCompatible": "Einziger kompatibler Anbieter",

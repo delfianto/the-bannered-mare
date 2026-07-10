@@ -3684,6 +3684,16 @@ export interface components {
        * @description Expected environment variable name for API key
        */
       env_var_name: string | null;
+      /**
+       * Identifier Style
+       * @description Short label for this provider's model-identifier scheme (e.g. vendor/model)
+       */
+      identifier_style: string;
+      /**
+       * Identifier Hint
+       * @description Human-friendly explanation of the identifier scheme, with an example
+       */
+      identifier_hint: string;
     };
     /**
      * ProviderType

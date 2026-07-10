@@ -233,6 +233,7 @@
     "model": {
       "name": "Nombre",
       "identifier": "Identificador del modelo",
+      "identifierFormat": "Formato del identificador",
       "provider": "Proveedor",
       "enabled": "Habilitado",
       "onlyCompatible": "Único proveedor compatible",

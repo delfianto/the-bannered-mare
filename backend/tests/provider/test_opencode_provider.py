@@ -17,6 +17,8 @@ class TestOpenCodeProviderConfig:
         assert config.env_var_name == "OPENCODE_ZEN_API_KEY"
         assert config.default_base_url == "https://opencode.ai/zen/v1"
         assert config.requires_api_key is True
+        # OpenCode takes the bare name, unlike the vendor-prefixed OpenRouter slug.
+        assert config.identifier_style == "bare name"
 
     def test_go_config(self) -> None:
         config = PROVIDER_CONFIGS[ProviderType.OPENCODE_GO]
@@ -24,6 +26,29 @@ class TestOpenCodeProviderConfig:
         assert config.env_var_name == "OPENCODE_GO_API_KEY"
         assert config.default_base_url == "https://opencode.ai/zen/go/v1"
         assert config.requires_api_key is True
+        assert config.identifier_style == "bare name"
+
+
+class TestIdentifierNamingMetadata:
+    def test_every_provider_type_has_naming_metadata(self) -> None:
+        for provider_type in ProviderType:
+            config = PROVIDER_CONFIGS[provider_type]
+            assert config.identifier_style, provider_type
+            assert config.identifier_hint, provider_type
+
+    def test_openrouter_is_vendor_prefixed(self) -> None:
+        config = PROVIDER_CONFIGS[ProviderType.OPENROUTER]
+        assert config.identifier_style == "vendor/model"
+        assert "author/model" in config.identifier_hint
+
+    def test_native_providers_are_bare(self) -> None:
+        for provider_type in (ProviderType.OPENAI, ProviderType.ANTHROPIC, ProviderType.XAI):
+            assert PROVIDER_CONFIGS[provider_type].identifier_style == "bare name"
+
+    def test_provider_orm_derives_naming_metadata(self) -> None:
+        provider = Provider(name="Router", provider_type=ProviderType.OPENROUTER)
+        assert provider.identifier_style == "vendor/model"
+        assert provider.identifier_hint == PROVIDER_CONFIGS[ProviderType.OPENROUTER].identifier_hint
 
 
 class TestOpenCodeAdapter:
