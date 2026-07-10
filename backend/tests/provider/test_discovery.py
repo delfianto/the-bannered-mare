@@ -22,10 +22,13 @@ class TestHumanizeModelId:
         assert _humanize_model_id("glm-5.2") == "GLM 5.2"
 
     def test_brand_names_cased(self) -> None:
-        # CamelCase brand names keep their canonical casing, not title-case.
-        assert _humanize_model_id("deepseek-v4-flash") == "DeepSeek v4 Flash"
-        assert _humanize_model_id("minimax-m3") == "MiniMax m3"
-        assert _humanize_model_id("mimo-v2.5-pro") == "MiMo v2.5 Pro"
+        # Brand names keep canonical casing; letter-led version tokens (v4, m3,
+        # hy3) get a leading capital, while number-led ones (4o) stay as-is.
+        assert _humanize_model_id("deepseek-v4-flash") == "DeepSeek V4 Flash"
+        assert _humanize_model_id("minimax-m3") == "MiniMax M3"
+        assert _humanize_model_id("mimo-v2.5-pro") == "MiMo V2.5 Pro"
+        assert _humanize_model_id("hy3-preview") == "Hy3 Preview"
+        assert _humanize_model_id("gpt-4o-mini") == "GPT 4o Mini"
 
     def test_brand_fused_to_version_split(self) -> None:
         # Qwen fuses brand + version in its ids (qwen3.7); split and case it.
@@ -84,9 +87,9 @@ class TestOpenCodeDiscoveryClient:
             models = OpenCodeDiscoveryClient().list_models("https://opencode.ai/zen/go/v1", "sk-x")
         names = {m.identifier: m.display_name for m in models}
         assert names == {
-            "minimax-m3": "MiniMax m3",
+            "minimax-m3": "MiniMax M3",
             "glm-5.2": "GLM 5.2",
-            "deepseek-v4-pro": "DeepSeek v4 Pro",
+            "deepseek-v4-pro": "DeepSeek V4 Pro",
             "qwen3.7-max": "Qwen 3.7 Max",
         }
 
