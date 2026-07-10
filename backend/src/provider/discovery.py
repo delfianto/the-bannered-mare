@@ -229,6 +229,22 @@ class OpenAIDiscoveryClient:
         raise NotImplementedError("Cloud providers do not support deleting models")
 
 
+class OpenCodeDiscoveryClient(OpenAIDiscoveryClient):
+    """OpenCode Zen/Go listing.
+
+    OpenCode is OpenAI-compatible but its ``/models`` returns poorly-cased
+    display names (e.g. ``Minimax m3``, ``Glm 5.2``, ``qwen3.7 max``). The raw
+    ids are clean, so derive the display name from the id via the shared
+    humanizer rather than trusting the provider's ``name``.
+    """
+
+    def list_models(self, base_url: str, api_key: str | None = None) -> list[DiscoveredModel]:
+        return [
+            m.model_copy(update={"display_name": _humanize_model_id(m.identifier)})
+            for m in super().list_models(base_url, api_key)
+        ]
+
+
 class AnthropicDiscoveryClient:
     """Anthropic model listing."""
 
@@ -320,8 +336,8 @@ _REGISTRY: dict[ProviderType, ModelDiscoveryClient] = {
     ProviderType.GOOGLE: GoogleDiscoveryClient(),
     ProviderType.OPENROUTER: OpenAIDiscoveryClient(),
     ProviderType.XAI: OpenAIDiscoveryClient(),
-    ProviderType.OPENCODE: OpenAIDiscoveryClient(),
-    ProviderType.OPENCODE_GO: OpenAIDiscoveryClient(),
+    ProviderType.OPENCODE: OpenCodeDiscoveryClient(),
+    ProviderType.OPENCODE_GO: OpenCodeDiscoveryClient(),
     ProviderType.CUSTOM: OpenAIDiscoveryClient(),
 }
 

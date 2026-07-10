@@ -9,6 +9,7 @@ from src.provider.discovery import (
     LMStudioDiscoveryClient,
     OllamaDiscoveryClient,
     OpenAIDiscoveryClient,
+    OpenCodeDiscoveryClient,
     _humanize_model_id,
     get_discovery_client,
 )
@@ -62,8 +63,32 @@ class TestGetDiscoveryClient:
     def test_opencode_providers_supported(self) -> None:
         # Discovery has no fallback (unlike the adapter registry), so both plans
         # must be registered explicitly or model sync would return None.
-        assert isinstance(get_discovery_client(ProviderType.OPENCODE), OpenAIDiscoveryClient)
-        assert isinstance(get_discovery_client(ProviderType.OPENCODE_GO), OpenAIDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.OPENCODE), OpenCodeDiscoveryClient)
+        assert isinstance(get_discovery_client(ProviderType.OPENCODE_GO), OpenCodeDiscoveryClient)
+
+
+class TestOpenCodeDiscoveryClient:
+    def test_display_name_derived_from_id_not_provider_name(self) -> None:
+        # OpenCode's /models returns poorly-cased names; the humanized id wins.
+        resp = _mock_response(
+            {
+                "data": [
+                    {"id": "minimax-m3", "name": "Minimax m3"},
+                    {"id": "glm-5.2", "name": "Glm 5.2"},
+                    {"id": "deepseek-v4-pro", "name": "Deepseek v4 Pro"},
+                    {"id": "qwen3.7-max", "name": "qwen3.7 max"},
+                ]
+            }
+        )
+        with patch("httpx.Client.get", return_value=resp):
+            models = OpenCodeDiscoveryClient().list_models("https://opencode.ai/zen/go/v1", "sk-x")
+        names = {m.identifier: m.display_name for m in models}
+        assert names == {
+            "minimax-m3": "MiniMax m3",
+            "glm-5.2": "GLM 5.2",
+            "deepseek-v4-pro": "DeepSeek v4 Pro",
+            "qwen3.7-max": "Qwen 3.7 Max",
+        }
 
 
 class TestOllamaDiscoveryClient:
