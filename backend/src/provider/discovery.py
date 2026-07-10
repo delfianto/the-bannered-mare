@@ -133,7 +133,19 @@ class LMStudioDiscoveryClient:
         raise NotImplementedError("LM Studio does not support model deletion via API")
 
 
-_ACRONYMS = {"gpt": "GPT", "glm": "GLM", "tts": "TTS", "hd": "HD", "ai": "AI", "llm": "LLM"}
+# Canonical display casing for tokens that title()/capitalize() would mangle —
+# acronyms (GPT, GLM) and CamelCase brand names (DeepSeek, MiniMax, MiMo).
+_NAME_CASING = {
+    "gpt": "GPT",
+    "glm": "GLM",
+    "deepseek": "DeepSeek",
+    "minimax": "MiniMax",
+    "mimo": "MiMo",
+    "tts": "TTS",
+    "hd": "HD",
+    "ai": "AI",
+    "llm": "LLM",
+}
 
 
 def _humanize_model_id(model_id: str) -> str:
@@ -146,8 +158,8 @@ def _humanize_model_id(model_id: str) -> str:
     words: list[str] = []
     for tok in tail.replace("_", "-").split("-"):
         low = tok.lower()
-        if low in _ACRONYMS:
-            words.append(_ACRONYMS[low])
+        if low in _NAME_CASING:
+            words.append(_NAME_CASING[low])
         elif tok[:1].isalpha() and not any(c.isdigit() for c in tok):
             words.append(tok.capitalize())
         else:

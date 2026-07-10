@@ -20,6 +20,12 @@ class TestHumanizeModelId:
         assert _humanize_model_id("gpt-4o-mini") == "GPT 4o Mini"
         assert _humanize_model_id("glm-5.2") == "GLM 5.2"
 
+    def test_brand_names_cased(self) -> None:
+        # CamelCase brand names keep their canonical casing, not title-case.
+        assert _humanize_model_id("deepseek-v4-flash") == "DeepSeek v4 Flash"
+        assert _humanize_model_id("minimax-m3") == "MiniMax m3"
+        assert _humanize_model_id("mimo-v2.5-pro") == "MiMo v2.5 Pro"
+
     def test_vendor_prefix_dropped(self) -> None:
         assert _humanize_model_id("z-ai/glm-5") == "GLM 5"
 
