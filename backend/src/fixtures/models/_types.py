@@ -1,6 +1,6 @@
 """Shared type definitions for model seed data."""
 
-from typing import Any, NotRequired, TypedDict
+from typing import Any, TypedDict
 
 
 class ModelSeedData(TypedDict):
@@ -12,5 +12,3 @@ class ModelSeedData(TypedDict):
     provider_type: str
     parameters: dict[str, Any]
     enabled: bool
-    openrouter_identifier: NotRequired[str | None]
-    use_openrouter: NotRequired[bool]

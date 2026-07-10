@@ -2806,16 +2806,15 @@ export interface components {
        */
       model_identifier: string;
       /**
-       * Openrouter Identifier
-       * @description OpenRouter model name
+       * Routing Provider Id
+       * @description Provider to route through instead of the native one (None = native)
        */
-      openrouter_identifier?: string | null;
+      routing_provider_id?: string | null;
       /**
-       * Use Openrouter
-       * @description Whether to route through OpenRouter
-       * @default false
+       * Routing Identifier
+       * @description Model identifier on the routing provider
        */
-      use_openrouter: boolean;
+      routing_identifier?: string | null;
       /**
        * Name
        * @description User-friendly display name
@@ -2861,16 +2860,15 @@ export interface components {
        */
       model_identifier: string;
       /**
-       * Openrouter Identifier
-       * @description OpenRouter model name
+       * Routing Provider Id
+       * @description Provider to route through instead of the native one (None = native)
        */
-      openrouter_identifier?: string | null;
+      routing_provider_id?: string | null;
       /**
-       * Use Openrouter
-       * @description Whether to route through OpenRouter
-       * @default false
+       * Routing Identifier
+       * @description Model identifier on the routing provider
        */
-      use_openrouter: boolean;
+      routing_identifier?: string | null;
       /**
        * Name
        * @description User-friendly display name
@@ -2911,8 +2909,8 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      /** Can Use Openrouter */
-      can_use_openrouter: boolean;
+      /** Effective Provider Id */
+      effective_provider_id: string;
       /** Active Identifier */
       active_identifier: string;
       /** Provider Enabled */
@@ -3078,8 +3076,6 @@ export interface components {
     ModelFlagsUpdate: {
       /** Enabled */
       enabled?: boolean | null;
-      /** Use Openrouter */
-      use_openrouter?: boolean | null;
     };
     /**
      * ModelListResponse
@@ -3092,10 +3088,10 @@ export interface components {
       provider_id: string;
       /** Model Identifier */
       model_identifier: string;
-      /** Openrouter Identifier */
-      openrouter_identifier: string | null;
-      /** Use Openrouter */
-      use_openrouter: boolean;
+      /** Routing Provider Id */
+      routing_provider_id: string | null;
+      /** Routing Identifier */
+      routing_identifier: string | null;
       /** Name */
       name: string;
       /** Model Family Id */
@@ -3112,8 +3108,8 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      /** Can Use Openrouter */
-      can_use_openrouter: boolean;
+      /** Effective Provider Id */
+      effective_provider_id: string;
       /** Active Identifier */
       active_identifier: string;
       /** Provider Enabled */
@@ -3135,16 +3131,15 @@ export interface components {
        */
       model_identifier: string;
       /**
-       * Openrouter Identifier
-       * @description OpenRouter model name
+       * Routing Provider Id
+       * @description Provider to route through instead of the native one (None = native)
        */
-      openrouter_identifier?: string | null;
+      routing_provider_id?: string | null;
       /**
-       * Use Openrouter
-       * @description Whether to route through OpenRouter
-       * @default false
+       * Routing Identifier
+       * @description Model identifier on the routing provider
        */
-      use_openrouter: boolean;
+      routing_identifier?: string | null;
       /**
        * Name
        * @description User-friendly display name
@@ -3185,8 +3180,8 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      /** Can Use Openrouter */
-      can_use_openrouter: boolean;
+      /** Effective Provider Id */
+      effective_provider_id: string;
       /** Active Identifier */
       active_identifier: string;
       /** Provider Enabled */
@@ -3213,10 +3208,10 @@ export interface components {
       provider_id?: string | null;
       /** Model Identifier */
       model_identifier?: string | null;
-      /** Openrouter Identifier */
-      openrouter_identifier?: string | null;
-      /** Use Openrouter */
-      use_openrouter?: boolean | null;
+      /** Routing Provider Id */
+      routing_provider_id?: string | null;
+      /** Routing Identifier */
+      routing_identifier?: string | null;
       /** Name */
       name?: string | null;
       /** Model Family Id */

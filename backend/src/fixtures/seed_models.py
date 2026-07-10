@@ -96,8 +96,6 @@ def seed_models(
                 existing.parameters = model_data["parameters"]
                 existing.enabled = model_data["enabled"]
                 existing.model_family_id = family.id
-                existing.openrouter_identifier = model_data.get("openrouter_identifier")
-                existing.use_openrouter = model_data.get("use_openrouter", False)
                 model_repo.update(existing)
                 logger.info("model_updated", identifier=model_data["model_identifier"])
             else:
@@ -107,8 +105,6 @@ def seed_models(
                     model_family_id=family.id,
                     name=model_data["name"],
                     model_identifier=model_data["model_identifier"],
-                    openrouter_identifier=model_data.get("openrouter_identifier"),
-                    use_openrouter=model_data.get("use_openrouter", False),
                     parameters=model_data["parameters"],
                     enabled=model_data["enabled"],
                 )

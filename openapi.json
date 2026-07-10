@@ -8603,7 +8603,20 @@
             "title": "Model Identifier",
             "description": "Actual API model name"
           },
-          "openrouter_identifier": {
+          "routing_provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Provider Id",
+            "description": "Provider to route through instead of the native one (None = native)"
+          },
+          "routing_identifier": {
             "anyOf": [
               {
                 "type": "string",
@@ -8613,14 +8626,8 @@
                 "type": "null"
               }
             ],
-            "title": "Openrouter Identifier",
-            "description": "OpenRouter model name"
-          },
-          "use_openrouter": {
-            "type": "boolean",
-            "title": "Use Openrouter",
-            "description": "Whether to route through OpenRouter",
-            "default": false
+            "title": "Routing Identifier",
+            "description": "Model identifier on the routing provider"
           },
           "name": {
             "type": "string",
@@ -8688,7 +8695,20 @@
             "title": "Model Identifier",
             "description": "Actual API model name"
           },
-          "openrouter_identifier": {
+          "routing_provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Provider Id",
+            "description": "Provider to route through instead of the native one (None = native)"
+          },
+          "routing_identifier": {
             "anyOf": [
               {
                 "type": "string",
@@ -8698,14 +8718,8 @@
                 "type": "null"
               }
             ],
-            "title": "Openrouter Identifier",
-            "description": "OpenRouter model name"
-          },
-          "use_openrouter": {
-            "type": "boolean",
-            "title": "Use Openrouter",
-            "description": "Whether to route through OpenRouter",
-            "default": false
+            "title": "Routing Identifier",
+            "description": "Model identifier on the routing provider"
           },
           "name": {
             "type": "string",
@@ -8760,9 +8774,9 @@
             "format": "date-time",
             "title": "Updated At"
           },
-          "can_use_openrouter": {
-            "type": "boolean",
-            "title": "Can Use Openrouter"
+          "effective_provider_id": {
+            "type": "string",
+            "title": "Effective Provider Id"
           },
           "active_identifier": {
             "type": "string",
@@ -8785,7 +8799,7 @@
           "id",
           "created_at",
           "updated_at",
-          "can_use_openrouter",
+          "effective_provider_id",
           "active_identifier",
           "provider_enabled",
           "model_family"
@@ -9112,17 +9126,6 @@
               }
             ],
             "title": "Enabled"
-          },
-          "use_openrouter": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Use Openrouter"
           }
         },
         "type": "object",
@@ -9143,7 +9146,7 @@
             "type": "string",
             "title": "Model Identifier"
           },
-          "openrouter_identifier": {
+          "routing_provider_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -9152,11 +9155,18 @@
                 "type": "null"
               }
             ],
-            "title": "Openrouter Identifier"
+            "title": "Routing Provider Id"
           },
-          "use_openrouter": {
-            "type": "boolean",
-            "title": "Use Openrouter"
+          "routing_identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Identifier"
           },
           "name": {
             "type": "string",
@@ -9180,9 +9190,9 @@
             "format": "date-time",
             "title": "Updated At"
           },
-          "can_use_openrouter": {
-            "type": "boolean",
-            "title": "Can Use Openrouter"
+          "effective_provider_id": {
+            "type": "string",
+            "title": "Effective Provider Id"
           },
           "active_identifier": {
             "type": "string",
@@ -9198,14 +9208,14 @@
           "id",
           "provider_id",
           "model_identifier",
-          "openrouter_identifier",
-          "use_openrouter",
+          "routing_provider_id",
+          "routing_identifier",
           "name",
           "model_family_id",
           "enabled",
           "created_at",
           "updated_at",
-          "can_use_openrouter",
+          "effective_provider_id",
           "active_identifier",
           "provider_enabled"
         ],
@@ -9228,7 +9238,20 @@
             "title": "Model Identifier",
             "description": "Actual API model name"
           },
-          "openrouter_identifier": {
+          "routing_provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Provider Id",
+            "description": "Provider to route through instead of the native one (None = native)"
+          },
+          "routing_identifier": {
             "anyOf": [
               {
                 "type": "string",
@@ -9238,14 +9261,8 @@
                 "type": "null"
               }
             ],
-            "title": "Openrouter Identifier",
-            "description": "OpenRouter model name"
-          },
-          "use_openrouter": {
-            "type": "boolean",
-            "title": "Use Openrouter",
-            "description": "Whether to route through OpenRouter",
-            "default": false
+            "title": "Routing Identifier",
+            "description": "Model identifier on the routing provider"
           },
           "name": {
             "type": "string",
@@ -9300,9 +9317,9 @@
             "format": "date-time",
             "title": "Updated At"
           },
-          "can_use_openrouter": {
-            "type": "boolean",
-            "title": "Can Use Openrouter"
+          "effective_provider_id": {
+            "type": "string",
+            "title": "Effective Provider Id"
           },
           "active_identifier": {
             "type": "string",
@@ -9322,7 +9339,7 @@
           "id",
           "created_at",
           "updated_at",
-          "can_use_openrouter",
+          "effective_provider_id",
           "active_identifier",
           "provider_enabled"
         ],
@@ -9384,7 +9401,19 @@
             ],
             "title": "Model Identifier"
           },
-          "openrouter_identifier": {
+          "routing_provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Provider Id"
+          },
+          "routing_identifier": {
             "anyOf": [
               {
                 "type": "string",
@@ -9394,18 +9423,7 @@
                 "type": "null"
               }
             ],
-            "title": "Openrouter Identifier"
-          },
-          "use_openrouter": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Use Openrouter"
+            "title": "Routing Identifier"
           },
           "name": {
             "anyOf": [

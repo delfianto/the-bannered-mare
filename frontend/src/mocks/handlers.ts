@@ -743,8 +743,8 @@ export const handlers = [
       "model_identifier",
       "provider_id",
       "model_family_id",
-      "openrouter_identifier",
-      "use_openrouter",
+      "routing_provider_id",
+      "routing_identifier",
       "parameters",
       "enabled",
       "template_id",
@@ -763,7 +763,6 @@ export const handlers = [
     if (!model) return new HttpResponse(null, { status: 404 });
     const body = (await request.json()) as any;
     if (body.enabled !== undefined) model.enabled = body.enabled;
-    if (body.use_openrouter !== undefined) model.use_openrouter = body.use_openrouter;
     model.updated_at = new Date().toISOString();
     await delay(100);
     return HttpResponse.json(model);

@@ -19,6 +19,8 @@ const providerTypes: { value: ProviderType; label: string }[] = [
   { value: "openrouter", label: "OpenRouter" },
   { value: "ollama", label: "Ollama" },
   { value: "lmstudio", label: "LM Studio" },
+  { value: "opencode", label: "OpenCode Zen" },
+  { value: "opencode_go", label: "OpenCode Go" },
   { value: "custom", label: "Custom" },
 ];
 

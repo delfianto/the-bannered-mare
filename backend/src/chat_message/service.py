@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
 
 from src.audit.writer import audit_logger
 from src.chat_message.models import Message, MessageRole
@@ -28,7 +27,6 @@ from src.core.exceptions import (
 )
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
-from src.core.persistence.enums import ProviderType
 from src.core.persistence.models import MessageAlternative
 from src.core.schemas import PaginatedResponse, PaginationMeta
 from src.core.utils.reasoning import parse_reasoning_tags
@@ -38,7 +36,6 @@ from src.lore.service import LoreService
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
 from src.provider.gateway import ProviderGateway
-from src.provider.models import Provider
 from src.rag.retrieval_service import RetrievalService
 
 logger = get_logger(__name__)
@@ -136,29 +133,13 @@ class ChatMessageService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
-        provider = chat.model.provider
+        provider = chat.model.routing_provider or chat.model.provider
         if not provider.has_api_key():
             env_var_name = provider.get_env_var_name()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"API key not configured for provider '{provider.name}'. Set {env_var_name}",
             )
-
-    async def _get_openrouter_provider(self) -> Provider:
-        """Resolve the OpenRouter provider row (its base URL + API key) used to
-        route models with use_openrouter=True. Looked up via the chat repo's async
-        session — there is no dedicated async provider repository.
-        """
-        result = await self.chat_repo.db.execute(
-            select(Provider).where(Provider.provider_type == ProviderType.OPENROUTER)
-        )
-        provider = result.scalar_one_or_none()
-        if provider is None:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="OpenRouter provider is not configured in the database.",
-            )
-        return provider
 
     async def _build_gateway(self, chat: Chat) -> ProviderGateway:
         """Build a ProviderGateway with optional preset parameters."""
@@ -168,13 +149,12 @@ class ChatMessageService:
                 detail="Chat does not have a valid model assigned.",
             )
         preset_params = chat.preset.parameters if chat.preset else None
-        # OpenRouter-routed models need the OpenRouter provider (base URL + key)
-        # passed explicitly; the gateway raises without it.
-        openrouter = await self._get_openrouter_provider() if chat.model.use_openrouter else None
+        # The model's routing override (if any) is eager-loaded; the gateway uses
+        # it when the model declares a routing_provider_id, else the native provider.
         return ProviderGateway(
             chat.model.provider,
             chat.model,
-            openrouter_provider=openrouter,
+            routing_provider=chat.model.routing_provider,
             preset_parameters=preset_params,
         )
 
@@ -189,10 +169,9 @@ class ChatMessageService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
-        openrouter = await self._get_openrouter_provider() if model.use_openrouter else None
-        # When routing through OpenRouter, the API key that matters is
-        # OpenRouter's, not the model's home provider.
-        effective_provider = openrouter or model.provider
+        # When routing through an aggregator, the API key that matters is the
+        # routing provider's, not the model's native home provider.
+        effective_provider = model.routing_provider or model.provider
         if not effective_provider.has_api_key():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -204,7 +183,7 @@ class ChatMessageService:
         return ProviderGateway(
             model.provider,
             model,
-            openrouter_provider=openrouter,
+            routing_provider=model.routing_provider,
             preset_parameters=None,
         )
 
