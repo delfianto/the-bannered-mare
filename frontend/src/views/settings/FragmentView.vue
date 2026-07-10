@@ -83,7 +83,7 @@ async function handleDelete() {
   try {
     await deleteFragment(fragment.value.id);
     toast.success("Fragment deleted");
-    router.push({ path: "/connections", query: { tab: "fragments" } });
+    router.push({ path: "/loadouts", query: { tab: "fragments" } });
   } catch (e) {
     toast.error("Failed to delete fragment");
     confirmDelete.value = false;
@@ -132,7 +132,7 @@ function formatDate(iso: string): string {
           <button
             class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
             :aria-label="$t('connections.fragment.backToFragments')"
-            @click="router.push({ path: '/connections', query: { tab: 'fragments' } })"
+            @click="router.push({ path: '/loadouts', query: { tab: 'fragments' } })"
           >
             <AppIcon name="i-lucide-arrow-left" class="size-5" />
           </button>
