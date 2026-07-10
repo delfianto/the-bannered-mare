@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "backend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["scripts/start-backend.sh"],
+      "port": 8000
+    },
+    {
       "name": "docs",
       "runtimeExecutable": "bun",
       "runtimeArgs": ["run", "--cwd", "docs", "docs:dev", "--port", "5199"],
@@ -16,8 +22,8 @@
     {
       "name": "frontend",
       "runtimeExecutable": "bun",
-      "runtimeArgs": ["run", "--cwd", "frontend", "dev", "--port", "5373"],
-      "port": 5373
+      "runtimeArgs": ["run", "--cwd", "frontend", "dev", "--port", "5173"],
+      "port": 5173
     }
   ]
 }
