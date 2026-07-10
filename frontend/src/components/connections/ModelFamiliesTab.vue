@@ -102,7 +102,12 @@ function openFamily(row: any) {
     </Teleport>
 
     <!-- Create modal -->
-    <Modal :show="showCreate" :title="$t('connections.newFamily')" max-width="lg" @close="showCreate = false">
+    <Modal
+      :show="showCreate"
+      :title="$t('connections.newFamily')"
+      max-width="lg"
+      @close="showCreate = false"
+    >
       <ModelFamilyForm :saving="saving" @submit="onCreate" @cancel="showCreate = false" />
     </Modal>
 
