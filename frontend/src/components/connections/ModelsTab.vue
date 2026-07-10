@@ -126,7 +126,6 @@ const columns: DataTableColumn[] = [
     tdClass: "max-w-55 truncate font-mono text-xs text-muted-foreground",
   },
   { key: "provider", label: "Provider", tdClass: "text-xs text-muted-foreground" },
-  { key: "route", label: "Route", tdClass: "text-xs text-muted-foreground" },
   { key: "family", label: "Family", tdClass: "text-xs text-muted-foreground" },
   { key: "status", label: "Status" },
 ];
@@ -282,12 +281,6 @@ async function handleToggleEnabled(row: any) {
         @update:page="loadPage"
       >
         <template #cell-provider="{ row }">{{ providerNameFor(row.provider_id) }}</template>
-        <template #cell-route="{ row }">
-          <span v-if="row.routing_provider_id" class="badge badge-outline badge-sm">
-            {{ providerNameFor(row.routing_provider_id) }}
-          </span>
-          <span v-else class="text-muted-foreground/50">Native</span>
-        </template>
         <template #cell-family="{ row }">{{ familyNameFor(row.model_family_id) }}</template>
         <template #cell-status="{ row }">
           <AppToggle

@@ -8603,32 +8603,6 @@
             "title": "Model Identifier",
             "description": "Actual API model name"
           },
-          "routing_provider_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 12
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Provider Id",
-            "description": "Provider to route through instead of the native one (None = native)"
-          },
-          "routing_identifier": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Identifier",
-            "description": "Model identifier on the routing provider"
-          },
           "name": {
             "type": "string",
             "maxLength": 100,
@@ -8695,32 +8669,6 @@
             "title": "Model Identifier",
             "description": "Actual API model name"
           },
-          "routing_provider_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 12
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Provider Id",
-            "description": "Provider to route through instead of the native one (None = native)"
-          },
-          "routing_identifier": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Identifier",
-            "description": "Model identifier on the routing provider"
-          },
           "name": {
             "type": "string",
             "maxLength": 100,
@@ -8774,14 +8722,6 @@
             "format": "date-time",
             "title": "Updated At"
           },
-          "effective_provider_id": {
-            "type": "string",
-            "title": "Effective Provider Id"
-          },
-          "active_identifier": {
-            "type": "string",
-            "title": "Active Identifier"
-          },
           "provider_enabled": {
             "type": "boolean",
             "title": "Provider Enabled"
@@ -8799,8 +8739,6 @@
           "id",
           "created_at",
           "updated_at",
-          "effective_provider_id",
-          "active_identifier",
           "provider_enabled",
           "model_family"
         ],
@@ -9146,28 +9084,6 @@
             "type": "string",
             "title": "Model Identifier"
           },
-          "routing_provider_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Provider Id"
-          },
-          "routing_identifier": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Identifier"
-          },
           "name": {
             "type": "string",
             "title": "Name"
@@ -9190,14 +9106,6 @@
             "format": "date-time",
             "title": "Updated At"
           },
-          "effective_provider_id": {
-            "type": "string",
-            "title": "Effective Provider Id"
-          },
-          "active_identifier": {
-            "type": "string",
-            "title": "Active Identifier"
-          },
           "provider_enabled": {
             "type": "boolean",
             "title": "Provider Enabled"
@@ -9208,15 +9116,11 @@
           "id",
           "provider_id",
           "model_identifier",
-          "routing_provider_id",
-          "routing_identifier",
           "name",
           "model_family_id",
           "enabled",
           "created_at",
           "updated_at",
-          "effective_provider_id",
-          "active_identifier",
           "provider_enabled"
         ],
         "title": "ModelListResponse",
@@ -9237,32 +9141,6 @@
             "minLength": 1,
             "title": "Model Identifier",
             "description": "Actual API model name"
-          },
-          "routing_provider_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 12
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Provider Id",
-            "description": "Provider to route through instead of the native one (None = native)"
-          },
-          "routing_identifier": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Identifier",
-            "description": "Model identifier on the routing provider"
           },
           "name": {
             "type": "string",
@@ -9317,14 +9195,6 @@
             "format": "date-time",
             "title": "Updated At"
           },
-          "effective_provider_id": {
-            "type": "string",
-            "title": "Effective Provider Id"
-          },
-          "active_identifier": {
-            "type": "string",
-            "title": "Active Identifier"
-          },
           "provider_enabled": {
             "type": "boolean",
             "title": "Provider Enabled"
@@ -9339,8 +9209,6 @@
           "id",
           "created_at",
           "updated_at",
-          "effective_provider_id",
-          "active_identifier",
           "provider_enabled"
         ],
         "title": "ModelResponse",
@@ -9400,30 +9268,6 @@
               }
             ],
             "title": "Model Identifier"
-          },
-          "routing_provider_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 12
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Provider Id"
-          },
-          "routing_identifier": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Routing Identifier"
           },
           "name": {
             "anyOf": [

@@ -15,14 +15,6 @@ class ModelBase(BaseModel):
     model_identifier: str = Field(
         ..., min_length=1, max_length=100, description="Actual API model name"
     )
-    routing_provider_id: str | None = Field(
-        default=None,
-        max_length=12,
-        description="Provider to route through instead of the native one (None = native)",
-    )
-    routing_identifier: str | None = Field(
-        default=None, max_length=100, description="Model identifier on the routing provider"
-    )
     name: str = Field(..., min_length=1, max_length=100, description="User-friendly display name")
     model_family_id: str = Field(
         ..., min_length=1, max_length=12, description="Link to model family"
@@ -60,8 +52,6 @@ class ModelUpdate(BaseModel):
 
     provider_id: str | None = Field(default=None, min_length=1, max_length=12)
     model_identifier: str | None = Field(default=None, min_length=1, max_length=100)
-    routing_provider_id: str | None = Field(default=None, max_length=12)
-    routing_identifier: str | None = Field(default=None, max_length=100)
     name: str | None = Field(default=None, min_length=1, max_length=100)
     model_family_id: str | None = Field(default=None, min_length=1, max_length=12)
     template_id: str | None = Field(default=None, max_length=12)
@@ -81,8 +71,6 @@ class ModelListResponse(BaseModel):
     id: str
     provider_id: str
     model_identifier: str
-    routing_provider_id: str | None
-    routing_identifier: str | None
     name: str
     model_family_id: str
     enabled: bool
@@ -90,8 +78,6 @@ class ModelListResponse(BaseModel):
     updated_at: datetime
 
     # Computed fields
-    effective_provider_id: str
-    active_identifier: str
     provider_enabled: bool
 
     model_config = ConfigDict(from_attributes=True)
@@ -105,8 +91,6 @@ class ModelResponse(ModelBase):
     updated_at: datetime
 
     # Computed fields
-    effective_provider_id: str
-    active_identifier: str
     provider_enabled: bool
 
     model_config = ConfigDict(from_attributes=True)

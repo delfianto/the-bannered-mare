@@ -46,7 +46,7 @@ deal in discovered models; the `/api/models` endpoints deal in saved ones.
 |-------|------|-------|
 | `id` | string | 12-char nanoid. |
 | `name` | string | Unique display name. |
-| `provider_type` | enum | `openai` · `anthropic` · `google` · `openrouter` · `xai` · `ollama` · `lmstudio` · `custom`. |
+| `provider_type` | enum | `openai` · `anthropic` · `google` · `openrouter` · `xai` · `ollama` · `lmstudio` · `opencode` · `opencode_go` · `custom`. |
 | `base_url` | string \| null | Override endpoint; falls back to the type's default when null. |
 | `enabled` | boolean | Whether it's usable. |
 | `allowed_models` | string[] | Curated allow-list; empty means show all discovered models. |
@@ -110,7 +110,7 @@ curl -X POST http://localhost:8000/api/providers/V1StGXR8Z5jd/models/persist \
 | `GET` | `/api/models/{id}` | Get a model (with its embedded family). |
 | `PUT` | `/api/models/{id}` | Update a model. |
 | `DELETE` | `/api/models/{id}` | Delete a model. |
-| `PATCH` | `/api/models/{id}/flags` | Toggle `enabled` / `use_openrouter`. |
+| `PATCH` | `/api/models/{id}/flags` | Toggle `enabled`. |
 
 ### The model resource
 
@@ -119,17 +119,13 @@ curl -X POST http://localhost:8000/api/providers/V1StGXR8Z5jd/models/persist \
 | Field | Type | Notes |
 |-------|------|-------|
 | `id` | string | 12-char nanoid. |
-| `provider_id` | string | **Required.** Owning provider. |
+| `provider_id` | string | **Required.** Owning provider — the route. Must be one of the family's `provider_types`. |
 | `model_family_id` | string | **Required.** Its capability family. |
 | `model_identifier` | string | **Required.** The provider-native model name (e.g. `gpt-4o-mini`). |
 | `name` | string | **Required.** Friendly display name. |
-| `openrouter_identifier` | string \| null | OpenRouter model name, if routable there. |
-| `use_openrouter` | boolean | Route this model via OpenRouter. |
 | `template_id` | string \| null | Default prompt template for the model. |
 | `parameters` | object | Free-form sampling/generation overrides. |
 | `enabled` | boolean | Available for use. |
-| `can_use_openrouter` | boolean | *(derived)* Has an OpenRouter identifier. |
-| `active_identifier` | string | *(derived)* The identifier actually used, given `use_openrouter`. |
 | `provider_enabled` | boolean | *(derived)* Whether the owning provider is enabled. |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
 

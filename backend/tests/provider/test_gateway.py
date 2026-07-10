@@ -11,9 +11,7 @@ from src.core.exceptions import (
     ProviderTimeoutError,
 )
 from src.provider.adapters import CompletionResponse, TokenUsage
-from src.provider.adapters.openai import OpenAIAdapter
 from src.provider.gateway import ProviderGateway
-from src.provider.models import ProviderType
 
 
 @pytest.fixture
@@ -42,22 +40,9 @@ def mock_family() -> Any:
 def mock_model(mock_family: Any) -> Any:
     model = MagicMock()
     model.model_identifier = "gpt-4"
-    model.routing_provider_id = None
-    model.active_identifier = "gpt-4"
     model.parameters = {"temperature": 0.7}
     model.model_family = mock_family
     return model
-
-
-@pytest.fixture
-def mock_openrouter_provider() -> Any:
-    provider = MagicMock()
-    provider.base_url = "https://openrouter.ai/api/v1"
-    provider.get_api_key.return_value = "or_test_key"
-    provider.get_base_url.return_value = "https://openrouter.ai/api/v1"
-    provider.provider_type = MagicMock()
-    provider.provider_type.value = "openrouter"
-    return provider
 
 
 # --- _get_effective_parameters ---
@@ -74,8 +59,6 @@ def test_get_effective_parameters_family_defaults_only(mock_provider: Any) -> No
 
     model = MagicMock()
     model.model_identifier = "gpt-4"
-    model.routing_provider_id = None
-    model.active_identifier = "gpt-4"
     model.parameters = {}
     model.model_family = family
 
@@ -112,8 +95,6 @@ def test_get_effective_parameters_no_family(mock_provider: Any) -> None:
     """Handles model with no model_family gracefully."""
     model = MagicMock()
     model.model_identifier = "gpt-4"
-    model.routing_provider_id = None
-    model.active_identifier = "gpt-4"
     model.parameters = {"temperature": 0.5}
     model.model_family = None
 
@@ -134,8 +115,6 @@ def test_get_effective_parameters_skips_null_defaults(mock_provider: Any) -> Non
 
     model = MagicMock()
     model.model_identifier = "gpt-4"
-    model.routing_provider_id = None
-    model.active_identifier = "gpt-4"
     model.parameters = {}
     model.model_family = family
 
@@ -157,8 +136,6 @@ def test_get_effective_parameters_strips_unsupported(mock_provider: Any) -> None
     model = MagicMock()
     model.model_identifier = "gpt-5.4"
     model.name = "GPT-5.4"
-    model.routing_provider_id = None
-    model.active_identifier = "gpt-5.4"
     model.parameters = {"temperature": 0.8}  # stale model override
     model.model_family = family
 
@@ -312,62 +289,3 @@ async def test_chat_completion_timeout(mock_provider: Any, mock_model: Any) -> N
 
         with pytest.raises(ProviderTimeoutError, match="Provider request timed out"):
             await gateway.chat_completion([{"role": "user", "content": "test"}])
-
-
-# --- Routing override (generic: OpenRouter / OpenCode / …) ---
-
-
-def test_routing_swaps_adapter_and_provider(
-    mock_provider: Any, mock_openrouter_provider: Any
-) -> None:
-    """With a routing override the gateway uses the routing provider + its adapter."""
-    model = MagicMock()
-    model.model_identifier = "meta-llama/llama-3-70b"
-    model.routing_provider_id = "prov_or"
-    model.active_identifier = "meta-llama/llama-3-70b"
-    model.parameters = {}
-    model.model_family = MagicMock()
-    model.model_family.parameters = {}
-
-    gateway = ProviderGateway(mock_provider, model, routing_provider=mock_openrouter_provider)
-
-    assert gateway.provider is mock_openrouter_provider
-    assert gateway.active_identifier == "meta-llama/llama-3-70b"
-    assert isinstance(gateway.adapter, OpenAIAdapter)
-    assert gateway.base_url == "https://openrouter.ai/api/v1"
-    assert gateway.api_key == "or_test_key"
-
-
-def test_routing_via_opencode_go_uses_registry_adapter(mock_provider: Any) -> None:
-    """OpenCode Go routes like any aggregator — provider swapped, OpenAI adapter."""
-    routing_provider = MagicMock()
-    routing_provider.provider_type = ProviderType.OPENCODE_GO
-    routing_provider.get_base_url.return_value = "https://opencode.ai/zen/go/v1"
-    routing_provider.get_api_key.return_value = "sk-go"
-
-    model = MagicMock()
-    model.model_identifier = "deepseek-v4-flash"
-    model.routing_provider_id = "prov_go"
-    model.active_identifier = "deepseek-v4-flash"
-    model.parameters = {}
-    model.model_family = MagicMock()
-    model.model_family.parameters = {}
-
-    gateway = ProviderGateway(mock_provider, model, routing_provider=routing_provider)
-
-    assert gateway.provider is routing_provider
-    assert gateway.active_identifier == "deepseek-v4-flash"
-    assert isinstance(gateway.adapter, OpenAIAdapter)
-    assert gateway.base_url == "https://opencode.ai/zen/go/v1"
-    assert gateway.api_key == "sk-go"
-
-
-def test_routing_raises_without_routing_provider(mock_provider: Any) -> None:
-    """Raises when the model declares a routing override but none is supplied."""
-    model = MagicMock()
-    model.routing_provider_id = "prov_or"
-    model.model_identifier = "some-model"
-    model.active_identifier = "some-model"
-
-    with pytest.raises(ValueError, match="Routing provider is required"):
-        ProviderGateway(mock_provider, model)

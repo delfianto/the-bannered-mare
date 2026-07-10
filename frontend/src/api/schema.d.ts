@@ -2806,16 +2806,6 @@ export interface components {
        */
       model_identifier: string;
       /**
-       * Routing Provider Id
-       * @description Provider to route through instead of the native one (None = native)
-       */
-      routing_provider_id?: string | null;
-      /**
-       * Routing Identifier
-       * @description Model identifier on the routing provider
-       */
-      routing_identifier?: string | null;
-      /**
        * Name
        * @description User-friendly display name
        */
@@ -2860,16 +2850,6 @@ export interface components {
        */
       model_identifier: string;
       /**
-       * Routing Provider Id
-       * @description Provider to route through instead of the native one (None = native)
-       */
-      routing_provider_id?: string | null;
-      /**
-       * Routing Identifier
-       * @description Model identifier on the routing provider
-       */
-      routing_identifier?: string | null;
-      /**
        * Name
        * @description User-friendly display name
        */
@@ -2909,10 +2889,6 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      /** Effective Provider Id */
-      effective_provider_id: string;
-      /** Active Identifier */
-      active_identifier: string;
       /** Provider Enabled */
       provider_enabled: boolean;
       model_family: components["schemas"]["ModelFamilyResponse"];
@@ -3088,10 +3064,6 @@ export interface components {
       provider_id: string;
       /** Model Identifier */
       model_identifier: string;
-      /** Routing Provider Id */
-      routing_provider_id: string | null;
-      /** Routing Identifier */
-      routing_identifier: string | null;
       /** Name */
       name: string;
       /** Model Family Id */
@@ -3108,10 +3080,6 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      /** Effective Provider Id */
-      effective_provider_id: string;
-      /** Active Identifier */
-      active_identifier: string;
       /** Provider Enabled */
       provider_enabled: boolean;
     };
@@ -3130,16 +3098,6 @@ export interface components {
        * @description Actual API model name
        */
       model_identifier: string;
-      /**
-       * Routing Provider Id
-       * @description Provider to route through instead of the native one (None = native)
-       */
-      routing_provider_id?: string | null;
-      /**
-       * Routing Identifier
-       * @description Model identifier on the routing provider
-       */
-      routing_identifier?: string | null;
       /**
        * Name
        * @description User-friendly display name
@@ -3180,10 +3138,6 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      /** Effective Provider Id */
-      effective_provider_id: string;
-      /** Active Identifier */
-      active_identifier: string;
       /** Provider Enabled */
       provider_enabled: boolean;
     };
@@ -3208,10 +3162,6 @@ export interface components {
       provider_id?: string | null;
       /** Model Identifier */
       model_identifier?: string | null;
-      /** Routing Provider Id */
-      routing_provider_id?: string | null;
-      /** Routing Identifier */
-      routing_identifier?: string | null;
       /** Name */
       name?: string | null;
       /** Model Family Id */

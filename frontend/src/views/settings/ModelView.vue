@@ -22,8 +22,6 @@ const form = reactive({
   model_identifier: "",
   provider_id: "",
   model_family_id: "",
-  routing_provider_id: "",
-  routing_identifier: "",
   enabled: true,
   parameters: {} as Record<string, unknown>,
 });
@@ -43,8 +41,6 @@ watch(model, (m) => {
     form.model_identifier = m.model_identifier;
     form.provider_id = m.provider_id;
     form.model_family_id = m.model_family_id;
-    form.routing_provider_id = m.routing_provider_id || "";
-    form.routing_identifier = m.routing_identifier || "";
     form.enabled = m.enabled;
     form.parameters = m.parameters ? { ...m.parameters } : {};
   }
@@ -62,16 +58,6 @@ function toggleEnabled() {
 function onUpdateParameters(params: Record<string, unknown>) {
   form.parameters = params;
 }
-
-const isRouted = computed(() => !!form.routing_provider_id);
-
-// Clearing the route (back to Native) drops the now-meaningless identifier.
-watch(
-  () => form.routing_provider_id,
-  (v) => {
-    if (!v) form.routing_identifier = "";
-  },
-);
 
 // Drop a provider that the newly chosen family can't serve.
 watch(
@@ -111,18 +97,6 @@ const familyName = computed(
     form.model_family_id,
 );
 
-// "Route via": native provider, or any other provider the family supports.
-const routeItems = computed(() => [
-  { label: "Native — use the model's own provider", value: "" },
-  ...providersForFamily(settingsStore.providers as any, selectedFamily.value as any)
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((p) => ({ label: `Route via ${p.name}`, value: p.id })),
-]);
-const routeName = computed(
-  () => routeItems.value.find((i) => i.value === form.routing_provider_id)?.label || "Native",
-);
-
 async function handleSave() {
   if (!model.value) return;
   const updates: Record<string, unknown> = {};
@@ -132,10 +106,6 @@ async function handleSave() {
   if (form.provider_id !== model.value.provider_id) updates.provider_id = form.provider_id;
   if (form.model_family_id !== model.value.model_family_id)
     updates.model_family_id = form.model_family_id;
-  if ((form.routing_provider_id || "") !== (model.value.routing_provider_id || ""))
-    updates.routing_provider_id = form.routing_provider_id || null;
-  if ((form.routing_identifier || "") !== (model.value.routing_identifier || ""))
-    updates.routing_identifier = form.routing_identifier || null;
   if (form.enabled !== model.value.enabled) updates.enabled = form.enabled;
   if (JSON.stringify(form.parameters) !== JSON.stringify(model.value.parameters ?? {}))
     updates.parameters = form.parameters;
@@ -362,39 +332,6 @@ function formatDate(iso: string): string {
                   </SelectMenu>
                 </label>
 
-                <!-- Routing override -->
-                <label class="block">
-                  <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
-                  >
-                    Route via
-                  </span>
-                  <SelectMenu
-                    v-model="form.routing_provider_id"
-                    :items="routeItems"
-                    value-key="value"
-                    :search-input="false"
-                    class="w-full"
-                    :disabled="!form.model_family_id"
-                  >
-                    <button
-                      class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
-                      :disabled="!form.model_family_id"
-                    >
-                      {{ routeName }}
-                    </button>
-                  </SelectMenu>
-                  <input
-                    v-if="isRouted"
-                    v-model="form.routing_identifier"
-                    type="text"
-                    placeholder="Model id on the routing provider, e.g. deepseek-v4-flash"
-                    class="mt-3 h-10 w-full rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
-                  />
-                  <span v-else class="mt-1.5 block text-[0.625rem] text-muted-foreground">
-                    Uses the model's own provider ({{ providerName }}).
-                  </span>
-                </label>
               </div>
             </div>
 
@@ -450,16 +387,6 @@ function formatDate(iso: string): string {
                       :class="model.provider_enabled ? 'bg-emerald-500' : 'bg-red-500'"
                     />
                   </div>
-                </div>
-
-                <!-- Active Identifier -->
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-muted-foreground">Active Identifier</span>
-                  <code
-                    class="max-w-50 truncate rounded bg-base-300 px-2 py-0.5 text-xs text-foreground"
-                  >
-                    {{ model.active_identifier }}
-                  </code>
                 </div>
 
                 <!-- Timestamps -->

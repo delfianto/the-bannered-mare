@@ -92,8 +92,6 @@ def _make_model(
     """Create a mock Model ORM object with parameters."""
     model = MagicMock()
     model.model_identifier = model_id
-    model.routing_provider_id = None
-    model.active_identifier = model_id
     model.parameters = model_params or {}
     model.model_family = MagicMock()
     model.model_family.parameters = family_params or {}

@@ -743,8 +743,6 @@ export const handlers = [
       "model_identifier",
       "provider_id",
       "model_family_id",
-      "routing_provider_id",
-      "routing_identifier",
       "parameters",
       "enabled",
       "template_id",

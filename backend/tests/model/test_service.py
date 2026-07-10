@@ -108,34 +108,6 @@ class TestModelService:
         assert total == 1
         assert [m.name for m in models] == ["In Family"]
 
-    def test_routing_derived_identity_properties(
-        self, db: Session, sample_provider: Any, sample_family: Any
-    ) -> None:
-        """active_identifier / effective_provider_id follow the routing override:
-        a native model uses its own identifier + provider, a routed one the
-        override's identifier + provider."""
-        native = Model(
-            name="Native",
-            provider_id=sample_provider.id,
-            model_identifier="gpt-4o",
-            model_family_id=sample_family.id,
-        )
-        routed = Model(
-            name="Routed",
-            provider_id=sample_provider.id,
-            model_identifier="deepseek-v4-flash",
-            model_family_id=sample_family.id,
-            routing_provider_id=sample_provider.id,
-            routing_identifier="deepseek/deepseek-v4-flash",
-        )
-        db.add_all([native, routed])
-        db.commit()
-
-        assert native.active_identifier == "gpt-4o"
-        assert native.effective_provider_id == sample_provider.id
-        assert routed.active_identifier == "deepseek/deepseek-v4-flash"
-        assert routed.effective_provider_id == sample_provider.id
-
     def test_get_by_id_success(self, db: Session, sample_model: Any) -> None:
         """Test getting a model by ID successfully"""
         repo = ModelRepository(db)

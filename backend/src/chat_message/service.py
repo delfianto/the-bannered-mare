@@ -133,7 +133,7 @@ class ChatMessageService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
-        provider = chat.model.routing_provider or chat.model.provider
+        provider = chat.model.provider
         if not provider.has_api_key():
             env_var_name = provider.get_env_var_name()
             raise HTTPException(
@@ -149,12 +149,9 @@ class ChatMessageService:
                 detail="Chat does not have a valid model assigned.",
             )
         preset_params = chat.preset.parameters if chat.preset else None
-        # The model's routing override (if any) is eager-loaded; the gateway uses
-        # it when the model declares a routing_provider_id, else the native provider.
         return ProviderGateway(
             chat.model.provider,
             chat.model,
-            routing_provider=chat.model.routing_provider,
             preset_parameters=preset_params,
         )
 
@@ -169,21 +166,18 @@ class ChatMessageService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
-        # When routing through an aggregator, the API key that matters is the
-        # routing provider's, not the model's native home provider.
-        effective_provider = model.routing_provider or model.provider
-        if not effective_provider.has_api_key():
+        provider = model.provider
+        if not provider.has_api_key():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
-                    f"API key not configured for provider '{effective_provider.name}'. "
-                    f"Set {effective_provider.get_env_var_name()}"
+                    f"API key not configured for provider '{provider.name}'. "
+                    f"Set {provider.get_env_var_name()}"
                 ),
             )
         return ProviderGateway(
             model.provider,
             model,
-            routing_provider=model.routing_provider,
             preset_parameters=None,
         )
 

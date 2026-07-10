@@ -133,8 +133,7 @@ hosts three tabs (selected via the `?tab=` query param):
 
 - **`ProvidersTab.vue`** — lists all configured API connections (OpenAI, Anthropic, Google,
   OpenRouter, xAI, Ollama, LM Studio, OpenCode Zen/Go) with active indicators.
-- **`ModelsTab.vue`** — shows all registered models with their families, native providers, and
-  active route (native, or the aggregator a routing override points at).
+- **`ModelsTab.vue`** — shows all registered models with their families and providers.
 - **`ModelFamiliesTab.vue`** — lists model families.
 
 Prompt-side resources (presets, templates, fragments) are **not** here — they live on the
@@ -149,9 +148,8 @@ Clicking a row opens a full-page editor:
   (load, unload, delete, persist, and curate the allow-list via the model filter). This view
   drives `useProvider`.
 - **`ModelCreateView.vue`** / **`ModelView.vue`** — create or edit a model: assign its family and
-  native provider, edit inference parameters, and optionally set a **routing override** (a
-  "Route via" provider dropdown + identifier) so the model runs through an aggregator
-  (OpenRouter, OpenCode Zen/Go, …) instead of its native provider.
+  its provider (the route, chosen from the family's supported providers — OpenRouter, OpenCode
+  Zen/Go, native, …) and edit inference parameters.
 - **`ModelFamilyView.vue`** — edit a model family's name, identifier, and description.
 - **`TemplateView.vue`**, **`FragmentView.vue`**, **`PresetView.vue`** — edit a prompt template,
   fragment, or preset.

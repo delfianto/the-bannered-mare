@@ -37,24 +37,6 @@ class Model(BaseModel):
         index=True,
         comment="Provider-specific model name (e.g., 'gpt-4o-mini', 'claude-4.5-sonnet')",
     )
-    routing_provider_id: Mapped[str | None] = mapped_column(
-        String(12),
-        ForeignKey("providers.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-        comment=(
-            "Optional provider to route through instead of the native one "
-            "(aggregators like OpenRouter/OpenCode); NULL = use provider_id"
-        ),
-    )
-    routing_identifier: Mapped[str | None] = mapped_column(
-        String(100),
-        nullable=True,
-        comment=(
-            "Model identifier on the routing provider "
-            "(e.g. 'deepseek/deepseek-v4' on OpenRouter, 'deepseek-v4-flash' on OpenCode Go)"
-        ),
-    )
     name: Mapped[str] = mapped_column(
         String(100), nullable=False, comment="Display name of the model"
     )
@@ -85,9 +67,7 @@ class Model(BaseModel):
         comment="Whether this model is currently available for use",
     )
 
-    provider: Mapped[Provider] = relationship(back_populates="models", foreign_keys=[provider_id])
-    # Aggregator route override (OpenRouter/OpenCode/…); read-only, no back-reference.
-    routing_provider: Mapped[Provider | None] = relationship(foreign_keys=[routing_provider_id])
+    provider: Mapped[Provider] = relationship(back_populates="models")
     model_family: Mapped[ModelFamily] = relationship(back_populates="models")
     template: Mapped[PromptTemplate | None] = relationship(back_populates="models")
     # Chat has two FKs to models (model_id + task_model_id); scope this reverse
@@ -95,24 +75,7 @@ class Model(BaseModel):
     chats: Mapped[list[Chat]] = relationship(back_populates="model", foreign_keys="Chat.model_id")
 
     @property
-    def effective_provider_id(self) -> str:
-        # Provider actually used for requests: the routing override if set, else native.
-        return self.routing_provider_id or self.provider_id
-
-    @property
-    def active_identifier(self) -> str:
-        # Id sent to the effective provider: the routing identifier when routing
-        # through an aggregator, else the native model identifier.
-        if self.routing_provider_id:
-            return self.routing_identifier or self.model_identifier
-        return self.model_identifier
-
-    @property
     def provider_enabled(self) -> bool:
-        # Usability follows the effective provider — a model routed through a
-        # disabled aggregator is unusable even if its native provider is enabled.
-        if self.routing_provider_id and self.routing_provider is not None:
-            return self.routing_provider.enabled
         return self.provider.enabled
 
 
