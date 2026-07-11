@@ -236,6 +236,18 @@ class TestProviderServiceDiscovery:
         db.refresh(provider)
         return provider
 
+    def _make_cloud_provider(self, db: Session) -> Provider:
+        # Cloud providers cache on read (large, stable catalogs, no live load-state).
+        provider = Provider(
+            name="OpenRouter",
+            provider_type=ProviderType.OPENROUTER,
+            base_url="https://openrouter.ai/api/v1",
+        )
+        db.add(provider)
+        db.commit()
+        db.refresh(provider)
+        return provider
+
     def test_list_available_models_unsupported_provider_type(
         self, db: Session, monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -257,10 +269,11 @@ class TestProviderServiceDiscovery:
     def test_list_available_models_live_fetch_then_cache_hit(
         self, db: Session, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        provider = self._make_ollama_provider(db)
+        # Cloud provider: second read is served from cache.
+        provider = self._make_cloud_provider(db)
         fake_client = _FakeDiscoveryClient(
             models=[
-                DiscoveredModel(identifier="llama3:8b", display_name="llama3:8b", state="loaded")
+                DiscoveredModel(identifier="openai/gpt-5", display_name="GPT-5", state="loaded")
             ]
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
@@ -275,6 +288,47 @@ class TestProviderServiceDiscovery:
         second = service.list_available_models(provider.id)
         assert second.from_cache is True
         assert fake_client.list_calls == 1  # served from cache, no second live call
+
+    def test_local_provider_always_fetches_fresh(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Ollama/LM Studio load-state is live, so reads never serve a stale cache."""
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="llama3:8b", display_name="llama3:8b", state="loaded")
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        first = service.list_available_models(provider.id)
+        second = service.list_available_models(provider.id)
+
+        assert first.from_cache is False
+        assert second.from_cache is False  # not cached — fetched live again
+        assert fake_client.list_calls == 2
+
+    def test_local_provider_falls_back_to_cache_when_unreachable(
+        self, db: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A briefly-down local box serves the last-known list instead of erroring."""
+        provider = self._make_ollama_provider(db)
+        fake_client = _FakeDiscoveryClient(
+            models=[
+                DiscoveredModel(identifier="llama3:8b", display_name="llama3:8b", state="loaded")
+            ]
+        )
+        monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
+
+        service = ProviderService(ProviderRepository(db))
+        service.list_available_models(provider.id)  # populates the cache
+
+        fake_client.error = httpx.ConnectError("connection refused")  # box goes down
+        result = service.list_available_models(provider.id)
+
+        assert result.from_cache is True
+        assert [m.identifier for m in result.models] == ["llama3:8b"]
 
     def test_sync_models_bypasses_cache(self, db: Session, monkeypatch: pytest.MonkeyPatch) -> None:
         provider = self._make_ollama_provider(db)
