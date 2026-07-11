@@ -17,7 +17,7 @@ CLAUDE_FABLE_FAMILIES: list[ModelFamilySeedData] = [
             "Anthropic Claude Fable 5. Most powerful tier (above Opus). Adaptive thinking "
             "only — sampling parameters removed and thinking cannot be disabled."
         ),
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 128000},
             "effort": {
