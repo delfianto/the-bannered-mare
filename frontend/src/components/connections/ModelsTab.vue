@@ -7,6 +7,7 @@ import { useModel } from "@/composables/useModel";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { useAppToast } from "@/composables/useToast";
+import { useQueryState } from "@/composables/useQueryState";
 import ModelCreateModal from "./ModelCreateModal.vue";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
@@ -14,6 +15,16 @@ const { t } = useI18n();
 const router = useRouter();
 const { toggleFlags } = useModel();
 const toast = useAppToast();
+const { readQuery, patchQuery } = useQueryState();
+
+// Restore filters/page from the URL so they survive a detail-view round-trip.
+const initialSearch = readQuery("q") ?? "";
+const initialProvider = readQuery("provider") ?? "all";
+const initialFamily = readQuery("family") ?? "all";
+const rawStatus = readQuery("status");
+const initialStatus: "all" | "enabled" | "disabled" =
+  rawStatus === "enabled" || rawStatus === "disabled" ? rawStatus : "all";
+const initialPage = Math.max(1, Number.parseInt(readQuery("page") ?? "1", 10) || 1);
 
 const {
   models,
@@ -26,7 +37,15 @@ const {
   filterByProvider,
   filterByFamily,
   filterByStatus,
-} = useModels();
+} = useModels({
+  initialPage,
+  initialFilters: {
+    name: initialSearch || undefined,
+    provider_id: initialProvider === "all" ? undefined : initialProvider,
+    model_family_id: initialFamily === "all" ? undefined : initialFamily,
+    enabled: initialStatus === "all" ? undefined : initialStatus === "enabled",
+  },
+});
 const { providers } = useProviders();
 const { families } = useModelFamilies({ pageSize: 100 });
 
@@ -39,37 +58,49 @@ function openCreate() {
 
 function onCreated() {
   loadPage(1);
+  patchQuery({ page: undefined });
 }
 
-const searchQuery = ref("");
+const searchQuery = ref(initialSearch);
 const searchFocused = ref(false);
-const selectedProvider = ref("all");
-const selectedFamily = ref("all");
-const selectedStatus = ref<"all" | "enabled" | "disabled">("all");
+const selectedProvider = ref(initialProvider);
+const selectedFamily = ref(initialFamily);
+const selectedStatus = ref<"all" | "enabled" | "disabled">(initialStatus);
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+// Each filter change resets to page 1 (the composable does the reload) and is
+// mirrored into the URL query so browser back/forward restores it.
 function handleSearch(value: string) {
   searchQuery.value = value;
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     search(value);
+    patchQuery({ q: value || undefined, page: undefined });
   }, 300);
 }
 
 function handleProviderFilter(value: string) {
   selectedProvider.value = value;
   filterByProvider(value === "all" ? undefined : value);
+  patchQuery({ provider: value === "all" ? undefined : value, page: undefined });
 }
 
 function handleFamilyFilter(value: string) {
   selectedFamily.value = value;
   filterByFamily(value === "all" ? undefined : value);
+  patchQuery({ family: value === "all" ? undefined : value, page: undefined });
 }
 
 function handleStatusFilter(value: string) {
   selectedStatus.value = value as "all" | "enabled" | "disabled";
   filterByStatus(value === "all" ? undefined : value === "enabled");
+  patchQuery({ status: value === "all" ? undefined : value, page: undefined });
+}
+
+function goToPage(p: number) {
+  loadPage(p);
+  patchQuery({ page: p > 1 ? p : undefined });
 }
 
 const providerItems = computed(() => [
@@ -285,7 +316,7 @@ async function handleToggleEnabled(row: any) {
         :page="page"
         :total-pages="totalPages"
         @row-click="openModel"
-        @update:page="loadPage"
+        @update:page="goToPage"
       >
         <template #cell-family="{ row }">{{ familyNameFor(row.model_family_id) }}</template>
         <template #cell-routes="{ row }">

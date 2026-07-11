@@ -4,22 +4,27 @@ import { client } from "@/api/client";
 
 export type ModelFamilyListItem = components["schemas"]["ModelFamilyListResponse"];
 
-interface UseModelFamiliesOptions {
-  pageSize?: number;
-}
-
 interface ModelFamilyFilters {
   name?: string;
   provider_type?: string;
 }
 
+interface UseModelFamiliesOptions {
+  pageSize?: number;
+  // Seed the first load from restored state (e.g. URL query on remount) so the
+  // list comes back filtered/paged instead of resetting to page 1, no filters.
+  initialFilters?: ModelFamilyFilters;
+  initialPage?: number;
+  autoLoad?: boolean;
+}
+
 export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
-  const { pageSize = 12 } = options;
+  const { pageSize = 12, initialFilters = {}, initialPage = 1, autoLoad = true } = options;
 
   const families = ref<ModelFamilyListItem[]>([]);
   const loading = ref(false);
   const error = ref<Error | null>(null);
-  const page = ref(1);
+  const page = ref(initialPage);
   const hasMore = ref(false);
   const total = ref(0);
 
@@ -28,7 +33,7 @@ export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
     return Math.ceil(total.value / pageSize);
   });
 
-  const currentFilters = ref<ModelFamilyFilters>({});
+  const currentFilters = ref<ModelFamilyFilters>(initialFilters);
 
   const loadPage = async (pageNum: number = 1, filters?: ModelFamilyFilters) => {
     loading.value = true;
@@ -82,7 +87,7 @@ export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
   };
 
   onMounted(() => {
-    loadPage(1);
+    if (autoLoad) loadPage(initialPage);
   });
 
   return {
