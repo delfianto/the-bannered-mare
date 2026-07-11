@@ -303,7 +303,13 @@ export interface paths {
     put?: never;
     /**
      * Persist Provider Model
-     * @description Persist a discovered model as a local Model definition in the database
+     * @description Persist a discovered model: attach a route to the matching (or new) canonical model.
+     *
+     *     If a route already exists for ``(provider, identifier)`` its canonical model is
+     *     returned. Otherwise the identifier is matched to an existing canonical model by
+     *     its provider-independent slug (adding this provider as a new route), or a new
+     *     canonical model is created with a best-effort family guess — the user can correct
+     *     the family/slug afterward.
      */
     post: operations["persist_provider_model_api_providers__provider_id__models_persist_post"];
     delete?: never;
@@ -393,13 +399,13 @@ export interface paths {
     };
     /**
      * List Models
-     * @description List model definitions with pagination and filtering
+     * @description List canonical models with pagination and filtering.
      */
     get: operations["list_models_api_models_get"];
     put?: never;
     /**
      * Create Model
-     * @description Create a new model definition
+     * @description Create a canonical model with its initial route(s).
      */
     post: operations["create_model_api_models_post"];
     delete?: never;
@@ -417,19 +423,18 @@ export interface paths {
     };
     /**
      * Get Model
-     * @description Get model definition by ID.
-     *     Returns detailed information including the embedded Model Family.
+     * @description Get a canonical model by ID, with the embedded model family.
      */
     get: operations["get_model_api_models__model_id__get"];
     /**
      * Update Model
-     * @description Update model definition
+     * @description Update canonical-model fields (routes are managed separately).
      */
     put: operations["update_model_api_models__model_id__put"];
     post?: never;
     /**
      * Delete Model
-     * @description Delete model definition
+     * @description Delete a canonical model (cascades to its routes).
      */
     delete: operations["delete_model_api_models__model_id__delete"];
     options?: never;
@@ -452,9 +457,69 @@ export interface paths {
     head?: never;
     /**
      * Update Model Flags
-     * @description Toggle model enabled and OpenRouter routing flags
+     * @description Toggle the canonical model's enabled flag.
      */
     patch: operations["update_model_flags_api_models__model_id__flags_patch"];
+    trace?: never;
+  };
+  "/api/models/{model_id}/routes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add Route
+     * @description Add a provider route to a canonical model.
+     */
+    post: operations["add_route_api_models__model_id__routes_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/models/{model_id}/routes/{route_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete Route
+     * @description Remove a route from a canonical model.
+     */
+    delete: operations["delete_route_api_models__model_id__routes__route_id__delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/models/{model_id}/active-route": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Set Active Route
+     * @description Flip which route the model resolves to (redirects existing chats).
+     */
+    put: operations["set_active_route_api_models__model_id__active_route_put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/api/characters": {
@@ -1635,6 +1700,17 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     /**
+     * ActiveRouteUpdate
+     * @description Schema for flipping which route a canonical model resolves to.
+     */
+    ActiveRouteUpdate: {
+      /**
+       * Route Id
+       * @description Route to make active
+       */
+      route_id: string;
+    };
+    /**
      * AlternativeResponse
      * @description Schema for a message alternative (swipe)
      */
@@ -2792,24 +2868,24 @@ export interface components {
     };
     /**
      * ModelCreate
-     * @description Schema for creating a new model definition
+     * @description Schema for creating a canonical model with its initial route(s).
      */
     ModelCreate: {
       /**
-       * Provider Id
-       * @description Provider ID
+       * Slug
+       * @description Provider-independent identity; derived from the first route if omitted
        */
-      provider_id: string;
+      slug?: string | null;
       /**
-       * Model Identifier
-       * @description Actual API model name
-       */
-      model_identifier: string;
-      /**
-       * Name
+       * Display Name
        * @description User-friendly display name
        */
-      name: string;
+      display_name: string;
+      /**
+       * Original Identifier
+       * @description Native/canonical identifier; derived from the first route if omitted
+       */
+      original_identifier?: string | null;
       /**
        * Model Family Id
        * @description Link to model family
@@ -2822,38 +2898,48 @@ export interface components {
       template_id?: string | null;
       /**
        * Parameters
-       * @description All model parameters (temperature, max_tokens, etc.)
+       * @description Per-model parameter overrides
        */
       parameters?: {
         [key: string]: unknown;
       };
       /**
        * Enabled
-       * @description Whether model is available
+       * @description Whether the model is available
        * @default true
        */
       enabled: boolean;
+      /**
+       * Routes
+       * @description Initial provider routes (first becomes active)
+       */
+      routes?: components["schemas"]["ModelRouteCreate"][];
+      /**
+       * Active Provider Id
+       * @description Which route's provider is active; defaults to the first route
+       */
+      active_provider_id?: string | null;
     };
     /**
      * ModelDetailResponse
-     * @description Schema for detailed model responses (includes embedded relationships)
+     * @description Canonical model with the embedded family.
      */
     ModelDetailResponse: {
       /**
-       * Provider Id
-       * @description Provider ID
+       * Slug
+       * @description Provider-independent identity; derived from the first route if omitted
        */
-      provider_id: string;
+      slug?: string | null;
       /**
-       * Model Identifier
-       * @description Actual API model name
-       */
-      model_identifier: string;
-      /**
-       * Name
+       * Display Name
        * @description User-friendly display name
        */
-      name: string;
+      display_name: string;
+      /**
+       * Original Identifier
+       * @description Native/canonical identifier; derived from the first route if omitted
+       */
+      original_identifier?: string | null;
       /**
        * Model Family Id
        * @description Link to model family
@@ -2866,19 +2952,23 @@ export interface components {
       template_id?: string | null;
       /**
        * Parameters
-       * @description All model parameters (temperature, max_tokens, etc.)
+       * @description Per-model parameter overrides
        */
       parameters?: {
         [key: string]: unknown;
       };
       /**
        * Enabled
-       * @description Whether model is available
+       * @description Whether the model is available
        * @default true
        */
       enabled: boolean;
       /** Id */
       id: string;
+      /** Active Route Id */
+      active_route_id: string | null;
+      /** Routes */
+      routes: components["schemas"]["ModelRouteResponse"][];
       /**
        * Created At
        * Format: date-time
@@ -3047,7 +3137,7 @@ export interface components {
     };
     /**
      * ModelFlagsUpdate
-     * @description Schema for updating model flags only
+     * @description Schema for updating canonical-model flags only.
      */
     ModelFlagsUpdate: {
       /** Enabled */
@@ -3055,21 +3145,25 @@ export interface components {
     };
     /**
      * ModelListResponse
-     * @description Schema for model list responses (excludes heavy fields)
+     * @description Schema for canonical-model list responses (embeds routes for the UI).
      */
     ModelListResponse: {
       /** Id */
       id: string;
-      /** Provider Id */
-      provider_id: string;
-      /** Model Identifier */
-      model_identifier: string;
-      /** Name */
-      name: string;
+      /** Slug */
+      slug: string;
+      /** Display Name */
+      display_name: string;
+      /** Original Identifier */
+      original_identifier: string;
       /** Model Family Id */
       model_family_id: string;
       /** Enabled */
       enabled: boolean;
+      /** Active Route Id */
+      active_route_id: string | null;
+      /** Routes */
+      routes: components["schemas"]["ModelRouteResponse"][];
       /**
        * Created At
        * Format: date-time
@@ -3085,24 +3179,24 @@ export interface components {
     };
     /**
      * ModelResponse
-     * @description Schema for detailed model responses
+     * @description Schema for a canonical model (with routes).
      */
     ModelResponse: {
       /**
-       * Provider Id
-       * @description Provider ID
+       * Slug
+       * @description Provider-independent identity; derived from the first route if omitted
        */
-      provider_id: string;
+      slug?: string | null;
       /**
-       * Model Identifier
-       * @description Actual API model name
-       */
-      model_identifier: string;
-      /**
-       * Name
+       * Display Name
        * @description User-friendly display name
        */
-      name: string;
+      display_name: string;
+      /**
+       * Original Identifier
+       * @description Native/canonical identifier; derived from the first route if omitted
+       */
+      original_identifier?: string | null;
       /**
        * Model Family Id
        * @description Link to model family
@@ -3115,19 +3209,23 @@ export interface components {
       template_id?: string | null;
       /**
        * Parameters
-       * @description All model parameters (temperature, max_tokens, etc.)
+       * @description Per-model parameter overrides
        */
       parameters?: {
         [key: string]: unknown;
       };
       /**
        * Enabled
-       * @description Whether model is available
+       * @description Whether the model is available
        * @default true
        */
       enabled: boolean;
       /** Id */
       id: string;
+      /** Active Route Id */
+      active_route_id: string | null;
+      /** Routes */
+      routes: components["schemas"]["ModelRouteResponse"][];
       /**
        * Created At
        * Format: date-time
@@ -3140,6 +3238,64 @@ export interface components {
       updated_at: string;
       /** Provider Enabled */
       provider_enabled: boolean;
+    };
+    /**
+     * ModelRouteCreate
+     * @description Schema for adding a route to a canonical model.
+     */
+    ModelRouteCreate: {
+      /**
+       * Provider Id
+       * @description Provider ID
+       */
+      provider_id: string;
+      /**
+       * Model Identifier
+       * @description Provider-specific model identifier
+       */
+      model_identifier: string;
+      /**
+       * Enabled
+       * @description Whether this route is usable
+       * @default true
+       */
+      enabled: boolean;
+    };
+    /**
+     * ModelRouteResponse
+     * @description Schema for a route in responses.
+     */
+    ModelRouteResponse: {
+      /**
+       * Provider Id
+       * @description Provider ID
+       */
+      provider_id: string;
+      /**
+       * Model Identifier
+       * @description Provider-specific model identifier
+       */
+      model_identifier: string;
+      /**
+       * Enabled
+       * @description Whether this route is usable
+       * @default true
+       */
+      enabled: boolean;
+      /** Id */
+      id: string;
+      /** Model Registry Id */
+      model_registry_id: string;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /**
+       * Updated At
+       * Format: date-time
+       */
+      updated_at: string;
     };
     /**
      * ModelSearchResponse
@@ -3155,15 +3311,15 @@ export interface components {
     };
     /**
      * ModelUpdate
-     * @description Schema for updating a model definition
+     * @description Schema for updating canonical-model fields (not its routes).
      */
     ModelUpdate: {
-      /** Provider Id */
-      provider_id?: string | null;
-      /** Model Identifier */
-      model_identifier?: string | null;
-      /** Name */
-      name?: string | null;
+      /** Slug */
+      slug?: string | null;
+      /** Display Name */
+      display_name?: string | null;
+      /** Original Identifier */
+      original_identifier?: string | null;
       /** Model Family Id */
       model_family_id?: string | null;
       /** Template Id */
@@ -4861,6 +5017,108 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["ModelFlagsUpdate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ModelResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  add_route_api_models__model_id__routes_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        model_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ModelRouteCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ModelResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  delete_route_api_models__model_id__routes__route_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        model_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ModelResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_active_route_api_models__model_id__active_route_put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        model_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ActiveRouteUpdate"];
       };
     };
     responses: {

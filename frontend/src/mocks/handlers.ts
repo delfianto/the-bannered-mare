@@ -270,7 +270,7 @@ export const handlers = [
     if (body.title !== undefined) chat.title = body.title;
     if (body.model_id !== undefined) {
       const model = db.allModelsMock.find((m) => m.id === body.model_id);
-      if (model) chat.model = { id: model.id, name: model.name };
+      if (model) chat.model = { id: model.id, name: model.display_name };
     }
     chat.updated_at = new Date().toISOString();
     await delay(150);
@@ -297,7 +297,7 @@ export const handlers = [
       chat.last_profile_name = profile.name;
       if (profile.model_id) {
         const model = db.allModelsMock.find((m) => m.id === profile.model_id);
-        if (model) chat.model = { id: model.id, name: model.name };
+        if (model) chat.model = { id: model.id, name: model.display_name };
       }
     }
     chat.updated_at = new Date().toISOString();
@@ -685,10 +685,11 @@ export const handlers = [
     let items = [...db.allModelsMock];
     if (nameParam) {
       const q = nameParam.toLowerCase();
-      items = items.filter((m) => m.name.toLowerCase().includes(q));
+      items = items.filter((m) => m.display_name.toLowerCase().includes(q));
     }
     if (providerParam) {
-      items = items.filter((m) => m.provider_id === providerParam);
+      // provider_id now means "has a route on that provider".
+      items = items.filter((m) => m.routes.some((r) => r.provider_id === providerParam));
     }
     if (familyParam) {
       items = items.filter((m) => m.model_family_id === familyParam);
@@ -733,15 +734,54 @@ export const handlers = [
     return HttpResponse.json(responseData);
   }),
 
-  // Update model
+  // Create a canonical model (registry) with its initial route(s)
+  http.post("/api/models", async ({ request }) => {
+    const body = (await request.json()) as any;
+    const routesIn: any[] = Array.isArray(body.routes) ? body.routes : [];
+    const now = new Date().toISOString();
+    const id = `mdl-${Math.random().toString(36).slice(2, 10)}`;
+    const routes = routesIn.map((r, i) => ({
+      id: `rt-${id.replace(/^mdl-/, "")}-${i}`,
+      model_registry_id: id,
+      provider_id: r.provider_id,
+      model_identifier: r.model_identifier,
+      enabled: r.enabled ?? true,
+      created_at: now,
+      updated_at: now,
+    }));
+    // First route wins unless an explicit active provider is named.
+    const active =
+      routes.find((r) => r.provider_id === body.active_provider_id) ?? routes[0] ?? null;
+    const firstIdentifier = routesIn[0]?.model_identifier ?? "";
+    const registry = {
+      id,
+      slug: body.slug ?? firstIdentifier,
+      display_name: body.display_name,
+      original_identifier: body.original_identifier ?? firstIdentifier,
+      model_family_id: body.model_family_id,
+      template_id: body.template_id ?? null,
+      parameters: body.parameters ?? {},
+      enabled: body.enabled ?? true,
+      active_route_id: active?.id ?? null,
+      routes,
+      created_at: now,
+      updated_at: now,
+      provider_enabled: true,
+    };
+    db.allModelsMock.unshift(registry as (typeof db.allModelsMock)[number]);
+    await delay(200);
+    return HttpResponse.json(registry, { status: 201 });
+  }),
+
+  // Update model registry fields (routes are managed separately)
   http.put("/api/models/:modelId", async ({ params, request }) => {
     const model = db.allModelsMock.find((m) => m.id === params.modelId);
     if (!model) return new HttpResponse(null, { status: 404 });
     const body = (await request.json()) as any;
     for (const key of [
-      "name",
-      "model_identifier",
-      "provider_id",
+      "slug",
+      "display_name",
+      "original_identifier",
       "model_family_id",
       "parameters",
       "enabled",
@@ -750,9 +790,10 @@ export const handlers = [
       if (body[key] !== undefined) (model as any)[key] = body[key];
     }
     model.updated_at = new Date().toISOString();
-    const family = db.allModelFamiliesMock.find((f) => f.id === model.model_family_id);
+    // Real PUT returns a ModelResponse without the embedded family; the client
+    // re-fetches the detail afterwards to refresh model_family.
     await delay(200);
-    return HttpResponse.json({ ...model, model_family: family || null });
+    return HttpResponse.json(model);
   }),
 
   // Toggle model flags
@@ -773,6 +814,58 @@ export const handlers = [
     db.allModelsMock.splice(idx, 1);
     await delay(100);
     return new HttpResponse(null, { status: 204 });
+  }),
+
+  // Add a provider route to a registry
+  http.post("/api/models/:modelId/routes", async ({ params, request }) => {
+    const model = db.allModelsMock.find((m) => m.id === params.modelId);
+    if (!model) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const now = new Date().toISOString();
+    const route = {
+      id: `rt-${(model.id as string).replace(/^mdl-/, "")}-${model.routes.length}`,
+      model_registry_id: model.id,
+      provider_id: body.provider_id,
+      model_identifier: body.model_identifier,
+      enabled: body.enabled ?? true,
+      created_at: now,
+      updated_at: now,
+    };
+    model.routes.push(route as (typeof model.routes)[number]);
+    // First route on an otherwise-empty registry becomes active.
+    if (!model.active_route_id) model.active_route_id = route.id;
+    model.updated_at = now;
+    await delay(150);
+    return HttpResponse.json(model);
+  }),
+
+  // Remove a route from a registry
+  http.delete("/api/models/:modelId/routes/:routeId", async ({ params }) => {
+    const model = db.allModelsMock.find((m) => m.id === params.modelId);
+    if (!model) return new HttpResponse(null, { status: 404 });
+    const idx = model.routes.findIndex((r) => r.id === params.routeId);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    model.routes.splice(idx, 1);
+    // Re-home the active pointer if the removed route was the active one.
+    if (model.active_route_id === params.routeId) {
+      model.active_route_id = model.routes[0]?.id ?? null;
+    }
+    model.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(model);
+  }),
+
+  // Flip which route the model resolves through
+  http.put("/api/models/:modelId/active-route", async ({ params, request }) => {
+    const model = db.allModelsMock.find((m) => m.id === params.modelId);
+    if (!model) return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as any;
+    const route = model.routes.find((r) => r.id === body.route_id);
+    if (!route) return new HttpResponse(null, { status: 404 });
+    model.active_route_id = route.id;
+    model.updated_at = new Date().toISOString();
+    await delay(150);
+    return HttpResponse.json(model);
   }),
 
   // Personas

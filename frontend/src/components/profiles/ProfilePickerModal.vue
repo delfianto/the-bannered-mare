@@ -25,6 +25,12 @@ function resolve(
   if (!id) return null;
   return list.find((x) => x.id === id)?.name ?? null;
 }
+
+// Models are registries keyed by display_name rather than the generic `name`.
+function resolveModel(id: string | null | undefined): string | null {
+  if (!id) return null;
+  return models.value.find((m) => m.id === id)?.display_name ?? null;
+}
 </script>
 
 <template>
@@ -46,7 +52,7 @@ function resolve(
         </span>
         <span class="text-[0.6875rem] text-muted-foreground">
           {{
-            [resolve(models, profile.model_id), resolve(templates, profile.prompt_template_id)]
+            [resolveModel(profile.model_id), resolve(templates, profile.prompt_template_id)]
               .filter(Boolean)
               .join(" • ") || "No model or template set"
           }}

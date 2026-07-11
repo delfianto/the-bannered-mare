@@ -27,6 +27,13 @@ export function useModel() {
     }
   }
 
+  // PUT / route mutations return a ModelResponse (the registry with its routes
+  // but no embedded model_family); merge into the existing detail so the family
+  // object and other detail-only fields survive instead of being clobbered.
+  function mergeIntoDetail(data: ModelDetailResponse) {
+    model.value = model.value ? { ...model.value, ...data } : data;
+  }
+
   async function saveModel(id: string, updates: Record<string, unknown>) {
     saving.value = true;
     try {
@@ -37,16 +44,15 @@ export function useModel() {
       });
       if (!response.ok) throw new Error(`Save failed: ${response.status}`);
       const data = await response.json();
-      // PUT returns ModelResponse (no embedded model_family); merge into the
-      // existing detail so the family object and other detail-only fields
-      // survive the save instead of being clobbered.
-      model.value = model.value ? { ...model.value, ...data } : data;
+      mergeIntoDetail(data);
       return data;
     } finally {
       saving.value = false;
     }
   }
 
+  // Create a registry with its initial route(s). Payload is a ModelCreate:
+  // { display_name, model_family_id, routes: [{ provider_id, model_identifier }] }.
   async function createModel(payload: Record<string, unknown>) {
     saving.value = true;
     try {
@@ -57,6 +63,60 @@ export function useModel() {
       });
       if (!response.ok) throw new Error(`Create failed: ${response.status}`);
       return await response.json();
+    } finally {
+      saving.value = false;
+    }
+  }
+
+  async function addRoute(
+    modelId: string,
+    route: { provider_id: string; model_identifier: string },
+  ) {
+    saving.value = true;
+    try {
+      const response = await fetch(`/api/models/${modelId}/routes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(route),
+      });
+      if (!response.ok) throw new Error(`Add route failed: ${response.status}`);
+      const data = await response.json();
+      mergeIntoDetail(data);
+      return data;
+    } finally {
+      saving.value = false;
+    }
+  }
+
+  async function deleteRoute(modelId: string, routeId: string) {
+    saving.value = true;
+    try {
+      const response = await fetch(`/api/models/${modelId}/routes/${routeId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error(`Remove route failed: ${response.status}`);
+      const data = await response.json();
+      mergeIntoDetail(data);
+      return data;
+    } finally {
+      saving.value = false;
+    }
+  }
+
+  // Flip which route the model resolves through (redirects existing chats on
+  // the backend). Returns the registry with its refreshed active_route_id.
+  async function setActiveRoute(modelId: string, routeId: string) {
+    saving.value = true;
+    try {
+      const response = await fetch(`/api/models/${modelId}/active-route`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ route_id: routeId }),
+      });
+      if (!response.ok) throw new Error(`Set active route failed: ${response.status}`);
+      const data = await response.json();
+      mergeIntoDetail(data);
+      return data;
     } finally {
       saving.value = false;
     }
@@ -96,5 +156,8 @@ export function useModel() {
     saveModel,
     deleteModel,
     toggleFlags,
+    addRoute,
+    deleteRoute,
+    setActiveRoute,
   };
 }

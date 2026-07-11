@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { reactive, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { providersForFamily } from "@/utils/modelProviderFilter";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   providers: { id: string; name: string; identifier_style?: string; identifier_hint?: string }[];
@@ -37,7 +40,9 @@ const familyItems = computed(() =>
     .map((f: any) => ({ label: f.name, value: f.id })),
 );
 const providerName = computed(
-  () => props.providers.find((p: any) => p.id === form.provider_id)?.name || "Select a provider",
+  () =>
+    props.providers.find((p: any) => p.id === form.provider_id)?.name ||
+    t("connections.model.selectProvider"),
 );
 // The identifier scheme depends on the chosen provider (the route): OpenRouter
 // wants a vendor/model slug, native/OpenCode take the bare name, etc.
@@ -45,7 +50,9 @@ const identifierHint = computed(
   () => props.providers.find((p: any) => p.id === form.provider_id)?.identifier_hint || "",
 );
 const familyName = computed(
-  () => familyItems.value.find((i) => i.value === form.model_family_id)?.label || "Select a family",
+  () =>
+    familyItems.value.find((i) => i.value === form.model_family_id)?.label ||
+    t("connections.model.selectFamily"),
 );
 
 // Provider is constrained by the family. On family change, drop an incompatible
@@ -79,14 +86,20 @@ function toggleEnabled() {
   form.enabled = !form.enabled;
 }
 
+// Create a registry with a single initial route; slug/original_identifier are
+// derived server-side from that first route.
 function onSubmit() {
   if (!canCreate.value) return;
   emit("submit", {
-    name: form.name.trim(),
-    model_identifier: form.model_identifier.trim(),
-    provider_id: form.provider_id,
+    display_name: form.name.trim(),
     model_family_id: form.model_family_id,
     enabled: form.enabled,
+    routes: [
+      {
+        provider_id: form.provider_id,
+        model_identifier: form.model_identifier.trim(),
+      },
+    ],
   });
 }
 </script>
@@ -95,22 +108,26 @@ function onSubmit() {
   <div class="space-y-4">
     <!-- Name -->
     <label class="block">
-      <span class="mb-1 block text-xs font-medium text-muted-foreground">Name</span>
+      <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+        $t("connections.model.name")
+      }}</span>
       <input
         v-model="form.name"
         type="text"
-        placeholder="Model display name"
+        :placeholder="$t('connections.model.namePlaceholder')"
         class="w-full rounded-lg border bg-base-100 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
       />
     </label>
 
     <!-- Model identifier -->
     <label class="block">
-      <span class="mb-1 block text-xs font-medium text-muted-foreground">Model Identifier</span>
+      <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+        $t("connections.model.identifier")
+      }}</span>
       <input
         v-model="form.model_identifier"
         type="text"
-        placeholder="e.g. openai/gpt-4o"
+        :placeholder="$t('connections.model.identifierPlaceholder')"
         class="w-full rounded-lg border bg-base-100 px-3 py-2 font-mono text-sm text-foreground placeholder:font-sans placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
       />
       <p v-if="identifierHint" class="mt-1 text-xs text-muted-foreground/70">
@@ -121,7 +138,9 @@ function onSubmit() {
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <!-- Model family -->
       <div>
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">Model Family</span>
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("connections.model.family")
+        }}</span>
         <SelectMenu v-model="form.model_family_id" :items="familyItems" value-key="value">
           <button
             type="button"
@@ -135,7 +154,9 @@ function onSubmit() {
 
       <!-- Provider (constrained by family) -->
       <div>
-        <span class="mb-1 block text-xs font-medium text-muted-foreground">Provider</span>
+        <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+          $t("connections.model.provider")
+        }}</span>
         <SelectMenu
           v-model="form.provider_id"
           :items="providerItems"
@@ -148,7 +169,7 @@ function onSubmit() {
             class="flex h-10 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-100 px-3 text-sm text-foreground outline-none disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span class="truncate">{{
-              form.model_family_id ? providerName : "Select a family first"
+              form.model_family_id ? providerName : $t("connections.model.selectFamilyFirst")
             }}</span>
             <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
           </button>
@@ -158,7 +179,7 @@ function onSubmit() {
 
     <!-- Enabled -->
     <div class="flex items-center justify-between rounded-lg border bg-base-100 px-3 py-2.5">
-      <span class="text-sm text-muted-foreground">Enabled</span>
+      <span class="text-sm text-muted-foreground">{{ $t("connections.model.enabled") }}</span>
       <AppToggle :model-value="form.enabled" aria-label="Enabled" @change="toggleEnabled" />
     </div>
 
@@ -169,7 +190,7 @@ function onSubmit() {
         :disabled="saving || !canCreate"
         @click="onSubmit"
       >
-        {{ saving ? "Creating…" : "Create Model" }}
+        {{ saving ? $t("connections.model.creating") : $t("connections.model.createModel") }}
       </button>
       <button
         class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"

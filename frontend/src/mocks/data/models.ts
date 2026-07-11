@@ -37,7 +37,9 @@ export const modelsPages: ModelPage[] = Array.from({ length: totalPages }, (_, i
 });
 
 // Generate the filtered "Claude" result dynamically
-const claudeItems = allModelsMock.filter((item) => item.name.toLowerCase().includes("claude"));
+const claudeItems = allModelsMock.filter((item) =>
+  item.display_name.toLowerCase().includes("claude"),
+);
 
 export const modelsFilteredByName: ModelPage = createPage(
   claudeItems,

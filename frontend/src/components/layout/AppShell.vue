@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppSidebar from "./AppSidebar.vue";
+import ServerStatusBanner from "./ServerStatusBanner.vue";
 </script>
 
 <template>
@@ -8,6 +9,7 @@ import AppSidebar from "./AppSidebar.vue";
   >
     <AppSidebar />
     <main class="flex flex-1 flex-col overflow-y-auto">
+      <ServerStatusBanner />
       <RouterView />
     </main>
   </div>

@@ -119,16 +119,23 @@ function familyNameFor(id: string): string {
 }
 
 const columns: DataTableColumn[] = [
-  { key: "name", label: "Name", tdClass: "max-w-60 truncate font-medium text-foreground" },
   {
-    key: "model_identifier",
-    label: "Identifier",
-    tdClass: "max-w-55 truncate font-mono text-xs text-muted-foreground",
+    key: "display_name",
+    label: t("connections.model.name"),
+    tdClass: "max-w-60 truncate font-medium text-foreground",
   },
-  { key: "provider", label: "Provider", tdClass: "text-xs text-muted-foreground" },
-  { key: "family", label: "Family", tdClass: "text-xs text-muted-foreground" },
+  { key: "family", label: t("connections.model.family"), tdClass: "text-xs text-muted-foreground" },
+  { key: "routes", label: t("connections.model.routes"), tdClass: "text-xs text-muted-foreground" },
   { key: "status", label: "Status" },
 ];
+
+// The active route decides which provider a registry runs through; the row shows
+// that provider's name plus a "+N" badge when the registry has fallback routes.
+type ModelRow = (typeof models.value)[number];
+function activeProviderName(row: ModelRow): string {
+  const active = row.routes.find((r) => r.id === row.active_route_id) ?? row.routes[0];
+  return active ? providerNameFor(active.provider_id) : t("connections.model.noRoutes");
+}
 
 function openModel(row: any) {
   router.push(`/settings/models/${row.id}`);
@@ -280,8 +287,20 @@ async function handleToggleEnabled(row: any) {
         @row-click="openModel"
         @update:page="loadPage"
       >
-        <template #cell-provider="{ row }">{{ providerNameFor(row.provider_id) }}</template>
         <template #cell-family="{ row }">{{ familyNameFor(row.model_family_id) }}</template>
+        <template #cell-routes="{ row }">
+          <span class="inline-flex items-center gap-1.5">
+            <span :class="row.routes.length === 0 ? 'text-muted-foreground/60 italic' : ''">
+              {{ activeProviderName(row) }}
+            </span>
+            <span
+              v-if="row.routes.length > 1"
+              class="rounded-full bg-base-300 px-1.5 py-0.5 text-[0.625rem] font-medium text-muted-foreground"
+            >
+              +{{ row.routes.length - 1 }}
+            </span>
+          </span>
+        </template>
         <template #cell-status="{ row }">
           <AppToggle
             :model-value="row.enabled"

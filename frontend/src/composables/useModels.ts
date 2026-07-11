@@ -87,6 +87,8 @@ export function useModels(options: UseModelsOptions = {}) {
     loadPage(1, { ...currentFilters.value, name: name || undefined });
   };
 
+  // `provider_id` now means "has a route on that provider" — the server resolves
+  // it against each registry's routes, so the client just forwards the id.
   const filterByProvider = (providerId: string | undefined) => {
     loadPage(1, { ...currentFilters.value, provider_id: providerId });
   };
