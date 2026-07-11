@@ -309,11 +309,14 @@ class GoogleDiscoveryClient:
             name = m.get("name", "")
             if not name:
                 continue
-            display_name = name.split("/")[-1] if "/" in name else name
+            # The v1beta list returns fully-qualified names (`models/gemini-2.5-pro`),
+            # but the callable id — and what we seed/store as a route — is the bare
+            # tail. Strip the prefix so discovery lines up with the registry.
+            identifier = name.removeprefix("models/")
             models.append(
                 DiscoveredModel(
-                    identifier=name,
-                    display_name=m.get("displayName", display_name),
+                    identifier=identifier,
+                    display_name=m.get("displayName") or identifier,
                     state="loaded",
                     size_bytes=None,
                     quantization=None,

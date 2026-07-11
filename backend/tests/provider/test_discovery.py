@@ -207,3 +207,37 @@ class TestLMStudioDiscoveryClient:
         args, kwargs = mock_post.call_args
         assert args[0] == "http://localhost:1234/api/v1/models/unload"
         assert kwargs["json"] == {"instance_id": "google/gemma-4-26b-a4b"}
+
+
+class TestGoogleDiscoveryClient:
+    def setup_method(self):
+        self.client = GoogleDiscoveryClient()
+
+    def test_list_models_strips_models_prefix_from_identifier(self) -> None:
+        """The v1beta list returns `models/<id>`; the callable id is the bare tail.
+
+        The registry stores routes by the bare id, so discovery must strip the
+        prefix or nothing lines up (the "already added" detection breaks).
+        """
+        resp = _mock_response(
+            {
+                "models": [
+                    {
+                        "name": "models/gemini-2.5-pro",
+                        "displayName": "Gemini 2.5 Pro",
+                        "inputTokenLimit": 1048576,
+                    },
+                    {"name": "models/gemini-3.5-flash"},  # no displayName -> falls back to id
+                ]
+            }
+        )
+
+        with patch("httpx.Client.get", return_value=resp):
+            models = self.client.list_models("https://generativelanguage.googleapis.com")
+
+        by_id = {m.identifier: m for m in models}
+        assert set(by_id) == {"gemini-2.5-pro", "gemini-3.5-flash"}
+        assert by_id["gemini-2.5-pro"].display_name == "Gemini 2.5 Pro"
+        assert by_id["gemini-2.5-pro"].max_context_length == 1048576
+        # Fallback display name is the bare identifier, not the prefixed name.
+        assert by_id["gemini-3.5-flash"].display_name == "gemini-3.5-flash"
