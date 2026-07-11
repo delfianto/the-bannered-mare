@@ -532,7 +532,9 @@ class TestChatMessageService:
 
         message_repo = AsyncMessageRepository(async_db_session)
         chat_repo = AsyncChatRepository(async_db_session)
-        service = ChatMessageService(message_repo, chat_repo, PromptBuilder(PromptTemplateRepository(db)))
+        service = ChatMessageService(
+            message_repo, chat_repo, PromptBuilder(PromptTemplateRepository(db))
+        )
 
         preview = await service.preview_prompt(chat.id)
 
