@@ -7,23 +7,29 @@ splits two concerns that are usually tangled together: **what a provider's wire 
 like** (owned by stateless adapters) and **how a call is actually made** (owned by a single
 stateful gateway). Connection configuration lives in the database, separate from both.
 
-## 1. Provider, Model, and ModelFamily
+## 1. Provider, ModelFamily, ModelRegistry, and ModelRoute
 
-Three core database models describe LLM connectivity:
+Four core database models describe LLM connectivity, in three tiers
+(**family → canonical model → route**):
 
 1. **Provider** — an API service instance (e.g., "Ollama Local" or "OpenAI Production").
    Holds the base URL, an `enabled` toggle, the `last_synced_at` timestamp, and a curated
    `allowed_models` allow-list. Credentials are read from an environment variable: for most
    provider types the variable name is fixed by static `PROVIDER_CONFIGS` (e.g.
    `OPENAI_API_KEY`), while a `custom` provider names its own via `api_key_env_var`.
-2. **ModelFamily** — a grouping of similar models that defines default parameters
-   (temperature, frequency penalty, and so on) and configuration such as prompt-structure
-   templates.
-3. **Model** — a concrete, selectable model (e.g., `gpt-4o` or `llama3`) linked to one
-   Provider and one ModelFamily. It inherits parameters from its family and supports per-model
-   overrides. Its Provider is chosen from the family's `provider_types` and is the route — the
-   *same* base model reachable through several providers (DeepSeek V4 via OpenRouter or OpenCode)
-   is one Model row per provider. See [Provider selection](#provider-selection).
+2. **ModelFamily** — a grouping of similar models that defines the parameter *schema* +
+   defaults (temperature, frequency penalty, …), the `provider_types` that can run it, and
+   configuration such as prompt-structure templates.
+3. **ModelRegistry** — the *canonical model* a user picks (e.g. "DeepSeek V4 Pro"). It has a
+   provider-independent identity (`slug` + `original_identifier`), belongs to one ModelFamily,
+   inherits the family's parameter defaults with per-model override *values*, an optional default
+   `template`, and an `active_route_id` pointing at the route it currently resolves to. Chats and
+   profiles bind here.
+4. **ModelRoute** — one provider binding: a `provider_id` + the `model_identifier` that provider
+   uses. A canonical model reachable through several providers (DeepSeek V4 Pro on OpenRouter
+   `deepseek/deepseek-v4-pro` *and* OpenCode Go `deepseek-v4-pro`) is one ModelRegistry with
+   several routes — one route per provider (`UNIQUE(model_registry_id, provider_id)`). The
+   *provider is the route*. See [Route resolution](#route-resolution).
 
 ## 2. The Stateless Adapter Pattern
 
@@ -115,30 +121,31 @@ When a request is initiated, the gateway merges generation parameters in a fixed
 order, each layer overriding the one before it:
 
 1. **ModelFamily parameters** — global defaults (only params whose `default` is set).
-2. **Model parameters** — per-model overrides.
+2. **ModelRegistry parameters** — per-model override values.
 3. **Preset parameters** — user-specified overrides for the chat session.
 
-### Provider selection
+### Route resolution
 
-A model runs on exactly one provider (`provider_id`) using `model_identifier` — the id that
-provider knows it by. **The provider _is_ the route:** the gateway uses that provider's base URL
-and API key, sends `model_identifier`, and selects the adapter from the provider's type via the
-registry. Nothing is special-cased — OpenRouter, OpenCode Zen/Go, and any other aggregator are
-just OpenAI-compatible providers a model can point at.
+A chat/profile references a **ModelRegistry** (the canonical model). At send time the gateway
+resolves `registry.active_route` — the one `ModelRoute` the model currently runs through — and
+uses that route's provider (base URL + API key + adapter selected from `provider.provider_type`)
+and its `model_identifier`. Parameters come from the family + registry (above). **The provider
+_is_ the route:** nothing is special-cased — OpenRouter, OpenCode Zen/Go, and any other
+aggregator are just OpenAI-compatible providers a route can point at.
 
-A model's provider must be one of its family's `provider_types` (enforced on create/update), so
-a model can never point at a provider its family can't run on. Because a base model (the family)
-has no single "home", the *same* model reachable via several providers is simply several Model
-rows — e.g. "DeepSeek V4 Flash" on OpenRouter and on OpenCode Go — sharing one family, hence one
-parameter schema. (There is deliberately no separate "route override": a native provider plus an
-override provider produced nonsensical states like OpenRouter-routed-to-HuggingFace; the single
-provider selection is the whole story.)
+A route's provider must be one of the registry's family's `provider_types` (enforced on
+create/add-route), and a model has at most one route per provider
+(`UNIQUE(model_registry_id, provider_id)`). Because the same base model is spelled differently by
+each provider (`deepseek/deepseek-v4-pro` on OpenRouter vs bare `deepseek-v4-pro` on OpenCode Go),
+those spellings are separate routes under one registry rather than a fuzzy string match. Flipping
+`active_route_id` on the registry instantly redirects **every existing chat** using that model on
+its next message — no per-session hunting.
 
 **Adding a new aggregator** (e.g. Hugging Face Inference) is a configuration change, not a
 gateway change: add the `ProviderType`, a `PROVIDER_CONFIGS` entry (default base URL + env var),
 and a discovery-client registration, then add the new type to the relevant families'
-`provider_types`. Models can then be created on it — and no new adapter is needed when it speaks
-the OpenAI wire format.
+`provider_types`. A model can then gain a route on it — and no new adapter is needed when it
+speaks the OpenAI wire format.
 
 ### Exception Normalization
 

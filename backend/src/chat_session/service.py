@@ -189,7 +189,7 @@ class ChatService:
                 detail=f"Model with ID '{model_id}' not found",
             )
         chat.model_id = model_id
-        chat.model_name = model.name
+        chat.model_name = model.display_name
 
     def _apply_profile(self, chat: Chat, profile_id: str) -> None:
         """Copy a profile's non-null axes onto the chat, snapshotting the profile name.

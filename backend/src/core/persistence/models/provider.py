@@ -17,7 +17,7 @@ from src.core.persistence.enums import ProviderType
 from src.core.persistence.models._base import BaseModel, StringList
 
 if TYPE_CHECKING:
-    from src.core.persistence.models.model import Model
+    from src.core.persistence.models.model import ModelRoute
 
 
 @dataclass
@@ -164,7 +164,7 @@ class Provider(BaseModel):
         comment="Curated allow-list of provider-native model identifiers; empty means show all",
     )
 
-    models: Mapped[list[Model]] = relationship(
+    model_routes: Mapped[list[ModelRoute]] = relationship(
         back_populates="provider", cascade="all, delete-orphan"
     )
 

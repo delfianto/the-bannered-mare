@@ -26,7 +26,7 @@ from src.main import app
 if TYPE_CHECKING:
     from src.character import Character  # noqa: F401
     from src.chat_session.models import Chat  # noqa: F401
-    from src.model import Model  # noqa: F401
+    from src.model import ModelRegistry  # noqa: F401
     from src.model_family import ModelFamily  # noqa: F401
     from src.persona import Persona  # noqa: F401
     from src.provider import Provider  # noqa: F401
@@ -229,17 +229,28 @@ def sample_family(db: Session) -> ModelFamily:
 
 
 @pytest.fixture(scope="function")
-def sample_model(db: Session, sample_provider: Provider, sample_family: ModelFamily) -> Model:
-    """Create a sample model for testing"""
-    from src.model import Model
+def sample_model(
+    db: Session, sample_provider: Provider, sample_family: ModelFamily
+) -> ModelRegistry:
+    """Create a sample canonical model (registry) with one active route, for testing."""
+    from src.model import ModelRegistry, ModelRoute
 
-    model = Model(
-        name="GPT-4",
-        provider_id=sample_provider.id,
-        model_identifier="gpt-4",
+    model = ModelRegistry(
+        slug="gpt-4",
+        display_name="GPT-4",
+        original_identifier="gpt-4",
         model_family_id=sample_family.id,
     )
     db.add(model)
+    db.flush()
+    route = ModelRoute(
+        model_registry_id=model.id,
+        provider_id=sample_provider.id,
+        model_identifier="gpt-4",
+    )
+    db.add(route)
+    db.flush()
+    model.active_route_id = route.id
     db.commit()
     db.refresh(model)
     return model
@@ -280,7 +291,7 @@ def seeded_providers(db: Session) -> None:
 
 
 @pytest.fixture(scope="function")
-def test_chat_id(db: Session, sample_character: Character, sample_model: Model) -> str:
+def test_chat_id(db: Session, sample_character: Character, sample_model: ModelRegistry) -> str:
     """Create a chat and return its ID"""
     from src.chat_session.models import Chat
 
@@ -334,17 +345,26 @@ async def async_sample_model(
     async_db_session: AsyncSession,
     async_sample_provider: Provider,
     async_sample_family: ModelFamily,
-) -> Model:
-    """Create a sample model for async testing"""
-    from src.model import Model
+) -> ModelRegistry:
+    """Create a sample canonical model (registry) with one active route, for async testing."""
+    from src.model import ModelRegistry, ModelRoute
 
-    model = Model(
-        name="GPT-4",
-        provider_id=async_sample_provider.id,
-        model_identifier="gpt-4",
+    model = ModelRegistry(
+        slug="gpt-4",
+        display_name="GPT-4",
+        original_identifier="gpt-4",
         model_family_id=async_sample_family.id,
     )
     async_db_session.add(model)
+    await async_db_session.flush()
+    route = ModelRoute(
+        model_registry_id=model.id,
+        provider_id=async_sample_provider.id,
+        model_identifier="gpt-4",
+    )
+    async_db_session.add(route)
+    await async_db_session.flush()
+    model.active_route_id = route.id
     await async_db_session.commit()
     await async_db_session.refresh(model)
     return model
@@ -366,7 +386,7 @@ async def async_sample_character(async_db_session: AsyncSession) -> Character:
 async def async_test_chat_id(
     async_db_session: AsyncSession,
     async_sample_character: Character,
-    async_sample_model: Model,
+    async_sample_model: ModelRegistry,
 ) -> str:
     """Create a chat and return its ID for async testing"""
     from src.chat_session.models import Chat

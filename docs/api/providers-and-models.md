@@ -103,14 +103,22 @@ curl -X POST http://localhost:8000/api/providers/V1StGXR8Z5jd/models/persist \
 
 ## Models
 
+A **model** here is a *canonical model* (registry): a provider-independent identity that carries
+N provider **routes** and one active route. `/api/models` operates on registries; routes are a
+sub-resource. Chats and profiles bind to the registry, so flipping the active route redirects
+every chat using it.
+
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/models` | List saved models (paginated, filterable). |
-| `POST` | `/api/models` | Create a model definition. |
+| `GET` | `/api/models` | List canonical models (paginated, filterable). |
+| `POST` | `/api/models` | Create a canonical model + its initial route(s). |
 | `GET` | `/api/models/{id}` | Get a model (with its embedded family). |
-| `PUT` | `/api/models/{id}` | Update a model. |
-| `DELETE` | `/api/models/{id}` | Delete a model. |
+| `PUT` | `/api/models/{id}` | Update model fields (not routes). |
+| `DELETE` | `/api/models/{id}` | Delete a model (cascades to its routes). |
 | `PATCH` | `/api/models/{id}/flags` | Toggle `enabled`. |
+| `POST` | `/api/models/{id}/routes` | Add a provider route. |
+| `DELETE` | `/api/models/{id}/routes/{route_id}` | Remove a route. |
+| `PUT` | `/api/models/{id}/active-route` | Set which route the model resolves to. |
 
 ### The model resource
 
@@ -119,34 +127,42 @@ curl -X POST http://localhost:8000/api/providers/V1StGXR8Z5jd/models/persist \
 | Field | Type | Notes |
 |-------|------|-------|
 | `id` | string | 12-char nanoid. |
-| `provider_id` | string | **Required.** Owning provider — the route. Must be one of the family's `provider_types`. |
+| `slug` | string | **Required.** Provider-independent identity (e.g. `deepseek-v4-pro`); unique. |
+| `display_name` | string | **Required.** Friendly display name. |
+| `original_identifier` | string | The lab's native/canonical identifier. |
 | `model_family_id` | string | **Required.** Its capability family. |
-| `model_identifier` | string | **Required.** The provider-native model name (e.g. `gpt-4o-mini`). |
-| `name` | string | **Required.** Friendly display name. |
-| `template_id` | string \| null | Default prompt template for the model. |
+| `template_id` | string \| null | Default prompt template. |
 | `parameters` | object | Free-form sampling/generation overrides. |
 | `enabled` | boolean | Available for use. |
-| `provider_enabled` | boolean | *(derived)* Whether the owning provider is enabled. |
+| `active_route_id` | string \| null | The route the model currently resolves to. |
+| `routes` | ModelRoute[] | Provider routes: `{id, model_registry_id, provider_id, model_identifier, enabled}`. |
+| `provider_enabled` | boolean | *(derived)* Active route exists **and** it + its provider are enabled. |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
 
 `GET /api/models/{id}` returns `ModelDetailResponse`, which additionally **embeds the full
-`model_family`** so a detail view needs no second request. Listing is offset-paginated
-(`page`, `limit`) and filterable by `name__ilike`, `provider_id`, `model_family_id`, and
-`enabled`.
+`model_family`**. Listing is offset-paginated (`page`, `limit`) and filterable by `name__ilike`
+(display name), `provider_id` (has a route on that provider), `model_family_id`, and `enabled`.
+A route's provider must be one of the family's `provider_types`, and a model has at most one
+route per provider.
 
 ```bash
+# Create a canonical model with one route (slug/original_identifier derived from the route).
 curl -X POST http://localhost:8000/api/models \
   -H "Content-Type: application/json" \
   -d '{
-        "provider_id": "V1StGXR8Z5jd",
+        "display_name": "DeepSeek V4 Pro",
         "model_family_id": "aB3dEf6hIjK0",
-        "model_identifier": "claude-4.5-sonnet",
-        "name": "Claude 4.5 Sonnet",
-        "parameters": { "temperature": 0.9, "max_tokens": 1024 }
+        "routes": [{ "provider_id": "V1StGXR8Z5jd", "model_identifier": "deepseek/deepseek-v4-pro" }],
+        "parameters": { "temperature": 1.0, "max_tokens": 4096 }
       }'                                                                 # → 201 ModelResponse
 
-curl -X PATCH http://localhost:8000/api/models/xY9zAb2cDe4f/flags \
-  -H "Content-Type: application/json" -d '{ "enabled": false }'         # → ModelResponse
+# Add a second route (same model via OpenCode Go) and make it active.
+curl -X POST http://localhost:8000/api/models/xY9zAb2cDe4f/routes \
+  -H "Content-Type: application/json" \
+  -d '{ "provider_id": "Op3nC0deG0id", "model_identifier": "deepseek-v4-pro" }'   # → ModelResponse
+
+curl -X PUT http://localhost:8000/api/models/xY9zAb2cDe4f/active-route \
+  -H "Content-Type: application/json" -d '{ "route_id": "rt_Ab12Cd34Ef56" }'      # → ModelResponse
 ```
 
 ## Model families

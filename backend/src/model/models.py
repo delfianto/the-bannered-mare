@@ -1,5 +1,5 @@
-"""Model definition with custom parameters"""
+"""Canonical model (registry) + provider routes."""
 
-from src.core.persistence import Model
+from src.core.persistence import ModelRegistry, ModelRoute
 
-__all__ = ["Model"]
+__all__ = ["ModelRegistry", "ModelRoute"]

@@ -1,4 +1,11 @@
-"""Script to seed models into the database with env flag controls"""
+"""Seed canonical models (registry) + provider routes, with env-flag controls.
+
+Each per-provider seed entry is folded into a canonical model keyed by its
+provider-independent slug (``normalize_slug``): the first provider to introduce a
+slug creates the registry and its route becomes active; later providers with the
+same slug just add another route. This is how one model ends up reachable through
+several providers.
+"""
 
 import os
 
@@ -6,7 +13,8 @@ from src.core.logging import get_logger
 from src.core.persistence import SessionLocal
 from src.core.utils.validators import validate_identifier
 from src.fixtures.models import ALL_MODELS
-from src.model.models import Model
+from src.model.lineage import normalize_slug
+from src.model.models import ModelRegistry, ModelRoute
 from src.model.repository import ModelRepository
 from src.model_family.repository import ModelFamilyRepository
 from src.provider.repository import ProviderRepository
@@ -30,18 +38,15 @@ def seed_models(
     family_repo: ModelFamilyRepository,
     provider_repo: ProviderRepository,
 ) -> None:
-    """Seed models based on env flag configuration"""
-
-    # Check if seeding is enabled globally
+    """Seed canonical models + routes based on env flag configuration."""
     if not str_to_bool(os.getenv("SEED_MODELS", "false")):
         logger.info("model_seeding_disabled_globally")
         return
 
-    # Check if table is empty
     if model_repo.count() > 0:
         logger.warning(
             "model_seeding_skipped",
-            message="Models table is not empty. Skipping seeding.",
+            message="Model registry is not empty. Skipping seeding.",
         )
         return
 
@@ -56,28 +61,21 @@ def seed_models(
             )
             continue
 
-        logger.info("seeding_provider_models", provider=provider_type, count=len(models))
-
-        # Get provider
         provider = provider_repo.find_by_type(provider_type)
         if not provider:
             logger.error("provider_not_found", provider_type=provider_type)
             continue
 
+        logger.info("seeding_provider_models", provider=provider_type, count=len(models))
+
         for model_data in models:
-            # Validate identifiers
             try:
                 validate_identifier(model_data["model_identifier"], "model_identifier")
                 validate_identifier(model_data["family_identifier"], "family_identifier")
             except ValueError as e:
-                logger.error(
-                    "invalid_identifier",
-                    model_name=model_data["name"],
-                    error=str(e),
-                )
+                logger.error("invalid_identifier", model_name=model_data["name"], error=str(e))
                 continue
 
-            # Get family by identifier
             family = family_repo.find_by_identifier(model_data["family_identifier"])
             if not family:
                 logger.error(
@@ -87,29 +85,45 @@ def seed_models(
                 )
                 continue
 
-            # Check if model exists
-            existing = model_repo.find_by_identifier(provider.id, model_data["model_identifier"])
+            identifier = model_data["model_identifier"]
+            slug = normalize_slug(identifier)
 
-            if existing:
-                # Update existing model
-                existing.name = model_data["name"]
-                existing.parameters = model_data["parameters"]
-                existing.enabled = model_data["enabled"]
-                existing.model_family_id = family.id
-                model_repo.update(existing)
-                logger.info("model_updated", identifier=model_data["model_identifier"])
-            else:
-                # Create new model
-                model = Model(
-                    provider_id=provider.id,
-                    model_family_id=family.id,
-                    name=model_data["name"],
-                    model_identifier=model_data["model_identifier"],
-                    parameters=model_data["parameters"],
-                    enabled=model_data["enabled"],
+            # Canonical model: create on first sight of this slug.
+            registry = model_repo.find_by_slug(slug)
+            if not registry:
+                registry = model_repo.create(
+                    ModelRegistry(
+                        slug=slug,
+                        display_name=model_data["name"],
+                        original_identifier=identifier,
+                        model_family_id=family.id,
+                        parameters=model_data["parameters"],
+                        enabled=model_data["enabled"],
+                    )
                 )
-                model_repo.create(model)
-                logger.info("model_created", identifier=model_data["model_identifier"])
+                logger.info("model_registry_created", slug=slug)
+
+            # A model has at most one route per provider — skip provider-variant
+            # dupes (e.g. `kimi-k2.6` and `kimi-k2.6:free` collapse to one slug).
+            if model_repo.find_route_by_registry_provider(registry.id, provider.id):
+                logger.info("model_route_skipped_provider_dup", slug=slug, provider=provider_type)
+                continue
+
+            # Route: one per (provider, identifier).
+            route = model_repo.find_route_by_provider_identifier(provider.id, identifier)
+            if not route:
+                route = model_repo.add_route(
+                    ModelRoute(
+                        model_registry_id=registry.id,
+                        provider_id=provider.id,
+                        model_identifier=identifier,
+                        enabled=model_data["enabled"],
+                    )
+                )
+                logger.info("model_route_created", provider=provider_type, identifier=identifier)
+
+            if registry.active_route_id is None:
+                registry.active_route_id = route.id
 
         model_repo.commit()
 

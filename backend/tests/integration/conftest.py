@@ -89,7 +89,7 @@ def _make_model(
     model_params: dict[str, Any] | None = None,
     unsupported_params: list[str] | None = None,
 ) -> Any:
-    """Create a mock Model ORM object with parameters."""
+    """Create a mock ModelRegistry ORM object with parameters (identifier held for convenience)."""
     model = MagicMock()
     model.model_identifier = model_id
     model.parameters = model_params or {}
@@ -160,7 +160,7 @@ def openai_gateway() -> ProviderGateway:
         ProviderType.OPENAI, "https://api.openai.com/v1", os.environ["OPENAI_API_KEY"]
     )
     model = _make_model("gpt-4o-mini", model_params={"max_tokens": 32, "temperature": 0})
-    return ProviderGateway(provider, model)
+    return ProviderGateway(provider, model, model.model_identifier)
 
 
 @pytest.fixture
@@ -171,7 +171,7 @@ def anthropic_gateway() -> ProviderGateway:
     model = _make_model(
         "claude-haiku-4-5-20251001", model_params={"max_tokens": 32, "temperature": 0}
     )
-    return ProviderGateway(provider, model)
+    return ProviderGateway(provider, model, model.model_identifier)
 
 
 @pytest.fixture
@@ -185,7 +185,7 @@ def gemini_gateway() -> ProviderGateway:
         "gemini-2.5-flash",
         model_params={"max_output_tokens": 32, "temperature": 0},
     )
-    return ProviderGateway(provider, model)
+    return ProviderGateway(provider, model, model.model_identifier)
 
 
 @pytest.fixture
@@ -199,7 +199,7 @@ def openrouter_gateway() -> ProviderGateway:
         "nvidia/nemotron-3-nano-30b-a3b:free",
         model_params={"max_tokens": 256, "temperature": 0},
     )
-    return ProviderGateway(provider, model)
+    return ProviderGateway(provider, model, model.model_identifier)
 
 
 @pytest.fixture
@@ -213,7 +213,7 @@ def ollama_gateway() -> ProviderGateway:
 
     provider = _make_provider(ProviderType.OLLAMA, host, "")
     model = _make_model(model_name, model_params={"max_tokens": 256, "temperature": 0})
-    return ProviderGateway(provider, model)
+    return ProviderGateway(provider, model, model.model_identifier)
 
 
 def _lmstudio_available() -> bool:
@@ -250,4 +250,4 @@ def lmstudio_gateway() -> ProviderGateway:
     # Give it enough budget to emit content after its reasoning tokens (a 32-token
     # cap gets fully consumed by reasoning, leaving empty content).
     model = _make_model(model_name, model_params={"max_tokens": 512, "temperature": 0})
-    return ProviderGateway(provider, model)
+    return ProviderGateway(provider, model, model.model_identifier)

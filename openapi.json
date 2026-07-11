@@ -966,7 +966,7 @@
           "providers"
         ],
         "summary": "Persist Provider Model",
-        "description": "Persist a discovered model as a local Model definition in the database",
+        "description": "Persist a discovered model: attach a route to the matching (or new) canonical model.\n\nIf a route already exists for ``(provider, identifier)`` its canonical model is\nreturned. Otherwise the identifier is matched to an existing canonical model by\nits provider-independent slug (adding this provider as a new route), or a new\ncanonical model is created with a best-effort family guess \u2014 the user can correct\nthe family/slug afterward.",
         "operationId": "persist_provider_model_api_providers__provider_id__models_persist_post",
         "parameters": [
           {
@@ -1316,7 +1316,7 @@
           "models"
         ],
         "summary": "List Models",
-        "description": "List model definitions with pagination and filtering",
+        "description": "List canonical models with pagination and filtering.",
         "operationId": "list_models_api_models_get",
         "parameters": [
           {
@@ -1439,7 +1439,7 @@
           "models"
         ],
         "summary": "Create Model",
-        "description": "Create a new model definition",
+        "description": "Create a canonical model with its initial route(s).",
         "operationId": "create_model_api_models_post",
         "requestBody": {
           "required": true,
@@ -1481,7 +1481,7 @@
           "models"
         ],
         "summary": "Get Model",
-        "description": "Get model definition by ID.\nReturns detailed information including the embedded Model Family.",
+        "description": "Get a canonical model by ID, with the embedded model family.",
         "operationId": "get_model_api_models__model_id__get",
         "parameters": [
           {
@@ -1522,7 +1522,7 @@
           "models"
         ],
         "summary": "Update Model",
-        "description": "Update model definition",
+        "description": "Update canonical-model fields (routes are managed separately).",
         "operationId": "update_model_api_models__model_id__put",
         "parameters": [
           {
@@ -1573,7 +1573,7 @@
           "models"
         ],
         "summary": "Delete Model",
-        "description": "Delete model definition",
+        "description": "Delete a canonical model (cascades to its routes).",
         "operationId": "delete_model_api_models__model_id__delete",
         "parameters": [
           {
@@ -1609,7 +1609,7 @@
           "models"
         ],
         "summary": "Update Model Flags",
-        "description": "Toggle model enabled and OpenRouter routing flags",
+        "description": "Toggle the canonical model's enabled flag.",
         "operationId": "update_model_flags_api_models__model_id__flags_patch",
         "parameters": [
           {
@@ -1628,6 +1628,164 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ModelFlagsUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/models/{model_id}/routes": {
+      "post": {
+        "tags": [
+          "models"
+        ],
+        "summary": "Add Route",
+        "description": "Add a provider route to a canonical model.",
+        "operationId": "add_route_api_models__model_id__routes_post",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelRouteCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/models/{model_id}/routes/{route_id}": {
+      "delete": {
+        "tags": [
+          "models"
+        ],
+        "summary": "Delete Route",
+        "description": "Remove a route from a canonical model.",
+        "operationId": "delete_route_api_models__model_id__routes__route_id__delete",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          },
+          {
+            "name": "route_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Route Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/models/{model_id}/active-route": {
+      "put": {
+        "tags": [
+          "models"
+        ],
+        "summary": "Set Active Route",
+        "description": "Flip which route the model resolves to (redirects existing chats).",
+        "operationId": "set_active_route_api_models__model_id__active_route_put",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveRouteUpdate"
               }
             }
           }
@@ -5588,6 +5746,23 @@
   },
   "components": {
     "schemas": {
+      "ActiveRouteUpdate": {
+        "properties": {
+          "route_id": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 1,
+            "title": "Route Id",
+            "description": "Route to make active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "route_id"
+        ],
+        "title": "ActiveRouteUpdate",
+        "description": "Schema for flipping which route a canonical model resolves to."
+      },
       "AlternativeResponse": {
         "properties": {
           "id": {
@@ -8589,26 +8764,38 @@
       },
       "ModelCreate": {
         "properties": {
-          "provider_id": {
-            "type": "string",
-            "maxLength": 12,
-            "minLength": 1,
-            "title": "Provider Id",
-            "description": "Provider ID"
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug",
+            "description": "Provider-independent identity; derived from the first route if omitted"
           },
-          "model_identifier": {
+          "display_name": {
             "type": "string",
             "maxLength": 100,
             "minLength": 1,
-            "title": "Model Identifier",
-            "description": "Actual API model name"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Name",
+            "title": "Display Name",
             "description": "User-friendly display name"
+          },
+          "original_identifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Identifier",
+            "description": "Native/canonical identifier; derived from the first route if omitted"
           },
           "model_family_id": {
             "type": "string",
@@ -8634,47 +8821,77 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Parameters",
-            "description": "All model parameters (temperature, max_tokens, etc.)"
+            "description": "Per-model parameter overrides"
           },
           "enabled": {
             "type": "boolean",
             "title": "Enabled",
-            "description": "Whether model is available",
+            "description": "Whether the model is available",
             "default": true
+          },
+          "routes": {
+            "items": {
+              "$ref": "#/components/schemas/ModelRouteCreate"
+            },
+            "type": "array",
+            "title": "Routes",
+            "description": "Initial provider routes (first becomes active)"
+          },
+          "active_provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Provider Id",
+            "description": "Which route's provider is active; defaults to the first route"
           }
         },
         "type": "object",
         "required": [
-          "provider_id",
-          "model_identifier",
-          "name",
+          "display_name",
           "model_family_id"
         ],
         "title": "ModelCreate",
-        "description": "Schema for creating a new model definition"
+        "description": "Schema for creating a canonical model with its initial route(s)."
       },
       "ModelDetailResponse": {
         "properties": {
-          "provider_id": {
-            "type": "string",
-            "maxLength": 12,
-            "minLength": 1,
-            "title": "Provider Id",
-            "description": "Provider ID"
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug",
+            "description": "Provider-independent identity; derived from the first route if omitted"
           },
-          "model_identifier": {
+          "display_name": {
             "type": "string",
             "maxLength": 100,
             "minLength": 1,
-            "title": "Model Identifier",
-            "description": "Actual API model name"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Name",
+            "title": "Display Name",
             "description": "User-friendly display name"
+          },
+          "original_identifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Identifier",
+            "description": "Native/canonical identifier; derived from the first route if omitted"
           },
           "model_family_id": {
             "type": "string",
@@ -8700,17 +8917,35 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Parameters",
-            "description": "All model parameters (temperature, max_tokens, etc.)"
+            "description": "Per-model parameter overrides"
           },
           "enabled": {
             "type": "boolean",
             "title": "Enabled",
-            "description": "Whether model is available",
+            "description": "Whether the model is available",
             "default": true
           },
           "id": {
             "type": "string",
             "title": "Id"
+          },
+          "active_route_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Route Id"
+          },
+          "routes": {
+            "items": {
+              "$ref": "#/components/schemas/ModelRouteResponse"
+            },
+            "type": "array",
+            "title": "Routes"
           },
           "created_at": {
             "type": "string",
@@ -8732,18 +8967,18 @@
         },
         "type": "object",
         "required": [
-          "provider_id",
-          "model_identifier",
-          "name",
+          "display_name",
           "model_family_id",
           "id",
+          "active_route_id",
+          "routes",
           "created_at",
           "updated_at",
           "provider_enabled",
           "model_family"
         ],
         "title": "ModelDetailResponse",
-        "description": "Schema for detailed model responses (includes embedded relationships)"
+        "description": "Canonical model with the embedded family."
       },
       "ModelFamilyCreate": {
         "properties": {
@@ -9068,7 +9303,7 @@
         },
         "type": "object",
         "title": "ModelFlagsUpdate",
-        "description": "Schema for updating model flags only"
+        "description": "Schema for updating canonical-model flags only."
       },
       "ModelListResponse": {
         "properties": {
@@ -9076,17 +9311,17 @@
             "type": "string",
             "title": "Id"
           },
-          "provider_id": {
+          "slug": {
             "type": "string",
-            "title": "Provider Id"
+            "title": "Slug"
           },
-          "model_identifier": {
+          "display_name": {
             "type": "string",
-            "title": "Model Identifier"
+            "title": "Display Name"
           },
-          "name": {
+          "original_identifier": {
             "type": "string",
-            "title": "Name"
+            "title": "Original Identifier"
           },
           "model_family_id": {
             "type": "string",
@@ -9095,6 +9330,24 @@
           "enabled": {
             "type": "boolean",
             "title": "Enabled"
+          },
+          "active_route_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Route Id"
+          },
+          "routes": {
+            "items": {
+              "$ref": "#/components/schemas/ModelRouteResponse"
+            },
+            "type": "array",
+            "title": "Routes"
           },
           "created_at": {
             "type": "string",
@@ -9114,40 +9367,54 @@
         "type": "object",
         "required": [
           "id",
-          "provider_id",
-          "model_identifier",
-          "name",
+          "slug",
+          "display_name",
+          "original_identifier",
           "model_family_id",
           "enabled",
+          "active_route_id",
+          "routes",
           "created_at",
           "updated_at",
           "provider_enabled"
         ],
         "title": "ModelListResponse",
-        "description": "Schema for model list responses (excludes heavy fields)"
+        "description": "Schema for canonical-model list responses (embeds routes for the UI)."
       },
       "ModelResponse": {
         "properties": {
-          "provider_id": {
-            "type": "string",
-            "maxLength": 12,
-            "minLength": 1,
-            "title": "Provider Id",
-            "description": "Provider ID"
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug",
+            "description": "Provider-independent identity; derived from the first route if omitted"
           },
-          "model_identifier": {
+          "display_name": {
             "type": "string",
             "maxLength": 100,
             "minLength": 1,
-            "title": "Model Identifier",
-            "description": "Actual API model name"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Name",
+            "title": "Display Name",
             "description": "User-friendly display name"
+          },
+          "original_identifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Identifier",
+            "description": "Native/canonical identifier; derived from the first route if omitted"
           },
           "model_family_id": {
             "type": "string",
@@ -9173,17 +9440,35 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Parameters",
-            "description": "All model parameters (temperature, max_tokens, etc.)"
+            "description": "Per-model parameter overrides"
           },
           "enabled": {
             "type": "boolean",
             "title": "Enabled",
-            "description": "Whether model is available",
+            "description": "Whether the model is available",
             "default": true
           },
           "id": {
             "type": "string",
             "title": "Id"
+          },
+          "active_route_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Route Id"
+          },
+          "routes": {
+            "items": {
+              "$ref": "#/components/schemas/ModelRouteResponse"
+            },
+            "type": "array",
+            "title": "Routes"
           },
           "created_at": {
             "type": "string",
@@ -9202,17 +9487,101 @@
         },
         "type": "object",
         "required": [
-          "provider_id",
-          "model_identifier",
-          "name",
+          "display_name",
           "model_family_id",
           "id",
+          "active_route_id",
+          "routes",
           "created_at",
           "updated_at",
           "provider_enabled"
         ],
         "title": "ModelResponse",
-        "description": "Schema for detailed model responses"
+        "description": "Schema for a canonical model (with routes)."
+      },
+      "ModelRouteCreate": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 1,
+            "title": "Provider Id",
+            "description": "Provider ID"
+          },
+          "model_identifier": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Model Identifier",
+            "description": "Provider-specific model identifier"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "Whether this route is usable",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider_id",
+          "model_identifier"
+        ],
+        "title": "ModelRouteCreate",
+        "description": "Schema for adding a route to a canonical model."
+      },
+      "ModelRouteResponse": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 1,
+            "title": "Provider Id",
+            "description": "Provider ID"
+          },
+          "model_identifier": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Model Identifier",
+            "description": "Provider-specific model identifier"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "Whether this route is usable",
+            "default": true
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "model_registry_id": {
+            "type": "string",
+            "title": "Model Registry Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider_id",
+          "model_identifier",
+          "id",
+          "model_registry_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ModelRouteResponse",
+        "description": "Schema for a route in responses."
       },
       "ModelSearchResponse": {
         "properties": {
@@ -9243,20 +9612,7 @@
       },
       "ModelUpdate": {
         "properties": {
-          "provider_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 12,
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Provider Id"
-          },
-          "model_identifier": {
+          "slug": {
             "anyOf": [
               {
                 "type": "string",
@@ -9267,9 +9623,9 @@
                 "type": "null"
               }
             ],
-            "title": "Model Identifier"
+            "title": "Slug"
           },
-          "name": {
+          "display_name": {
             "anyOf": [
               {
                 "type": "string",
@@ -9280,7 +9636,20 @@
                 "type": "null"
               }
             ],
-            "title": "Name"
+            "title": "Display Name"
+          },
+          "original_identifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Identifier"
           },
           "model_family_id": {
             "anyOf": [
@@ -9333,7 +9702,7 @@
         },
         "type": "object",
         "title": "ModelUpdate",
-        "description": "Schema for updating a model definition"
+        "description": "Schema for updating canonical-model fields (not its routes)."
       },
       "PaginatedResponse_CharacterResponse_": {
         "properties": {

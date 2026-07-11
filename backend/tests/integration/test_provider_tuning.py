@@ -70,7 +70,7 @@ async def test_openai_tuned_params_accepted() -> None:
         "max_completion_tokens": 16,
         "seed": 42,
     }
-    gw = ProviderGateway(provider, model, preset_parameters=preset)
+    gw = ProviderGateway(provider, model, model.model_identifier, preset_parameters=preset)
     _assert_output(await gw.chat_completion(PROMPT))
 
 
@@ -89,7 +89,7 @@ async def test_openai_unsupported_param_stripped() -> None:
         unsupported_params=seed.get("unsupported_parameters", []),
     )
     preset = {"temperature": 0.5, "max_completion_tokens": 16, "reasoning_effort": "high"}
-    gw = ProviderGateway(provider, model, preset_parameters=preset)
+    gw = ProviderGateway(provider, model, model.model_identifier, preset_parameters=preset)
     _assert_output(await gw.chat_completion(PROMPT))
 
 
@@ -107,7 +107,7 @@ async def test_anthropic_tuned_params_accepted() -> None:
         unsupported_params=seed.get("unsupported_parameters", []),
     )
     preset = {"temperature": 0.7, "top_p": 0.9, "top_k": 40, "max_tokens": 16}
-    gw = ProviderGateway(provider, model, preset_parameters=preset)
+    gw = ProviderGateway(provider, model, model.model_identifier, preset_parameters=preset)
     _assert_output(await gw.chat_completion(PROMPT))
 
 
@@ -133,7 +133,7 @@ async def test_google_tuned_params_accepted() -> None:
         "max_output_tokens": 16,
         "thinking_budget": 0,
     }
-    gw = ProviderGateway(provider, model, preset_parameters=preset)
+    gw = ProviderGateway(provider, model, model.model_identifier, preset_parameters=preset)
     _assert_output(await gw.chat_completion(PROMPT))
 
 
@@ -159,5 +159,5 @@ async def test_openrouter_extra_samplers_accepted() -> None:
         "top_a": 0.1,
         "repetition_penalty": 1.1,
     }
-    gw = ProviderGateway(provider, model, preset_parameters=preset)
+    gw = ProviderGateway(provider, model, model.model_identifier, preset_parameters=preset)
     _assert_output(await gw.chat_completion(PROMPT))

@@ -15,7 +15,7 @@ from src.core.persistence.models._base import BaseModel
 
 if TYPE_CHECKING:
     from src.core.persistence.models.character import Character
-    from src.core.persistence.models.model import Model
+    from src.core.persistence.models.model import ModelRegistry
     from src.core.persistence.models.persona import Persona
     from src.core.persistence.models.preset import Preset
     from src.core.persistence.models.prompt import PromptTemplate
@@ -109,17 +109,17 @@ class Chat(BaseModel):
     )
     model_id: Mapped[str | None] = mapped_column(
         String(12),
-        ForeignKey("models.id", ondelete="SET NULL"),
+        ForeignKey("model_registry.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
-        comment="Unique identifier of the LLM model used for this chat",
+        comment="Canonical model (registry) used for this chat",
     )
     task_model_id: Mapped[str | None] = mapped_column(
         String(12),
-        ForeignKey("models.id", ondelete="SET NULL"),
+        ForeignKey("model_registry.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
-        comment="Optional cheaper model for auxiliary calls (titles, suggestions); "
+        comment="Optional cheaper canonical model for auxiliary calls (titles, suggestions); "
         "falls back to model_id when unset",
     )
     title: Mapped[str | None] = mapped_column(
@@ -170,9 +170,11 @@ class Chat(BaseModel):
     )
 
     character: Mapped[Character] = relationship(back_populates="chats")
-    model: Mapped[Model | None] = relationship(back_populates="chats", foreign_keys=[model_id])
-    # One-way: the task model is a plain reference, no reverse collection on Model.
-    task_model: Mapped[Model | None] = relationship(foreign_keys=[task_model_id])
+    model: Mapped[ModelRegistry | None] = relationship(
+        back_populates="chats", foreign_keys=[model_id]
+    )
+    # One-way: the task model is a plain reference, no reverse collection on ModelRegistry.
+    task_model: Mapped[ModelRegistry | None] = relationship(foreign_keys=[task_model_id])
     template: Mapped[PromptTemplate | None] = relationship(back_populates="chats")
     persona: Mapped[Persona | None] = relationship(back_populates="chats")
     preset: Mapped[Preset | None] = relationship(back_populates="chats")

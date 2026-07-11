@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_session import ChatRepository, ChatService
 from src.core.persistence import Preset, PromptTemplate
-from src.model import Model, ModelRepository
+from src.model import ModelRegistry, ModelRepository, ModelRoute
 from src.persona.repository import PersonaRepository
 from src.preset.repository import PresetRepository
 from src.profile.repository import ProfileRepository
@@ -57,7 +57,7 @@ class TestApplyProfile:
         assert chat.preset_id == preset.id
         assert chat.persona_id == sample_persona.id
         assert chat.model_id == sample_model.id
-        assert chat.model_name == sample_model.name  # snapshot
+        assert chat.model_name == sample_model.display_name  # snapshot
         # Provenance name snapshots (not FKs).
         assert chat.initial_profile_name == "Full Loadout"
         assert chat.last_profile_name == "Full Loadout"
@@ -70,13 +70,22 @@ class TestApplyProfile:
         sample_provider: Any,
         sample_family: Any,
     ) -> None:
-        model2 = Model(
-            name="GPT-3.5",
-            provider_id=sample_provider.id,
-            model_identifier="gpt-3.5-turbo",
+        model2 = ModelRegistry(
+            slug="gpt-3.5-turbo",
+            display_name="GPT-3.5",
+            original_identifier="gpt-3.5-turbo",
             model_family_id=sample_family.id,
         )
         db.add(model2)
+        db.flush()
+        route2 = ModelRoute(
+            model_registry_id=model2.id,
+            provider_id=sample_provider.id,
+            model_identifier="gpt-3.5-turbo",
+        )
+        db.add(route2)
+        db.flush()
+        model2.active_route_id = route2.id
         db.commit()
         db.refresh(model2)
 
@@ -87,7 +96,7 @@ class TestApplyProfile:
         )
 
         assert chat.model_id == model2.id
-        assert chat.model_name == model2.name
+        assert chat.model_name == model2.display_name
 
     def test_create_chat_with_missing_profile_raises_404(
         self, db: Session, sample_character: Any

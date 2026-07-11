@@ -133,7 +133,8 @@ hosts three tabs (selected via the `?tab=` query param):
 
 - **`ProvidersTab.vue`** — lists all configured API connections (OpenAI, Anthropic, Google,
   OpenRouter, xAI, Ollama, LM Studio, OpenCode Zen/Go) with active indicators.
-- **`ModelsTab.vue`** — shows all registered models with their families and providers.
+- **`ModelsTab.vue`** — lists the canonical models (registries) with their family and their
+  active route's provider (plus a count when a model has more than one route).
 - **`ModelFamiliesTab.vue`** — lists model families.
 
 Prompt-side resources (presets, templates, fragments) are **not** here — they live on the
@@ -147,9 +148,11 @@ Clicking a row opens a full-page editor:
   environment-variable names, and endpoints; trigger a model sync; and manage discovered models
   (load, unload, delete, persist, and curate the allow-list via the model filter). This view
   drives `useProvider`.
-- **`ModelCreateView.vue`** / **`ModelView.vue`** — create or edit a model: assign its family and
-  its provider (the route, chosen from the family's supported providers — OpenRouter, OpenCode
-  Zen/Go, native, …) and edit inference parameters.
+- **`ModelView.vue`** (`ModelCreateModal` for new) — edit a canonical model: its family, display
+  name, and inference parameters, plus a **Routes** section that lists each provider route and lets
+  you add/remove routes and pick the **active route** (which provider the model runs through).
+  Flipping the active route redirects every chat already using that model. Creating a model makes a
+  registry with one initial route.
 - **`ModelFamilyView.vue`** — edit a model family's name, identifier, and description.
 - **`TemplateView.vue`**, **`FragmentView.vue`**, **`PresetView.vue`** — edit a prompt template,
   fragment, or preset.

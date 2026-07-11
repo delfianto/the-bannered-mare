@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_session import Chat, ChatRepository, ChatService
-from src.model import Model, ModelRepository
+from src.model import ModelRegistry, ModelRepository, ModelRoute
 from src.profile.repository import ProfileRepository
 
 
@@ -134,13 +134,22 @@ class TestChatService:
         sample_family: Any,
     ) -> None:
         """Test updating chat model"""
-        model2 = Model(
-            name="GPT-3.5",
-            provider_id=sample_provider.id,
-            model_identifier="gpt-3.5-turbo",
+        model2 = ModelRegistry(
+            slug="gpt-3.5-turbo",
+            display_name="GPT-3.5",
+            original_identifier="gpt-3.5-turbo",
             model_family_id=sample_family.id,
         )
         db.add(model2)
+        db.flush()
+        route2 = ModelRoute(
+            model_registry_id=model2.id,
+            provider_id=sample_provider.id,
+            model_identifier="gpt-3.5-turbo",
+        )
+        db.add(route2)
+        db.flush()
+        model2.active_route_id = route2.id
         db.commit()
 
         chat = Chat(title="Chat", character_id=sample_character.id, model_id=sample_model.id)

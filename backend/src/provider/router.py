@@ -125,8 +125,16 @@ def persist_provider_model(
     action_data: ModelActionRequest,
     db: DbSession,
 ):
-    """Persist a discovered model as a local Model definition in the database"""
+    """Persist a discovered model: attach a route to the matching (or new) canonical model.
+
+    If a route already exists for ``(provider, identifier)`` its canonical model is
+    returned. Otherwise the identifier is matched to an existing canonical model by
+    its provider-independent slug (adding this provider as a new route), or a new
+    canonical model is created with a best-effort family guess — the user can correct
+    the family/slug afterward.
+    """
     from src.chat_session.repository import ChatRepository
+    from src.model.lineage import normalize_slug, resolve_family
     from src.model.repository import ModelRepository
     from src.model.service import ModelService
     from src.model_family.models import ModelFamily
@@ -139,51 +147,28 @@ def persist_provider_model(
     chat_repo = ChatRepository(db)
     model_service = ModelService(model_repo, provider_repo, family_repo, chat_repo)
 
-    existing = model_repo.find_by_identifier(provider_id, action_data.model_identifier)
-    if existing:
-        return existing
+    identifier = action_data.model_identifier
 
-    lower_id = action_data.model_identifier.lower()
+    # Already routed on this provider → return the owning canonical model.
+    existing_route = model_repo.find_route_by_provider_identifier(provider_id, identifier)
+    if existing_route:
+        return model_service.get_by_id(existing_route.model_registry_id)
 
-    # Best-effort lineage guess for a model persisted from discovery. Rules are
-    # ordered most-specific first; the first whose every keyword appears in the
-    # model id wins and resolves to the first family whose name matches the SQL
-    # pattern. Falls back to any family (model_family_id is non-nullable) — the
-    # user can correct the family afterwards.
-    family_match_rules: list[tuple[tuple[str, ...], str]] = [
-        (("deepseek", "r1"), "%r1%"),
-        (("deepseek", "v4"), "%deepseek v4%"),
-        (("deepseek",), "%deepseek%"),
-        (("glm-5",), "%glm 5%"),
-        (("glm",), "%glm%"),
-        (("minimax-m3",), "%minimax m3%"),
-        (("minimax",), "%minimax%"),
-        (("kimi",), "%kimi%"),
-        (("mimo",), "%mimo%"),
-        (("qwen",), "%qwen%"),
-        (("gemma",), "%gemma%"),
-        (("mistral",), "%mistral%"),
-        (("llama",), "%llama%"),
-    ]
+    # Same canonical model reached through another provider → add this route to it.
+    slug = normalize_slug(identifier)
+    registry = model_repo.find_by_slug(slug)
+    if registry:
+        return model_service.add_route(
+            registry.id, provider_id=provider_id, model_identifier=identifier
+        )
 
-    family = None
-    for keywords, name_pattern in family_match_rules:
-        if all(keyword in lower_id for keyword in keywords):
-            family = db.query(ModelFamily).filter(ModelFamily.name.ilike(name_pattern)).first()
-            if family:
-                break
-
-    if not family:
-        family = db.query(ModelFamily).first()
-
-    family_id = family.id if family else "gttl91cmw18b"
-
-    friendly_name = action_data.model_identifier.replace(":", " ").replace("-", " ").title()
-
+    # New canonical model: best-effort family, else any family (user can correct).
+    family = resolve_family(db, identifier) or db.query(ModelFamily).first()
+    friendly_name = identifier.replace(":", " ").replace("-", " ").replace("/", " ").title()
     return model_service.create(
-        name=friendly_name,
-        provider_id=provider_id,
-        model_identifier=action_data.model_identifier,
-        model_family_id=family_id,
+        display_name=friendly_name,
+        model_family_id=family.id if family else "gttl91cmw18b",
+        routes=[{"provider_id": provider_id, "model_identifier": identifier}],
+        slug=slug,
         enabled=True,
     )

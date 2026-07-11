@@ -1,79 +1,105 @@
-"""Data access layer for Model entities"""
+"""Data access layer for canonical models (registry) and their provider routes."""
 
 from typing import Any
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from src.core.persistence import BaseRepository
-from src.model.models import Model
+from src.model.models import ModelRegistry, ModelRoute
 
 
-class ModelRepository(BaseRepository[Model]):
-    """Repository for Model data access with custom queries"""
+class ModelRepository(BaseRepository[ModelRegistry]):
+    """Repository for canonical models (registry) + their routes."""
 
     def __init__(self, db: Session):
-        """Initialize Model repository"""
-        super().__init__(db, Model)
+        super().__init__(db, ModelRegistry)
 
+    # ── Registry ─────────────────────────────────────────────
     def find_paginated_with_count(
         self,
         limit: int = BaseRepository.DEFAULT_LIMIT,
         offset: int = 0,
         filters: dict[str, Any] | None = None,
-    ) -> tuple[list[Model], int]:
-        """Get models with pagination and filtering"""
+    ) -> tuple[list[ModelRegistry], int]:
+        """Registries with pagination + filtering (name/family/enabled/has-route-on-provider)."""
         if limit > self.MAX_LIMIT:
             raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
 
-        stmt = select(Model)
+        filters = dict(filters or {})
+        # `provider_id` isn't a registry column — it means "has a route on this provider".
+        provider_id = filters.pop("provider_id", None)
+        # `name__ilike` targets the registry's display_name.
+        name_ilike = filters.pop("name__ilike", None)
+
+        stmt = select(ModelRegistry)
+        if provider_id:
+            stmt = stmt.where(ModelRegistry.routes.any(ModelRoute.provider_id == provider_id))
+        if name_ilike:
+            stmt = stmt.where(ModelRegistry.display_name.ilike(f"%{name_ilike}%"))
         stmt = self._apply_filters(stmt, filters)
 
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total = self.db.execute(count_stmt).scalar_one()
 
-        # Default to case-insensitive name ordering so the list is alphabetical
-        # and pagination is deterministic; id breaks ties for duplicate names.
-        stmt = stmt.order_by(func.lower(Model.name), Model.id).limit(limit).offset(offset)
-        items = list(self.db.execute(stmt).scalars().all())
-
+        stmt = (
+            stmt.options(
+                joinedload(ModelRegistry.routes),
+                joinedload(ModelRegistry.active_route).joinedload(ModelRoute.provider),
+            )
+            .order_by(func.lower(ModelRegistry.display_name), ModelRegistry.id)
+            .limit(limit)
+            .offset(offset)
+        )
+        items = list(self.db.execute(stmt).unique().scalars().all())
         return items, total
 
-    def find_by_identifier(self, provider_id: str, model_identifier: str) -> Model | None:
-        """
-        Find a model by provider ID and model identifier.
+    def find_by_slug(self, slug: str) -> ModelRegistry | None:
+        """Find a canonical model by its provider-independent slug."""
+        stmt = select(ModelRegistry).where(ModelRegistry.slug == slug)
+        return self.db.execute(stmt).scalars().first()
 
-        Args:
-            provider_id: The provider ID
-            model_identifier: The model identifier to search for
+    def find_enabled(self) -> list[ModelRegistry]:
+        """Find all enabled canonical models."""
+        stmt = select(ModelRegistry).where(ModelRegistry.enabled)
+        return list(self.db.execute(stmt).scalars().all())
 
-        Returns:
-            Model if found, None otherwise
-        """
-        stmt = select(Model).where(
-            Model.provider_id == provider_id, Model.model_identifier == model_identifier
+    def search_by_name(self, name: str) -> list[ModelRegistry]:
+        """Search canonical models by display name (case-insensitive partial match)."""
+        stmt = select(ModelRegistry).where(ModelRegistry.display_name.ilike(f"%{name}%"))
+        return list(self.db.execute(stmt).scalars().all())
+
+    # ── Routes ───────────────────────────────────────────────
+    def find_route_by_id(self, route_id: str) -> ModelRoute | None:
+        stmt = select(ModelRoute).where(ModelRoute.id == route_id)
+        return self.db.execute(stmt).scalars().first()
+
+    def find_route_by_provider_identifier(
+        self, provider_id: str, model_identifier: str
+    ) -> ModelRoute | None:
+        """A route is globally unique by (provider, identifier)."""
+        stmt = select(ModelRoute).where(
+            ModelRoute.provider_id == provider_id,
+            ModelRoute.model_identifier == model_identifier,
         )
         return self.db.execute(stmt).scalars().first()
 
-    def find_by_provider(self, provider_id: str) -> list[Model]:
-        """Find all models for a specific provider"""
-        stmt = select(Model).where(Model.provider_id == provider_id)
-        return list(self.db.execute(stmt).scalars().all())
+    def find_route_by_registry_provider(
+        self, model_registry_id: str, provider_id: str
+    ) -> ModelRoute | None:
+        """A model has at most one route per provider (uq_route_registry_provider)."""
+        stmt = select(ModelRoute).where(
+            ModelRoute.model_registry_id == model_registry_id,
+            ModelRoute.provider_id == provider_id,
+        )
+        return self.db.execute(stmt).scalars().first()
 
-    def find_enabled(self) -> list[Model]:
-        """Find all enabled models"""
-        stmt = select(Model).where(Model.enabled)
-        return list(self.db.execute(stmt).scalars().all())
+    def add_route(self, route: ModelRoute) -> ModelRoute:
+        self.db.add(route)
+        self.db.flush()
+        self.db.refresh(route)
+        return route
 
-    def search_by_name(self, name: str) -> list[Model]:
-        """
-        Search for models by name (case-insensitive partial match).
-
-        Args:
-            name: The name fragment to search for
-
-        Returns:
-            List of matching models
-        """
-        stmt = select(Model).where(Model.name.ilike(f"%{name}%"))
-        return list(self.db.execute(stmt).scalars().all())
+    def delete_route(self, route: ModelRoute) -> None:
+        self.db.delete(route)
+        self.db.flush()

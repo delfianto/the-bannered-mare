@@ -14,7 +14,7 @@ from src.core.persistence.models._base import BaseModel
 
 if TYPE_CHECKING:
     from src.core.persistence.models.chat import Chat
-    from src.core.persistence.models.model import Model
+    from src.core.persistence.models.model import ModelRegistry
 
 # Component order for prompt construction
 DEFAULT_COMPONENT_ORDER = [
@@ -88,7 +88,7 @@ class PromptTemplate(BaseModel):
     )
 
     chats: Mapped[list[Chat]] = relationship(back_populates="template")
-    models: Mapped[list[Model]] = relationship(back_populates="template")
+    models: Mapped[list[ModelRegistry]] = relationship(back_populates="template")
     template_fragments: Mapped[list[TemplateFragment]] = relationship(
         back_populates="template",
         cascade="all, delete-orphan",

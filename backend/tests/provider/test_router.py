@@ -3,6 +3,8 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from src.model import ModelRegistry, ModelRoute
+from src.model_family import ModelFamily
 from src.provider import DiscoveredModel, Provider, ProviderType
 
 
@@ -186,3 +188,121 @@ def test_set_provider_model_filter(
     # Filter persisted on the provider (deduped, blanks removed)
     provider_resp = client.get(f"/api/providers/{provider.id}")
     assert provider_resp.json()["allowed_models"] == ["keep:1"]
+
+
+# ── persist (attach a discovered model to the canonical registry) ─────────────
+
+
+def _local_family(db: Session) -> ModelFamily:
+    """A keyless (LM Studio) family so persisted routes need no API key env."""
+    family = ModelFamily(
+        name="Local Family",
+        family_identifier="test.local",
+        provider_types=["lmstudio"],
+    )
+    db.add(family)
+    db.commit()
+    db.refresh(family)
+    return family
+
+
+def _local_provider(db: Session, name: str = "LM Studio") -> Provider:
+    provider = Provider(name=name, provider_type=ProviderType.LMSTUDIO)
+    db.add(provider)
+    db.commit()
+    db.refresh(provider)
+    return provider
+
+
+def test_persist_creates_new_registry(client: TestClient, db: Session) -> None:
+    """Persisting an unknown identifier creates a canonical model with one route."""
+    provider = _local_provider(db)
+    family = _local_family(db)
+
+    response = client.post(
+        f"/api/providers/{provider.id}/models/persist",
+        json={"model_identifier": "custom-model-v1"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["slug"] == "custom-model-v1"
+    assert data["model_family_id"] == family.id
+    assert len(data["routes"]) == 1
+    assert data["routes"][0]["provider_id"] == provider.id
+    assert data["routes"][0]["model_identifier"] == "custom-model-v1"
+    assert data["active_route_id"] == data["routes"][0]["id"]
+
+
+def test_persist_attaches_route_to_existing_registry_by_slug(
+    client: TestClient, db: Session
+) -> None:
+    """A second provider serving the same slug is added as a route to the existing model."""
+    family = _local_family(db)
+    provider1 = _local_provider(db, name="LM Studio A")
+    provider2 = _local_provider(db, name="LM Studio B")
+
+    registry = ModelRegistry(
+        slug="shared-model",
+        display_name="Shared Model",
+        original_identifier="shared-model",
+        model_family_id=family.id,
+    )
+    db.add(registry)
+    db.flush()
+    route = ModelRoute(
+        model_registry_id=registry.id,
+        provider_id=provider1.id,
+        model_identifier="shared-model",
+    )
+    db.add(route)
+    db.flush()
+    registry.active_route_id = route.id
+    db.commit()
+    db.refresh(registry)
+
+    response = client.post(
+        f"/api/providers/{provider2.id}/models/persist",
+        json={"model_identifier": "shared-model"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == registry.id  # same canonical model, not a new one
+    assert len(data["routes"]) == 2
+    assert {r["provider_id"] for r in data["routes"]} == {provider1.id, provider2.id}
+
+
+def test_persist_existing_route_is_idempotent(client: TestClient, db: Session) -> None:
+    """Persisting an already-routed (provider, identifier) returns the owning model unchanged."""
+    family = _local_family(db)
+    provider = _local_provider(db)
+
+    registry = ModelRegistry(
+        slug="already-here",
+        display_name="Already Here",
+        original_identifier="already-here",
+        model_family_id=family.id,
+    )
+    db.add(registry)
+    db.flush()
+    route = ModelRoute(
+        model_registry_id=registry.id,
+        provider_id=provider.id,
+        model_identifier="already-here",
+    )
+    db.add(route)
+    db.flush()
+    registry.active_route_id = route.id
+    db.commit()
+    db.refresh(registry)
+
+    response = client.post(
+        f"/api/providers/{provider.id}/models/persist",
+        json={"model_identifier": "already-here"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == registry.id
+    assert len(data["routes"]) == 1
