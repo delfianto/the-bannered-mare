@@ -4,10 +4,6 @@ import { client } from "@/api/client";
 
 export type ModelListItem = components["schemas"]["ModelListResponse"];
 
-interface UseModelsOptions {
-  pageSize?: number;
-}
-
 interface ModelFilters {
   name?: string;
   provider_id?: string;
@@ -15,16 +11,25 @@ interface ModelFilters {
   enabled?: boolean;
 }
 
+interface UseModelsOptions {
+  pageSize?: number;
+  // Seed the first load from restored state (e.g. URL query on remount) so the
+  // list comes back filtered/paged instead of resetting to page 1, no filters.
+  initialFilters?: ModelFilters;
+  initialPage?: number;
+  autoLoad?: boolean;
+}
+
 export function useModels(options: UseModelsOptions = {}) {
-  const { pageSize = 12 } = options;
+  const { pageSize = 12, initialFilters = {}, initialPage = 1, autoLoad = true } = options;
 
   const models = ref<ModelListItem[]>([]);
   const loading = ref(false);
   const error = ref<Error | null>(null);
-  const page = ref(1);
+  const page = ref(initialPage);
   const hasMore = ref(false);
   const total = ref(0);
-  const currentFilters = ref<ModelFilters>({});
+  const currentFilters = ref<ModelFilters>(initialFilters);
 
   const totalPages = computed(() => {
     if (total.value === 0) return 1;
@@ -102,7 +107,7 @@ export function useModels(options: UseModelsOptions = {}) {
   };
 
   onMounted(() => {
-    loadPage(1);
+    if (autoLoad) loadPage(initialPage);
   });
 
   return {

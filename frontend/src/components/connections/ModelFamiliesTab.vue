@@ -5,14 +5,28 @@ import { useModelFamilies } from "@/composables/useModelFamilies";
 import { useModelFamily } from "@/composables/useModelFamily";
 import { useProviders } from "@/composables/useProviders";
 import { useAppToast } from "@/composables/useToast";
+import { useQueryState } from "@/composables/useQueryState";
 import type { components } from "@/api/schema";
 import Modal from "@/components/shared/Modal.vue";
 import ModelFamilyForm from "./ModelFamilyForm.vue";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
 const router = useRouter();
+const { readQuery, patchQuery } = useQueryState();
+
+// Restore filters/page from the URL so they survive a detail-view round-trip.
+const initialSearch = readQuery("q") ?? "";
+const initialProviderType = readQuery("ptype") ?? "all";
+const initialPage = Math.max(1, Number.parseInt(readQuery("page") ?? "1", 10) || 1);
+
 const { families, loading, error, page, totalPages, loadPage, search, filterByProviderType } =
-  useModelFamilies();
+  useModelFamilies({
+    initialPage,
+    initialFilters: {
+      name: initialSearch || undefined,
+      provider_type: initialProviderType === "all" ? undefined : initialProviderType,
+    },
+  });
 const { createFamily, saving } = useModelFamily();
 const { providers } = useProviders();
 const toast = useAppToast();
@@ -25,20 +39,24 @@ async function onCreate(payload: components["schemas"]["ModelFamilyCreate"]) {
     toast.success("Model family created");
     showCreate.value = false;
     await loadPage(1);
+    patchQuery({ page: undefined });
   } catch {
     toast.error("Failed to create model family");
   }
 }
 
-const searchQuery = ref("");
+const searchQuery = ref(initialSearch);
 const searchFocused = ref(false);
-const selectedProviderType = ref("all");
+const selectedProviderType = ref(initialProviderType);
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 function handleSearch(value: string) {
   searchQuery.value = value;
   if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => search(value), 300);
+  debounceTimer = setTimeout(() => {
+    search(value);
+    patchQuery({ q: value || undefined, page: undefined });
+  }, 300);
 }
 
 // Families reference provider *types* (e.g. "openai"). List the distinct types
@@ -66,6 +84,12 @@ const providerTypeLabel = computed(
 function handleProviderTypeFilter(value: string) {
   selectedProviderType.value = value;
   filterByProviderType(value === "all" ? undefined : value);
+  patchQuery({ ptype: value === "all" ? undefined : value, page: undefined });
+}
+
+function goToPage(p: number) {
+  loadPage(p);
+  patchQuery({ page: p > 1 ? p : undefined });
 }
 
 const columns: DataTableColumn[] = [
@@ -189,7 +213,7 @@ function openFamily(row: any) {
         :page="page"
         :total-pages="totalPages"
         @row-click="openFamily"
-        @update:page="loadPage"
+        @update:page="goToPage"
       >
         <template #cell-description="{ row }">{{ row.description || "—" }}</template>
         <template #cell-providers="{ row }">
