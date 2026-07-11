@@ -31,6 +31,13 @@ _SEARCH_RESULT_LIMIT = 50
 # the RP picker.
 _REASONING_MODEL_RE = re.compile(r"^o[1-9]([.-]|$)")
 
+# Local providers (Ollama / LM Studio) expose a live "loaded" state that flips
+# whenever a model is loaded/unloaded in the provider's own UI — outside this
+# app, so the discovery cache can't be invalidated for it. Their catalogs are
+# small and on the LAN, so we always fetch them fresh rather than serving a
+# stale cached state (falling back to the cache only if the box is unreachable).
+_LOCAL_PROVIDER_TYPES = frozenset({ProviderType.OLLAMA, ProviderType.LMSTUDIO})
+
 # OpenAI ships dated GPT snapshots (gpt-5-2025-08-07, gpt-5.4-2026-03-05)
 # alongside the bare/rolling id they pin, so they only clutter the RP picker —
 # drop them. NOT the "-chat-latest" aliases: those are the *only* callable form
@@ -267,9 +274,12 @@ class ProviderService:
     ) -> tuple[list[DiscoveredModel], bool]:
         """Return the full (blacklist-filtered) discovered list and a cache flag.
 
-        Shared by the available/sync/search/filter paths. Reads serve the cached
-        list (stale included); the provider's API is hit only on a cold cache or
-        force_refresh, so it's never a per-request or per-TTL-expiry cost.
+        Shared by the available/sync/search/filter paths. For cloud providers,
+        reads serve the cached list (stale included) and hit the API only on a
+        cold cache or force_refresh. Local providers (Ollama/LM Studio) are always
+        fetched fresh so their live "loaded" state is accurate even when a model
+        was (un)loaded outside the app; the cache is used only as a fallback when
+        the local box is unreachable.
         """
         client = get_discovery_client(provider.provider_type)
         if client is None:
@@ -278,7 +288,9 @@ class ProviderService:
                 detail=f"{provider.provider_type.value} does not support model auto-detection",
             )
 
-        if not force_refresh and settings.discovery_cache.enabled:
+        is_local = provider.provider_type in _LOCAL_PROVIDER_TYPES
+
+        if not force_refresh and not is_local and settings.discovery_cache.enabled:
             cached = self.model_cache.get(provider.id)
             if cached is not None:
                 return self._filter_blacklisted(cached), True
@@ -287,6 +299,12 @@ class ProviderService:
             api_key = provider.get_api_key()
             models = client.list_models(provider.get_base_url(), api_key=api_key)
         except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
+            # A briefly-unreachable local box shouldn't blank the picker — serve
+            # the last-known list if we have one.
+            if is_local and settings.discovery_cache.enabled:
+                cached = self.model_cache.get(provider.id)
+                if cached is not None:
+                    return self._filter_blacklisted(cached), True
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Could not reach {provider.name}: {e}",
