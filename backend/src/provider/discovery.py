@@ -6,6 +6,7 @@ with `ProviderService`/`ProviderRepository` being sync everywhere except
 chat messages.
 """
 
+import re
 from typing import Protocol
 
 import httpx
@@ -16,6 +17,11 @@ from src.provider.schemas import DiscoveredModel
 
 _LIST_TIMEOUT = 10.0
 _LOAD_TIMEOUT = 120.0
+
+# Anthropic's /models lists the dated snapshot (claude-haiku-4-5-20251001), but
+# the undated alias (claude-haiku-4-5) is equally callable and is what we seed —
+# so strip the trailing -YYYYMMDD to line discovery up with the registry.
+_ANTHROPIC_DATE_RE = re.compile(r"-\d{8}$")
 
 
 class ModelDiscoveryClient(Protocol):
@@ -265,14 +271,20 @@ class AnthropicDiscoveryClient:
             resp.raise_for_status()
 
         models: list[DiscoveredModel] = []
+        seen: set[str] = set()
         for m in resp.json().get("data", []):
             model_id = m.get("id")
             if not model_id:
                 continue
+            identifier = _ANTHROPIC_DATE_RE.sub("", model_id)
+            # Two dated snapshots of one model collapse to the same alias — keep one.
+            if identifier in seen:
+                continue
+            seen.add(identifier)
             models.append(
                 DiscoveredModel(
-                    identifier=model_id,
-                    display_name=m.get("display_name", model_id),
+                    identifier=identifier,
+                    display_name=m.get("display_name", identifier),
                     state="loaded",
                     size_bytes=None,
                     quantization=None,

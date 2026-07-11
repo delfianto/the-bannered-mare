@@ -241,3 +241,34 @@ class TestGoogleDiscoveryClient:
         assert by_id["gemini-2.5-pro"].max_context_length == 1048576
         # Fallback display name is the bare identifier, not the prefixed name.
         assert by_id["gemini-3.5-flash"].display_name == "gemini-3.5-flash"
+
+
+class TestAnthropicDiscoveryClient:
+    def setup_method(self):
+        self.client = AnthropicDiscoveryClient()
+
+    def test_list_models_strips_dated_snapshot_to_bare_alias(self) -> None:
+        """/models lists the dated snapshot; the undated alias is equally callable.
+
+        We seed the bare alias, so discovery strips the trailing -YYYYMMDD to
+        match (and dedupes if two snapshots collapse to the same alias). Undated
+        ids (claude-opus-4-6) pass through untouched.
+        """
+        resp = _mock_response(
+            {
+                "data": [
+                    {"id": "claude-haiku-4-5-20251001", "display_name": "Claude 4.5 Haiku"},
+                    {"id": "claude-opus-4-5-20251101", "display_name": "Claude 4.5 Opus"},
+                    {"id": "claude-opus-4-5-20250601"},  # older snapshot -> same alias, deduped
+                    {"id": "claude-opus-4-6", "display_name": "Claude 4.6 Opus"},
+                ]
+            }
+        )
+
+        with patch("httpx.Client.get", return_value=resp):
+            models = self.client.list_models("https://api.anthropic.com/v1")
+
+        ids = [m.identifier for m in models]
+        assert ids == ["claude-haiku-4-5", "claude-opus-4-5", "claude-opus-4-6"]
+        by_id = {m.identifier: m for m in models}
+        assert by_id["claude-haiku-4-5"].display_name == "Claude 4.5 Haiku"
