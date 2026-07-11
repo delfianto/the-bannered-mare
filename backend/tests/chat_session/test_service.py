@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_session import Chat, ChatRepository, ChatService
 from src.model import ModelRegistry, ModelRepository, ModelRoute
+from src.persona import Persona, PersonaRepository
 from src.profile.repository import ProfileRepository
 
 
@@ -184,6 +185,83 @@ class TestChatService:
 
         assert exc_info.value.status_code == 404
         assert "Model" in exc_info.value.detail
+
+    def _service(self, db: Session) -> ChatService:
+        return ChatService(
+            ChatRepository(db),
+            CharacterRepository(db),
+            ModelRepository(db),
+            ProfileRepository(db),
+            persona_repo=PersonaRepository(db),
+        )
+
+    def test_update_chat_task_model_set_and_clear(
+        self, db: Session, sample_character: Any, sample_model: Any
+    ) -> None:
+        """task_model_id can be set, then cleared with an explicit None."""
+        chat = Chat(title="Chat", character_id=sample_character.id, model_id=sample_model.id)
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+        service = self._service(db)
+
+        assert service.update(chat.id, task_model_id=sample_model.id).task_model_id == sample_model.id
+        assert service.update(chat.id, task_model_id=None).task_model_id is None
+
+    def test_update_chat_task_model_omitted_is_preserved(
+        self, db: Session, sample_character: Any, sample_model: Any
+    ) -> None:
+        """Omitting task_model_id (the _UNSET default) leaves an existing one intact."""
+        chat = Chat(
+            title="Chat",
+            character_id=sample_character.id,
+            model_id=sample_model.id,
+            task_model_id=sample_model.id,
+        )
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+
+        updated = self._service(db).update(chat.id, title="Renamed")  # task_model_id not passed
+        assert updated.task_model_id == sample_model.id
+
+    def test_update_chat_task_model_not_found(
+        self, db: Session, sample_character: Any, sample_model: Any
+    ) -> None:
+        chat = Chat(title="Chat", character_id=sample_character.id, model_id=sample_model.id)
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+        with pytest.raises(HTTPException) as exc_info:
+            _ = self._service(db).update(chat.id, task_model_id="nonexistent-model")
+        assert exc_info.value.status_code == 404
+
+    def test_update_chat_persona_set_and_clear(
+        self, db: Session, sample_character: Any, sample_model: Any
+    ) -> None:
+        persona = Persona(name="Hero", description="A brave soul")
+        db.add(persona)
+        db.commit()
+        db.refresh(persona)
+        chat = Chat(title="Chat", character_id=sample_character.id, model_id=sample_model.id)
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+        service = self._service(db)
+
+        assert service.update(chat.id, persona_id=persona.id).persona_id == persona.id
+        assert service.update(chat.id, persona_id=None).persona_id is None
+
+    def test_update_chat_persona_not_found(
+        self, db: Session, sample_character: Any, sample_model: Any
+    ) -> None:
+        chat = Chat(title="Chat", character_id=sample_character.id, model_id=sample_model.id)
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+        with pytest.raises(HTTPException) as exc_info:
+            _ = self._service(db).update(chat.id, persona_id="nonexistent-persona")
+        assert exc_info.value.status_code == 404
 
     def test_delete_chat_success(
         self, db: Session, sample_character: Any, sample_model: Any

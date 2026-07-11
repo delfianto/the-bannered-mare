@@ -278,6 +278,10 @@ export const handlers = [
       const model = db.allModelsMock.find((m) => m.id === body.model_id);
       if (model) chat.model = { id: model.id, name: model.display_name };
     }
+    // task_model_id and persona_id are nullable/clearable — mirror the backend by
+    // honoring an explicit `null` (clear) distinctly from an omitted field.
+    if (body.task_model_id !== undefined) chat.task_model_id = body.task_model_id;
+    if (body.persona_id !== undefined) chat.persona_id = body.persona_id;
     chat.updated_at = new Date().toISOString();
     await delay(150);
     return HttpResponse.json(chat);

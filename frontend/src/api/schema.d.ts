@@ -732,7 +732,7 @@ export interface paths {
     get: operations["get_chat_api_chats__chat_id__get"];
     /**
      * Update Chat
-     * @description Update chat (e.g., change title or model)
+     * @description Update chat axes (title, model, task model, persona, bookmark).
      */
     put: operations["update_chat_api_chats__chat_id__put"];
     post?: never;
@@ -2106,13 +2106,21 @@ export interface components {
     };
     /**
      * ChatUpdate
-     * @description Schema for updating a chat
+     * @description Schema for updating a chat.
+     *
+     *     task_model_id and persona_id are nullable and clearable: sending ``null``
+     *     resets that axis (task model → "same as chat model", persona → none), which
+     *     is distinguished from "field omitted" via ``exclude_unset`` in the router.
      */
     ChatUpdate: {
       /** Title */
       title?: string | null;
       /** Model Id */
       model_id?: string | null;
+      /** Task Model Id */
+      task_model_id?: string | null;
+      /** Persona Id */
+      persona_id?: string | null;
       /** Preset Id */
       preset_id?: string | null;
       /** Is Bookmarked */

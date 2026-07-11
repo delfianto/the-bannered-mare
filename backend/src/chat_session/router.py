@@ -1,5 +1,7 @@
 """Chat and message API endpoints"""
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, Query, status
 
 from src.chat_session.dependencies import ChatServiceDep
@@ -58,15 +60,18 @@ def get_chat(chat_id: str, service: ChatServiceDep):
 
 @router.put("/{chat_id}", response_model=ChatResponse)
 def update_chat(chat_id: str, chat_data: ChatUpdate, service: ChatServiceDep):
-    """Update chat (e.g., change title or model)"""
+    """Update chat axes (title, model, task model, persona, bookmark)."""
     update_data = chat_data.model_dump(exclude_unset=True)
 
-    return service.update(
-        chat_id=chat_id,
-        title=update_data.get("title"),
-        model_id=update_data.get("model_id"),
-        is_bookmarked=update_data.get("is_bookmarked"),
-    )
+    # Forward only the fields the client actually sent. task_model_id/persona_id
+    # are passed via `in` (not `.get`) so an explicit null reaches the service to
+    # clear that axis, rather than being treated as "omitted".
+    kwargs: dict[str, Any] = {}
+    for key in ("title", "model_id", "is_bookmarked", "task_model_id", "persona_id"):
+        if key in update_data:
+            kwargs[key] = update_data[key]
+
+    return service.update(chat_id=chat_id, **kwargs)
 
 
 @router.post("/{chat_id}/profile", response_model=ChatResponse)

@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import type { ChatCharacterInfo } from "@/types/chat";
 import type { Profile } from "@/composables/useProfiles";
 import { useCharacter } from "@/composables/useCharacter";
+import { usePersonas } from "@/composables/usePersonas";
 import Tabs from "@/components/shared/Tabs.vue";
 import CollapsibleSection from "@/components/shared/CollapsibleSection.vue";
 import CollapsibleField from "@/components/discover/CollapsibleField.vue";
@@ -20,14 +21,18 @@ const props = defineProps<{
   sessionTitle: string;
   models: PickerModel[];
   currentModelId?: string | null;
+  currentTaskModelId?: string | null;
   profiles: Profile[];
   currentProfileName?: string | null;
+  currentPersonaId?: string | null;
 }>();
 
 const emit = defineEmits<{
   close: [];
   changeModel: [modelId: string];
+  changeTaskModel: [modelId: string | null];
   applyProfile: [profileId: string];
+  changePersona: [personaId: string | null];
   rename: [title: string];
   delete: [];
 }>();
@@ -51,6 +56,10 @@ const tabs = [
 const activeTab = ref("character");
 
 const { character: fullCharacter, loading: characterLoading, load: loadCharacter } = useCharacter();
+
+// Personas for the Persona section. usePersonas fetches on mount; the drawer is
+// mounted with the chat header, so the list is warm by the time it opens.
+const { personas } = usePersonas();
 
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === "Escape" && props.show) emit("close");
@@ -120,14 +129,29 @@ function chooseModel(m: PickerModel) {
   if (m.id !== props.currentModelId) emit("changeModel", m.id);
 }
 
+// `null` = "Same as chat model" (clears the override). No-op when unchanged.
+function chooseTaskModel(id: string | null) {
+  if (id !== (props.currentTaskModelId ?? null)) emit("changeTaskModel", id);
+}
+
 function chooseProfile(p: Profile) {
   // Always (re-)apply — re-applying the current profile re-pulls its latest axes.
   emit("applyProfile", p.id);
 }
 
+// `null` = "None" (clears the persona). No-op when unchanged.
+function choosePersona(id: string | null) {
+  if (id !== (props.currentPersonaId ?? null)) emit("changePersona", id);
+}
+
 function goManageLoadouts() {
   emit("close");
   router.push("/loadouts");
+}
+
+function goManagePersonas() {
+  emit("close");
+  router.push({ path: "/loadouts", query: { tab: "personas" } });
 }
 
 // --- Rename & Delete (relocated from ChatHeader) ---
@@ -294,12 +318,12 @@ onUnmounted(() => {
               :default-open="true"
             >
               <div class="space-y-3">
-                <!-- Model -->
+                <!-- Main model -->
                 <div>
                   <div
                     class="px-1 py-1 text-[0.625rem] font-semibold tracking-wider text-muted-foreground uppercase"
                   >
-                    {{ $t("chat.model.title") }}
+                    {{ $t("chat.model.mainModel") }}
                   </div>
                   <button
                     v-for="m in models"
@@ -325,6 +349,43 @@ onUnmounted(() => {
                   <p class="px-1 py-1 text-[0.625rem] leading-snug text-muted-foreground/70">
                     {{ $t("chat.model.overrideHint") }}
                   </p>
+                </div>
+
+                <!-- Task model -->
+                <div>
+                  <div
+                    class="px-1 py-1 text-[0.625rem] font-semibold tracking-wider text-muted-foreground uppercase"
+                  >
+                    {{ $t("chat.model.taskModel") }}
+                  </div>
+                  <button
+                    class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
+                    @click="chooseTaskModel(null)"
+                  >
+                    <AppIcon
+                      name="i-lucide-check"
+                      class="size-3.5 shrink-0"
+                      :class="!currentTaskModelId ? 'text-primary' : 'text-transparent'"
+                    />
+                    <span class="block min-w-0 truncate font-cinzel text-sm text-foreground">
+                      {{ $t("chat.model.sameAsChat") }}
+                    </span>
+                  </button>
+                  <button
+                    v-for="m in models"
+                    :key="m.id"
+                    class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
+                    @click="chooseTaskModel(m.id)"
+                  >
+                    <AppIcon
+                      name="i-lucide-check"
+                      class="size-3.5 shrink-0"
+                      :class="m.id === currentTaskModelId ? 'text-primary' : 'text-transparent'"
+                    />
+                    <span class="block min-w-0 truncate font-cinzel text-sm text-foreground">
+                      {{ m.display_name }}
+                    </span>
+                  </button>
                 </div>
 
                 <div class="h-px bg-border" />
@@ -383,9 +444,55 @@ onUnmounted(() => {
               </div>
             </CollapsibleSection>
 
-            <!-- Persona (stub) -->
-            <CollapsibleSection :title="$t('chat.drawer.persona')" icon="i-lucide-user-circle">
-              <p class="text-xs text-muted-foreground/70">{{ $t("chat.drawer.comingSoon") }}</p>
+            <!-- Persona -->
+            <CollapsibleSection :title="$t('chat.persona.title')" icon="i-lucide-user-circle">
+              <div>
+                <!-- None -->
+                <button
+                  class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
+                  @click="choosePersona(null)"
+                >
+                  <AppIcon
+                    name="i-lucide-check"
+                    class="size-3.5 shrink-0"
+                    :class="!currentPersonaId ? 'text-primary' : 'text-transparent'"
+                  />
+                  <span class="block min-w-0 truncate font-cinzel text-sm text-foreground">
+                    {{ $t("chat.persona.none") }}
+                  </span>
+                </button>
+                <button
+                  v-for="p in personas"
+                  :key="p.id"
+                  class="flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
+                  @click="choosePersona(p.id)"
+                >
+                  <AppIcon
+                    name="i-lucide-check"
+                    class="mt-0.5 size-3.5 shrink-0"
+                    :class="p.id === currentPersonaId ? 'text-primary' : 'text-transparent'"
+                  />
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-cinzel text-sm text-foreground">{{
+                      p.name
+                    }}</span>
+                    <span
+                      v-if="p.description"
+                      class="block truncate text-[0.6875rem] text-muted-foreground"
+                    >
+                      {{ p.description }}
+                    </span>
+                  </span>
+                </button>
+
+                <button
+                  class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground"
+                  @click="goManagePersonas"
+                >
+                  <AppIcon name="i-lucide-settings-2" class="size-4" />
+                  {{ $t("chat.persona.manage") }}
+                </button>
+              </div>
             </CollapsibleSection>
 
             <!-- Memories (stub) -->

@@ -37,10 +37,17 @@ class ChatCreate(ChatBase):
 
 
 class ChatUpdate(BaseModel):
-    """Schema for updating a chat"""
+    """Schema for updating a chat.
+
+    task_model_id and persona_id are nullable and clearable: sending ``null``
+    resets that axis (task model → "same as chat model", persona → none), which
+    is distinguished from "field omitted" via ``exclude_unset`` in the router.
+    """
 
     title: str | None = Field(default=None, max_length=200)
     model_id: str | None = Field(default=None, max_length=12)
+    task_model_id: str | None = Field(default=None, max_length=12)
+    persona_id: str | None = Field(default=None, max_length=12)
     preset_id: str | None = Field(default=None, max_length=12)
     is_bookmarked: bool | None = Field(default=None)
 
