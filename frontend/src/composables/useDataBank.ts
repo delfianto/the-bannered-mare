@@ -6,20 +6,24 @@ export type DataBankEntry = components["schemas"]["DataBankResponse"];
 export type DataBankCreate = components["schemas"]["DataBankCreate"];
 export type DataBankUpdate = components["schemas"]["DataBankUpdate"];
 
-export function useDataBank() {
+export function useDataBank(options: { autoLoad?: boolean } = {}) {
+  const { autoLoad = true } = options;
   const entries = ref<DataBankEntry[]>([]);
   const loading = ref(false);
   const error = ref<Error | null>(null);
 
-  const fetchEntries = async (scope?: string) => {
+  const fetchEntries = async (scope?: string, chatId?: string, characterId?: string) => {
     loading.value = true;
     error.value = null;
 
     try {
+      const query: { scope?: string; chat_id?: string; character_id?: string } = {};
+      if (scope) query.scope = scope;
+      if (chatId) query.chat_id = chatId;
+      if (characterId) query.character_id = characterId;
+
       const { data, error: apiError } = await client.GET("/api/data-bank/", {
-        params: {
-          query: scope ? { scope } : {},
-        },
+        params: { query },
       });
 
       if (apiError) {
@@ -107,7 +111,7 @@ export function useDataBank() {
   };
 
   onMounted(() => {
-    fetchEntries();
+    if (autoLoad) fetchEntries();
   });
 
   return {

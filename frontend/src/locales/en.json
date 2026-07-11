@@ -277,7 +277,15 @@
       "manageLoadouts": "Manage loadouts",
       "persona": "Persona",
       "memories": "Memories",
+      "memoriesEmpty": "No memories for this conversation yet",
+      "manageMemories": "Manage in Data Bank",
       "lorebooks": "Lorebooks",
+      "lorebooksEmpty": "No lorebooks apply to this conversation",
+      "manageLorebooks": "Manage lorebooks",
+      "lorebookGlobal": "Global",
+      "lorebookCharacter": "Character",
+      "lorebookTriggers": "Triggers",
+      "lorebookEntriesEmpty": "No entries in this lorebook",
       "comingSoon": "Coming soon"
     },
     "profile": {
