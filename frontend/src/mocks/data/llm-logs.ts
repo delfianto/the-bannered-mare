@@ -1,0 +1,195 @@
+import type { components } from "@/api/schema";
+
+type LlmAuditLog = components["schemas"]["LlmAuditLogResponse"];
+
+// A faithful slice of the backend's llm_audit_log table. The first three entries
+// are scoped to `chat-aranwen-01` (two successful calls + one upstream error) so
+// the chat drawer's Logs tab has realistic per-conversation records — including
+// request/response payloads. The remaining entries span other chats to keep the
+// admin-wide Logs settings tab populated.
+export const llmLogs: LlmAuditLog[] = [
+  {
+    id: "llm-aranwen-1",
+    created_at: "2026-07-11T14:32:10Z",
+    chat_id: "chat-aranwen-01",
+    provider: "openai",
+    model: "gpt-4o",
+    prompt_tokens: 1840,
+    completion_tokens: 512,
+    total_tokens: 2352,
+    latency_ms: 2210,
+    status: "success",
+    estimated_cost_usd: 0.0231,
+    error_message: null,
+    request_payload: [
+      {
+        role: "system",
+        content:
+          "You are Aranwen the Banished, a proud Altmer sorceress exiled from Summerset Isle. Stay in character and narrate her actions in vivid second-person prose.",
+      },
+      {
+        role: "user",
+        content: "I push open the tavern door and shake the snow from my travelling cloak.",
+      },
+    ],
+    response_payload: {
+      id: "chatcmpl-aranwen-9f2a",
+      object: "chat.completion",
+      model: "gpt-4o-2024-08-06",
+      choices: [
+        {
+          index: 0,
+          finish_reason: "stop",
+          message: {
+            role: "assistant",
+            content:
+              'Aranwen\'s golden eyes lift from the flickering hearth as the cold gust announces you, snow melting to beads on the worn oak floor. "Close the door, wanderer," she says, her voice edged with the frost of Summerset. "You let winter in with you."',
+          },
+        },
+      ],
+      usage: { prompt_tokens: 1840, completion_tokens: 512, total_tokens: 2352 },
+    },
+  },
+  {
+    id: "llm-aranwen-2",
+    created_at: "2026-07-11T14:28:44Z",
+    chat_id: "chat-aranwen-01",
+    provider: "openai",
+    model: "gpt-4o",
+    prompt_tokens: 1620,
+    completion_tokens: 388,
+    total_tokens: 2008,
+    latency_ms: 1740,
+    status: "success",
+    estimated_cost_usd: 0.0187,
+    error_message: null,
+    request_payload: [
+      {
+        role: "system",
+        content:
+          "You are Aranwen the Banished, a proud Altmer sorceress exiled from Summerset Isle.",
+      },
+      { role: "user", content: "I take the seat across from her and ask what she is drinking." },
+    ],
+    response_payload: {
+      id: "chatcmpl-aranwen-4b17",
+      object: "chat.completion",
+      model: "gpt-4o-2024-08-06",
+      choices: [
+        {
+          index: 0,
+          finish_reason: "stop",
+          message: {
+            role: "assistant",
+            content:
+              '"Canis Root tea," she answers, turning the clay cup in her long fingers. "The Nords brew it too strong, but it keeps the memories of home at bay."',
+          },
+        },
+      ],
+      usage: { prompt_tokens: 1620, completion_tokens: 388, total_tokens: 2008 },
+    },
+  },
+  {
+    id: "llm-aranwen-3",
+    created_at: "2026-07-11T14:24:03Z",
+    chat_id: "chat-aranwen-01",
+    provider: "openai",
+    model: "gpt-4o",
+    prompt_tokens: 1580,
+    completion_tokens: 0,
+    total_tokens: 1580,
+    latency_ms: 4830,
+    status: "error",
+    estimated_cost_usd: null,
+    error_message: "Upstream provider returned 503: model temporarily overloaded, please retry.",
+    request_payload: [
+      {
+        role: "system",
+        content:
+          "You are Aranwen the Banished, a proud Altmer sorceress exiled from Summerset Isle.",
+      },
+      { role: "user", content: "I ask her why she was banished from the Isles." },
+    ],
+    response_payload: null,
+  },
+  {
+    id: "llm-1",
+    created_at: "2026-04-07T10:29:00Z",
+    chat_id: "chat-lynara-01",
+    provider: "anthropic",
+    model: "claude-4.6-sonnet",
+    prompt_tokens: 1250,
+    completion_tokens: 430,
+    total_tokens: 1680,
+    latency_ms: 2340,
+    status: "success",
+    estimated_cost_usd: 0.0252,
+    error_message: null,
+    request_payload: [],
+    response_payload: null,
+  },
+  {
+    id: "llm-2",
+    created_at: "2026-04-07T10:25:00Z",
+    chat_id: "chat-zahrasha-01",
+    provider: "openai",
+    model: "gpt-4o",
+    prompt_tokens: 890,
+    completion_tokens: 320,
+    total_tokens: 1210,
+    latency_ms: 1560,
+    status: "success",
+    estimated_cost_usd: 0.0151,
+    error_message: null,
+    request_payload: [],
+    response_payload: null,
+  },
+  {
+    id: "llm-3",
+    created_at: "2026-04-07T10:20:00Z",
+    chat_id: "chat-eloise-01",
+    provider: "google",
+    model: "gemini-2.5-flash",
+    prompt_tokens: 2100,
+    completion_tokens: 680,
+    total_tokens: 2780,
+    latency_ms: 890,
+    status: "success",
+    estimated_cost_usd: 0.0042,
+    error_message: null,
+    request_payload: [],
+    response_payload: null,
+  },
+  {
+    id: "llm-4",
+    created_at: "2026-04-07T10:15:00Z",
+    chat_id: "chat-lynara-01",
+    provider: "anthropic",
+    model: "claude-4.5-haiku",
+    prompt_tokens: 500,
+    completion_tokens: 0,
+    total_tokens: 500,
+    latency_ms: 5000,
+    status: "error",
+    estimated_cost_usd: null,
+    error_message: "Rate limit exceeded",
+    request_payload: [],
+    response_payload: null,
+  },
+  {
+    id: "llm-5",
+    created_at: "2026-04-07T10:10:00Z",
+    chat_id: "chat-beeps-01",
+    provider: "xai",
+    model: "grok-4.20",
+    prompt_tokens: 1800,
+    completion_tokens: 550,
+    total_tokens: 2350,
+    latency_ms: 1200,
+    status: "success",
+    estimated_cost_usd: 0.0188,
+    error_message: null,
+    request_payload: [],
+    response_payload: null,
+  },
+];

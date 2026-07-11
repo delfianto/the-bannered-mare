@@ -9,6 +9,7 @@ import { usePersonas } from "@/composables/usePersonas";
 import { useDataBank } from "@/composables/useDataBank";
 import { useLorebooks } from "@/composables/useLorebooks";
 import { useChatPromptPreview } from "@/composables/useChatPromptPreview";
+import { useChatLlmLogs, type LlmAuditLog } from "@/composables/useChatLlmLogs";
 import type { LoreEntryResponse } from "@/composables/useLorebooks";
 import Tabs from "@/components/shared/Tabs.vue";
 import CollapsibleSection from "@/components/shared/CollapsibleSection.vue";
@@ -199,6 +200,67 @@ function formatParamValue(value: unknown): string {
 
 function roleLabel(role: string): string {
   return role ? role.charAt(0).toUpperCase() + role.slice(1) : role;
+}
+
+// Logs tab: this conversation's LLM audit records. Cached by chat id, so it only
+// hits the network the first time a given chat's Logs tab is opened (and again
+// after switching chats).
+const { logs, loading: logsLoading, error: logsError, load: loadLogs } = useChatLlmLogs();
+
+watch(
+  [() => props.show, activeTab, () => props.chatId],
+  ([show, tab, chatId]) => {
+    if (show && tab === "logs" && chatId) void loadLogs(chatId);
+  },
+  { immediate: true },
+);
+
+// Newest first, regardless of the order the API hands them back.
+const sortedLogs = computed(() =>
+  logs.value.slice().sort((a, b) => b.created_at.localeCompare(a.created_at)),
+);
+
+// Per-row expansion for the (lazily stringified) request/response payloads.
+const expandedLogs = ref<Record<string, boolean>>({});
+
+function toggleLog(id: string) {
+  expandedLogs.value[id] = !expandedLogs.value[id];
+}
+
+function isErrorLog(log: LlmAuditLog): boolean {
+  return log.status.toLowerCase() !== "success" || !!log.error_message;
+}
+
+function formatTokens(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 0 : 1)}k`;
+  return String(n);
+}
+
+function formatLatency(ms: number): string {
+  return ms >= 1_000 ? `${(ms / 1_000).toFixed(2)}s` : `${Math.round(ms)}ms`;
+}
+
+function formatCost(usd: number | null): string {
+  if (!usd) return "";
+  return usd >= 1 ? `$${usd.toFixed(2)}` : `$${usd.toFixed(4)}`;
+}
+
+function formatLogTime(iso: string): string {
+  const date = new Date(iso);
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60_000);
+  const diffHr = Math.floor(diffMs / 3_600_000);
+  const diffDay = Math.floor(diffMs / 86_400_000);
+  if (diffMin < 1) return t("time.justNow");
+  if (diffMin < 60) return t("time.minutesAgo", { count: diffMin });
+  if (diffHr < 24) return t("time.hoursAgo", { count: diffHr });
+  if (diffDay < 7) return t("time.daysAgo", { count: diffDay });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function formatJson(value: unknown): string {
+  return JSON.stringify(value, null, 2);
 }
 
 onUnmounted(() => {
@@ -815,10 +877,118 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Logs tab (stub) -->
+          <!-- Logs tab -->
           <div v-else-if="activeTab === 'logs'" class="p-4">
-            <p class="py-8 text-center text-xs text-muted-foreground/70">
-              {{ $t("chat.drawer.comingSoon") }}
+            <div v-if="logsLoading" class="flex justify-center py-12">
+              <AppIcon
+                name="i-lucide-loader-circle"
+                class="size-6 animate-spin text-muted-foreground"
+              />
+            </div>
+
+            <div v-else-if="logsError" class="py-12 text-center text-xs text-muted-foreground">
+              {{ $t("chat.drawer.logsError") }}
+            </div>
+
+            <div v-else-if="sortedLogs.length" class="space-y-2">
+              <div
+                v-for="log in sortedLogs"
+                :key="log.id"
+                class="overflow-hidden rounded-lg border border-border/50 bg-base-100/40"
+              >
+                <!-- Summary row -->
+                <button
+                  class="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-base-300/40"
+                  @click="toggleLog(log.id)"
+                >
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="min-w-0 truncate font-cinzel text-sm text-foreground">
+                        {{ log.model }}
+                      </span>
+                      <span
+                        class="shrink-0 rounded-full px-2 py-0.5 text-[0.625rem] font-medium tracking-wide uppercase"
+                        :class="
+                          isErrorLog(log) ? 'bg-error/15 text-error' : 'bg-success/15 text-success'
+                        "
+                      >
+                        {{
+                          isErrorLog(log)
+                            ? $t("chat.drawer.logsStatusError")
+                            : $t("chat.drawer.logsStatusSuccess")
+                        }}
+                      </span>
+                    </div>
+                    <p
+                      class="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[0.6875rem] text-muted-foreground"
+                    >
+                      <span>{{ log.provider }}</span>
+                      <span class="text-muted-foreground/40">·</span>
+                      <span>{{ formatLogTime(log.created_at) }}</span>
+                    </p>
+                  </div>
+                  <AppIcon
+                    name="i-lucide-chevron-down"
+                    class="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform"
+                    :class="{ 'rotate-180': expandedLogs[log.id] }"
+                  />
+                </button>
+
+                <!-- Metrics -->
+                <div
+                  class="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border/40 px-4 py-2 text-[0.6875rem] text-muted-foreground"
+                >
+                  <span class="flex items-center gap-1">
+                    <AppIcon name="i-lucide-hash" class="size-3 text-muted-foreground/60" />
+                    {{ $t("chat.drawer.logsTokens") }}:
+                    <span class="tabular-nums text-foreground">
+                      {{ formatTokens(log.prompt_tokens) }} →
+                      {{ formatTokens(log.completion_tokens) }}
+                    </span>
+                    <span class="text-muted-foreground/50">
+                      ({{ formatTokens(log.total_tokens) }})
+                    </span>
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <AppIcon name="i-lucide-timer" class="size-3 text-muted-foreground/60" />
+                    <span class="tabular-nums text-foreground">{{
+                      formatLatency(log.latency_ms)
+                    }}</span>
+                  </span>
+                  <span v-if="formatCost(log.estimated_cost_usd)" class="flex items-center gap-1">
+                    <AppIcon name="i-lucide-coins" class="size-3 text-muted-foreground/60" />
+                    <span class="tabular-nums text-foreground">{{
+                      formatCost(log.estimated_cost_usd)
+                    }}</span>
+                  </span>
+                </div>
+
+                <!-- Error message -->
+                <p
+                  v-if="log.error_message"
+                  class="border-t border-border/40 px-4 py-2 text-[0.6875rem] leading-snug text-error"
+                >
+                  {{ log.error_message }}
+                </p>
+
+                <!-- Expandable payloads (stringified only when open) -->
+                <div v-if="expandedLogs[log.id]" class="space-y-2 border-t border-border/40 p-3">
+                  <CollapsibleField
+                    :label="$t('chat.drawer.logsRequest')"
+                    :content="formatJson(log.request_payload)"
+                    mono
+                  />
+                  <CollapsibleField
+                    :label="$t('chat.drawer.logsResponse')"
+                    :content="formatJson(log.response_payload)"
+                    mono
+                  />
+                </div>
+              </div>
+            </div>
+
+            <p v-else class="py-8 text-center text-xs text-muted-foreground/70">
+              {{ $t("chat.drawer.logsEmpty") }}
             </p>
           </div>
         </div>
