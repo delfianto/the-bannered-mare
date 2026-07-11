@@ -31,11 +31,12 @@ _SEARCH_RESULT_LIMIT = 50
 # the RP picker.
 _REASONING_MODEL_RE = re.compile(r"^o[1-9]([.-]|$)")
 
-# OpenAI ships redundant GPT aliases: a "-latest" rolling pointer
-# (gpt-chat-latest, chatgpt-4o-latest) and dated snapshots (gpt-5.4-2026-03-05).
-# Each duplicates a bare SKU that's already listed, so they only clutter the RP
-# picker — drop them. Scoped to gpt/chatgpt so other vendors' names are untouched.
-_OPENAI_ALIAS_RE = re.compile(r"^(?:chat)?gpt.*(?:-latest|-\d{4}-\d{2}-\d{2})$")
+# OpenAI ships dated GPT snapshots (gpt-5-2025-08-07, gpt-5.4-2026-03-05)
+# alongside the bare/rolling id they pin, so they only clutter the RP picker —
+# drop them. NOT the "-chat-latest" aliases: those are the *only* callable form
+# of the chat SKUs (there is no bare "gpt-5-chat"), so they must stay. Scoped to
+# gpt/chatgpt so other vendors' dated names (e.g. Claude's) are untouched.
+_OPENAI_ALIAS_RE = re.compile(r"^(?:chat)?gpt.*-\d{4}-\d{2}-\d{2}$")
 
 
 def _dedupe_preserving_order(identifiers: list[str]) -> list[str]:

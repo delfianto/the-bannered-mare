@@ -243,7 +243,9 @@ class Settings(BaseSettings):
         # Outdated or off-task chat variants
         "codex",  # code-completion variants (e.g. gpt-5.x-codex)
         "gpt-3",  # GPT-3.x — obsolete for RP
-        "latest",  # rolling "*-latest" auto-alias pointers
+        # NB: no blanket "latest" rule — OpenAI's chat SKUs are only callable via
+        # their "-chat-latest" rolling alias, so dropping "latest" would hide them.
+        # Redundant *dated* snapshots are handled by _OPENAI_ALIAS_RE instead.
         "remm",  # ReMM-SLERP — ancient L2-13B RP merge
     ]
 
