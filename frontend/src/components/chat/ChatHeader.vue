@@ -97,6 +97,7 @@ function avatarSrc(): string {
         :session-title="sessionTitle"
         :models="models ?? []"
         :current-model-id="currentModelId"
+        :current-model-name="currentModelName"
         :current-task-model-id="currentTaskModelId"
         :profiles="profiles ?? []"
         :current-profile-name="currentProfileName"

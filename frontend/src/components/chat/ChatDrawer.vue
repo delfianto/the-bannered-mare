@@ -27,6 +27,7 @@ const props = defineProps<{
   sessionTitle: string;
   models: PickerModel[];
   currentModelId?: string | null;
+  currentModelName?: string | null;
   currentTaskModelId?: string | null;
   profiles: Profile[];
   currentProfileName?: string | null;
@@ -292,13 +293,42 @@ function genderLabel(): string {
 
 // --- Loadouts (model + profile) ---
 
-function chooseModel(m: PickerModel) {
-  if (m.id !== props.currentModelId) emit("changeModel", m.id);
+// Model selects use the shared searchable SelectMenu (a long model list would
+// otherwise make the section a very tall scroll).
+const modelItems = computed(() =>
+  props.models.map((m) => ({ label: m.display_name, value: m.id })),
+);
+
+// Task model prepends a "Same as chat model" option; its value is "" (SelectMenu
+// deals in strings), mapped back to null on the way out.
+const SAME_AS_CHAT = "";
+const taskModelItems = computed(() => [
+  { label: t("chat.model.sameAsChat"), value: SAME_AS_CHAT },
+  ...modelItems.value,
+]);
+
+// Fall back to the chat's snapshot model name so a model that isn't in the
+// enabled list (e.g. a disabled/legacy one) still shows its real name here.
+const currentModelLabel = computed(
+  () =>
+    props.models.find((m) => m.id === props.currentModelId)?.display_name ??
+    props.currentModelName ??
+    t("chat.model.none"),
+);
+const currentTaskModelLabel = computed(
+  () =>
+    props.models.find((m) => m.id === props.currentTaskModelId)?.display_name ??
+    t("chat.model.sameAsChat"),
+);
+
+function chooseModel(id: string) {
+  if (id && id !== props.currentModelId) emit("changeModel", id);
 }
 
-// `null` = "Same as chat model" (clears the override). No-op when unchanged.
-function chooseTaskModel(id: string | null) {
-  if (id !== (props.currentTaskModelId ?? null)) emit("changeTaskModel", id);
+// "" (Same as chat model) clears the override → null. No-op when unchanged.
+function chooseTaskModel(value: string) {
+  const next = value === SAME_AS_CHAT ? null : value;
+  if (next !== (props.currentTaskModelId ?? null)) emit("changeTaskModel", next);
 }
 
 function chooseProfile(p: Profile) {
@@ -492,27 +522,21 @@ onUnmounted(() => {
                   >
                     {{ $t("chat.model.mainModel") }}
                   </div>
-                  <button
-                    v-for="m in models"
-                    :key="m.id"
-                    class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
-                    @click="chooseModel(m)"
+                  <SelectMenu
+                    :model-value="currentModelId ?? null"
+                    :items="modelItems"
+                    @update:model-value="chooseModel"
                   >
-                    <AppIcon
-                      name="i-lucide-check"
-                      class="size-3.5 shrink-0"
-                      :class="m.id === currentModelId ? 'text-primary' : 'text-transparent'"
-                    />
-                    <span class="block min-w-0 truncate text-sm font-medium text-foreground">
-                      {{ m.display_name }}
-                    </span>
-                  </button>
-                  <div
-                    v-if="models.length === 0"
-                    class="px-2 py-2 text-center text-xs text-muted-foreground"
-                  >
-                    {{ $t("chat.model.empty") }}
-                  </div>
+                    <button
+                      class="flex h-9 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none transition-colors hover:border-muted-foreground/30"
+                    >
+                      <span class="min-w-0 truncate">{{ currentModelLabel }}</span>
+                      <AppIcon
+                        name="i-lucide-chevron-down"
+                        class="size-3.5 shrink-0 text-muted-foreground"
+                      />
+                    </button>
+                  </SelectMenu>
                   <p class="px-1 py-1 text-[0.625rem] leading-snug text-muted-foreground/70">
                     {{ $t("chat.model.overrideHint") }}
                   </p>
@@ -525,34 +549,21 @@ onUnmounted(() => {
                   >
                     {{ $t("chat.model.taskModel") }}
                   </div>
-                  <button
-                    class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
-                    @click="chooseTaskModel(null)"
+                  <SelectMenu
+                    :model-value="currentTaskModelId ?? ''"
+                    :items="taskModelItems"
+                    @update:model-value="chooseTaskModel"
                   >
-                    <AppIcon
-                      name="i-lucide-check"
-                      class="size-3.5 shrink-0"
-                      :class="!currentTaskModelId ? 'text-primary' : 'text-transparent'"
-                    />
-                    <span class="block min-w-0 truncate text-sm font-medium text-foreground">
-                      {{ $t("chat.model.sameAsChat") }}
-                    </span>
-                  </button>
-                  <button
-                    v-for="m in models"
-                    :key="m.id"
-                    class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
-                    @click="chooseTaskModel(m.id)"
-                  >
-                    <AppIcon
-                      name="i-lucide-check"
-                      class="size-3.5 shrink-0"
-                      :class="m.id === currentTaskModelId ? 'text-primary' : 'text-transparent'"
-                    />
-                    <span class="block min-w-0 truncate text-sm font-medium text-foreground">
-                      {{ m.display_name }}
-                    </span>
-                  </button>
+                    <button
+                      class="flex h-9 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none transition-colors hover:border-muted-foreground/30"
+                    >
+                      <span class="min-w-0 truncate">{{ currentTaskModelLabel }}</span>
+                      <AppIcon
+                        name="i-lucide-chevron-down"
+                        class="size-3.5 shrink-0 text-muted-foreground"
+                      />
+                    </button>
+                  </SelectMenu>
                 </div>
 
                 <div class="h-px bg-border" />
