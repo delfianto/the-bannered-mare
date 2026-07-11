@@ -13,15 +13,44 @@ import ThemeEditor from "./ThemeEditor.vue";
 const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
 const { custom } = useCustomTheme();
 const { fontSize, setFontSize } = useFontSize();
-// The whole UI is rem-based, so applying the font size live on every drag
-// `input` reflowed the slider's own track *under the cursor* (it shifts and
-// shrinks as the root grows) — the drag chased a moving target and stuck. So
-// the slider drives a local draft; the sample previews it live and the app only
-// rescales on release (`@change`), keeping the track still while dragging.
 const draftSize = ref(fontSize.value);
 watch(fontSize, (v) => {
   draftSize.value = v;
 });
+
+// The whole UI is rem-based, so live-rescaling also rescales the slider's own
+// track — letting the browser map pointer→value off that reflowing track made
+// the drag chase a moving target and stick. Instead we capture the track rect
+// at drag start and map against that frozen geometry, so the app rescales live
+// under the cursor while the value stays stable. preventDefault suppresses the
+// native (reflowing-track) handling; @input still covers keyboard.
+let dragRect: DOMRect | null = null;
+function valueAtX(clientX: number): number {
+  if (!dragRect) return draftSize.value;
+  const frac = Math.min(1, Math.max(0, (clientX - dragRect.left) / dragRect.width));
+  return Math.round(MIN_FONT_SIZE + frac * (MAX_FONT_SIZE - MIN_FONT_SIZE));
+}
+function applySize(px: number) {
+  draftSize.value = px;
+  setFontSize(px);
+}
+function onSliderDown(e: PointerEvent) {
+  const el = e.currentTarget as HTMLInputElement;
+  dragRect = el.getBoundingClientRect();
+  try {
+    el.setPointerCapture(e.pointerId);
+  } catch {
+    /* no active pointer (synthetic event) — capture is best-effort */
+  }
+  applySize(valueAtX(e.clientX));
+  e.preventDefault();
+}
+function onSliderMove(e: PointerEvent) {
+  if (dragRect) applySize(valueAtX(e.clientX));
+}
+function onSliderUp() {
+  dragRect = null;
+}
 const { chatWidth, setChatWidth } = useChatWidth();
 const { replySuggestionsEnabled, autoGenerateTones } = useSuggestionSettings();
 const { locale } = useI18n();
@@ -101,10 +130,13 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               :max="MAX_FONT_SIZE"
               step="1"
               :value="draftSize"
-              class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-base-300 accent-primary"
+              class="h-1.5 flex-1 cursor-pointer touch-none appearance-none rounded-full bg-base-300 accent-primary"
               :aria-label="$t('settings.interface.textSize')"
-              @input="draftSize = Number(($event.target as HTMLInputElement).value)"
-              @change="setFontSize(draftSize)"
+              @pointerdown="onSliderDown"
+              @pointermove="onSliderMove"
+              @pointerup="onSliderUp"
+              @pointercancel="onSliderUp"
+              @input="applySize(Number(($event.target as HTMLInputElement).value))"
             />
             <span class="text-lg text-muted-foreground">A</span>
             <span class="w-11 shrink-0 text-right text-sm font-medium text-foreground tabular-nums"
