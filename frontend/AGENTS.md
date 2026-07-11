@@ -99,7 +99,7 @@ src/
 - **Framework:** Vue 3.5 — always `<script setup lang="ts">` Composition API
 - **Build Bundler:** Vite 8 powered by Rolldown (Rust); Oxc transforms + Lightning CSS minify
 - **Language:** TypeScript 6 (strict mode)
-- **UI Library:** DaisyUI 5 — a CSS-only Tailwind plugin (component _classes_, no JS runtime). Interactive behavior lives in shared Vue primitives (`AppIcon`, `AppTooltip`, `SelectMenu`) under `src/components/shared/`, registered globally in `main.ts`.
+- **UI Library:** DaisyUI 5 — a CSS-only Tailwind plugin (component _classes_, no JS runtime). Interactive behavior lives in shared Vue primitives under `src/components/shared/`; three are registered globally in `main.ts` (`AppIcon`, `SelectMenu`, `AppToggle`) and the rest (e.g. `AppTooltip`) are imported per-component.
 - **Styling:** Tailwind CSS v4 via `@tailwindcss/vite`; DaisyUI themes (`tbm-*`) + retained CSS variables
 - **State:** Pinia for global state, composables for feature-scoped state
 - **Routing:** Vue Router 5
@@ -154,7 +154,7 @@ For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Conne
 
 ### 4.3 Key Architecture Decisions
 
-- **DaisyUI, not a component runtime:** Migrated off Nuxt UI v4 to DaisyUI 5 (a CSS-only Tailwind plugin). Behavior lives in three globally-registered shared primitives — `AppIcon`, `AppTooltip`, `SelectMenu`; everything else is hand-rolled Tailwind using DaisyUI's token vocabulary.
+- **DaisyUI, not a component runtime:** Migrated off Nuxt UI v4 to DaisyUI 5 (a CSS-only Tailwind plugin). Behavior lives in shared Vue primitives — three globally-registered (`AppIcon`, `SelectMenu`, `AppToggle`), the rest (e.g. `AppTooltip`) imported per-component; everything else is hand-rolled Tailwind using DaisyUI's token vocabulary.
 - **TypeScript 7 deferred:** the code is TS7-clean (passes native `tsgo`), and `typescript-native-bridge` can even run `vue-tsc` on TS7 incl `.vue` — but TNB is macOS-only at v0.0.0 (no Linux binary; breaks `ubuntu-latest` CI), so we stay on `typescript@6` + `vue-tsc`. Revisit when TNB ships prebuilt binaries or `vue-tsc` supports native TS7.
 - **API types directly:** Components use `components["schemas"]["CharacterResponse"]` etc. from the generated schema. No parallel/duplicate type systems.
 - **Avatar URLs from API:** Use the `avatar` / `avatar_thumbnail` fields directly. Don't route through `getAvatarUrl()` (it generates endpoints not mocked in MSW).
@@ -240,15 +240,18 @@ Vite+ can also wire up agent/editor integration via `vp migrate --agent` / `vp c
 
 ### 6.2 Components & DaisyUI
 
-The UI layer is **DaisyUI 5** — CSS-only Tailwind component classes plus three globally-registered shared primitives (no import needed):
+The UI layer is **DaisyUI 5** — CSS-only Tailwind component classes plus a handful of shared Vue primitives in `src/components/shared/`. Three are registered globally in `main.ts` and need **no import** — `AppIcon`, `SelectMenu`, `AppToggle`:
 
 ```vue
 <AppIcon name="i-lucide-*" />
 <!-- ALL icons (lucide-vue-next) -->
-<AppTooltip :text="..." side="right"> … </AppTooltip>
-<!-- teleported hover tooltip -->
 <SelectMenu v-model="v" :items="items" value-key="value"> <button>…</button> </SelectMenu>
+<!-- searchable teleported dropdown -->
+<AppToggle :model-value="on" @change="…" />
+<!-- switch -->
 ```
+
+Other shared primitives — notably **`AppTooltip`** (a teleported hover tooltip, `<AppTooltip :text="..." side="right">…</AppTooltip>`) — are **not** global; `import` them per-component from `@/components/shared/` (see `AppSidebar.vue`, `ModelInferenceParams.vue`). `vue-tsc` won't flag a missing import for these, but the running app logs "Failed to resolve component" and the element renders broken.
 
 For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, `card`, …) and DaisyUI's token utilities (§6.3) on hand-rolled markup.
 
