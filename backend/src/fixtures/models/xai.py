@@ -14,7 +14,7 @@ XAI_MODELS: list[ModelSeedData] = [
             "temperature": 0.9,
             "top_p": 0.92,
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Grok 4.20 Multi-Agent",
@@ -29,7 +29,7 @@ XAI_MODELS: list[ModelSeedData] = [
             "top_p": 0.92,
             "reasoning_effort": "high",
         },
-        "enabled": True,
+        "enabled": False,
     },
     # --- Grok 4.3 ---
     {
@@ -43,7 +43,7 @@ XAI_MODELS: list[ModelSeedData] = [
             "top_p": 0.92,
             "reasoning_effort": "low",
         },
-        "enabled": True,
+        "enabled": False,
     },
     # --- Grok 4.5 ---
     {
@@ -58,6 +58,6 @@ XAI_MODELS: list[ModelSeedData] = [
             "top_p": 0.92,
             "reasoning_effort": "low",
         },
-        "enabled": True,
+        "enabled": False,
     },
 ]

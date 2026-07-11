@@ -27,7 +27,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-4o",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-4o Mini",
@@ -35,7 +35,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-4o",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 16384},
-        "enabled": True,
+        "enabled": False,
     },
     # --- GPT-4.1 (chat) ---
     {
@@ -44,7 +44,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-4.1",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-4.1 Mini",
@@ -52,7 +52,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-4.1",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-4.1 Nano",
@@ -60,7 +60,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-4.1",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     # --- GPT-5 chat (non-reasoning) ---
     {
@@ -69,7 +69,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.1 Chat",
@@ -77,7 +77,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.2 Chat",
@@ -85,7 +85,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.3 Chat",
@@ -93,7 +93,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT Chat Latest",
@@ -101,7 +101,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
     },
     # --- GPT-5 thinking (reasoning) ---
     {
@@ -110,7 +110,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-thinking",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.4 Mini",
@@ -118,7 +118,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-thinking",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS, "max_completion_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.4 Nano",
@@ -126,7 +126,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-thinking",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS, "max_completion_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.4 Pro",
@@ -134,7 +134,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-thinking",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS, "reasoning_effort": "high"},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.5",
@@ -142,7 +142,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-thinking",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.5 Pro",
@@ -150,7 +150,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5-thinking",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS, "reasoning_effort": "high"},
-        "enabled": True,
+        "enabled": False,
     },
     # --- GPT-5.6 (reasoning; Sol / Terra / Luna) ---
     {
@@ -159,7 +159,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5.6",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS, "reasoning_effort": "medium"},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.6 Terra",
@@ -167,7 +167,7 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5.6",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "GPT-5.6 Luna",
@@ -175,6 +175,6 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "family_identifier": "openai/gpt-5.6",
         "provider_type": "openai",
         "parameters": {**_THINKING_PARAMS, "max_completion_tokens": 8192},
-        "enabled": True,
+        "enabled": False,
     },
 ]

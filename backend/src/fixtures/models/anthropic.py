@@ -14,7 +14,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "top_k": 60,
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude 4.5 Sonnet",
@@ -27,7 +27,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "top_k": 60,
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude 4.5 Opus",
@@ -40,7 +40,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "top_k": 60,
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude 4.6 Sonnet",
@@ -54,7 +54,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "effort": "low",
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude 4.6 Opus",
@@ -68,7 +68,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "effort": "low",
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude 4.7 Opus",
@@ -80,7 +80,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "effort": "low",
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude 4.8 Opus",
@@ -92,7 +92,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "effort": "low",
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude Sonnet 5",
@@ -104,7 +104,7 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "effort": "low",
             "thinking": {"type": "disabled"},
         },
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Claude Fable 5",
@@ -116,6 +116,6 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
             "effort": "low",
             "thinking": {"type": "adaptive"},
         },
-        "enabled": True,
+        "enabled": False,
     },
 ]
