@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "@/composables/useTheme";
 import { useCustomTheme } from "@/composables/useCustomTheme";
@@ -13,6 +13,15 @@ import ThemeEditor from "./ThemeEditor.vue";
 const { isDark, toggleTheme, colorScheme, setColorScheme } = useTheme();
 const { custom } = useCustomTheme();
 const { fontSize, setFontSize } = useFontSize();
+// The whole UI is rem-based, so applying the font size live on every drag
+// `input` reflowed the slider's own track *under the cursor* (it shifts and
+// shrinks as the root grows) — the drag chased a moving target and stuck. So
+// the slider drives a local draft; the sample previews it live and the app only
+// rescales on release (`@change`), keeping the track still while dragging.
+const draftSize = ref(fontSize.value);
+watch(fontSize, (v) => {
+  draftSize.value = v;
+});
 const { chatWidth, setChatWidth } = useChatWidth();
 const { replySuggestionsEnabled, autoGenerateTones } = useSuggestionSettings();
 const { locale } = useI18n();
@@ -91,20 +100,22 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               :min="MIN_FONT_SIZE"
               :max="MAX_FONT_SIZE"
               step="1"
-              :value="fontSize"
+              :value="draftSize"
               class="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-base-300 accent-primary"
               :aria-label="$t('settings.interface.textSize')"
-              @input="setFontSize(Number(($event.target as HTMLInputElement).value))"
+              @input="draftSize = Number(($event.target as HTMLInputElement).value)"
+              @change="setFontSize(draftSize)"
             />
             <span class="text-lg text-muted-foreground">A</span>
             <span class="w-11 shrink-0 text-right text-sm font-medium text-foreground tabular-nums"
-              >{{ fontSize }}px</span
+              >{{ draftSize }}px</span
             >
           </div>
 
-          <!-- Live sample — grows to fill the card so Chat Width sits flush at the bottom -->
+          <!-- Live sample — previews the draft size directly (px) so dragging shows
+               the result without rescaling the whole app mid-drag. -->
           <div class="min-h-0 flex-1 overflow-y-auto rounded-lg border bg-base-100/50 p-4">
-            <p class="leading-relaxed text-foreground">
+            <p class="leading-relaxed text-foreground" :style="{ fontSize: `${draftSize}px` }">
               {{ $t("settings.interface.textSizeSample") }}
             </p>
           </div>
