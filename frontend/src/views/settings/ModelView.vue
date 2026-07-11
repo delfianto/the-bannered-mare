@@ -447,11 +447,24 @@ function formatDate(iso: string): string {
                         {{ $t("connections.model.activeRoute") }}
                       </span>
                     </div>
-                    <AppTooltip :text="identifierHintFor(r.provider_id)" side="top">
-                      <span class="truncate font-mono text-xs text-muted-foreground">{{
+                    <div class="flex items-center gap-1">
+                      <span class="truncate font-mono text-xs leading-none text-muted-foreground">{{
                         r.model_identifier
                       }}</span>
-                    </AppTooltip>
+                      <AppTooltip
+                        v-if="identifierHintFor(r.provider_id)"
+                        :text="identifierHintFor(r.provider_id)"
+                        side="top"
+                        wide
+                        class="inline-flex shrink-0 items-center"
+                      >
+                        <AppIcon
+                          name="i-lucide-info"
+                          class="size-3.5 text-muted-foreground/40 transition-colors hover:text-muted-foreground"
+                          :aria-label="$t('connections.model.identifierFormat')"
+                        />
+                      </AppTooltip>
+                    </div>
                   </div>
                   <button
                     class="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-error/10 hover:text-error disabled:pointer-events-none disabled:opacity-40"
@@ -581,7 +594,7 @@ function formatDate(iso: string): string {
                   <span class="text-sm text-muted-foreground">{{
                     $t("connections.model.identifierFormat")
                   }}</span>
-                  <AppTooltip :text="activeIdentifierHint" side="left">
+                  <AppTooltip :text="activeIdentifierHint" side="left" wide>
                     <span
                       class="rounded-md border bg-base-300/40 px-2 py-0.5 font-mono text-xs text-foreground"
                     >

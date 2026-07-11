@@ -9,8 +9,11 @@ const props = withDefaults(
     text?: string;
     side?: "top" | "right" | "bottom" | "left";
     disabled?: boolean;
+    // Wrap long help text (max-width + normal whitespace) instead of the default
+    // single-line label. Use for sentences, not short icon labels.
+    wide?: boolean;
   }>(),
-  { side: "top", disabled: false },
+  { side: "top", disabled: false, wide: false },
 );
 
 const visible = ref(false);
@@ -45,7 +48,8 @@ function hide() {
       <span
         v-if="visible"
         role="tooltip"
-        class="pointer-events-none fixed z-[100] whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs font-medium text-base-100 shadow-md"
+        class="pointer-events-none fixed z-[100] rounded-md bg-foreground px-2 py-1 text-xs font-medium text-base-100 shadow-md"
+        :class="wide ? 'max-w-xs whitespace-normal break-words' : 'whitespace-nowrap'"
         :style="pos"
       >
         {{ text }}
