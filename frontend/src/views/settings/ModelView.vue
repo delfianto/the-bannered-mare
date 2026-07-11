@@ -5,6 +5,7 @@ import { useModel } from "@/composables/useModel";
 import { useSettingsStore } from "@/stores/settings";
 import { useAppToast } from "@/composables/useToast";
 import ModelInferenceParams from "@/components/connections/ModelInferenceParams.vue";
+import AppTooltip from "@/components/shared/AppTooltip.vue";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { providersForFamily } from "@/utils/modelProviderFilter";
 
