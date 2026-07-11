@@ -108,18 +108,20 @@ onUnmounted(() => {
 
 <template>
   <header
-    class="z-10 flex h-15.5 shrink-0 items-center justify-between border-b bg-base-100/80 px-5 backdrop-blur-sm"
+    class="z-10 grid h-15.5 shrink-0 grid-cols-3 items-center border-b bg-base-100/80 px-5 backdrop-blur-sm"
   >
     <button
       :aria-label="$t('common.goBack')"
-      class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
+      class="flex size-9 items-center justify-center justify-self-start rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
       @click="emit('back')"
     >
       <AppIcon name="i-lucide-arrow-left" class="size-5" />
     </button>
 
-    <div class="flex items-center gap-3">
-      <div class="relative">
+    <!-- Center third stays dead-centered regardless of the side zones' widths,
+         so changing the (variable-length) model label never shifts the heading. -->
+    <div class="flex min-w-0 items-center justify-center gap-3 justify-self-center">
+      <div class="relative shrink-0">
         <img
           :src="avatarSrc()"
           :alt="character.name"
@@ -129,9 +131,9 @@ onUnmounted(() => {
           class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-100 bg-emerald-500"
         />
       </div>
-      <div class="text-center">
+      <div class="min-w-0 text-center">
         <h2
-          class="font-cinzel text-sm leading-tight font-semibold text-foreground"
+          class="truncate font-cinzel text-sm leading-tight font-semibold text-foreground"
           style="letter-spacing: 0.03em"
         >
           {{ character.name }}
@@ -146,14 +148,14 @@ onUnmounted(() => {
           />
         </template>
         <template v-else>
-          <p class="mt-0.5 text-[0.6875rem] leading-tight text-muted-foreground">
+          <p class="mt-0.5 truncate text-[0.6875rem] leading-tight text-muted-foreground">
             {{ sessionTitle }}
           </p>
         </template>
       </div>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 justify-self-end">
       <button
         :title="$t('chat.settings.title')"
         class="flex h-9 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
