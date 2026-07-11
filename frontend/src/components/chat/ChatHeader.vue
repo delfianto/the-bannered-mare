@@ -11,6 +11,7 @@ interface PickerModel {
 
 const props = defineProps<{
   character: ChatCharacterInfo;
+  chatId?: string;
   sessionTitle: string;
   profiles?: Profile[];
   currentProfileName?: string | null;
@@ -92,6 +93,7 @@ function avatarSrc(): string {
       <ChatDrawer
         :show="drawerOpen"
         :character="character"
+        :chat-id="chatId"
         :session-title="sessionTitle"
         :models="models ?? []"
         :current-model-id="currentModelId"

@@ -10,14 +10,23 @@ const props = withDefaults(
   { defaultOpen: false },
 );
 
+const emit = defineEmits<{
+  toggle: [open: boolean];
+}>();
+
 const open = ref(props.defaultOpen);
+
+function toggle() {
+  open.value = !open.value;
+  emit("toggle", open.value);
+}
 </script>
 
 <template>
   <div class="overflow-hidden rounded-lg border border-border/50 bg-base-100/40">
     <button
       class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-base-300/40"
-      @click="open = !open"
+      @click="toggle"
     >
       <div class="flex min-w-0 items-center gap-2.5">
         <AppIcon v-if="icon" :name="icon" class="size-4 shrink-0 text-muted-foreground" />
@@ -26,6 +35,7 @@ const open = ref(props.defaultOpen);
         >
           {{ title }}
         </h3>
+        <slot name="badge" />
       </div>
       <AppIcon
         name="i-lucide-chevron-down"

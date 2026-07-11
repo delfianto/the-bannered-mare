@@ -6,6 +6,9 @@ import type { ChatCharacterInfo } from "@/types/chat";
 import type { Profile } from "@/composables/useProfiles";
 import { useCharacter } from "@/composables/useCharacter";
 import { usePersonas } from "@/composables/usePersonas";
+import { useDataBank } from "@/composables/useDataBank";
+import { useLorebooks } from "@/composables/useLorebooks";
+import type { LoreEntryResponse } from "@/composables/useLorebooks";
 import Tabs from "@/components/shared/Tabs.vue";
 import CollapsibleSection from "@/components/shared/CollapsibleSection.vue";
 import CollapsibleField from "@/components/discover/CollapsibleField.vue";
@@ -18,6 +21,7 @@ interface PickerModel {
 const props = defineProps<{
   show: boolean;
   character: ChatCharacterInfo;
+  chatId?: string;
   sessionTitle: string;
   models: PickerModel[];
   currentModelId?: string | null;
@@ -60,6 +64,69 @@ const { character: fullCharacter, loading: characterLoading, load: loadCharacter
 // Personas for the Persona section. usePersonas fetches on mount; the drawer is
 // mounted with the chat header, so the list is warm by the time it opens.
 const { personas } = usePersonas();
+
+// Memories = this conversation's data-bank entries. Opt out of the auto-fetch so
+// this instance doesn't pull the whole bank; we fetch chat-scoped on open.
+const {
+  entries: memories,
+  loading: memoriesLoading,
+  fetchEntries: fetchMemories,
+} = useDataBank({ autoLoad: false });
+
+// Lorebooks applicable to this chat (character's own + global), each lazily
+// expanded to its entries.
+const {
+  lorebooks,
+  loading: lorebooksLoading,
+  currentLorebook,
+  fetchForChat,
+  fetchLorebook,
+} = useLorebooks();
+
+// Per-lorebook entry cache so expanding one book doesn't clobber another via the
+// shared `currentLorebook`, and re-expanding never refetches.
+const lorebookEntries = ref<Record<string, LoreEntryResponse[]>>({});
+const lorebookEntriesLoading = ref<Record<string, boolean>>({});
+
+// Fetch Memories + Lorebooks lazily: only while the drawer is open on the
+// Settings tab, and only once per chat/character (re-key to refetch on switch).
+const loadedKey = ref<string | null>(null);
+
+watch(
+  [() => props.show, activeTab, () => props.chatId, () => props.character.id],
+  ([show, tab, chatId, characterId]) => {
+    if (!show || tab !== "settings") return;
+    const key = `${chatId ?? ""}::${characterId ?? ""}`;
+    if (loadedKey.value === key) return;
+    loadedKey.value = key;
+    lorebookEntries.value = {};
+    lorebookEntriesLoading.value = {};
+    if (chatId) void fetchMemories(undefined, chatId);
+    else memories.value = [];
+    void fetchForChat(characterId);
+  },
+  { immediate: true },
+);
+
+async function onLorebookToggle(id: string, open: boolean) {
+  if (!open || lorebookEntries.value[id]) return;
+  lorebookEntriesLoading.value[id] = true;
+  await fetchLorebook(id);
+  if (currentLorebook.value?.id === id) {
+    lorebookEntries.value[id] = currentLorebook.value.entries;
+  }
+  lorebookEntriesLoading.value[id] = false;
+}
+
+function goManageMemories() {
+  emit("close");
+  router.push("/memory");
+}
+
+function goManageLorebooks() {
+  emit("close");
+  router.push("/lorebooks");
+}
 
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === "Escape" && props.show) emit("close");
@@ -495,14 +562,105 @@ onUnmounted(() => {
               </div>
             </CollapsibleSection>
 
-            <!-- Memories (stub) -->
+            <!-- Memories (this conversation's data-bank entries) -->
             <CollapsibleSection :title="$t('chat.drawer.memories')" icon="i-lucide-brain">
-              <p class="text-xs text-muted-foreground/70">{{ $t("chat.drawer.comingSoon") }}</p>
+              <div class="space-y-2">
+                <div
+                  v-if="memoriesLoading && memories.length === 0"
+                  class="flex justify-center py-3"
+                >
+                  <AppIcon
+                    name="i-lucide-loader-circle"
+                    class="size-4 animate-spin text-muted-foreground"
+                  />
+                </div>
+                <template v-else-if="memories.length">
+                  <CollapsibleField
+                    v-for="m in memories"
+                    :key="m.id"
+                    :label="m.name"
+                    :content="m.content"
+                  />
+                </template>
+                <p v-else class="px-1 py-2 text-xs text-muted-foreground/70">
+                  {{ $t("chat.drawer.memoriesEmpty") }}
+                </p>
+
+                <button
+                  class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground"
+                  @click="goManageMemories"
+                >
+                  <AppIcon name="i-lucide-settings-2" class="size-4" />
+                  {{ $t("chat.drawer.manageMemories") }}
+                </button>
+              </div>
             </CollapsibleSection>
 
-            <!-- Lorebooks (stub) -->
+            <!-- Lorebooks (character's own + global, expandable to entries) -->
             <CollapsibleSection :title="$t('chat.drawer.lorebooks')" icon="i-lucide-book-open">
-              <p class="text-xs text-muted-foreground/70">{{ $t("chat.drawer.comingSoon") }}</p>
+              <div class="space-y-2">
+                <div
+                  v-if="lorebooksLoading && lorebooks.length === 0"
+                  class="flex justify-center py-3"
+                >
+                  <AppIcon
+                    name="i-lucide-loader-circle"
+                    class="size-4 animate-spin text-muted-foreground"
+                  />
+                </div>
+                <template v-else-if="lorebooks.length">
+                  <CollapsibleSection
+                    v-for="lb in lorebooks"
+                    :key="lb.id"
+                    :title="lb.name"
+                    @toggle="onLorebookToggle(lb.id, $event)"
+                  >
+                    <template #badge>
+                      <span
+                        class="shrink-0 rounded-full bg-base-300 px-2.5 py-0.5 text-[0.625rem] font-medium tracking-wide text-base-content uppercase"
+                      >
+                        {{
+                          lb.is_global
+                            ? $t("chat.drawer.lorebookGlobal")
+                            : $t("chat.drawer.lorebookCharacter")
+                        }}
+                      </span>
+                    </template>
+
+                    <div v-if="lorebookEntriesLoading[lb.id]" class="flex justify-center py-2">
+                      <AppIcon
+                        name="i-lucide-loader-circle"
+                        class="size-4 animate-spin text-muted-foreground"
+                      />
+                    </div>
+                    <ul v-else-if="lorebookEntries[lb.id]?.length" class="space-y-2">
+                      <li v-for="entry in lorebookEntries[lb.id]" :key="entry.id">
+                        <p class="truncate text-sm text-foreground">{{ entry.name }}</p>
+                        <p
+                          v-if="entry.keys?.length"
+                          class="mt-0.5 truncate text-[0.6875rem] text-muted-foreground"
+                        >
+                          {{ $t("chat.drawer.lorebookTriggers") }}: {{ entry.keys.join(", ") }}
+                        </p>
+                      </li>
+                    </ul>
+                    <p v-else class="py-1 text-xs text-muted-foreground/70">
+                      {{ $t("chat.drawer.lorebookEntriesEmpty") }}
+                    </p>
+                  </CollapsibleSection>
+                </template>
+                <p v-else class="px-1 py-2 text-xs text-muted-foreground/70">
+                  {{ $t("chat.drawer.lorebooksEmpty") }}
+                </p>
+
+                <button
+                  class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground"
+                  @click="goManageLorebooks"
+                >
+                  <AppIcon name="i-lucide-settings-2" class="size-4" />
+                  {{ $t("chat.drawer.manageLorebooks") }}
+                </button>
+              </div>
             </CollapsibleSection>
 
             <div class="h-px bg-border" />

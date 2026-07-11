@@ -977,12 +977,20 @@ export const handlers = [
   http.get("/api/data-bank/", async ({ request }) => {
     const url = new URL(request.url);
     const scope = url.searchParams.get("scope");
+    const characterId = url.searchParams.get("character_id");
+    const chatId = url.searchParams.get("chat_id");
 
     await delay(150);
 
     let items = [...db.dataBankEntries];
     if (scope) {
       items = items.filter((e) => e.scope === scope);
+    }
+    if (characterId) {
+      items = items.filter((e) => e.character_id === characterId);
+    }
+    if (chatId) {
+      items = items.filter((e) => e.chat_id === chatId);
     }
 
     return HttpResponse.json(items);

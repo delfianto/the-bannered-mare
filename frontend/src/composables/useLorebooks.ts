@@ -42,6 +42,39 @@ export function useLorebooks() {
     }
   };
 
+  // Lorebooks applicable to a chat = the character's own + all global ones. The
+  // backend has no single endpoint for this, so fetch both filters in parallel
+  // and merge (a character-linked book that's also global would otherwise appear
+  // twice), deduping by id.
+  const fetchForChat = async (characterId?: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const requests = [client.GET("/api/lorebooks", { params: { query: { is_global: true } } })];
+      if (characterId) {
+        requests.push(
+          client.GET("/api/lorebooks", { params: { query: { character_id: characterId } } }),
+        );
+      }
+
+      const results = await Promise.all(requests);
+      const merged = new Map<string, LorebookResponse>();
+      for (const { data, error: apiError } of results) {
+        if (apiError) {
+          throw new Error(`Failed to load lorebooks: ${JSON.stringify(apiError)}`);
+        }
+        for (const book of data ?? []) merged.set(book.id, book);
+      }
+      lorebooks.value = [...merged.values()];
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Unknown error");
+      console.error("Error loading lorebooks for chat:", err);
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const fetchLorebook = async (id: string) => {
     loading.value = true;
     error.value = null;
@@ -215,6 +248,7 @@ export function useLorebooks() {
     loading,
     error,
     fetchLorebooks,
+    fetchForChat,
     fetchLorebook,
     createLorebook,
     updateLorebook,

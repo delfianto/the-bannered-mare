@@ -346,6 +346,7 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
     <div v-if="activeSession" class="flex flex-1 flex-col overflow-hidden">
       <ChatHeader
         :character="activeSession.character"
+        :chat-id="activeSession.id"
         :session-title="activeSession.title || $t('chat.untitled')"
         :profiles="profiles"
         :current-profile-name="activeSession.last_profile_name"

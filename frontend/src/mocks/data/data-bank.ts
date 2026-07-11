@@ -44,7 +44,7 @@ export const dataBankEntries: DataBankEntry[] = [
       "The party has agreed to infiltrate Lord Varen's estate during the Solstice Gala. Key details: the vault is in the east wing, guards rotate every 15 minutes, and the party has a forged invitation under the name 'House Driftmere'.",
     scope: "chat",
     character_id: null,
-    chat_id: "chat-session-042",
+    chat_id: "chat-aranwen-01",
     created_at: NOW,
     updated_at: NOW,
   },
