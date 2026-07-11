@@ -12,7 +12,8 @@ import { CATEGORIES } from "@/constants/discoverData";
 
 const router = useRouter();
 const { chatSessions, loading: chatsLoading } = useChatSessions({ pageSize: 8 });
-const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
+// Home shows a curated preview; the full library (with endless scroll) is a click away.
+const { characters, loading: charsLoading } = useCharacters({ pageSize: 12 });
 </script>
 
 <template>
@@ -72,6 +73,7 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 6 });
             :characters="characters"
             :categories="CATEGORIES"
             :loading="charsLoading"
+            browse-all-to="/characters"
           />
         </div>
       </template>

@@ -9,6 +9,8 @@ const props = defineProps<{
   characters: Character[];
   categories: string[];
   loading?: boolean;
+  // When set, renders a "Browse all" link to the full library (home preview).
+  browseAllTo?: string;
 }>();
 
 const activeCategory = ref("All");
@@ -27,6 +29,14 @@ const filtered = computed(() => {
       <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
         {{ $t("home.discoverCharacters") }}
       </h2>
+      <RouterLink
+        v-if="browseAllTo"
+        :to="browseAllTo"
+        class="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        {{ $t("home.browseAll") }}
+        <AppIcon name="i-lucide-arrow-right" class="size-3.5" />
+      </RouterLink>
     </div>
 
     <!-- Category pills -->
