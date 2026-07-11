@@ -31,11 +31,11 @@ _MISTRAL_RP = {
 }
 
 OPENROUTER_MODELS: list[ModelSeedData] = [
-    # Defaults are curated: a handful of strong open RP finetunes PLUS the
+    # Defaults are curated: the open RP/storytelling finetunes PLUS the
     # community-favorite open-weight families (Gemma, GLM-5.x, DeepSeek, MiMo,
-    # Kimi, Poolside) ship enabled; proprietary models and niche variants ship
-    # disabled — the user turns those on as needed.
-    # Sao10K (-> llama3 family) — RP finetunes; Euryale + Lunaris enabled.
+    # Kimi, Poolside) ship enabled; proprietary models and general-purpose
+    # non-favorites ship disabled — the user turns those on as needed.
+    # Sao10K (-> llama3 family) — RP finetunes; all enabled.
     {
         "name": "Sao10K Euryale 70B v2.3 (L3.3)",
         "model_identifier": "sao10k/l3.3-euryale-70b",
@@ -50,7 +50,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "Sao10K Lunaris 8B (L3)",
@@ -60,17 +60,17 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {**_LLAMA_RP},
         "enabled": True,
     },
-    # TheDrummer — Llama/Nemotron lineage (-> llama3 family). Disabled by default.
+    # TheDrummer — Llama/Nemotron lineage (-> llama3 family). RP finetune; enabled.
     {
         "name": "TheDrummer Valkyrie 49B v1",
         "model_identifier": "thedrummer/valkyrie-49b-v1",
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
-        "enabled": False,
+        "enabled": True,
     },
     # TheDrummer — Mistral lineage (-> mistral-nemo / mistral-small families).
-    # Cydonia + Rocinante are on by default; the rest ship disabled.
+    # RP finetunes; all enabled.
     {
         "name": "TheDrummer Cydonia 24B v4.1",
         "model_identifier": "thedrummer/cydonia-24b-v4.1",
@@ -85,7 +85,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "mistral/mistral-small",
         "provider_type": "openrouter",
         "parameters": {**_MISTRAL_RP},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "TheDrummer UnslopNemo 12B",
@@ -93,7 +93,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "mistral/mistral-nemo",
         "provider_type": "openrouter",
         "parameters": {**_MISTRAL_RP},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "TheDrummer Rocinante 12B",
@@ -103,14 +103,14 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {**_MISTRAL_RP},
         "enabled": True,
     },
-    # Other Llama 3 RP finetunes & merges — extras, disabled by default.
+    # Other Llama 3 RP finetunes & merges — enabled by default.
     {
         "name": "NeverSleep Lumimaid 70B (L3.1)",
         "model_identifier": "neversleep/llama-3.1-lumimaid-70b",
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "TheDrummer Anubis 70B (L3.3)",
@@ -118,7 +118,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "Nous Hermes 3 70B (L3.1)",
@@ -126,7 +126,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
-        "enabled": False,
+        "enabled": True,
     },
     # DeepSeek — community favorites: R1, V3.2, V4 Pro/Flash enabled; Chat V3.1 disabled.
     {
