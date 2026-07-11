@@ -470,27 +470,32 @@ class TestProviderServiceDiscovery:
         assert refreshed.allowed_models == ["keep:1"]  # deduped, blanks dropped, persisted
         assert [m.identifier for m in result.models] == ["keep:1"]  # response already filtered
 
-    def test_filter_blacklisted_drops_openai_latest_and_dated_aliases(self) -> None:
-        """The redundant GPT "-latest"/dated-snapshot aliases are dropped by name."""
+    def test_filter_blacklisted_drops_openai_dated_snapshots_keeps_chat_latest(self) -> None:
+        """Dated GPT snapshots are dropped; "-chat-latest" aliases are kept.
+
+        The chat SKUs are only callable via "-chat-latest" (no bare form), so the
+        filter must not treat them like the redundant dated snapshots.
+        """
         models = [
             DiscoveredModel(identifier=i, display_name=i, state="loaded")
             for i in (
-                "gpt-chat-latest",
-                "chatgpt-4o-latest",
-                "gpt-5.4-2026-03-05",
-                "gpt-5.4-mini-2026-03-17",
-                "gpt-5-chat",
-                "gpt-5.4-pro",
-                "gpt-4o",
-                "claude-3-5-sonnet-20241022",  # non-dashed date, non-GPT — kept
+                "gpt-5-2025-08-07",  # dated snapshot -> dropped
+                "gpt-5.4-2026-03-05",  # dated snapshot -> dropped
+                "gpt-5.4-mini-2026-03-17",  # dated snapshot -> dropped
+                "gpt-5-chat-latest",  # only callable form of the chat SKU -> kept
+                "gpt-5.3-chat-latest",  # kept
+                "gpt-5.4-pro",  # kept
+                "gpt-4o",  # kept
+                "claude-sonnet-4-5-20250929",  # non-GPT dated -> untouched, kept
             )
         ]
 
         kept = {m.identifier for m in ProviderService._filter_blacklisted(models)}
 
         assert kept == {
-            "gpt-5-chat",
+            "gpt-5-chat-latest",
+            "gpt-5.3-chat-latest",
             "gpt-5.4-pro",
             "gpt-4o",
-            "claude-3-5-sonnet-20241022",
+            "claude-sonnet-4-5-20250929",
         }
