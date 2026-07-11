@@ -266,6 +266,20 @@
     "settings": {
       "title": "Chat settings"
     },
+    "drawer": {
+      "tabs": {
+        "character": "Character",
+        "settings": "Settings",
+        "session": "Session",
+        "logs": "Logs"
+      },
+      "loadouts": "Loadouts",
+      "manageLoadouts": "Manage loadouts",
+      "persona": "Persona",
+      "memories": "Memories",
+      "lorebooks": "Lorebooks",
+      "comingSoon": "Coming soon"
+    },
     "profile": {
       "title": "Profile",
       "none": "No profile",

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref } from "vue";
 import type { ChatCharacterInfo } from "@/types/chat";
 import type { Profile } from "@/composables/useProfiles";
-import ChatSettingsDrawer from "@/components/chat/ChatSettingsDrawer.vue";
+import ChatDrawer from "@/components/chat/ChatDrawer.vue";
 
 interface PickerModel {
   id: string;
@@ -27,13 +27,7 @@ const emit = defineEmits<{
   changeModel: [modelId: string];
 }>();
 
-const menuOpen = ref(false);
 const drawerOpen = ref(false);
-const renaming = ref(false);
-const editTitle = ref("");
-const confirmDelete = ref(false);
-let deleteTimer: ReturnType<typeof setTimeout> | null = null;
-const menuRef = ref<HTMLElement | null>(null);
 
 function avatarSrc(): string {
   return (
@@ -42,68 +36,6 @@ function avatarSrc(): string {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=80`
   );
 }
-
-function toggleMenu() {
-  menuOpen.value = !menuOpen.value;
-  confirmDelete.value = false;
-}
-
-function startRename() {
-  editTitle.value = props.sessionTitle;
-  renaming.value = true;
-  menuOpen.value = false;
-}
-
-function saveRename() {
-  const trimmed = editTitle.value.trim();
-  if (trimmed && trimmed !== props.sessionTitle) {
-    emit("rename", trimmed);
-  }
-  renaming.value = false;
-}
-
-function cancelRename() {
-  renaming.value = false;
-}
-
-function handleRenameKeydown(e: KeyboardEvent) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    saveRename();
-  } else if (e.key === "Escape") {
-    cancelRename();
-  }
-}
-
-function handleDelete() {
-  if (confirmDelete.value) {
-    emit("delete");
-    menuOpen.value = false;
-    confirmDelete.value = false;
-  } else {
-    confirmDelete.value = true;
-    if (deleteTimer) clearTimeout(deleteTimer);
-    deleteTimer = setTimeout(() => {
-      confirmDelete.value = false;
-    }, 3000);
-  }
-}
-
-function handleClickOutside(e: MouseEvent) {
-  if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
-    menuOpen.value = false;
-    confirmDelete.value = false;
-  }
-}
-
-onMounted(() => {
-  document.addEventListener("click", handleClickOutside, true);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside, true);
-  if (deleteTimer) clearTimeout(deleteTimer);
-});
 </script>
 
 <template>
@@ -119,7 +51,7 @@ onUnmounted(() => {
     </button>
 
     <!-- Center third stays dead-centered regardless of the side zones' widths,
-         so changing the (variable-length) model label never shifts the heading. -->
+         so changing the side controls never shifts the heading. -->
     <div class="flex min-w-0 items-center justify-center gap-3 justify-self-center">
       <div class="relative shrink-0">
         <img
@@ -138,75 +70,35 @@ onUnmounted(() => {
         >
           {{ character.name }}
         </h2>
-        <template v-if="renaming">
-          <input
-            v-model="editTitle"
-            class="mt-0.5 w-full rounded border border-primary/40 bg-base-300/40 px-1.5 py-0.5 text-center text-[0.6875rem] leading-tight text-foreground outline-none focus:ring-1 focus:ring-primary/30"
-            autofocus
-            @keydown="handleRenameKeydown"
-            @blur="saveRename"
-          />
-        </template>
-        <template v-else>
-          <p class="mt-0.5 truncate text-[0.6875rem] leading-tight text-muted-foreground">
-            {{ sessionTitle }}
-          </p>
-        </template>
+        <p class="mt-0.5 truncate text-[0.6875rem] leading-tight text-muted-foreground">
+          {{ sessionTitle }}
+        </p>
       </div>
     </div>
 
-    <div class="flex items-center gap-2 justify-self-end">
+    <div class="flex items-center justify-self-end">
       <button
-        :title="$t('chat.settings.title')"
-        class="flex h-9 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+        :aria-label="$t('chat.sessionMenu')"
+        class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
         @click="drawerOpen = true"
       >
-        <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5 shrink-0" />
-        <span class="max-w-28 truncate">{{ currentModelName || $t("chat.model.none") }}</span>
+        <AppIcon name="i-lucide-more-horizontal" class="size-5" />
       </button>
 
-      <ChatSettingsDrawer
+      <ChatDrawer
         :show="drawerOpen"
+        :character="character"
+        :session-title="sessionTitle"
         :models="models ?? []"
         :current-model-id="currentModelId"
         :profiles="profiles ?? []"
         :current-profile-name="currentProfileName"
         @close="drawerOpen = false"
+        @rename="emit('rename', $event)"
+        @delete="emit('delete')"
         @change-model="emit('changeModel', $event)"
         @apply-profile="emit('applyProfile', $event)"
       />
-
-      <div ref="menuRef" class="relative">
-        <button
-          :aria-label="$t('chat.sessionMenu')"
-          class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
-          @click="toggleMenu"
-        >
-          <AppIcon name="i-lucide-more-horizontal" class="size-5" />
-        </button>
-
-        <!-- Dropdown Menu -->
-        <div
-          v-if="menuOpen"
-          class="absolute top-full right-0 mt-1 min-w-40 rounded-lg border bg-base-200 py-1 shadow-lg"
-        >
-          <button
-            class="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground transition-colors hover:bg-base-300/50"
-            @click="startRename"
-          >
-            <AppIcon name="i-lucide-pencil" class="size-4" />
-            {{ $t("chat.rename") }}
-          </button>
-          <button
-            class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-base-300/50"
-            :class="confirmDelete ? 'text-error font-medium' : 'text-error'"
-            @click="handleDelete"
-          >
-            <AppIcon name="i-lucide-trash-2" class="size-4" />
-            {{ confirmDelete ? $t("common.deleteConfirm") : $t("common.delete") }}
-          </button>
-        </div>
-      </div>
     </div>
   </header>
 </template>
