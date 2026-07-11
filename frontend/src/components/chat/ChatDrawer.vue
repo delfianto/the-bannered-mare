@@ -503,7 +503,7 @@ onUnmounted(() => {
                       class="size-3.5 shrink-0"
                       :class="m.id === currentModelId ? 'text-primary' : 'text-transparent'"
                     />
-                    <span class="block min-w-0 truncate font-cinzel text-sm text-foreground">
+                    <span class="block min-w-0 truncate text-sm font-medium text-foreground">
                       {{ m.display_name }}
                     </span>
                   </button>
@@ -534,7 +534,7 @@ onUnmounted(() => {
                       class="size-3.5 shrink-0"
                       :class="!currentTaskModelId ? 'text-primary' : 'text-transparent'"
                     />
-                    <span class="block min-w-0 truncate font-cinzel text-sm text-foreground">
+                    <span class="block min-w-0 truncate text-sm font-medium text-foreground">
                       {{ $t("chat.model.sameAsChat") }}
                     </span>
                   </button>
@@ -549,7 +549,7 @@ onUnmounted(() => {
                       class="size-3.5 shrink-0"
                       :class="m.id === currentTaskModelId ? 'text-primary' : 'text-transparent'"
                     />
-                    <span class="block min-w-0 truncate font-cinzel text-sm text-foreground">
+                    <span class="block min-w-0 truncate text-sm font-medium text-foreground">
                       {{ m.display_name }}
                     </span>
                   </button>
@@ -576,7 +576,7 @@ onUnmounted(() => {
                       :class="p.name === currentProfileName ? 'text-primary' : 'text-transparent'"
                     />
                     <span class="min-w-0 flex-1">
-                      <span class="block truncate font-cinzel text-sm text-foreground">{{
+                      <span class="block truncate text-sm font-medium text-foreground">{{
                         p.name
                       }}</span>
                       <span
@@ -624,7 +624,7 @@ onUnmounted(() => {
                     class="size-3.5 shrink-0"
                     :class="!currentPersonaId ? 'text-primary' : 'text-transparent'"
                   />
-                  <span class="block min-w-0 truncate font-cinzel text-sm text-foreground">
+                  <span class="block min-w-0 truncate text-sm font-medium text-foreground">
                     {{ $t("chat.persona.none") }}
                   </span>
                 </button>
@@ -640,7 +640,7 @@ onUnmounted(() => {
                     :class="p.id === currentPersonaId ? 'text-primary' : 'text-transparent'"
                   />
                   <span class="min-w-0 flex-1">
-                    <span class="block truncate font-cinzel text-sm text-foreground">{{
+                    <span class="block truncate text-sm font-medium text-foreground">{{
                       p.name
                     }}</span>
                     <span
@@ -807,7 +807,7 @@ onUnmounted(() => {
             <div v-else-if="preview" class="space-y-4">
               <!-- Resolved model -->
               <div class="rounded-xl border bg-base-100/50 p-4">
-                <h3 class="font-cinzel text-base font-semibold tracking-wide text-foreground">
+                <h3 class="text-base font-semibold text-foreground">
                   {{ preview.model_display_name || $t("chat.drawer.sessionModelUnknown") }}
                 </h3>
                 <p
@@ -903,7 +903,7 @@ onUnmounted(() => {
                 >
                   <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
-                      <span class="min-w-0 truncate font-cinzel text-sm text-foreground">
+                      <span class="min-w-0 truncate text-sm font-medium text-foreground">
                         {{ log.model }}
                       </span>
                       <span
