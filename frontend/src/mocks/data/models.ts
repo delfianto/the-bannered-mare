@@ -28,7 +28,7 @@ const PAGE_LIMIT = 10;
 const totalCount = allModelsMock.length;
 const totalPages = Math.ceil(totalCount / PAGE_LIMIT);
 
-// Generate pages dynamically (34 models = 4 pages: 10 + 10 + 10 + 4)
+// Generate pages dynamically (38 models = 4 pages: 10 + 10 + 10 + 8)
 export const modelsPages: ModelPage[] = Array.from({ length: totalPages }, (_, i) => {
   const pageNum = i + 1;
   const start = i * PAGE_LIMIT;

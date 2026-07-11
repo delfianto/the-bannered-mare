@@ -99,6 +99,20 @@ export const providers: Provider[] = [
     identifier_hint: "The loaded model's key — e.g. qwen2.5-7b-instruct.",
   },
   {
+    id: "prov-opencode",
+    name: "OpenCode Zen",
+    provider_type: "opencode",
+    base_url: "https://opencode.ai/zen/v1",
+    enabled: true,
+    created_at: NOW,
+    updated_at: NOW,
+    api_key_configured: true,
+    env_var_name: "OPENCODE_ZEN_API_KEY",
+    identifier_style: "bare name",
+    identifier_hint:
+      "Bare model name, no vendor prefix — e.g. deepseek-v4-flash or glm-5.2. (The opencode/ prefix is only for OpenCode's own config, not the API.)",
+  },
+  {
     id: "prov-opencode-go",
     name: "OpenCode Go",
     provider_type: "opencode_go",
