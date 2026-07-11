@@ -91,7 +91,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         "name": "OpenAI GPT-5 Chat",
         "family_identifier": "openai/gpt-5-chat",
         "description": (
-            "OpenAI GPT-5 chat models (5, 5.1, 5.2, 5.3, chat-latest) — non-reasoning, "
+            "OpenAI GPT-5 chat models (5, 5.1, 5.2, 5.3) — non-reasoning, "
             "classic sampling. Up to 400K context."
         ),
         "provider_types": ["openai", "openrouter", "opencode"],
@@ -116,7 +116,6 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
                 "gpt-5.1-chat",
                 "gpt-5.2-chat",
                 "gpt-5.3-chat",
-                "gpt-chat-latest",
             ],
         },
     },

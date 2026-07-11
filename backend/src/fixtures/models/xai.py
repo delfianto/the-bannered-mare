@@ -16,21 +16,6 @@ XAI_MODELS: list[ModelSeedData] = [
         },
         "enabled": False,
     },
-    {
-        "name": "Grok 4.20 Multi-Agent",
-        "model_identifier": "grok-4.20-multi-agent",
-        "family_identifier": "xai/grok-4.2",
-        "provider_type": "xai",
-        # Multi-agent thinking preserves narrative/instructions well for RP;
-        # reasoning_effort scales the parallel-agent count (high = 16).
-        "parameters": {
-            "max_completion_tokens": 4096,
-            "temperature": 0.9,
-            "top_p": 0.92,
-            "reasoning_effort": "high",
-        },
-        "enabled": False,
-    },
     # --- Grok 4.3 ---
     {
         "name": "Grok 4.3",

@@ -95,39 +95,10 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
         "enabled": False,
     },
-    {
-        "name": "GPT Chat Latest",
-        "model_identifier": "gpt-chat-latest",
-        "family_identifier": "openai/gpt-5-chat",
-        "provider_type": "openai",
-        "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
-        "enabled": False,
-    },
     # --- GPT-5 thinking (reasoning) ---
-    {
-        "name": "GPT-5.4",
-        "model_identifier": "gpt-5.4-2026-03-05",
-        "family_identifier": "openai/gpt-5-thinking",
-        "provider_type": "openai",
-        "parameters": {**_THINKING_PARAMS},
-        "enabled": False,
-    },
-    {
-        "name": "GPT-5.4 Mini",
-        "model_identifier": "gpt-5.4-mini-2026-03-17",
-        "family_identifier": "openai/gpt-5-thinking",
-        "provider_type": "openai",
-        "parameters": {**_THINKING_PARAMS, "max_completion_tokens": 8192},
-        "enabled": False,
-    },
-    {
-        "name": "GPT-5.4 Nano",
-        "model_identifier": "gpt-5.4-nano-2026-03-17",
-        "family_identifier": "openai/gpt-5-thinking",
-        "provider_type": "openai",
-        "parameters": {**_THINKING_PARAMS, "max_completion_tokens": 4096},
-        "enabled": False,
-    },
+    # "-latest" rolling aliases and dated snapshots (gpt-5.4-2026-03-05, …) are
+    # intentionally omitted: they duplicate a bare SKU and are filtered out of
+    # provider discovery too (see ProviderService._filter_blacklisted).
     {
         "name": "GPT-5.4 Pro",
         "model_identifier": "gpt-5.4-pro",
