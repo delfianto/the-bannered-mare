@@ -22,7 +22,9 @@ function toggle() {
 
 function choose(p: Profile) {
   open.value = false;
-  if (p.name !== props.currentProfileName) emit("apply", p.id);
+  // Always (re-)apply — re-applying the current profile re-pulls its latest
+  // model/persona/preset/template after the profile itself was edited.
+  emit("apply", p.id);
 }
 
 function goManage() {
@@ -71,11 +73,17 @@ onUnmounted(() => document.removeEventListener("click", onClickOutside, true));
           class="mt-0.5 size-3.5 shrink-0"
           :class="p.name === currentProfileName ? 'text-primary' : 'text-transparent'"
         />
-        <span class="min-w-0">
+        <span class="min-w-0 flex-1">
           <span class="block truncate font-cinzel text-sm text-foreground">{{ p.name }}</span>
           <span v-if="p.description" class="block truncate text-[0.6875rem] text-muted-foreground">
             {{ p.description }}
           </span>
+        </span>
+        <span
+          v-if="p.name === currentProfileName"
+          class="mt-0.5 shrink-0 text-[0.625rem] font-medium tracking-wider text-primary uppercase"
+        >
+          {{ $t("chat.profile.reapply") }}
         </span>
       </button>
 

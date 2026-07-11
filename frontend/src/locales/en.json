@@ -267,7 +267,15 @@
       "none": "No profile",
       "empty": "No profiles yet",
       "manage": "Manage profiles",
+      "reapply": "Re-apply",
       "hint": "Applying a profile updates this chat's template, preset, persona, and model."
+    },
+    "model": {
+      "title": "Model",
+      "none": "No model",
+      "empty": "No models available",
+      "change": "Change model",
+      "overrideHint": "Overrides the model for this chat only — your profile stays unchanged."
     },
     "selectTale": "Select a tale to continue…",
     "sessionBegan": "Session began",
