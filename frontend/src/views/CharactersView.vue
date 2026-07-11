@@ -5,8 +5,10 @@ import { useI18n } from "vue-i18n";
 import { useCharacters } from "@/composables/useCharacters";
 import { useCreateChat } from "@/composables/useCreateChat";
 import { useLibraryFilters } from "@/composables/useLibraryFilters";
+import { useQueryState } from "@/composables/useQueryState";
 import { useAppToast } from "@/composables/useToast";
 import { CATEGORIES } from "@/constants/discoverData";
+import type { SortOption, ViewMode } from "@/types/discover";
 import DiscoverHeader from "@/components/discover/DiscoverHeader.vue";
 import FilterBar from "@/components/discover/FilterBar.vue";
 import CategoryPills from "@/components/discover/CategoryPills.vue";
@@ -33,9 +35,41 @@ const deleteLoading = ref(false);
 // Fetch characters from API
 const { characters, loading, refresh } = useCharacters({ pageSize: 50 });
 
+// Restore filters from the URL so they survive opening a character and coming
+// back — mirrored into the query on every change (same idiom as the tables).
+const { readQuery, patchQuery } = useQueryState();
+const validSorts: SortOption[] = ["recent", "name-asc", "name-desc", "newest"];
+const rawSort = readQuery("sort");
+const rawCat = readQuery("cat");
+
 // Filter the API data locally
-const { filters, filtered, setSearch, setCategory, setSort, setViewMode } =
-  useLibraryFilters(characters);
+const { filters, filtered, setSearch, setCategory, setSort, setViewMode } = useLibraryFilters(
+  characters,
+  {
+    search: readQuery("q") ?? "",
+    category: rawCat && CATEGORIES.includes(rawCat) ? rawCat : "All",
+    sort:
+      rawSort && validSorts.includes(rawSort as SortOption) ? (rawSort as SortOption) : "recent",
+    viewMode: readQuery("view") === "list" ? "list" : "grid",
+  },
+);
+
+function onSearch(value: string) {
+  setSearch(value);
+  patchQuery({ q: value || undefined });
+}
+function onCategory(value: string) {
+  setCategory(value);
+  patchQuery({ cat: value === "All" ? undefined : value });
+}
+function onSort(value: SortOption) {
+  setSort(value);
+  patchQuery({ sort: value === "recent" ? undefined : value });
+}
+function onViewMode(value: ViewMode) {
+  setViewMode(value);
+  patchQuery({ view: value === "grid" ? undefined : value });
+}
 
 const selectMode = ref(false);
 const selected = ref(new Set<string>());
@@ -188,16 +222,16 @@ async function onFileSelected(event: Event) {
           :sort="filters.sort"
           :view-mode="filters.viewMode"
           :select-mode="selectMode"
-          @update:search="setSearch"
-          @update:sort="setSort"
-          @update:view-mode="setViewMode"
+          @update:search="onSearch"
+          @update:sort="onSort"
+          @update:view-mode="onViewMode"
           @update:select-mode="(v: boolean) => (v ? (selectMode = true) : cancelSelect())"
         />
       </div>
 
       <!-- Category pills -->
       <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 120ms">
-        <CategoryPills :active="filters.category" :categories="CATEGORIES" @change="setCategory" />
+        <CategoryPills :active="filters.category" :categories="CATEGORIES" @change="onCategory" />
       </div>
 
       <!-- Bulk action bar -->

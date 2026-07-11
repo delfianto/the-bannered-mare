@@ -1,12 +1,15 @@
 import { reactive, computed, type Ref } from "vue";
 import type { Character, FilterState, SortOption, ViewMode } from "@/types/discover";
 
-export function useLibraryFilters(characters: Ref<Character[]>) {
+export function useLibraryFilters(
+  characters: Ref<Character[]>,
+  initial: Partial<FilterState> = {},
+) {
   const filters = reactive<FilterState>({
-    search: "",
-    category: "All",
-    sort: "recent",
-    viewMode: "grid",
+    search: initial.search ?? "",
+    category: initial.category ?? "All",
+    sort: initial.sort ?? "recent",
+    viewMode: initial.viewMode ?? "grid",
   });
 
   const filtered = computed(() => {
