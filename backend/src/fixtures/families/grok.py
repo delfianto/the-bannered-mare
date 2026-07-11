@@ -117,9 +117,9 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
             "xAI Grok 4.5 — reasoning model for coding, agentic, and knowledge work. 500K "
             "context, up to 30K output, reasoning_effort (low/medium/high, default high), and "
             "native tool calling (web/X search, code execution). As a reasoning model it rejects "
-            "stop and the frequency/presence penalties. Served via xAI or OpenRouter."
+            "stop and the frequency/presence penalties. Served via xAI, OpenRouter, or OpenCode Zen."
         ),
-        "provider_types": ["xai", "openrouter"],
+        "provider_types": ["xai", "openrouter", "opencode"],
         "parameters": {
             "max_completion_tokens": {
                 "type": "int",

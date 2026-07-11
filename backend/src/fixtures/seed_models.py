@@ -86,7 +86,9 @@ def seed_models(
                 continue
 
             identifier = model_data["model_identifier"]
-            slug = normalize_slug(identifier)
+            # Alternate-provider routes declare the canonical slug explicitly so
+            # they merge with the native registry despite naming divergence.
+            slug = model_data.get("slug") or normalize_slug(identifier)
 
             # Canonical model: create on first sight of this slug.
             registry = model_repo.find_by_slug(slug)

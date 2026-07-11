@@ -108,7 +108,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "Google Gemini 3.5 Flash. 1M context. Removes temperature/top_p/top_k entirely; "
             "thinking_level (minimal/low/medium/high, default medium) + media_resolution."
         ),
-        "provider_types": ["google", "openrouter"],
+        "provider_types": ["google", "openrouter", "opencode"],
         "parameters": {
             "max_output_tokens": {
                 "type": "int",

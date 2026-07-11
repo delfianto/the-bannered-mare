@@ -13,7 +13,7 @@ CLAUDE_HAIKU_FAMILIES: list[ModelFamilySeedData] = [
         "name": "Claude 4.5 Haiku",
         "family_identifier": "anthropic/claude-haiku-4.5",
         "description": "Anthropic Claude 4.5 Haiku. Fast, low-cost tier for RP.",
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 16384},
             **CLAUDE_45_BASE,

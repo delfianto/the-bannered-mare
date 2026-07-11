@@ -22,7 +22,7 @@ CLAUDE_OPUS_FAMILIES: list[ModelFamilySeedData] = [
         "name": "Claude 4.5 Opus",
         "family_identifier": "anthropic/claude-opus-4.5",
         "description": "Anthropic Claude 4.5 Opus. High-cost, high-fidelity model.",
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 32768},
             "effort": {"type": "enum", "default": "high", "str_values": ["low", "medium", "high"]},
@@ -54,7 +54,7 @@ CLAUDE_OPUS_FAMILIES: list[ModelFamilySeedData] = [
         "name": "Claude 4.6 Opus",
         "family_identifier": "anthropic/claude-opus-4.6",
         "description": "Anthropic Claude 4.6 Opus. Highest intelligence, adaptive thinking with fast mode.",
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 128000},
             "effort": {
@@ -92,7 +92,7 @@ CLAUDE_OPUS_FAMILIES: list[ModelFamilySeedData] = [
             "Anthropic Claude 4.7 Opus. Highly autonomous, long-horizon agentic work. "
             "Adaptive thinking only; sampling parameters (temperature/top_p/top_k) removed."
         ),
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 128000},
             "effort": {
@@ -119,7 +119,7 @@ CLAUDE_OPUS_FAMILIES: list[ModelFamilySeedData] = [
             "Anthropic Claude 4.8 Opus. Most capable Opus tier; state-of-the-art long-horizon "
             "agentic work. Same surface as 4.7 — adaptive thinking only, no sampling parameters."
         ),
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 128000},
             "effort": {

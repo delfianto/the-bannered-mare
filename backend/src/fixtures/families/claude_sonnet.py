@@ -16,7 +16,7 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
         "name": "Claude 4.5 Sonnet",
         "family_identifier": "anthropic/claude-sonnet-4.5",
         "description": "Anthropic Claude 4.5 Sonnet. Balanced speed/intelligence for RP.",
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 16384},
             **CLAUDE_45_BASE,
@@ -34,7 +34,7 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
         "name": "Claude 4.6 Sonnet",
         "family_identifier": "anthropic/claude-sonnet-4.6",
         "description": "Anthropic Claude 4.6 Sonnet. Fast, high-intelligence with adaptive thinking.",
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 64000},
             "effort": {
@@ -60,7 +60,7 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
             "Anthropic Claude Sonnet 5. Near-Opus quality at Sonnet cost; adaptive "
             "thinking by default, sampling parameters (temperature/top_p/top_k) removed."
         ),
-        "provider_types": ["anthropic", "openrouter"],
+        "provider_types": ["anthropic", "openrouter", "opencode"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 128000},
             "effort": {
