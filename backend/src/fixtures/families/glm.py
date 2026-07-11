@@ -1,10 +1,10 @@
 """Zhipu / Z.ai GLM model family seed data (base-model-generation keyed).
 
 GLM is grouped by generation: GLM-4 (4.5 / 4.6 / 4.7, incl. Air & Flash) and
-GLM-5 (5 / 5.1, incl. Turbo). Both share the GLM signature — temperature capped
-at 1.0 (not 2.0), top_p default 0.95, a hybrid `thinking` toggle, and an
+GLM-5 (5 / 5.1 / 5.2, incl. Turbo). Both share the GLM signature — temperature
+capped at 1.0 (not 2.0), top_p default 0.95, a hybrid `thinking` toggle, and an
 OpenAI-compatible sampling surface. GLM-5 adds a larger context window and the
-`reasoning_effort` control (GLM-5.1). Routed via OpenRouter (`z-ai/glm-*`).
+`reasoning_effort` control (GLM-5.1+). Routed via OpenRouter (`z-ai/glm-*`).
 
 Parameter ranges/defaults follow the Z.ai Chat Completion API docs
 (docs.z.ai/api-reference/llm/chat-completion).
@@ -56,13 +56,13 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
         "name": "GLM 5",
         "family_identifier": "zai/glm-5",
         "description": (
-            "Zhipu/Z.ai GLM-5 / 5.1 (incl. Turbo). Forced thinking with reasoning_effort "
-            "(GLM-5.1), temperature capped at 1.0, up to ~262K context. Routed via OpenRouter."
+            "Zhipu/Z.ai GLM-5 / 5.1 / 5.2 (incl. Turbo). Forced thinking with reasoning_effort "
+            "(GLM-5.1+), temperature capped at 1.0, up to ~262K context. Routed via OpenRouter."
         ),
         "provider_types": ["openrouter", "opencode", "opencode_go"],
         "parameters": {
             "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 128000},
-            # GLM-5.1 only; GLM-5 / 5-Turbo simply omit it.
+            # GLM-5.1+ (5.1 / 5.2); GLM-5 / 5-Turbo simply omit it.
             "reasoning_effort": {
                 "type": "enum",
                 "default": "medium",
@@ -77,8 +77,8 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 262144,
             "supports_vision": False,
             "supports_function_calling": True,
-            "thinking_behavior": "forced when enabled (5 / 5.1 / Turbo)",
-            "models": ["z-ai/glm-5", "z-ai/glm-5.1"],
+            "thinking_behavior": "forced when enabled (5 / 5.1 / 5.2 / Turbo)",
+            "models": ["z-ai/glm-5", "z-ai/glm-5.1", "z-ai/glm-5.2"],
         },
     },
 ]
