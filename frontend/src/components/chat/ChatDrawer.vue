@@ -14,6 +14,7 @@ import type { LoreEntryResponse } from "@/composables/useLorebooks";
 import Tabs from "@/components/shared/Tabs.vue";
 import CollapsibleSection from "@/components/shared/CollapsibleSection.vue";
 import CollapsibleField from "@/components/discover/CollapsibleField.vue";
+import AppTooltip from "@/components/shared/AppTooltip.vue";
 
 interface PickerModel {
   id: string;
@@ -332,7 +333,12 @@ function chooseTaskModel(value: string) {
 }
 
 function chooseProfile(p: Profile) {
-  // Always (re-)apply — re-applying the current profile re-pulls its latest axes.
+  // Row click only SWITCHES loadouts. Re-applying the active one would silently
+  // reset manual per-chat overrides, so that's the explicit ↻ action instead.
+  if (p.name !== props.currentProfileName) emit("applyProfile", p.id);
+}
+
+function reapplyProfile(p: Profile) {
   emit("applyProfile", p.id);
 }
 
@@ -575,41 +581,64 @@ onUnmounted(() => {
                   >
                     {{ $t("chat.profile.title") }}
                   </div>
-                  <button
+                  <div
                     v-for="p in profiles"
                     :key="p.id"
-                    class="flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-base-300/50"
-                    @click="chooseProfile(p)"
+                    class="flex items-start gap-1 rounded-lg pr-1 transition-colors"
+                    :class="
+                      p.name === currentProfileName ? 'bg-base-300/30' : 'hover:bg-base-300/50'
+                    "
                   >
-                    <AppIcon
-                      name="i-lucide-check"
-                      class="mt-0.5 size-3.5 shrink-0"
-                      :class="p.name === currentProfileName ? 'text-primary' : 'text-transparent'"
-                    />
-                    <span class="min-w-0 flex-1">
-                      <span class="block truncate text-sm font-medium text-foreground">{{
-                        p.name
-                      }}</span>
-                      <span
-                        v-if="p.description"
-                        class="block truncate text-[0.6875rem] text-muted-foreground"
-                      >
-                        {{ p.description }}
-                      </span>
-                    </span>
-                    <span
-                      v-if="p.name === currentProfileName"
-                      class="mt-0.5 shrink-0 text-[0.625rem] font-medium tracking-wider text-primary uppercase"
+                    <button
+                      class="flex min-w-0 flex-1 items-start gap-2 px-2 py-2 text-left"
+                      @click="chooseProfile(p)"
                     >
-                      {{ $t("chat.profile.reapply") }}
-                    </span>
-                  </button>
+                      <AppIcon
+                        name="i-lucide-check"
+                        class="mt-0.5 size-3.5 shrink-0"
+                        :class="p.name === currentProfileName ? 'text-primary' : 'text-transparent'"
+                      />
+                      <span class="min-w-0 flex-1">
+                        <span class="block truncate text-sm font-medium text-foreground">{{
+                          p.name
+                        }}</span>
+                        <span
+                          v-if="p.description"
+                          class="block truncate text-[0.6875rem] text-muted-foreground"
+                        >
+                          {{ p.description }}
+                        </span>
+                      </span>
+                    </button>
+                    <div
+                      v-if="p.name === currentProfileName"
+                      class="mt-1.5 flex shrink-0 items-center gap-1"
+                    >
+                      <span
+                        class="text-[0.625rem] font-medium tracking-wider text-muted-foreground uppercase"
+                      >
+                        {{ $t("chat.profile.applied") }}
+                      </span>
+                      <AppTooltip :text="$t('chat.profile.reapplyTooltip')" side="left" wide>
+                        <button
+                          :aria-label="$t('chat.profile.reapplyTooltip')"
+                          class="flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
+                          @click="reapplyProfile(p)"
+                        >
+                          <AppIcon name="i-lucide-rotate-ccw" class="size-3.5" />
+                        </button>
+                      </AppTooltip>
+                    </div>
+                  </div>
                   <div
                     v-if="profiles.length === 0"
                     class="px-2 py-2 text-center text-xs text-muted-foreground"
                   >
                     {{ $t("chat.profile.empty") }}
                   </div>
+                  <p class="px-1 pt-1.5 text-[0.625rem] leading-snug text-muted-foreground/70">
+                    {{ $t("chat.profile.hint") }}
+                  </p>
                 </div>
 
                 <button
