@@ -55,15 +55,21 @@ export const handlers = [
   }),
 
   // Characters
-  http.get("/api/characters", async () => {
+  http.get("/api/characters", async ({ request }) => {
     await delay(150);
+    // Mirror the backend's page/offset pagination so infinite scroll works.
+    const url = new URL(request.url);
+    const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+    const limit = Math.max(1, parseInt(url.searchParams.get("limit") || "10", 10));
+    const start = (page - 1) * limit;
+    const items = db.characters.slice(start, start + limit);
     return HttpResponse.json({
-      items: db.characters,
+      items,
       meta: {
-        limit: 100, // Assuming default limit
-        has_more: false,
+        limit,
+        has_more: start + limit < db.characters.length,
         total: db.characters.length,
-        page: 1,
+        page,
       },
     });
   }),

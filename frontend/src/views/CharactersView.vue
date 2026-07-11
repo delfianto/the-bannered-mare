@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useIntersectionObserver } from "@vueuse/core";
 import { useCharacters } from "@/composables/useCharacters";
 import { useCreateChat } from "@/composables/useCreateChat";
 import { useLibraryFilters } from "@/composables/useLibraryFilters";
@@ -32,8 +33,8 @@ const characterToDelete = ref<string | null>(null);
 const bulkDeleteMode = ref(false);
 const deleteLoading = ref(false);
 
-// Fetch characters from API
-const { characters, loading, refresh } = useCharacters({ pageSize: 50 });
+// Fetch characters from API (endless scroll — see below)
+const { characters, loading, hasMore, loadMore, refresh } = useCharacters({ pageSize: 24 });
 
 // Restore filters from the URL so they survive opening a character and coming
 // back — mirrored into the query on every change (same idiom as the tables).
@@ -70,6 +71,59 @@ function onViewMode(value: ViewMode) {
   setViewMode(value);
   patchQuery({ view: value === "grid" ? undefined : value });
 }
+
+// ── Endless scroll ───────────────────────────────────────
+// Browsing (default "recent" sort, no search/category) streams pages lazily as
+// you scroll. But client-side filtering/sorting only sees loaded rows, so the
+// moment a search/category/non-default sort is active we finish loading the
+// whole library in the background — otherwise a match on an unloaded page would
+// be invisible.
+const needsFullLoad = computed(
+  () => filters.search !== "" || filters.category !== "All" || filters.sort !== "recent",
+);
+
+let loadingAll = false;
+async function loadAllRemaining() {
+  if (loadingAll) return;
+  loadingAll = true;
+  try {
+    while (hasMore.value && !loading.value) await loadMore();
+  } finally {
+    loadingAll = false;
+  }
+}
+
+watch(
+  [needsFullLoad, hasMore],
+  ([active, more]) => {
+    if (active && more && !loading.value) loadAllRemaining();
+  },
+  { immediate: true },
+);
+
+const scrollSentinel = ref<HTMLElement | null>(null);
+const sentinelVisible = ref(false);
+
+function maybeLoadMore() {
+  if (sentinelVisible.value && hasMore.value && !loading.value && !needsFullLoad.value) {
+    loadMore();
+  }
+}
+
+useIntersectionObserver(
+  scrollSentinel,
+  ([entry]) => {
+    sentinelVisible.value = entry?.isIntersecting ?? false;
+    maybeLoadMore();
+  },
+  { rootMargin: "400px" },
+);
+
+// Keep filling while the sentinel stays in view (content shorter than the
+// viewport, or a fast scroll): each finished load re-checks intersection.
+watch(loading, (isLoading) => {
+  if (!isLoading) maybeLoadMore();
+});
 
 const selectMode = ref(false);
 const selected = ref(new Set<string>());
@@ -316,6 +370,14 @@ async function onFileSelected(event: Event) {
           </div>
         </template>
       </EmptyState>
+
+      <!-- Endless-scroll sentinel: fires loadMore ~400px before it's reached -->
+      <div v-if="filtered.length > 0" ref="scrollSentinel" class="h-px w-full" aria-hidden="true" />
+
+      <!-- Loading-more spinner (initial load uses the loader above) -->
+      <div v-if="loading && characters.length > 0" class="flex justify-center py-6">
+        <AppIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
+      </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
