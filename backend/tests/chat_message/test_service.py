@@ -437,3 +437,76 @@ class TestChatMessageService:
 
         assert gateway.provider is provider
         assert gateway.active_identifier == "gpt-4o-mini"
+
+    @pytest.mark.asyncio
+    async def test_task_model_family_is_eager_loaded(
+        self,
+        async_db_session: AsyncSession,
+        async_sample_provider: Provider,
+        async_sample_family: Any,
+        async_sample_model: Any,
+        async_sample_character: Any,
+    ) -> None:
+        """Regression: a chat's task model must eager-load its model_family.
+
+        The task gateway resolves family-default params for the task model too,
+        so a lazy model_family raises MissingGreenlet in the async session — the
+        "cannot reach the model" failure when auto-generating tones/titles with a
+        distinct task model configured.
+        """
+        from src.model import ModelRegistry, ModelRoute
+        from src.model_family import ModelFamily
+
+        # The task model must have a DISTINCT family from the main model: sharing
+        # one lets the main model's eager-loaded family satisfy the access from
+        # the identity map, masking the missing task-model joinedload.
+        task_family = ModelFamily(
+            name="Task Family",
+            family_identifier="test.task",
+            provider_types=["openai"],
+            parameters={
+                "temperature": {"type": "float", "default": 0.7, "min_value": 0.0, "max_value": 2.0}
+            },
+        )
+        async_db_session.add(task_family)
+        await async_db_session.flush()
+
+        task_model = ModelRegistry(
+            slug="task-mini",
+            display_name="Task Mini",
+            original_identifier="gpt-task-mini",
+            model_family_id=task_family.id,
+        )
+        async_db_session.add(task_model)
+        await async_db_session.flush()
+        task_route = ModelRoute(
+            model_registry_id=task_model.id,
+            provider_id=async_sample_provider.id,
+            model_identifier="gpt-task-mini",
+        )
+        async_db_session.add(task_route)
+        await async_db_session.flush()
+        task_model.active_route_id = task_route.id
+
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+            task_model_id=task_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+
+        # Clear the identity map so the query's eager-load options decide what's
+        # loaded (in-session instances would otherwise mask a missing joinedload).
+        async_db_session.expunge_all()
+
+        chat_repo = AsyncChatRepository(async_db_session)
+        loaded = await chat_repo.find_by_id_with_relations(chat.id)
+
+        assert loaded is not None and loaded.task_model is not None
+        # These would raise MissingGreenlet before the fix (async lazy-load):
+        assert loaded.task_model.model_family is not None
+        assert loaded.task_model.model_family.family_identifier == "test.task"
+        route = loaded.task_model.active_route
+        assert route is not None and route.provider is not None
