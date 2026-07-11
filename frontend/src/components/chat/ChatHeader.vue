@@ -3,12 +3,21 @@ import { ref, onMounted, onUnmounted } from "vue";
 import type { ChatCharacterInfo } from "@/types/chat";
 import type { Profile } from "@/composables/useProfiles";
 import ChatProfilePicker from "@/components/chat/ChatProfilePicker.vue";
+import ChatModelPicker from "@/components/chat/ChatModelPicker.vue";
+
+interface PickerModel {
+  id: string;
+  display_name: string;
+}
 
 const props = defineProps<{
   character: ChatCharacterInfo;
   sessionTitle: string;
   profiles?: Profile[];
   currentProfileName?: string | null;
+  models?: PickerModel[];
+  currentModelId?: string | null;
+  currentModelName?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -16,6 +25,7 @@ const emit = defineEmits<{
   rename: [title: string];
   delete: [];
   applyProfile: [profileId: string];
+  changeModel: [modelId: string];
 }>();
 
 const menuOpen = ref(false);
@@ -144,6 +154,13 @@ onUnmounted(() => {
     </div>
 
     <div class="flex items-center gap-2">
+      <ChatModelPicker
+        :models="models ?? []"
+        :current-model-id="currentModelId"
+        :current-model-name="currentModelName"
+        @change="emit('changeModel', $event)"
+      />
+
       <ChatProfilePicker
         :profiles="profiles ?? []"
         :current-profile-name="currentProfileName"

@@ -3,6 +3,7 @@ import type { components } from "@/api/schema";
 import { client } from "@/api/client";
 
 type Chat = components["schemas"]["ChatResponse"];
+type ChatUpdate = components["schemas"]["ChatUpdate"];
 
 interface UseChatSessionsOptions {
   pageSize?: number;
@@ -74,19 +75,23 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
     loadSessions();
   };
 
-  const updateChat = async (chatId: string, title: string) => {
+  const updateChat = async (chatId: string, updates: ChatUpdate) => {
     try {
-      const response = await fetch(`/api/chats/${chatId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
+      const { data, error: apiError } = await client.PUT("/api/chats/{chat_id}", {
+        params: { path: { chat_id: chatId } },
+        body: updates,
       });
-      if (!response.ok) throw new Error("Failed to rename");
-      const updated = await response.json();
-      // Update in local list
-      const idx = chatSessions.value.findIndex((c) => c.id === chatId);
-      if (idx !== -1) chatSessions.value[idx] = updated;
-      return updated;
+      if (apiError) {
+        throw new Error(`Failed to update chat: ${JSON.stringify(apiError)}`);
+      }
+      if (data) {
+        // Merge the fresh response back so consumers (e.g. the header's model
+        // label) reflect the update.
+        const idx = chatSessions.value.findIndex((c) => c.id === chatId);
+        if (idx !== -1) chatSessions.value[idx] = data;
+        return data;
+      }
+      return null;
     } catch (err) {
       console.error("Error updating chat:", err);
       throw err;

@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useChatSessions } from "@/composables/useChatSessions";
 import { useChatMessages } from "@/composables/useChatMessages";
 import { useProfiles } from "@/composables/useProfiles";
+import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
 import { useSuggestionSettings } from "@/composables/useSuggestionSettings";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
@@ -33,6 +34,12 @@ const {
 } = useChatSessions({ pageSize: 30 });
 
 const { profiles } = useProfiles();
+
+// Enabled models for the per-chat model override picker in the header.
+const { models: allModels } = useModels({ pageSize: 100, initialFilters: { enabled: true } });
+const selectableModels = computed(() =>
+  allModels.value.map((m) => ({ id: m.id, display_name: m.display_name })),
+);
 
 const {
   messages,
@@ -197,7 +204,14 @@ watch(
 
 async function handleRename(newTitle: string) {
   if (!activeSessionId.value) return;
-  await updateChat(activeSessionId.value, newTitle);
+  await updateChat(activeSessionId.value, { title: newTitle });
+}
+
+// Per-chat model override — snapshots the model onto this chat only; the
+// profile it came from is left untouched (see backend `_set_model`).
+async function handleChangeModel(modelId: string) {
+  if (!activeSessionId.value) return;
+  await updateChat(activeSessionId.value, { model_id: modelId });
 }
 
 async function handleApplyProfile(profileId: string) {
@@ -323,10 +337,14 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
         :session-title="activeSession.title || $t('chat.untitled')"
         :profiles="profiles"
         :current-profile-name="activeSession.last_profile_name"
+        :models="selectableModels"
+        :current-model-id="activeSession.model.id"
+        :current-model-name="activeSession.model.name"
         @back="router.push({ name: 'chats' })"
         @rename="handleRename"
         @delete="handleDeleteChat"
         @apply-profile="handleApplyProfile"
+        @change-model="handleChangeModel"
       />
 
       <!-- Message List -->
