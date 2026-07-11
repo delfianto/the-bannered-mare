@@ -31,9 +31,11 @@ _MISTRAL_RP = {
 }
 
 OPENROUTER_MODELS: list[ModelSeedData] = [
-    # Sao10K (-> llama3 family) — RP finetunes. Only a handful of RP models are
-    # on by default (Euryale + Lunaris here); everything else ships disabled so a
-    # fresh install starts lean — the user enables what they have keys/interest for.
+    # Defaults are curated: a handful of strong open RP finetunes PLUS the
+    # community-favorite open-weight families (Gemma, GLM-5.x, DeepSeek, MiMo,
+    # Kimi, Poolside) ship enabled; proprietary models and niche variants ship
+    # disabled — the user turns those on as needed.
+    # Sao10K (-> llama3 family) — RP finetunes; Euryale + Lunaris enabled.
     {
         "name": "Sao10K Euryale 70B v2.3 (L3.3)",
         "model_identifier": "sao10k/l3.3-euryale-70b",
@@ -126,14 +128,14 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {**_LLAMA_RP},
         "enabled": False,
     },
-    # DeepSeek — general open models (not RP finetunes); disabled by default.
+    # DeepSeek — community favorites: R1, V3.2, V4 Pro/Flash enabled; Chat V3.1 disabled.
     {
         "name": "DeepSeek V4 Pro",
         "model_identifier": "deepseek/deepseek-v4-pro",
         "family_identifier": "deepseek/deepseek-v4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "DeepSeek V4 Flash",
@@ -141,7 +143,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "deepseek/deepseek-v4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "DeepSeek V3.2",
@@ -149,7 +151,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "deepseek/deepseek-v3",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "DeepSeek Chat V3.1",
@@ -166,16 +168,16 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "deepseek/deepseek-r1",
         "provider_type": "openrouter",
         "parameters": {"max_tokens": 8192},
-        "enabled": False,
+        "enabled": True,
     },
-    # GLM (Zhipu) — extras, disabled by default.
+    # GLM (Zhipu) — GLM-5.x enabled by default; 4.x disabled.
     {
         "name": "GLM 5.1",
         "model_identifier": "z-ai/glm-5.1",
         "family_identifier": "zai/glm-5",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "GLM 5",
@@ -183,7 +185,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "zai/glm-5",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "GLM 4.7 Flash",
@@ -234,14 +236,14 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {"temperature": 1.0, "top_p": 0.95, "top_k": 40, "max_tokens": 4096},
         "enabled": False,
     },
-    # Kimi (Moonshot) — extras, disabled by default.
+    # Kimi (Moonshot) — K-series enabled by default.
     {
         "name": "Moonshot Kimi K2.6",
         "model_identifier": "moonshotai/kimi-k2.6",
         "family_identifier": "moonshot/kimi-k2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "Moonshot Kimi K2.6 (Free)",
@@ -257,7 +259,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "moonshot/kimi-k2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
-        "enabled": False,
+        "enabled": True,
     },
     # Misc free models — disabled by default.
     {
@@ -269,14 +271,14 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": False,
     },
     # Qwen 3.6 Plus (Free) removed — no longer a free-tier model on OpenRouter.
-    # Xiaomi MiMo (-> mimo-v2.5 family) — disabled by default.
+    # Xiaomi MiMo (-> mimo-v2.5 family) — enabled by default.
     {
         "name": "Xiaomi MiMo V2.5",
         "model_identifier": "xiaomi/mimo-v2.5",
         "family_identifier": "xiaomi/mimo-v2.5",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "Xiaomi MiMo V2.5 Pro",
@@ -291,16 +293,16 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
             "min_p": 0.0,
             "max_tokens": 4096,
         },
-        "enabled": False,
+        "enabled": True,
     },
-    # Poolside Laguna (Free) — disabled by default.
+    # Poolside Laguna (Free) — enabled by default.
     {
         "name": "Poolside Laguna M.1 (Free)",
         "model_identifier": "poolside/laguna-m.1:free",
         "family_identifier": "poolside/laguna",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "Poolside Laguna XS.2 (Free)",
@@ -308,16 +310,16 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "poolside/laguna",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
-    # Google Gemma (Free) — disabled by default.
+    # Google Gemma (Free) — enabled by default.
     {
         "name": "Gemma 4 31B IT (Free)",
         "model_identifier": "google/gemma-4-31b-it:free",
         "family_identifier": "google/gemma-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.9, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
     {
         "name": "Gemma 4 26B A4B IT (Free)",
@@ -325,6 +327,6 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemma-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.9, "max_tokens": 4096},
-        "enabled": False,
+        "enabled": True,
     },
 ]
