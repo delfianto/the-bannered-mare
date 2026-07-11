@@ -64,11 +64,8 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 2000000,
             "supports_vision": True,
             "supports_function_calling": True,
-            "note": (
-                "official name Grok 4.20; multi-agent variant orchestrates parallel agents "
-                "(web_search/x_search), up to 2M output"
-            ),
-            "models": ["grok-4.20", "grok-4.20-multi-agent"],
+            "note": "official name Grok 4.20; up to 2M output",
+            "models": ["grok-4.20"],
         },
     },
     {

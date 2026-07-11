@@ -469,3 +469,28 @@ class TestProviderServiceDiscovery:
         refreshed = service.get_by_id(provider.id)
         assert refreshed.allowed_models == ["keep:1"]  # deduped, blanks dropped, persisted
         assert [m.identifier for m in result.models] == ["keep:1"]  # response already filtered
+
+    def test_filter_blacklisted_drops_openai_latest_and_dated_aliases(self) -> None:
+        """The redundant GPT "-latest"/dated-snapshot aliases are dropped by name."""
+        models = [
+            DiscoveredModel(identifier=i, display_name=i, state="loaded")
+            for i in (
+                "gpt-chat-latest",
+                "chatgpt-4o-latest",
+                "gpt-5.4-2026-03-05",
+                "gpt-5.4-mini-2026-03-17",
+                "gpt-5-chat",
+                "gpt-5.4-pro",
+                "gpt-4o",
+                "claude-3-5-sonnet-20241022",  # non-dashed date, non-GPT — kept
+            )
+        ]
+
+        kept = {m.identifier for m in ProviderService._filter_blacklisted(models)}
+
+        assert kept == {
+            "gpt-5-chat",
+            "gpt-5.4-pro",
+            "gpt-4o",
+            "claude-3-5-sonnet-20241022",
+        }

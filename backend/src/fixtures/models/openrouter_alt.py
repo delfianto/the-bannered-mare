@@ -89,15 +89,6 @@ OPENROUTER_ALT_MODELS: list[ModelSeedData] = [
         "slug": "gpt-5.3-chat",
     },
     {
-        "name": "GPT Chat Latest",
-        "model_identifier": "openai/gpt-chat-latest",
-        "family_identifier": "openai/gpt-5-chat",
-        "provider_type": "openrouter",
-        "parameters": {},
-        "enabled": True,
-        "slug": "gpt-chat-latest",
-    },
-    {
         "name": "GPT-5.4 Pro",
         "model_identifier": "openai/gpt-5.4-pro",
         "family_identifier": "openai/gpt-5-thinking",
@@ -303,15 +294,6 @@ OPENROUTER_ALT_MODELS: list[ModelSeedData] = [
         "parameters": {},
         "enabled": True,
         "slug": "grok-4.20",
-    },
-    {
-        "name": "Grok 4.20 Multi-Agent",
-        "model_identifier": "x-ai/grok-4.20-multi-agent",
-        "family_identifier": "xai/grok-4.2",
-        "provider_type": "openrouter",
-        "parameters": {},
-        "enabled": True,
-        "slug": "grok-4.20-multi-agent",
     },
     {
         "name": "Grok 4.3",

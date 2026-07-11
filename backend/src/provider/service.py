@@ -31,6 +31,12 @@ _SEARCH_RESULT_LIMIT = 50
 # the RP picker.
 _REASONING_MODEL_RE = re.compile(r"^o[1-9]([.-]|$)")
 
+# OpenAI ships redundant GPT aliases: a "-latest" rolling pointer
+# (gpt-chat-latest, chatgpt-4o-latest) and dated snapshots (gpt-5.4-2026-03-05).
+# Each duplicates a bare SKU that's already listed, so they only clutter the RP
+# picker — drop them. Scoped to gpt/chatgpt so other vendors' names are untouched.
+_OPENAI_ALIAS_RE = re.compile(r"^(?:chat)?gpt.*(?:-latest|-\d{4}-\d{2}-\d{2})$")
+
 
 def _dedupe_preserving_order(identifiers: list[str]) -> list[str]:
     """Trim, drop blanks, and de-duplicate while keeping first-seen order."""
@@ -309,6 +315,7 @@ class ProviderService:
           "sao10k"; and not the display name, which may read "Research Preview"
           on a fine chat model).
         - the OpenAI o-series reasoning models (o1/o3/o4…) by name prefix.
+        - OpenAI's redundant GPT "-latest"/dated-snapshot aliases by name.
         """
         name_bl = [k.lower() for k in settings.model_blacklist]
         vendor_bl = [k.lower() for k in settings.model_vendor_blacklist]
@@ -318,6 +325,8 @@ class ProviderService:
             if vendor and any(v in vendor for v in vendor_bl):
                 continue
             if _REASONING_MODEL_RE.match(name):
+                continue
+            if _OPENAI_ALIAS_RE.match(name):
                 continue
             if any(k in name for k in name_bl):
                 continue
