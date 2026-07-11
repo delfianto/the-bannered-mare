@@ -732,7 +732,7 @@ export interface paths {
     get: operations["get_chat_api_chats__chat_id__get"];
     /**
      * Update Chat
-     * @description Update chat (e.g., change title or model)
+     * @description Update chat axes (title, model, task model, persona, bookmark).
      */
     put: operations["update_chat_api_chats__chat_id__put"];
     post?: never;
@@ -892,6 +892,28 @@ export interface paths {
      * @description Switch the active alternative (swipe) for a message.
      */
     put: operations["activate_alternative_api_chats__chat_id__messages__message_id__alternatives__alternative_id__activate_put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/chats/{chat_id}/prompt-preview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Prompt Preview
+     * @description Resolved prompt scaffolding + effective sampler params for the chat.
+     *
+     *     Read-only, no LLM call — powers the chat drawer's Session-info tab.
+     */
+    get: operations["get_prompt_preview_api_chats__chat_id__prompt_preview_get"];
+    put?: never;
     post?: never;
     delete?: never;
     options?: never;
@@ -2067,6 +2089,24 @@ export interface components {
       name: string | null;
     };
     /**
+     * ChatPromptPreviewResponse
+     * @description What the chat currently resolves to: prompt scaffolding + effective params.
+     */
+    ChatPromptPreviewResponse: {
+      /** Model Display Name */
+      model_display_name?: string | null;
+      /** Provider Name */
+      provider_name?: string | null;
+      /** Model Identifier */
+      model_identifier?: string | null;
+      /** Parameters */
+      parameters: {
+        [key: string]: unknown;
+      };
+      /** Messages */
+      messages: components["schemas"]["PreviewMessage"][];
+    };
+    /**
      * ChatResponse
      * @description Schema for chat responses
      */
@@ -2106,13 +2146,21 @@ export interface components {
     };
     /**
      * ChatUpdate
-     * @description Schema for updating a chat
+     * @description Schema for updating a chat.
+     *
+     *     task_model_id and persona_id are nullable and clearable: sending ``null``
+     *     resets that axis (task model → "same as chat model", persona → none), which
+     *     is distinguished from "field omitted" via ``exclude_unset`` in the router.
      */
     ChatUpdate: {
       /** Title */
       title?: string | null;
       /** Model Id */
       model_id?: string | null;
+      /** Task Model Id */
+      task_model_id?: string | null;
+      /** Persona Id */
+      persona_id?: string | null;
       /** Preset Id */
       preset_id?: string | null;
       /** Is Bookmarked */
@@ -3539,6 +3587,16 @@ export interface components {
       } | null;
       /** Is Default */
       is_default?: boolean | null;
+    };
+    /**
+     * PreviewMessage
+     * @description One assembled prompt-scaffolding message (role + rendered content).
+     */
+    PreviewMessage: {
+      /** Role */
+      role: string;
+      /** Content */
+      content: string;
     };
     /**
      * ProfileCreate
@@ -5927,6 +5985,37 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["MessageResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_prompt_preview_api_chats__chat_id__prompt_preview_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        chat_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ChatPromptPreviewResponse"];
         };
       };
       /** @description Validation Error */

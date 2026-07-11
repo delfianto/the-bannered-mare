@@ -2,7 +2,7 @@
 
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -84,6 +84,23 @@ class TitleResponse(BaseModel):
     """Result of auto-generating a chat title."""
 
     title: str
+
+
+class PreviewMessage(BaseModel):
+    """One assembled prompt-scaffolding message (role + rendered content)."""
+
+    role: str
+    content: str
+
+
+class ChatPromptPreviewResponse(BaseModel):
+    """What the chat currently resolves to: prompt scaffolding + effective params."""
+
+    model_display_name: str | None = None
+    provider_name: str | None = None
+    model_identifier: str | None = None
+    parameters: dict[str, Any]
+    messages: list[PreviewMessage]
 
 
 @dataclass

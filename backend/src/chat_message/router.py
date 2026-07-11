@@ -8,6 +8,7 @@ from fastapi.responses import StreamingResponse
 from src.chat_message.dependencies import ChatMessageServiceDep
 from src.chat_message.schemas import (
     AlternativeResponse,
+    ChatPromptPreviewResponse,
     MessageCreate,
     MessageListResponse,
     MessageResponse,
@@ -24,6 +25,18 @@ from src.core.logging.logger_config import get_logger
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/chats/{chat_id}/messages", tags=["messages"])
+
+# Chat-scoped (not message-scoped) endpoints served by the same async service.
+preview_router = APIRouter(prefix="/api/chats/{chat_id}", tags=["chats"])
+
+
+@preview_router.get("/prompt-preview", response_model=ChatPromptPreviewResponse)
+async def get_prompt_preview(chat_id: str, service: ChatMessageServiceDep):
+    """Resolved prompt scaffolding + effective sampler params for the chat.
+
+    Read-only, no LLM call — powers the chat drawer's Session-info tab.
+    """
+    return await service.preview_prompt(chat_id)
 
 
 @router.get("", response_model=MessageListResponse)
