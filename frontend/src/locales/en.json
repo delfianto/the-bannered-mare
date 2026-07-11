@@ -292,6 +292,13 @@
       "sessionPrompt": "Prompt",
       "sessionPromptEmpty": "No prompt scaffolding",
       "sessionError": "Couldn't load session info",
+      "logsEmpty": "No model calls logged for this conversation yet",
+      "logsError": "Couldn't load model call logs",
+      "logsStatusSuccess": "OK",
+      "logsStatusError": "Error",
+      "logsTokens": "Tokens",
+      "logsRequest": "Request",
+      "logsResponse": "Response",
       "comingSoon": "Coming soon"
     },
     "profile": {
