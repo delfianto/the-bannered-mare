@@ -4,7 +4,7 @@ import re
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException, status
 
@@ -37,6 +37,9 @@ from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
 from src.provider.gateway import ProviderGateway
 from src.rag.retrieval_service import RetrievalService
+
+if TYPE_CHECKING:
+    from src.model.models import ModelRegistry
 
 logger = get_logger(__name__)
 
@@ -126,14 +129,24 @@ class ChatMessageService:
             )
         return chat
 
+    def _resolve_active_route(self, model: ModelRegistry):
+        """The route a canonical model currently resolves to (provider + identifier)."""
+        route = model.active_route
+        if route is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Model '{model.display_name}' has no active route configured.",
+            )
+        return route
+
     def _validate_model_and_key(self, chat: Chat):
-        """Validate that the chat has a model with a configured API key."""
+        """Validate that the chat has a model whose active route's provider is keyed."""
         if not chat.model:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
-        provider = chat.model.provider
+        provider = self._resolve_active_route(chat.model).provider
         if not provider.has_api_key():
             env_var_name = provider.get_env_var_name()
             raise HTTPException(
@@ -142,16 +155,18 @@ class ChatMessageService:
             )
 
     async def _build_gateway(self, chat: Chat) -> ProviderGateway:
-        """Build a ProviderGateway with optional preset parameters."""
+        """Build a ProviderGateway from the model's active route + optional preset params."""
         if chat.model is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
+        route = self._resolve_active_route(chat.model)
         preset_params = chat.preset.parameters if chat.preset else None
         return ProviderGateway(
-            chat.model.provider,
+            route.provider,
             chat.model,
+            route.model_identifier,
             preset_parameters=preset_params,
         )
 
@@ -166,7 +181,8 @@ class ChatMessageService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Chat does not have a valid model assigned.",
             )
-        provider = model.provider
+        route = self._resolve_active_route(model)
+        provider = route.provider
         if not provider.has_api_key():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -176,8 +192,9 @@ class ChatMessageService:
                 ),
             )
         return ProviderGateway(
-            model.provider,
+            route.provider,
             model,
+            route.model_identifier,
             preset_parameters=None,
         )
 

@@ -1,8 +1,8 @@
-"""consolidated schema
+"""consolidated registry schema
 
-Revision ID: 5abc40a88101
+Revision ID: 4b09e82135f5
 Revises: 
-Create Date: 2026-07-10 22:45:52.868750
+Create Date: 2026-07-11 13:22:46.743809
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 import pgvector.sqlalchemy.vector
 
 # revision identifiers, used by Alembic.
-revision = '5abc40a88101'
+revision = '4b09e82135f5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -187,30 +187,26 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['character_id'], ['characters.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('models',
-    sa.Column('provider_id', sa.String(length=12), nullable=False, comment='Unique identifier of the AI provider for this model'),
-    sa.Column('model_identifier', sa.String(length=100), nullable=False, comment="Provider-specific model name (e.g., 'gpt-4o-mini', 'claude-4.5-sonnet')"),
-    sa.Column('openrouter_identifier', sa.String(length=100), nullable=True, comment="OpenRouter model identifier (e.g., 'openai/gpt-4o', 'sao10k/l3-euryale-70b')"),
-    sa.Column('use_openrouter', sa.Boolean(), nullable=False, comment='If True, route through OpenRouter'),
-    sa.Column('name', sa.String(length=100), nullable=False, comment='Display name of the model'),
-    sa.Column('model_family_id', sa.String(length=12), nullable=False, comment='Unique identifier of the model family this model belongs to'),
-    sa.Column('template_id', sa.String(length=12), nullable=True, comment='Default prompt template for this model configuration'),
-    sa.Column('parameters', sa.JSON(), nullable=False, comment='Model-specific overrides for sampling and generation parameters'),
+    op.create_table('model_registry',
+    sa.Column('slug', sa.String(length=100), nullable=False, comment="Provider-independent identity of the canonical model (e.g. 'deepseek-v4-pro')"),
+    sa.Column('display_name', sa.String(length=100), nullable=False, comment='Display name of the canonical model'),
+    sa.Column('original_identifier', sa.String(length=100), nullable=False, comment='Native/canonical identifier as the originating lab names it'),
+    sa.Column('model_family_id', sa.String(length=12), nullable=False, comment='Model family this canonical model belongs to'),
+    sa.Column('template_id', sa.String(length=12), nullable=True, comment='Default prompt template for this model'),
+    sa.Column('parameters', sa.JSON(), nullable=False, comment='Per-model overrides for sampling and generation parameters'),
     sa.Column('enabled', sa.Boolean(), nullable=False, comment='Whether this model is currently available for use'),
+    sa.Column('active_route_id', sa.String(length=12), nullable=True, comment='The active route: which provider binding this model resolves to'),
     sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was last updated (UTC)'),
+    sa.ForeignKeyConstraint(['active_route_id'], ['model_routing.id'], name='fk_model_registry_active_route', ondelete='SET NULL', use_alter=True),
     sa.ForeignKeyConstraint(['model_family_id'], ['model_families.id'], ondelete='RESTRICT'),
-    sa.ForeignKeyConstraint(['provider_id'], ['providers.id'], ondelete='RESTRICT'),
     sa.ForeignKeyConstraint(['template_id'], ['prompt_templates.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_models_model_family_id'), 'models', ['model_family_id'], unique=False)
-    op.create_index(op.f('ix_models_model_identifier'), 'models', ['model_identifier'], unique=False)
-    op.create_index(op.f('ix_models_openrouter_identifier'), 'models', ['openrouter_identifier'], unique=False)
-    op.create_index(op.f('ix_models_provider_id'), 'models', ['provider_id'], unique=False)
-    op.create_index(op.f('ix_models_template_id'), 'models', ['template_id'], unique=False)
-    op.create_index(op.f('ix_models_use_openrouter'), 'models', ['use_openrouter'], unique=False)
+    op.create_index(op.f('ix_model_registry_model_family_id'), 'model_registry', ['model_family_id'], unique=False)
+    op.create_index(op.f('ix_model_registry_slug'), 'model_registry', ['slug'], unique=True)
+    op.create_index(op.f('ix_model_registry_template_id'), 'model_registry', ['template_id'], unique=False)
     op.create_table('template_fragments',
     sa.Column('template_id', sa.String(length=12), nullable=False),
     sa.Column('fragment_id', sa.String(length=12), nullable=False),
@@ -229,8 +225,8 @@ def upgrade() -> None:
     op.create_table('chats',
     sa.Column('character_id', sa.String(length=12), nullable=False, comment='Unique identifier of the character being roleplayed'),
     sa.Column('is_bookmarked', sa.Boolean(), server_default='false', nullable=False, comment='Whether the chat session is bookmarked'),
-    sa.Column('model_id', sa.String(length=12), nullable=True, comment='Unique identifier of the LLM model used for this chat'),
-    sa.Column('task_model_id', sa.String(length=12), nullable=True, comment='Optional cheaper model for auxiliary calls (titles, suggestions); falls back to model_id when unset'),
+    sa.Column('model_id', sa.String(length=12), nullable=True, comment='Canonical model (registry) used for this chat'),
+    sa.Column('task_model_id', sa.String(length=12), nullable=True, comment='Optional cheaper canonical model for auxiliary calls (titles, suggestions); falls back to model_id when unset'),
     sa.Column('title', sa.String(length=200), nullable=True, comment='User-defined or auto-generated title for the conversation'),
     sa.Column('preview', sa.Text(), nullable=True, comment='Short text snippet of the last message for list display'),
     sa.Column('model_name', sa.String(length=100), nullable=True, comment='Snapshot of the model name used (persists even if model is deleted)'),
@@ -243,10 +239,10 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was last updated (UTC)'),
     sa.ForeignKeyConstraint(['character_id'], ['characters.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['model_id'], ['models.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['model_id'], ['model_registry.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['persona_id'], ['personas.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['preset_id'], ['presets.id'], ondelete='SET NULL'),
-    sa.ForeignKeyConstraint(['task_model_id'], ['models.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['task_model_id'], ['model_registry.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['template_id'], ['prompt_templates.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -281,6 +277,23 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['lorebook_id'], ['lorebooks.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('model_routing',
+    sa.Column('model_registry_id', sa.String(length=12), nullable=False, comment='Canonical model this route belongs to'),
+    sa.Column('provider_id', sa.String(length=12), nullable=False, comment='Provider this route reaches the model through'),
+    sa.Column('model_identifier', sa.String(length=100), nullable=False, comment="Provider-specific model identifier (e.g. 'deepseek/deepseek-v4-pro')"),
+    sa.Column('enabled', sa.Boolean(), nullable=False, comment='Whether this route is usable'),
+    sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was last updated (UTC)'),
+    sa.ForeignKeyConstraint(['model_registry_id'], ['model_registry.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['provider_id'], ['providers.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('model_registry_id', 'provider_id', name='uq_route_registry_provider'),
+    sa.UniqueConstraint('provider_id', 'model_identifier', name='uq_route_provider_identifier')
+    )
+    op.create_index(op.f('ix_model_routing_model_identifier'), 'model_routing', ['model_identifier'], unique=False)
+    op.create_index(op.f('ix_model_routing_model_registry_id'), 'model_routing', ['model_registry_id'], unique=False)
+    op.create_index(op.f('ix_model_routing_provider_id'), 'model_routing', ['provider_id'], unique=False)
     op.create_table('profiles',
     sa.Column('name', sa.String(length=100), nullable=False, comment='Display name of the profile'),
     sa.Column('description', sa.Text(), nullable=True, comment="Brief description of the profile's purpose"),
@@ -288,18 +301,18 @@ def upgrade() -> None:
     sa.Column('prompt_template_id', sa.String(length=12), nullable=True, comment='Prompt template applied to chats using this profile'),
     sa.Column('preset_id', sa.String(length=12), nullable=True, comment='Sampler preset applied to chats using this profile'),
     sa.Column('persona_id', sa.String(length=12), nullable=True, comment='Default persona applied to chats using this profile'),
-    sa.Column('model_id', sa.String(length=12), nullable=True, comment='Default model applied to chats using this profile'),
-    sa.Column('task_model_id', sa.String(length=12), nullable=True, comment='Optional cheaper model for auxiliary calls (titles, suggestions); falls back to the chat model when unset'),
+    sa.Column('model_id', sa.String(length=12), nullable=True, comment='Default canonical model applied to chats using this profile'),
+    sa.Column('task_model_id', sa.String(length=12), nullable=True, comment='Optional cheaper canonical model for auxiliary calls (titles, suggestions); falls back to the chat model when unset'),
     sa.Column('source', sa.String(length=20), nullable=False, comment='Origin of the profile: manual, sillytavern, etc.'),
     sa.Column('source_filename', sa.String(length=255), nullable=True, comment="Original filename when imported (preserves an imported preset's identity)"),
     sa.Column('id', sa.String(length=12), nullable=False, comment='Unique short identifier (12 characters)'),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was created (UTC)'),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False, comment='Timestamp when the record was last updated (UTC)'),
-    sa.ForeignKeyConstraint(['model_id'], ['models.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['model_id'], ['model_registry.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['persona_id'], ['personas.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['preset_id'], ['presets.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['prompt_template_id'], ['prompt_templates.id'], ondelete='SET NULL'),
-    sa.ForeignKeyConstraint(['task_model_id'], ['models.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['task_model_id'], ['model_registry.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_profiles_model_id'), 'profiles', ['model_id'], unique=False)
@@ -372,11 +385,24 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_message_alternatives_message_id'), 'message_alternatives', ['message_id'], unique=False)
     op.execute('CREATE INDEX ix_embeddings_vchordrq ON embeddings USING vchordrq (embedding vector_cosine_ops) WITH (options = $$\nresidual_quantization = true\n$$)')
+    # Circular FK: model_registry.active_route_id -> model_routing.id. Added after
+    # both tables exist (use_alter defers it); the inline constraint is skipped at
+    # CREATE TABLE time, so it must be created explicitly here.
+    op.create_foreign_key(
+        'fk_model_registry_active_route',
+        'model_registry',
+        'model_routing',
+        ['active_route_id'],
+        ['id'],
+        ondelete='SET NULL',
+    )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
+    # Break the registry<->routing cycle before dropping the tables.
+    op.drop_constraint('fk_model_registry_active_route', 'model_registry', type_='foreignkey')
     op.drop_index(op.f('ix_message_alternatives_message_id'), table_name='message_alternatives')
     op.drop_table('message_alternatives')
     op.drop_index(op.f('ix_messages_chat_id'), table_name='messages')
@@ -395,6 +421,10 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_profiles_name'), table_name='profiles')
     op.drop_index(op.f('ix_profiles_model_id'), table_name='profiles')
     op.drop_table('profiles')
+    op.drop_index(op.f('ix_model_routing_provider_id'), table_name='model_routing')
+    op.drop_index(op.f('ix_model_routing_model_registry_id'), table_name='model_routing')
+    op.drop_index(op.f('ix_model_routing_model_identifier'), table_name='model_routing')
+    op.drop_table('model_routing')
     op.drop_table('lore_entries')
     op.drop_index(op.f('ix_chats_template_id'), table_name='chats')
     op.drop_index(op.f('ix_chats_task_model_id'), table_name='chats')
@@ -406,13 +436,10 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_template_fragments_template_id'), table_name='template_fragments')
     op.drop_index(op.f('ix_template_fragments_fragment_id'), table_name='template_fragments')
     op.drop_table('template_fragments')
-    op.drop_index(op.f('ix_models_use_openrouter'), table_name='models')
-    op.drop_index(op.f('ix_models_template_id'), table_name='models')
-    op.drop_index(op.f('ix_models_provider_id'), table_name='models')
-    op.drop_index(op.f('ix_models_openrouter_identifier'), table_name='models')
-    op.drop_index(op.f('ix_models_model_identifier'), table_name='models')
-    op.drop_index(op.f('ix_models_model_family_id'), table_name='models')
-    op.drop_table('models')
+    op.drop_index(op.f('ix_model_registry_template_id'), table_name='model_registry')
+    op.drop_index(op.f('ix_model_registry_slug'), table_name='model_registry')
+    op.drop_index(op.f('ix_model_registry_model_family_id'), table_name='model_registry')
+    op.drop_table('model_registry')
     op.drop_table('lorebooks')
     op.drop_table('providers')
     op.drop_index(op.f('ix_prompt_templates_name'), table_name='prompt_templates')

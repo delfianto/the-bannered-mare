@@ -4,7 +4,7 @@ from src.model.dependencies import (
     get_model_repository,
     get_model_service,
 )
-from src.model.models import Model
+from src.model.models import ModelRegistry, ModelRoute
 from src.model.repository import ModelRepository
 from src.model.router import router
 from src.model.schemas import (
@@ -17,7 +17,8 @@ from src.model.schemas import (
 from src.model.service import ModelService
 
 __all__ = [
-    "Model",
+    "ModelRegistry",
+    "ModelRoute",
     "ModelRepository",
     "ModelService",
     "ModelBase",

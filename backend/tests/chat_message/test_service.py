@@ -412,8 +412,8 @@ class TestChatMessageService:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_build_task_gateway_native_model_uses_own_provider(self) -> None:
-        """A native (non-routed) task model uses its own provider."""
+    async def test_build_task_gateway_uses_active_route_provider(self) -> None:
+        """The task gateway resolves through the model's active route (provider + identifier)."""
         provider = MagicMock()
         provider.provider_type = ProviderType.OPENAI
         provider.get_base_url.return_value = "https://api.openai.com/v1"
@@ -421,12 +421,12 @@ class TestChatMessageService:
         provider.has_api_key.return_value = True
         provider.name = "OpenAI"
 
+        route = MagicMock()
+        route.provider = provider
+        route.model_identifier = "gpt-4o-mini"
+
         model = MagicMock()
-        model.routing_provider_id = None
-        model.routing_provider = None
-        model.active_identifier = "gpt-4o-mini"
-        model.model_identifier = "gpt-4o-mini"
-        model.provider = provider
+        model.active_route = route
 
         chat = MagicMock()
         chat.task_model = None

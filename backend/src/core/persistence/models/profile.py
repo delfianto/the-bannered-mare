@@ -57,17 +57,17 @@ class Profile(BaseModel):
     )
     model_id: Mapped[str | None] = mapped_column(
         String(12),
-        ForeignKey("models.id", ondelete="SET NULL"),
+        ForeignKey("model_registry.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
-        comment="Default model applied to chats using this profile",
+        comment="Default canonical model applied to chats using this profile",
     )
     task_model_id: Mapped[str | None] = mapped_column(
         String(12),
-        ForeignKey("models.id", ondelete="SET NULL"),
+        ForeignKey("model_registry.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
-        comment="Optional cheaper model for auxiliary calls (titles, suggestions); "
+        comment="Optional cheaper canonical model for auxiliary calls (titles, suggestions); "
         "falls back to the chat model when unset",
     )
     source: Mapped[str] = mapped_column(

@@ -1,4 +1,4 @@
-"""Tests for ModelService"""
+"""Tests for ModelService (canonical registry + provider routes)."""
 
 from typing import Any
 from unittest.mock import patch
@@ -7,297 +7,262 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from src.chat_session import Chat, ChatRepository
-from src.model import Model, ModelRepository, ModelService
+from src.model import ModelRegistry, ModelRepository, ModelRoute, ModelService
 from src.model_family import ModelFamily, ModelFamilyRepository
 from src.provider import Provider, ProviderRepository, ProviderType
 
 
-class TestModelService:
-    """Test suite for ModelService"""
+def _service(db: Session) -> ModelService:
+    return ModelService(
+        ModelRepository(db),
+        ProviderRepository(db),
+        ModelFamilyRepository(db),
+        ChatRepository(db),
+    )
 
-    def test_list_all(self, db: Session, sample_provider: Any, sample_family: Any) -> None:
-        """Test listing all models"""
-        model1 = Model(
-            name="GPT-4",
-            provider_id=sample_provider.id,
-            model_identifier="gpt-4",
-            model_family_id=sample_family.id,
-        )
-        model2 = Model(
-            name="GPT-3.5",
-            provider_id=sample_provider.id,
-            model_identifier="gpt-3.5-turbo",
-            model_family_id=sample_family.id,
-        )
-        db.add_all([model1, model2])
-        db.commit()
 
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-        models = service.list_all()
+def _bare_registry(
+    db: Session,
+    family_id: str,
+    *,
+    slug: str = "reg",
+    display_name: str = "Reg",
+    identifier: str | None = None,
+) -> ModelRegistry:
+    """Persist a routeless canonical model directly (bypasses route validation)."""
+    registry = ModelRegistry(
+        slug=slug,
+        display_name=display_name,
+        original_identifier=identifier or slug,
+        model_family_id=family_id,
+    )
+    db.add(registry)
+    db.commit()
+    db.refresh(registry)
+    return registry
+
+
+class TestModelServiceQueries:
+    """list / get read paths."""
+
+    def test_list_all(self, db: Session, sample_family: Any) -> None:
+        _bare_registry(db, sample_family.id, slug="gpt-4", display_name="GPT-4")
+        _bare_registry(db, sample_family.id, slug="gpt-3-5", display_name="GPT-3.5")
+
+        models = _service(db).list_all()
 
         assert len(models) == 2
-        assert any(m.name == "GPT-4" for m in models)
-        assert any(m.name == "GPT-3.5" for m in models)
+        assert {m.display_name for m in models} == {"GPT-4", "GPT-3.5"}
 
     def test_list_paginated_orders_by_name_case_insensitive(
-        self, db: Session, sample_provider: Any, sample_family: Any
+        self, db: Session, sample_family: Any
     ) -> None:
-        """list_paginated returns models alphabetically by name, ignoring case."""
-        # Mixed case whose case-insensitive order ("apex, banana, Mango, Zeta")
-        # differs from raw ASCII order ("Mango, Zeta, apex, banana").
+        """list_paginated returns models alphabetically by display name, ignoring case."""
         for i, name in enumerate(["Zeta", "apex", "Mango", "banana"]):
-            db.add(
-                Model(
-                    name=name,
-                    provider_id=sample_provider.id,
-                    model_identifier=f"id-{i}",
-                    model_family_id=sample_family.id,
-                )
-            )
-        db.commit()
+            _bare_registry(db, sample_family.id, slug=f"slug-{i}", display_name=name)
 
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-
-        models, total = service.list_paginated(limit=10, offset=0)
+        models, total = _service(db).list_paginated(limit=10, offset=0)
 
         assert total == 4
-        assert [m.name for m in models] == ["apex", "banana", "Mango", "Zeta"]
+        assert [m.display_name for m in models] == ["apex", "banana", "Mango", "Zeta"]
 
-    def test_list_paginated_filters_by_model_family(
-        self, db: Session, sample_provider: Any, sample_family: Any
-    ) -> None:
+    def test_list_paginated_filters_by_model_family(self, db: Session, sample_family: Any) -> None:
         """The model_family_id filter returns only that family's models."""
         other = ModelFamily(name="Other Family", family_identifier="test.other-family")
         db.add(other)
         db.commit()
         db.refresh(other)
-        db.add_all(
-            [
-                Model(
-                    name="In Family",
-                    provider_id=sample_provider.id,
-                    model_identifier="in-fam",
-                    model_family_id=sample_family.id,
-                ),
-                Model(
-                    name="Other",
-                    provider_id=sample_provider.id,
-                    model_identifier="other",
-                    model_family_id=other.id,
-                ),
-            ]
-        )
-        db.commit()
+        _bare_registry(db, sample_family.id, slug="in-fam", display_name="In Family")
+        _bare_registry(db, other.id, slug="other", display_name="Other")
 
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-
-        models, total = service.list_paginated(filters={"model_family_id": sample_family.id})
+        models, total = _service(db).list_paginated(filters={"model_family_id": sample_family.id})
 
         assert total == 1
-        assert [m.name for m in models] == ["In Family"]
+        assert [m.display_name for m in models] == ["In Family"]
+
+    def test_list_paginated_filters_by_provider_route(
+        self, db: Session, sample_model: Any, sample_provider: Any, sample_family: Any
+    ) -> None:
+        """provider_id filter keeps only models that have a route on that provider."""
+        # sample_model has a route on sample_provider; this one has none.
+        _bare_registry(db, sample_family.id, slug="unrouted", display_name="Unrouted")
+
+        models, total = _service(db).list_paginated(filters={"provider_id": sample_provider.id})
+
+        assert total == 1
+        assert models[0].id == sample_model.id
 
     def test_get_by_id_success(self, db: Session, sample_model: Any) -> None:
-        """Test getting a model by ID successfully"""
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-        result = service.get_by_id(sample_model.id)
+        result = _service(db).get_by_id(sample_model.id)
 
         assert result.id == sample_model.id
-        assert result.name == sample_model.name
-        assert result.model_identifier == sample_model.model_identifier
+        assert result.display_name == "GPT-4"
+        assert result.slug == "gpt-4"
+        assert result.active_route is not None
+        assert result.active_route.model_identifier == "gpt-4"
 
     def test_get_by_id_not_found(self, db: Session) -> None:
-        """Test getting a model that doesn't exist raises 404"""
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-
         with pytest.raises(HTTPException) as exc_info:
-            _ = service.get_by_id("nonexistent-id")
+            _ = _service(db).get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
 
-    def test_create_model_success(
+
+class TestModelServiceCreate:
+    """create() + its route/slug/param validation."""
+
+    def test_create_derives_slug_and_active_route_from_first_route(
         self, db: Session, sample_provider: Any, sample_family: Any
     ) -> None:
-        """Test creating a model successfully"""
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-        # Mock has_api_key to return True for testing
+        """No slug given → derived from the (vendor-prefixed) route identifier."""
         with patch.object(Provider, "has_api_key", return_value=True):
-            model = service.create(
-                name="New GPT-4",
-                provider_id=sample_provider.id,
-                model_identifier="gpt-4-new",
+            model = _service(db).create(
+                display_name="DeepSeek V4 Pro",
                 model_family_id=sample_family.id,
+                routes=[
+                    {
+                        "provider_id": sample_provider.id,
+                        "model_identifier": "deepseek/deepseek-v4-pro",
+                    }
+                ],
             )
 
-        assert model.name == "New GPT-4"
-        assert model.provider_id == sample_provider.id
-        assert model.model_identifier == "gpt-4-new"
-        assert model.model_family_id == sample_family.id
+        assert model.slug == "deepseek-v4-pro"
+        assert model.original_identifier == "deepseek/deepseek-v4-pro"
+        assert len(model.routes) == 1
+        assert model.active_route_id == model.routes[0].id
+        assert model.routes[0].model_identifier == "deepseek/deepseek-v4-pro"
 
-    def test_create_model_provider_not_found(self, db: Session) -> None:
-        """Test creating a model with non-existent provider raises error"""
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-
-        with pytest.raises(HTTPException) as exc_info:
-            _ = service.create(
-                name="GPT-4",
-                provider_id="nonexistent-provider",
-                model_identifier="gpt-4",
-                model_family_id="any-family-id",
-            )
-
-        assert exc_info.value.status_code == 404
-        assert "Provider" in exc_info.value.detail
-
-    def test_create_model_minimal(
+    def test_create_with_explicit_slug(
         self, db: Session, sample_provider: Any, sample_family: Any
     ) -> None:
-        """Test creating a model with minimal fields"""
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-        # Mock has_api_key to return True for testing
         with patch.object(Provider, "has_api_key", return_value=True):
-            model = service.create(
-                name="Minimal Model",
-                provider_id=sample_provider.id,
-                model_identifier="gpt-4-min",
+            model = _service(db).create(
+                display_name="Custom",
                 model_family_id=sample_family.id,
+                slug="my-slug",
+                routes=[{"provider_id": sample_provider.id, "model_identifier": "gpt-4-new"}],
             )
 
-        assert model.name == "Minimal Model"
-        assert model.model_family_id == sample_family.id
-        assert model.template_id is None
-        assert model.parameters.get("temperature") is None
+        assert model.slug == "my-slug"
+        assert model.original_identifier == "gpt-4-new"
 
-    def test_update_model_all_fields(self, db: Session, sample_model: Any) -> None:
-        """Test updating all model fields"""
-        provider2 = Provider(name="Anthropic", provider_type=ProviderType.ANTHROPIC)
-        family2 = ModelFamily(
-            name="Claude",
-            family_identifier="test.claude",
-            provider_types=["anthropic"],
-            parameters={"temperature": {"supported": True}},
-        )
-        db.add_all([provider2, family2])
-        db.commit()
-
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-        updated = service.update(
-            sample_model.id,
-            name="Claude 3",
-            provider_id=provider2.id,
-            model_identifier="claude-3-opus",
-            model_family_id=family2.id,
-        )
-
-        assert updated.name == "Claude 3"
-        assert updated.provider_id == provider2.id
-        assert updated.model_identifier == "claude-3-opus"
-        assert updated.model_family_id == family2.id
-
-    def test_update_model_provider_not_found(self, db: Session, sample_model: Any) -> None:
-        """Test updating model with non-existent provider raises error"""
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-        with pytest.raises(HTTPException) as exc_info:
-            _ = service.update(sample_model.id, provider_id="nonexistent-provider")
-
-        assert exc_info.value.status_code == 404
-        assert "Provider" in exc_info.value.detail
-
-    def test_delete_model_success(self, db: Session, sample_model: Any) -> None:
-        """Test deleting a model successfully"""
-        model_id = sample_model.id
-
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
-        service.delete(model_id)
-
-        # Verify model is deleted
-        deleted = db.query(Model).filter(Model.id == model_id).first()
-        assert deleted is None
-
-    def test_delete_model_in_use(
-        self, db: Session, sample_model: Any, sample_character: Any
+    def test_create_active_provider_id_selects_route(
+        self, db: Session, sample_provider: Any, sample_family: Any
     ) -> None:
-        """Test deleting a model that is in use succeeds (and unlinks)"""
-        chat = Chat(title="Test Chat", character_id=sample_character.id, model_id=sample_model.id)
-        db.add(chat)
+        """When several routes are given, active_provider_id picks the active one."""
+        provider2 = Provider(name="OpenAI Alt", provider_type=ProviderType.OPENAI)
+        db.add(provider2)
         db.commit()
-        db.refresh(chat)
+        db.refresh(provider2)
 
-        # Try to delete model
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
+        with patch.object(Provider, "has_api_key", return_value=True):
+            model = _service(db).create(
+                display_name="Multi",
+                model_family_id=sample_family.id,
+                slug="multi",
+                routes=[
+                    {"provider_id": sample_provider.id, "model_identifier": "gpt-4-a"},
+                    {"provider_id": provider2.id, "model_identifier": "gpt-4-b"},
+                ],
+                active_provider_id=provider2.id,
+            )
 
-        # Should NOT raise exception now
-        service.delete(sample_model.id)
+        active = next(r for r in model.routes if r.id == model.active_route_id)
+        assert active.provider_id == provider2.id
 
-        # Verify model is deleted
-        deleted = db.query(Model).filter(Model.id == sample_model.id).first()
-        assert deleted is None
+    def test_create_requires_slug_or_route(self, db: Session, sample_family: Any) -> None:
+        with pytest.raises(HTTPException) as exc:
+            _service(db).create(display_name="X", model_family_id=sample_family.id)
 
-        # Verify chat still exists and model_id is None
-        db.expire_all()
-        updated_chat = db.query(Chat).filter(Chat.id == chat.id).first()
-        assert updated_chat is not None
-        assert updated_chat.model_id is None
+        assert exc.value.status_code == 400
+        assert "slug or at least one route" in exc.value.detail
 
-    def test_delete_model_not_found(self, db: Session) -> None:
-        """Test deleting non-existent model raises 404"""
-        repo = ModelRepository(db)
-        provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        service = ModelService(repo, provider_repo, family_repo, chat_repo)
+    def test_create_duplicate_slug_conflict(
+        self, db: Session, sample_model: Any, sample_provider: Any, sample_family: Any
+    ) -> None:
+        """sample_model already owns slug 'gpt-4'."""
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            pytest.raises(HTTPException) as exc,
+        ):
+            _service(db).create(
+                display_name="Dup",
+                model_family_id=sample_family.id,
+                slug="gpt-4",
+                routes=[{"provider_id": sample_provider.id, "model_identifier": "gpt-4-dup"}],
+            )
 
-        with pytest.raises(HTTPException) as exc_info:
-            service.delete("nonexistent-id")
+        assert exc.value.status_code == 409
+        assert "slug 'gpt-4'" in exc.value.detail
 
-        assert exc_info.value.status_code == 404
+    def test_create_rejects_invalid_parameter(
+        self, db: Session, sample_provider: Any, sample_family: Any
+    ) -> None:
+        """temperature above the family max is a 400."""
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            pytest.raises(HTTPException) as exc,
+        ):
+            _service(db).create(
+                display_name="Hot",
+                model_family_id=sample_family.id,
+                slug="hot",
+                parameters={"temperature": 3.0},  # family max_value is 2.0
+                routes=[{"provider_id": sample_provider.id, "model_identifier": "gpt-4-hot"}],
+            )
+
+        assert exc.value.status_code == 400
+        assert "greater than" in exc.value.detail
+
+    def test_create_rejects_unknown_parameter(
+        self, db: Session, sample_provider: Any, sample_family: Any
+    ) -> None:
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            pytest.raises(HTTPException) as exc,
+        ):
+            _service(db).create(
+                display_name="Weird",
+                model_family_id=sample_family.id,
+                slug="weird",
+                parameters={"made_up": 1},
+                routes=[{"provider_id": sample_provider.id, "model_identifier": "gpt-4-weird"}],
+            )
+
+        assert exc.value.status_code == 400
+        assert "not defined in model family" in exc.value.detail
+
+    def test_create_route_uniqueness_conflict(
+        self, db: Session, sample_model: Any, sample_provider: Any, sample_family: Any
+    ) -> None:
+        """A (provider, identifier) already routed elsewhere is a 409."""
+        # sample_model routes (sample_provider, 'gpt-4') already.
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            pytest.raises(HTTPException) as exc,
+        ):
+            _service(db).create(
+                display_name="Clash",
+                model_family_id=sample_family.id,
+                slug="clash",
+                routes=[{"provider_id": sample_provider.id, "model_identifier": "gpt-4"}],
+            )
+
+        assert exc.value.status_code == 409
+        assert "already exists" in exc.value.detail
+
+    def test_create_route_provider_not_found(self, db: Session, sample_family: Any) -> None:
+        with pytest.raises(HTTPException) as exc:
+            _service(db).create(
+                display_name="Ghost",
+                model_family_id=sample_family.id,
+                slug="ghost",
+                routes=[{"provider_id": "nope", "model_identifier": "x"}],
+            )
+
+        assert exc.value.status_code == 404
+        assert "Provider" in exc.value.detail
 
     def test_create_rejects_provider_type_not_in_family(self, db: Session) -> None:
         """A family that can't run on the chosen provider type is a 400."""
@@ -310,24 +275,19 @@ class TestModelService:
         db.add_all([provider, family])
         db.commit()
 
-        service = ModelService(
-            ModelRepository(db),
-            ProviderRepository(db),
-            ModelFamilyRepository(db),
-            ChatRepository(db),
-        )
         with pytest.raises(HTTPException) as exc:
-            service.create(
-                name="X",
-                provider_id=provider.id,
-                model_identifier="x",
+            _service(db).create(
+                display_name="X",
                 model_family_id=family.id,
+                slug="x",
+                routes=[{"provider_id": provider.id, "model_identifier": "x"}],
             )
+
         assert exc.value.status_code == 400
         assert "cannot serve" in exc.value.detail
 
     def test_create_allows_provider_type_in_family(self, db: Session) -> None:
-        """LM Studio is allowed once the family lists it."""
+        """LM Studio (keyless) is allowed once the family lists it."""
         provider = Provider(name="Local LM Studio", provider_type=ProviderType.LMSTUDIO)
         family = ModelFamily(
             name="Local Fam",
@@ -337,60 +297,261 @@ class TestModelService:
         db.add_all([provider, family])
         db.commit()
 
-        service = ModelService(
-            ModelRepository(db),
-            ProviderRepository(db),
-            ModelFamilyRepository(db),
-            ChatRepository(db),
+        created = _service(db).create(
+            display_name="X",
+            model_family_id=family.id,
+            slug="x",
+            routes=[{"provider_id": provider.id, "model_identifier": "x"}],
         )
-        created = service.create(
-            name="X", provider_id=provider.id, model_identifier="x", model_family_id=family.id
-        )
+
         assert created.id
+        assert created.active_route_id is not None
 
-    def test_update_rejects_family_change_incompatible_with_provider(self, db: Session) -> None:
-        """Switching to a family the current provider can't serve is a 400."""
-        provider = Provider(name="Local LM Studio", provider_type=ProviderType.LMSTUDIO)
-        ok_family = ModelFamily(
-            name="Local Fam2", family_identifier="test/local2", provider_types=["lmstudio"]
-        )
-        cloud_family = ModelFamily(
-            name="Cloud Fam", family_identifier="test/cloud", provider_types=["anthropic"]
-        )
-        db.add_all([provider, ok_family, cloud_family])
-        db.commit()
-        service = ModelService(
-            ModelRepository(db),
-            ProviderRepository(db),
-            ModelFamilyRepository(db),
-            ChatRepository(db),
-        )
-        model = service.create(
-            name="X", provider_id=provider.id, model_identifier="x", model_family_id=ok_family.id
-        )
-        with pytest.raises(HTTPException) as exc:
-            service.update(model.id, model_family_id=cloud_family.id)
-        assert exc.value.status_code == 400
 
-    def test_update_rejects_provider_change_incompatible_with_family(self, db: Session) -> None:
-        """Switching to a provider the current family can't run on is a 400."""
-        lmstudio = Provider(name="Local LM Studio", provider_type=ProviderType.LMSTUDIO)
-        anthropic = Provider(name="Anthropic", provider_type=ProviderType.ANTHROPIC)
-        family = ModelFamily(
-            name="Local Fam3", family_identifier="test/local3", provider_types=["lmstudio"]
-        )
-        db.add_all([lmstudio, anthropic, family])
+class TestModelServiceRoutes:
+    """add_route / delete_route / set_active_route."""
+
+    def test_add_route_keeps_existing_active(
+        self, db: Session, sample_model: Any, sample_family: Any
+    ) -> None:
+        provider2 = Provider(name="OpenAI Alt", provider_type=ProviderType.OPENAI)
+        db.add(provider2)
         db.commit()
-        service = ModelService(
-            ModelRepository(db),
-            ProviderRepository(db),
-            ModelFamilyRepository(db),
-            ChatRepository(db),
+        db.refresh(provider2)
+        original_active = sample_model.active_route_id
+
+        with patch.object(Provider, "has_api_key", return_value=True):
+            model = _service(db).add_route(
+                sample_model.id, provider_id=provider2.id, model_identifier="gpt-4-alt"
+            )
+
+        assert len(model.routes) == 2
+        # Adding a route to a model that already had one does not steal active.
+        assert model.active_route_id == original_active
+
+    def test_add_route_sets_active_when_none(
+        self, db: Session, sample_provider: Any, sample_family: Any
+    ) -> None:
+        registry = _bare_registry(db, sample_family.id, slug="lonely")
+        assert registry.active_route_id is None
+
+        with patch.object(Provider, "has_api_key", return_value=True):
+            model = _service(db).add_route(
+                registry.id, provider_id=sample_provider.id, model_identifier="gpt-4-lonely"
+            )
+
+        assert model.active_route_id == model.routes[0].id
+
+    def test_add_route_uniqueness_conflict(self, db: Session, sample_model: Any) -> None:
+        """Re-adding the same (provider, identifier) is a 409."""
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            pytest.raises(HTTPException) as exc,
+        ):
+            _service(db).add_route(
+                sample_model.id,
+                provider_id=sample_model.active_route.provider_id,
+                model_identifier="gpt-4",
+            )
+
+        assert exc.value.status_code == 409
+
+    def test_delete_route_repoints_active(
+        self, db: Session, sample_model: Any, sample_family: Any
+    ) -> None:
+        provider2 = Provider(name="OpenAI Alt", provider_type=ProviderType.OPENAI)
+        db.add(provider2)
+        db.commit()
+        db.refresh(provider2)
+        first_route_id = sample_model.active_route_id
+
+        with patch.object(Provider, "has_api_key", return_value=True):
+            service = _service(db)
+            model = service.add_route(
+                sample_model.id, provider_id=provider2.id, model_identifier="gpt-4-alt"
+            )
+            second_route_id = next(r.id for r in model.routes if r.id != first_route_id)
+
+            # Deleting the active (first) route repoints active to the survivor.
+            model = service.delete_route(sample_model.id, first_route_id)
+
+        assert len(model.routes) == 1
+        assert model.active_route_id == second_route_id
+
+    def test_delete_last_route_clears_active(self, db: Session, sample_model: Any) -> None:
+        route_id = sample_model.active_route_id
+
+        model = _service(db).delete_route(sample_model.id, route_id)
+
+        assert model.routes == []
+        assert model.active_route_id is None
+
+    def test_delete_route_not_belonging_404(
+        self, db: Session, sample_model: Any, sample_family: Any
+    ) -> None:
+        other = _bare_registry(db, sample_family.id, slug="other-reg")
+        other_route = ModelRoute(
+            model_registry_id=other.id,
+            provider_id=sample_model.active_route.provider_id,
+            model_identifier="foreign",
         )
-        model = service.create(
-            name="X", provider_id=lmstudio.id, model_identifier="x", model_family_id=family.id
-        )
+        db.add(other_route)
+        db.commit()
+        db.refresh(other_route)
+
         with pytest.raises(HTTPException) as exc:
-            service.update(model.id, provider_id=anthropic.id)
+            _service(db).delete_route(sample_model.id, other_route.id)
+
+        assert exc.value.status_code == 404
+
+    def test_set_active_route_flip(
+        self, db: Session, sample_model: Any, sample_family: Any
+    ) -> None:
+        provider2 = Provider(name="OpenAI Alt", provider_type=ProviderType.OPENAI)
+        db.add(provider2)
+        db.commit()
+        db.refresh(provider2)
+        first_route_id = sample_model.active_route_id
+
+        with patch.object(Provider, "has_api_key", return_value=True):
+            service = _service(db)
+            model = service.add_route(
+                sample_model.id, provider_id=provider2.id, model_identifier="gpt-4-alt"
+            )
+            second_route_id = next(r.id for r in model.routes if r.id != first_route_id)
+
+            model = service.set_active_route(sample_model.id, second_route_id)
+
+        assert model.active_route_id == second_route_id
+
+    def test_set_active_route_not_belonging_404(self, db: Session, sample_model: Any) -> None:
+        with pytest.raises(HTTPException) as exc:
+            _service(db).set_active_route(sample_model.id, "not-a-route")
+
+        assert exc.value.status_code == 404
+
+
+class TestModelServiceUpdate:
+    """update / update_flags / delete."""
+
+    def test_update_fields(self, db: Session, sample_model: Any) -> None:
+        updated = _service(db).update(
+            sample_model.id,
+            display_name="GPT-4 Turbo",
+            slug="gpt-4-turbo",
+            original_identifier="gpt-4-turbo-2024",
+        )
+
+        assert updated.display_name == "GPT-4 Turbo"
+        assert updated.slug == "gpt-4-turbo"
+        assert updated.original_identifier == "gpt-4-turbo-2024"
+
+    def test_update_display_name_snapshots_onto_chats(
+        self, db: Session, sample_model: Any, sample_character: Any
+    ) -> None:
+        chat = Chat(
+            title="C",
+            character_id=sample_character.id,
+            model_id=sample_model.id,
+            model_name="GPT-4",
+        )
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+
+        _service(db).update(sample_model.id, display_name="Renamed GPT-4")
+
+        db.expire_all()
+        refreshed = db.query(Chat).filter(Chat.id == chat.id).first()
+        assert refreshed is not None
+        assert refreshed.model_name == "Renamed GPT-4"
+
+    def test_update_duplicate_slug_conflict(
+        self, db: Session, sample_model: Any, sample_family: Any
+    ) -> None:
+        _bare_registry(db, sample_family.id, slug="taken", display_name="Taken")
+
+        with pytest.raises(HTTPException) as exc:
+            _service(db).update(sample_model.id, slug="taken")
+
+        assert exc.value.status_code == 409
+
+    def test_update_family_change_revalidates_parameters(
+        self, db: Session, sample_model: Any
+    ) -> None:
+        """A param valid under the old family but invalid under the new one is a 400."""
+        strict = ModelFamily(
+            name="Strict",
+            family_identifier="test.strict",
+            provider_types=["openai"],
+            parameters={
+                "temperature": {"type": "float", "default": 0.5, "min_value": 0.0, "max_value": 1.0}
+            },
+        )
+        db.add(strict)
+        db.commit()
+        db.refresh(strict)
+
+        with pytest.raises(HTTPException) as exc:
+            _service(db).update(
+                sample_model.id,
+                model_family_id=strict.id,
+                parameters={"temperature": 1.8},  # ok under GPT (max 2.0), not under Strict
+            )
+
         assert exc.value.status_code == 400
-        assert "cannot serve" in exc.value.detail
+        assert "greater than" in exc.value.detail
+
+    def test_update_rejects_family_change_incompatible_with_existing_route(
+        self, db: Session, sample_model: Any
+    ) -> None:
+        """Switching to a family the model's existing route provider can't serve is a 400."""
+        cloud = ModelFamily(
+            name="Anthropic Only",
+            family_identifier="test.anthropic-only",
+            provider_types=["anthropic"],
+        )
+        db.add(cloud)
+        db.commit()
+        db.refresh(cloud)
+
+        with pytest.raises(HTTPException) as exc:
+            # sample_model's route is on an OpenAI provider.
+            _service(db).update(sample_model.id, model_family_id=cloud.id)
+
+        assert exc.value.status_code == 400
+        assert "incompatible" in exc.value.detail
+
+    def test_update_flags(self, db: Session, sample_model: Any) -> None:
+        updated = _service(db).update_flags(sample_model.id, enabled=False)
+        assert updated.enabled is False
+
+        updated = _service(db).update_flags(sample_model.id, enabled=True)
+        assert updated.enabled is True
+
+    def test_delete_model(self, db: Session, sample_model: Any) -> None:
+        model_id = sample_model.id
+        _service(db).delete(model_id)
+
+        assert db.query(ModelRegistry).filter(ModelRegistry.id == model_id).first() is None
+
+    def test_delete_model_in_use_unlinks_chat(
+        self, db: Session, sample_model: Any, sample_character: Any
+    ) -> None:
+        chat = Chat(title="C", character_id=sample_character.id, model_id=sample_model.id)
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+
+        _service(db).delete(sample_model.id)
+
+        db.expire_all()
+        refreshed = db.query(Chat).filter(Chat.id == chat.id).first()
+        assert refreshed is not None
+        assert refreshed.model_id is None
+
+    def test_delete_model_not_found(self, db: Session) -> None:
+        with pytest.raises(HTTPException) as exc_info:
+            _service(db).delete("nonexistent-id")
+
+        assert exc_info.value.status_code == 404

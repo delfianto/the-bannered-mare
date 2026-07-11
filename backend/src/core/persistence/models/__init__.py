@@ -8,7 +8,7 @@ from src.core.persistence.models.audit_log import ErrorLog, HttpLog, LlmAuditLog
 from src.core.persistence.models.character import Character
 from src.core.persistence.models.chat import Chat, Message, MessageAlternative
 from src.core.persistence.models.lore import Lorebook, LoreEntry
-from src.core.persistence.models.model import Model, ModelFamily
+from src.core.persistence.models.model import ModelFamily, ModelRegistry, ModelRoute
 from src.core.persistence.models.persona import Persona
 from src.core.persistence.models.preset import Preset
 from src.core.persistence.models.profile import Profile
@@ -39,8 +39,9 @@ __all__ = [
     "LoreEntry",
     "Message",
     "MessageAlternative",
-    "Model",
     "ModelFamily",
+    "ModelRegistry",
+    "ModelRoute",
     "Persona",
     "Preset",
     "Profile",

@@ -37,19 +37,38 @@ def mock_family() -> Any:
 
 
 @pytest.fixture
-def mock_model(mock_family: Any) -> Any:
-    model = MagicMock()
-    model.model_identifier = "gpt-4"
-    model.parameters = {"temperature": 0.7}
-    model.model_family = mock_family
-    return model
+def mock_registry(mock_family: Any) -> Any:
+    """A canonical model (registry): family + parameter overrides. The route's
+    identifier is handed to the gateway separately, not read off the registry."""
+    registry = MagicMock()
+    registry.parameters = {"temperature": 0.7}
+    registry.model_family = mock_family
+    return registry
+
+
+# --- constructor / identity ---
+
+
+def test_gateway_uses_passed_identifier_and_registry_params(
+    mock_provider: Any, mock_registry: Any
+) -> None:
+    """The gateway resolves through the identifier it is given and the registry's params."""
+    gateway = ProviderGateway(mock_provider, mock_registry, "provider/gpt-4-turbo")
+
+    assert gateway.active_identifier == "provider/gpt-4-turbo"
+    assert gateway.provider is mock_provider
+    assert gateway.registry is mock_registry
+    # Registry override wins over the family default.
+    params = gateway._get_effective_parameters()
+    assert params["temperature"] == 0.7
+    assert params["max_tokens"] == 2048
 
 
 # --- _get_effective_parameters ---
 
 
 def test_get_effective_parameters_family_defaults_only(mock_provider: Any) -> None:
-    """Family defaults populate when model has no overrides."""
+    """Family defaults populate when the registry has no overrides."""
     family = MagicMock()
     family.parameters = {
         "temperature": {"type": "float", "default": 0.9},
@@ -57,12 +76,11 @@ def test_get_effective_parameters_family_defaults_only(mock_provider: Any) -> No
     }
     family.unsupported_parameters = []
 
-    model = MagicMock()
-    model.model_identifier = "gpt-4"
-    model.parameters = {}
-    model.model_family = family
+    registry = MagicMock()
+    registry.parameters = {}
+    registry.model_family = family
 
-    gateway = ProviderGateway(mock_provider, model)
+    gateway = ProviderGateway(mock_provider, registry, "gpt-4")
     params = gateway._get_effective_parameters()
 
     assert params["temperature"] == 0.9
@@ -70,20 +88,24 @@ def test_get_effective_parameters_family_defaults_only(mock_provider: Any) -> No
 
 
 def test_get_effective_parameters_model_overrides_family(
-    mock_provider: Any, mock_model: Any
+    mock_provider: Any, mock_registry: Any
 ) -> None:
-    """Model-level overrides take precedence over family defaults."""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    """Registry-level overrides take precedence over family defaults."""
+    gateway = ProviderGateway(mock_provider, mock_registry, "gpt-4")
     params = gateway._get_effective_parameters()
 
     assert params["temperature"] == 0.7
     assert params["max_tokens"] == 2048
 
 
-def test_get_effective_parameters_preset_overrides_all(mock_provider: Any, mock_model: Any) -> None:
-    """Preset parameters override both family defaults and model overrides."""
+def test_get_effective_parameters_preset_overrides_all(
+    mock_provider: Any, mock_registry: Any
+) -> None:
+    """Preset parameters override both family defaults and registry overrides."""
     preset_params = {"temperature": 0.3, "max_tokens": 512, "top_p": 0.95}
-    gateway = ProviderGateway(mock_provider, mock_model, preset_parameters=preset_params)
+    gateway = ProviderGateway(
+        mock_provider, mock_registry, "gpt-4", preset_parameters=preset_params
+    )
     params = gateway._get_effective_parameters()
 
     assert params["temperature"] == 0.3
@@ -92,13 +114,12 @@ def test_get_effective_parameters_preset_overrides_all(mock_provider: Any, mock_
 
 
 def test_get_effective_parameters_no_family(mock_provider: Any) -> None:
-    """Handles model with no model_family gracefully."""
-    model = MagicMock()
-    model.model_identifier = "gpt-4"
-    model.parameters = {"temperature": 0.5}
-    model.model_family = None
+    """Handles a registry with no model_family gracefully."""
+    registry = MagicMock()
+    registry.parameters = {"temperature": 0.5}
+    registry.model_family = None
 
-    gateway = ProviderGateway(mock_provider, model)
+    gateway = ProviderGateway(mock_provider, registry, "gpt-4")
     params = gateway._get_effective_parameters()
 
     assert params == {"temperature": 0.5}
@@ -113,12 +134,11 @@ def test_get_effective_parameters_skips_null_defaults(mock_provider: Any) -> Non
     }
     family.unsupported_parameters = []
 
-    model = MagicMock()
-    model.model_identifier = "gpt-4"
-    model.parameters = {}
-    model.model_family = family
+    registry = MagicMock()
+    registry.parameters = {}
+    registry.model_family = family
 
-    gateway = ProviderGateway(mock_provider, model)
+    gateway = ProviderGateway(mock_provider, registry, "gpt-4")
     params = gateway._get_effective_parameters()
 
     assert "temperature" not in params
@@ -126,22 +146,21 @@ def test_get_effective_parameters_skips_null_defaults(mock_provider: Any) -> Non
 
 
 def test_get_effective_parameters_strips_unsupported(mock_provider: Any) -> None:
-    """Params the family lists as unsupported are dropped from a model/preset override."""
+    """Params the family lists as unsupported are dropped from a registry/preset override."""
     family = MagicMock()
     family.parameters = {"max_tokens": {"type": "int", "default": 8192}}
     family.family_identifier = "openai/gpt-5-thinking"
     # A reasoning model rejects sampling knobs (400 if sent).
     family.unsupported_parameters = ["temperature", "top_p", "frequency_penalty"]
 
-    model = MagicMock()
-    model.model_identifier = "gpt-5.4"
-    model.name = "GPT-5.4"
-    model.parameters = {"temperature": 0.8}  # stale model override
-    model.model_family = family
+    registry = MagicMock()
+    registry.display_name = "GPT-5.4"
+    registry.parameters = {"temperature": 0.8}  # stale registry override
+    registry.model_family = family
 
     # A loadout preset that (wrongly) sets rejected knobs.
     preset_params = {"top_p": 0.9, "frequency_penalty": 0.5, "max_tokens": 4096}
-    gateway = ProviderGateway(mock_provider, model, preset_parameters=preset_params)
+    gateway = ProviderGateway(mock_provider, registry, "gpt-5.4", preset_parameters=preset_params)
     params = gateway._get_effective_parameters()
 
     assert "temperature" not in params
@@ -155,9 +174,9 @@ def test_get_effective_parameters_strips_unsupported(mock_provider: Any) -> None
 
 
 @pytest.mark.asyncio
-async def test_chat_completion_success(mock_provider: Any, mock_model: Any) -> None:
+async def test_chat_completion_success(mock_provider: Any, mock_registry: Any) -> None:
     """Successful chat completion returns parsed CompletionResponse."""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    gateway = ProviderGateway(mock_provider, mock_registry, "gpt-4")
     messages = [{"role": "user", "content": "Hello"}]
 
     mock_response = MagicMock()
@@ -188,10 +207,10 @@ async def test_chat_completion_success(mock_provider: Any, mock_model: Any) -> N
 
 @pytest.mark.asyncio
 async def test_chat_completion_adapter_parse_response_called(
-    mock_provider: Any, mock_model: Any
+    mock_provider: Any, mock_registry: Any
 ) -> None:
     """Verify that the adapter's parse_response is invoked with the response JSON."""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    gateway = ProviderGateway(mock_provider, mock_registry, "gpt-4")
 
     expected_response = CompletionResponse(
         content="parsed", finish_reason="stop", usage=TokenUsage()
@@ -224,9 +243,9 @@ async def test_chat_completion_adapter_parse_response_called(
 
 
 @pytest.mark.asyncio
-async def test_chat_completion_auth_error(mock_provider: Any, mock_model: Any) -> None:
+async def test_chat_completion_auth_error(mock_provider: Any, mock_registry: Any) -> None:
     """HTTP 401 maps to ProviderAuthError."""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    gateway = ProviderGateway(mock_provider, mock_registry, "gpt-4")
 
     mock_response = MagicMock(spec=httpx.Response)
     mock_response.status_code = 401
@@ -250,9 +269,9 @@ async def test_chat_completion_auth_error(mock_provider: Any, mock_model: Any) -
 
 
 @pytest.mark.asyncio
-async def test_chat_completion_rate_limit(mock_provider: Any, mock_model: Any) -> None:
+async def test_chat_completion_rate_limit(mock_provider: Any, mock_registry: Any) -> None:
     """HTTP 429 maps to ProviderRateLimitError."""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    gateway = ProviderGateway(mock_provider, mock_registry, "gpt-4")
 
     mock_response = MagicMock(spec=httpx.Response)
     mock_response.status_code = 429
@@ -276,9 +295,9 @@ async def test_chat_completion_rate_limit(mock_provider: Any, mock_model: Any) -
 
 
 @pytest.mark.asyncio
-async def test_chat_completion_timeout(mock_provider: Any, mock_model: Any) -> None:
+async def test_chat_completion_timeout(mock_provider: Any, mock_registry: Any) -> None:
     """httpx.TimeoutException maps to ProviderTimeoutError."""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    gateway = ProviderGateway(mock_provider, mock_registry, "gpt-4")
 
     with patch("httpx.AsyncClient") as mock_client_cls:
         mock_client = AsyncMock()

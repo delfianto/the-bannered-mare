@@ -1,14 +1,16 @@
-"""Model business logic service"""
+"""Canonical-model (registry) + route business logic."""
 
 from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm.attributes import flag_modified
 
-from src.model.models import Model
+from src.model.lineage import normalize_slug
+from src.model.models import ModelRegistry, ModelRoute
 from src.model.repository import ModelRepository
 from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
+from src.provider.models import Provider
 from src.provider.repository import ProviderRepository
 
 if TYPE_CHECKING:
@@ -16,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class ModelService:
-    """Service for model-related business logic"""
+    """Service for canonical-model + route business logic."""
 
     def __init__(
         self,
@@ -30,18 +32,18 @@ class ModelService:
         self.family_repo = family_repo
         self.chat_repo = chat_repo
 
-    def list_all(self) -> list[Model]:
-        """List all model definitions"""
+    def list_all(self) -> list[ModelRegistry]:
+        """List all canonical models."""
         return self.model_repo.find_all()
 
     def list_paginated(
         self, limit: int = 10, offset: int = 0, filters: dict[str, Any] | None = None
-    ) -> tuple[list[Model], int]:
-        """List models with pagination and filtering"""
+    ) -> tuple[list[ModelRegistry], int]:
+        """List canonical models with pagination and filtering."""
         return self.model_repo.find_paginated_with_count(limit, offset, filters=filters)
 
-    def get_by_id(self, model_id: str) -> Model:
-        """Get model definition by ID, raise 404 if not found"""
+    def get_by_id(self, model_id: str) -> ModelRegistry:
+        """Get a canonical model by ID, raise 404 if not found."""
         model = self.model_repo.find_by_id(model_id)
         if not model:
             raise HTTPException(
@@ -50,12 +52,58 @@ class ModelService:
             )
         return model
 
+    # ── Validation ───────────────────────────────────────────
+    def _get_family(self, model_family_id: str) -> ModelFamily:
+        family = self.family_repo.find_by_id(model_family_id)
+        if not family:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Model Family with ID '{model_family_id}' not found",
+            )
+        return family
+
+    def _validate_route(
+        self, provider_id: str, model_identifier: str, family: ModelFamily
+    ) -> Provider:
+        """A route's provider must exist, be keyed, serve the family, and be unique."""
+        provider = self.provider_repo.find_by_id(provider_id)
+        if not provider:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Provider with ID '{provider_id}' not found",
+            )
+        if not provider.has_api_key():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Cannot add route: Provider '{provider.name}' requires "
+                    f"{provider.get_env_var_name()} environment variable."
+                ),
+            )
+        if provider.provider_type.value not in family.provider_types:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Provider '{provider.name}' ({provider.provider_type.value}) cannot serve "
+                    f"model family '{family.name}'. "
+                    f"Supported: {', '.join(family.provider_types) or 'none'}."
+                ),
+            )
+        existing = self.model_repo.find_route_by_provider_identifier(provider_id, model_identifier)
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    f"A route already exists for '{model_identifier}' on provider "
+                    f"'{provider.name}'."
+                ),
+            )
+        return provider
+
     def _validate_parameters(
         self, parameters: dict[str, Any], model_family: ModelFamily | None
     ) -> None:
-        """
-        Validates a dictionary of parameters against the ModelFamily constraints.
-        """
+        """Validate parameter values against the family's parameter schema."""
         if not parameters or not model_family:
             return
 
@@ -145,175 +193,229 @@ class ModelService:
                     detail=f"Parameter '{name}' must be one of: {', '.join(map(str, allowed))}.",
                 )
 
+    # ── Registry CRUD ────────────────────────────────────────
     def create(
         self,
-        name: str,
-        provider_id: str,
-        model_identifier: str,
+        display_name: str,
         model_family_id: str,
+        routes: list[dict[str, Any]] | None = None,
+        slug: str | None = None,
+        original_identifier: str | None = None,
         template_id: str | None = None,
         parameters: dict[str, Any] | None = None,
         enabled: bool = True,
-    ) -> Model:
-        """Create a new model definition with parameter validation"""
-        if parameters is None:
-            parameters = {}
+        active_provider_id: str | None = None,
+    ) -> ModelRegistry:
+        """Create a canonical model plus its initial route(s)."""
+        parameters = parameters or {}
+        routes = routes or []
 
-        provider = self.provider_repo.find_by_id(provider_id)
-        if not provider:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Provider with ID '{provider_id}' not found",
-            )
+        family = self._get_family(model_family_id)
+        self._validate_parameters(parameters, family)
 
-        if not provider.has_api_key():
-            env_var_name = provider.get_env_var_name()
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot create model: Provider '{provider.name}' requires {env_var_name} environment variable.",
-            )
-
-        model_family = self.family_repo.find_by_id(model_family_id)
-        if not model_family:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model Family with ID '{model_family_id}' not found",
-            )
-
-        # The model's provider must be one the family can actually run on.
-        if provider.provider_type.value not in model_family.provider_types:
+        # Derive identity from the first route when not given explicitly.
+        first_identifier = routes[0]["model_identifier"] if routes else None
+        if not original_identifier:
+            original_identifier = first_identifier
+        if not slug and first_identifier:
+            slug = normalize_slug(first_identifier)
+        if not slug:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    f"Provider '{provider.name}' ({provider.provider_type.value}) cannot serve "
-                    f"model family '{model_family.name}'. "
-                    f"Supported: {', '.join(model_family.provider_types) or 'none'}."
-                ),
+                detail="A slug or at least one route is required to create a model.",
+            )
+        if not original_identifier:
+            original_identifier = slug
+
+        if self.model_repo.find_by_slug(slug):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"A model with slug '{slug}' already exists.",
             )
 
-        self._validate_parameters(parameters, model_family)
+        # Validate every route up front so we never half-create. A model has at
+        # most one route per provider.
+        seen_providers: set[str] = set()
+        for route in routes:
+            if route["provider_id"] in seen_providers:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="A model can have at most one route per provider.",
+                )
+            seen_providers.add(route["provider_id"])
+            self._validate_route(route["provider_id"], route["model_identifier"], family)
 
-        model = Model(
-            name=name,
-            provider_id=provider_id,
-            model_identifier=model_identifier,
+        registry = ModelRegistry(
+            slug=slug,
+            display_name=display_name,
+            original_identifier=original_identifier,
             model_family_id=model_family_id,
             template_id=template_id,
             parameters=parameters,
             enabled=enabled,
         )
-        created = self.model_repo.create(model)
+        registry = self.model_repo.create(registry)
+
+        created_routes: list[ModelRoute] = []
+        for route in routes:
+            created_routes.append(
+                self.model_repo.add_route(
+                    ModelRoute(
+                        model_registry_id=registry.id,
+                        provider_id=route["provider_id"],
+                        model_identifier=route["model_identifier"],
+                        enabled=route.get("enabled", True),
+                    )
+                )
+            )
+
+        if created_routes:
+            active = next(
+                (r for r in created_routes if r.provider_id == active_provider_id),
+                created_routes[0],
+            )
+            registry.active_route_id = active.id
+
         self.model_repo.commit()
-        return created
+        self.model_repo.refresh(registry)
+        return registry
 
     def update(
         self,
         model_id: str,
-        name: str | None = None,
-        provider_id: str | None = None,
-        model_identifier: str | None = None,
+        slug: str | None = None,
+        display_name: str | None = None,
+        original_identifier: str | None = None,
         model_family_id: str | None = None,
         template_id: str | None = None,
         parameters: dict[str, Any] | None = None,
         enabled: bool | None = None,
-    ) -> Model:
-        """Update model definition."""
+    ) -> ModelRegistry:
+        """Update canonical-model fields (routes are managed separately)."""
         model = self.get_by_id(model_id)
 
-        if name is not None:
-            model.name = name
-            # [NEW HOOK] Update all chats using this model
-            self.chat_repo.update_model_name_for_model_id(model.id, name)
+        if display_name is not None:
+            model.display_name = display_name
+            # Refresh the denormalized snapshot on every chat using this model.
+            self.chat_repo.update_model_name_for_model_id(model.id, display_name)
             self.chat_repo.commit()
-
-        if model_identifier is not None:
-            model.model_identifier = model_identifier
+        if slug is not None and slug != model.slug:
+            if self.model_repo.find_by_slug(slug):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"A model with slug '{slug}' already exists.",
+                )
+            model.slug = slug
+        if original_identifier is not None:
+            model.original_identifier = original_identifier
         if template_id is not None:
             model.template_id = template_id
         if enabled is not None:
             model.enabled = enabled
 
-        if provider_id is not None and provider_id != model.provider_id:
-            provider = self.provider_repo.find_by_id(provider_id)
-            if not provider:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Provider with ID '{provider_id}' not found",
-                )
-            model.provider_id = provider_id
-
         target_family = model.model_family
         family_changed = False
-
         if model_family_id is not None and model_family_id != model.model_family_id:
-            new_family = self.family_repo.find_by_id(model_family_id)
-            if not new_family:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Model Family with ID '{model_family_id}' not found",
-                )
-            target_family = new_family
+            target_family = self._get_family(model_family_id)
             model.model_family_id = model_family_id
             family_changed = True
 
-        # Re-validate the primary provider whenever the provider or family changes.
-        if provider_id is not None or family_changed:
-            eff_provider = self.provider_repo.find_by_id(model.provider_id)
-            if (
-                eff_provider
-                and eff_provider.provider_type.value not in target_family.provider_types
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=(
-                        f"Provider '{eff_provider.name}' ({eff_provider.provider_type.value}) "
-                        f"cannot serve model family '{target_family.name}'. "
-                        f"Supported: {', '.join(target_family.provider_types) or 'none'}."
-                    ),
-                )
+        # A family change can invalidate existing routes (provider no longer supported).
+        if family_changed:
+            for route in model.routes:
+                if route.provider.provider_type.value not in target_family.provider_types:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=(
+                            f"Route via '{route.provider.name}' "
+                            f"({route.provider.provider_type.value}) is incompatible with family "
+                            f"'{target_family.name}'. Remove it before changing family."
+                        ),
+                    )
 
-        target_parameters = model.parameters
-        params_changed = False
-
-        if parameters is not None:
-            if parameters != model.parameters:
-                target_parameters = parameters
-                params_changed = True
-            elif family_changed:
-                target_parameters = parameters
-
-        should_validate = False
-        if family_changed or params_changed:
-            should_validate = True
-
-        if should_validate:
-            if target_parameters == {}:
-                self._validate_parameters(target_parameters, target_family)
-                model.parameters = {}
-                flag_modified(model, "parameters")
-            else:
-                self._validate_parameters(target_parameters, target_family)
-                model.parameters = target_parameters
-                flag_modified(model, "parameters")
+        if parameters is not None and (parameters != model.parameters or family_changed):
+            self._validate_parameters(parameters, target_family)
+            model.parameters = parameters
+            flag_modified(model, "parameters")
 
         updated = self.model_repo.update(model)
         self.model_repo.commit()
         return updated
 
-    def update_flags(self, model_id: str, enabled: bool | None = None) -> Model:
-        """Update model flags (enabled). Routing changes go through update()."""
+    def update_flags(self, model_id: str, enabled: bool | None = None) -> ModelRegistry:
+        """Toggle the canonical model's enabled flag."""
         model = self.get_by_id(model_id)
-
         if enabled is not None:
             model.enabled = enabled
-
         updated = self.model_repo.update(model)
         self.model_repo.commit()
         return updated
 
     def delete(self, model_id: str) -> None:
-        """Delete model definition"""
+        """Delete a canonical model (cascades to its routes)."""
         model = self.get_by_id(model_id)
-
         self.model_repo.delete(model)
         self.model_repo.commit()
+
+    # ── Route management ─────────────────────────────────────
+    def add_route(
+        self, model_id: str, provider_id: str, model_identifier: str, enabled: bool = True
+    ) -> ModelRegistry:
+        """Add a provider route; make it active if the model had none."""
+        model = self.get_by_id(model_id)
+        if self.model_repo.find_route_by_registry_provider(model.id, provider_id):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This model already has a route on that provider.",
+            )
+        self._validate_route(provider_id, model_identifier, model.model_family)
+
+        route = self.model_repo.add_route(
+            ModelRoute(
+                model_registry_id=model.id,
+                provider_id=provider_id,
+                model_identifier=model_identifier,
+                enabled=enabled,
+            )
+        )
+        if model.active_route_id is None:
+            model.active_route_id = route.id
+
+        self.model_repo.commit()
+        self.model_repo.refresh(model)
+        return model
+
+    def delete_route(self, model_id: str, route_id: str) -> ModelRegistry:
+        """Remove a route; repoint the active route if it was the one removed."""
+        model = self.get_by_id(model_id)
+        route = self.model_repo.find_route_by_id(route_id)
+        if not route or route.model_registry_id != model.id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Route '{route_id}' not found for this model.",
+            )
+
+        if model.active_route_id == route.id:
+            remaining = [r for r in model.routes if r.id != route.id]
+            model.active_route_id = remaining[0].id if remaining else None
+            self.model_repo.update(model)
+
+        self.model_repo.delete_route(route)
+        self.model_repo.commit()
+        self.model_repo.refresh(model)
+        return model
+
+    def set_active_route(self, model_id: str, route_id: str) -> ModelRegistry:
+        """Flip which route the model resolves to (redirects every chat using it)."""
+        model = self.get_by_id(model_id)
+        route = self.model_repo.find_route_by_id(route_id)
+        if not route or route.model_registry_id != model.id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Route '{route_id}' not found for this model.",
+            )
+        model.active_route_id = route.id
+        self.model_repo.update(model)
+        self.model_repo.commit()
+        self.model_repo.refresh(model)
+        return model

@@ -10,7 +10,7 @@ from sqlalchemy.orm import joinedload
 from src.chat_session.models import Chat
 from src.core.persistence.base_repository_async import AsyncBaseRepository
 from src.core.persistence.models import PromptTemplate, TemplateFragment
-from src.model.models import Model
+from src.model.models import ModelRegistry, ModelRoute
 
 
 class AsyncChatRepository(AsyncBaseRepository[Chat]):
@@ -28,20 +28,26 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
         builder walks template.template_fragments and each fragment, so those
         must be eager-loaded too (both for the chat's own template and the
         model's default template) or the async session raises MissingGreenlet.
+        The gateway resolves the model's *active route* for the provider +
+        identifier, so that chain is eager-loaded as well.
         """
         stmt = (
             select(Chat)
             .where(Chat.id == chat_id)
             .options(
                 joinedload(Chat.character),
-                joinedload(Chat.model).joinedload(Model.provider),
-                joinedload(Chat.model).joinedload(Model.model_family),
                 joinedload(Chat.model)
-                .joinedload(Model.template)
+                .joinedload(ModelRegistry.active_route)
+                .joinedload(ModelRoute.provider),
+                joinedload(Chat.model).joinedload(ModelRegistry.model_family),
+                joinedload(Chat.model)
+                .joinedload(ModelRegistry.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),
-                # Task model (auxiliary calls) only needs its provider for the gateway.
-                joinedload(Chat.task_model).joinedload(Model.provider),
+                # Task model (auxiliary calls) only needs its active route's provider.
+                joinedload(Chat.task_model)
+                .joinedload(ModelRegistry.active_route)
+                .joinedload(ModelRoute.provider),
                 joinedload(Chat.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),

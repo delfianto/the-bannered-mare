@@ -26,12 +26,13 @@ def mock_model() -> Any:
     model.parameters = {"temperature": 0.7}
     model.model_family = MagicMock()
     model.model_family.parameters = {"max_tokens": {"type": "int", "default": 2000}}
+    model.model_family.unsupported_parameters = []
     return model
 
 
 def test_get_effective_parameters(mock_provider: Any, mock_model: Any) -> None:
     """Test parameter merging logic"""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    gateway = ProviderGateway(mock_provider, mock_model, mock_model.model_identifier)
     params = gateway._get_effective_parameters()  # pyright: ignore[reportPrivateUsage]
 
     assert params["max_tokens"] == 2000
@@ -41,7 +42,7 @@ def test_get_effective_parameters(mock_provider: Any, mock_model: Any) -> None:
 @pytest.mark.asyncio
 async def test_chat_completion_success(mock_provider: Any, mock_model: Any) -> None:
     """Test successful chat completion returns CompletionResponse"""
-    gateway = ProviderGateway(mock_provider, mock_model)
+    gateway = ProviderGateway(mock_provider, mock_model, mock_model.model_identifier)
     messages = [{"role": "user", "content": "Hello"}]
 
     mock_response = MagicMock()

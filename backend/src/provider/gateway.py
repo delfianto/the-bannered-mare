@@ -13,7 +13,7 @@ from src.core.exceptions import (
     ProviderRateLimitError,
     ProviderTimeoutError,
 )
-from src.model.models import Model
+from src.model.models import ModelRegistry
 from src.provider.adapters import CompletionResponse, StreamChunk, get_adapter
 from src.provider.adapters.base import ProviderAdapter
 from src.provider.models import Provider
@@ -22,21 +22,27 @@ logger = logging.getLogger(__name__)
 
 
 class ProviderGateway:
-    """Routes requests to AI providers through the correct adapter."""
+    """Routes requests to AI providers through the correct adapter.
+
+    Callers resolve a canonical model's active route and hand the gateway the
+    route's ``provider`` + ``model_identifier`` plus the ``registry`` (for the
+    family + parameter values). The provider *is* the route.
+    """
 
     def __init__(
         self,
         provider: Provider,
-        model: Model,
+        registry: ModelRegistry,
+        model_identifier: str,
         preset_parameters: dict[str, Any] | None = None,
     ):
-        self.model = model
+        self.registry = registry
         self.preset_parameters = preset_parameters
         # The adapter is chosen by the provider's type — aggregators
         # (OpenRouter/OpenCode) map to the OpenAI adapter via the registry, so no
         # format is special-cased here.
         self.provider = provider
-        self.active_identifier = model.model_identifier
+        self.active_identifier = model_identifier
         self.adapter: ProviderAdapter = get_adapter(provider.provider_type)
         self.base_url = (self.provider.get_base_url()).rstrip("/")
         self.api_key = self.provider.get_api_key()
@@ -45,15 +51,15 @@ class ProviderGateway:
         """Merge ModelFamily defaults → Model overrides → Preset overrides."""
         effective_params: dict[str, Any] = {}
 
-        family = self.model.model_family
+        family = self.registry.model_family
         if family:
             family_params = family.parameters or {}
             for param_key, cfg in family_params.items():
                 if "default" in cfg and cfg["default"] is not None:
                     effective_params[param_key] = cfg["default"]
 
-        if self.model.parameters:
-            effective_params.update(cast(Any, self.model.parameters))
+        if self.registry.parameters:
+            effective_params.update(cast(Any, self.registry.parameters))
 
         if self.preset_parameters:
             effective_params.update(self.preset_parameters)
@@ -71,7 +77,7 @@ class ProviderGateway:
                 logger.info(
                     "Stripped unsupported parameters %s for model %s (family %s)",
                     dropped,
-                    self.model.name,
+                    self.registry.display_name,
                     family.family_identifier,
                 )
 
