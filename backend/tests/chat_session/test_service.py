@@ -205,7 +205,9 @@ class TestChatService:
         db.refresh(chat)
         service = self._service(db)
 
-        assert service.update(chat.id, task_model_id=sample_model.id).task_model_id == sample_model.id
+        assert (
+            service.update(chat.id, task_model_id=sample_model.id).task_model_id == sample_model.id
+        )
         assert service.update(chat.id, task_model_id=None).task_model_id is None
 
     def test_update_chat_task_model_omitted_is_preserved(
