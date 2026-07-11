@@ -63,9 +63,14 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "enabled": False,
     },
     # --- GPT-5 chat (non-reasoning) ---
+    # OpenAI's chat SKUs are only callable via the "-chat-latest" rolling alias
+    # (there is no bare "gpt-5-chat" on the API), so the native route uses that
+    # id. The canonical slug is pinned to the clean "gpt-5.x-chat" so it folds
+    # with the OpenRouter route "openai/gpt-5.x-chat".
     {
         "name": "GPT-5 Chat",
-        "model_identifier": "gpt-5-chat",
+        "model_identifier": "gpt-5-chat-latest",
+        "slug": "gpt-5-chat",
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
@@ -73,7 +78,8 @@ OPENAI_MODELS: list[ModelSeedData] = [
     },
     {
         "name": "GPT-5.1 Chat",
-        "model_identifier": "gpt-5.1-chat",
+        "model_identifier": "gpt-5.1-chat-latest",
+        "slug": "gpt-5.1-chat",
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
@@ -81,7 +87,8 @@ OPENAI_MODELS: list[ModelSeedData] = [
     },
     {
         "name": "GPT-5.2 Chat",
-        "model_identifier": "gpt-5.2-chat",
+        "model_identifier": "gpt-5.2-chat-latest",
+        "slug": "gpt-5.2-chat",
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
@@ -89,7 +96,8 @@ OPENAI_MODELS: list[ModelSeedData] = [
     },
     {
         "name": "GPT-5.3 Chat",
-        "model_identifier": "gpt-5.3-chat",
+        "model_identifier": "gpt-5.3-chat-latest",
+        "slug": "gpt-5.3-chat",
         "family_identifier": "openai/gpt-5-chat",
         "provider_type": "openai",
         "parameters": {**_CHAT_PARAMS, "max_completion_tokens": 8192},
