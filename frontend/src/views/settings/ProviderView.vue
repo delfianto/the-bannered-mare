@@ -94,9 +94,14 @@ const form = reactive({
 
 const { models: persistedModels, loadPage: loadPersistedModels } = useModels({ pageSize: 100 });
 
+// A discovered identifier counts as persisted when some registry has a route
+// binding it to *this* provider — models are registries now, so the match is
+// against each registry's embedded routes rather than a flat provider_id.
 function isPersisted(modelIdentifier: string): boolean {
-  return persistedModels.value.some(
-    (m) => m.model_identifier === modelIdentifier && m.provider_id === provider.value?.id,
+  return persistedModels.value.some((m) =>
+    m.routes.some(
+      (r) => r.provider_id === provider.value?.id && r.model_identifier === modelIdentifier,
+    ),
   );
 }
 

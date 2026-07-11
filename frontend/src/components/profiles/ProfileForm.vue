@@ -67,6 +67,11 @@ function labelFor(list: Named[], id: string) {
   return list.find((x) => x.id === id)?.name ?? t("profiles.none");
 }
 
+// Models are registries labelled by display_name, not the generic `name`.
+function modelLabelFor(id: string) {
+  return props.models.find((m) => m.id === id)?.display_name ?? t("profiles.none");
+}
+
 // Stable option arrays. Recomputing toOptions() inline on every render hands the
 // combobox a new array each time, forcing a full keyed re-patch of its list —
 // which crashes Reka UI's popper on a large list (the ~75 models).
@@ -88,12 +93,15 @@ function usableModels(selectedId: string): ModelListItem[] {
   return usable;
 }
 
-const modelOptions = computed(() => toOptions(usableModels(modelId.value)));
+const modelOptions = computed(() => [
+  { label: t("profiles.none"), value: NONE },
+  ...usableModels(modelId.value).map((m) => ({ label: m.display_name, value: m.id })),
+]);
 
 // The task model's "none" means "same as the chat model", not "no model".
 const taskModelOptions = computed(() => [
   { label: t("profiles.taskModelSame"), value: NONE },
-  ...usableModels(taskModelId.value).map((m) => ({ label: m.name, value: m.id })),
+  ...usableModels(taskModelId.value).map((m) => ({ label: m.display_name, value: m.id })),
 ]);
 
 // Warn when the chosen preset carries sampling knobs the chosen model's family
@@ -244,7 +252,7 @@ function onSubmit() {
               <span class="truncate">{{
                 taskModelId === "__none__"
                   ? $t("profiles.taskModelSame")
-                  : labelFor(models, taskModelId)
+                  : modelLabelFor(taskModelId)
               }}</span>
             </span>
             <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
@@ -263,7 +271,7 @@ function onSubmit() {
           >
             <span class="flex min-w-0 items-center gap-2">
               <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
-              <span class="truncate">{{ labelFor(models, modelId) }}</span>
+              <span class="truncate">{{ modelLabelFor(modelId) }}</span>
             </span>
             <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted-foreground" />
           </button>
@@ -323,7 +331,7 @@ function onSubmit() {
       <AppIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-amber-500" />
       <div class="min-w-0 space-y-1.5">
         <p class="text-xs text-foreground">
-          {{ t("profiles.unsupportedWarning", { model: labelFor(models, modelId) }) }}
+          {{ t("profiles.unsupportedWarning", { model: modelLabelFor(modelId) }) }}
         </p>
         <div class="flex flex-wrap gap-1.5">
           <span

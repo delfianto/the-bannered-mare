@@ -98,4 +98,18 @@ export const providers: Provider[] = [
     identifier_style: "bare key",
     identifier_hint: "The loaded model's key — e.g. qwen2.5-7b-instruct.",
   },
+  {
+    id: "prov-opencode-go",
+    name: "OpenCode Go",
+    provider_type: "opencode_go",
+    base_url: "http://localhost:4096",
+    enabled: true,
+    created_at: NOW,
+    updated_at: NOW,
+    api_key_configured: true,
+    env_var_name: "OPENCODE_GO_API_KEY",
+    identifier_style: "bare name",
+    identifier_hint:
+      "Bare model name as exposed by the OpenCode Go gateway — e.g. deepseek-v4-pro.",
+  },
 ];

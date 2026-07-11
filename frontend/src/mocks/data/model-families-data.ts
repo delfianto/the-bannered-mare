@@ -391,8 +391,9 @@ export const allModelFamiliesMock: ModelFamilyItem[] = [
     id: "fam-openrouter-deepseek",
     name: "DeepSeek General",
     family_identifier: "openrouter/deepseek",
-    description: "DeepSeek general-purpose models.",
-    provider_types: ["openrouter"],
+    description:
+      "DeepSeek general-purpose models, reachable via OpenRouter or an OpenCode Go gateway.",
+    provider_types: ["openrouter", "opencode_go"],
     unsupported_parameters: [],
     parameters: {
       max_tokens: { type: "int", default: 4096, min_value: 1, max_value: 16384 },

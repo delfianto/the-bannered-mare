@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useModel } from "@/composables/useModel";
 import { useSettingsStore } from "@/stores/settings";
@@ -9,19 +10,32 @@ import AppTooltip from "@/components/shared/AppTooltip.vue";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { providersForFamily } from "@/utils/modelProviderFilter";
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
-const { model, loading, saving, deleting, error, fetchModel, saveModel, deleteModel } = useModel();
+const {
+  model,
+  loading,
+  saving,
+  deleting,
+  error,
+  fetchModel,
+  saveModel,
+  deleteModel,
+  addRoute,
+  deleteRoute,
+  setActiveRoute,
+} = useModel();
 const { families } = useModelFamilies({ pageSize: 100 });
 const settingsStore = useSettingsStore();
 const toast = useAppToast();
 
 const confirmDelete = ref(false);
 
+// The identity form edits registry fields only — a model's provider bindings
+// live in its routes and are managed via the Routes card below.
 const form = reactive({
-  name: "",
-  model_identifier: "",
-  provider_id: "",
+  display_name: "",
   model_family_id: "",
   enabled: true,
   parameters: {} as Record<string, unknown>,
@@ -38,9 +52,7 @@ onMounted(async () => {
 
 watch(model, (m) => {
   if (m) {
-    form.name = m.name;
-    form.model_identifier = m.model_identifier;
-    form.provider_id = m.provider_id;
+    form.display_name = m.display_name;
     form.model_family_id = m.model_family_id;
     form.enabled = m.enabled;
     form.parameters = m.parameters ? { ...m.parameters } : {};
@@ -60,41 +72,16 @@ function onUpdateParameters(params: Record<string, unknown>) {
   form.parameters = params;
 }
 
-// Drop a provider that the newly chosen family can't serve.
-watch(
-  () => form.model_family_id,
-  () => {
-    if (form.provider_id && !providerItems.value.some((i) => i.value === form.provider_id)) {
-      form.provider_id = "";
-    }
-  },
-);
-
 const selectedFamily = computed(
   () =>
     families.value.find((f: any) => f.id === form.model_family_id) ||
     (model.value?.model_family as any),
-);
-const providerItems = computed(() =>
-  providersForFamily(settingsStore.providers as any, selectedFamily.value as any)
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((p) => ({ label: p.name, value: p.id })),
 );
 const familyItems = computed(() =>
   [...families.value]
     .sort((a: any, b: any) => a.name.localeCompare(b.name))
     .map((f: any) => ({ label: f.name, value: f.id })),
 );
-
-const selectedProvider = computed(() =>
-  settingsStore.providers.find((p: any) => p.id === form.provider_id),
-);
-const providerName = computed(() => selectedProvider.value?.name || form.provider_id);
-// Identifier scheme is provider-specific (the provider is the route): OpenRouter
-// takes a vendor/model slug, native/OpenCode take the bare name.
-const identifierStyle = computed(() => (selectedProvider.value as any)?.identifier_style || "");
-const identifierHint = computed(() => (selectedProvider.value as any)?.identifier_hint || "");
 const familyName = computed(
   () =>
     familyItems.value.find((i) => i.value === form.model_family_id)?.label ||
@@ -102,13 +89,107 @@ const familyName = computed(
     form.model_family_id,
 );
 
+// ── Routes (the provider bindings) ───────────────────────
+function providerFor(id: string) {
+  return settingsStore.providers.find((p: any) => p.id === id);
+}
+function providerName(id: string): string {
+  return (providerFor(id) as any)?.name || id;
+}
+function identifierHintFor(id: string): string {
+  return (providerFor(id) as any)?.identifier_hint || "";
+}
+
+const routes = computed(() => model.value?.routes ?? []);
+const activeRouteId = computed(() => model.value?.active_route_id ?? routes.value[0]?.id ?? null);
+const activeRoute = computed(
+  () => routes.value.find((r) => r.id === activeRouteId.value) ?? routes.value[0] ?? null,
+);
+const activeProvider = computed(() =>
+  activeRoute.value ? providerFor(activeRoute.value.provider_id) : null,
+);
+const activeProviderName = computed(() => (activeProvider.value as any)?.name || "—");
+// The identifier scheme is provider-specific (the provider is the route):
+// surface the active route's provider hint alongside the status dot.
+const activeIdentifierStyle = computed(() => (activeProvider.value as any)?.identifier_style || "");
+const activeIdentifierHint = computed(() => (activeProvider.value as any)?.identifier_hint || "");
+
+async function handleSetActive(routeId: string) {
+  if (!model.value || routeId === model.value.active_route_id) return;
+  try {
+    await setActiveRoute(model.value.id, routeId);
+    toast.success(t("connections.model.toast.activeRouteUpdated"));
+  } catch {
+    toast.error(t("connections.model.toast.activeRouteFailed"));
+  }
+}
+
+async function handleRemoveRoute(routeId: string) {
+  if (!model.value) return;
+  try {
+    await deleteRoute(model.value.id, routeId);
+    toast.success(t("connections.model.toast.routeRemoved"));
+  } catch {
+    toast.error(t("connections.model.toast.routeRemoveFailed"));
+  }
+}
+
+// ── Add-route form (provider gated by the model's family) ──
+const newRouteProviderId = ref("");
+const newRouteIdentifier = ref("");
+
+// Only providers the family supports AND the model doesn't already route through
+// — a model has at most one route per provider.
+const routeProviderItems = computed(() => {
+  const usedProviderIds = new Set(routes.value.map((r) => r.provider_id));
+  return providersForFamily(settingsStore.providers as any, selectedFamily.value as any)
+    .filter((p: any) => !usedProviderIds.has(p.id))
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((p) => ({ label: p.name, value: p.id }));
+});
+// Every supported provider already has a route → nothing left to add.
+const allProvidersRouted = computed(
+  () => !!form.model_family_id && routes.value.length > 0 && routeProviderItems.value.length === 0,
+);
+const newRouteProviderName = computed(
+  () => providerName(newRouteProviderId.value) || t("connections.model.selectProvider"),
+);
+const newRouteHint = computed(() => identifierHintFor(newRouteProviderId.value));
+const canAddRoute = computed(() => !!newRouteProviderId.value && !!newRouteIdentifier.value.trim());
+
+// Drop a chosen provider the (possibly just-changed) family can no longer serve.
+watch(
+  () => form.model_family_id,
+  () => {
+    if (
+      newRouteProviderId.value &&
+      !routeProviderItems.value.some((i) => i.value === newRouteProviderId.value)
+    ) {
+      newRouteProviderId.value = "";
+    }
+  },
+);
+
+async function handleAddRoute() {
+  if (!model.value || !canAddRoute.value) return;
+  try {
+    await addRoute(model.value.id, {
+      provider_id: newRouteProviderId.value,
+      model_identifier: newRouteIdentifier.value.trim(),
+    });
+    newRouteProviderId.value = "";
+    newRouteIdentifier.value = "";
+    toast.success(t("connections.model.toast.routeAdded"));
+  } catch {
+    toast.error(t("connections.model.toast.routeAddFailed"));
+  }
+}
+
 async function handleSave() {
   if (!model.value) return;
   const updates: Record<string, unknown> = {};
-  if (form.name !== model.value.name) updates.name = form.name;
-  if (form.model_identifier !== model.value.model_identifier)
-    updates.model_identifier = form.model_identifier;
-  if (form.provider_id !== model.value.provider_id) updates.provider_id = form.provider_id;
+  if (form.display_name !== model.value.display_name) updates.display_name = form.display_name;
   if (form.model_family_id !== model.value.model_family_id)
     updates.model_family_id = form.model_family_id;
   if (form.enabled !== model.value.enabled) updates.enabled = form.enabled;
@@ -116,7 +197,7 @@ async function handleSave() {
     updates.parameters = form.parameters;
 
   if (Object.keys(updates).length === 0) {
-    toast.info("No changes to save");
+    toast.info(t("connections.model.toast.noChanges"));
     return;
   }
 
@@ -126,9 +207,9 @@ async function handleSave() {
     // Re-fetch the full detail so the embedded model_family (and its parameter
     // schema) reflect any family change — the PUT response omits it.
     await fetchModel(id);
-    toast.success("Model updated");
+    toast.success(t("connections.model.toast.updated"));
   } catch (e) {
-    toast.error("Failed to save model");
+    toast.error(t("connections.model.toast.saveFailed"));
   }
 }
 
@@ -143,10 +224,10 @@ async function handleDelete() {
   }
   try {
     await deleteModel(model.value.id);
-    toast.success("Model deleted");
+    toast.success(t("connections.model.toast.deleted"));
     router.push({ path: "/connections", query: { tab: "models" } });
   } catch (e) {
-    toast.error("Failed to delete model");
+    toast.error(t("connections.model.toast.deleteFailed"));
     confirmDelete.value = false;
   }
 }
@@ -202,7 +283,7 @@ function formatDate(iso: string): string {
               <AppIcon name="i-lucide-cpu" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
-              Edit Model
+              {{ $t("connections.model.editTitle") }}
             </h1>
           </div>
         </div>
@@ -259,10 +340,10 @@ function formatDate(iso: string): string {
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
-                Identity
+                {{ $t("connections.model.identity") }}
               </h2>
               <div class="space-y-4">
-                <!-- Name -->
+                <!-- Display name -->
                 <label class="block">
                   <span
                     class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
@@ -270,28 +351,28 @@ function formatDate(iso: string): string {
                     {{ $t("connections.model.name") }}
                   </span>
                   <input
-                    v-model="form.name"
+                    v-model="form.display_name"
                     type="text"
-                    placeholder="Model display name"
+                    :placeholder="$t('connections.model.namePlaceholder')"
                     class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
                   />
                 </label>
 
-                <!-- Model Identifier -->
+                <!-- Original identifier (provider-independent identity, derived) -->
                 <label class="block">
                   <span
                     class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
-                    {{ $t("connections.model.identifier") }}
+                    {{ $t("connections.model.originalIdentifier") }}
                   </span>
                   <input
-                    v-model="form.model_identifier"
+                    :value="model.original_identifier"
                     type="text"
-                    placeholder="e.g. gpt-4o, claude-4.5-sonnet"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    readonly
+                    class="h-11 w-full cursor-not-allowed rounded-lg border bg-base-300/20 px-4 font-mono text-sm text-muted-foreground outline-none"
                   />
-                  <p v-if="identifierHint" class="mt-1.5 text-xs text-muted-foreground/70">
-                    {{ identifierHint }}
+                  <p class="mt-1.5 text-xs text-muted-foreground/70">
+                    {{ $t("connections.model.originalIdentifierHint") }}
                   </p>
                 </label>
 
@@ -315,30 +396,129 @@ function formatDate(iso: string): string {
                     </button>
                   </SelectMenu>
                 </label>
+              </div>
+            </div>
 
-                <!-- Provider selector -->
-                <label class="block">
-                  <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+            <!-- Routes card -->
+            <div class="rounded-xl border bg-base-200/50 p-5">
+              <h2
+                class="mb-1 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              >
+                {{ $t("connections.model.routes") }}
+              </h2>
+              <p class="mb-4 text-xs text-muted-foreground/70">
+                {{ $t("connections.model.routesHint") }}
+              </p>
+
+              <!-- Empty -->
+              <p
+                v-if="routes.length === 0"
+                class="rounded-lg border border-dashed bg-base-300/20 px-4 py-6 text-center text-sm text-muted-foreground"
+              >
+                {{ $t("connections.model.noRoutes") }}
+              </p>
+
+              <!-- Route list: the checked radio is the active "Route via" target -->
+              <fieldset v-else class="space-y-2">
+                <legend class="sr-only">{{ $t("connections.model.routeVia") }}</legend>
+                <div
+                  v-for="r in routes"
+                  :key="r.id"
+                  class="flex items-center gap-3 rounded-lg border bg-base-300/40 px-3 py-2.5"
+                  :class="r.id === activeRouteId ? 'border-primary/50' : ''"
+                >
+                  <input
+                    type="radio"
+                    name="active-route"
+                    class="radio radio-sm radio-primary shrink-0"
+                    :checked="r.id === activeRouteId"
+                    :aria-label="$t('connections.model.routeVia')"
+                    @change="handleSetActive(r.id)"
+                  />
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-medium text-foreground">{{
+                        providerName(r.provider_id)
+                      }}</span>
+                      <span
+                        v-if="r.id === activeRouteId"
+                        class="rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.625rem] font-medium text-primary"
+                      >
+                        {{ $t("connections.model.activeRoute") }}
+                      </span>
+                    </div>
+                    <AppTooltip :text="identifierHintFor(r.provider_id)" side="top">
+                      <span class="truncate font-mono text-xs text-muted-foreground">{{
+                        r.model_identifier
+                      }}</span>
+                    </AppTooltip>
+                  </div>
+                  <button
+                    class="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-error/10 hover:text-error disabled:pointer-events-none disabled:opacity-40"
+                    :disabled="saving || routes.length === 1"
+                    :aria-label="$t('connections.model.removeRoute')"
+                    @click="handleRemoveRoute(r.id)"
                   >
-                    {{ $t("connections.model.provider") }}
-                  </span>
-                  <SelectMenu
-                    v-model="form.provider_id"
-                    :items="providerItems"
-                    value-key="value"
-                    :search-input="false"
-                    class="w-full"
-                    :disabled="!form.model_family_id"
-                  >
-                    <button
-                      class="flex h-11 w-full items-center rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50"
+                    <AppIcon name="i-lucide-trash-2" class="size-3.5" />
+                  </button>
+                </div>
+              </fieldset>
+
+              <!-- Add route -->
+              <div class="mt-4 border-t border-border/50 pt-4">
+                <span
+                  class="mb-2 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                >
+                  {{ $t("connections.model.addRoute") }}
+                </span>
+                <!-- Every supported provider already has a route — nothing to add. -->
+                <p
+                  v-if="allProvidersRouted"
+                  class="rounded-lg border border-dashed bg-base-300/20 px-4 py-3 text-center text-xs text-muted-foreground"
+                >
+                  {{ $t("connections.model.allProvidersRouted") }}
+                </p>
+                <template v-else>
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <SelectMenu
+                      v-model="newRouteProviderId"
+                      :items="routeProviderItems"
+                      value-key="value"
+                      :search-input="false"
+                      class="sm:w-48"
                       :disabled="!form.model_family_id"
                     >
-                      {{ providerName }}
+                      <button
+                        class="flex h-10 w-full items-center justify-between gap-1.5 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="!form.model_family_id"
+                      >
+                        <span class="truncate">{{ newRouteProviderName }}</span>
+                        <AppIcon
+                          name="i-lucide-chevron-down"
+                          class="size-4 shrink-0 text-muted-foreground"
+                        />
+                      </button>
+                    </SelectMenu>
+                    <input
+                      v-model="newRouteIdentifier"
+                      type="text"
+                      placeholder="e.g. deepseek/deepseek-v4-pro"
+                      class="h-10 min-w-0 flex-1 rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                      @keydown.enter="handleAddRoute"
+                    />
+                    <button
+                      class="flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90 disabled:opacity-50"
+                      :disabled="saving || !canAddRoute"
+                      @click="handleAddRoute"
+                    >
+                      <AppIcon name="i-lucide-plus" class="size-4" />
+                      {{ $t("connections.model.addRoute") }}
                     </button>
-                  </SelectMenu>
-                </label>
+                  </div>
+                  <p v-if="newRouteHint" class="mt-1.5 text-xs text-muted-foreground/70">
+                    {{ newRouteHint }}
+                  </p>
+                </template>
               </div>
             </div>
 
@@ -382,13 +562,13 @@ function formatDate(iso: string): string {
 
                 <div class="h-px bg-border/50" />
 
-                <!-- Provider status -->
+                <!-- Active route provider status -->
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">{{
-                    $t("connections.model.provider")
+                    $t("connections.model.routeVia")
                   }}</span>
                   <div class="flex items-center gap-1.5">
-                    <span class="text-sm text-foreground">{{ providerName }}</span>
+                    <span class="text-sm text-foreground">{{ activeProviderName }}</span>
                     <span
                       class="size-2 rounded-full"
                       :class="model.provider_enabled ? 'bg-emerald-500' : 'bg-red-500'"
@@ -396,16 +576,16 @@ function formatDate(iso: string): string {
                   </div>
                 </div>
 
-                <!-- Identifier naming scheme (depends on the provider/route) -->
-                <div v-if="identifierStyle" class="flex items-center justify-between">
+                <!-- Identifier naming scheme (depends on the active route's provider) -->
+                <div v-if="activeIdentifierStyle" class="flex items-center justify-between">
                   <span class="text-sm text-muted-foreground">{{
                     $t("connections.model.identifierFormat")
                   }}</span>
-                  <AppTooltip :text="identifierHint" side="left">
+                  <AppTooltip :text="activeIdentifierHint" side="left">
                     <span
                       class="rounded-md border bg-base-300/40 px-2 py-0.5 font-mono text-xs text-foreground"
                     >
-                      {{ identifierStyle }}
+                      {{ activeIdentifierStyle }}
                     </span>
                   </AppTooltip>
                 </div>
@@ -414,11 +594,11 @@ function formatDate(iso: string): string {
                 <div class="border-t border-border/50 pt-3">
                   <div class="space-y-1.5 text-[0.6875rem] text-muted-foreground/60">
                     <div class="flex justify-between">
-                      <span>Created</span>
+                      <span>{{ $t("connections.model.created") }}</span>
                       <span>{{ formatDate(model.created_at) }}</span>
                     </div>
                     <div class="flex justify-between">
-                      <span>Updated</span>
+                      <span>{{ $t("connections.model.updated") }}</span>
                       <span>{{ formatDate(model.updated_at) }}</span>
                     </div>
                   </div>

@@ -39,6 +39,12 @@ function resolve(
   return list.find((x) => x.id === id)?.name ?? id;
 }
 
+// Models are registries keyed by display_name rather than the generic `name`.
+function resolveModel(id: string | null | undefined): string | null {
+  if (!id) return null;
+  return models.value.find((m) => m.id === id)?.display_name ?? id;
+}
+
 // ── Form state ───────────────────────────────────────────
 const showForm = ref(false);
 const editing = ref<Profile | null>(null);
@@ -151,7 +157,7 @@ function cancelDelete() {
         :template-label="resolve(templates, profile.prompt_template_id)"
         :preset-label="resolve(presets, profile.preset_id)"
         :persona-label="resolve(personas, profile.persona_id)"
-        :model-label="resolve(models, profile.model_id)"
+        :model-label="resolveModel(profile.model_id)"
         :pending-delete="pendingDeleteId === profile.id"
         class="animate-fade-in-up"
         :style="{ animationDelay: `${index * 30}ms` }"

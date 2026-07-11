@@ -41,10 +41,18 @@ function toOptions(list: { id: string; name: string }[], noneLabel: string) {
 
 // Stable reference so the large model list isn't re-patched on every render
 // (an inline array crashes Reka UI's combobox popper — see ProfileForm).
-const modelOptions = computed(() => toOptions(models.value, "Select a model..."));
+// Models are registries labelled by display_name, not the generic `name`.
+const modelOptions = computed(() => [
+  { label: "Select a model...", value: NONE },
+  ...models.value.map((m) => ({ label: m.display_name, value: m.id })),
+]);
 
 function labelFor(list: { id: string; name: string }[], id: string, noneLabel: string) {
   return list.find((x) => x.id === id)?.name ?? noneLabel;
+}
+
+function modelLabelFor(id: string) {
+  return models.value.find((m) => m.id === id)?.display_name ?? "Select a model...";
 }
 
 // ── Quick persona creation (shown inline when none exist yet) ───
@@ -441,9 +449,7 @@ function finish() {
               >
                 <span class="flex min-w-0 items-center gap-2">
                   <AppIcon name="i-lucide-cpu" class="size-4 shrink-0 text-muted-foreground" />
-                  <span class="truncate">{{
-                    labelFor(models, followUpModelId, "Select a model...")
-                  }}</span>
+                  <span class="truncate">{{ modelLabelFor(followUpModelId) }}</span>
                 </span>
                 <AppIcon
                   name="i-lucide-chevron-down"
