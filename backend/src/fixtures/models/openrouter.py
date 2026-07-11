@@ -31,7 +31,9 @@ _MISTRAL_RP = {
 }
 
 OPENROUTER_MODELS: list[ModelSeedData] = [
-    # Sao10K (-> llama3 family) — curated RP favorites, enabled by default.
+    # Sao10K (-> llama3 family) — RP finetunes. Only a handful of RP models are
+    # on by default (Euryale + Lunaris here); everything else ships disabled so a
+    # fresh install starts lean — the user enables what they have keys/interest for.
     {
         "name": "Sao10K Euryale 70B v2.3 (L3.3)",
         "model_identifier": "sao10k/l3.3-euryale-70b",
@@ -46,7 +48,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Sao10K Lunaris 8B (L3)",
@@ -56,17 +58,17 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {**_LLAMA_RP},
         "enabled": True,
     },
-    # TheDrummer — Llama/Nemotron lineage (-> llama3 family), curated, enabled.
+    # TheDrummer — Llama/Nemotron lineage (-> llama3 family). Disabled by default.
     {
         "name": "TheDrummer Valkyrie 49B v1",
         "model_identifier": "thedrummer/valkyrie-49b-v1",
         "family_identifier": "meta/llama-3",
         "provider_type": "openrouter",
         "parameters": {**_LLAMA_RP},
-        "enabled": True,
+        "enabled": False,
     },
-    # TheDrummer — Mistral lineage (-> mistral-nemo / mistral-small families),
-    # curated, enabled by default.
+    # TheDrummer — Mistral lineage (-> mistral-nemo / mistral-small families).
+    # Cydonia + Rocinante are on by default; the rest ship disabled.
     {
         "name": "TheDrummer Cydonia 24B v4.1",
         "model_identifier": "thedrummer/cydonia-24b-v4.1",
@@ -81,7 +83,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "mistral/mistral-small",
         "provider_type": "openrouter",
         "parameters": {**_MISTRAL_RP},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "TheDrummer UnslopNemo 12B",
@@ -89,7 +91,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "mistral/mistral-nemo",
         "provider_type": "openrouter",
         "parameters": {**_MISTRAL_RP},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "TheDrummer Rocinante 12B",
@@ -124,14 +126,14 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {**_LLAMA_RP},
         "enabled": False,
     },
-    # DeepSeek — curated flagships enabled; older/reasoning variants are extras.
+    # DeepSeek — general open models (not RP finetunes); disabled by default.
     {
         "name": "DeepSeek V4 Pro",
         "model_identifier": "deepseek/deepseek-v4-pro",
         "family_identifier": "deepseek/deepseek-v4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "DeepSeek V4 Flash",
@@ -139,7 +141,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "deepseek/deepseek-v4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "DeepSeek V3.2",
@@ -147,7 +149,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "deepseek/deepseek-v3",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "DeepSeek Chat V3.1",
@@ -257,24 +259,24 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
         "enabled": False,
     },
-    # Misc free models — curated, enabled by default.
+    # Misc free models — disabled by default.
     {
         "name": "Arcee Trinity Large (Free)",
         "model_identifier": "arcee-ai/trinity-large-preview:free",
         "family_identifier": "openrouter/misc",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.85, "top_p": 0.9, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     # Qwen 3.6 Plus (Free) removed — no longer a free-tier model on OpenRouter.
-    # Xiaomi MiMo (-> mimo-v2.5 family) — curated, enabled by default.
+    # Xiaomi MiMo (-> mimo-v2.5 family) — disabled by default.
     {
         "name": "Xiaomi MiMo V2.5",
         "model_identifier": "xiaomi/mimo-v2.5",
         "family_identifier": "xiaomi/mimo-v2.5",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Xiaomi MiMo V2.5 Pro",
@@ -289,16 +291,16 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
             "min_p": 0.0,
             "max_tokens": 4096,
         },
-        "enabled": True,
+        "enabled": False,
     },
-    # Poolside Laguna (Free) — curated, enabled by default.
+    # Poolside Laguna (Free) — disabled by default.
     {
         "name": "Poolside Laguna M.1 (Free)",
         "model_identifier": "poolside/laguna-m.1:free",
         "family_identifier": "poolside/laguna",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Poolside Laguna XS.2 (Free)",
@@ -306,16 +308,16 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "poolside/laguna",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
-    # Google Gemma (Free) — curated, enabled by default.
+    # Google Gemma (Free) — disabled by default.
     {
         "name": "Gemma 4 31B IT (Free)",
         "model_identifier": "google/gemma-4-31b-it:free",
         "family_identifier": "google/gemma-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.9, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Gemma 4 26B A4B IT (Free)",
@@ -323,6 +325,6 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemma-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.9, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
 ]

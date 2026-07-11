@@ -36,7 +36,7 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemini-2.5",
         "provider_type": "google",
         "parameters": {**_GEMINI_25_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Gemini 2.5 Flash",
@@ -44,7 +44,7 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemini-2.5",
         "provider_type": "google",
         "parameters": {**_GEMINI_25_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Gemini 2.5 Flash-Lite",
@@ -52,7 +52,7 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemini-2.5",
         "provider_type": "google",
         "parameters": {**_GEMINI_25_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     # --- Gemini 3.x ---
     {
@@ -61,7 +61,7 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemini-3",
         "provider_type": "google",
         "parameters": {**_GEMINI_3_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Gemini 3.1 Pro (Preview)",
@@ -69,7 +69,7 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemini-3",
         "provider_type": "google",
         "parameters": {**_GEMINI_3_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     {
         "name": "Gemini 3.1 Flash-Lite",
@@ -77,7 +77,7 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "family_identifier": "google/gemini-3",
         "provider_type": "google",
         "parameters": {**_GEMINI_3_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
     # --- Gemini 3.5 ---
     {
@@ -87,6 +87,6 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "provider_type": "google",
         # 3.5 shares the no-sampling shape; thinking_level "low" is valid (it also adds "minimal").
         "parameters": {**_GEMINI_3_PARAMS},
-        "enabled": True,
+        "enabled": False,
     },
 ]
