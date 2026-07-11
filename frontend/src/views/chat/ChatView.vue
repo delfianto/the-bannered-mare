@@ -214,6 +214,18 @@ async function handleChangeModel(modelId: string) {
   await updateChat(activeSessionId.value, { model_id: modelId });
 }
 
+// Per-chat task-model override — `null` clears it back to "same as chat model".
+async function handleChangeTaskModel(modelId: string | null) {
+  if (!activeSessionId.value) return;
+  await updateChat(activeSessionId.value, { task_model_id: modelId });
+}
+
+// Per-chat persona — `null` clears it back to "none".
+async function handleChangePersona(personaId: string | null) {
+  if (!activeSessionId.value) return;
+  await updateChat(activeSessionId.value, { persona_id: personaId });
+}
+
 async function handleApplyProfile(profileId: string) {
   if (!activeSessionId.value) return;
   await applyProfile(activeSessionId.value, profileId);
@@ -340,11 +352,15 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
         :models="selectableModels"
         :current-model-id="activeSession.model.id"
         :current-model-name="activeSession.model.name"
+        :current-task-model-id="activeSession.task_model_id"
+        :current-persona-id="activeSession.persona_id"
         @back="router.push({ name: 'chats' })"
         @rename="handleRename"
         @delete="handleDeleteChat"
         @apply-profile="handleApplyProfile"
         @change-model="handleChangeModel"
+        @change-task-model="handleChangeTaskModel"
+        @change-persona="handleChangePersona"
       />
 
       <!-- Message List -->

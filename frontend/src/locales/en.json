@@ -288,8 +288,16 @@
       "reapply": "Re-apply",
       "hint": "Applying a profile updates this chat's template, preset, persona, and model."
     },
+    "persona": {
+      "title": "Persona",
+      "none": "None",
+      "manage": "Manage personas"
+    },
     "model": {
       "title": "Model",
+      "mainModel": "Main model",
+      "taskModel": "Task model",
+      "sameAsChat": "Same as chat model",
       "none": "No model",
       "empty": "No models available",
       "change": "Change model",

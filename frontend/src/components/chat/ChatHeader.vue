@@ -17,6 +17,8 @@ const props = defineProps<{
   models?: PickerModel[];
   currentModelId?: string | null;
   currentModelName?: string | null;
+  currentTaskModelId?: string | null;
+  currentPersonaId?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -25,6 +27,8 @@ const emit = defineEmits<{
   delete: [];
   applyProfile: [profileId: string];
   changeModel: [modelId: string];
+  changeTaskModel: [modelId: string | null];
+  changePersona: [personaId: string | null];
 }>();
 
 const drawerOpen = ref(false);
@@ -91,13 +95,17 @@ function avatarSrc(): string {
         :session-title="sessionTitle"
         :models="models ?? []"
         :current-model-id="currentModelId"
+        :current-task-model-id="currentTaskModelId"
         :profiles="profiles ?? []"
         :current-profile-name="currentProfileName"
+        :current-persona-id="currentPersonaId"
         @close="drawerOpen = false"
         @rename="emit('rename', $event)"
         @delete="emit('delete')"
         @change-model="emit('changeModel', $event)"
+        @change-task-model="emit('changeTaskModel', $event)"
         @apply-profile="emit('applyProfile', $event)"
+        @change-persona="emit('changePersona', $event)"
       />
     </div>
   </header>
