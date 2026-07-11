@@ -44,10 +44,13 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
                 .joinedload(ModelRegistry.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),
-                # Task model (auxiliary calls) only needs its active route's provider.
+                # Task model (auxiliary calls): its active route's provider AND its
+                # model_family — the gateway resolves family-default params for it
+                # too, so a missing family here lazy-loads and raises MissingGreenlet.
                 joinedload(Chat.task_model)
                 .joinedload(ModelRegistry.active_route)
                 .joinedload(ModelRoute.provider),
+                joinedload(Chat.task_model).joinedload(ModelRegistry.model_family),
                 joinedload(Chat.template)
                 .selectinload(PromptTemplate.template_fragments)
                 .joinedload(TemplateFragment.fragment),
