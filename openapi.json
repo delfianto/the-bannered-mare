@@ -2573,7 +2573,7 @@
           "chats"
         ],
         "summary": "Update Chat",
-        "description": "Update chat (e.g., change title or model)",
+        "description": "Update chat axes (title, model, task model, persona, bookmark).",
         "operationId": "update_chat_api_chats__chat_id__put",
         "parameters": [
           {
@@ -3122,6 +3122,49 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{chat_id}/prompt-preview": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Get Prompt Preview",
+        "description": "Resolved prompt scaffolding + effective sampler params for the chat.\n\nRead-only, no LLM call \u2014 powers the chat drawer's Session-info tab.",
+        "operationId": "get_prompt_preview_api_chats__chat_id__prompt_preview_get",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chat Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatPromptPreviewResponse"
                 }
               }
             }
@@ -6854,6 +6897,62 @@
         "title": "ChatModelResponse",
         "description": "Nested model info in chat response"
       },
+      "ChatPromptPreviewResponse": {
+        "properties": {
+          "model_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Display Name"
+          },
+          "provider_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Name"
+          },
+          "model_identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Identifier"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/PreviewMessage"
+            },
+            "type": "array",
+            "title": "Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "parameters",
+          "messages"
+        ],
+        "title": "ChatPromptPreviewResponse",
+        "description": "What the chat currently resolves to: prompt scaffolding + effective params."
+      },
       "ChatResponse": {
         "properties": {
           "id": {
@@ -7013,6 +7112,30 @@
             ],
             "title": "Model Id"
           },
+          "task_model_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Model Id"
+          },
+          "persona_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Persona Id"
+          },
           "preset_id": {
             "anyOf": [
               {
@@ -7039,7 +7162,7 @@
         },
         "type": "object",
         "title": "ChatUpdate",
-        "description": "Schema for updating a chat"
+        "description": "Schema for updating a chat.\n\ntask_model_id and persona_id are nullable and clearable: sending ``null``\nresets that axis (task model \u2192 \"same as chat model\", persona \u2192 none), which\nis distinguished from \"field omitted\" via ``exclude_unset`` in the router."
       },
       "DataBankCreate": {
         "properties": {
@@ -10199,6 +10322,25 @@
         "type": "object",
         "title": "PresetUpdate",
         "description": "Schema for updating a preset"
+      },
+      "PreviewMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "PreviewMessage",
+        "description": "One assembled prompt-scaffolding message (role + rendered content)."
       },
       "ProfileCreate": {
         "properties": {

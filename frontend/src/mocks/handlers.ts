@@ -13,6 +13,7 @@ import { profiles } from "@/mocks/data/profiles";
 import { promptTemplates, templateFragments } from "@/mocks/data/prompt-templates";
 import { promptFragments } from "@/mocks/data/prompt-fragments";
 import { lorebooks } from "@/mocks/data/lorebooks";
+import { llmLogs } from "@/mocks/data/llm-logs";
 import {
   bookmarkedCharacters,
   bookmarkedSessions,
@@ -46,6 +47,7 @@ const db = {
   promptFragments,
   templateFragments,
   lorebooks,
+  llmLogs,
 };
 
 export const handlers = [
@@ -278,6 +280,10 @@ export const handlers = [
       const model = db.allModelsMock.find((m) => m.id === body.model_id);
       if (model) chat.model = { id: model.id, name: model.display_name };
     }
+    // task_model_id and persona_id are nullable/clearable — mirror the backend by
+    // honoring an explicit `null` (clear) distinctly from an omitted field.
+    if (body.task_model_id !== undefined) chat.task_model_id = body.task_model_id;
+    if (body.persona_id !== undefined) chat.persona_id = body.persona_id;
     chat.updated_at = new Date().toISOString();
     await delay(150);
     return HttpResponse.json(chat);
@@ -310,6 +316,54 @@ export const handlers = [
 
     await delay(200);
     return HttpResponse.json(chat);
+  }),
+
+  // Resolved prompt scaffolding + effective sampler params (Session-info tab).
+  http.get("/api/chats/:chatId/prompt-preview", async ({ params }) => {
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    if (!chat) return new HttpResponse(null, { status: 404 });
+
+    // The chat's model reference carries a slug-ish id + display name; match it
+    // against the canonical registry to resolve the active route's provider +
+    // identifier, then borrow the model's own params as the "effective" set.
+    const model = db.allModelsMock.find(
+      (m) =>
+        m.id === chat.model.id || m.slug === chat.model.id || m.display_name === chat.model.name,
+    );
+    const route = model?.routes.find((r) => r.id === model.active_route_id) ?? model?.routes[0];
+    const provider = route ? db.providers.find((p) => p.id === route.provider_id) : undefined;
+
+    const characterName = chat.character?.name ?? "the character";
+    const modelParams = model?.parameters ?? {};
+    const parameters = Object.keys(modelParams).length
+      ? modelParams
+      : { temperature: 0.85, max_tokens: 4096, top_p: 0.9 };
+
+    const preview: components["schemas"]["ChatPromptPreviewResponse"] = {
+      model_display_name: model?.display_name ?? chat.model.name ?? null,
+      provider_name: provider?.name ?? null,
+      model_identifier: route?.model_identifier ?? null,
+      parameters,
+      messages: [
+        {
+          role: "system",
+          content:
+            `You are ${characterName}. Stay fully in character and respond as they would, ` +
+            `drawing on their personality, voice, and knowledge. Never break character or ` +
+            `mention that you are an AI. Write vivid, immersive prose in the second person.`,
+        },
+        {
+          role: "system",
+          content:
+            `[Scenario]\n${chat.title ?? "An unfolding encounter"} — the setting for this ` +
+            `conversation with ${characterName}. Ground each reply in this scene and let it ` +
+            `evolve naturally as the exchange continues.`,
+        },
+      ],
+    };
+
+    await delay(150);
+    return HttpResponse.json(preview);
   }),
 
   // Messages endpoint with lazy loading and cursor-based pagination
@@ -973,12 +1027,20 @@ export const handlers = [
   http.get("/api/data-bank/", async ({ request }) => {
     const url = new URL(request.url);
     const scope = url.searchParams.get("scope");
+    const characterId = url.searchParams.get("character_id");
+    const chatId = url.searchParams.get("chat_id");
 
     await delay(150);
 
     let items = [...db.dataBankEntries];
     if (scope) {
       items = items.filter((e) => e.scope === scope);
+    }
+    if (characterId) {
+      items = items.filter((e) => e.character_id === characterId);
+    }
+    if (chatId) {
+      items = items.filter((e) => e.chat_id === chatId);
     }
 
     return HttpResponse.json(items);
@@ -1891,94 +1953,24 @@ export const handlers = [
     const url = new URL(request.url);
     const limit = parseInt(url.searchParams.get("limit") ?? "50", 10);
     const skip = parseInt(url.searchParams.get("skip") ?? "0", 10);
+    const chatId = url.searchParams.get("chat_id");
+    const provider = url.searchParams.get("provider");
+    const model = url.searchParams.get("model");
+    const status = url.searchParams.get("status");
 
-    const allLogs = [
-      {
-        id: "llm-1",
-        created_at: "2026-04-07T10:29:00Z",
-        chat_id: "chat-1",
-        provider: "anthropic",
-        model: "claude-4.6-sonnet",
-        prompt_tokens: 1250,
-        completion_tokens: 430,
-        total_tokens: 1680,
-        latency_ms: 2340,
-        status: "success",
-        estimated_cost_usd: 0.0252,
-        error_message: null,
-        request_payload: [],
-        response_payload: null,
-      },
-      {
-        id: "llm-2",
-        created_at: "2026-04-07T10:25:00Z",
-        chat_id: "chat-2",
-        provider: "openai",
-        model: "gpt-4o",
-        prompt_tokens: 890,
-        completion_tokens: 320,
-        total_tokens: 1210,
-        latency_ms: 1560,
-        status: "success",
-        estimated_cost_usd: 0.0151,
-        error_message: null,
-        request_payload: [],
-        response_payload: null,
-      },
-      {
-        id: "llm-3",
-        created_at: "2026-04-07T10:20:00Z",
-        chat_id: "chat-3",
-        provider: "google",
-        model: "gemini-2.5-flash",
-        prompt_tokens: 2100,
-        completion_tokens: 680,
-        total_tokens: 2780,
-        latency_ms: 890,
-        status: "success",
-        estimated_cost_usd: 0.0042,
-        error_message: null,
-        request_payload: [],
-        response_payload: null,
-      },
-      {
-        id: "llm-4",
-        created_at: "2026-04-07T10:15:00Z",
-        chat_id: "chat-1",
-        provider: "anthropic",
-        model: "claude-4.5-haiku",
-        prompt_tokens: 500,
-        completion_tokens: 0,
-        total_tokens: 500,
-        latency_ms: 5000,
-        status: "error",
-        estimated_cost_usd: null,
-        error_message: "Rate limit exceeded",
-        request_payload: [],
-        response_payload: null,
-      },
-      {
-        id: "llm-5",
-        created_at: "2026-04-07T10:10:00Z",
-        chat_id: "chat-4",
-        provider: "xai",
-        model: "grok-4.20",
-        prompt_tokens: 1800,
-        completion_tokens: 550,
-        total_tokens: 2350,
-        latency_ms: 1200,
-        status: "success",
-        estimated_cost_usd: 0.0188,
-        error_message: null,
-        request_payload: [],
-        response_payload: null,
-      },
-    ];
+    // Newest first, mirroring the backend's default ordering.
+    const filtered = db.llmLogs
+      .filter((log) => (chatId ? log.chat_id === chatId : true))
+      .filter((log) => (provider ? log.provider === provider : true))
+      .filter((log) => (model ? log.model === model : true))
+      .filter((log) => (status ? log.status === status : true))
+      .slice()
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
 
     await delay(150);
     return HttpResponse.json({
-      logs: allLogs.slice(skip, skip + limit),
-      total: allLogs.length,
+      logs: filtered.slice(skip, skip + limit),
+      total: filtered.length,
       limit,
       skip,
     });

@@ -7,7 +7,7 @@ from src.chat_message.dependencies import (
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.repository import MessageRepository
 from src.chat_message.repository_async import AsyncMessageRepository
-from src.chat_message.router import router
+from src.chat_message.router import preview_router, router
 from src.chat_message.schemas import (
     MessageBase,
     MessageCreate,
@@ -33,4 +33,5 @@ __all__ = [
     "ChatMessageServiceDep",
     "AsyncMessageRepositoryDep",
     "router",
+    "preview_router",
 ]

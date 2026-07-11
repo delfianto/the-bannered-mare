@@ -4,6 +4,7 @@
     "saved": "Saved",
     "saving": "Saving…",
     "cancel": "Cancel",
+    "close": "Close",
     "done": "Done",
     "delete": "Delete",
     "deleteConfirm": "Confirm Delete?",
@@ -262,12 +263,67 @@
     "cancelSelection": "Cancel selection"
   },
   "chat": {
+    "settings": {
+      "title": "Chat settings"
+    },
+    "drawer": {
+      "tabs": {
+        "character": "Character",
+        "settings": "Settings",
+        "session": "Session",
+        "logs": "Logs"
+      },
+      "loadouts": "Loadouts",
+      "manageLoadouts": "Manage loadouts",
+      "persona": "Persona",
+      "memories": "Memories",
+      "memoriesEmpty": "No memories for this conversation yet",
+      "manageMemories": "Manage in Data Bank",
+      "lorebooks": "Lorebooks",
+      "lorebooksEmpty": "No lorebooks apply to this conversation",
+      "manageLorebooks": "Manage lorebooks",
+      "lorebookGlobal": "Global",
+      "lorebookCharacter": "Character",
+      "lorebookTriggers": "Triggers",
+      "lorebookEntriesEmpty": "No entries in this lorebook",
+      "sessionModelUnknown": "No model resolved",
+      "sessionParameters": "Parameters",
+      "sessionParametersEmpty": "No parameters set",
+      "sessionPrompt": "Prompt",
+      "sessionPromptEmpty": "No prompt scaffolding",
+      "sessionError": "Couldn't load session info",
+      "logsEmpty": "No model calls logged for this conversation yet",
+      "logsError": "Couldn't load model call logs",
+      "logsStatusSuccess": "OK",
+      "logsStatusError": "Error",
+      "logsTokens": "Tokens",
+      "logsRequest": "Request",
+      "logsResponse": "Response",
+      "comingSoon": "Coming soon"
+    },
     "profile": {
       "title": "Profile",
       "none": "No profile",
       "empty": "No profiles yet",
       "manage": "Manage profiles",
-      "hint": "Applying a profile updates this chat's template, preset, persona, and model."
+      "reapply": "Re-apply",
+      "reapplyTooltip": "Re-apply — resets this chat's model, persona, preset & template to the loadout's current values (discards manual tweaks).",
+      "hint": "Applying a loadout sets this chat's model, persona, preset & template. Editing the loadout later won't change this chat."
+    },
+    "persona": {
+      "title": "Persona",
+      "none": "None",
+      "manage": "Manage personas"
+    },
+    "model": {
+      "title": "Model",
+      "mainModel": "Main model",
+      "taskModel": "Task model",
+      "sameAsChat": "Same as chat model",
+      "none": "No model",
+      "empty": "No models available",
+      "change": "Change model",
+      "overrideHint": "Overrides the model for this chat only — your profile stays unchanged."
     },
     "selectTale": "Select a tale to continue…",
     "sessionBegan": "Session began",

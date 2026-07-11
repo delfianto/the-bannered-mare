@@ -27,6 +27,11 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
+# Sentinel distinguishing "field omitted" from an explicit None (which clears a
+# nullable axis like task_model_id / persona_id). Typed Any so it's a valid
+# default for `str | None` params.
+_UNSET: Any = object()
+
 
 class ChatService:
     """Service for chat and message-related business logic"""
@@ -155,12 +160,24 @@ class ChatService:
         title: str | None = None,
         model_id: str | None = None,
         is_bookmarked: bool | None = None,
+        task_model_id: str | None = _UNSET,
+        persona_id: str | None = _UNSET,
     ) -> Chat:
-        """Update chat (title and/or model, bookmark status). Re-applying a profile goes through apply_profile."""
+        """Update chat axes. Re-applying a profile goes through apply_profile.
+
+        task_model_id / persona_id use an _UNSET sentinel so an explicit ``None``
+        clears that axis (vs. omitting it to leave it alone).
+        """
         chat = self.get_by_id(chat_id)
 
         if model_id is not None:
             self._set_model(chat, model_id)
+
+        if task_model_id is not _UNSET:
+            self._set_task_model(chat, task_model_id)
+
+        if persona_id is not _UNSET:
+            self._set_persona(chat, persona_id)
 
         if title is not None:
             chat.title = title
@@ -171,6 +188,30 @@ class ChatService:
         updated = self.chat_repo.update(chat)
         self.chat_repo.commit()
         return updated
+
+    def _set_task_model(self, chat: Chat, task_model_id: str | None) -> None:
+        """Set (or clear, when None) the chat's auxiliary task model."""
+        if task_model_id is None:
+            chat.task_model_id = None
+            return
+        if not self.model_repo.find_by_id(task_model_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Model with ID '{task_model_id}' not found",
+            )
+        chat.task_model_id = task_model_id
+
+    def _set_persona(self, chat: Chat, persona_id: str | None) -> None:
+        """Set (or clear, when None) the chat's persona."""
+        if persona_id is None:
+            chat.persona_id = None
+            return
+        if self.persona_repo is not None and not self.persona_repo.find_by_id(persona_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Persona with ID '{persona_id}' not found",
+            )
+        chat.persona_id = persona_id
 
     def apply_profile(self, chat_id: str, profile_id: str) -> Chat:
         """Apply a profile to an existing chat: copy its axes, update last_profile_name."""

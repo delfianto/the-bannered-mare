@@ -47,6 +47,10 @@ class ProviderGateway:
         self.base_url = (self.provider.get_base_url()).rstrip("/")
         self.api_key = self.provider.get_api_key()
 
+    def effective_parameters(self) -> dict[str, Any]:
+        """Public accessor for the merged/stripped sampler params (prompt preview)."""
+        return self._get_effective_parameters()
+
     def _get_effective_parameters(self) -> dict[str, Any]:
         """Merge ModelFamily defaults → Model overrides → Preset overrides."""
         effective_params: dict[str, Any] = {}
