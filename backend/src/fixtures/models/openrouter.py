@@ -60,15 +60,6 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {**_LLAMA_RP},
         "enabled": True,
     },
-    # TheDrummer — Llama/Nemotron lineage (-> llama3 family). RP finetune; enabled.
-    {
-        "name": "TheDrummer Valkyrie 49B v1",
-        "model_identifier": "thedrummer/valkyrie-49b-v1",
-        "family_identifier": "meta/llama-3",
-        "provider_type": "openrouter",
-        "parameters": {**_LLAMA_RP},
-        "enabled": True,
-    },
     # TheDrummer — Mistral lineage (-> mistral-nemo / mistral-small families).
     # RP finetunes; all enabled.
     {
@@ -104,22 +95,6 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": True,
     },
     # Other Llama 3 RP finetunes & merges — enabled by default.
-    {
-        "name": "NeverSleep Lumimaid 70B (L3.1)",
-        "model_identifier": "neversleep/llama-3.1-lumimaid-70b",
-        "family_identifier": "meta/llama-3",
-        "provider_type": "openrouter",
-        "parameters": {**_LLAMA_RP},
-        "enabled": True,
-    },
-    {
-        "name": "TheDrummer Anubis 70B (L3.3)",
-        "model_identifier": "thedrummer/anubis-70b-v1.1",
-        "family_identifier": "meta/llama-3",
-        "provider_type": "openrouter",
-        "parameters": {**_LLAMA_RP},
-        "enabled": True,
-    },
     {
         "name": "Nous Hermes 3 70B (L3.1)",
         "model_identifier": "nousresearch/hermes-3-llama-3.1-70b",
@@ -212,8 +187,8 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": False,
     },
     {
-        "name": "GLM 4.5 Air (Free)",
-        "model_identifier": "z-ai/glm-4.5-air:free",
+        "name": "GLM 4.5 Air",
+        "model_identifier": "z-ai/glm-4.5-air",
         "family_identifier": "zai/glm-4",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
@@ -271,8 +246,8 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
     },
     # Misc free models — disabled by default.
     {
-        "name": "Arcee Trinity Large (Free)",
-        "model_identifier": "arcee-ai/trinity-large-preview:free",
+        "name": "Arcee Trinity Large Thinking",
+        "model_identifier": "arcee-ai/trinity-large-thinking",
         "family_identifier": "openrouter/misc",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.85, "top_p": 0.9, "max_tokens": 4096},
@@ -313,8 +288,8 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "enabled": True,
     },
     {
-        "name": "Poolside Laguna XS.2 (Free)",
-        "model_identifier": "poolside/laguna-xs.2:free",
+        "name": "Poolside Laguna XS 2.1 (Free)",
+        "model_identifier": "poolside/laguna-xs-2.1:free",
         "family_identifier": "poolside/laguna",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "max_tokens": 4096},

@@ -111,11 +111,12 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 400000,
             "supports_vision": False,
             "supports_function_calling": True,
+            # OpenAI only exposes these via the "-chat-latest" rolling alias.
             "models": [
-                "gpt-5-chat",
-                "gpt-5.1-chat",
-                "gpt-5.2-chat",
-                "gpt-5.3-chat",
+                "gpt-5-chat-latest",
+                "gpt-5.1-chat-latest",
+                "gpt-5.2-chat-latest",
+                "gpt-5.3-chat-latest",
             ],
         },
     },
