@@ -316,6 +316,54 @@ export const handlers = [
     return HttpResponse.json(chat);
   }),
 
+  // Resolved prompt scaffolding + effective sampler params (Session-info tab).
+  http.get("/api/chats/:chatId/prompt-preview", async ({ params }) => {
+    const chat = db.chats.find((c) => c.id === params.chatId);
+    if (!chat) return new HttpResponse(null, { status: 404 });
+
+    // The chat's model reference carries a slug-ish id + display name; match it
+    // against the canonical registry to resolve the active route's provider +
+    // identifier, then borrow the model's own params as the "effective" set.
+    const model = db.allModelsMock.find(
+      (m) =>
+        m.id === chat.model.id || m.slug === chat.model.id || m.display_name === chat.model.name,
+    );
+    const route = model?.routes.find((r) => r.id === model.active_route_id) ?? model?.routes[0];
+    const provider = route ? db.providers.find((p) => p.id === route.provider_id) : undefined;
+
+    const characterName = chat.character?.name ?? "the character";
+    const modelParams = model?.parameters ?? {};
+    const parameters = Object.keys(modelParams).length
+      ? modelParams
+      : { temperature: 0.85, max_tokens: 4096, top_p: 0.9 };
+
+    const preview: components["schemas"]["ChatPromptPreviewResponse"] = {
+      model_display_name: model?.display_name ?? chat.model.name ?? null,
+      provider_name: provider?.name ?? null,
+      model_identifier: route?.model_identifier ?? null,
+      parameters,
+      messages: [
+        {
+          role: "system",
+          content:
+            `You are ${characterName}. Stay fully in character and respond as they would, ` +
+            `drawing on their personality, voice, and knowledge. Never break character or ` +
+            `mention that you are an AI. Write vivid, immersive prose in the second person.`,
+        },
+        {
+          role: "system",
+          content:
+            `[Scenario]\n${chat.title ?? "An unfolding encounter"} — the setting for this ` +
+            `conversation with ${characterName}. Ground each reply in this scene and let it ` +
+            `evolve naturally as the exchange continues.`,
+        },
+      ],
+    };
+
+    await delay(150);
+    return HttpResponse.json(preview);
+  }),
+
   // Messages endpoint with lazy loading and cursor-based pagination
   http.get("/api/chats/:chatId/messages", async ({ params, request }) => {
     const chatId = params.chatId as string;

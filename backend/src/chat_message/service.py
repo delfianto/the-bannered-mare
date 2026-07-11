@@ -515,6 +515,32 @@ class ChatMessageService:
             await self.chat_repo.commit()
         return chat.title or ""
 
+    # --- Prompt preview (Session info) ---
+
+    async def preview_prompt(self, chat_id: str) -> dict[str, Any]:
+        """Resolved prompt scaffolding + effective sampler params for a chat.
+
+        Builds the template scaffolding with an EMPTY conversation (system prompt,
+        character card, scenario, persona, examples, fragments — everything the
+        model always sees, minus the live turns) and the effective parameters the
+        gateway would send. No LLM call; used by the chat drawer's Session tab.
+        """
+        chat = await self._get_chat_by_id(chat_id)
+        api_messages = self.prompt_builder.build_api_messages(
+            chat, messages=[], activated_lore=None, rag_results=None
+        )
+        gateway = await self._build_gateway(chat)
+        route = self._resolve_active_route(chat.model) if chat.model else None
+        return {
+            "model_display_name": chat.model.display_name if chat.model else None,
+            "provider_name": route.provider.name if route else None,
+            "model_identifier": route.model_identifier if route else None,
+            "parameters": gateway.effective_parameters(),
+            "messages": [
+                {"role": m.get("role", ""), "content": m.get("content", "")} for m in api_messages
+            ],
+        }
+
     # --- Message Editing (6.1) ---
 
     async def edit_message(self, chat_id: str, message_id: str, content: str) -> Message:

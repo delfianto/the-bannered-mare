@@ -286,6 +286,12 @@
       "lorebookCharacter": "Character",
       "lorebookTriggers": "Triggers",
       "lorebookEntriesEmpty": "No entries in this lorebook",
+      "sessionModelUnknown": "No model resolved",
+      "sessionParameters": "Parameters",
+      "sessionParametersEmpty": "No parameters set",
+      "sessionPrompt": "Prompt",
+      "sessionPromptEmpty": "No prompt scaffolding",
+      "sessionError": "Couldn't load session info",
       "comingSoon": "Coming soon"
     },
     "profile": {

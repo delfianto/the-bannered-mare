@@ -510,3 +510,36 @@ class TestChatMessageService:
         assert loaded.task_model.model_family.family_identifier == "test.task"
         route = loaded.task_model.active_route
         assert route is not None and route.provider is not None
+
+    @pytest.mark.asyncio
+    async def test_preview_prompt_returns_scaffolding_and_params(
+        self,
+        async_db_session: AsyncSession,
+        db: Session,
+        async_sample_character: Any,
+        async_sample_model: Any,
+    ) -> None:
+        """preview_prompt returns the model/provider, effective params, and the
+        assembled scaffolding messages (no LLM call, no live conversation)."""
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+        await async_db_session.refresh(chat)
+
+        message_repo = AsyncMessageRepository(async_db_session)
+        chat_repo = AsyncChatRepository(async_db_session)
+        service = ChatMessageService(message_repo, chat_repo, PromptBuilder(PromptTemplateRepository(db)))
+
+        preview = await service.preview_prompt(chat.id)
+
+        assert preview["model_display_name"] == async_sample_model.display_name
+        assert preview["provider_name"] == "OpenAI"
+        assert preview["model_identifier"] == "gpt-4"
+        # Effective params include the family default (temperature) from the fixture.
+        assert preview["parameters"]["temperature"] == 1.0
+        assert isinstance(preview["messages"], list)
+        assert all(isinstance(m["content"], str) for m in preview["messages"])
