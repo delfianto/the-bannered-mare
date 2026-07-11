@@ -306,7 +306,7 @@
       "none": "No profile",
       "empty": "No profiles yet",
       "manage": "Manage profiles",
-      "applied": "Applied",
+      "reapply": "Re-apply",
       "reapplyTooltip": "Re-apply — resets this chat's model, persona, preset & template to the loadout's current values (discards manual tweaks).",
       "hint": "Applying a loadout sets this chat's model, persona, preset & template. Editing the loadout later won't change this chat."
     },

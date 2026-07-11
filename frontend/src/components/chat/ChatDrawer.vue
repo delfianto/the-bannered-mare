@@ -332,14 +332,22 @@ function chooseTaskModel(value: string) {
   if (next !== (props.currentTaskModelId ?? null)) emit("changeTaskModel", next);
 }
 
+// The chat snapshots a loadout by NAME (last_profile_name), so we resolve the
+// active loadout by name to power the footer "Re-apply" button.
+const activeProfile = computed(
+  () => props.profiles.find((p) => p.name === props.currentProfileName) ?? null,
+);
+
+// Selecting a different loadout switches to it (the radio only fires on change,
+// so re-selecting the active one is a no-op — no accidental reset).
 function chooseProfile(p: Profile) {
-  // Row click only SWITCHES loadouts. Re-applying the active one would silently
-  // reset manual per-chat overrides, so that's the explicit ↻ action instead.
   if (p.name !== props.currentProfileName) emit("applyProfile", p.id);
 }
 
-function reapplyProfile(p: Profile) {
-  emit("applyProfile", p.id);
+// Explicit re-apply of the ACTIVE loadout (footer button) — re-pulls its current
+// settings, resetting manual per-chat overrides.
+function reapplyActiveProfile() {
+  if (activeProfile.value) emit("applyProfile", activeProfile.value.id);
 }
 
 // `null` = "None" (clears the persona). No-op when unchanged.
@@ -581,55 +589,36 @@ onUnmounted(() => {
                   >
                     {{ $t("chat.profile.title") }}
                   </div>
-                  <div
+                  <label
                     v-for="p in profiles"
                     :key="p.id"
-                    class="flex items-start gap-1 rounded-lg pr-1 transition-colors"
+                    class="flex cursor-pointer items-start gap-2.5 rounded-lg border px-2.5 py-2 transition-colors"
                     :class="
-                      p.name === currentProfileName ? 'bg-base-300/30' : 'hover:bg-base-300/50'
+                      p.name === currentProfileName
+                        ? 'border-primary/50 bg-base-300/30'
+                        : 'border-transparent hover:bg-base-300/50'
                     "
                   >
-                    <button
-                      class="flex min-w-0 flex-1 items-start gap-2 px-2 py-2 text-left"
-                      @click="chooseProfile(p)"
-                    >
-                      <AppIcon
-                        name="i-lucide-check"
-                        class="mt-0.5 size-3.5 shrink-0"
-                        :class="p.name === currentProfileName ? 'text-primary' : 'text-transparent'"
-                      />
-                      <span class="min-w-0 flex-1">
-                        <span class="block truncate text-sm font-medium text-foreground">{{
-                          p.name
-                        }}</span>
-                        <span
-                          v-if="p.description"
-                          class="block truncate text-[0.6875rem] text-muted-foreground"
-                        >
-                          {{ p.description }}
-                        </span>
-                      </span>
-                    </button>
-                    <div
-                      v-if="p.name === currentProfileName"
-                      class="mt-1.5 flex shrink-0 items-center gap-1"
-                    >
+                    <input
+                      type="radio"
+                      name="chat-profile"
+                      class="radio radio-sm radio-primary mt-0.5 shrink-0"
+                      :checked="p.name === currentProfileName"
+                      :aria-label="p.name"
+                      @change="chooseProfile(p)"
+                    />
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-sm font-medium text-foreground">{{
+                        p.name
+                      }}</span>
                       <span
-                        class="text-[0.625rem] font-medium tracking-wider text-muted-foreground uppercase"
+                        v-if="p.description"
+                        class="block truncate text-[0.6875rem] text-muted-foreground"
                       >
-                        {{ $t("chat.profile.applied") }}
+                        {{ p.description }}
                       </span>
-                      <AppTooltip :text="$t('chat.profile.reapplyTooltip')" side="left" wide>
-                        <button
-                          :aria-label="$t('chat.profile.reapplyTooltip')"
-                          class="flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
-                          @click="reapplyProfile(p)"
-                        >
-                          <AppIcon name="i-lucide-rotate-ccw" class="size-3.5" />
-                        </button>
-                      </AppTooltip>
-                    </div>
-                  </div>
+                    </span>
+                  </label>
                   <div
                     v-if="profiles.length === 0"
                     class="px-2 py-2 text-center text-xs text-muted-foreground"
@@ -641,13 +630,27 @@ onUnmounted(() => {
                   </p>
                 </div>
 
-                <button
-                  class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground"
-                  @click="goManageLoadouts"
-                >
-                  <AppIcon name="i-lucide-settings-2" class="size-4" />
-                  {{ $t("chat.drawer.manageLoadouts") }}
-                </button>
+                <!-- Loadout actions: manage, and re-apply the active loadout -->
+                <div class="flex items-center justify-between gap-2">
+                  <button
+                    class="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground"
+                    @click="goManageLoadouts"
+                  >
+                    <AppIcon name="i-lucide-settings-2" class="size-4" />
+                    {{ $t("chat.drawer.manageLoadouts") }}
+                  </button>
+                  <AppTooltip :text="$t('chat.profile.reapplyTooltip')" side="left" wide>
+                    <button
+                      :disabled="!activeProfile"
+                      :aria-label="$t('chat.profile.reapplyTooltip')"
+                      class="flex items-center gap-1.5 rounded-lg px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300/50 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                      @click="reapplyActiveProfile"
+                    >
+                      <AppIcon name="i-lucide-rotate-ccw" class="size-3.5" />
+                      {{ $t("chat.profile.reapply") }}
+                    </button>
+                  </AppTooltip>
+                </div>
               </div>
             </CollapsibleSection>
 
