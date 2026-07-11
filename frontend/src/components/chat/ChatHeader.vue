@@ -2,8 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import type { ChatCharacterInfo } from "@/types/chat";
 import type { Profile } from "@/composables/useProfiles";
-import ChatProfilePicker from "@/components/chat/ChatProfilePicker.vue";
-import ChatModelPicker from "@/components/chat/ChatModelPicker.vue";
+import ChatSettingsDrawer from "@/components/chat/ChatSettingsDrawer.vue";
 
 interface PickerModel {
   id: string;
@@ -29,6 +28,7 @@ const emit = defineEmits<{
 }>();
 
 const menuOpen = ref(false);
+const drawerOpen = ref(false);
 const renaming = ref(false);
 const editTitle = ref("");
 const confirmDelete = ref(false);
@@ -154,17 +154,24 @@ onUnmounted(() => {
     </div>
 
     <div class="flex items-center gap-2">
-      <ChatModelPicker
+      <button
+        :title="$t('chat.settings.title')"
+        class="flex h-9 items-center gap-1.5 rounded-lg border bg-base-300/40 px-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+        @click="drawerOpen = true"
+      >
+        <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5 shrink-0" />
+        <span class="max-w-28 truncate">{{ currentModelName || $t("chat.model.none") }}</span>
+      </button>
+
+      <ChatSettingsDrawer
+        :show="drawerOpen"
         :models="models ?? []"
         :current-model-id="currentModelId"
-        :current-model-name="currentModelName"
-        @change="emit('changeModel', $event)"
-      />
-
-      <ChatProfilePicker
         :profiles="profiles ?? []"
         :current-profile-name="currentProfileName"
-        @apply="emit('applyProfile', $event)"
+        @close="drawerOpen = false"
+        @change-model="emit('changeModel', $event)"
+        @apply-profile="emit('applyProfile', $event)"
       />
 
       <div ref="menuRef" class="relative">

@@ -4,6 +4,7 @@
     "saved": "Saved",
     "saving": "Saving…",
     "cancel": "Cancel",
+    "close": "Close",
     "done": "Done",
     "delete": "Delete",
     "deleteConfirm": "Confirm Delete?",
@@ -262,6 +263,9 @@
     "cancelSelection": "Cancel selection"
   },
   "chat": {
+    "settings": {
+      "title": "Chat settings"
+    },
     "profile": {
       "title": "Profile",
       "none": "No profile",
