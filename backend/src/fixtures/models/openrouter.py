@@ -172,6 +172,14 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
     },
     # GLM (Zhipu) — GLM-5.x enabled by default; 4.x disabled.
     {
+        "name": "GLM 5.2",
+        "model_identifier": "z-ai/glm-5.2",
+        "family_identifier": "zai/glm-5",
+        "provider_type": "openrouter",
+        "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
+        "enabled": True,
+    },
+    {
         "name": "GLM 5.1",
         "model_identifier": "z-ai/glm-5.1",
         "family_identifier": "zai/glm-5",

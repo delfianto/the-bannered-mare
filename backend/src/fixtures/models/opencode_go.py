@@ -26,6 +26,14 @@ OPENCODE_GO_MODELS: list[ModelSeedData] = [
         "enabled": True,
     },
     {
+        "name": "GLM 5.2",
+        "model_identifier": "glm-5.2",
+        "family_identifier": "zai/glm-5",
+        "provider_type": "opencode_go",
+        "parameters": {"temperature": 0.8, "top_p": 0.95, "max_tokens": 4096},
+        "enabled": False,
+    },
+    {
         "name": "GLM 5.1",
         "model_identifier": "glm-5.1",
         "family_identifier": "zai/glm-5",
