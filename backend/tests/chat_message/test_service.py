@@ -510,3 +510,66 @@ class TestChatMessageService:
         assert loaded.task_model.model_family.family_identifier == "test.task"
         route = loaded.task_model.active_route
         assert route is not None and route.provider is not None
+
+    @pytest.mark.asyncio
+    async def test_reply_suggestions_use_task_model_with_compact_prompt(
+        self,
+        async_db_session: AsyncSession,
+        db: Session,
+        async_sample_character: Any,
+        async_sample_model: Any,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Reply candidates run on the cheap task model with a compact prompt,
+        not the main model with the full system prompt / card / RAG."""
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+            task_model_id=async_sample_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+        await async_db_session.refresh(chat)
+
+        async_db_session.add(
+            Message(chat_id=chat.id, role=MessageRole.USER, content="I draw my blade.")
+        )
+        async_db_session.add(
+            Message(chat_id=chat.id, role=MessageRole.ASSISTANT, content="The guard sneers at you.")
+        )
+        await async_db_session.commit()
+
+        message_repo = AsyncMessageRepository(async_db_session)
+        chat_repo = AsyncChatRepository(async_db_session)
+        template_repo = PromptTemplateRepository(db)
+        prompt_builder = PromptBuilder(template_repo)
+        service = ChatMessageService(message_repo, chat_repo, prompt_builder)
+
+        task_gateway = MagicMock()
+        task_gateway.chat_completion = AsyncMock(
+            return_value=CompletionResponse(
+                content='["Stand firm.", "Sheathe it.", "Taunt him."]',
+                finish_reason="stop",
+                usage=TokenUsage(),
+            )
+        )
+        build_task = AsyncMock(return_value=task_gateway)
+        build_main = AsyncMock(side_effect=AssertionError("reply must not use the main gateway"))
+        monkeypatch.setattr(service, "_build_task_gateway", build_task)
+        monkeypatch.setattr(service, "_build_gateway", build_main)
+        monkeypatch.setattr(service, "_record_llm_audit", AsyncMock())
+
+        result = await service.generate_suggestions(chat.id, mode="reply", count=3)
+
+        assert result == ["Stand firm.", "Sheathe it.", "Taunt him."]
+        build_task.assert_awaited_once()
+        build_main.assert_not_awaited()
+
+        # Compact: a single user message carrying the recent exchange (grounded in
+        # the last turn), not the full built prompt.
+        sent = task_gateway.chat_completion.await_args.args[0]
+        assert len(sent) == 1 and sent[0]["role"] == "user"
+        prompt = sent[0]["content"]
+        assert "Recent exchange:" in prompt
+        assert "The guard sneers at you." in prompt

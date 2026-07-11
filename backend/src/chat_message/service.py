@@ -328,15 +328,18 @@ class ChatMessageService:
     async def generate_suggestions(
         self, chat_id: str, mode: str = "reply", tone: str | None = None, count: int = 3
     ) -> list[str]:
-        """Generate next-turn suggestions using the chat's own model and context.
+        """Generate next-turn suggestions for the chat.
 
         - ``reply``: several short candidate user turns (rendered as cards).
         - ``impersonate``: one drafted user message in the user's voice.
         - ``tones``: several short tone/approach labels for the scene (chips).
 
-        Reply candidates and impersonation drafts become the user's actual
-        message, so they run on the main model for quality; ``tones`` labels are
-        throwaway metadata and run on the cheap task model.
+        Routing by cost: ``reply`` and ``tones`` are disposable scaffolding the
+        user picks from or discards, so they run on the cheap **task model** with
+        a compact prompt (recent exchange + who's-who) rather than the full system
+        prompt + character card + persona + lorebook + RAG + history. Only
+        ``impersonate`` — which drafts the user's *actual* next message — keeps
+        the full context on the main model for quality.
         """
         chat = await self._get_chat_by_id(chat_id)
 
@@ -363,32 +366,41 @@ class ChatMessageService:
             )
             api_messages = [{"role": "user", "content": instruction}]
             gateway = await self._build_task_gateway(chat)
+        elif mode == "reply":
+            # Reply candidates are disposable — the user picks one, edits it, or
+            # ignores them — so they don't warrant the full scene context on the
+            # main model. Send a compact prompt (recent exchange + who's-who +
+            # a short persona voice cue) to the cheap task model instead.
+            transcript = self._recent_transcript(chat, messages)
+            persona_hint = self._persona_hint(chat)
+            instruction = (
+                f"This is a roleplay between {user_name} (the human user) and {char_name}."
+                f"{persona_hint}\n\nRecent exchange:\n{transcript}\n\n"
+                f"Suggest {count} distinct, short options for what {user_name} could say next — "
+                f"written in {user_name}'s voice and grounded in what {char_name} just said or "
+                "did, each a different tone or direction, one or two sentences. Do not continue "
+                f"the scene as {char_name}. Respond with ONLY a JSON array of strings, "
+                'e.g. ["...", "...", "..."].'
+            )
+            api_messages = [{"role": "user", "content": instruction}]
+            gateway = await self._build_task_gateway(chat)
         else:
-            # reply / impersonate become the user's actual next message, so they run
-            # on the main model with the full scene context for quality.
+            # impersonate drafts the user's *actual* next message, so it keeps the
+            # full scene context on the main model for quality.
             activated_lore = self._get_activated_lore(chat, messages)
             rag_results = await self._retrieve_rag_context(chat, messages)
             api_messages = self.prompt_builder.build_api_messages(
                 chat, messages, activated_lore=activated_lore, rag_results=rag_results
             )
 
-            if mode == "impersonate":
-                tone_clause = f" Give it a {tone} tone." if tone else ""
-                instruction = (
-                    f"You are now writing on behalf of {user_name} (the human user), NOT "
-                    f"{char_name}. Compose {user_name}'s next message in the first person, in "
-                    f"their voice, continuing the scene naturally.{tone_clause} Output only the "
-                    "message text — no quotation marks, no name label, and no commentary about "
-                    "the task."
-                )
-            else:
-                instruction = (
-                    f"Do not continue the story as {char_name}. Instead, propose {count} "
-                    f"distinct, short options for what {user_name} (the human user) could say "
-                    f"next — written in {user_name}'s voice and grounded in what {char_name} "
-                    "just said or did, each a different tone or direction, one or two sentences. "
-                    'Respond with ONLY a JSON array of strings, e.g. ["...", "...", "..."].'
-                )
+            tone_clause = f" Give it a {tone} tone." if tone else ""
+            instruction = (
+                f"You are now writing on behalf of {user_name} (the human user), NOT "
+                f"{char_name}. Compose {user_name}'s next message in the first person, in "
+                f"their voice, continuing the scene naturally.{tone_clause} Output only the "
+                "message text — no quotation marks, no name label, and no commentary about "
+                "the task."
+            )
 
             # Keep role alternation valid (some providers reject consecutive user
             # turns): merge the directive into a trailing user message, else append.
@@ -454,6 +466,20 @@ class ChatMessageService:
             if text:
                 lines.append(f"{speaker}: {text}")
         return "\n".join(lines)[:max_chars]
+
+    def _persona_hint(self, chat: Chat, max_chars: int = 240) -> str:
+        """A short voice cue for the user's persona, for compact suggestion prompts.
+
+        Keeps reply candidates in the user's voice without shipping the whole
+        persona card. Empty when no persona/description is set.
+        """
+        persona = chat.persona
+        if not persona or not persona.description:
+            return ""
+        desc = " ".join(persona.description.split())
+        if len(desc) > max_chars:
+            desc = desc[:max_chars].rstrip() + "…"
+        return f" {persona.name} is: {desc}"
 
     def _recent_transcript(
         self, chat: Chat, messages: list[Message], turns: int = 4, per_msg: int = 600
