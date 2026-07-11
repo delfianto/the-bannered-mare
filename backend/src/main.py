@@ -10,6 +10,7 @@ from fastapi.responses import HTMLResponse
 from src.admin.router import router as admin_router
 from src.bookmarks.router import router as bookmarks_router
 from src.character import router as characters_router
+from src.chat_message import preview_router as chat_preview_router
 from src.chat_message import router as chat_messages_router
 from src.chat_session import router as chats_router
 from src.core.config import settings
@@ -76,6 +77,7 @@ app.include_router(models_router)
 app.include_router(characters_router)
 app.include_router(chats_router)
 app.include_router(chat_messages_router)
+app.include_router(chat_preview_router)
 app.include_router(personas_router)
 app.include_router(presets_router)
 app.include_router(profiles_router)

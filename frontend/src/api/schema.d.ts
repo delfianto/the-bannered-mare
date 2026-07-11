@@ -899,6 +899,28 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/chats/{chat_id}/prompt-preview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Prompt Preview
+     * @description Resolved prompt scaffolding + effective sampler params for the chat.
+     *
+     *     Read-only, no LLM call — powers the chat drawer's Session-info tab.
+     */
+    get: operations["get_prompt_preview_api_chats__chat_id__prompt_preview_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/personas/": {
     parameters: {
       query?: never;
@@ -2065,6 +2087,24 @@ export interface components {
       id: string | null;
       /** Name */
       name: string | null;
+    };
+    /**
+     * ChatPromptPreviewResponse
+     * @description What the chat currently resolves to: prompt scaffolding + effective params.
+     */
+    ChatPromptPreviewResponse: {
+      /** Model Display Name */
+      model_display_name?: string | null;
+      /** Provider Name */
+      provider_name?: string | null;
+      /** Model Identifier */
+      model_identifier?: string | null;
+      /** Parameters */
+      parameters: {
+        [key: string]: unknown;
+      };
+      /** Messages */
+      messages: components["schemas"]["PreviewMessage"][];
     };
     /**
      * ChatResponse
@@ -3547,6 +3587,16 @@ export interface components {
       } | null;
       /** Is Default */
       is_default?: boolean | null;
+    };
+    /**
+     * PreviewMessage
+     * @description One assembled prompt-scaffolding message (role + rendered content).
+     */
+    PreviewMessage: {
+      /** Role */
+      role: string;
+      /** Content */
+      content: string;
     };
     /**
      * ProfileCreate
@@ -5935,6 +5985,37 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["MessageResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_prompt_preview_api_chats__chat_id__prompt_preview_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        chat_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ChatPromptPreviewResponse"];
         };
       };
       /** @description Validation Error */
