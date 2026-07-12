@@ -397,12 +397,8 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._record_llm_audit(
-                gateway=gateway,
-                api_messages=api_messages,
-                chat_id=chat_id,
-                latency_ms=(time.perf_counter() - start) * 1000,
-                error=e,
+            await self._audit_error(
+                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -503,12 +499,8 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._record_llm_audit(
-                gateway=gateway,
-                api_messages=api_messages,
-                chat_id=chat_id,
-                latency_ms=(time.perf_counter() - start) * 1000,
-                error=e,
+            await self._audit_error(
+                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -569,6 +561,81 @@ class ChatMessageService:
 
     # --- Message Send ---
 
+    # --- Shared completion pipeline (blocking + streaming) ---
+
+    def _normalize_reply(
+        self, content: str, reasoning: str | None, usage: TokenUsage | None
+    ) -> tuple[str, str | None, int]:
+        """Post-process a usable reply: split think-tags when the API didn't
+        provide reasoning, strip leaked HTML/graphics, and compute the token
+        count. Shared by the blocking and streaming paths so the logic exists once.
+        """
+        if not reasoning:
+            content, reasoning = parse_reasoning_tags(content)
+        content = sanitize_narrative(content)
+        token_count = (
+            usage.output_tokens
+            if usage and usage.output_tokens
+            else self.tokenizer.count_tokens(content)
+        )
+        return content, reasoning, token_count
+
+    async def _classify_and_audit(
+        self,
+        *,
+        gateway: ProviderGateway,
+        api_messages: list[dict[str, Any]],
+        chat_id: str,
+        start: float,
+        content: str | None,
+        reasoning: str | None,
+        finish_reason: str | None,
+        usage: TokenUsage | None,
+        raw: dict[str, Any] | None = None,
+    ) -> CompletionOutcome:
+        """Classify the completion, record the audit (status = the outcome), and
+        warn on a non-usable result. The caller decides how to surface it (raise
+        vs stream error event)."""
+        outcome = classify_completion(content, reasoning, finish_reason)
+        await self._record_llm_audit(
+            gateway=gateway,
+            api_messages=api_messages,
+            chat_id=chat_id,
+            latency_ms=(time.perf_counter() - start) * 1000,
+            content=content,
+            reasoning=reasoning,
+            finish_reason=finish_reason,
+            usage=usage,
+            raw=raw,
+            status_override=None if outcome == CompletionOutcome.USABLE else outcome.value,
+        )
+        if outcome != CompletionOutcome.USABLE:
+            logger.warning(
+                "non_usable_completion",
+                chat_id=chat_id,
+                outcome=outcome.value,
+                finish_reason=finish_reason,
+            )
+        return outcome
+
+    async def _audit_error(
+        self,
+        *,
+        gateway: ProviderGateway,
+        api_messages: list[dict[str, Any]],
+        chat_id: str,
+        start: float,
+        error: Exception,
+    ) -> None:
+        """Record a failed LLM call (exception path)."""
+        await self._record_llm_audit(
+            gateway=gateway,
+            api_messages=api_messages,
+            chat_id=chat_id,
+            latency_ms=(time.perf_counter() - start) * 1000,
+            error=error,
+        )
+
     async def send_message(self, chat_id: str, content: str) -> Message:
         """Send a message and get an AI response (non-streaming)"""
         chat = await self._get_chat_by_id(chat_id)
@@ -599,42 +666,28 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._record_llm_audit(
-                gateway=gateway,
-                api_messages=api_messages,
-                chat_id=chat_id,
-                latency_ms=(time.perf_counter() - start) * 1000,
-                error=e,
+            await self._audit_error(
+                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Error communicating with AI provider: {str(e)}",
             ) from e
 
-        outcome = classify_completion(response.content, response.reasoning, response.finish_reason)
-
-        await self._record_llm_audit(
+        outcome = await self._classify_and_audit(
             gateway=gateway,
             api_messages=api_messages,
             chat_id=chat_id,
-            latency_ms=(time.perf_counter() - start) * 1000,
+            start=start,
             content=response.content,
             reasoning=response.reasoning,
             finish_reason=response.finish_reason,
             usage=response.usage,
             raw=response.raw,
-            status_override=None if outcome == CompletionOutcome.USABLE else outcome.value,
         )
-
         # An empty/filtered/truncated result is not a real reply — surface it
         # rather than saving a blank assistant message.
         if outcome != CompletionOutcome.USABLE:
-            logger.warning(
-                "non_usable_completion",
-                chat_id=chat_id,
-                outcome=outcome.value,
-                finish_reason=response.finish_reason,
-            )
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY, detail=_outcome_message(outcome)
             )
@@ -654,19 +707,8 @@ class ChatMessageService:
                     created_tokens=response.usage.cache_creation_tokens,
                 )
 
-            assistant_content = response.content
-            reasoning = response.reasoning
-
-            # Auto-parse think tags if API didn't provide reasoning
-            if not reasoning:
-                assistant_content, reasoning = parse_reasoning_tags(assistant_content)
-
-            # Strip any HTML/graphics the model leaked into the prose before we
-            # store it, so history and token counts stay clean.
-            assistant_content = sanitize_narrative(assistant_content)
-
-            token_count = response.usage.output_tokens or self.tokenizer.count_tokens(
-                assistant_content
+            assistant_content, reasoning, token_count = self._normalize_reply(
+                response.content, response.reasoning, response.usage
             )
 
             assistant_message = Message(
@@ -727,51 +769,27 @@ class ChatMessageService:
                 if chunk.finish_reason:
                     last_finish_reason = chunk.finish_reason
 
-            # Classify the assembled stream: an empty/filtered/truncated result is
-            # not a real reply — surface it instead of persisting a blank message.
-            outcome = classify_completion(
-                full_content or None, full_reasoning or None, last_finish_reason
-            )
-
-            # Capture the audit from the raw assembled stream, before think-tag parsing
-            await self._record_llm_audit(
+            # Classify the assembled stream (audit before think-tag parsing); an
+            # empty/filtered/truncated result is surfaced instead of persisted.
+            outcome = await self._classify_and_audit(
                 gateway=gateway,
                 api_messages=api_messages,
                 chat_id=chat_id,
-                latency_ms=(time.perf_counter() - start) * 1000,
+                start=start,
                 content=full_content or None,
                 reasoning=full_reasoning or None,
                 finish_reason=last_finish_reason,
                 usage=last_usage,
-                status_override=None if outcome == CompletionOutcome.USABLE else outcome.value,
             )
-
             if outcome != CompletionOutcome.USABLE:
-                logger.warning(
-                    "non_usable_completion",
-                    chat_id=chat_id,
-                    outcome=outcome.value,
-                    finish_reason=last_finish_reason,
-                )
                 yield StreamEvent(
                     type="error", message=_outcome_message(outcome), code=outcome.value
                 )
                 return
 
             if full_content:
-                reasoning = full_reasoning or None
-
-                # Auto-parse think tags if API didn't provide reasoning
-                if not reasoning:
-                    full_content, reasoning = parse_reasoning_tags(full_content)
-
-                # Strip leaked HTML/graphics before storing (UI also strips on render).
-                full_content = sanitize_narrative(full_content)
-
-                token_count = (
-                    last_usage.output_tokens
-                    if last_usage and last_usage.output_tokens
-                    else self.tokenizer.count_tokens(full_content)
+                full_content, reasoning, token_count = self._normalize_reply(
+                    full_content, full_reasoning or None, last_usage
                 )
 
                 if existing_message and self.alt_repo:
@@ -813,12 +831,8 @@ class ChatMessageService:
             yield StreamEvent(type="done", finish_reason=last_finish_reason or "stop")
 
         except Exception as e:
-            await self._record_llm_audit(
-                gateway=gateway,
-                api_messages=api_messages,
-                chat_id=chat_id,
-                latency_ms=(time.perf_counter() - start) * 1000,
-                error=e,
+            await self._audit_error(
+                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             logger.error(f"Error during streaming: {e!s}")
             yield StreamEvent(type="error", message=str(e), code=_classify_error(e))
@@ -888,12 +902,8 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._record_llm_audit(
-                gateway=gateway,
-                api_messages=api_messages,
-                chat_id=chat_id,
-                latency_ms=(time.perf_counter() - start) * 1000,
-                error=e,
+            await self._audit_error(
+                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
