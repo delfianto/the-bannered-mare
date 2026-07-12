@@ -4,9 +4,10 @@ import re
 from typing import Literal
 
 import httpx
-from fastapi import HTTPException, status
 
+from src.core.base_service import get_or_404
 from src.core.config import settings
+from src.core.exceptions import ConflictError, ProviderException, ValidationError
 from src.core.logging import get_logger
 from src.core.persistence.base_model import utc_now
 from src.provider.discovery import get_discovery_client
@@ -74,13 +75,7 @@ class ProviderService:
 
     def get_by_id(self, provider_id: str) -> Provider:
         """Get provider by ID, raise 404 if not found"""
-        provider = self.provider_repo.find_by_id(provider_id)
-        if not provider:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Provider with ID '{provider_id}' not found",
-            )
-        return provider
+        return get_or_404(self.provider_repo, provider_id, "Provider")
 
     def create(
         self,
@@ -93,42 +88,27 @@ class ProviderService:
         # Validation logic remains same...
         if provider_type == ProviderType.CUSTOM:
             if not api_key_env_var:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Custom providers must specify api_key_env_var",
-                )
+                raise ValidationError("Custom providers must specify api_key_env_var")
 
             if not re.match(r"^[A-Z][A-Z0-9_]*$", api_key_env_var):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=(
-                        "Invalid api_key_env_var format. Must be uppercase with "
-                        "underscores (e.g., MY_CUSTOM_API_KEY)"
-                    ),
+                raise ValidationError(
+                    "Invalid api_key_env_var format. Must be uppercase with "
+                    "underscores (e.g., MY_CUSTOM_API_KEY)"
                 )
 
             if not base_url:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Custom providers must specify base_url",
-                )
+                raise ValidationError("Custom providers must specify base_url")
 
         elif api_key_env_var:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    f"Cannot specify api_key_env_var for {provider_type.value} provider. "
-                    f"This provider uses predefined environment variable"
-                ),
+            raise ValidationError(
+                f"Cannot specify api_key_env_var for {provider_type.value} provider. "
+                f"This provider uses predefined environment variable"
             )
 
         # Check if provider with same name already exists
         existing = self.provider_repo.find_by_name(name)
         if existing:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Provider with name '{name}' already exists",
-            )
+            raise ConflictError(f"Provider with name '{name}' already exists")
 
         provider = Provider(
             name=name,
@@ -164,21 +144,15 @@ class ProviderService:
         # Validate api_key_env_var updates
         if api_key_env_var is not None:
             if provider.provider_type != ProviderType.CUSTOM:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=(
-                        f"Cannot update api_key_env_var for {provider.provider_type.value} "
-                        f"provider. This provider uses predefined environment variable"
-                    ),
+                raise ValidationError(
+                    f"Cannot update api_key_env_var for {provider.provider_type.value} "
+                    f"provider. This provider uses predefined environment variable"
                 )
 
             if not re.match(r"^[A-Z][A-Z0-9_]*$", api_key_env_var):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=(
-                        "Invalid api_key_env_var format. Must be uppercase with "
-                        "underscores (e.g., MY_CUSTOM_API_KEY)"
-                    ),
+                raise ValidationError(
+                    "Invalid api_key_env_var format. Must be uppercase with "
+                    "underscores (e.g., MY_CUSTOM_API_KEY)"
                 )
 
         if name is not None:
@@ -284,9 +258,8 @@ class ProviderService:
         """
         client = get_discovery_client(provider.provider_type)
         if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"{provider.provider_type.value} does not support model auto-detection",
+            raise ValidationError(
+                f"{provider.provider_type.value} does not support model auto-detection"
             )
 
         is_local = provider.provider_type in _LOCAL_PROVIDER_TYPES
@@ -306,13 +279,7 @@ class ProviderService:
                 cached = self.model_cache.get(provider.id)
                 if cached is not None:
                     return self._filter_blacklisted(cached), True
-            # Log the upstream detail server-side; don't echo it (the raw httpx
-            # error can carry the base_url/credentials and aids SSRF recon).
-            logger.warning("provider_unreachable", provider=provider.name, error=str(e))
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Could not reach provider '{provider.name}'.",
-            ) from e
+            raise self._unreachable(provider, e) from e
 
         provider.last_synced_at = utc_now()
         self.provider_repo.update(provider)
@@ -366,12 +333,12 @@ class ProviderService:
             return models
         return [m for m in models if m.identifier in allowed]
 
-    def _unreachable(self, provider: Provider, error: Exception) -> HTTPException:
-        """502 for an unreachable local provider (connect/timeout/HTTP error)."""
-        return HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Could not reach {provider.name}: {error}",
-        )
+    def _unreachable(self, provider: Provider, error: Exception) -> ProviderException:
+        """502 for an unreachable provider. Logs the upstream detail server-side;
+        the client message stays generic (the raw error can carry the
+        base_url/credentials and aids SSRF recon)."""
+        logger.warning("provider_unreachable", provider=provider.name, error=str(error))
+        return ProviderException(f"Could not reach provider '{provider.name}'.")
 
     def _run_model_action(
         self,
@@ -388,15 +355,14 @@ class ProviderService:
         provider = self.get_by_id(provider_id)
         client = get_discovery_client(provider.provider_type)
         if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"{provider.provider_type.value} does not support model {unsupported_noun}",
+            raise ValidationError(
+                f"{provider.provider_type.value} does not support model {unsupported_noun}"
             )
 
         try:
             getattr(client, method)(provider.get_base_url(), model_identifier)
         except NotImplementedError as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+            raise ValidationError(str(e)) from e
         except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
             raise self._unreachable(provider, e) from e
 

@@ -2,8 +2,8 @@
 
 import httpx
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import BanneredMareException, ProviderException
 from src.provider import (
     DiscoveredModel,
     Provider,
@@ -51,11 +51,11 @@ class TestProviderService:
         repo = ProviderRepository(db)
         service = ProviderService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
-        assert "not found" in exc_info.value.detail.lower()
+        assert "not found" in exc_info.value.message.lower()
 
     def test_create_provider_success(self, db: Session) -> None:
         """Test creating a provider successfully"""
@@ -83,14 +83,14 @@ class TestProviderService:
         # Try to create duplicate
         repo = ProviderRepository(db)
         service = ProviderService(repo)
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.create(
                 name="OpenAI",
                 provider_type=ProviderType.ANTHROPIC,
             )
 
-        assert exc_info.value.status_code == 400
-        assert "already exists" in exc_info.value.detail.lower()
+        assert exc_info.value.status_code == 409
+        assert "already exists" in exc_info.value.message.lower()
 
     def test_create_provider_minimal(self, db: Session) -> None:
         """Test creating a CUSTOM provider with api_key_env_var"""
@@ -158,7 +158,7 @@ class TestProviderService:
         repo = ProviderRepository(db)
         service = ProviderService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.update("nonexistent-id", name="New Name")
 
         assert exc_info.value.status_code == 404
@@ -261,10 +261,10 @@ class TestProviderServiceDiscovery:
         monkeypatch.setattr(src.provider.service, "get_discovery_client", lambda x: None)
 
         service = ProviderService(ProviderRepository(db))
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.list_available_models(provider.id)
 
-        assert exc_info.value.status_code == 400
+        assert exc_info.value.status_code == 422
 
     def test_list_available_models_live_fetch_then_cache_hit(
         self, db: Session, monkeypatch: pytest.MonkeyPatch
@@ -366,10 +366,9 @@ class TestProviderServiceDiscovery:
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
         service = ProviderService(ProviderRepository(db))
-        with pytest.raises(HTTPException) as exc_info:
+        # ProviderException maps to HTTP 502 via the global handler.
+        with pytest.raises(ProviderException):
             service.list_available_models(provider.id)
-
-        assert exc_info.value.status_code == 502
 
     def test_load_model_invalidates_cache(
         self, db: Session, monkeypatch: pytest.MonkeyPatch
