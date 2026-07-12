@@ -9,6 +9,13 @@ from src.chat_message.models import Message
 from src.core.persistence.base_repository_async import AsyncBaseRepository
 from src.core.persistence.models import MessageAlternative
 
+# Upper bound on messages loaded to build one prompt. The prompt builder already
+# truncates history by token budget and lore/RAG only scan the last few turns, so
+# only the newest messages ever matter. This caps an otherwise unbounded per-turn
+# load on very long chats — realistic RP turns are 50-300 tokens, so 500 messages
+# far exceeds any context window.
+MAX_PROMPT_HISTORY = 500
+
 
 class AsyncMessageAlternativeRepository(AsyncBaseRepository[MessageAlternative]):
     """Async repository for MessageAlternative data access"""
@@ -44,11 +51,20 @@ class AsyncMessageRepository(AsyncBaseRepository[Message]):
         """Initialize async Message repository"""
         super().__init__(db, Message)
 
-    async def find_by_chat_id(self, chat_id: str) -> list[Message]:
-        """Find all messages for a specific chat ordered by creation date"""
-        stmt = select(Message).where(Message.chat_id == chat_id).order_by(Message.created_at.asc())
+    async def find_by_chat_id(self, chat_id: str, limit: int = MAX_PROMPT_HISTORY) -> list[Message]:
+        """Return the newest ``limit`` messages for a chat, chronological (ascending).
+
+        Bounded because every caller builds a token-budgeted prompt or a
+        recent-turns transcript from the tail of the history — never the whole log.
+        """
+        stmt = (
+            select(Message)
+            .where(Message.chat_id == chat_id)
+            .order_by(Message.created_at.desc())
+            .limit(limit)
+        )
         result = await self.db.execute(stmt)
-        return list(result.scalars().all())
+        return list(reversed(list(result.scalars().all())))
 
     async def find_latest_by_chat_id(
         self, chat_id: str, limit: int, before: datetime | None = None
