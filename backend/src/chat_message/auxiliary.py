@@ -9,14 +9,13 @@ disposable outputs kept off the main send/regenerate path. The ``reply`` and
 import time
 from typing import Any
 
-from fastapi import HTTPException, status
-
 from src.chat_message import gateway_factory, llm_audit, transcripts
 from src.chat_message.context import MessageContextBuilder
 from src.chat_message.helpers import get_chat_or_404
 from src.chat_message.normalize import parse_structured_list
 from src.chat_message.repository_async import AsyncMessageRepository
 from src.chat_session.repository_async import AsyncChatRepository
+from src.core.exceptions import ProviderException
 
 # Appended to the cheap suggestion/tone prompts. Reply candidates and tone chips
 # are throwaway scaffolding, so the task model should answer immediately with a
@@ -136,10 +135,7 @@ class AuxiliaryGenerationService:
             await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error communicating with AI provider: {e!s}",
-            ) from e
+            raise ProviderException("Error communicating with AI provider.") from e
 
         await llm_audit.record_llm_audit(
             gateway=gateway,
@@ -180,10 +176,7 @@ class AuxiliaryGenerationService:
             await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error communicating with AI provider: {e!s}",
-            ) from e
+            raise ProviderException("Error communicating with AI provider.") from e
 
         title = transcripts.clean_title(response.content or "")
         if title:

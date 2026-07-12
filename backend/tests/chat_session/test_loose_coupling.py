@@ -1,13 +1,13 @@
 """Tests for Loose Coupling between ChatSession and Model"""
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_message import AsyncMessageRepository, ChatMessageService
 from src.chat_session import Chat, ChatRepository, ChatService
 from src.chat_session.repository_async import AsyncChatRepository
+from src.core.exceptions import BanneredMareException
 from src.model import ModelRepository, ModelService
 from src.model_family.repository import ModelFamilyRepository
 from src.profile.repository import ProfileRepository
@@ -95,11 +95,11 @@ class TestLooseCoupling:
         service = ChatMessageService(message_repo, chat_repo, prompt_builder)
 
         # 3. Call send_message and expect 400
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             await service.send_message(chat_id, "Hello")
 
-        assert exc_info.value.status_code == 400
-        assert "Chat does not have a valid model assigned" in exc_info.value.detail
+        assert exc_info.value.status_code == 422
+        assert "Chat does not have a valid model assigned" in exc_info.value.message
 
     @pytest.mark.asyncio
     async def test_send_message_stream_fails_without_model(
@@ -124,9 +124,9 @@ class TestLooseCoupling:
         service = ChatMessageService(message_repo, chat_repo, prompt_builder)
 
         # 3. Call send_message_stream and expect 400
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             async for _ in service.send_message_stream(chat_id, "Hello"):
                 pass
 
-        assert exc_info.value.status_code == 400
-        assert "Chat does not have a valid model assigned" in exc_info.value.detail
+        assert exc_info.value.status_code == 422
+        assert "Chat does not have a valid model assigned" in exc_info.value.message
