@@ -12,13 +12,14 @@ from src.provider.adapters.gemini import GeminiAdapter
 from src.provider.adapters.lmstudio import LMStudioAdapter
 from src.provider.adapters.ollama import OllamaAdapter
 from src.provider.adapters.openai import OpenAIAdapter
+from src.provider.adapters.openrouter import OpenRouterAdapter
 
 _REGISTRY: dict[ProviderType, type[ProviderAdapter]] = {
     ProviderType.OPENAI: OpenAIAdapter,
     ProviderType.ANTHROPIC: AnthropicAdapter,
     ProviderType.GOOGLE: GeminiAdapter,
     ProviderType.XAI: OpenAIAdapter,
-    ProviderType.OPENROUTER: OpenAIAdapter,
+    ProviderType.OPENROUTER: OpenRouterAdapter,
     ProviderType.OLLAMA: OllamaAdapter,
     ProviderType.LMSTUDIO: LMStudioAdapter,
     ProviderType.OPENCODE: OpenAIAdapter,

@@ -95,14 +95,23 @@ class OpenAIAdapter(ProviderAdapter):
         ):
             payload["reasoning"] = {"enabled": thinking["type"] != "disabled"}
 
-        # Disable reasoning for throwaway auxiliary calls. "none" is the only value
-        # that actually stops reasoning on local servers (LM Studio) and is valid on
-        # current GPT-5.1/5.2; it is authoritative over any graded value above.
+        # Disable reasoning for throwaway auxiliary calls, via this transport's
+        # mechanism (subclasses override _disable_reasoning).
         if minimize_reasoning:
-            payload["reasoning_effort"] = "none"
-            payload.pop("reasoning", None)
+            self._disable_reasoning(payload)
 
         return payload
+
+    def _disable_reasoning(self, payload: dict[str, Any]) -> None:
+        """Turn reasoning off for a throwaway call — OpenAI-native / local surface.
+
+        The ``reasoning_effort`` "none" tier is the disable switch on native OpenAI
+        (GPT-5.1+) and is honored by LM Studio; it is authoritative over any graded
+        value or reasoning object set earlier. Aggregators with a different contract
+        (OpenRouter) override this.
+        """
+        payload["reasoning_effort"] = "none"
+        payload.pop("reasoning", None)
 
     def parse_response(self, data: dict[str, Any]) -> CompletionResponse:
         choice = data.get("choices", [{}])[0]

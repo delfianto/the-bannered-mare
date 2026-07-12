@@ -1,11 +1,14 @@
 """Unit tests for provider adapters — pure data transformation, no mocking needed."""
 
+from src.core.persistence.enums import ProviderType
+from src.provider.adapters import get_adapter
 from src.provider.adapters.anthropic import AnthropicAdapter
 from src.provider.adapters.base import TokenUsage
 from src.provider.adapters.gemini import GeminiAdapter
 from src.provider.adapters.lmstudio import LMStudioAdapter, strip_v1_suffix
 from src.provider.adapters.ollama import OllamaAdapter
 from src.provider.adapters.openai import OpenAIAdapter
+from src.provider.adapters.openrouter import OpenRouterAdapter
 
 
 class TestTokenUsage:
@@ -169,6 +172,31 @@ class TestOpenAIAdapter:
         assert chunk is not None
         assert chunk.reasoning == "thinking..."
         assert chunk.content is None
+
+
+class TestOpenRouterAdapter:
+    def setup_method(self):
+        self.adapter = OpenRouterAdapter()
+
+    def test_registry_maps_openrouter_to_this_adapter(self):
+        assert isinstance(get_adapter(ProviderType.OPENROUTER), OpenRouterAdapter)
+
+    def test_minimize_reasoning_uses_reasoning_enabled_false(self):
+        # OpenRouter's universal disable — NOT reasoning_effort "none" (which its
+        # open-weight models like Kimi, that only accept low/med/high, would reject).
+        params = {"reasoning_effort": "high", "temperature": 0.7}
+        payload = self.adapter.build_payload(
+            [], "moonshotai/kimi-k2.6", False, params, minimize_reasoning=True
+        )
+        assert payload["reasoning"] == {"enabled": False}
+        assert "reasoning_effort" not in payload
+        assert payload["temperature"] == 0.7  # other params still forwarded
+
+    def test_inherits_openai_wire_format(self):
+        # Sanity: still an OpenAI-compatible /chat/completions body.
+        payload = self.adapter.build_payload([{"role": "user", "content": "hi"}], "m", False, {})
+        assert payload["model"] == "m"
+        assert payload["messages"] == [{"role": "user", "content": "hi"}]
 
 
 class TestAnthropicAdapter:
