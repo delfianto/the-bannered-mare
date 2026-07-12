@@ -31,6 +31,7 @@ POOLSIDE_FAMILIES: list[ModelFamilySeedData] = [
             "stop",
         ],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "poolside",
             "developer": "poolside",
             "context_window": 262144,

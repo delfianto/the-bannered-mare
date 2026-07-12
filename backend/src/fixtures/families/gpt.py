@@ -55,6 +55,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": _UNSUPPORTED_CHAT,
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "gpt",
             "developer": "openai",
             "context_window": 128000,
@@ -79,6 +80,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": _UNSUPPORTED_CHAT,
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "gpt",
             "developer": "openai",
             "context_window": 1000000,
@@ -106,6 +108,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": _UNSUPPORTED_CHAT,
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "gpt",
             "developer": "openai",
             "context_window": 400000,
@@ -156,6 +159,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": _UNSUPPORTED_THINKING,
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "gpt",
             "developer": "openai",
             "context_window": 1000000,
@@ -211,6 +215,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": _UNSUPPORTED_THINKING,
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "gpt",
             "developer": "openai",
             "context_window": 1050000,

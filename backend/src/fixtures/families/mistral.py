@@ -37,6 +37,7 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
         "parameters": {**_MISTRAL_RP_PARAMS},
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "mistral",
             "base_family": "Mistral Nemo 12B",
             "base_model": "mistralai/Mistral-Nemo-Base-2407",
@@ -72,6 +73,7 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
         "parameters": {**_MISTRAL_RP_PARAMS},
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "mistral",
             "base_family": "Mistral Small 24B (3.1 / 3.2, incl. Magistral)",
             "base_models": [

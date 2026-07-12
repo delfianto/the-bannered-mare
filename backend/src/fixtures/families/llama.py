@@ -43,6 +43,7 @@ LLAMA_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "llama",
             "developer": "meta + community",
             # 3.1/3.3 are 128K; classic Llama-3 finetunes (Stheno v3.2, Euryale v2.1,

@@ -87,6 +87,13 @@ class TestOpenAIAdapter:
         assert payload["reasoning_effort"] == "high"
         assert "reasoning" not in payload
 
+    def test_minimize_reasoning_forces_effort_none(self):
+        # Authoritative over any graded value/reasoning object the params carry.
+        params = {"reasoning_effort": "high", "thinking": {"type": "enabled"}}
+        payload = self.adapter.build_payload([], "gemma", False, params, minimize_reasoning=True)
+        assert payload["reasoning_effort"] == "none"
+        assert "reasoning" not in payload
+
     def test_parse_response(self):
         data = {
             "choices": [{"message": {"content": "Hi!"}, "finish_reason": "stop"}],
@@ -219,6 +226,15 @@ class TestAnthropicAdapter:
         payload = self.adapter.build_payload([], "claude-haiku-4-5", False, {"top_p": 0.9})
         assert payload["top_p"] == 0.9
         assert "temperature" not in payload
+
+    def test_minimize_reasoning_disables_thinking(self):
+        # Authoritative over a forwarded thinking mode and adaptive-effort config.
+        params = {"thinking": {"type": "enabled"}, "effort": "high"}
+        payload = self.adapter.build_payload(
+            [], "claude-opus-4-8", False, params, minimize_reasoning=True
+        )
+        assert payload["thinking"] == {"type": "disabled"}
+        assert "output_config" not in payload
 
     def test_parse_response(self):
         data = {
@@ -384,6 +400,18 @@ class TestGeminiAdapter:
     def test_thinking_level_forwarded(self):
         payload = self.adapter.build_payload([], "gemini-3-pro", False, {"thinking_level": "high"})
         assert payload["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "high"}
+
+    def test_minimize_reasoning_uses_declared_control(self):
+        # 2.5 disables via budget 0; 3.x drops to the minimal level. Authoritative
+        # over whatever level/budget the params carry.
+        budget = self.adapter.build_payload(
+            [], "gemini-2.5-pro", False, {"thinking_budget": 2048}, minimize_reasoning=True
+        )
+        assert budget["generationConfig"]["thinkingConfig"] == {"thinkingBudget": 0}
+        level = self.adapter.build_payload(
+            [], "gemini-3-pro", False, {"thinking_level": "high"}, minimize_reasoning=True
+        )
+        assert level["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "minimal"}
 
     def test_media_resolution_forwarded(self):
         payload = self.adapter.build_payload(

@@ -42,6 +42,7 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "glm",
             "developer": "zhipu",
             "context_window": 200000,
@@ -72,6 +73,7 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "glm",
             "developer": "zhipu",
             "context_window": 262144,

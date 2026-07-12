@@ -23,6 +23,7 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "claude-sonnet",
             "context_window": 500000,
             "supports_vision": True,
@@ -46,6 +47,7 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "claude-sonnet",
             "context_window": 1000000,
             "supports_vision": True,
@@ -72,6 +74,7 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": ["temperature", "top_p", "top_k", "budget_tokens"],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "claude-sonnet",
             "context_window": 1000000,
             "supports_vision": True,

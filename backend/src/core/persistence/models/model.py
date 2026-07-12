@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, final
 from sqlalchemy import JSON, Boolean, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.core.persistence.enums import ReasoningMode
 from src.core.persistence.models._base import BaseModel, StringList
 
 if TYPE_CHECKING:
@@ -196,3 +197,17 @@ class ModelFamily(BaseModel):
     )
 
     models: Mapped[list[ModelRegistry]] = relationship(back_populates="model_family")
+
+    @property
+    def reasoning_mode(self) -> ReasoningMode:
+        """Declared reasoning capability, read from ``extra_metadata['reasoning_mode']``.
+
+        The authoritative signal for whether reasoning applies and can be disabled;
+        defaults to ``NONE`` (and tolerates an unknown value) so callers never need
+        to sniff the parameter schema.
+        """
+        raw = (self.extra_metadata or {}).get("reasoning_mode")
+        try:
+            return ReasoningMode(raw) if raw else ReasoningMode.NONE
+        except ValueError:
+            return ReasoningMode.NONE

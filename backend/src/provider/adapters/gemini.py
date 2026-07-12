@@ -74,6 +74,7 @@ class GeminiAdapter(ProviderAdapter):
         model: str,
         stream: bool,
         parameters: dict[str, Any],
+        minimize_reasoning: bool = False,
     ) -> dict[str, Any]:
         system_parts: list[str] = []
         contents: list[dict[str, Any]] = []
@@ -114,6 +115,13 @@ class GeminiAdapter(ProviderAdapter):
         thinking_level = parameters.get("thinking_level")
         if thinking_level is not None:
             thinking_config["thinkingLevel"] = thinking_level
+        # Auxiliary calls minimize thinking, expressed in whichever control the
+        # family declares (2.5: budget 0 disables; 3.x: the lowest "minimal" tier).
+        if minimize_reasoning:
+            if "thinking_budget" in parameters:
+                thinking_config = {"thinkingBudget": 0}
+            else:
+                thinking_config = {"thinkingLevel": "minimal"}
         if thinking_config:
             generation_config["thinkingConfig"] = thinking_config
 

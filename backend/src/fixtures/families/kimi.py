@@ -42,6 +42,7 @@ KIMI_FAMILIES: list[ModelFamilySeedData] = [
         # first-party OpenRouter endpoint omits them).
         "unsupported_parameters": ["top_k"],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "kimi",
             "developer": "moonshot",
             "context_window": 262144,

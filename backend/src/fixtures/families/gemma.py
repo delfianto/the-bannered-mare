@@ -43,6 +43,7 @@ GEMMA_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "gemma",
             "developer": "google",
             "context_window": 262144,
