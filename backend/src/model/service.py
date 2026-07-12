@@ -6,16 +6,16 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm.attributes import flag_modified
 
 from src.model import parameter_validation
-from src.model.lineage import normalize_slug
+from src.model.lineage import normalize_slug, resolve_family
 from src.model.models import ModelRegistry, ModelRoute
 from src.model.repository import ModelRepository
 from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
-from src.provider.models import Provider
-from src.provider.repository import ProviderRepository
 
 if TYPE_CHECKING:
     from src.chat_session.repository import ChatRepository
+    from src.provider.models import Provider
+    from src.provider.repository import ProviderRepository
 
 
 class ModelService:
@@ -187,6 +187,51 @@ class ModelService:
         self.model_repo.commit()
         self.model_repo.refresh(registry)
         return registry
+
+    def persist_discovered_model(self, provider_id: str, model_identifier: str) -> ModelRegistry:
+        """Persist a discovered model: attach a route to the matching (or new) canonical model.
+
+        If a route already exists for ``(provider, identifier)`` its canonical model is
+        returned. Otherwise the identifier is matched to an existing canonical model by
+        its provider-independent slug (adding this provider as a new route), or a new
+        canonical model is created with a best-effort family guess — the user can correct
+        the family/slug afterward.
+        """
+        # Already routed on this provider → return the owning canonical model.
+        existing_route = self.model_repo.find_route_by_provider_identifier(
+            provider_id, model_identifier
+        )
+        if existing_route:
+            return self.get_by_id(existing_route.model_registry_id)
+
+        # Same canonical model reached through another provider → add this route to it.
+        slug = normalize_slug(model_identifier)
+        registry = self.model_repo.find_by_slug(slug)
+        if registry:
+            return self.add_route(
+                registry.id, provider_id=provider_id, model_identifier=model_identifier
+            )
+
+        # New canonical model: best-effort family match, else any configured family
+        # (the user can correct it afterward).
+        family = (
+            resolve_family(self.family_repo.db, model_identifier) or self.family_repo.find_first()
+        )
+        if family is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Cannot persist a discovered model: no model families are configured.",
+            )
+        friendly_name = (
+            model_identifier.replace(":", " ").replace("-", " ").replace("/", " ").title()
+        )
+        return self.create(
+            display_name=friendly_name,
+            model_family_id=family.id,
+            routes=[{"provider_id": provider_id, "model_identifier": model_identifier}],
+            slug=slug,
+            enabled=True,
+        )
 
     def update(
         self,

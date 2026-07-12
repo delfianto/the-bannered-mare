@@ -49,6 +49,11 @@ class ModelFamilyRepository(BaseRepository[ModelFamily]):
 
         return items, total
 
+    def find_first(self) -> ModelFamily | None:
+        """Return any one family (name-ordered for determinism), or None if none exist."""
+        stmt = select(ModelFamily).order_by(func.lower(ModelFamily.name), ModelFamily.id).limit(1)
+        return self.db.execute(stmt).scalars().first()
+
     def find_by_name(self, name: str) -> ModelFamily | None:
         """
         Find a model family by name.
