@@ -1,7 +1,6 @@
 """Data Bank CRUD business logic service"""
 
-from fastapi import HTTPException
-
+from src.core.base_service import get_or_404
 from src.core.persistence import gen_id
 from src.rag.models import DataBankEntry
 from src.rag.repository import DataBankRepository
@@ -26,10 +25,7 @@ class DataBankService:
 
     def get_by_id(self, entry_id: str) -> DataBankEntry:
         """Get entry by ID, raise 404 if not found."""
-        entry = self.repo.find_by_id(entry_id)
-        if not entry:
-            raise HTTPException(status_code=404, detail="Data bank entry not found")
-        return entry
+        return get_or_404(self.repo, entry_id, "Data bank entry")
 
     def create(
         self,

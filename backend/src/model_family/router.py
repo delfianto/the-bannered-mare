@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, Query, status
 
-from src.core.schemas import PaginatedResponse, PaginationMeta
+from src.core.schemas import PaginatedResponse, page_response
 from src.fixtures.parameter_definitions import PARAMETER_DEFINITIONS_SEED_DATA
 from src.model_family.dependencies import ModelFamilyServiceDep
 from src.model_family.schemas import (
@@ -35,13 +35,7 @@ def list_model_families(
         limit=limit, offset=offset, filters=filter_params.to_filter_dict()
     )
 
-    # Calculate has_more for page-based pagination
-    has_more = (offset + limit) < total
-
-    return PaginatedResponse(
-        items=items,
-        meta=PaginationMeta(limit=limit, has_more=has_more, total=total, page=page, cursor=None),
-    )
+    return page_response(items, total, page, limit)
 
 
 @router.post("", response_model=ModelFamilyResponse, status_code=status.HTTP_201_CREATED)

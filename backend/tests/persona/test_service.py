@@ -1,8 +1,8 @@
 """Tests for PersonaService"""
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import NotFoundError
 from src.persona import Persona, PersonaRepository, PersonaService
 
 
@@ -44,11 +44,11 @@ class TestPersonaService:
         repo = PersonaRepository(db)
         service = PersonaService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = service.get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
-        assert "not found" in exc_info.value.detail.lower()
+        assert "not found" in exc_info.value.message.lower()
 
     @pytest.mark.asyncio
     async def test_create_persona_basic(self, db: Session) -> None:
@@ -163,7 +163,7 @@ class TestPersonaService:
         repo = PersonaRepository(db)
         service = PersonaService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = await service.update("nonexistent-id", name="New Name")
 
         assert exc_info.value.status_code == 404
@@ -189,7 +189,7 @@ class TestPersonaService:
         repo = PersonaRepository(db)
         service = PersonaService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.delete("nonexistent-id")
 
         assert exc_info.value.status_code == 404
@@ -216,7 +216,7 @@ class TestPersonaService:
         repo = PersonaRepository(db)
         service = PersonaService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = service.set_default("nonexistent-id")
 
         assert exc_info.value.status_code == 404

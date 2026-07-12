@@ -2,6 +2,7 @@
 
 from fastapi import HTTPException
 
+from src.core.base_service import get_or_404
 from src.core.persistence import gen_id
 from src.core.utils.template import TemplateService
 from src.prompt_fragment.models import PromptFragment, TemplateFragment
@@ -60,10 +61,7 @@ class FragmentService:
 
     def get_by_id(self, fragment_id: str) -> PromptFragment:
         """Get fragment by ID, raise 404 if not found"""
-        fragment = self.fragment_repo.find_by_id(fragment_id)
-        if not fragment:
-            raise HTTPException(status_code=404, detail="Prompt fragment not found")
-        return fragment
+        return get_or_404(self.fragment_repo, fragment_id, "Prompt fragment")
 
     def create(
         self,

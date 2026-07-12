@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse, Response
 from src.character.dependencies import CharacterServiceDep
 from src.character.schemas import CharacterFilterParams, CharacterResponse
 from src.core.config import settings
-from src.core.schemas import PaginatedResponse, PaginationMeta
+from src.core.schemas import PaginatedResponse, page_response
 
 router = APIRouter(prefix="/api/characters", tags=["characters"])
 
@@ -27,13 +27,7 @@ def list_characters(
         limit=limit, offset=offset, filters=filter_params.to_filter_dict()
     )
 
-    # Calculate has_more for page-based pagination
-    has_more = (offset + limit) < total
-
-    return PaginatedResponse(
-        items=items,
-        meta=PaginationMeta(limit=limit, has_more=has_more, total=total, page=page, cursor=None),
-    )
+    return page_response(items, total, page, limit)
 
 
 @router.post("", response_model=CharacterResponse, status_code=status.HTTP_201_CREATED)

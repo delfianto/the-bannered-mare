@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import NotFoundError
 from src.model_family import (
     ModelFamily,
     ModelFamilyCreate,
@@ -113,7 +114,7 @@ class TestModelFamilyService:
         repo = ModelFamilyRepository(db)
         service = ModelFamilyService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = service.get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
@@ -217,7 +218,7 @@ class TestModelFamilyService:
         service = ModelFamilyService(repo)
 
         family_data = ModelFamilyUpdate.model_construct(name="New Name")
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = service.update("nonexistent-id", family_data)
 
         assert exc_info.value.status_code == 404
@@ -252,7 +253,7 @@ class TestModelFamilyService:
         repo = ModelFamilyRepository(db)
         service = ModelFamilyService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.delete("nonexistent-id")
 
         assert exc_info.value.status_code == 404

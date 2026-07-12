@@ -2,8 +2,9 @@
 
 from typing import Any
 
-from fastapi import HTTPException, UploadFile
+from fastapi import UploadFile
 
+from src.core.base_service import get_or_404
 from src.core.persistence import gen_id
 from src.core.utils.storage import delete_persona_files, save_persona_avatar
 from src.persona.models import Persona
@@ -28,10 +29,7 @@ class PersonaService:
 
     def get_by_id(self, persona_id: str) -> Persona:
         """Get persona by ID, raise 404 if not found"""
-        persona = self.persona_repo.find_by_id(persona_id)
-        if not persona:
-            raise HTTPException(status_code=404, detail="Persona not found")
-        return persona
+        return get_or_404(self.persona_repo, persona_id, "Persona")
 
     async def create(
         self,

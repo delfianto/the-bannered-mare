@@ -3,6 +3,7 @@
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import NotFoundError
 from src.core.persistence import PromptTemplate, gen_id
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_fragment.service import FragmentService
@@ -112,14 +113,14 @@ class TestFragmentCRUD:
         fragment = service.create(name="ToDelete", content="Bye")
         service.delete(fragment.id)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.get_by_id(fragment.id)
         assert exc_info.value.status_code == 404
 
     def test_get_by_id_not_found(self, db: Session) -> None:
         service = _make_service(db)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.get_by_id("nonexistent")
         assert exc_info.value.status_code == 404
 
@@ -282,7 +283,7 @@ class TestTemplateFragmentAttachment:
         service = _make_service(db)
         template = _make_template(db)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.attach_to_template(template.id, "nonexistent")
         assert exc_info.value.status_code == 404
 

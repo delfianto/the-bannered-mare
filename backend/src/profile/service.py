@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import HTTPException, status
 
+from src.core.base_service import get_or_404
 from src.core.persistence import gen_id
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
@@ -40,10 +41,7 @@ class ProfileService:
 
     def get_by_id(self, profile_id: str) -> Profile:
         """Get profile by ID, raise 404 if not found"""
-        profile = self.profile_repo.find_by_id(profile_id)
-        if not profile:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
-        return profile
+        return get_or_404(self.profile_repo, profile_id, "Profile")
 
     def create(
         self,

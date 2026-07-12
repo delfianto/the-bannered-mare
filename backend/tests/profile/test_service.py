@@ -3,6 +3,7 @@
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import NotFoundError
 from src.core.persistence import Preset, PromptTemplate
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
@@ -98,11 +99,11 @@ class TestProfileService:
         profile = service.create(name="ToDelete")
         service.delete(profile.id)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.get_by_id(profile.id)
         assert exc_info.value.status_code == 404
 
     def test_get_by_id_not_found(self, db: Session) -> None:
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _service(db).get_by_id("nonexistent")
         assert exc_info.value.status_code == 404
