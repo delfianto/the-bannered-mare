@@ -3,7 +3,7 @@
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from fastapi import HTTPException, status
 
@@ -39,9 +39,6 @@ from src.provider.adapters.base import TokenUsage
 from src.provider.completion_outcome import CompletionOutcome, classify_completion
 from src.provider.gateway import ProviderGateway
 from src.rag.retrieval_service import RetrievalService
-
-if TYPE_CHECKING:
-    pass
 
 logger = get_logger(__name__)
 
