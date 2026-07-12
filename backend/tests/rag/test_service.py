@@ -1,8 +1,8 @@
 """Tests for DataBankService"""
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import NotFoundError
 from src.rag.repository import DataBankRepository
 from src.rag.service import DataBankService
 
@@ -72,17 +72,17 @@ class TestDataBankCRUD:
         entry = service.create(name="ToDelete", content="Bye")
         service.delete(entry.id)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.get_by_id(entry.id)
         assert exc_info.value.status_code == 404
 
     def test_get_by_id_not_found(self, db: Session) -> None:
         service = _make_service(db)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.get_by_id("nonexistent")
         assert exc_info.value.status_code == 404
-        assert "Data bank entry not found" in str(exc_info.value.detail)
+        assert "Data bank entry not found" in exc_info.value.message
 
 
 class TestDataBankListing:

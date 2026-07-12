@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
-from src.core.schemas import PaginatedResponse, PaginationMeta
+from src.core.schemas import PaginatedResponse, page_response
 from src.prompt_fragment.dependencies import FragmentServiceDep
 from src.prompt_fragment.schemas import (
     AttachFragmentRequest,
@@ -40,11 +40,7 @@ def list_fragments(
         is_global=is_global,
         unused_only=unused_only,
     )
-    has_more = (offset + limit) < total
-    return PaginatedResponse(
-        items=items,
-        meta=PaginationMeta(limit=limit, has_more=has_more, total=total, page=page, cursor=None),
-    )
+    return page_response(items, total, page, limit)
 
 
 @fragment_router.post("/", response_model=FragmentResponse, status_code=status.HTTP_201_CREATED)

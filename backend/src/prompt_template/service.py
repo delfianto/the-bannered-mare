@@ -5,6 +5,7 @@ from typing import Any
 
 from fastapi import HTTPException
 
+from src.core.base_service import get_or_404
 from src.core.persistence import gen_id
 from src.core.utils.template import TemplateService
 from src.prompt_fragment.repository import FragmentRepository
@@ -36,10 +37,7 @@ class PromptTemplateService:
 
     def get_by_id(self, template_id: str) -> PromptTemplate:
         """Get prompt template by ID, raise 404 if not found"""
-        template = self.template_repo.find_by_id(template_id)
-        if not template:
-            raise HTTPException(status_code=404, detail="Prompt template not found")
-        return template
+        return get_or_404(self.template_repo, template_id, "Prompt template")
 
     def _validate_template_field(self, name: str, template_str: str | None) -> None:
         """Validate a Jinja2 template field, raising 400 if invalid."""

@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, Query, UploadFile, status
 
-from src.core.schemas import PaginatedResponse, PaginationMeta
+from src.core.schemas import PaginatedResponse, page_response
 from src.preset.dependencies import PresetServiceDep
 from src.preset.schemas import PresetCreate, PresetResponse, PresetUpdate
 from src.st_import.dependencies import STImportServiceDep
@@ -23,12 +23,7 @@ def list_presets(
     offset = (page - 1) * limit
     items, total = service.list_paginated(limit=limit, offset=offset)
 
-    has_more = (offset + limit) < total
-
-    return PaginatedResponse(
-        items=items,
-        meta=PaginationMeta(limit=limit, has_more=has_more, total=total, page=page, cursor=None),
-    )
+    return page_response(items, total, page, limit)
 
 
 @router.post("/", response_model=PresetResponse, status_code=status.HTTP_201_CREATED)

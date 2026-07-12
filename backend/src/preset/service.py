@@ -2,8 +2,7 @@
 
 from typing import Any
 
-from fastapi import HTTPException
-
+from src.core.base_service import get_or_404
 from src.core.persistence import gen_id
 from src.preset.models import Preset
 from src.preset.repository import PresetRepository
@@ -25,10 +24,7 @@ class PresetService:
 
     def get_by_id(self, preset_id: str) -> Preset:
         """Get preset by ID, raise 404 if not found"""
-        preset = self.preset_repo.find_by_id(preset_id)
-        if not preset:
-            raise HTTPException(status_code=404, detail="Preset not found")
-        return preset
+        return get_or_404(self.preset_repo, preset_id, "Preset")
 
     def create(
         self,

@@ -34,3 +34,17 @@ class PaginatedResponse[T](BaseModel):
 
     items: list[T]
     meta: PaginationMeta
+
+
+def page_response[T](items: list[T], total: int, page: int, limit: int) -> PaginatedResponse[T]:
+    """Build an offset/page-based PaginatedResponse.
+
+    Collapses the identical has_more/meta construction duplicated across the
+    list routers. ``has_more`` is ``page * limit < total`` (offset + limit).
+    """
+    return PaginatedResponse(
+        items=items,
+        meta=PaginationMeta(
+            limit=limit, has_more=(page * limit) < total, total=total, page=page, cursor=None
+        ),
+    )

@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import HTTPException, status
 
+from src.core.base_service import get_or_404
 from src.core.logging import get_logger
 from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
@@ -30,13 +31,7 @@ class ModelFamilyService:
 
     def get_by_id(self, family_id: str) -> ModelFamily:
         """Get model family details by ID, raise 404 if not found"""
-        family = self.family_repo.find_by_id(family_id)
-        if not family:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model family with ID '{family_id}' not found",
-            )
-        return family
+        return get_or_404(self.family_repo, family_id, "Model family")
 
     def create(self, family_data: ModelFamilyCreate) -> ModelFamily:
         """Create a new model family"""

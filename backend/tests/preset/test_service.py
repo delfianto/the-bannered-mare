@@ -1,8 +1,8 @@
 """Tests for PresetService"""
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import NotFoundError
 from src.preset.repository import PresetRepository
 from src.preset.service import PresetService
 
@@ -52,7 +52,7 @@ class TestPresetService:
         preset = service.create(name="ToDelete")
         service.delete(preset.id)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.get_by_id(preset.id)
         assert exc_info.value.status_code == 404
 
@@ -60,7 +60,7 @@ class TestPresetService:
         repo = PresetRepository(db)
         service = PresetService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.get_by_id("nonexistent")
         assert exc_info.value.status_code == 404
 

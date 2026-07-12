@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
-from src.core.schemas import PaginatedResponse, PaginationMeta
+from src.core.schemas import PaginatedResponse, page_response
 from src.profile.dependencies import ProfileServiceDep
 from src.profile.schemas import ProfileCreate, ProfileResponse, ProfileUpdate
 
@@ -19,12 +19,7 @@ def list_profiles(
     offset = (page - 1) * limit
     items, total = service.list_paginated(limit=limit, offset=offset)
 
-    has_more = (offset + limit) < total
-
-    return PaginatedResponse(
-        items=items,
-        meta=PaginationMeta(limit=limit, has_more=has_more, total=total, page=page, cursor=None),
-    )
+    return page_response(items, total, page, limit)
 
 
 @router.post("/", response_model=ProfileResponse, status_code=status.HTTP_201_CREATED)

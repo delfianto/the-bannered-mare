@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from fastapi.responses import FileResponse
 
 from src.core.config import settings
-from src.core.schemas import PaginatedResponse, PaginationMeta
+from src.core.schemas import PaginatedResponse, page_response
 from src.persona.dependencies import PersonaServiceDep
 from src.persona.schemas import PersonaFilterParams, PersonaResponse
 
@@ -27,13 +27,7 @@ def list_personas(
         limit=limit, offset=offset, filters=filter_params.to_filter_dict()
     )
 
-    # Calculate has_more for page-based pagination
-    has_more = (offset + limit) < total
-
-    return PaginatedResponse(
-        items=items,
-        meta=PaginationMeta(limit=limit, has_more=has_more, total=total, page=page, cursor=None),
-    )
+    return page_response(items, total, page, limit)
 
 
 @router.post("/", response_model=PersonaResponse, status_code=status.HTTP_201_CREATED)

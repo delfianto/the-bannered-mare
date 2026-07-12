@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from src.core.exceptions import NotFoundError
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_fragment.service import FragmentService
 from src.prompt_template import PromptTemplate, PromptTemplateRepository, PromptTemplateService
@@ -57,7 +58,7 @@ class TestPromptTemplateService:
         repo = PromptTemplateRepository(db)
         service = PromptTemplateService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = service.get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
@@ -218,7 +219,7 @@ class TestPromptTemplateService:
         repo = PromptTemplateRepository(db)
         service = PromptTemplateService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = service.update("nonexistent-id", name="New Name")
 
         assert exc_info.value.status_code == 404
@@ -247,7 +248,7 @@ class TestPromptTemplateService:
         repo = PromptTemplateRepository(db)
         service = PromptTemplateService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             service.delete("nonexistent-id")
 
         assert exc_info.value.status_code == 404
@@ -341,7 +342,7 @@ class TestPromptTemplateService:
         repo = PromptTemplateRepository(db)
         service = PromptTemplateService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundError) as exc_info:
             _ = service.set_default("nonexistent-id")
 
         assert exc_info.value.status_code == 404
