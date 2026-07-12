@@ -4,9 +4,9 @@ from typing import Any
 from unittest.mock import patch
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from src.chat_session import Chat, ChatRepository
+from src.core.exceptions import BanneredMareException
 from src.model import ModelRegistry, ModelRepository, ModelRoute, ModelService
 from src.model_family import ModelFamily, ModelFamilyRepository
 from src.provider import Provider, ProviderRepository, ProviderType
@@ -102,7 +102,7 @@ class TestModelServiceQueries:
         assert result.active_route.model_identifier == "gpt-4"
 
     def test_get_by_id_not_found(self, db: Session) -> None:
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = _service(db).get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
@@ -172,11 +172,11 @@ class TestModelServiceCreate:
         assert active.provider_id == provider2.id
 
     def test_create_requires_slug_or_route(self, db: Session, sample_family: Any) -> None:
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).create(display_name="X", model_family_id=sample_family.id)
 
-        assert exc.value.status_code == 400
-        assert "slug or at least one route" in exc.value.detail
+        assert exc.value.status_code == 422
+        assert "slug or at least one route" in exc.value.message
 
     def test_create_duplicate_slug_conflict(
         self, db: Session, sample_model: Any, sample_provider: Any, sample_family: Any
@@ -184,7 +184,7 @@ class TestModelServiceCreate:
         """sample_model already owns slug 'gpt-4'."""
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            pytest.raises(HTTPException) as exc,
+            pytest.raises(BanneredMareException) as exc,
         ):
             _service(db).create(
                 display_name="Dup",
@@ -194,7 +194,7 @@ class TestModelServiceCreate:
             )
 
         assert exc.value.status_code == 409
-        assert "slug 'gpt-4'" in exc.value.detail
+        assert "slug 'gpt-4'" in exc.value.message
 
     def test_create_rejects_invalid_parameter(
         self, db: Session, sample_provider: Any, sample_family: Any
@@ -202,7 +202,7 @@ class TestModelServiceCreate:
         """temperature above the family max is a 400."""
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            pytest.raises(HTTPException) as exc,
+            pytest.raises(BanneredMareException) as exc,
         ):
             _service(db).create(
                 display_name="Hot",
@@ -212,15 +212,15 @@ class TestModelServiceCreate:
                 routes=[{"provider_id": sample_provider.id, "model_identifier": "gpt-4-hot"}],
             )
 
-        assert exc.value.status_code == 400
-        assert "greater than" in exc.value.detail
+        assert exc.value.status_code == 422
+        assert "greater than" in exc.value.message
 
     def test_create_rejects_unknown_parameter(
         self, db: Session, sample_provider: Any, sample_family: Any
     ) -> None:
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            pytest.raises(HTTPException) as exc,
+            pytest.raises(BanneredMareException) as exc,
         ):
             _service(db).create(
                 display_name="Weird",
@@ -230,8 +230,8 @@ class TestModelServiceCreate:
                 routes=[{"provider_id": sample_provider.id, "model_identifier": "gpt-4-weird"}],
             )
 
-        assert exc.value.status_code == 400
-        assert "not defined in model family" in exc.value.detail
+        assert exc.value.status_code == 422
+        assert "not defined in model family" in exc.value.message
 
     def test_create_route_uniqueness_conflict(
         self, db: Session, sample_model: Any, sample_provider: Any, sample_family: Any
@@ -240,7 +240,7 @@ class TestModelServiceCreate:
         # sample_model routes (sample_provider, 'gpt-4') already.
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            pytest.raises(HTTPException) as exc,
+            pytest.raises(BanneredMareException) as exc,
         ):
             _service(db).create(
                 display_name="Clash",
@@ -250,10 +250,10 @@ class TestModelServiceCreate:
             )
 
         assert exc.value.status_code == 409
-        assert "already exists" in exc.value.detail
+        assert "already exists" in exc.value.message
 
     def test_create_route_provider_not_found(self, db: Session, sample_family: Any) -> None:
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).create(
                 display_name="Ghost",
                 model_family_id=sample_family.id,
@@ -262,7 +262,7 @@ class TestModelServiceCreate:
             )
 
         assert exc.value.status_code == 404
-        assert "Provider" in exc.value.detail
+        assert "Provider" in exc.value.message
 
     def test_create_rejects_provider_type_not_in_family(self, db: Session) -> None:
         """A family that can't run on the chosen provider type is a 400."""
@@ -275,7 +275,7 @@ class TestModelServiceCreate:
         db.add_all([provider, family])
         db.commit()
 
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).create(
                 display_name="X",
                 model_family_id=family.id,
@@ -283,8 +283,8 @@ class TestModelServiceCreate:
                 routes=[{"provider_id": provider.id, "model_identifier": "x"}],
             )
 
-        assert exc.value.status_code == 400
-        assert "cannot serve" in exc.value.detail
+        assert exc.value.status_code == 422
+        assert "cannot serve" in exc.value.message
 
     def test_create_allows_provider_type_in_family(self, db: Session) -> None:
         """LM Studio (keyless) is allowed once the family lists it."""
@@ -346,7 +346,7 @@ class TestModelServiceRoutes:
         """Re-adding the same (provider, identifier) is a 409."""
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            pytest.raises(HTTPException) as exc,
+            pytest.raises(BanneredMareException) as exc,
         ):
             _service(db).add_route(
                 sample_model.id,
@@ -399,7 +399,7 @@ class TestModelServiceRoutes:
         db.commit()
         db.refresh(other_route)
 
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).delete_route(sample_model.id, other_route.id)
 
         assert exc.value.status_code == 404
@@ -425,7 +425,7 @@ class TestModelServiceRoutes:
         assert model.active_route_id == second_route_id
 
     def test_set_active_route_not_belonging_404(self, db: Session, sample_model: Any) -> None:
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).set_active_route(sample_model.id, "not-a-route")
 
         assert exc.value.status_code == 404
@@ -471,7 +471,7 @@ class TestModelServiceUpdate:
     ) -> None:
         _bare_registry(db, sample_family.id, slug="taken", display_name="Taken")
 
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).update(sample_model.id, slug="taken")
 
         assert exc.value.status_code == 409
@@ -494,7 +494,7 @@ class TestModelServiceUpdate:
 
         _bare_registry(db, sample_family.id, slug="taken", display_name="Taken")
 
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).update(sample_model.id, display_name="Should Not Persist", slug="taken")
         assert exc.value.status_code == 409
 
@@ -520,15 +520,15 @@ class TestModelServiceUpdate:
         db.commit()
         db.refresh(strict)
 
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             _service(db).update(
                 sample_model.id,
                 model_family_id=strict.id,
                 parameters={"temperature": 1.8},  # ok under GPT (max 2.0), not under Strict
             )
 
-        assert exc.value.status_code == 400
-        assert "greater than" in exc.value.detail
+        assert exc.value.status_code == 422
+        assert "greater than" in exc.value.message
 
     def test_update_rejects_family_change_incompatible_with_existing_route(
         self, db: Session, sample_model: Any
@@ -543,12 +543,12 @@ class TestModelServiceUpdate:
         db.commit()
         db.refresh(cloud)
 
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             # sample_model's route is on an OpenAI provider.
             _service(db).update(sample_model.id, model_family_id=cloud.id)
 
-        assert exc.value.status_code == 400
-        assert "incompatible" in exc.value.detail
+        assert exc.value.status_code == 422
+        assert "incompatible" in exc.value.message
 
     def test_update_flags(self, db: Session, sample_model: Any) -> None:
         updated = _service(db).update_flags(sample_model.id, enabled=False)
@@ -579,7 +579,7 @@ class TestModelServiceUpdate:
         assert refreshed.model_id is None
 
     def test_delete_model_not_found(self, db: Session) -> None:
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _service(db).delete("nonexistent-id")
 
         assert exc_info.value.status_code == 404

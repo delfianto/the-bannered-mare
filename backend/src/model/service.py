@@ -2,9 +2,10 @@
 
 from typing import TYPE_CHECKING, Any
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm.attributes import flag_modified
 
+from src.core.base_service import get_or_404
+from src.core.exceptions import ConflictError, NotFoundError, ValidationError
 from src.model import parameter_validation
 from src.model.lineage import normalize_slug, resolve_family
 from src.model.models import ModelRegistry, ModelRoute
@@ -45,59 +46,32 @@ class ModelService:
 
     def get_by_id(self, model_id: str) -> ModelRegistry:
         """Get a canonical model by ID, raise 404 if not found."""
-        model = self.model_repo.find_by_id(model_id)
-        if not model:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model with ID '{model_id}' not found",
-            )
-        return model
+        return get_or_404(self.model_repo, model_id, "Model")
 
     # ── Validation ───────────────────────────────────────────
     def _get_family(self, model_family_id: str) -> ModelFamily:
-        family = self.family_repo.find_by_id(model_family_id)
-        if not family:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model Family with ID '{model_family_id}' not found",
-            )
-        return family
+        return get_or_404(self.family_repo, model_family_id, "Model family")
 
     def _validate_route(
         self, provider_id: str, model_identifier: str, family: ModelFamily
     ) -> Provider:
         """A route's provider must exist, be keyed, serve the family, and be unique."""
-        provider = self.provider_repo.find_by_id(provider_id)
-        if not provider:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Provider with ID '{provider_id}' not found",
-            )
+        provider = get_or_404(self.provider_repo, provider_id, "Provider")
         if not provider.has_api_key():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    f"Cannot add route: Provider '{provider.name}' requires "
-                    f"{provider.get_env_var_name()} environment variable."
-                ),
+            raise ValidationError(
+                f"Cannot add route: Provider '{provider.name}' requires "
+                f"{provider.get_env_var_name()} environment variable."
             )
         if provider.provider_type.value not in family.provider_types:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    f"Provider '{provider.name}' ({provider.provider_type.value}) cannot serve "
-                    f"model family '{family.name}'. "
-                    f"Supported: {', '.join(family.provider_types) or 'none'}."
-                ),
+            raise ValidationError(
+                f"Provider '{provider.name}' ({provider.provider_type.value}) cannot serve "
+                f"model family '{family.name}'. "
+                f"Supported: {', '.join(family.provider_types) or 'none'}."
             )
         existing = self.model_repo.find_route_by_provider_identifier(provider_id, model_identifier)
         if existing:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    f"A route already exists for '{model_identifier}' on provider "
-                    f"'{provider.name}'."
-                ),
+            raise ConflictError(
+                f"A route already exists for '{model_identifier}' on provider '{provider.name}'."
             )
         return provider
 
@@ -128,28 +102,19 @@ class ModelService:
         if not slug and first_identifier:
             slug = normalize_slug(first_identifier)
         if not slug:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="A slug or at least one route is required to create a model.",
-            )
+            raise ValidationError("A slug or at least one route is required to create a model.")
         if not original_identifier:
             original_identifier = slug
 
         if self.model_repo.find_by_slug(slug):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"A model with slug '{slug}' already exists.",
-            )
+            raise ConflictError(f"A model with slug '{slug}' already exists.")
 
         # Validate every route up front so we never half-create. A model has at
         # most one route per provider.
         seen_providers: set[str] = set()
         for route in routes:
             if route["provider_id"] in seen_providers:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="A model can have at most one route per provider.",
-                )
+                raise ValidationError("A model can have at most one route per provider.")
             seen_providers.add(route["provider_id"])
             self._validate_route(route["provider_id"], route["model_identifier"], family)
 
@@ -218,9 +183,8 @@ class ModelService:
             resolve_family(self.family_repo.db, model_identifier) or self.family_repo.find_first()
         )
         if family is None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Cannot persist a discovered model: no model families are configured.",
+            raise ConflictError(
+                "Cannot persist a discovered model: no model families are configured."
             )
         friendly_name = (
             model_identifier.replace(":", " ").replace("-", " ").replace("/", " ").title()
@@ -258,22 +222,16 @@ class ModelService:
             family_changed = True
 
         if slug is not None and slug != model.slug and self.model_repo.find_by_slug(slug):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"A model with slug '{slug}' already exists.",
-            )
+            raise ConflictError(f"A model with slug '{slug}' already exists.")
 
         # A family change can invalidate existing routes (provider no longer supported).
         if family_changed:
             for route in model.routes:
                 if route.provider.provider_type.value not in target_family.provider_types:
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=(
-                            f"Route via '{route.provider.name}' "
-                            f"({route.provider.provider_type.value}) is incompatible with family "
-                            f"'{target_family.name}'. Remove it before changing family."
-                        ),
+                    raise ValidationError(
+                        f"Route via '{route.provider.name}' "
+                        f"({route.provider.provider_type.value}) is incompatible with family "
+                        f"'{target_family.name}'. Remove it before changing family."
                     )
 
         new_parameters: dict[str, Any] | None = None
@@ -327,10 +285,7 @@ class ModelService:
         """Add a provider route; make it active if the model had none."""
         model = self.get_by_id(model_id)
         if self.model_repo.find_route_by_registry_provider(model.id, provider_id):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="This model already has a route on that provider.",
-            )
+            raise ConflictError("This model already has a route on that provider.")
         self._validate_route(provider_id, model_identifier, model.model_family)
 
         route = self.model_repo.add_route(
@@ -353,10 +308,7 @@ class ModelService:
         model = self.get_by_id(model_id)
         route = self.model_repo.find_route_by_id(route_id)
         if not route or route.model_registry_id != model.id:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Route '{route_id}' not found for this model.",
-            )
+            raise NotFoundError(f"Route '{route_id}' not found for this model.")
 
         if model.active_route_id == route.id:
             remaining = [r for r in model.routes if r.id != route.id]
@@ -373,10 +325,7 @@ class ModelService:
         model = self.get_by_id(model_id)
         route = self.model_repo.find_route_by_id(route_id)
         if not route or route.model_registry_id != model.id:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Route '{route_id}' not found for this model.",
-            )
+            raise NotFoundError(f"Route '{route_id}' not found for this model.")
         model.active_route_id = route.id
         self.model_repo.update(model)
         self.model_repo.commit()
