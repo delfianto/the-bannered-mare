@@ -79,7 +79,9 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 262144,
             "supports_vision": False,
             "supports_function_calling": True,
-            "thinking_behavior": "forced when enabled (5 / 5.1 / 5.2 / Turbo)",
+            # Thinking on by default (5/5.1/5.2/Turbo) but caller-disablable via
+            # thinking={type:disabled}; reasoning_effort only tunes depth when on.
+            "thinking_behavior": "on by default, disablable via thinking={type:disabled}",
             "models": ["z-ai/glm-5", "z-ai/glm-5.1", "z-ai/glm-5.2"],
         },
     },
