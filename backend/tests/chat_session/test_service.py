@@ -3,10 +3,10 @@
 from typing import Any
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_session import Chat, ChatRepository, ChatService
+from src.core.exceptions import BanneredMareException
 from src.model import ModelRegistry, ModelRepository, ModelRoute
 from src.persona import Persona, PersonaRepository
 from src.profile.repository import ProfileRepository
@@ -56,7 +56,7 @@ class TestChatService:
         model_repo = ModelRepository(db)
         service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
@@ -86,14 +86,14 @@ class TestChatService:
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
         service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.create(
                 character_id="nonexistent-character",
                 model_id=sample_model.id,
             )
 
         assert exc_info.value.status_code == 404
-        assert "Character" in exc_info.value.detail
+        assert "Character" in exc_info.value.message
 
     def test_create_chat_model_not_found(self, db: Session, sample_character: Any) -> None:
         """Test creating chat with non-existent model raises error"""
@@ -101,14 +101,14 @@ class TestChatService:
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
         service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.create(
                 character_id=sample_character.id,
                 model_id="nonexistent-model",
             )
 
         assert exc_info.value.status_code == 404
-        assert "Model" in exc_info.value.detail
+        assert "Model" in exc_info.value.message
 
     def test_update_chat_title(self, db: Session, sample_character: Any, sample_model: Any) -> None:
         """Test updating chat title"""
@@ -180,11 +180,11 @@ class TestChatService:
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
         service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.update(chat.id, model_id="nonexistent-model")
 
         assert exc_info.value.status_code == 404
-        assert "Model" in exc_info.value.detail
+        assert "Model" in exc_info.value.message
 
     def _service(self, db: Session) -> ChatService:
         return ChatService(
@@ -234,7 +234,7 @@ class TestChatService:
         db.add(chat)
         db.commit()
         db.refresh(chat)
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = self._service(db).update(chat.id, task_model_id="nonexistent-model")
         assert exc_info.value.status_code == 404
 
@@ -261,7 +261,7 @@ class TestChatService:
         db.add(chat)
         db.commit()
         db.refresh(chat)
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = self._service(db).update(chat.id, persona_id="nonexistent-persona")
         assert exc_info.value.status_code == 404
 

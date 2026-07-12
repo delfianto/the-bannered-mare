@@ -6,11 +6,11 @@ import contextlib
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from fastapi import HTTPException, status
-
 from src.character.repository import CharacterRepository
 from src.chat_session.models import Chat
 from src.chat_session.repository import ChatRepository
+from src.core.base_service import get_or_404
+from src.core.exceptions import NotFoundError
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import Message, MessageRole
 from src.core.utils.template import TemplateContext, TemplateService
@@ -80,13 +80,7 @@ class ChatService:
 
     def get_by_id(self, chat_id: str) -> Chat:
         """Get chat by ID, raise 404 if not found"""
-        chat = self.chat_repo.find_by_id(chat_id)
-        if not chat:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Chat with ID '{chat_id}' not found",
-            )
-        return chat
+        return get_or_404(self.chat_repo, chat_id, "Chat")
 
     def create(
         self,
@@ -96,12 +90,7 @@ class ChatService:
         profile_id: str | None = None,
     ) -> Chat:
         """Create a new chat, optionally applying a profile's settings."""
-        character = self.character_repo.find_by_id(character_id)
-        if not character:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Character with ID '{character_id}' not found",
-            )
+        character = get_or_404(self.character_repo, character_id, "Character")
 
         chat = Chat(character_id=character_id, title=title)
 
@@ -194,11 +183,7 @@ class ChatService:
         if task_model_id is None:
             chat.task_model_id = None
             return
-        if not self.model_repo.find_by_id(task_model_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model with ID '{task_model_id}' not found",
-            )
+        get_or_404(self.model_repo, task_model_id, "Model")
         chat.task_model_id = task_model_id
 
     def _set_persona(self, chat: Chat, persona_id: str | None) -> None:
@@ -207,10 +192,7 @@ class ChatService:
             chat.persona_id = None
             return
         if self.persona_repo is not None and not self.persona_repo.find_by_id(persona_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Persona with ID '{persona_id}' not found",
-            )
+            raise NotFoundError(f"Persona with ID '{persona_id}' not found")
         chat.persona_id = persona_id
 
     def apply_profile(self, chat_id: str, profile_id: str) -> Chat:
@@ -223,12 +205,7 @@ class ChatService:
 
     def _set_model(self, chat: Chat, model_id: str) -> None:
         """Validate a model and set it on the chat, snapshotting its name."""
-        model = self.model_repo.find_by_id(model_id)
-        if not model:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model with ID '{model_id}' not found",
-            )
+        model = get_or_404(self.model_repo, model_id, "Model")
         chat.model_id = model_id
         chat.model_name = model.display_name
 
@@ -239,12 +216,7 @@ class ChatService:
         provenance snapshot (a name, not a link), so renaming/deleting the profile
         never affects the chat.
         """
-        profile = self.profile_repo.find_by_id(profile_id)
-        if not profile:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Profile with ID '{profile_id}' not found",
-            )
+        profile = get_or_404(self.profile_repo, profile_id, "Profile")
 
         chat.last_profile_name = profile.name
         if profile.prompt_template_id is not None:
