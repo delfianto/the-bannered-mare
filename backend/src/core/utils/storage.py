@@ -5,10 +5,14 @@ import os
 import shutil
 
 import aiofiles
+from anyio import to_thread
 from fastapi import HTTPException, UploadFile, status
 from PIL import Image
 
 from src.core.config import settings
+from src.core.logging import get_logger
+
+logger = get_logger(__name__)
 
 # Derived avatar tiers generated from every upload:
 #   - large: bounded full portrait for the detail preview, home banner, grid.
@@ -170,11 +174,17 @@ async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tu
     original_relative_path = f"{entity_type}/{entity_id}/{original_filename}"
 
     try:
-        large_relative_path, head_relative_path = generate_avatar_derivatives(
-            entity_type, entity_id
+        # PIL decode/resize/encode is CPU-bound — run it off the event loop.
+        large_relative_path, head_relative_path = await to_thread.run_sync(
+            generate_avatar_derivatives, entity_type, entity_id
         )
-    except Exception as e:
-        print(f"Error generating avatar sizes for {entity_type} {entity_id}: {e}")
+    except Exception:
+        logger.warning(
+            "avatar_derivative_failed",
+            entity_type=entity_type,
+            entity_id=entity_id,
+            exc_info=True,
+        )
         large_relative_path, head_relative_path = "", ""
 
     return original_relative_path, large_relative_path, head_relative_path

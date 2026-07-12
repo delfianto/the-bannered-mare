@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from anyio import to_thread
 from fastapi import HTTPException, UploadFile, status
 
 from src.character.card_parser import (
@@ -223,7 +224,8 @@ class CharacterService:
 
         try:
             if filename.endswith(".png"):
-                card = parse_card_png(file_data)
+                # PNG decode + tEXt extraction is CPU-bound — off the event loop.
+                card = await to_thread.run_sync(parse_card_png, file_data)
             elif filename.endswith(".json"):
                 card = parse_card_json(file_data.decode("utf-8"))
             else:
