@@ -43,6 +43,19 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
+# Appended to the cheap suggestion/tone prompts. Reply candidates and tone chips
+# are throwaway scaffolding, so the task model should answer immediately with a
+# bare JSON array. Thinking-capable task models otherwise spend hundreds of
+# reasoning tokens and wrap the answer in ```json fences before the real payload
+# (parse_structured_list copes, but it is pure waste). This directive steers them
+# to skip the reasoning trace and the fences; models that respect it emit only the
+# array, and parsing stays tolerant for those that don't.
+_JSON_ARRAY_ONLY = (
+    "Do not think out loud, explain, or add any preamble. Reply with ONLY a compact "
+    "JSON array of strings and nothing else — no reasoning, no markdown, no code "
+    'fences. Begin the reply with "[" and end it with "]".'
+)
+
 
 def _classify_error(exc: Exception) -> str:
     if isinstance(exc, ProviderRateLimitError):
@@ -361,8 +374,8 @@ class ChatMessageService:
                 f"Suggest {count} short labels (1-3 words each) for distinct tones or approaches "
                 f"{user_name} could take in their next message, fitting the scene and what "
                 f"{char_name} just said or did. Vary the emotional direction. Style examples "
-                'only (do not reuse): "Stand your ground", "De-escalate", "Flirt back". '
-                "Respond with ONLY a JSON array of strings."
+                'only (do not reuse): "Stand your ground", "De-escalate", "Flirt back".\n\n'
+                + _JSON_ARRAY_ONLY
             )
             api_messages = [{"role": "user", "content": instruction}]
             gateway = await self._build_task_gateway(chat)
@@ -379,8 +392,9 @@ class ChatMessageService:
                 f"Suggest {count} distinct, short options for what {user_name} could say next — "
                 f"written in {user_name}'s voice and grounded in what {char_name} just said or "
                 "did, each a different tone or direction, one or two sentences. Do not continue "
-                f"the scene as {char_name}. Respond with ONLY a JSON array of strings, "
-                'e.g. ["...", "...", "..."].'
+                f"the scene as {char_name}.\n\n"
+                + _JSON_ARRAY_ONLY
+                + ' Example: ["...", "...", "..."].'
             )
             api_messages = [{"role": "user", "content": instruction}]
             gateway = await self._build_task_gateway(chat)
