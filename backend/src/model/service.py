@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 from fastapi import HTTPException, status
 from sqlalchemy.orm.attributes import flag_modified
 
+from src.model import parameter_validation
 from src.model.lineage import normalize_slug
 from src.model.models import ModelRegistry, ModelRoute
 from src.model.repository import ModelRepository
@@ -100,99 +101,6 @@ class ModelService:
             )
         return provider
 
-    def _validate_parameters(
-        self, parameters: dict[str, Any], model_family: ModelFamily | None
-    ) -> None:
-        """Validate parameter values against the family's parameter schema."""
-        if not parameters or not model_family:
-            return
-
-        family_params = model_family.parameters or {}
-        unsupported = model_family.unsupported_parameters or []
-
-        for param_name, value in parameters.items():
-            if param_name in unsupported:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{param_name}' is explicitly unsupported by model family '{model_family.name}'.",
-                )
-
-            if param_name not in family_params:
-                supported_list = sorted(family_params.keys())
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{param_name}' is not defined in model family '{model_family.name}'. Supported: {', '.join(supported_list)}",
-                )
-
-            rule = family_params[param_name]
-            self._validate_single_parameter(param_name, value, rule)
-
-    def _validate_single_parameter(self, name: str, value: Any, rule: dict[str, Any]) -> None:
-        """Helper to validate a single value against a rule dict based on new schema"""
-        param_type = rule.get("type")
-
-        if param_type == "int":
-            if not isinstance(value, int):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' must be an integer.",
-                )
-        elif param_type == "float":
-            if not isinstance(value, (int, float)):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' must be a number (float/int).",
-                )
-        elif param_type == "string":
-            if not isinstance(value, str):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' must be a string.",
-                )
-        elif param_type == "boolean":
-            if not isinstance(value, bool):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' must be a boolean.",
-                )
-        elif param_type == "enum":
-            if not isinstance(value, str):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' (enum) must be a string.",
-                )
-        elif param_type == "list":
-            if not isinstance(value, list):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' must be a list.",
-                )
-        elif param_type == "object" and not isinstance(value, dict):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Parameter '{name}' must be an object (dict).",
-            )
-
-        if param_type in ("int", "float"):
-            if "min_value" in rule and rule["min_value"] is not None and value < rule["min_value"]:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' cannot be less than {rule['min_value']}.",
-                )
-            if "max_value" in rule and rule["max_value"] is not None and value > rule["max_value"]:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' cannot be greater than {rule['max_value']}.",
-                )
-
-        if param_type == "enum" and "str_values" in rule:
-            allowed = rule["str_values"]
-            if value not in allowed:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Parameter '{name}' must be one of: {', '.join(map(str, allowed))}.",
-                )
-
     # ── Registry CRUD ────────────────────────────────────────
     def create(
         self,
@@ -211,7 +119,7 @@ class ModelService:
         routes = routes or []
 
         family = self._get_family(model_family_id)
-        self._validate_parameters(parameters, family)
+        parameter_validation.validate_parameters(parameters, family)
 
         # Derive identity from the first route when not given explicitly.
         first_identifier = routes[0]["model_identifier"] if routes else None
@@ -334,7 +242,7 @@ class ModelService:
                     )
 
         if parameters is not None and (parameters != model.parameters or family_changed):
-            self._validate_parameters(parameters, target_family)
+            parameter_validation.validate_parameters(parameters, target_family)
             model.parameters = parameters
             flag_modified(model, "parameters")
 
