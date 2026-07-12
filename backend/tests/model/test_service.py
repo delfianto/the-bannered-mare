@@ -476,6 +476,34 @@ class TestModelServiceUpdate:
 
         assert exc.value.status_code == 409
 
+    def test_update_does_not_partial_write_when_later_validation_fails(
+        self, db: Session, sample_model: Any, sample_family: Any, sample_character: Any
+    ) -> None:
+        """A display_name change (and its cross-domain chat rename) must NOT persist
+        when a later check in the same update — here a slug conflict — fails."""
+        original_name = sample_model.display_name
+        chat = Chat(
+            title="C",
+            character_id=sample_character.id,
+            model_id=sample_model.id,
+            model_name=original_name,
+        )
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+
+        _bare_registry(db, sample_family.id, slug="taken", display_name="Taken")
+
+        with pytest.raises(HTTPException) as exc:
+            _service(db).update(sample_model.id, display_name="Should Not Persist", slug="taken")
+        assert exc.value.status_code == 409
+
+        db.expire_all()
+        model = db.query(ModelRegistry).filter(ModelRegistry.id == sample_model.id).first()
+        assert model is not None and model.display_name == original_name
+        refreshed_chat = db.query(Chat).filter(Chat.id == chat.id).first()
+        assert refreshed_chat is not None and refreshed_chat.model_name == original_name
+
     def test_update_family_change_revalidates_parameters(
         self, db: Session, sample_model: Any
     ) -> None:

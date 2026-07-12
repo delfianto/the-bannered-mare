@@ -247,31 +247,21 @@ class ModelService:
         """Update canonical-model fields (routes are managed separately)."""
         model = self.get_by_id(model_id)
 
-        if display_name is not None:
-            model.display_name = display_name
-            # Refresh the denormalized snapshot on every chat using this model.
-            self.chat_repo.update_model_name_for_model_id(model.id, display_name)
-            self.chat_repo.commit()
-        if slug is not None and slug != model.slug:
-            if self.model_repo.find_by_slug(slug):
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=f"A model with slug '{slug}' already exists.",
-                )
-            model.slug = slug
-        if original_identifier is not None:
-            model.original_identifier = original_identifier
-        if template_id is not None:
-            model.template_id = template_id
-        if enabled is not None:
-            model.enabled = enabled
-
+        # Validate EVERYTHING up front, before mutating anything, so a rejected
+        # update never leaves a partial write. (Previously the display_name change
+        # — plus the cross-domain chat rename — was committed before the slug /
+        # family / parameter checks ran, so a later failure persisted the rename.)
         target_family = model.model_family
         family_changed = False
         if model_family_id is not None and model_family_id != model.model_family_id:
             target_family = self._get_family(model_family_id)
-            model.model_family_id = model_family_id
             family_changed = True
+
+        if slug is not None and slug != model.slug and self.model_repo.find_by_slug(slug):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"A model with slug '{slug}' already exists.",
+            )
 
         # A family change can invalidate existing routes (provider no longer supported).
         if family_changed:
@@ -286,9 +276,29 @@ class ModelService:
                         ),
                     )
 
+        new_parameters: dict[str, Any] | None = None
         if parameters is not None and (parameters != model.parameters or family_changed):
             parameter_validation.validate_parameters(parameters, target_family)
-            model.parameters = parameters
+            new_parameters = parameters
+
+        # All validation passed — now mutate and commit once (the shared session
+        # covers the chat rename too).
+        if display_name is not None:
+            model.display_name = display_name
+            # Refresh the denormalized snapshot on every chat using this model.
+            self.chat_repo.update_model_name_for_model_id(model.id, display_name)
+        if slug is not None:
+            model.slug = slug
+        if original_identifier is not None:
+            model.original_identifier = original_identifier
+        if template_id is not None:
+            model.template_id = template_id
+        if enabled is not None:
+            model.enabled = enabled
+        if family_changed and model_family_id is not None:
+            model.model_family_id = model_family_id
+        if new_parameters is not None:
+            model.parameters = new_parameters
             flag_modified(model, "parameters")
 
         updated = self.model_repo.update(model)
