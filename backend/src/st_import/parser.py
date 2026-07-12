@@ -5,8 +5,11 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from src.core.logging import get_logger
 from src.st_import.errors import STImportError
 from src.st_import.schemas import STPreset
+
+logger = get_logger(__name__)
 
 # Telltale keys of a text-completion (instruct) preset, which we do NOT support.
 _TEXT_COMPLETION_KEYS = ("temp", "rep_pen", "rep_pen_range", "instruct", "context", "genamt")
@@ -48,7 +51,10 @@ def parse_st_preset(raw: str | bytes) -> STPreset:
     try:
         return STPreset.model_validate(data)
     except ValidationError as e:
-        raise STImportError(f"Preset failed validation: {e}") from e
+        # Log the full pydantic detail server-side; don't dump internal field
+        # structure back to the client.
+        logger.warning("preset_validation_failed", error=str(e))
+        raise STImportError("Preset failed validation: unexpected structure.") from e
 
 
 def _reject_non_preset(data: dict[str, Any]) -> None:

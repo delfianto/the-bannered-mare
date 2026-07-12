@@ -16,9 +16,12 @@ from src.character.card_parser import (
 )
 from src.character.models import Character
 from src.character.repository import CharacterRepository
+from src.core.logging import get_logger
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
 from src.core.utils.upload import read_upload_capped
+
+logger = get_logger(__name__)
 
 
 def _parse_gender(value: str) -> Gender:
@@ -229,9 +232,10 @@ class CharacterService:
                     detail="Unsupported file format. Use .png or .json",
                 )
         except (ValueError, json.JSONDecodeError) as e:
+            logger.warning("card_parse_failed", filename=filename, error=str(e))
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Failed to parse character card: {e}",
+                detail="Failed to parse character card: unsupported or corrupt file.",
             ) from e
 
         # Map example_dialogues: cards store one freeform mes_example string with

@@ -306,9 +306,12 @@ class ProviderService:
                 cached = self.model_cache.get(provider.id)
                 if cached is not None:
                     return self._filter_blacklisted(cached), True
+            # Log the upstream detail server-side; don't echo it (the raw httpx
+            # error can carry the base_url/credentials and aids SSRF recon).
+            logger.warning("provider_unreachable", provider=provider.name, error=str(e))
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Could not reach {provider.name}: {e}",
+                detail=f"Could not reach provider '{provider.name}'.",
             ) from e
 
         provider.last_synced_at = utc_now()
