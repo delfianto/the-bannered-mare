@@ -17,6 +17,7 @@ from src.model.models import ModelRegistry
 from src.provider.adapters import CompletionResponse, StreamChunk, get_adapter
 from src.provider.adapters.base import ProviderAdapter
 from src.provider.models import Provider
+from src.provider.reasoning import reasoning_off_override
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +36,13 @@ class ProviderGateway:
         registry: ModelRegistry,
         model_identifier: str,
         preset_parameters: dict[str, Any] | None = None,
+        minimize_reasoning: bool = False,
     ):
         self.registry = registry
         self.preset_parameters = preset_parameters
+        # Auxiliary calls (titles, tone chips, reply suggestions) set this to
+        # suppress reasoning tokens on thinking-capable task models.
+        self.minimize_reasoning = minimize_reasoning
         # The adapter is chosen by the provider's type — aggregators
         # (OpenRouter/OpenCode) map to the OpenAI adapter via the registry, so no
         # format is special-cased here.
@@ -84,6 +89,15 @@ class ProviderGateway:
                     self.registry.display_name,
                     family.family_identifier,
                 )
+
+        # Auxiliary calls minimize reasoning last, so the override is authoritative
+        # and can't be stripped. Gated on the family declaring a reasoning control,
+        # and expressed in whatever field this transport's adapter forwards.
+        if self.minimize_reasoning:
+            family_params = family.parameters if family else None
+            override = reasoning_off_override(family_params, self.provider.provider_type)
+            if override:
+                effective_params.update(override)
 
         return effective_params
 
