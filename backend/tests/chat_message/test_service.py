@@ -270,6 +270,64 @@ class TestChatMessageService:
         assert messages[1].content == "Better response"
 
     @pytest.mark.asyncio
+    async def test_regenerate_stream_on_user_turn_generates_reply(
+        self,
+        async_db_session: AsyncSession,
+        db: Session,
+        async_sample_character: Any,
+        async_sample_model: Any,
+    ) -> None:
+        """Retry after a rejected/empty reply: the last turn is the user's, so
+        regenerate appends a fresh assistant reply instead of 400-ing."""
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+        await async_db_session.refresh(chat)
+        # Only a user turn exists (the prior generation was rejected, not persisted).
+        async_db_session.add(Message(chat_id=chat.id, role=MessageRole.USER, content="Hello?"))
+        await async_db_session.commit()
+
+        service = ChatMessageService(
+            AsyncMessageRepository(async_db_session),
+            AsyncChatRepository(async_db_session),
+            PromptBuilder(PromptTemplateRepository(db)),
+        )
+
+        async def mock_stream_gen(messages):
+            yield StreamChunk(content="A proper reply.")
+            yield StreamChunk(finish_reason="stop")
+
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+        ):
+            mock_client = AsyncMock()
+            mock_client.chat_completion_stream = MagicMock(side_effect=mock_stream_gen)
+            mock_gateway_class.return_value = mock_client
+            events = [e async for e in service.regenerate_stream(chat.id)]
+
+        assert not any(e.type == "error" for e in events)
+        assert events[-1].type == "done"
+
+        from sqlalchemy import select
+
+        rows = (
+            (
+                await async_db_session.execute(
+                    select(Message).where(Message.chat_id == chat.id).order_by(Message.created_at)
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert [m.role for m in rows] == [MessageRole.USER, MessageRole.ASSISTANT]
+        assert rows[1].content == "A proper reply."
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("finish_reason", "expected_code"),
         [("stop", "empty"), ("content_filter", "filtered")],

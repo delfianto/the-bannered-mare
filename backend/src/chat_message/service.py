@@ -1028,7 +1028,14 @@ class ChatMessageService:
         return last_message
 
     async def regenerate_stream(self, chat_id: str) -> AsyncIterator[StreamEvent]:
-        """Regenerate the last assistant message (streaming). Stores old content as alternative."""
+        """Regenerate the tail assistant reply (streaming).
+
+        Normally replaces the last assistant message (storing the old content as an
+        alternative). When the last turn is instead the *user's* — e.g. the prior
+        generation was rejected/empty and never persisted — there is nothing to
+        replace, so a fresh reply is generated for that turn. This is what powers
+        "retry" after a filtered/empty reply.
+        """
         chat = await self._get_chat_by_id(chat_id)
 
         latest_messages = await self.message_repo.find_latest_by_chat_id(chat_id, limit=1)
@@ -1039,16 +1046,15 @@ class ChatMessageService:
             )
 
         last_message = latest_messages[0]
-        if last_message.role != MessageRole.ASSISTANT:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot regenerate: Last message is not from assistant",
-            )
+        # Replace the last assistant turn; for a dangling user turn, append instead.
+        existing = last_message if last_message.role == MessageRole.ASSISTANT else None
 
         self._validate_model_and_key(chat)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
-        messages_for_prompt = [m for m in messages if m.id != last_message.id]
+        messages_for_prompt = (
+            [m for m in messages if m.id != last_message.id] if existing else messages
+        )
         activated_lore = self._get_activated_lore(chat, messages_for_prompt)
         rag_results = await self._retrieve_rag_context(chat, messages_for_prompt)
         api_messages = self.prompt_builder.build_api_messages(
@@ -1056,7 +1062,7 @@ class ChatMessageService:
         )
 
         async for event in self._stream_completion(
-            chat_id, chat, api_messages, existing_message=last_message
+            chat_id, chat, api_messages, existing_message=existing
         ):
             yield event
 

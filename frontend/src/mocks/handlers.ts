@@ -448,6 +448,12 @@ export const handlers = [
     }
 
     if (stream) {
+      // Dev aid + parity with the backend's rejection handling: a message
+      // containing [[reject]] / [[empty]] / [[filter]] streams a typed error
+      // event (no reply persisted) so the inline retry UX is exercisable offline.
+      const body = regenerate ? null : ((await request.json().catch(() => null)) as any);
+      const rejectMatch = /\[\[(reject|empty|filter)\]\]/i.exec(String(body?.content ?? ""));
+
       const encoder = new TextEncoder();
       const responseStream = new ReadableStream({
         async start(controller) {
@@ -461,6 +467,17 @@ export const handlers = [
           // Simulate backend latency (retrieval + prompt build + first token) so
           // the composing animation is visible before text streams in.
           await new Promise((r) => setTimeout(r, 600));
+
+          if (rejectMatch) {
+            send({
+              type: "error",
+              code: "filtered",
+              message:
+                "The model declined to respond to this scene (content filter). Try rephrasing, or switch this chat to a less restrictive model.",
+            });
+            controller.close();
+            return;
+          }
 
           const text = regenerate
             ? "[Mock Regenerated Response] This is a simulated regenerated reply."

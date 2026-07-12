@@ -49,6 +49,8 @@ const {
   fetchSuggestions,
   hasMore,
   sendMessage,
+  regenerate,
+  error: generationError,
   loadMore,
   editMessage,
   fetchAlternatives,
@@ -88,6 +90,23 @@ const showMoodChips = computed(() => {
   const last = messages.value[messages.value.length - 1];
   return last?.role === "assistant" && !isGenerating.value;
 });
+
+// A rejected/empty/filtered generation surfaces inline (with a retry) instead of
+// a silent blank reply — shown only when idle and the tail is a dangling user
+// turn (i.e. no reply landed).
+const generationErrorMessage = computed(() => {
+  if (isGenerating.value || !generationError.value) return null;
+  const last = messages.value[messages.value.length - 1];
+  return last?.role === "user" ? generationError.value.message : null;
+});
+
+function handleRetry() {
+  regenerate();
+}
+
+function dismissGenerationError() {
+  generationError.value = null;
+}
 
 const messageListRef = ref<HTMLElement | null>(null);
 
@@ -422,6 +441,33 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
             @edit="handleEditMessage"
             @swipe="handleSwipe"
           />
+
+          <!-- Generation failure (rejection / empty / content-filtered): surface
+               inline with a retry instead of a silent blank reply. -->
+          <div
+            v-if="generationErrorMessage"
+            class="mx-auto flex w-full max-w-2xl items-start gap-3 rounded-xl border border-error/40 bg-error/10 px-4 py-3"
+          >
+            <AppIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-error" />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm text-foreground">{{ generationErrorMessage }}</p>
+              <div class="mt-2 flex items-center gap-3">
+                <button
+                  class="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-content transition-colors hover:bg-primary/90"
+                  @click="handleRetry"
+                >
+                  <AppIcon name="i-lucide-rotate-ccw" class="size-3.5" />
+                  {{ $t("chat.error.retry") }}
+                </button>
+                <button
+                  class="text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  @click="dismissGenerationError"
+                >
+                  {{ $t("chat.error.dismiss") }}
+                </button>
+              </div>
+            </div>
+          </div>
 
           <!-- Suggestions bar (after the latest assistant reply) -->
           <div v-if="showMoodChips" class="flex flex-col items-center gap-1.5 py-2">
