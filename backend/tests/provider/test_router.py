@@ -67,7 +67,7 @@ def test_list_available_models_unsupported_provider_type(
     )
 
     response = client.get(f"/api/providers/{provider.id}/models/available")
-    assert response.status_code == 400
+    assert response.status_code == 422
 
 
 def test_list_available_models(
