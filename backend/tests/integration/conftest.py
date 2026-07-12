@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 from src.core.persistence.database import get_async_db_url
-from src.core.persistence.enums import ProviderType
+from src.core.persistence.enums import ProviderType, ReasoningMode
 from src.provider.adapters.lmstudio import strip_v1_suffix
 from src.provider.gateway import ProviderGateway
 
@@ -88,6 +88,7 @@ def _make_model(
     family_params: dict[str, Any] | None = None,
     model_params: dict[str, Any] | None = None,
     unsupported_params: list[str] | None = None,
+    reasoning_mode: ReasoningMode = ReasoningMode.NONE,
 ) -> Any:
     """Create a mock ModelRegistry ORM object with parameters (identifier held for convenience)."""
     model = MagicMock()
@@ -98,6 +99,8 @@ def _make_model(
     # Must be a real list: the gateway strips family.unsupported_parameters, and a
     # bare MagicMock here would not be iterable.
     model.model_family.unsupported_parameters = unsupported_params or []
+    # Reasoning capability gate the gateway reads for minimize_reasoning.
+    model.model_family.reasoning_mode = reasoning_mode
     return model
 
 
