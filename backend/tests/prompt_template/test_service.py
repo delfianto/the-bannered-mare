@@ -3,9 +3,8 @@
 from unittest.mock import patch
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from src.core.exceptions import NotFoundError
+from src.core.exceptions import BanneredMareException, NotFoundError
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_fragment.service import FragmentService
 from src.prompt_template import PromptTemplate, PromptTemplateRepository, PromptTemplateService
@@ -101,16 +100,16 @@ class TestPromptTemplateService:
                 "validate_template",
                 return_value=(False, "Invalid syntax"),
             ),
-            pytest.raises(HTTPException) as exc_info,
+            pytest.raises(BanneredMareException) as exc_info,
         ):
             _ = service.create(
                 name="Test Template",
                 system_template="Invalid {{template",
             )
 
-        assert exc_info.value.status_code == 400
-        assert "Invalid" in exc_info.value.detail
-        assert "syntax" in exc_info.value.detail
+        assert exc_info.value.status_code == 422
+        assert "Invalid" in exc_info.value.message
+        assert "syntax" in exc_info.value.message
 
     def test_create_template_as_default(self, db: Session) -> None:
         """Test creating a template as default unsets other defaults"""
@@ -180,14 +179,14 @@ class TestPromptTemplateService:
                 "validate_template",
                 return_value=(False, "Invalid syntax"),
             ),
-            pytest.raises(HTTPException) as exc_info,
+            pytest.raises(BanneredMareException) as exc_info,
         ):
             _ = service.update(
                 template.id,
                 system_template="Invalid {{template",
             )
 
-        assert exc_info.value.status_code == 400
+        assert exc_info.value.status_code == 422
 
     def test_update_template_to_default(self, db: Session) -> None:
         """Test updating template to be default"""

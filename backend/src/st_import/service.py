@@ -7,9 +7,10 @@ macros are not rejected by the services' Jinja2 validation.
 
 from collections.abc import Callable
 
-from fastapi import HTTPException, UploadFile, status
+from fastapi import UploadFile
 from sqlalchemy.exc import IntegrityError
 
+from src.core.exceptions import ConflictError, ValidationError
 from src.core.persistence import (
     Preset,
     Profile,
@@ -53,16 +54,13 @@ class STImportService:
         """Read, validate, and import a .json ST preset. Raises HTTP 400 on bad input."""
         filename = file.filename or ""
         if not filename.lower().endswith(".json"):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Unsupported file format. Upload a .json SillyTavern preset.",
-            )
+            raise ValidationError("Unsupported file format. Upload a .json SillyTavern preset.")
 
         raw = await read_upload_capped(file)
         try:
             preset = parse_st_preset(raw)
         except STImportError as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+            raise ValidationError(str(e)) from e
 
         plan = build_import_plan(preset, _derive_base_name(filename))
 
@@ -70,10 +68,7 @@ class STImportService:
             return self._persist(plan, filename or None)
         except IntegrityError as e:
             self.template_repo.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Import failed due to a database conflict.",
-            ) from e
+            raise ConflictError("Import failed due to a database conflict.") from e
         except Exception:
             # Never leave a half-built import in the session.
             self.template_repo.rollback()

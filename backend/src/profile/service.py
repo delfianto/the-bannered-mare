@@ -2,9 +2,8 @@
 
 from typing import Any
 
-from fastapi import HTTPException, status
-
 from src.core.base_service import get_or_404
+from src.core.exceptions import NotFoundError
 from src.core.persistence import gen_id
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
@@ -144,27 +143,12 @@ class ProfileService:
     ) -> None:
         """Raise 404 for any provided reference that does not resolve to a row."""
         if prompt_template_id is not None and not self.template_repo.exists(prompt_template_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Prompt template with ID '{prompt_template_id}' not found",
-            )
+            raise NotFoundError(f"Prompt template with ID '{prompt_template_id}' not found")
         if preset_id is not None and not self.preset_repo.exists(preset_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Preset with ID '{preset_id}' not found",
-            )
+            raise NotFoundError(f"Preset with ID '{preset_id}' not found")
         if persona_id is not None and not self.persona_repo.exists(persona_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Persona with ID '{persona_id}' not found",
-            )
+            raise NotFoundError(f"Persona with ID '{persona_id}' not found")
         if model_id is not None and not self.model_repo.exists(model_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Model with ID '{model_id}' not found",
-            )
+            raise NotFoundError(f"Model with ID '{model_id}' not found")
         if task_model_id is not None and not self.model_repo.exists(task_model_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Task model with ID '{task_model_id}' not found",
-            )
+            raise NotFoundError(f"Task model with ID '{task_model_id}' not found")

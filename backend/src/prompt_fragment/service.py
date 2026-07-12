@@ -1,8 +1,7 @@
 """Prompt fragment business logic service"""
 
-from fastapi import HTTPException
-
 from src.core.base_service import get_or_404
+from src.core.exceptions import ConflictError, NotFoundError, ValidationError
 from src.core.persistence import gen_id
 from src.core.utils.template import TemplateService
 from src.prompt_fragment.models import PromptFragment, TemplateFragment
@@ -26,7 +25,7 @@ class FragmentService:
         if content is not None:
             is_valid, error = self.template_service.validate_template(content)
             if not is_valid:
-                raise HTTPException(status_code=400, detail=f"Invalid Jinja2 content: {error}")
+                raise ValidationError(f"Invalid Jinja2 content: {error}")
 
     # -- Fragment CRUD --
 
@@ -137,10 +136,7 @@ class FragmentService:
             template_id, fragment_id
         )
         if existing:
-            raise HTTPException(
-                status_code=409,
-                detail="Fragment is already attached to this template",
-            )
+            raise ConflictError("Fragment is already attached to this template")
 
         tf = TemplateFragment(
             id=gen_id(),
@@ -159,10 +155,7 @@ class FragmentService:
             template_id, fragment_id
         )
         if not deleted:
-            raise HTTPException(
-                status_code=404,
-                detail="Fragment is not attached to this template",
-            )
+            raise NotFoundError("Fragment is not attached to this template")
         self.template_fragment_repo.commit()
 
     def list_template_fragments(self, template_id: str) -> list[TemplateFragment]:
@@ -180,9 +173,8 @@ class FragmentService:
             fragment_id = str(item["fragment_id"])
             tf = self.template_fragment_repo.find_by_template_and_fragment(template_id, fragment_id)
             if not tf:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Fragment {fragment_id} is not attached to template {template_id}",
+                raise NotFoundError(
+                    f"Fragment {fragment_id} is not attached to template {template_id}"
                 )
             tf.position = str(item["position"])
             tf.ordinal = int(item["ordinal"])

@@ -1,7 +1,6 @@
 """Lorebook business logic service"""
 
-from fastapi import HTTPException, status
-
+from src.core.exceptions import NotFoundError
 from src.core.persistence.enums import InsertionPosition
 from src.core.utils.tokenizer import TokenizerService
 from src.lore.activation_engine import ActivatedEntry, activate_entries
@@ -36,10 +35,7 @@ class LoreService:
     def get_lorebook(self, lorebook_id: str) -> Lorebook:
         lorebook = self.lore_repo.find_by_id_with_entries(lorebook_id)
         if not lorebook:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Lorebook '{lorebook_id}' not found",
-            )
+            raise NotFoundError(f"Lorebook '{lorebook_id}' not found")
         return lorebook
 
     def create_lorebook(self, data: LorebookCreate) -> Lorebook:
@@ -75,10 +71,7 @@ class LoreService:
     def get_entry(self, lorebook_id: str, entry_id: str) -> LoreEntry:
         entry = self.entry_repo.find_by_id(entry_id)
         if not entry or entry.lorebook_id != lorebook_id:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Entry '{entry_id}' not found in lorebook '{lorebook_id}'",
-            )
+            raise NotFoundError(f"Entry '{entry_id}' not found in lorebook '{lorebook_id}'")
         return entry
 
     def create_entry(self, lorebook_id: str, data: LoreEntryCreate) -> LoreEntry:

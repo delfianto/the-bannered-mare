@@ -220,17 +220,17 @@ class TestAtomicity:
 
 class TestBadFiles:
     async def test_wrong_extension_raises_400(self, db: Session) -> None:
-        from fastapi import HTTPException
+        from src.core.exceptions import BanneredMareException
 
         service = make_service(db)
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             await service.import_preset(make_upload(b"{}", "preset.png"))
-        assert exc.value.status_code == 400
+        assert exc.value.status_code == 422
 
     async def test_invalid_json_raises_400(self, db: Session) -> None:
-        from fastapi import HTTPException
+        from src.core.exceptions import BanneredMareException
 
         service = make_service(db)
-        with pytest.raises(HTTPException) as exc:
+        with pytest.raises(BanneredMareException) as exc:
             await service.import_preset(make_upload(b"{nope", "preset.json"))
-        assert exc.value.status_code == 400
+        assert exc.value.status_code == 422

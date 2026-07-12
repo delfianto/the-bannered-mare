@@ -3,9 +3,8 @@
 from typing import Any
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from src.core.exceptions import NotFoundError
+from src.core.exceptions import BanneredMareException, NotFoundError
 from src.model_family import (
     ModelFamily,
     ModelFamilyCreate,
@@ -174,11 +173,11 @@ class TestModelFamilyService:
         family_data = ModelFamilyCreate(
             name="GPT", family_identifier="test.gpt-dup", description=None, extra_metadata=None
         )
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.create(family_data)
 
-        assert exc_info.value.status_code == 400
-        assert "already exists" in exc_info.value.detail.lower()
+        assert exc_info.value.status_code == 409
+        assert "already exists" in exc_info.value.message.lower()
 
     def test_update_family_all_fields(self, db: Session, sample_family: Any) -> None:
         """Test updating all family fields"""
@@ -242,11 +241,11 @@ class TestModelFamilyService:
         # Try to delete family
         repo = ModelFamilyRepository(db)
         service = ModelFamilyService(repo)
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.delete(family_id)
 
-        assert exc_info.value.status_code == 400
-        assert "being used" in exc_info.value.detail.lower()
+        assert exc_info.value.status_code == 409
+        assert "being used" in exc_info.value.message.lower()
 
     def test_delete_family_not_found(self, db: Session) -> None:
         """Test deleting non-existent family raises 404"""

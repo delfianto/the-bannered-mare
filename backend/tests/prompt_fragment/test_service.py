@@ -1,9 +1,8 @@
 """Tests for FragmentService"""
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from src.core.exceptions import NotFoundError
+from src.core.exceptions import BanneredMareException, NotFoundError
 from src.core.persistence import PromptTemplate, gen_id
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_fragment.service import FragmentService
@@ -47,13 +46,13 @@ class TestFragmentCRUD:
     def test_create_fragment_jinja2_validation_error(self, db: Session) -> None:
         service = _make_service(db)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.create(
                 name="Bad Template",
                 content="{% if foo %}missing end",
             )
-        assert exc_info.value.status_code == 400
-        assert "Invalid Jinja2 content" in str(exc_info.value.detail)
+        assert exc_info.value.status_code == 422
+        assert "Invalid Jinja2 content" in str(exc_info.value.message)
 
     def test_create_fragment_valid_jinja2(self, db: Session) -> None:
         service = _make_service(db)
@@ -103,9 +102,9 @@ class TestFragmentCRUD:
         service = _make_service(db)
 
         fragment = service.create(name="Good", content="Valid content")
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.update(fragment.id, content="{% if broken %}no end")
-        assert exc_info.value.status_code == 400
+        assert exc_info.value.status_code == 422
 
     def test_delete_fragment(self, db: Session) -> None:
         service = _make_service(db)
@@ -274,10 +273,10 @@ class TestTemplateFragmentAttachment:
 
         service.attach_to_template(template.id, fragment.id)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.attach_to_template(template.id, fragment.id)
         assert exc_info.value.status_code == 409
-        assert "already attached" in str(exc_info.value.detail)
+        assert "already attached" in str(exc_info.value.message)
 
     def test_attach_nonexistent_fragment_fails(self, db: Session) -> None:
         service = _make_service(db)
@@ -303,10 +302,10 @@ class TestTemplateFragmentAttachment:
         template = _make_template(db)
         fragment = service.create(name="Never Attached", content="Nope")
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.detach_from_template(template.id, fragment.id)
         assert exc_info.value.status_code == 404
-        assert "not attached" in str(exc_info.value.detail)
+        assert "not attached" in str(exc_info.value.message)
 
     def test_list_template_fragments_ordered(self, db: Session) -> None:
         service = _make_service(db)
