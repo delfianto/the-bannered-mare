@@ -20,6 +20,7 @@ CLAUDE_HAIKU_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "claude-haiku",
             "context_window": 500000,
             "supports_vision": True,

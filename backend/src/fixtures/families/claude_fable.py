@@ -39,6 +39,7 @@ CLAUDE_FABLE_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": ["temperature", "top_p", "top_k", "budget_tokens"],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "claude-fable",
             "context_window": 1000000,
             "supports_vision": True,

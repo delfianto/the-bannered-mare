@@ -35,6 +35,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "deepseek",
             "context_window": 128000,
             "supports_vision": False,
@@ -53,6 +54,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "none",
             "lineage": "deepseek",
             "context_window": 128000,
             "supports_vision": False,
@@ -74,6 +76,7 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
         # The reasoner silently ignores these; surface that rather than pretend support.
         "unsupported_parameters": ["temperature", "top_p", "frequency_penalty", "presence_penalty"],
         "extra_metadata": {
+            "reasoning_mode": "always_on",
             "lineage": "deepseek",
             "context_window": 128000,
             "supports_vision": False,

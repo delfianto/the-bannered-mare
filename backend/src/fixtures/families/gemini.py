@@ -41,6 +41,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "gemini",
             "developer": "google",
             "context_window": 1000000,
@@ -89,6 +90,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "thinking_budget",
         ],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "gemini",
             "developer": "google",
             "context_window": 1000000,
@@ -142,6 +144,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "thinking_budget",
         ],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "gemini",
             "developer": "google",
             "context_window": 1000000,

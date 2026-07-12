@@ -13,11 +13,11 @@ from src.core.exceptions import (
     ProviderRateLimitError,
     ProviderTimeoutError,
 )
+from src.core.persistence.enums import ReasoningMode
 from src.model.models import ModelRegistry
 from src.provider.adapters import CompletionResponse, StreamChunk, get_adapter
 from src.provider.adapters.base import ProviderAdapter
 from src.provider.models import Provider
-from src.provider.reasoning import reasoning_off_override
 
 logger = logging.getLogger(__name__)
 
@@ -90,16 +90,20 @@ class ProviderGateway:
                     family.family_identifier,
                 )
 
-        # Auxiliary calls minimize reasoning last, so the override is authoritative
-        # and can't be stripped. Gated on the family declaring a reasoning control,
-        # and expressed in whatever field this transport's adapter forwards.
-        if self.minimize_reasoning:
-            family_params = family.parameters if family else None
-            override = reasoning_off_override(family_params, self.provider.provider_type)
-            if override:
-                effective_params.update(override)
-
         return effective_params
+
+    @property
+    def _should_minimize_reasoning(self) -> bool:
+        """Whether to signal reasoning-off to the adapter for this call.
+
+        Only when the caller requested it AND the family's declared reasoning is
+        actually controllable — a non-reasoning model has nothing to disable, and
+        an always-on reasoner (e.g. minimax-m2) would only get an ignored param.
+        """
+        if not self.minimize_reasoning:
+            return False
+        family = self.registry.model_family
+        return bool(family and family.reasoning_mode == ReasoningMode.OPTIONAL)
 
     def _handle_http_error(self, exc: httpx.HTTPStatusError) -> NoReturn:
         """Map HTTP status errors to custom Provider exceptions."""
@@ -137,7 +141,9 @@ class ProviderGateway:
         parameters = self._get_effective_parameters()
         url = self.adapter.build_url(self.base_url, self.active_identifier, False, self.api_key)
         headers = self.adapter.build_headers(self.api_key)
-        payload = self.adapter.build_payload(messages, self.active_identifier, False, parameters)
+        payload = self.adapter.build_payload(
+            messages, self.active_identifier, False, parameters, self._should_minimize_reasoning
+        )
         timeout = self.adapter.get_timeout(self.active_identifier)
 
         try:
@@ -166,7 +172,9 @@ class ProviderGateway:
         parameters = self._get_effective_parameters()
         url = self.adapter.build_url(self.base_url, self.active_identifier, True, self.api_key)
         headers = self.adapter.build_headers(self.api_key)
-        payload = self.adapter.build_payload(messages, self.active_identifier, True, parameters)
+        payload = self.adapter.build_payload(
+            messages, self.active_identifier, True, parameters, self._should_minimize_reasoning
+        )
         timeout = self.adapter.get_timeout(self.active_identifier)
 
         try:

@@ -19,6 +19,7 @@ OPENROUTER_FAMILIES: list[ModelFamilySeedData] = [
             "top_p": {"type": "float", "default": 0.9, "min_value": 0.0, "max_value": 1.0},
         },
         "extra_metadata": {
+            "reasoning_mode": "none",
             "context_window": 128000,
             "supports_vision": False,
             "supports_function_calling": False,

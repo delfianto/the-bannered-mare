@@ -68,6 +68,7 @@ class ProviderAdapter(ABC):
         model: str,
         stream: bool,
         parameters: dict[str, Any],
+        minimize_reasoning: bool = False,
     ) -> dict[str, Any]:
         """
         Convert canonical messages + parameters into the provider's request body.
@@ -75,6 +76,11 @@ class ProviderAdapter(ABC):
         `messages` is in OpenAI format (list of {role, content} dicts).
         `parameters` is the merged dict from ModelFamily defaults + Model overrides.
         Each adapter selectively extracts the parameters it understands.
+
+        `minimize_reasoning` requests that reasoning/thinking be turned off for this
+        call (throwaway auxiliary generations). Each adapter translates that intent
+        into its own transport's mechanism; the caller only sets it for families
+        whose reasoning is actually controllable.
         """
         ...
 

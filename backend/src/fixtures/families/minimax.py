@@ -46,6 +46,7 @@ MINIMAX_FAMILIES: list[ModelFamilySeedData] = [
         # The hosted API drops top_k and silently ignores the OpenAI penalties.
         "unsupported_parameters": ["top_k", "frequency_penalty", "presence_penalty"],
         "extra_metadata": {
+            "reasoning_mode": "always_on",
             "lineage": "minimax",
             "developer": "minimax",
             "context_window": 204800,
@@ -76,6 +77,7 @@ MINIMAX_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": ["top_k", "frequency_penalty", "presence_penalty"],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "minimax",
             "developer": "minimax",
             "context_window": 1048576,

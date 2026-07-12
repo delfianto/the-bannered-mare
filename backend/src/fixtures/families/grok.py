@@ -59,6 +59,7 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
             *OPENAI_REJECTED_SAMPLERS,
         ],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "grok",
             "developer": "xai",
             "context_window": 2000000,
@@ -99,6 +100,7 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
             *OPENAI_REJECTED_SAMPLERS,
         ],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "grok",
             "developer": "xai",
             "context_window": 1000000,
@@ -138,6 +140,7 @@ GROK_FAMILIES: list[ModelFamilySeedData] = [
             *OPENAI_REJECTED_SAMPLERS,
         ],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "grok",
             "developer": "xai",
             "context_window": 500000,

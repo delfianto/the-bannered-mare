@@ -26,6 +26,18 @@ class ProviderType(enum.StrEnum):
     CUSTOM = "custom"
 
 
+class ReasoningMode(enum.StrEnum):
+    """Whether a model family reasons, and whether that reasoning can be disabled.
+
+    A first-class capability (stored per family) so behavior is driven by declared
+    metadata rather than by sniffing which sampler parameters happen to be present.
+    """
+
+    NONE = "none"  # Does not reason — no reasoning control applies.
+    OPTIONAL = "optional"  # Reasons, but reasoning can be turned off (suppress on aux calls).
+    ALWAYS_ON = "always_on"  # Reasons and cannot be disabled — suppression is futile, skip it.
+
+
 class Gender(enum.StrEnum):
     """Character gender options"""
 

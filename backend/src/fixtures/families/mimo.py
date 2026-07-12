@@ -47,6 +47,7 @@ MIMO_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "mimo",
             "developer": "xiaomi",
             "context_window": 1048576,

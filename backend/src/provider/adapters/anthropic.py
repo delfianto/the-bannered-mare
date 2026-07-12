@@ -48,6 +48,7 @@ class AnthropicAdapter(ProviderAdapter):
         model: str,
         stream: bool,
         parameters: dict[str, Any],
+        minimize_reasoning: bool = False,
     ) -> dict[str, Any]:
         system_parts: list[str] = []
         chat_messages: list[dict[str, Any]] = []
@@ -108,6 +109,12 @@ class AnthropicAdapter(ProviderAdapter):
         metadata = parameters.get("metadata")
         if isinstance(metadata, dict) and metadata:
             payload["metadata"] = metadata
+
+        # Auxiliary calls disable thinking outright — authoritative over both the
+        # forwarded thinking mode and the adaptive-effort output_config above.
+        if minimize_reasoning:
+            payload["thinking"] = {"type": "disabled"}
+            payload.pop("output_config", None)
 
         return payload
 

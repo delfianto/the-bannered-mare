@@ -71,6 +71,7 @@ class OpenAIAdapter(ProviderAdapter):
         model: str,
         stream: bool,
         parameters: dict[str, Any],
+        minimize_reasoning: bool = False,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"model": model, "messages": messages}
 
@@ -93,6 +94,13 @@ class OpenAIAdapter(ProviderAdapter):
             and "reasoning_effort" not in parameters
         ):
             payload["reasoning"] = {"enabled": thinking["type"] != "disabled"}
+
+        # Disable reasoning for throwaway auxiliary calls. "none" is the only value
+        # that actually stops reasoning on local servers (LM Studio) and is valid on
+        # current GPT-5.1/5.2; it is authoritative over any graded value above.
+        if minimize_reasoning:
+            payload["reasoning_effort"] = "none"
+            payload.pop("reasoning", None)
 
         return payload
 

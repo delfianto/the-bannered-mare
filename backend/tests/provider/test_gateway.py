@@ -10,7 +10,7 @@ from src.core.exceptions import (
     ProviderRateLimitError,
     ProviderTimeoutError,
 )
-from src.core.persistence.enums import ProviderType
+from src.core.persistence.enums import ReasoningMode
 from src.provider.adapters import CompletionResponse, TokenUsage
 from src.provider.gateway import ProviderGateway
 
@@ -171,48 +171,35 @@ def test_get_effective_parameters_strips_unsupported(mock_provider: Any) -> None
     assert params["max_tokens"] == 4096
 
 
-# --- minimize_reasoning (auxiliary calls) ---
+# --- _should_minimize_reasoning (capability gate) ---
 
 
-def _reasoning_provider(provider_type: ProviderType) -> Any:
-    """Provider mock whose provider_type is a real enum (reasoning branch reads it)."""
-    provider = MagicMock()
-    provider.get_api_key.return_value = "k"
-    provider.get_base_url.return_value = "https://host/v1"
-    provider.provider_type = provider_type
-    return provider
-
-
-def test_minimize_reasoning_off_by_default(mock_registry: Any) -> None:
-    """Without the flag, no reasoning parameter is injected."""
-    gateway = ProviderGateway(_reasoning_provider(ProviderType.OPENAI), mock_registry, "gpt-4")
-    assert "reasoning_effort" not in gateway._get_effective_parameters()
-
-
-def test_minimize_reasoning_injects_for_capable_family() -> None:
-    """A reasoning-capable family over an OpenAI-compatible transport gets
-    reasoning_effort minimized on auxiliary calls."""
+def _registry_with_mode(mode: ReasoningMode) -> Any:
     family = MagicMock()
-    family.parameters = {"thinking_level": {"type": "enum", "str_values": ["minimal", "high"]}}
-    family.unsupported_parameters = []
+    family.reasoning_mode = mode
     registry = MagicMock()
-    registry.parameters = {}
     registry.model_family = family
-
-    gateway = ProviderGateway(
-        _reasoning_provider(ProviderType.LMSTUDIO), registry, "gemma", minimize_reasoning=True
-    )
-    assert gateway._get_effective_parameters()["reasoning_effort"] == "none"
+    return registry
 
 
-def test_minimize_reasoning_noop_for_non_reasoning_family(mock_registry: Any) -> None:
-    """The flag is a no-op when the family declares no reasoning control, so a
-    non-reasoning model never receives a parameter it would reject."""
-    gateway = ProviderGateway(
-        _reasoning_provider(ProviderType.OPENAI), mock_registry, "gpt-4", minimize_reasoning=True
-    )
-    params = gateway._get_effective_parameters()
-    assert "reasoning_effort" not in params and "thinking" not in params
+def test_should_minimize_reasoning_requires_the_flag(mock_provider: Any) -> None:
+    """The gate is off unless the caller opts in, regardless of capability."""
+    gateway = ProviderGateway(mock_provider, _registry_with_mode(ReasoningMode.OPTIONAL), "m")
+    assert gateway._should_minimize_reasoning is False
+
+
+def test_should_minimize_reasoning_only_when_controllable(mock_provider: Any) -> None:
+    """With the flag set, only an OPTIONAL (controllable) family is minimized;
+    NONE has nothing to disable and ALWAYS_ON can't be, so both are skipped."""
+    for mode, expected in (
+        (ReasoningMode.OPTIONAL, True),
+        (ReasoningMode.NONE, False),
+        (ReasoningMode.ALWAYS_ON, False),
+    ):
+        gateway = ProviderGateway(
+            mock_provider, _registry_with_mode(mode), "m", minimize_reasoning=True
+        )
+        assert gateway._should_minimize_reasoning is expected
 
 
 # --- chat_completion ---

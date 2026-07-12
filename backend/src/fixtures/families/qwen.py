@@ -38,6 +38,7 @@ QWEN_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
+            "reasoning_mode": "optional",
             "lineage": "qwen",
             "developer": "alibaba",
             "context_window": 262144,
