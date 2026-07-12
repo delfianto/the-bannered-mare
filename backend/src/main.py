@@ -3,9 +3,9 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from src.admin.router import router as admin_router
 from src.bookmarks.router import router as bookmarks_router
@@ -14,6 +14,7 @@ from src.chat_message import preview_router as chat_preview_router
 from src.chat_message import router as chat_messages_router
 from src.chat_session import router as chats_router
 from src.core.config import settings
+from src.core.exceptions import BanneredMareException, ProviderException
 from src.core.logging import RequestLoggingMiddleware, configure_structlog, get_logger
 from src.core.utils.storage import ensure_storage_directories
 from src.health import router as health_router
@@ -68,6 +69,22 @@ app.add_middleware(
 )
 
 app.add_middleware(RequestLoggingMiddleware)
+
+
+@app.exception_handler(BanneredMareException)
+async def _domain_exception_handler(_request: Request, exc: BanneredMareException) -> JSONResponse:
+    """Translate domain exceptions to HTTP responses, keeping FastAPI's
+    ``{"detail": ...}`` body shape so existing clients are unaffected.
+
+    Services raise domain exceptions (NotFoundError/ConflictError/...) and stay
+    HTTP-agnostic; the HTTP mapping lives here. Provider errors default to 502
+    (an upstream failure), other domain errors use their declared status_code.
+    """
+    if isinstance(exc, ProviderException):
+        status_code = exc.status_code or 502
+    else:
+        status_code = getattr(exc, "status_code", None) or 400
+    return JSONResponse(status_code=status_code, content={"detail": exc.message})
 
 
 app.include_router(admin_router)
