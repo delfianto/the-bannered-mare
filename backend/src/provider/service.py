@@ -1,6 +1,7 @@
 """Provider business logic service"""
 
 import re
+from typing import Literal
 
 import httpx
 from fastapi import HTTPException, status
@@ -362,73 +363,72 @@ class ProviderService:
             return models
         return [m for m in models if m.identifier in allowed]
 
-    def load_model(self, provider_id: str, model_identifier: str) -> ModelActionResponse:
-        """Load a model into memory on a local provider."""
+    def _unreachable(self, provider: Provider, error: Exception) -> HTTPException:
+        """502 for an unreachable local provider (connect/timeout/HTTP error)."""
+        return HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Could not reach {provider.name}: {error}",
+        )
+
+    def _run_model_action(
+        self,
+        provider_id: str,
+        model_identifier: str,
+        *,
+        method: str,
+        verb: Literal["loaded", "unloaded", "deleted"],
+        unsupported_noun: str,
+    ) -> ModelActionResponse:
+        """Run a load/unload/delete runtime action against a local provider's
+        discovery client (they share the same resolve → guard → call → invalidate
+        flow). ``method`` is the client method, ``verb`` the response action."""
         provider = self.get_by_id(provider_id)
         client = get_discovery_client(provider.provider_type)
         if client is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"{provider.provider_type.value} does not support model loading",
+                detail=f"{provider.provider_type.value} does not support model {unsupported_noun}",
             )
 
         try:
-            client.load_model(provider.get_base_url(), model_identifier)
+            getattr(client, method)(provider.get_base_url(), model_identifier)
+        except NotImplementedError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
         except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Could not reach {provider.name}: {e}",
-            ) from e
+            raise self._unreachable(provider, e) from e
 
         self.model_cache.invalidate(provider_id)
-        return ModelActionResponse(model_identifier=model_identifier, action="loaded")
+        return ModelActionResponse(model_identifier=model_identifier, action=verb)
+
+    def load_model(self, provider_id: str, model_identifier: str) -> ModelActionResponse:
+        """Load a model into memory on a local provider."""
+        return self._run_model_action(
+            provider_id,
+            model_identifier,
+            method="load_model",
+            verb="loaded",
+            unsupported_noun="loading",
+        )
 
     def unload_model(self, provider_id: str, model_identifier: str) -> ModelActionResponse:
         """Unload a model from memory on a local provider."""
-        provider = self.get_by_id(provider_id)
-        client = get_discovery_client(provider.provider_type)
-        if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"{provider.provider_type.value} does not support model unloading",
-            )
-
-        try:
-            client.unload_model(provider.get_base_url(), model_identifier)
-        except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Could not reach {provider.name}: {e}",
-            ) from e
-
-        self.model_cache.invalidate(provider_id)
-        return ModelActionResponse(model_identifier=model_identifier, action="unloaded")
+        return self._run_model_action(
+            provider_id,
+            model_identifier,
+            method="unload_model",
+            verb="unloaded",
+            unsupported_noun="unloading",
+        )
 
     def delete_model(self, provider_id: str, model_identifier: str) -> ModelActionResponse:
         """Delete/remove a model from a local provider's filesystem/registry."""
-        provider = self.get_by_id(provider_id)
-        client = get_discovery_client(provider.provider_type)
-        if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"{provider.provider_type.value} does not support model management",
-            )
-
-        try:
-            client.delete_model(provider.get_base_url(), model_identifier)
-        except NotImplementedError as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=str(e),
-            ) from e
-        except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Could not reach {provider.name}: {e}",
-            ) from e
-
-        self.model_cache.invalidate(provider_id)
-        return ModelActionResponse(model_identifier=model_identifier, action="deleted")
+        return self._run_model_action(
+            provider_id,
+            model_identifier,
+            method="delete_model",
+            verb="deleted",
+            unsupported_noun="management",
+        )
 
     def delete(self, provider_id: str) -> None:
         """
