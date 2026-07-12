@@ -183,10 +183,15 @@ class ChatMessageService:
             preset_parameters=preset_params,
         )
 
-    async def _build_task_gateway(self, chat: Chat) -> ProviderGateway:
+    async def _build_task_gateway(
+        self, chat: Chat, *, minimize_reasoning: bool = False
+    ) -> ProviderGateway:
         """Gateway for auxiliary calls (titles, suggestions, future RAG query
         building). Uses the chat's configured task model, falling back to the
         main chat model. Runs at model defaults — RP preset params don't apply.
+
+        ``minimize_reasoning`` suppresses reasoning tokens for throwaway calls;
+        it is a no-op unless the task model's family is reasoning-capable.
         """
         model = chat.task_model or chat.model
         if model is None:
@@ -209,6 +214,7 @@ class ChatMessageService:
             model,
             route.model_identifier,
             preset_parameters=None,
+            minimize_reasoning=minimize_reasoning,
         )
 
     def _log_token_budget(self, api_messages: list[dict[str, Any]]) -> int:
@@ -378,7 +384,7 @@ class ChatMessageService:
                 + _JSON_ARRAY_ONLY
             )
             api_messages = [{"role": "user", "content": instruction}]
-            gateway = await self._build_task_gateway(chat)
+            gateway = await self._build_task_gateway(chat, minimize_reasoning=True)
         elif mode == "reply":
             # Reply candidates are disposable — the user picks one, edits it, or
             # ignores them — so they don't warrant the full scene context on the
@@ -397,7 +403,7 @@ class ChatMessageService:
                 + ' Example: ["...", "...", "..."].'
             )
             api_messages = [{"role": "user", "content": instruction}]
-            gateway = await self._build_task_gateway(chat)
+            gateway = await self._build_task_gateway(chat, minimize_reasoning=True)
         else:
             # impersonate drafts the user's *actual* next message, so it keeps the
             # full scene context on the main model for quality.
@@ -531,7 +537,7 @@ class ChatMessageService:
             f"{transcript}"
         )
         api_messages = [{"role": "user", "content": instruction}]
-        gateway = await self._build_task_gateway(chat)
+        gateway = await self._build_task_gateway(chat, minimize_reasoning=True)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
