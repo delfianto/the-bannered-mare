@@ -9,7 +9,7 @@ from typing import Any
 
 from src.audit.repository_async import AuditRepository
 from src.core.config import settings
-from src.core.logging.logger_config import get_logger, redact_sensitive_data
+from src.core.logging.logger_config import get_logger, redact_sensitive_data, redact_value
 from src.core.persistence.database import AsyncSessionLocal
 from src.core.persistence.models import ErrorLog, HttpLog, LlmAuditLog
 
@@ -88,8 +88,8 @@ class AuditWriter:
             status=status,
             estimated_cost_usd=estimated_cost_usd,
             error_message=error_message,
-            request_payload=request_payload or [],
-            response_payload=response_payload,
+            request_payload=redact_value(request_payload or []),
+            response_payload=redact_value(response_payload),
         )
         await self._write(entry, kind="llm_audit_logs")
 

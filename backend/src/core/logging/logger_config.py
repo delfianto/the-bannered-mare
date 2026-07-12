@@ -58,30 +58,44 @@ def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     return structlog.get_logger(name)
 
 
+_SENSITIVE_KEYS = (
+    "api_key",
+    "apikey",
+    "authorization",
+    "password",
+    "secret",
+    "token",
+    "x-api-key",
+)
+
+
+def _redact_field(key: str, value: Any) -> Any:
+    """Redact a value whose key looks sensitive; else recurse into it."""
+    if any(sensitive in key.lower() for sensitive in _SENSITIVE_KEYS):
+        if isinstance(value, str) and len(value) > 8:
+            return f"{value[:4]}...{value[-4:]}"
+        return "***REDACTED***"
+    return _redact_value(value)
+
+
+def _redact_value(value: Any) -> Any:
+    """Recurse through dicts AND lists so secrets nested in either are masked."""
+    if isinstance(value, dict):
+        return {k: _redact_field(k, v) for k, v in cast(dict[str, Any], value).items()}
+    if isinstance(value, list):
+        return [_redact_value(v) for v in cast(list[Any], value)]
+    return value
+
+
+def redact_value(value: Any) -> Any:
+    """Recursively redact secrets in an arbitrary JSON-ish value (dict / list / scalar)."""
+    if not settings.logging.redact_api_keys:
+        return value
+    return _redact_value(value)
+
+
 def redact_sensitive_data(data: dict[str, Any]) -> dict[str, Any]:
-    """Redact sensitive information from log data"""
+    """Redact sensitive information from a log-data mapping (recurses into lists)."""
     if not settings.logging.redact_api_keys:
         return data
-
-    sensitive_keys = [
-        "api_key",
-        "apikey",
-        "authorization",
-        "password",
-        "secret",
-        "token",
-        "x-api-key",
-    ]
-
-    redacted = data.copy()
-    for key, value in redacted.items():
-        key_lower = key.lower()
-        if any(sensitive in key_lower for sensitive in sensitive_keys):
-            if isinstance(value, str) and len(value) > 8:
-                redacted[key] = f"{value[:4]}...{value[-4:]}"
-            else:
-                redacted[key] = "***REDACTED***"
-        elif isinstance(value, dict):
-            redacted[key] = redact_sensitive_data(cast(Any, value))
-
-    return redacted
+    return {k: _redact_field(k, v) for k, v in data.items()}
