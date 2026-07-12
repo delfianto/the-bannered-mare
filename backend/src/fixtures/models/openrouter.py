@@ -246,6 +246,15 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
         "enabled": True,
     },
+    {
+        # Coding SKU, also offered on OpenCode Go — folds into the same canonical.
+        "name": "Moonshot Kimi K2.7 Code",
+        "model_identifier": "moonshotai/kimi-k2.7-code",
+        "family_identifier": "moonshot/kimi-k2",
+        "provider_type": "openrouter",
+        "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
+        "enabled": True,
+    },
     # Misc free models — disabled by default.
     {
         "name": "Arcee Trinity Large Thinking",
