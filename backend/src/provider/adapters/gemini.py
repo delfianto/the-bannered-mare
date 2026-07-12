@@ -150,8 +150,15 @@ class GeminiAdapter(ProviderAdapter):
         thought_parts = [p.get("text", "") for p in parts if p.get("thought")]
         reasoning = "".join(thought_parts) or None
 
-        raw_reason: str = candidate.get("finishReason") or "STOP"
-        finish_reason = _FINISH_REASON_MAP.get(raw_reason, raw_reason.lower())
+        # A prompt-level block yields no candidate at all — the reason lives under
+        # promptFeedback.blockReason. Surface it as a filter terminal so it isn't
+        # mistaken for a normal empty "STOP".
+        block_reason = data.get("promptFeedback", {}).get("blockReason")
+        if not candidate.get("finishReason") and block_reason:
+            finish_reason = "content_filter"
+        else:
+            raw_reason: str = candidate.get("finishReason") or "STOP"
+            finish_reason = _FINISH_REASON_MAP.get(raw_reason, raw_reason.lower())
 
         usage_data = data.get("usageMetadata", {})
 

@@ -15,6 +15,9 @@ _STOP_REASON_MAP: dict[str, str] = {
     "max_tokens": "length",
     "stop_sequence": "stop",
     "tool_use": "tool_calls",
+    # Claude 4.x can end a turn with a safety refusal; normalize it like other
+    # providers' filter terminals so the completion classifier catches it.
+    "refusal": "content_filter",
 }
 
 _ANTHROPIC_VERSION = "2023-06-01"
