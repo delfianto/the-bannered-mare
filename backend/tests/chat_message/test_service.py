@@ -529,7 +529,7 @@ class TestChatMessageService:
         service = ChatMessageService(message_repo, chat_repo, prompt_builder)
 
         messages = [msg]
-        result = await service._retrieve_rag_context(chat, messages)
+        result = await service.context.retrieve_rag_context(chat, messages)
 
         assert result is None
 
