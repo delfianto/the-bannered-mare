@@ -3,7 +3,9 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from jinja2 import Environment, TemplateSyntaxError
+from jinja2 import TemplateSyntaxError
+from jinja2.exceptions import SecurityError
+from jinja2.sandbox import SandboxedEnvironment
 
 if TYPE_CHECKING:
     from src.character.models import Character
@@ -29,8 +31,15 @@ class TemplateService:
     """Jinja2 template rendering for prompts"""
 
     def __init__(self):
-        """Initialize Jinja2 environment"""
-        self.env = Environment(
+        """Initialize the Jinja2 environment.
+
+        A SANDBOXED environment is mandatory: template strings are user-controlled
+        (character.system_prompt, prompt-fragment content, imported cards), so a
+        plain Environment would be a server-side template injection → RCE vector
+        (e.g. ``{{ cycler.__init__.__globals__ }}``). The sandbox blocks access to
+        unsafe attributes/callables at render time.
+        """
+        self.env = SandboxedEnvironment(
             autoescape=False,  # Don't escape HTML entities
             trim_blocks=True,  # Remove newlines after block tags
             lstrip_blocks=True,  # Remove leading whitespace from blocks
@@ -57,7 +66,12 @@ class TemplateService:
         # Build template variables
         variables = self._build_variables(context)
 
-        return template.render(**variables)
+        try:
+            return template.render(**variables)
+        except SecurityError as e:
+            # A sandbox violation means the template tried to reach an unsafe
+            # attribute/callable (injection attempt) — refuse rather than execute.
+            raise ValueError(f"Template rendering blocked (unsafe operation): {e}") from e
 
     def _build_variables(self, context: TemplateContext) -> dict[str, str]:
         """Build template variables from context

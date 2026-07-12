@@ -66,3 +66,21 @@ def test_render_invalid_syntax(
     """Test rendering template with invalid syntax"""
     with pytest.raises(ValueError, match="Template syntax error"):
         _ = template_service.render("Hello {{char", mock_context)
+
+
+def test_render_blocks_sandbox_escape(
+    template_service: TemplateService, mock_context: TemplateContext
+) -> None:
+    """A template-injection payload (user-controlled content) must not reach unsafe
+    internals — the sandbox blocks it and we surface a clean error instead of RCE."""
+    payload = "{{ cycler.__init__.__globals__ }}"
+    with pytest.raises(ValueError, match="unsafe operation"):
+        _ = template_service.render(payload, mock_context)
+
+
+def test_render_blocks_attribute_access_on_context(
+    template_service: TemplateService, mock_context: TemplateContext
+) -> None:
+    """Accessing dunder attributes on injected variables is also blocked."""
+    with pytest.raises(ValueError, match="unsafe operation"):
+        _ = template_service.render("{{ char.__class__.__mro__ }}", mock_context)
