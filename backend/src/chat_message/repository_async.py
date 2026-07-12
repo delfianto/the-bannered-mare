@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.chat_message.models import Message
@@ -81,9 +81,3 @@ class AsyncMessageRepository(AsyncBaseRepository[Message]):
         stmt = select(Message).where(Message.id == message_id, Message.chat_id == chat_id)
         result = await self.db.execute(stmt)
         return result.scalars().first()
-
-    async def delete_by_chat_id(self, chat_id: str) -> None:
-        """Delete all messages for a specific chat"""
-        stmt = delete(Message).where(Message.chat_id == chat_id)
-        await self.db.execute(stmt)
-        await self.db.flush()

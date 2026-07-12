@@ -49,13 +49,3 @@ class LoreEntryRepository(BaseRepository[LoreEntry]):
 
     def __init__(self, db: Session):
         super().__init__(db, LoreEntry)
-
-    def find_by_lorebook_id(self, lorebook_id: str) -> list[LoreEntry]:
-        """Find all entries for a lorebook ordered by display order"""
-        stmt = (
-            select(LoreEntry)
-            .where(LoreEntry.lorebook_id == lorebook_id)
-            .order_by(LoreEntry.order.asc())
-        )
-        result = self.db.execute(stmt)
-        return list(result.scalars().all())

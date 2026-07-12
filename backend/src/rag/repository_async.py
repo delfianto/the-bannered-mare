@@ -48,16 +48,6 @@ class AsyncEmbeddingRepository(AsyncBaseRepository[Embedding]):
         result = await self.db.execute(stmt)
         return result.first() is not None
 
-    async def find_by_source(self, source_type: str, source_id: str) -> list[Embedding]:
-        """Find all embeddings for a given source."""
-        stmt = (
-            select(Embedding)
-            .where(Embedding.source_type == source_type, Embedding.source_id == source_id)
-            .order_by(Embedding.chunk_index)
-        )
-        result = await self.db.execute(stmt)
-        return list(result.scalars().all())
-
     async def delete_by_source(self, source_type: str, source_id: str) -> None:
         """Delete all embeddings for a given source."""
         stmt = delete(Embedding).where(

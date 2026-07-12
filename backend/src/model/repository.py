@@ -59,11 +59,6 @@ class ModelRepository(BaseRepository[ModelRegistry]):
         stmt = select(ModelRegistry).where(ModelRegistry.slug == slug)
         return self.db.execute(stmt).scalars().first()
 
-    def find_enabled(self) -> list[ModelRegistry]:
-        """Find all enabled canonical models."""
-        stmt = select(ModelRegistry).where(ModelRegistry.enabled)
-        return list(self.db.execute(stmt).scalars().all())
-
     def search_by_name(self, name: str) -> list[ModelRegistry]:
         """Search canonical models by display name (case-insensitive partial match)."""
         stmt = select(ModelRegistry).where(ModelRegistry.display_name.ilike(f"%{name}%"))
