@@ -7,6 +7,9 @@ import httpx
 from src.core.config import EmbeddingSettings
 
 BATCH_SIZE = 10
+# HTTP timeout for embedding-server calls (llama.cpp/Ollama/TEI can be slow on
+# cold start or large batches).
+HTTP_TIMEOUT_S = 60.0
 
 
 class EmbeddingService:
@@ -66,7 +69,7 @@ class EmbeddingService:
         payload = {"inputs": texts, "normalize": True, "truncate": True}
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, timeout=60.0)
+            response = await client.post(url, json=payload, timeout=HTTP_TIMEOUT_S)
             response.raise_for_status()
             return response.json()
 
@@ -76,7 +79,7 @@ class EmbeddingService:
         payload = {"model": self.settings.model, "input": texts}
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, timeout=60.0)
+            response = await client.post(url, json=payload, timeout=HTTP_TIMEOUT_S)
             response.raise_for_status()
             data = response.json()
             return data["embeddings"]
@@ -90,7 +93,7 @@ class EmbeddingService:
         payload = {"model": self.settings.model, "input": texts}
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, headers=headers, timeout=60.0)
+            response = await client.post(url, json=payload, headers=headers, timeout=HTTP_TIMEOUT_S)
             response.raise_for_status()
             data = response.json()
             return [item["embedding"] for item in data["data"]]

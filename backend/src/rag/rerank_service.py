@@ -4,6 +4,9 @@ import httpx
 
 from src.core.config import RerankSettings
 
+# HTTP timeout for the TEI rerank call (cross-encoder scoring of the candidate set).
+_HTTP_TIMEOUT_S = 60.0
+
 
 class RerankService:
     """Reorders candidate passages by relevance via a TEI cross-encoder.
@@ -35,7 +38,7 @@ class RerankService:
         payload = {"query": query, "texts": texts}
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, timeout=60.0)
+            response = await client.post(url, json=payload, timeout=_HTTP_TIMEOUT_S)
             response.raise_for_status()
             ranked = response.json()  # [{"index": i, "score": s}, ...] sorted desc
 
