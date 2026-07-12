@@ -2,12 +2,14 @@
 
 import hashlib
 
+from anyio import to_thread
+
 from src.core.config import settings
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
 from src.rag.chunker import chunk_text
 from src.rag.embedding_service import EmbeddingService
-from src.rag.models import Embedding
+from src.rag.models import DataBankEntry, Embedding
 from src.rag.repository import DataBankRepository
 from src.rag.repository_async import AsyncEmbeddingRepository
 from src.rag.rerank_service import RerankService
@@ -62,15 +64,22 @@ class RetrievalService:
             scopes.append("character")
         scopes.append("chat")
 
-        entries = []
-        for scope in scopes:
-            if scope == "character" and character_id:
-                entries.extend(self.data_bank_repo.find_by_scope(scope, character_id=character_id))
-            elif scope == "chat":
-                entries.extend(self.data_bank_repo.find_by_scope(scope, chat_id=chat_id))
-            else:
-                entries.extend(self.data_bank_repo.find_by_scope(scope))
+        # find_by_scope is a synchronous (psycopg2) query run once per scope;
+        # gather them in one worker thread so the loop isn't blocked on each.
+        def _gather_scoped_entries() -> list[DataBankEntry]:
+            gathered: list[DataBankEntry] = []
+            for scope in scopes:
+                if scope == "character" and character_id:
+                    gathered.extend(
+                        self.data_bank_repo.find_by_scope(scope, character_id=character_id)
+                    )
+                elif scope == "chat":
+                    gathered.extend(self.data_bank_repo.find_by_scope(scope, chat_id=chat_id))
+                else:
+                    gathered.extend(self.data_bank_repo.find_by_scope(scope))
+            return gathered
 
+        entries = await to_thread.run_sync(_gather_scoped_entries)
         source_ids.extend(e.id for e in entries)
 
         # With a reranker, cast a wide net: pull up to `candidates` hits with no

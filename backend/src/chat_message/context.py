@@ -9,6 +9,8 @@ the lore + RAG plumbing.
 
 from typing import Any
 
+from anyio import to_thread
+
 from src.chat_message.models import Message
 from src.chat_session.models import Chat
 from src.core.logging.logger_config import get_logger
@@ -60,7 +62,9 @@ class MessageContextBuilder:
     async def assemble(self, chat: Chat, messages: list[Message]) -> list[dict[str, Any]]:
         """Assemble the provider ``api_messages`` for a turn: activate lore + RAG
         over ``messages``, then render via the prompt builder."""
-        activated_lore = self.get_activated_lore(chat, messages)
+        # Lore activation is a synchronous (psycopg2) query — run it off the event
+        # loop so it can't stall other in-flight requests during a send.
+        activated_lore = await to_thread.run_sync(self.get_activated_lore, chat, messages)
         rag_results = await self.retrieve_rag_context(chat, messages)
         return self.prompt_builder.build_api_messages(
             chat, messages, activated_lore=activated_lore, rag_results=rag_results
