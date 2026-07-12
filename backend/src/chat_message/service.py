@@ -237,6 +237,117 @@ class ChatMessageService:
         )
         return content, reasoning, token_count
 
+    async def _persist_reply(
+        self,
+        *,
+        chat_id: str,
+        content: str,
+        reasoning: str | None,
+        token_count: int,
+        existing_message: Message | None,
+        message_id: str | None = None,
+    ) -> Message:
+        """Persist a usable assistant reply and refresh chat metadata.
+
+        Three modes, shared by the blocking and streaming paths:
+        - regeneration with alt_repo → store as a swipe alternative;
+        - regeneration without alt_repo → overwrite the message in place;
+        - a new turn → create a message (and vectorize it).
+        """
+        if existing_message and self.alt_repo:
+            await self.alternatives.store(existing_message, content, token_count)
+            stored = existing_message
+        elif existing_message:
+            existing_message.content = content
+            existing_message.token_count = token_count
+            existing_message.reasoning_content = reasoning
+            stored = await self.message_repo.update(existing_message)
+            await self.message_repo.commit()
+        else:
+            stored = await self.message_repo.create(
+                Message(
+                    id=message_id or gen_id(),
+                    chat_id=chat_id,
+                    role=MessageRole.ASSISTANT,
+                    content=content,
+                    token_count=token_count,
+                    reasoning_content=reasoning,
+                )
+            )
+            await self.message_repo.commit()
+            await self._vectorize(stored)
+        await self._update_chat_metadata(chat_id, content)
+        return stored
+
+    async def _run_blocking_completion(
+        self,
+        *,
+        chat: Chat,
+        chat_id: str,
+        api_messages: list[dict[str, Any]],
+        existing_message: Message | None,
+        estimated_tokens: int | None = None,
+    ) -> Message:
+        """Run a non-streaming completion end to end and persist a usable reply.
+
+        Shared by send_message (new turn) and regenerate (alternative). Calls the
+        model, audits, classifies, then normalizes + persists. Raises 500 on a
+        provider error and 502 when the reply is empty / filtered / truncated, so a
+        blank turn is never persisted.
+        """
+        gateway = gateway_factory.build_gateway(chat)
+        start = time.perf_counter()
+        try:
+            response = await gateway.chat_completion(api_messages)
+        except Exception as e:
+            await llm_audit.audit_error(
+                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error communicating with AI provider: {e!s}",
+            ) from e
+
+        outcome = await llm_audit.classify_and_audit(
+            gateway=gateway,
+            api_messages=api_messages,
+            chat_id=chat_id,
+            start=start,
+            content=response.content,
+            reasoning=response.reasoning,
+            finish_reason=response.finish_reason,
+            usage=response.usage,
+            raw=response.raw,
+        )
+        if outcome != CompletionOutcome.USABLE:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY, detail=_outcome_message(outcome)
+            )
+
+        # Prompt-budget observability (send only; regenerate passes no estimate).
+        if estimated_tokens is not None and response.usage:
+            if response.usage.input_tokens:
+                logger.info(
+                    "token_drift", estimated=estimated_tokens, actual=response.usage.input_tokens
+                )
+            if response.usage.cache_read_tokens:
+                logger.info(
+                    "prompt_cache_hit",
+                    cached_tokens=response.usage.cache_read_tokens,
+                    created_tokens=response.usage.cache_creation_tokens,
+                )
+
+        content, reasoning, token_count = self._normalize_reply(
+            response.content, response.reasoning, response.usage
+        )
+        return await self._persist_reply(
+            chat_id=chat_id,
+            content=content,
+            reasoning=reasoning,
+            token_count=token_count,
+            existing_message=existing_message,
+        )
+
     async def send_message(self, chat_id: str, content: str) -> Message:
         """Send a message and get an AI response (non-streaming)"""
         chat = await self._get_chat_by_id(chat_id)
@@ -255,80 +366,17 @@ class ChatMessageService:
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         api_messages = await self.context.assemble(chat, messages)
-
         estimated_tokens = self._log_token_budget(api_messages)
 
-        gateway = gateway_factory.build_gateway(chat)
-        start = time.perf_counter()
-        try:
-            response = await gateway.chat_completion(api_messages)
-        except Exception as e:
-            await llm_audit.audit_error(
-                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
-            )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error communicating with AI provider: {str(e)}",
-            ) from e
-
-        outcome = await llm_audit.classify_and_audit(
-            gateway=gateway,
-            api_messages=api_messages,
+        created = await self._run_blocking_completion(
+            chat=chat,
             chat_id=chat_id,
-            start=start,
-            content=response.content,
-            reasoning=response.reasoning,
-            finish_reason=response.finish_reason,
-            usage=response.usage,
-            raw=response.raw,
+            api_messages=api_messages,
+            existing_message=None,
+            estimated_tokens=estimated_tokens,
         )
-        # An empty/filtered/truncated result is not a real reply — surface it
-        # rather than saving a blank assistant message.
-        if outcome != CompletionOutcome.USABLE:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY, detail=_outcome_message(outcome)
-            )
-
-        try:
-            # Log token drift if provider reports actual usage
-            if response.usage.input_tokens:
-                logger.info(
-                    "token_drift",
-                    estimated=estimated_tokens,
-                    actual=response.usage.input_tokens,
-                )
-            if response.usage.cache_read_tokens:
-                logger.info(
-                    "prompt_cache_hit",
-                    cached_tokens=response.usage.cache_read_tokens,
-                    created_tokens=response.usage.cache_creation_tokens,
-                )
-
-            assistant_content, reasoning, token_count = self._normalize_reply(
-                response.content, response.reasoning, response.usage
-            )
-
-            assistant_message = Message(
-                chat_id=chat_id,
-                role=MessageRole.ASSISTANT,
-                content=assistant_content,
-                token_count=token_count,
-                reasoning_content=reasoning,
-            )
-            created = await self.message_repo.create(assistant_message)
-            await self.message_repo.commit()
-
-            await self._update_chat_metadata(chat_id, assistant_content)
-
-            await self._vectorize(user_message)
-            await self._vectorize(created)
-            return created
-
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error communicating with AI provider: {str(e)}",
-            ) from e
+        await self._vectorize(user_message)
+        return created
 
     async def _stream_completion(
         self,
@@ -388,32 +436,14 @@ class ChatMessageService:
                 full_content, reasoning, token_count = self._normalize_reply(
                     full_content, full_reasoning or None, last_usage
                 )
-
-                if existing_message and self.alt_repo:
-                    # Regeneration with alternatives: store as alternative
-                    await self.alternatives.store(existing_message, full_content, token_count)
-                elif existing_message:
-                    # Regeneration without alt_repo: update in-place
-                    existing_message.content = full_content
-                    existing_message.token_count = token_count
-                    existing_message.reasoning_content = reasoning
-                    await self.message_repo.update(existing_message)
-                    await self.message_repo.commit()
-                else:
-                    # New message
-                    assistant_message = Message(
-                        id=message_id,
-                        chat_id=chat_id,
-                        role=MessageRole.ASSISTANT,
-                        content=full_content,
-                        token_count=token_count,
-                        reasoning_content=reasoning,
-                    )
-                    _ = await self.message_repo.create(assistant_message)
-                    await self.message_repo.commit()
-                    await self._vectorize(assistant_message)
-
-                await self._update_chat_metadata(chat_id, full_content)
+                await self._persist_reply(
+                    chat_id=chat_id,
+                    content=full_content,
+                    reasoning=reasoning,
+                    token_count=token_count,
+                    existing_message=existing_message,
+                    message_id=message_id,
+                )
 
             if last_usage:
                 yield StreamEvent(
@@ -486,38 +516,12 @@ class ChatMessageService:
         messages_for_prompt = [m for m in messages if m.id != last_message.id]
         api_messages = await self.context.assemble(chat, messages_for_prompt)
 
-        gateway = gateway_factory.build_gateway(chat)
-        start = time.perf_counter()
-        try:
-            response = await gateway.chat_completion(api_messages)
-        except Exception as e:
-            await llm_audit.audit_error(
-                gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
-            )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error communicating with AI provider: {str(e)}",
-            ) from e
-
-        await llm_audit.record_llm_audit(
-            gateway=gateway,
-            api_messages=api_messages,
+        return await self._run_blocking_completion(
+            chat=chat,
             chat_id=chat_id,
-            latency_ms=(time.perf_counter() - start) * 1000,
-            content=response.content,
-            reasoning=response.reasoning,
-            finish_reason=response.finish_reason,
-            usage=response.usage,
-            raw=response.raw,
+            api_messages=api_messages,
+            existing_message=last_message,
         )
-
-        assistant_content = sanitize_narrative(response.content)
-        token_count = response.usage.output_tokens or self.tokenizer.count_tokens(assistant_content)
-
-        await self.alternatives.store(last_message, assistant_content, token_count)
-        await self._update_chat_metadata(chat_id, assistant_content)
-
-        return last_message
 
     async def regenerate_stream(self, chat_id: str) -> AsyncIterator[StreamEvent]:
         """Regenerate the tail assistant reply (streaming).
