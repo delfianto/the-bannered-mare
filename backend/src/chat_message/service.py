@@ -7,8 +7,7 @@ from typing import Any
 
 from fastapi import HTTPException, status
 
-from src.audit.writer import audit_logger
-from src.chat_message import gateway_factory, transcripts
+from src.chat_message import gateway_factory, llm_audit, transcripts
 from src.chat_message.alternatives import AlternativesService
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.normalize import parse_structured_list, sanitize_narrative
@@ -20,12 +19,6 @@ from src.chat_message.schemas import MessageResponse, StreamEvent
 from src.chat_session.models import Chat
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.config import settings
-from src.core.exceptions import (
-    ProviderAuthError,
-    ProviderException,
-    ProviderRateLimitError,
-    ProviderTimeoutError,
-)
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
 from src.core.persistence.models import MessageAlternative
@@ -36,8 +29,7 @@ from src.lore.activation_engine import ActivatedEntry
 from src.lore.service import LoreService
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
-from src.provider.completion_outcome import CompletionOutcome, classify_completion
-from src.provider.gateway import ProviderGateway
+from src.provider.completion_outcome import CompletionOutcome
 from src.rag.retrieval_service import RetrievalService
 
 logger = get_logger(__name__)
@@ -54,18 +46,6 @@ _JSON_ARRAY_ONLY = (
     "JSON array of strings and nothing else — no reasoning, no markdown, no code "
     'fences. Begin the reply with "[" and end it with "]".'
 )
-
-
-def _classify_error(exc: Exception) -> str:
-    if isinstance(exc, ProviderRateLimitError):
-        return "rate_limit"
-    if isinstance(exc, ProviderAuthError):
-        return "auth_error"
-    if isinstance(exc, ProviderTimeoutError):
-        return "timeout"
-    if isinstance(exc, ProviderException):
-        return "provider_error"
-    return "internal_error"
 
 
 # User-facing explanation for a non-USABLE completion (empty/filtered/etc.), shown
@@ -175,85 +155,6 @@ class ChatMessageService:
             "prompt_token_estimate", estimated_tokens=total, message_count=len(api_messages)
         )
         return total
-
-    async def _record_llm_audit(
-        self,
-        *,
-        gateway: ProviderGateway,
-        api_messages: list[dict[str, Any]],
-        chat_id: str,
-        latency_ms: float,
-        error: Exception | None = None,
-        content: str | None = None,
-        reasoning: str | None = None,
-        finish_reason: str | None = None,
-        usage: TokenUsage | None = None,
-        raw: dict[str, Any] | None = None,
-        status_override: str | None = None,
-    ) -> None:
-        """Record one LLM-call audit row (fire-and-forget; never raises).
-
-        ``status_override`` records a non-error but non-``success`` outcome
-        (filtered / empty / truncated) so LLM Logs no longer files these as
-        successes.
-        """
-        try:
-            provider = gateway.provider.provider_type.value
-            model = gateway.active_identifier
-            if error is not None:
-                await audit_logger.log_llm_call(
-                    chat_id=chat_id,
-                    provider=provider,
-                    model=model,
-                    prompt_tokens=0,
-                    completion_tokens=0,
-                    total_tokens=0,
-                    latency_ms=latency_ms,
-                    status=_classify_error(error),
-                    error_message=str(error),
-                    request_payload=api_messages,
-                    response_payload=None,
-                )
-                return
-
-            usage_dict = None
-            in_tok = out_tok = tot_tok = 0
-            if usage is not None:
-                in_tok, out_tok, tot_tok = (
-                    usage.input_tokens,
-                    usage.output_tokens,
-                    usage.total_tokens,
-                )
-                usage_dict = {
-                    "input_tokens": usage.input_tokens,
-                    "output_tokens": usage.output_tokens,
-                    "total_tokens": usage.total_tokens,
-                    "cache_read_tokens": usage.cache_read_tokens,
-                    "cache_creation_tokens": usage.cache_creation_tokens,
-                }
-            response_payload: dict[str, Any] = {
-                "content": content,
-                "reasoning": reasoning,
-                "finish_reason": finish_reason,
-                "usage": usage_dict,
-            }
-            if raw is not None:
-                response_payload["raw"] = raw
-
-            await audit_logger.log_llm_call(
-                chat_id=chat_id,
-                provider=provider,
-                model=model,
-                prompt_tokens=in_tok,
-                completion_tokens=out_tok,
-                total_tokens=tot_tok,
-                latency_ms=latency_ms,
-                status=status_override or "success",
-                request_payload=api_messages,
-                response_payload=response_payload,
-            )
-        except Exception:
-            logger.warning("llm_audit_capture_failed", exc_info=True)
 
     async def get_messages(
         self, chat_id: str, limit: int = 20, cursor: str | None = None
@@ -393,7 +294,7 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._audit_error(
+            await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
@@ -401,7 +302,7 @@ class ChatMessageService:
                 detail=f"Error communicating with AI provider: {e!s}",
             ) from e
 
-        await self._record_llm_audit(
+        await llm_audit.record_llm_audit(
             gateway=gateway,
             api_messages=api_messages,
             chat_id=chat_id,
@@ -437,7 +338,7 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._audit_error(
+            await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
@@ -518,62 +419,6 @@ class ChatMessageService:
         )
         return content, reasoning, token_count
 
-    async def _classify_and_audit(
-        self,
-        *,
-        gateway: ProviderGateway,
-        api_messages: list[dict[str, Any]],
-        chat_id: str,
-        start: float,
-        content: str | None,
-        reasoning: str | None,
-        finish_reason: str | None,
-        usage: TokenUsage | None,
-        raw: dict[str, Any] | None = None,
-    ) -> CompletionOutcome:
-        """Classify the completion, record the audit (status = the outcome), and
-        warn on a non-usable result. The caller decides how to surface it (raise
-        vs stream error event)."""
-        outcome = classify_completion(content, reasoning, finish_reason)
-        await self._record_llm_audit(
-            gateway=gateway,
-            api_messages=api_messages,
-            chat_id=chat_id,
-            latency_ms=(time.perf_counter() - start) * 1000,
-            content=content,
-            reasoning=reasoning,
-            finish_reason=finish_reason,
-            usage=usage,
-            raw=raw,
-            status_override=None if outcome == CompletionOutcome.USABLE else outcome.value,
-        )
-        if outcome != CompletionOutcome.USABLE:
-            logger.warning(
-                "non_usable_completion",
-                chat_id=chat_id,
-                outcome=outcome.value,
-                finish_reason=finish_reason,
-            )
-        return outcome
-
-    async def _audit_error(
-        self,
-        *,
-        gateway: ProviderGateway,
-        api_messages: list[dict[str, Any]],
-        chat_id: str,
-        start: float,
-        error: Exception,
-    ) -> None:
-        """Record a failed LLM call (exception path)."""
-        await self._record_llm_audit(
-            gateway=gateway,
-            api_messages=api_messages,
-            chat_id=chat_id,
-            latency_ms=(time.perf_counter() - start) * 1000,
-            error=error,
-        )
-
     async def send_message(self, chat_id: str, content: str) -> Message:
         """Send a message and get an AI response (non-streaming)"""
         chat = await self._get_chat_by_id(chat_id)
@@ -604,7 +449,7 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._audit_error(
+            await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
@@ -612,7 +457,7 @@ class ChatMessageService:
                 detail=f"Error communicating with AI provider: {str(e)}",
             ) from e
 
-        outcome = await self._classify_and_audit(
+        outcome = await llm_audit.classify_and_audit(
             gateway=gateway,
             api_messages=api_messages,
             chat_id=chat_id,
@@ -709,7 +554,7 @@ class ChatMessageService:
 
             # Classify the assembled stream (audit before think-tag parsing); an
             # empty/filtered/truncated result is surfaced instead of persisted.
-            outcome = await self._classify_and_audit(
+            outcome = await llm_audit.classify_and_audit(
                 gateway=gateway,
                 api_messages=api_messages,
                 chat_id=chat_id,
@@ -769,11 +614,11 @@ class ChatMessageService:
             yield StreamEvent(type="done", finish_reason=last_finish_reason or "stop")
 
         except Exception as e:
-            await self._audit_error(
+            await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             logger.error(f"Error during streaming: {e!s}")
-            yield StreamEvent(type="error", message=str(e), code=_classify_error(e))
+            yield StreamEvent(type="error", message=str(e), code=llm_audit.classify_error(e))
 
     async def send_message_stream(self, chat_id: str, content: str) -> AsyncIterator[StreamEvent]:
         """Send a message and get a streaming AI response."""
@@ -840,7 +685,7 @@ class ChatMessageService:
         try:
             response = await gateway.chat_completion(api_messages)
         except Exception as e:
-            await self._audit_error(
+            await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             raise HTTPException(
@@ -848,7 +693,7 @@ class ChatMessageService:
                 detail=f"Error communicating with AI provider: {str(e)}",
             ) from e
 
-        await self._record_llm_audit(
+        await llm_audit.record_llm_audit(
             gateway=gateway,
             api_messages=api_messages,
             chat_id=chat_id,
