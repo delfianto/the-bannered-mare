@@ -3,10 +3,11 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from src.chat_session import queries
 from src.chat_session.models import Chat
 from src.core.persistence.base_repository_async import AsyncBaseRepository
 from src.core.persistence.models import PromptTemplate, TemplateFragment
@@ -63,8 +64,7 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
 
     async def find_all_ordered(self) -> list[Chat]:
         """Find all chats ordered by creation date"""
-        stmt = select(Chat).options(joinedload(Chat.character)).order_by(Chat.created_at.desc())
-        result = await self.db.execute(stmt)
+        result = await self.db.execute(queries.all_ordered_stmt())
         return list(result.scalars().all())
 
     async def find_paginated_ordered(
@@ -74,17 +74,9 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
         if limit > self.MAX_LIMIT:
             raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
 
-        stmt = select(Chat).options(joinedload(Chat.character))
-        stmt = self._apply_filters(stmt, filters)
-
-        count_stmt = select(func.count()).select_from(stmt.subquery())
-        count_result = await self.db.execute(count_stmt)
-        total = count_result.scalar_one()
-
-        stmt = stmt.order_by(Chat.created_at.desc()).limit(limit).offset(offset)
-        result = await self.db.execute(stmt)
-        items = list(result.scalars().all())
-
+        count_stmt, page_stmt = queries.ordered_page_stmts(limit, offset, filters)
+        total = (await self.db.execute(count_stmt)).scalar_one()
+        items = list((await self.db.execute(page_stmt)).scalars().all())
         return items, total
 
     async def find_paginated_by_cursor(
@@ -100,31 +92,10 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
         if limit > self.MAX_LIMIT:
             raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
 
-        stmt = select(Chat).options(joinedload(Chat.character))
-        stmt = self._apply_filters(stmt, filters)
-
-        if cursor:
-            # Fetch items OLDER (smaller timestamp) than the cursor
-            stmt = stmt.where(Chat.updated_at < cursor)
-
-        # Order by updated_at desc
-        stmt = stmt.order_by(Chat.updated_at.desc())
-
-        # Limit + 1 to check next page
-        stmt = stmt.limit(limit + 1)
-
-        result = await self.db.execute(stmt)
-        items = list(result.scalars().all())
-
-        has_more = False
-        if len(items) > limit:
-            has_more = True
-            items = items[:limit]
-
-        return items, has_more
+        result = await self.db.execute(queries.cursor_page_stmt(limit, cursor, filters))
+        return queries.split_cursor_page(list(result.scalars().all()), limit)
 
     async def find_by_character_id(self, character_id: str) -> list[Chat]:
         """Find all chats for a specific character"""
-        stmt = select(Chat).where(Chat.character_id == character_id)
-        result = await self.db.execute(stmt)
+        result = await self.db.execute(queries.by_character_stmt(character_id))
         return list(result.scalars().all())

@@ -4,9 +4,10 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import func, select, update
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import update
+from sqlalchemy.orm import Session
 
+from src.chat_session import queries
 from src.chat_session.models import Chat
 from src.core.persistence import BaseRepository
 
@@ -22,13 +23,11 @@ class ChatRepository(BaseRepository[Chat]):
 
     def find_all_ordered(self) -> list[Chat]:
         """Find all chats ordered by creation date"""
-        stmt = select(Chat).options(joinedload(Chat.character)).order_by(Chat.created_at.desc())
-        return list(self.db.execute(stmt).scalars().all())
+        return list(self.db.execute(queries.all_ordered_stmt()).scalars().all())
 
     def find_by_id(self, entity_id: str) -> Chat | None:
         """Find chat by ID with eager loading of character"""
-        stmt = select(Chat).options(joinedload(Chat.character)).where(Chat.id == entity_id)
-        return self.db.execute(stmt).scalars().first()
+        return self.db.execute(queries.by_id_with_character_stmt(entity_id)).scalars().first()
 
     def find_paginated_ordered(
         self, limit: int = 10, offset: int = 0, filters: dict[str, Any] | None = None
@@ -37,15 +36,9 @@ class ChatRepository(BaseRepository[Chat]):
         if limit > self.MAX_LIMIT:
             raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
 
-        stmt = select(Chat).options(joinedload(Chat.character))
-        stmt = self._apply_filters(stmt, filters)
-
-        count_stmt = select(func.count()).select_from(stmt.subquery())
+        count_stmt, page_stmt = queries.ordered_page_stmts(limit, offset, filters)
         total = self.db.execute(count_stmt).scalar_one()
-
-        stmt = stmt.order_by(Chat.created_at.desc()).limit(limit).offset(offset)
-        items = list(self.db.execute(stmt).scalars().all())
-
+        items = list(self.db.execute(page_stmt).scalars().all())
         return items, total
 
     def find_paginated_by_cursor(
@@ -61,26 +54,10 @@ class ChatRepository(BaseRepository[Chat]):
         if limit > self.MAX_LIMIT:
             raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
 
-        stmt = select(Chat).options(joinedload(Chat.character))
-        stmt = self._apply_filters(stmt, filters)
-
-        if cursor:
-            stmt = stmt.where(Chat.updated_at < cursor)
-
-        # Order by updated_at desc
-        stmt = stmt.order_by(Chat.updated_at.desc())
-
-        # Limit + 1 to check next page
-        stmt = stmt.limit(limit + 1)
-
-        items = list(self.db.execute(stmt).scalars().all())
-
-        has_more = False
-        if len(items) > limit:
-            has_more = True
-            items = items[:limit]
-
-        return items, has_more
+        items = list(
+            self.db.execute(queries.cursor_page_stmt(limit, cursor, filters)).scalars().all()
+        )
+        return queries.split_cursor_page(items, limit)
 
     def update_model_name_for_model_id(self, model_id: str, new_name: str) -> None:
         """Bulk update model_name for all chats using a specific model_id"""
@@ -89,5 +66,4 @@ class ChatRepository(BaseRepository[Chat]):
 
     def find_by_character_id(self, character_id: str) -> list[Chat]:
         """Find all chats for a specific character"""
-        stmt = select(Chat).where(Chat.character_id == character_id)
-        return list(self.db.execute(stmt).scalars().all())
+        return list(self.db.execute(queries.by_character_stmt(character_id)).scalars().all())
