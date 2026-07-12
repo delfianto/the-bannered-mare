@@ -35,7 +35,9 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
-            "reasoning_mode": "none",
+            # V3.1 introduced hybrid think/non-think; V3.2 is reasoning-first. Both
+            # let the caller disable thinking (deepseek-chat id / thinking toggle).
+            "reasoning_mode": "optional",
             "lineage": "deepseek",
             "context_window": 128000,
             "supports_vision": False,
@@ -54,7 +56,9 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
         },
         "unsupported_parameters": [],
         "extra_metadata": {
-            "reasoning_mode": "none",
+            # V4 Pro/Flash are unified hybrid (Thinking / Non-Thinking dual modes);
+            # thinking is caller-disablable via the thinking toggle / reasoning_effort.
+            "reasoning_mode": "optional",
             "lineage": "deepseek",
             "context_window": 128000,
             "supports_vision": False,
