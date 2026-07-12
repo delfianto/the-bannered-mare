@@ -53,28 +53,28 @@ class TestImportEndpoint:
 
     def test_400_invalid_json(self, client: TestClient) -> None:
         resp = client.post(_URL, files=_upload(b"{not json", "broken.json"))
-        assert resp.status_code == 400
+        assert resp.status_code == 422
         assert "JSON" in resp.json()["detail"]
 
     def test_400_text_completion_preset(self, client: TestClient) -> None:
         body = json.dumps({"temp": 0.7, "rep_pen": 1.1, "instruct": {}})
         resp = client.post(_URL, files=_upload(body, "textgen.json"))
-        assert resp.status_code == 400
+        assert resp.status_code == 422
         assert "text-completion" in resp.json()["detail"]
 
     def test_400_wrong_extension(self, client: TestClient) -> None:
         resp = client.post(_URL, files=_upload(_valid_body(), "preset.png"))
-        assert resp.status_code == 400
+        assert resp.status_code == 422
         assert ".json" in resp.json()["detail"]
 
     def test_400_regex_script(self, client: TestClient) -> None:
         body = json.dumps({"findRegex": "/x/", "replaceString": "y"})
         resp = client.post(_URL, files=_upload(body, "regex.json"))
-        assert resp.status_code == 400
+        assert resp.status_code == 422
 
     def test_400_empty_file(self, client: TestClient) -> None:
         resp = client.post(_URL, files=_upload(b"", "empty.json"))
-        assert resp.status_code == 400
+        assert resp.status_code == 422
 
     def test_422_missing_file(self, client: TestClient) -> None:
         resp = client.post(_URL)

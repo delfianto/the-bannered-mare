@@ -3,9 +3,8 @@
 import logging
 from typing import Any
 
-from fastapi import HTTPException
-
 from src.core.base_service import get_or_404
+from src.core.exceptions import ValidationError
 from src.core.persistence import gen_id
 from src.core.utils.template import TemplateService
 from src.prompt_fragment.repository import FragmentRepository
@@ -44,7 +43,7 @@ class PromptTemplateService:
         if template_str is not None:
             is_valid, error = self.template_service.validate_template(template_str)
             if not is_valid:
-                raise HTTPException(status_code=400, detail=f"Invalid {name} syntax: {error}")
+                raise ValidationError(f"Invalid {name} syntax: {error}")
 
     def create(
         self,

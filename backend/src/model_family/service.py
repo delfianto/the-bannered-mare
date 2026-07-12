@@ -2,9 +2,8 @@
 
 from typing import Any
 
-from fastapi import HTTPException, status
-
 from src.core.base_service import get_or_404
+from src.core.exceptions import ConflictError
 from src.core.logging import get_logger
 from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
@@ -38,10 +37,7 @@ class ModelFamilyService:
         # Check if family with same name already exists
         existing = self.family_repo.find_by_name(family_data.name)
         if existing:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Model family with name '{family_data.name}' already exists",
-            )
+            raise ConflictError(f"Model family with name '{family_data.name}' already exists")
 
         family = ModelFamily(
             name=family_data.name,
@@ -86,9 +82,9 @@ class ModelFamilyService:
 
         # Check if family is being used by any models
         if family.models:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Cannot delete model family '{family.name}' because it is being used by {len(family.models)} model(s)",
+            raise ConflictError(
+                f"Cannot delete model family '{family.name}' because it is being used by "
+                f"{len(family.models)} model(s)"
             )
 
         self.family_repo.delete(family)

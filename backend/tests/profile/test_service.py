@@ -1,9 +1,8 @@
 """Tests for ProfileService"""
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from src.core.exceptions import NotFoundError
+from src.core.exceptions import BanneredMareException, NotFoundError
 from src.core.persistence import Preset, PromptTemplate
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
@@ -48,16 +47,16 @@ class TestProfileService:
         assert profile.preset_id == preset.id
 
     def test_create_with_invalid_template_raises_404(self, db: Session) -> None:
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _service(db).create(name="Bad", prompt_template_id="nonexistent")
         assert exc_info.value.status_code == 404
-        assert "Prompt template" in exc_info.value.detail
+        assert "Prompt template" in exc_info.value.message
 
     def test_create_with_invalid_model_raises_404(self, db: Session) -> None:
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _service(db).create(name="Bad", model_id="nonexistent")
         assert exc_info.value.status_code == 404
-        assert "Model" in exc_info.value.detail
+        assert "Model" in exc_info.value.message
 
     def test_default_is_exclusive(self, db: Session) -> None:
         service = _service(db)
@@ -78,7 +77,7 @@ class TestProfileService:
     def test_update_with_invalid_ref_raises_404(self, db: Session) -> None:
         service = _service(db)
         profile = service.create(name="Loadout")
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.update(profile.id, {"preset_id": "nonexistent"})
         assert exc_info.value.status_code == 404
 
