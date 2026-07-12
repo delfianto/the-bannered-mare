@@ -34,8 +34,3 @@ class ProviderRepository(BaseRepository[Provider]):
 
         stmt = select(Provider).where(Provider.provider_type == provider_type)
         return self.db.execute(stmt).scalars().first()
-
-    def find_enabled(self) -> list[Provider]:
-        """Find all enabled providers"""
-        stmt = select(Provider).where(Provider.enabled)
-        return list(self.db.execute(stmt).scalars().all())

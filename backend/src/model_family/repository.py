@@ -92,33 +92,3 @@ class ModelFamilyRepository(BaseRepository[ModelFamily]):
         """
         stmt = select(ModelFamily).where(ModelFamily.family_identifier == family_identifier)
         return self.db.execute(stmt).scalars().first()
-
-    def find_by_provider_type(self, provider_type: str) -> Sequence[ModelFamily]:
-        """
-        Find all model families for a specific provider type.
-
-        Args:
-            provider_type: The provider type to filter by (e.g., 'openai', 'anthropic')
-
-        Returns:
-            Sequence of model families for the provider
-        """
-        # Since provider_types is an ARRAY or JSON (depending on backend), we use a compatible filter
-        stmt = select(ModelFamily).where(
-            cast(Any, provider_type == any_(ModelFamily.provider_types))
-        )
-        return list(self.db.execute(stmt).scalars().all())
-
-    def find_by_parameter_support(self, parameter_name: str) -> Sequence[ModelFamily]:
-        """
-        Find model families that define a specific parameter.
-
-        Args:
-            parameter_name: The parameter name to search for
-
-        Returns:
-            Sequence of model families supporting the parameter
-        """
-        # Check if the parameter exists in the 'parameters' JSON object
-        stmt = select(ModelFamily).where(ModelFamily.parameters.has_key(parameter_name))
-        return list(self.db.execute(stmt).scalars().all())
