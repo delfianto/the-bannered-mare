@@ -4,7 +4,6 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from src.chat_message import AsyncMessageRepository, ChatMessageService
@@ -92,7 +91,7 @@ async def test_send_message_records_error_audit(
         mock_client.active_identifier = "gpt-4o"
         mock_gateway_class.return_value = mock_client
 
-        with pytest.raises(HTTPException):
+        with pytest.raises(ProviderException):
             await service.send_message(chat.id, "Hello")
 
     mock_audit.log_llm_call.assert_awaited_once()

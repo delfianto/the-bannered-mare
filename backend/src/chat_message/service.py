@@ -5,8 +5,6 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import Any
 
-from fastapi import HTTPException, status
-
 from src.chat_message import gateway_factory, llm_audit
 from src.chat_message.alternatives import AlternativesService
 from src.chat_message.auxiliary import AuxiliaryGenerationService
@@ -22,6 +20,7 @@ from src.chat_message.schemas import MessageResponse, StreamEvent
 from src.chat_session.models import Chat
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.config import settings
+from src.core.exceptions import NotFoundError, ProviderException, ValidationError
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
 from src.core.persistence.models import MessageAlternative
@@ -205,10 +204,7 @@ class ChatMessageService:
 
         message = await self.message_repo.find_by_id_in_chat(message_id, chat_id)
         if not message:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Message '{message_id}' not found in chat '{chat_id}'",
-            )
+            raise NotFoundError(f"Message '{message_id}' not found in chat '{chat_id}'")
 
         message.content = content
         message.token_count = self.tokenizer.count_tokens(content)
@@ -303,10 +299,7 @@ class ChatMessageService:
             await llm_audit.audit_error(
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error communicating with AI provider: {e!s}",
-            ) from e
+            raise ProviderException("Error communicating with AI provider.") from e
 
         outcome = await llm_audit.classify_and_audit(
             gateway=gateway,
@@ -320,9 +313,7 @@ class ChatMessageService:
             raw=response.raw,
         )
         if outcome != CompletionOutcome.USABLE:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY, detail=_outcome_message(outcome)
-            )
+            raise ProviderException(_outcome_message(outcome))
 
         # Prompt-budget observability (send only; regenerate passes no estimate).
         if estimated_tokens is not None and response.usage:
@@ -497,17 +488,11 @@ class ChatMessageService:
 
         latest_messages = await self.message_repo.find_latest_by_chat_id(chat_id, limit=1)
         if not latest_messages:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot regenerate: No messages in chat",
-            )
+            raise ValidationError("Cannot regenerate: No messages in chat")
 
         last_message = latest_messages[0]
         if last_message.role != MessageRole.ASSISTANT:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot regenerate: Last message is not from assistant",
-            )
+            raise ValidationError("Cannot regenerate: Last message is not from assistant")
 
         gateway_factory.validate_model_and_key(chat)
 
@@ -536,10 +521,7 @@ class ChatMessageService:
 
         latest_messages = await self.message_repo.find_latest_by_chat_id(chat_id, limit=1)
         if not latest_messages:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot regenerate: No messages in chat",
-            )
+            raise ValidationError("Cannot regenerate: No messages in chat")
 
         last_message = latest_messages[0]
         # Replace the last assistant turn; for a dangling user turn, append instead.

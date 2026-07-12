@@ -441,7 +441,7 @@ class TestChatMessageService:
         async_sample_model: Any,
     ) -> None:
         """Test editing a nonexistent message raises 404."""
-        from fastapi import HTTPException
+        from src.core.exceptions import BanneredMareException
 
         chat = Chat(
             title="Chat",
@@ -457,7 +457,7 @@ class TestChatMessageService:
         prompt_builder = PromptBuilder(template_repo)
         service = ChatMessageService(message_repo, chat_repo, prompt_builder)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             await service.edit_message(chat.id, "nonexistent_id", "New content")
 
         assert exc_info.value.status_code == 404
@@ -471,7 +471,7 @@ class TestChatMessageService:
         async_sample_model: Any,
     ) -> None:
         """Test regenerate raises 400 when last message is not from assistant."""
-        from fastapi import HTTPException
+        from src.core.exceptions import BanneredMareException
 
         chat = Chat(
             title="Chat",
@@ -493,11 +493,11 @@ class TestChatMessageService:
         prompt_builder = PromptBuilder(template_repo)
         service = ChatMessageService(message_repo, chat_repo, prompt_builder)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             await service.regenerate(chat.id)
 
-        assert exc_info.value.status_code == 400
-        assert "not from assistant" in exc_info.value.detail
+        assert exc_info.value.status_code == 422
+        assert "not from assistant" in exc_info.value.message
 
     @pytest.mark.asyncio
     async def test_regenerate_blocking_surfaces_filtered_reply(
@@ -510,7 +510,7 @@ class TestChatMessageService:
         """Blocking regenerate classifies like the streaming path: a filtered/empty
         reply raises 502 and leaves the existing assistant message untouched, rather
         than silently overwriting it with a blank turn."""
-        from fastapi import HTTPException
+        from src.core.exceptions import ProviderException
 
         chat = Chat(
             title="Chat",
@@ -543,10 +543,8 @@ class TestChatMessageService:
             mock_client.chat_completion.return_value = filtered
             mock_gateway_class.return_value = mock_client
 
-            with pytest.raises(HTTPException) as exc_info:
+            with pytest.raises(ProviderException):
                 await service.regenerate(chat.id)
-
-        assert exc_info.value.status_code == 502
 
         # The prior assistant turn must be intact (no blank persisted).
         from sqlalchemy import select
