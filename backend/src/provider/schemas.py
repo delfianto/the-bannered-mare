@@ -8,6 +8,41 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.provider.models import ProviderType
 
+# A CUSTOM provider's api_key_env_var is resolved with os.getenv() and sent as a
+# Bearer token to its base_url, so it must look like a *credential* variable and
+# must never name one of the application's own secrets — otherwise a provider
+# pointed at an attacker URL could exfiltrate them.
+_ALLOWED_KEY_SUFFIXES = ("_API_KEY", "_KEY", "_TOKEN")
+_FORBIDDEN_KEY_SUBSTRINGS = ("SECRET", "PASSWORD", "PRIVATE")
+_FORBIDDEN_KEY_NAMES = frozenset({"ENCRYPTION_KEY", "DATABASE_URL"})
+
+
+def _validate_api_key_env_var(v: str | None) -> str | None:
+    """Restrict api_key_env_var to credential-shaped names, never app secrets."""
+    if v is None:
+        return v
+    if not re.fullmatch(r"[A-Z][A-Z0-9_]*", v):
+        raise ValueError("api_key_env_var must be uppercase letters, digits, and underscores")
+    if (
+        not v.endswith(_ALLOWED_KEY_SUFFIXES)
+        or v in _FORBIDDEN_KEY_NAMES
+        or any(s in v for s in _FORBIDDEN_KEY_SUBSTRINGS)
+    ):
+        raise ValueError(
+            "api_key_env_var must name a provider credential variable "
+            "(e.g. MYPROVIDER_API_KEY) and cannot reference an application secret"
+        )
+    return v
+
+
+def _validate_base_url(v: str | None) -> str | None:
+    """Require an http(s) scheme so the server can't be pointed at file://, etc."""
+    if v is None:
+        return v
+    if not re.match(r"^https?://", v):
+        raise ValueError("base_url must start with http:// or https://")
+    return v
+
 
 class DiscoveredModel(BaseModel):
     """A model discovered by querying a local provider's native API."""
@@ -75,15 +110,8 @@ class ProviderCreate(BaseModel):
         description="Environment variable name for API key (required for CUSTOM providers)",
     )
 
-    @field_validator("api_key_env_var")
-    @classmethod
-    def validate_api_key_env_var(cls, v: str | None):
-        """Validate env var name format"""
-        if v is not None and not re.match(r"^[A-Z][A-Z0-9_]*$", v):
-            raise ValueError(
-                "api_key_env_var must be uppercase with underscores (e.g., MY_CUSTOM_API_KEY)"
-            )
-        return v
+    _check_base_url = field_validator("base_url")(_validate_base_url)
+    _check_api_key_env_var = field_validator("api_key_env_var")(_validate_api_key_env_var)
 
 
 class ProviderUpdate(BaseModel):
@@ -97,6 +125,9 @@ class ProviderUpdate(BaseModel):
         description="Environment variable name for API key (CUSTOM providers only)",
     )
     enabled: bool | None = None
+
+    _check_base_url = field_validator("base_url")(_validate_base_url)
+    _check_api_key_env_var = field_validator("api_key_env_var")(_validate_api_key_env_var)
 
     @field_validator("api_key_env_var")
     @classmethod
