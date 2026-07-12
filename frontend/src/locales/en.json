@@ -350,6 +350,10 @@
       "back": "Back to tones",
       "error": "Couldn't reach the model for suggestions."
     },
+    "error": {
+      "retry": "Regenerate",
+      "dismiss": "Dismiss"
+    },
     "actions": {
       "regenerate": "Regenerate",
       "copy": "Copy",
