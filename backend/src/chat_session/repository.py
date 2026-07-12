@@ -29,6 +29,10 @@ class ChatRepository(BaseRepository[Chat]):
         """Find chat by ID with eager loading of character"""
         return self.db.execute(queries.by_id_with_character_stmt(entity_id)).scalars().first()
 
+    def find_bookmarked(self) -> list[Chat]:
+        """Find all bookmarked chats, newest first."""
+        return list(self.db.execute(queries.bookmarked_stmt()).scalars().all())
+
     def find_paginated_ordered(
         self, limit: int = 10, offset: int = 0, filters: dict[str, Any] | None = None
     ) -> tuple[list[Chat], int]:

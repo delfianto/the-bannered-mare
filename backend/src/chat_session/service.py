@@ -60,6 +60,10 @@ class ChatService:
         """List all chats"""
         return self.chat_repo.find_all_ordered()
 
+    def list_bookmarked(self) -> list[Chat]:
+        """List all bookmarked chat sessions."""
+        return self.chat_repo.find_bookmarked()
+
     def list_paginated(
         self, limit: int = 10, cursor: str | None = None, filters: dict[str, Any] | None = None
     ) -> tuple[list[Chat], str | None]:

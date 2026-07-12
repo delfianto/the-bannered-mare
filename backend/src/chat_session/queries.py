@@ -32,6 +32,11 @@ def by_character_stmt(character_id: str) -> Select[tuple[Chat]]:
     return select(Chat).where(Chat.character_id == character_id)
 
 
+def bookmarked_stmt() -> Select[tuple[Chat]]:
+    """Bookmarked chats, newest first, with the character eager-loaded."""
+    return _with_character().where(Chat.is_bookmarked.is_(True)).order_by(Chat.created_at.desc())
+
+
 def ordered_page_stmts(
     limit: int, offset: int, filters: dict[str, Any] | None
 ) -> tuple[Select[Any], Select[tuple[Chat]]]:
