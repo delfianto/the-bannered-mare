@@ -201,7 +201,8 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "minimax/minimax-m3",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "max_tokens": 4096},
-        "enabled": False,
+        # Enabled so the canonical is available; also offered on OpenCode Go.
+        "enabled": True,
     },
     {
         "name": "MiniMax M2.7",
@@ -209,7 +210,8 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "minimax/minimax-m2",
         "provider_type": "openrouter",
         "parameters": {"temperature": 1.0, "top_p": 0.95, "top_k": 40, "max_tokens": 4096},
-        "enabled": False,
+        # Enabled so the canonical is available; also offered on OpenCode Go.
+        "enabled": True,
     },
     {
         "name": "MiniMax M2.5",
