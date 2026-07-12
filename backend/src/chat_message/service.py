@@ -9,6 +9,7 @@ from fastapi import HTTPException, status
 
 from src.chat_message import gateway_factory, llm_audit, transcripts
 from src.chat_message.alternatives import AlternativesService
+from src.chat_message.context import MessageContextBuilder
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.normalize import parse_structured_list, sanitize_narrative
 from src.chat_message.repository_async import (
@@ -25,7 +26,6 @@ from src.core.persistence.models import MessageAlternative
 from src.core.schemas import PaginatedResponse, PaginationMeta
 from src.core.utils.reasoning import parse_reasoning_tags
 from src.core.utils.tokenizer import TokenizerService
-from src.lore.activation_engine import ActivatedEntry
 from src.lore.service import LoreService
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
@@ -88,36 +88,12 @@ class ChatMessageService:
     ):
         self.message_repo = message_repo
         self.chat_repo = chat_repo
-        self.prompt_builder = prompt_builder
-        self.lore_service = lore_service
+        self.prompt_builder = prompt_builder  # retained for the scaffolding-only preview
         self.alt_repo = alt_repo
-        self.retrieval_service = retrieval_service
+        self.retrieval_service = retrieval_service  # retained for _vectorize
         self.tokenizer = TokenizerService()
+        self.context = MessageContextBuilder(prompt_builder, lore_service, retrieval_service)
         self.alternatives = AlternativesService(message_repo, alt_repo)
-
-    def _get_activated_lore(
-        self, chat: Chat, messages: list[Message]
-    ) -> list[ActivatedEntry] | None:
-        """Run lore activation engine against recent messages."""
-        if not self.lore_service:
-            return None
-        scan_text = " ".join(msg.content for msg in messages[-20:])
-        return self.lore_service.get_activated_entries(
-            character_id=chat.character_id, scan_text=scan_text
-        )
-
-    async def _retrieve_rag_context(self, chat: Chat, messages: list[Message]) -> list[Any] | None:
-        """Retrieve relevant context via RAG (semantic search over history + data bank)."""
-        if not self.retrieval_service:
-            return None
-        try:
-            query_text = " ".join(msg.content for msg in messages[-2:])
-            return await self.retrieval_service.retrieve(
-                chat_id=chat.id, query_text=query_text, character_id=chat.character_id
-            )
-        except Exception:
-            logger.warning("rag_retrieval_failed", exc_info=True)
-            return None
 
     async def _vectorize(self, message: Message) -> None:
         """Embed and store a message for RAG (best-effort — never blocks the reply).
@@ -265,11 +241,7 @@ class ChatMessageService:
         else:
             # impersonate drafts the user's *actual* next message, so it keeps the
             # full scene context on the main model for quality.
-            activated_lore = self._get_activated_lore(chat, messages)
-            rag_results = await self._retrieve_rag_context(chat, messages)
-            api_messages = self.prompt_builder.build_api_messages(
-                chat, messages, activated_lore=activated_lore, rag_results=rag_results
-            )
+            api_messages = await self.context.assemble(chat, messages)
 
             tone_clause = f" Give it a {tone} tone." if tone else ""
             instruction = (
@@ -436,11 +408,7 @@ class ChatMessageService:
         await self._update_chat_metadata(chat_id, content)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
-        activated_lore = self._get_activated_lore(chat, messages)
-        rag_results = await self._retrieve_rag_context(chat, messages)
-        api_messages = self.prompt_builder.build_api_messages(
-            chat, messages, activated_lore=activated_lore, rag_results=rag_results
-        )
+        api_messages = await self.context.assemble(chat, messages)
 
         estimated_tokens = self._log_token_budget(api_messages)
 
@@ -636,11 +604,7 @@ class ChatMessageService:
         await self._update_chat_metadata(chat_id, content)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
-        activated_lore = self._get_activated_lore(chat, messages)
-        rag_results = await self._retrieve_rag_context(chat, messages)
-        api_messages = self.prompt_builder.build_api_messages(
-            chat, messages, activated_lore=activated_lore, rag_results=rag_results
-        )
+        api_messages = await self.context.assemble(chat, messages)
 
         async for event in self._stream_completion(chat_id, chat, api_messages):
             yield event
@@ -674,11 +638,7 @@ class ChatMessageService:
         # Build prompt excluding the last assistant message
         messages = await self.message_repo.find_by_chat_id(chat_id)
         messages_for_prompt = [m for m in messages if m.id != last_message.id]
-        activated_lore = self._get_activated_lore(chat, messages_for_prompt)
-        rag_results = await self._retrieve_rag_context(chat, messages_for_prompt)
-        api_messages = self.prompt_builder.build_api_messages(
-            chat, messages_for_prompt, activated_lore=activated_lore, rag_results=rag_results
-        )
+        api_messages = await self.context.assemble(chat, messages_for_prompt)
 
         gateway = gateway_factory.build_gateway(chat)
         start = time.perf_counter()
@@ -741,11 +701,7 @@ class ChatMessageService:
         messages_for_prompt = (
             [m for m in messages if m.id != last_message.id] if existing else messages
         )
-        activated_lore = self._get_activated_lore(chat, messages_for_prompt)
-        rag_results = await self._retrieve_rag_context(chat, messages_for_prompt)
-        api_messages = self.prompt_builder.build_api_messages(
-            chat, messages_for_prompt, activated_lore=activated_lore, rag_results=rag_results
-        )
+        api_messages = await self.context.assemble(chat, messages_for_prompt)
 
         async for event in self._stream_completion(
             chat_id, chat, api_messages, existing_message=existing
