@@ -47,3 +47,26 @@ async def test_find_by_chat_id(async_db_session: AsyncSession, async_test_chat_i
 
     assert len(messages) == 3
     assert messages[0].content == "Message 0"  # Ordered by created_at
+
+
+@pytest.mark.asyncio
+async def test_find_by_chat_id_caps_to_newest_ascending(
+    async_db_session: AsyncSession, async_test_chat_id: str
+):
+    """With a limit, the newest N messages are returned in chronological order."""
+    repo = AsyncMessageRepository(async_db_session)
+    for i in range(5):
+        await repo.create(
+            Message(
+                chat_id=async_test_chat_id,
+                role=MessageRole.USER,
+                content=f"Message {i}",
+                token_count=2,
+            )
+        )
+    await repo.commit()
+
+    messages = await repo.find_by_chat_id(async_test_chat_id, limit=2)
+
+    # Newest two, oldest-first: Message 3 then Message 4.
+    assert [m.content for m in messages] == ["Message 3", "Message 4"]
