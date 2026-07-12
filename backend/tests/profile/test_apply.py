@@ -3,10 +3,10 @@
 from typing import Any
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_session import ChatRepository, ChatService
+from src.core.exceptions import BanneredMareException
 from src.core.persistence import Preset, PromptTemplate
 from src.model import ModelRegistry, ModelRepository, ModelRoute
 from src.persona.repository import PersonaRepository
@@ -101,10 +101,10 @@ class TestApplyProfile:
     def test_create_chat_with_missing_profile_raises_404(
         self, db: Session, sample_character: Any
     ) -> None:
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _chat_service(db).create(character_id=sample_character.id, profile_id="nonexistent")
         assert exc_info.value.status_code == 404
-        assert "Profile" in exc_info.value.detail
+        assert "Profile" in exc_info.value.message
 
     def test_apply_profile_to_existing_chat(
         self, db: Session, sample_character: Any, sample_persona: Any
