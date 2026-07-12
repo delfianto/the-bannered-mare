@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.persistence.base_model import BaseModel
+from src.core.persistence.statements import apply_filters
 
 
 class AsyncBaseRepository[T: BaseModel]:
@@ -32,47 +33,8 @@ class AsyncBaseRepository[T: BaseModel]:
         self.model = model
 
     def _apply_filters(self, stmt, filters: dict[str, Any] | None = None):
-        """
-        Apply filters dynamically based on dictionary keys.
-        Supported operators: __eq, __ne, __gt, __lt, __ge, __le, __in, __like, __ilike
-        """
-        if not filters:
-            return stmt
-
-        for key, value in filters.items():
-            if value is None:
-                continue
-
-            # Split field and operator (e.g., "age__ge" -> "age", "ge")
-            parts = key.split("__")
-            field_name = parts[0]
-            op = parts[1] if len(parts) > 1 else "eq"
-
-            if not hasattr(self.model, field_name):
-                continue
-
-            column = getattr(self.model, field_name)
-
-            if op == "eq":
-                stmt = stmt.where(column == value)
-            elif op == "ne":
-                stmt = stmt.where(column != value)
-            elif op == "gt":
-                stmt = stmt.where(column > value)
-            elif op == "ge":
-                stmt = stmt.where(column >= value)
-            elif op == "lt":
-                stmt = stmt.where(column < value)
-            elif op == "le":
-                stmt = stmt.where(column <= value)
-            elif op == "in":
-                stmt = stmt.where(column.in_(value))
-            elif op == "like":
-                stmt = stmt.where(column.like(f"%{value}%"))
-            elif op == "ilike":
-                stmt = stmt.where(column.ilike(f"%{value}%"))
-
-        return stmt
+        """Apply ``{field__op: value}`` filters (see statements.apply_filters)."""
+        return apply_filters(self.model, stmt, filters)
 
     async def find_by_id(self, entity_id: str) -> T | None:
         """
