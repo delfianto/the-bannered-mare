@@ -1,15 +1,18 @@
 """Application configuration using Pydantic Settings"""
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Self
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.core.model_filters import DEFAULT_MODEL_BLACKLIST, DEFAULT_MODEL_VENDOR_BLACKLIST
 
 _ = load_dotenv()
+
+# Insecure development defaults that must not survive into a production boot.
+_PLACEHOLDER_ENCRYPTION_KEY = "your-encryption-key-here"
 
 # A relative STORAGE_PATH resolves against the repo root, derived from this file's
 # location (backend/src/core/config.py → parents[3]) rather than the process CWD.
@@ -148,6 +151,11 @@ class DiscoveryCacheSettings(BaseModel):
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
+    # Deployment environment. Defaults to "development" so local/test/CI runs and
+    # the --reload server keep the convenient insecure defaults; setting
+    # ENVIRONMENT=production opts into the secret hardening validator below.
+    environment: Literal["development", "production"] = "development"
+
     # Database
     database_url: str = "postgresql://user:password@localhost:5432/bannered_mare"
     database: DatabaseSettings = DatabaseSettings()
@@ -172,7 +180,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["*"]
 
     # Security
-    encryption_key: str = "your-encryption-key-here"
+    encryption_key: str = _PLACEHOLDER_ENCRYPTION_KEY
 
     # Logging
     logging: LoggingSettings = LoggingSettings()
@@ -196,6 +204,29 @@ class Settings(BaseSettings):
     model_vendor_blacklist: list[str] = Field(
         default_factory=lambda: list(DEFAULT_MODEL_VENDOR_BLACKLIST)
     )
+
+    @model_validator(mode="after")
+    def _forbid_insecure_production_defaults(self) -> Self:
+        """Refuse to boot in production with the insecure development defaults.
+
+        Only enforced when ENVIRONMENT=production, so it can never break local/test
+        runs — but it turns a silently-insecure prod deploy into a loud startup
+        failure with an actionable message.
+        """
+        if self.environment != "production":
+            return self
+
+        problems: list[str] = []
+        if self.encryption_key == _PLACEHOLDER_ENCRYPTION_KEY:
+            problems.append("ENCRYPTION_KEY is still the placeholder — set a real secret")
+        if "*" in self.cors_origins:
+            problems.append("CORS_ORIGINS contains '*' — set explicit allowed origins")
+
+        if problems:
+            raise ValueError(
+                "Insecure configuration for ENVIRONMENT=production: " + "; ".join(problems) + "."
+            )
+        return self
 
     model_config = SettingsConfigDict(
         env_file=".env",
