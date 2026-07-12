@@ -10,6 +10,7 @@ from fastapi import HTTPException, status
 
 from src.audit.writer import audit_logger
 from src.chat_message import gateway_factory
+from src.chat_message.alternatives import AlternativesService
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.normalize import parse_structured_list, sanitize_narrative
 from src.chat_message.repository_async import (
@@ -116,6 +117,7 @@ class ChatMessageService:
         self.alt_repo = alt_repo
         self.retrieval_service = retrieval_service
         self.tokenizer = TokenizerService()
+        self.alternatives = AlternativesService(message_repo, alt_repo)
 
     def _get_activated_lore(
         self, chat: Chat, messages: list[Message]
@@ -774,7 +776,7 @@ class ChatMessageService:
 
                 if existing_message and self.alt_repo:
                     # Regeneration with alternatives: store as alternative
-                    await self._store_alternative(existing_message, full_content, token_count)
+                    await self.alternatives.store(existing_message, full_content, token_count)
                 elif existing_message:
                     # Regeneration without alt_repo: update in-place
                     existing_message.content = full_content
@@ -852,41 +854,6 @@ class ChatMessageService:
 
     # --- Regeneration with Alternatives (6.2) ---
 
-    async def _store_alternative(
-        self, message: Message, new_content: str, token_count: int
-    ) -> None:
-        """Preserve old content as alternative and update message with new content."""
-        if not self.alt_repo:
-            return
-
-        # On first regeneration, preserve original content as ordinal 0
-        existing_count = await self.alt_repo.count_by_message_id(message.id)
-        if existing_count == 0:
-            original_alt = MessageAlternative(
-                message_id=message.id,
-                content=message.content,
-                token_count=message.token_count,
-                ordinal=0,
-            )
-            await self.alt_repo.create(original_alt)
-            existing_count = 1
-
-        # Store new response as next alternative
-        new_alt = MessageAlternative(
-            message_id=message.id,
-            content=new_content,
-            token_count=token_count,
-            ordinal=existing_count,
-        )
-        await self.alt_repo.create(new_alt)
-
-        # Update message to show new content
-        message.content = new_content
-        message.token_count = token_count
-        message.active_index = existing_count
-        await self.message_repo.update(message)
-        await self.message_repo.commit()
-
     async def regenerate(self, chat_id: str) -> Message:
         """Regenerate the last assistant message. Stores old content as alternative."""
         chat = await self._get_chat_by_id(chat_id)
@@ -948,7 +915,7 @@ class ChatMessageService:
         assistant_content = sanitize_narrative(response.content)
         token_count = response.usage.output_tokens or self.tokenizer.count_tokens(assistant_content)
 
-        await self._store_alternative(last_message, assistant_content, token_count)
+        await self.alternatives.store(last_message, assistant_content, token_count)
         await self._update_chat_metadata(chat_id, assistant_content)
 
         return last_message
@@ -996,43 +963,10 @@ class ChatMessageService:
 
     async def list_alternatives(self, chat_id: str, message_id: str) -> list[MessageAlternative]:
         """List all alternatives for a message."""
-        message = await self.message_repo.find_by_id_in_chat(message_id, chat_id)
-        if not message:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Message '{message_id}' not found",
-            )
-        if not self.alt_repo:
-            return []
-        return await self.alt_repo.find_by_message_id(message_id)
+        return await self.alternatives.list(chat_id, message_id)
 
     async def activate_alternative(
         self, chat_id: str, message_id: str, alternative_id: str
     ) -> Message:
         """Switch the active alternative on a message."""
-        message = await self.message_repo.find_by_id_in_chat(message_id, chat_id)
-        if not message:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Message '{message_id}' not found",
-            )
-
-        if not self.alt_repo:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Alternatives system not available",
-            )
-
-        alt = await self.alt_repo.find_by_id(alternative_id)
-        if not alt or alt.message_id != message_id:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Alternative '{alternative_id}' not found for message '{message_id}'",
-            )
-
-        message.content = alt.content
-        message.token_count = alt.token_count
-        message.active_index = alt.ordinal
-        await self.message_repo.update(message)
-        await self.message_repo.commit()
-        return message
+        return await self.alternatives.activate(chat_id, message_id, alternative_id)
