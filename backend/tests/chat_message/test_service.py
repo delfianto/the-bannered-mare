@@ -500,6 +500,62 @@ class TestChatMessageService:
         assert "not from assistant" in exc_info.value.detail
 
     @pytest.mark.asyncio
+    async def test_regenerate_blocking_surfaces_filtered_reply(
+        self,
+        async_db_session: AsyncSession,
+        db: Session,
+        async_sample_character: Any,
+        async_sample_model: Any,
+    ) -> None:
+        """Blocking regenerate classifies like the streaming path: a filtered/empty
+        reply raises 502 and leaves the existing assistant message untouched, rather
+        than silently overwriting it with a blank turn."""
+        from fastapi import HTTPException
+
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+        await async_db_session.refresh(chat)
+
+        async_db_session.add(Message(chat_id=chat.id, role=MessageRole.USER, content="Hello"))
+        async_db_session.add(
+            Message(chat_id=chat.id, role=MessageRole.ASSISTANT, content="Original reply")
+        )
+        await async_db_session.commit()
+
+        message_repo = AsyncMessageRepository(async_db_session)
+        chat_repo = AsyncChatRepository(async_db_session)
+        prompt_builder = PromptBuilder(PromptTemplateRepository(db))
+        service = ChatMessageService(message_repo, chat_repo, prompt_builder)
+
+        filtered = CompletionResponse(
+            content="", finish_reason="content_filter", usage=TokenUsage()
+        )
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
+        ):
+            mock_client = AsyncMock()
+            mock_client.chat_completion.return_value = filtered
+            mock_gateway_class.return_value = mock_client
+
+            with pytest.raises(HTTPException) as exc_info:
+                await service.regenerate(chat.id)
+
+        assert exc_info.value.status_code == 502
+
+        # The prior assistant turn must be intact (no blank persisted).
+        from sqlalchemy import select
+
+        stmt = select(Message).where(Message.chat_id == chat.id).order_by(Message.created_at.asc())
+        messages = list((await async_db_session.execute(stmt)).scalars().all())
+        assert [m.content for m in messages] == ["Hello", "Original reply"]
+
+    @pytest.mark.asyncio
     async def test_retrieve_rag_context_none(
         self,
         async_db_session: AsyncSession,
