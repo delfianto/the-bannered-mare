@@ -1,11 +1,12 @@
 """Pydantic schemas for Character API validation"""
 
 from datetime import datetime
-from typing import Any
+from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.core.persistence.enums import Gender
+from src.core.schemas import AvatarUrlMixin, BaseFilterParams
 
 
 class CharacterBase(BaseModel):
@@ -57,16 +58,13 @@ class CharacterBase(BaseModel):
     version: int = Field(default=1, description="Character card version")
 
 
-class CharacterFilterParams(BaseModel):
+class CharacterFilterParams(BaseFilterParams):
     """Query parameters for filtering characters"""
 
     name__ilike: str | None = Field(default=None, description="Search name")
     gender: Gender | None = Field(default=None, description="Filter by gender")
     tags__ilike: str | None = Field(default=None, description="Filter by tag content")
     created_at__ge: datetime | None = Field(default=None, description="Created after date")
-
-    def to_filter_dict(self) -> dict[str, Any]:
-        return {k: v for k, v in self.model_dump().items() if v is not None}
 
 
 class CharacterCreate(CharacterBase):
@@ -100,8 +98,10 @@ class CharacterUpdate(BaseModel):
     version: int | None = None
 
 
-class CharacterResponse(CharacterBase):
+class CharacterResponse(CharacterBase, AvatarUrlMixin):
     """Schema for character responses"""
+
+    avatar_resource: ClassVar[str] = "characters"
 
     id: str
     avatar: str | None
@@ -111,31 +111,3 @@ class CharacterResponse(CharacterBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-
-    @field_serializer("avatar")
-    def serialize_avatar(self, avatar: str | None) -> str | None:
-        if avatar and not (
-            avatar.startswith("http://") or avatar.startswith("https://") or avatar.startswith("/")
-        ):
-            return f"/api/characters/{self.id}/avatar"
-        return avatar
-
-    @field_serializer("avatar_large")
-    def serialize_avatar_large(self, avatar_large: str | None) -> str | None:
-        if avatar_large and not (
-            avatar_large.startswith("http://")
-            or avatar_large.startswith("https://")
-            or avatar_large.startswith("/")
-        ):
-            return f"/api/characters/{self.id}/avatar_large"
-        return avatar_large
-
-    @field_serializer("avatar_thumbnail")
-    def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:
-        if avatar_thumbnail and not (
-            avatar_thumbnail.startswith("http://")
-            or avatar_thumbnail.startswith("https://")
-            or avatar_thumbnail.startswith("/")
-        ):
-            return f"/api/characters/{self.id}/avatar_thumbnail"
-        return avatar_thumbnail

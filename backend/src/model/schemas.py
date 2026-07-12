@@ -5,6 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.core.schemas import BaseFilterParams
 from src.model_family.schemas import ModelFamilyResponse
 
 
@@ -71,16 +72,13 @@ class ModelBase(BaseModel):
     enabled: bool = Field(True, description="Whether the model is available")
 
 
-class ModelFilterParams(BaseModel):
+class ModelFilterParams(BaseFilterParams):
     """Query parameters for filtering canonical models."""
 
     name__ilike: str | None = Field(default=None, description="Search by display name")
     provider_id: str | None = Field(default=None, description="Has a route on this provider")
     model_family_id: str | None = Field(default=None, description="Filter by model family")
     enabled: bool | None = Field(default=None, description="Filter by enabled status")
-
-    def to_filter_dict(self) -> dict[str, Any]:
-        return {k: v for k, v in self.model_dump().items() if v is not None}
 
 
 class ModelCreate(ModelBase):

@@ -1,9 +1,11 @@
 """Pydantic schemas for Persona API"""
 
 from datetime import datetime
-from typing import Any
+from typing import ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import BaseModel, ConfigDict, Field
+
+from src.core.schemas import AvatarUrlMixin, BaseFilterParams
 
 
 class PersonaBase(BaseModel):
@@ -19,14 +21,11 @@ class PersonaBase(BaseModel):
     is_default: bool = Field(False, description="Set as default persona")
 
 
-class PersonaFilterParams(BaseModel):
+class PersonaFilterParams(BaseFilterParams):
     """Query parameters for filtering personas"""
 
     name__ilike: str | None = Field(default=None, description="Search persona name")
     is_default: bool | None = Field(default=None, description="Filter by default status")
-
-    def to_filter_dict(self) -> dict[str, Any]:
-        return {k: v for k, v in self.model_dump().items() if v is not None}
 
 
 class PersonaCreate(PersonaBase):
@@ -44,39 +43,13 @@ class PersonaUpdate(BaseModel):
     is_default: bool | None = None
 
 
-class PersonaResponse(PersonaBase):
+class PersonaResponse(PersonaBase, AvatarUrlMixin):
     """Schema for persona response"""
+
+    avatar_resource: ClassVar[str] = "personas"
 
     id: str
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-
-    @field_serializer("avatar")
-    def serialize_avatar(self, avatar: str | None) -> str | None:
-        if avatar and not (
-            avatar.startswith("http://") or avatar.startswith("https://") or avatar.startswith("/")
-        ):
-            return f"/api/personas/{self.id}/avatar"
-        return avatar
-
-    @field_serializer("avatar_large")
-    def serialize_avatar_large(self, avatar_large: str | None) -> str | None:
-        if avatar_large and not (
-            avatar_large.startswith("http://")
-            or avatar_large.startswith("https://")
-            or avatar_large.startswith("/")
-        ):
-            return f"/api/personas/{self.id}/avatar_large"
-        return avatar_large
-
-    @field_serializer("avatar_thumbnail")
-    def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:
-        if avatar_thumbnail and not (
-            avatar_thumbnail.startswith("http://")
-            or avatar_thumbnail.startswith("https://")
-            or avatar_thumbnail.startswith("/")
-        ):
-            return f"/api/personas/{self.id}/avatar_thumbnail"
-        return avatar_thumbnail

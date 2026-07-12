@@ -1,9 +1,11 @@
 """Pydantic schemas for Chat API validation"""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from src.core.schemas import AvatarUrlMixin, BaseFilterParams
 
 
 class ChatBase(BaseModel):
@@ -18,16 +20,13 @@ class ChatBase(BaseModel):
     is_bookmarked: bool = Field(default=False, description="Whether the chat session is bookmarked")
 
 
-class ChatSessionFilterParams(BaseModel):
+class ChatSessionFilterParams(BaseFilterParams):
     """Query parameters for filtering chat sessions"""
 
     character_id: str | None = Field(default=None, description="Filter by character")
     model_id: str | None = Field(default=None, description="Filter by model")
     created_at__ge: datetime | None = Field(default=None, description="Sessions started after")
     created_at__le: datetime | None = Field(default=None, description="Sessions started before")
-
-    def to_filter_dict(self) -> dict[str, Any]:
-        return {k: v for k, v in self.model_dump().items() if v is not None}
 
 
 class ChatCreate(ChatBase):
@@ -58,8 +57,10 @@ class ChatApplyProfile(BaseModel):
     profile_id: str = Field(..., max_length=12, description="Profile to apply")
 
 
-class ChatCharacterResponse(BaseModel):
+class ChatCharacterResponse(AvatarUrlMixin):
     """Nested character info in chat response"""
+
+    avatar_resource: ClassVar[str] = "characters"
 
     id: str
     name: str
@@ -68,34 +69,6 @@ class ChatCharacterResponse(BaseModel):
     avatar_thumbnail: str | None = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
-
-    @field_serializer("avatar")
-    def serialize_avatar(self, avatar: str | None) -> str | None:
-        if avatar and not (
-            avatar.startswith("http://") or avatar.startswith("https://") or avatar.startswith("/")
-        ):
-            return f"/api/characters/{self.id}/avatar"
-        return avatar
-
-    @field_serializer("avatar_large")
-    def serialize_avatar_large(self, avatar_large: str | None) -> str | None:
-        if avatar_large and not (
-            avatar_large.startswith("http://")
-            or avatar_large.startswith("https://")
-            or avatar_large.startswith("/")
-        ):
-            return f"/api/characters/{self.id}/avatar_large"
-        return avatar_large
-
-    @field_serializer("avatar_thumbnail")
-    def serialize_avatar_thumbnail(self, avatar_thumbnail: str | None) -> str | None:
-        if avatar_thumbnail and not (
-            avatar_thumbnail.startswith("http://")
-            or avatar_thumbnail.startswith("https://")
-            or avatar_thumbnail.startswith("/")
-        ):
-            return f"/api/characters/{self.id}/avatar_thumbnail"
-        return avatar_thumbnail
 
 
 class ChatModelResponse(BaseModel):

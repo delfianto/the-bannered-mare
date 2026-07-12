@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.core.schemas import BaseFilterParams
+
 
 class ModelFamilyBase(BaseModel):
     """Base model family schema with common fields"""
@@ -31,7 +33,7 @@ class ModelFamilyBase(BaseModel):
     )
 
 
-class ModelFamilyFilterParams(BaseModel):
+class ModelFamilyFilterParams(BaseFilterParams):
     """Query parameters for filtering model families"""
 
     name__ilike: str | None = Field(default=None, description="Search family name")
@@ -39,9 +41,6 @@ class ModelFamilyFilterParams(BaseModel):
     provider_type: str | None = Field(
         default=None, description="Filter to families supporting this provider type"
     )
-
-    def to_filter_dict(self) -> dict[str, Any]:
-        return {k: v for k, v in self.model_dump().items() if v is not None}
 
 
 class ModelFamilyCreate(ModelFamilyBase):
