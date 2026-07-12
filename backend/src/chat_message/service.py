@@ -1,6 +1,5 @@
 """Message business logic service (FULLY ASYNC)"""
 
-import re
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
@@ -9,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 from fastapi import HTTPException, status
 
 from src.audit.writer import audit_logger
-from src.chat_message import gateway_factory
+from src.chat_message import gateway_factory, transcripts
 from src.chat_message.alternatives import AlternativesService
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.normalize import parse_structured_list, sanitize_narrative
@@ -334,7 +333,7 @@ class ChatMessageService:
             # compact recent transcript to the cheap task model (the same lean shape
             # as title generation). This drops the request from ~5.7K prompt tokens
             # to a few hundred for ~46 tokens of output.
-            transcript = self._recent_transcript(chat, messages)
+            transcript = transcripts.recent_transcript(chat, messages)
             instruction = (
                 f"Below is the recent exchange in a roleplay between {user_name} (the human "
                 f"user) and {char_name}:\n\n{transcript}\n\n"
@@ -351,8 +350,8 @@ class ChatMessageService:
             # ignores them — so they don't warrant the full scene context on the
             # main model. Send a compact prompt (recent exchange + who's-who +
             # a short persona voice cue) to the cheap task model instead.
-            transcript = self._recent_transcript(chat, messages)
-            persona_hint = self._persona_hint(chat)
+            transcript = transcripts.recent_transcript(chat, messages)
+            persona_hint = transcripts.persona_hint(chat)
             instruction = (
                 f"This is a roleplay between {user_name} (the human user) and {char_name}."
                 f"{persona_hint}\n\nRecent exchange:\n{transcript}\n\n"
@@ -421,69 +420,11 @@ class ChatMessageService:
             return [draft] if draft else []
         return parse_structured_list(content, count)
 
-    # --- Title generation (auxiliary; routed through the task model) ---
-
-    @staticmethod
-    def _clean_title(text: str) -> str:
-        """Reduce model output to a single clean title line."""
-        stripped = text.strip()
-        line = stripped.splitlines()[0] if stripped else ""
-        line = line.strip().strip('"').strip("'").strip()
-        line = re.sub(r"[.\s]+$", "", line)
-        return line[:200]
-
-    def _title_transcript(self, chat: Chat, messages: list[Message], max_chars: int = 1500) -> str:
-        """Compact speaker-tagged transcript of the latest turns for titling."""
-        char_name = chat.character.name if chat.character else "Character"
-        user_name = chat.persona.name if chat.persona else "User"
-        lines: list[str] = []
-        for msg in messages[-6:]:
-            speaker = user_name if msg.role == MessageRole.USER else char_name
-            text = " ".join(msg.content.split())
-            if text:
-                lines.append(f"{speaker}: {text}")
-        return "\n".join(lines)[:max_chars]
-
-    def _persona_hint(self, chat: Chat, max_chars: int = 240) -> str:
-        """A short voice cue for the user's persona, for compact suggestion prompts.
-
-        Keeps reply candidates in the user's voice without shipping the whole
-        persona card. Empty when no persona/description is set.
-        """
-        persona = chat.persona
-        if not persona or not persona.description:
-            return ""
-        desc = " ".join(persona.description.split())
-        if len(desc) > max_chars:
-            desc = desc[:max_chars].rstrip() + "…"
-        return f" {persona.name} is: {desc}"
-
-    def _recent_transcript(
-        self, chat: Chat, messages: list[Message], turns: int = 4, per_msg: int = 600
-    ) -> str:
-        """Compact recent transcript for cheap auxiliary calls (tone chips).
-
-        Unlike ``_title_transcript`` this caps each message individually so the
-        latest turn (the one tones react to) is always kept intact, rather than
-        truncating the whole joined string from the end.
-        """
-        char_name = chat.character.name if chat.character else "Character"
-        user_name = chat.persona.name if chat.persona else "User"
-        lines: list[str] = []
-        for msg in messages[-turns:]:
-            speaker = user_name if msg.role == MessageRole.USER else char_name
-            text = " ".join(msg.content.split())
-            if len(text) > per_msg:
-                text = text[:per_msg].rstrip() + "…"
-            if text:
-                lines.append(f"{speaker}: {text}")
-        return "\n".join(lines)
-
     async def generate_title(self, chat_id: str) -> str:
         """Generate and persist a concise chat title via the task model."""
         chat = await self._get_chat_by_id(chat_id)
         messages = await self.message_repo.find_by_chat_id(chat_id)
-        transcript = self._title_transcript(chat, messages)
+        transcript = transcripts.title_transcript(chat, messages)
         if not transcript:
             return chat.title or ""
 
@@ -507,7 +448,7 @@ class ChatMessageService:
                 detail=f"Error communicating with AI provider: {e!s}",
             ) from e
 
-        title = self._clean_title(response.content or "")
+        title = transcripts.clean_title(response.content or "")
         if title:
             chat.title = title
             _ = await self.chat_repo.update(chat)
