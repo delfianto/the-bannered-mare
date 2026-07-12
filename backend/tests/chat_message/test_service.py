@@ -11,6 +11,7 @@ from src.chat_message import (
     ChatMessageService,
     Message,
     MessageRole,
+    gateway_factory,
 )
 from src.chat_message.schemas import StreamEvent
 from src.chat_session.models import Chat
@@ -107,7 +108,7 @@ class TestChatMessageService:
 
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         ):
             mock_client = AsyncMock()
             mock_client.chat_completion.return_value = mock_response
@@ -167,7 +168,7 @@ class TestChatMessageService:
 
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         ):
             mock_client = AsyncMock()
             mock_client.chat_completion.return_value = mock_response
@@ -238,7 +239,7 @@ class TestChatMessageService:
 
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         ):
             mock_client = AsyncMock()
             mock_client.chat_completion_stream = MagicMock(side_effect=mock_stream_gen)
@@ -303,7 +304,7 @@ class TestChatMessageService:
 
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         ):
             mock_client = AsyncMock()
             mock_client.chat_completion_stream = MagicMock(side_effect=mock_stream_gen)
@@ -364,7 +365,7 @@ class TestChatMessageService:
 
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         ):
             mock_client = AsyncMock()
             mock_client.chat_completion_stream = MagicMock(side_effect=mock_empty_stream)
@@ -552,8 +553,7 @@ class TestChatMessageService:
         chat.task_model = None
         chat.model = model
 
-        service = ChatMessageService(MagicMock(), MagicMock(), MagicMock())
-        gateway = await service._build_task_gateway(chat)
+        gateway = gateway_factory.build_task_gateway(chat)
 
         assert gateway.provider is provider
         assert gateway.active_identifier == "gpt-4o-mini"
@@ -674,17 +674,17 @@ class TestChatMessageService:
                 usage=TokenUsage(),
             )
         )
-        build_task = AsyncMock(return_value=task_gateway)
-        build_main = AsyncMock(side_effect=AssertionError("reply must not use the main gateway"))
-        monkeypatch.setattr(service, "_build_task_gateway", build_task)
-        monkeypatch.setattr(service, "_build_gateway", build_main)
+        build_task = MagicMock(return_value=task_gateway)
+        build_main = MagicMock(side_effect=AssertionError("reply must not use the main gateway"))
+        monkeypatch.setattr(gateway_factory, "build_task_gateway", build_task)
+        monkeypatch.setattr(gateway_factory, "build_gateway", build_main)
         monkeypatch.setattr(service, "_record_llm_audit", AsyncMock())
 
         result = await service.generate_suggestions(chat.id, mode="reply", count=3)
 
         assert result == ["Stand firm.", "Sheathe it.", "Taunt him."]
-        build_task.assert_awaited_once()
-        build_main.assert_not_awaited()
+        build_task.assert_called_once()
+        build_main.assert_not_called()
 
         # Compact: a single user message carrying the recent exchange (grounded in
         # the last turn), not the full built prompt.

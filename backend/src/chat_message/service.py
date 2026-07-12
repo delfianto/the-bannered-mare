@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from fastapi import HTTPException, status
 
 from src.audit.writer import audit_logger
+from src.chat_message import gateway_factory
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.normalize import parse_structured_list, sanitize_narrative
 from src.chat_message.repository_async import (
@@ -40,7 +41,7 @@ from src.provider.gateway import ProviderGateway
 from src.rag.retrieval_service import RetrievalService
 
 if TYPE_CHECKING:
-    from src.model.models import ModelRegistry
+    pass
 
 logger = get_logger(__name__)
 
@@ -168,81 +169,6 @@ class ChatMessageService:
                 detail=f"Chat with ID '{chat_id}' not found",
             )
         return chat
-
-    def _resolve_active_route(self, model: ModelRegistry):
-        """The route a canonical model currently resolves to (provider + identifier)."""
-        route = model.active_route
-        if route is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Model '{model.display_name}' has no active route configured.",
-            )
-        return route
-
-    def _validate_model_and_key(self, chat: Chat):
-        """Validate that the chat has a model whose active route's provider is keyed."""
-        if not chat.model:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Chat does not have a valid model assigned.",
-            )
-        provider = self._resolve_active_route(chat.model).provider
-        if not provider.has_api_key():
-            env_var_name = provider.get_env_var_name()
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"API key not configured for provider '{provider.name}'. Set {env_var_name}",
-            )
-
-    async def _build_gateway(self, chat: Chat) -> ProviderGateway:
-        """Build a ProviderGateway from the model's active route + optional preset params."""
-        if chat.model is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Chat does not have a valid model assigned.",
-            )
-        route = self._resolve_active_route(chat.model)
-        preset_params = chat.preset.parameters if chat.preset else None
-        return ProviderGateway(
-            route.provider,
-            chat.model,
-            route.model_identifier,
-            preset_parameters=preset_params,
-        )
-
-    async def _build_task_gateway(
-        self, chat: Chat, *, minimize_reasoning: bool = False
-    ) -> ProviderGateway:
-        """Gateway for auxiliary calls (titles, suggestions, future RAG query
-        building). Uses the chat's configured task model, falling back to the
-        main chat model. Runs at model defaults — RP preset params don't apply.
-
-        ``minimize_reasoning`` suppresses reasoning tokens for throwaway calls;
-        it is a no-op unless the task model's family is reasoning-capable.
-        """
-        model = chat.task_model or chat.model
-        if model is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Chat does not have a valid model assigned.",
-            )
-        route = self._resolve_active_route(model)
-        provider = route.provider
-        if not provider.has_api_key():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    f"API key not configured for provider '{provider.name}'. "
-                    f"Set {provider.get_env_var_name()}"
-                ),
-            )
-        return ProviderGateway(
-            route.provider,
-            model,
-            route.model_identifier,
-            preset_parameters=None,
-            minimize_reasoning=minimize_reasoning,
-        )
 
     def _log_token_budget(self, api_messages: list[dict[str, Any]]) -> int:
         """Log estimated prompt token count and return the total."""
@@ -417,7 +343,7 @@ class ChatMessageService:
                 + _JSON_ARRAY_ONLY
             )
             api_messages = [{"role": "user", "content": instruction}]
-            gateway = await self._build_task_gateway(chat, minimize_reasoning=True)
+            gateway = gateway_factory.build_task_gateway(chat, minimize_reasoning=True)
         elif mode == "reply":
             # Reply candidates are disposable — the user picks one, edits it, or
             # ignores them — so they don't warrant the full scene context on the
@@ -436,7 +362,7 @@ class ChatMessageService:
                 + ' Example: ["...", "...", "..."].'
             )
             api_messages = [{"role": "user", "content": instruction}]
-            gateway = await self._build_task_gateway(chat, minimize_reasoning=True)
+            gateway = gateway_factory.build_task_gateway(chat, minimize_reasoning=True)
         else:
             # impersonate drafts the user's *actual* next message, so it keeps the
             # full scene context on the main model for quality.
@@ -464,7 +390,7 @@ class ChatMessageService:
             else:
                 api_messages = [*api_messages, {"role": "user", "content": instruction}]
 
-            gateway = await self._build_gateway(chat)
+            gateway = gateway_factory.build_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -570,7 +496,7 @@ class ChatMessageService:
             f"{transcript}"
         )
         api_messages = [{"role": "user", "content": instruction}]
-        gateway = await self._build_task_gateway(chat, minimize_reasoning=True)
+        gateway = gateway_factory.build_task_gateway(chat, minimize_reasoning=True)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -608,8 +534,8 @@ class ChatMessageService:
         api_messages = self.prompt_builder.build_api_messages(
             chat, messages=[], activated_lore=None, rag_results=None
         )
-        gateway = await self._build_gateway(chat)
-        route = self._resolve_active_route(chat.model) if chat.model else None
+        gateway = gateway_factory.build_gateway(chat)
+        route = gateway_factory.resolve_active_route(chat.model) if chat.model else None
         return {
             "model_display_name": chat.model.display_name if chat.model else None,
             "provider_name": route.provider.name if route else None,
@@ -644,7 +570,7 @@ class ChatMessageService:
     async def send_message(self, chat_id: str, content: str) -> Message:
         """Send a message and get an AI response (non-streaming)"""
         chat = await self._get_chat_by_id(chat_id)
-        self._validate_model_and_key(chat)
+        gateway_factory.validate_model_and_key(chat)
 
         user_message = Message(
             chat_id=chat_id,
@@ -666,7 +592,7 @@ class ChatMessageService:
 
         estimated_tokens = self._log_token_budget(api_messages)
 
-        gateway = await self._build_gateway(chat)
+        gateway = gateway_factory.build_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -784,7 +710,7 @@ class ChatMessageService:
         last_usage = None
         last_finish_reason = None
 
-        gateway = await self._build_gateway(chat)
+        gateway = gateway_factory.build_gateway(chat)
         start = time.perf_counter()
         try:
             async for chunk in gateway.chat_completion_stream(api_messages):
@@ -898,7 +824,7 @@ class ChatMessageService:
     async def send_message_stream(self, chat_id: str, content: str) -> AsyncIterator[StreamEvent]:
         """Send a message and get a streaming AI response."""
         chat = await self._get_chat_by_id(chat_id)
-        self._validate_model_and_key(chat)
+        gateway_factory.validate_model_and_key(chat)
 
         user_message = Message(
             chat_id=chat_id,
@@ -979,7 +905,7 @@ class ChatMessageService:
                 detail="Cannot regenerate: Last message is not from assistant",
             )
 
-        self._validate_model_and_key(chat)
+        gateway_factory.validate_model_and_key(chat)
 
         # Build prompt excluding the last assistant message
         messages = await self.message_repo.find_by_chat_id(chat_id)
@@ -990,7 +916,7 @@ class ChatMessageService:
             chat, messages_for_prompt, activated_lore=activated_lore, rag_results=rag_results
         )
 
-        gateway = await self._build_gateway(chat)
+        gateway = gateway_factory.build_gateway(chat)
         start = time.perf_counter()
         try:
             response = await gateway.chat_completion(api_messages)
@@ -1049,7 +975,7 @@ class ChatMessageService:
         # Replace the last assistant turn; for a dangling user turn, append instead.
         existing = last_message if last_message.role == MessageRole.ASSISTANT else None
 
-        self._validate_model_and_key(chat)
+        gateway_factory.validate_model_and_key(chat)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         messages_for_prompt = (

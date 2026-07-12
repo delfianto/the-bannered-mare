@@ -31,7 +31,7 @@ async def test_send_message_stream(
     try:
         with (
             patch.object(Provider, "has_api_key", return_value=True),
-            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         ):
             mock_client = AsyncMock()
             mock_client.chat_completion_stream = mock_stream
