@@ -20,6 +20,17 @@ from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
 
 
+def _parse_gender(value: str) -> Gender:
+    """Parse a gender string to the enum, or raise 400 (create/update path)."""
+    try:
+        return Gender(value.lower())
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid gender value. Must be one of: {', '.join(g.value for g in Gender)}",
+        ) from None
+
+
 class CharacterService:
     """Service for character-related business logic"""
 
@@ -73,15 +84,7 @@ class CharacterService:
         parsed_tags = self._parse_json_field(tags, "tags")
 
         # Parse gender enum
-        parsed_gender = None
-        if gender:
-            try:
-                parsed_gender = Gender(gender.lower())
-            except ValueError:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Invalid gender value. Must be one of: {', '.join([g.value for g in Gender])}",
-                ) from None
+        parsed_gender = _parse_gender(gender) if gender else None
 
         character = Character(
             name=name,
@@ -154,13 +157,7 @@ class CharacterService:
         if post_history_instructions is not None:
             character.post_history_instructions = post_history_instructions
         if gender is not None:
-            try:
-                character.gender = Gender(gender.lower())
-            except ValueError:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Invalid gender value. Must be one of: {', '.join([g.value for g in Gender])}",
-                ) from None
+            character.gender = _parse_gender(gender)
         if custom_gender is not None:
             character.custom_gender = custom_gender
         if creator is not None:
@@ -248,8 +245,6 @@ class CharacterService:
         if card.gender:
             g_str = card.gender.lower().strip()
             if g_str in ["male", "female", "non-binary"]:
-                from src.core.persistence.enums import Gender
-
                 if g_str == "male":
                     gender_enum = Gender.MALE
                 elif g_str == "female":
@@ -257,13 +252,9 @@ class CharacterService:
                 elif g_str == "non-binary":
                     gender_enum = Gender.NON_BINARY
             else:
-                from src.core.persistence.enums import Gender
-
                 gender_enum = Gender.OTHERS
                 custom_gender = card.gender
         elif card.custom_gender:
-            from src.core.persistence.enums import Gender
-
             gender_enum = Gender.OTHERS
             custom_gender = card.custom_gender
 
