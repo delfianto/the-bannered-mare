@@ -4,9 +4,9 @@ import json
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from src.character import Character, CharacterRepository, CharacterService
+from src.core.exceptions import BanneredMareException
 
 
 class TestCharacterService:
@@ -49,11 +49,11 @@ class TestCharacterService:
         repo = CharacterRepository(db)
         service = CharacterService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service.get_by_id("nonexistent-id")
 
         assert exc_info.value.status_code == 404
-        assert "not found" in exc_info.value.detail.lower()
+        assert "not found" in exc_info.value.message.lower()
 
     @pytest.mark.asyncio
     async def test_create_character_basic(self, db: Session) -> None:
@@ -98,14 +98,14 @@ class TestCharacterService:
         repo = CharacterRepository(db)
         service = CharacterService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = await service.create(
                 name="Alice",
                 example_dialogues="invalid json {",
             )
 
-        assert exc_info.value.status_code == 400
-        assert "Invalid JSON" in exc_info.value.detail
+        assert exc_info.value.status_code == 422
+        assert "Invalid JSON" in exc_info.value.message
 
     @pytest.mark.asyncio
     async def test_create_character_with_avatar(self, db: Session) -> None:
@@ -194,7 +194,7 @@ class TestCharacterService:
         repo = CharacterRepository(db)
         service = CharacterService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = await service.update("nonexistent-id", name="New Name")
 
         assert exc_info.value.status_code == 404
@@ -222,7 +222,7 @@ class TestCharacterService:
         repo = CharacterRepository(db)
         service = CharacterService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             service.delete("nonexistent-id")
 
         assert exc_info.value.status_code == 404
@@ -246,11 +246,11 @@ class TestCharacterService:
         repo = CharacterRepository(db)
         service = CharacterService(repo)
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BanneredMareException) as exc_info:
             _ = service._parse_json_field("invalid json", "test_field")  # pyright: ignore[reportPrivateUsage]
 
-        assert exc_info.value.status_code == 400
-        assert "test_field" in exc_info.value.detail
+        assert exc_info.value.status_code == 422
+        assert "test_field" in exc_info.value.message
 
     @pytest.mark.asyncio
     async def test_import_card_json(self, db: Session) -> None:

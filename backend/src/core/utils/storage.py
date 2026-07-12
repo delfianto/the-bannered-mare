@@ -6,10 +6,11 @@ import shutil
 
 import aiofiles
 from anyio import to_thread
-from fastapi import HTTPException, UploadFile, status
+from fastapi import UploadFile
 from PIL import Image
 
 from src.core.config import settings
+from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -43,18 +44,14 @@ async def validate_avatar(file: UploadFile) -> None:
     """
     file_ext = os.path.splitext(file.filename or "")[1].lower()
     if file_ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Unsupported file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}",
+        raise ValidationError(
+            f"Unsupported file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
         )
 
     # We read first 5MB + 1 byte to check if it exceeds limit without loading everything
     content = await file.read(MAX_AVATAR_SIZE + 1)
     if len(content) > MAX_AVATAR_SIZE:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File too large. Max size: {MAX_AVATAR_SIZE // (1024 * 1024)}MB",
-        )
+        raise ValidationError(f"File too large. Max size: {MAX_AVATAR_SIZE // (1024 * 1024)}MB")
 
     # Reset file pointer for subsequent reads
     await file.seek(0)
@@ -67,17 +64,13 @@ async def validate_avatar(file: UploadFile) -> None:
         # Need to reopen because verify() closes the file pointer in some versions
         img = Image.open(io.BytesIO(content))
         if img.width > MAX_DIMENSIONS[0] or img.height > MAX_DIMENSIONS[1]:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Image dimensions too large. Max: {MAX_DIMENSIONS[0]}x{MAX_DIMENSIONS[1]}",
+            raise ValidationError(
+                f"Image dimensions too large. Max: {MAX_DIMENSIONS[0]}x{MAX_DIMENSIONS[1]}"
             )
-    except HTTPException:
+    except ValidationError:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid image file: {str(e)}",
-        ) from e
+        raise ValidationError(f"Invalid image file: {str(e)}") from e
     finally:
         await file.seek(0)
 

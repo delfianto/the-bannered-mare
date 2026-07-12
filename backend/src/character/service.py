@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from anyio import to_thread
-from fastapi import HTTPException, UploadFile, status
+from fastapi import UploadFile
 
 from src.character.card_parser import (
     ParsedCard,
@@ -17,6 +17,8 @@ from src.character.card_parser import (
 )
 from src.character.models import Character
 from src.character.repository import CharacterRepository
+from src.core.base_service import get_or_404
+from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
@@ -30,9 +32,8 @@ def _parse_gender(value: str) -> Gender:
     try:
         return Gender(value.lower())
     except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid gender value. Must be one of: {', '.join(g.value for g in Gender)}",
+        raise ValidationError(
+            f"Invalid gender value. Must be one of: {', '.join(g.value for g in Gender)}"
         ) from None
 
 
@@ -54,13 +55,7 @@ class CharacterService:
 
     def get_by_id(self, character_id: str) -> Character:
         """Get character by ID, raise 404 if not found"""
-        character = self.character_repo.find_by_id(character_id)
-        if not character:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Character with ID '{character_id}' not found",
-            )
-        return character
+        return get_or_404(self.character_repo, character_id, "Character")
 
     async def create(
         self,
@@ -229,15 +224,11 @@ class CharacterService:
             elif filename.endswith(".json"):
                 card = parse_card_json(file_data.decode("utf-8"))
             else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Unsupported file format. Use .png or .json",
-                )
+                raise ValidationError("Unsupported file format. Use .png or .json")
         except (ValueError, json.JSONDecodeError) as e:
             logger.warning("card_parse_failed", filename=filename, error=str(e))
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Failed to parse character card: unsupported or corrupt file.",
+            raise ValidationError(
+                "Failed to parse character card: unsupported or corrupt file."
             ) from e
 
         # Map example_dialogues: cards store one freeform mes_example string with
@@ -492,7 +483,4 @@ class CharacterService:
         try:
             return json.loads(value)
         except json.JSONDecodeError as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid JSON format for {field_name}",
-            ) from e
+            raise ValidationError(f"Invalid JSON format for {field_name}") from e
