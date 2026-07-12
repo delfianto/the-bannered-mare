@@ -49,7 +49,7 @@ async def test_send_message_records_success_audit(
 
     with (
         patch.object(Provider, "has_api_key", return_value=True),
-        patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+        patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         patch("src.chat_message.service.audit_logger") as mock_audit,
     ):
         mock_audit.log_llm_call = AsyncMock()
@@ -82,7 +82,7 @@ async def test_send_message_records_error_audit(
 
     with (
         patch.object(Provider, "has_api_key", return_value=True),
-        patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+        patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         patch("src.chat_message.service.audit_logger") as mock_audit,
     ):
         mock_audit.log_llm_call = AsyncMock()
@@ -119,7 +119,7 @@ async def test_stream_records_success_audit(
 
     with (
         patch.object(Provider, "has_api_key", return_value=True),
-        patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+        patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
         patch("src.chat_message.service.audit_logger") as mock_audit,
     ):
         mock_audit.log_llm_call = AsyncMock()
