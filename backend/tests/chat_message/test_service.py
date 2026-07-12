@@ -270,6 +270,68 @@ class TestChatMessageService:
         assert messages[1].content == "Better response"
 
     @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("finish_reason", "expected_code"),
+        [("stop", "empty"), ("content_filter", "filtered")],
+    )
+    async def test_send_message_stream_empty_completion_emits_error(
+        self,
+        async_db_session: AsyncSession,
+        db: Session,
+        async_sample_character: Any,
+        async_sample_model: Any,
+        finish_reason: str,
+        expected_code: str,
+    ) -> None:
+        """An empty/filtered completion surfaces a typed error instead of silently
+        persisting a blank assistant message (the DeepSeek soft-filter case)."""
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+        await async_db_session.refresh(chat)
+
+        message_repo = AsyncMessageRepository(async_db_session)
+        chat_repo = AsyncChatRepository(async_db_session)
+        service = ChatMessageService(
+            message_repo, chat_repo, PromptBuilder(PromptTemplateRepository(db))
+        )
+
+        # Stream yields no content — only a terminal finish_reason (empty completion).
+        async def mock_empty_stream(messages):
+            yield StreamChunk(finish_reason=finish_reason)
+
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            patch("src.chat_message.service.ProviderGateway") as mock_gateway_class,
+        ):
+            mock_client = AsyncMock()
+            mock_client.chat_completion_stream = MagicMock(side_effect=mock_empty_stream)
+            mock_gateway_class.return_value = mock_client
+
+            events = [e async for e in service.send_message_stream(chat.id, "I draw my blade.")]
+
+        error_events = [e for e in events if e.type == "error"]
+        assert len(error_events) == 1
+        assert error_events[0].code == expected_code
+        assert error_events[0].message  # a human-readable explanation
+        # No "done" — the stream short-circuits on a non-usable outcome.
+        assert not any(e.type == "done" for e in events)
+
+        # Only the user message persisted; no blank assistant reply.
+        from sqlalchemy import select
+
+        rows = (
+            (await async_db_session.execute(select(Message).where(Message.chat_id == chat.id)))
+            .scalars()
+            .all()
+        )
+        assert [m.role for m in rows] == [MessageRole.USER]
+
+    @pytest.mark.asyncio
     async def test_edit_message(
         self,
         async_db_session: AsyncSession,

@@ -35,6 +35,7 @@ from src.lore.activation_engine import ActivatedEntry
 from src.lore.service import LoreService
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
+from src.provider.completion_outcome import CompletionOutcome, classify_completion
 from src.provider.gateway import ProviderGateway
 from src.rag.retrieval_service import RetrievalService
 
@@ -67,6 +68,32 @@ def _classify_error(exc: Exception) -> str:
     if isinstance(exc, ProviderException):
         return "provider_error"
     return "internal_error"
+
+
+# User-facing explanation for a non-USABLE completion (empty/filtered/etc.), shown
+# in place of a silent blank reply. USABLE never surfaces one.
+_OUTCOME_MESSAGES: dict[CompletionOutcome, str] = {
+    CompletionOutcome.FILTERED: (
+        "The model declined to respond to this scene (content filter). Try rephrasing, "
+        "or switch this chat to a less restrictive model."
+    ),
+    CompletionOutcome.TRUNCATED: (
+        "The model hit its output limit before replying. Raise max tokens, or lower the "
+        "reasoning effort for this model."
+    ),
+    CompletionOutcome.REASONING_ONLY: (
+        "The model spent its entire budget reasoning without writing a reply. Raise max "
+        "tokens so it has room to answer."
+    ),
+    CompletionOutcome.EMPTY: (
+        "The model returned an empty response — some models do this as a soft content "
+        "filter. Try regenerating, or switch models."
+    ),
+}
+
+
+def _outcome_message(outcome: CompletionOutcome) -> str:
+    return _OUTCOME_MESSAGES.get(outcome, "The model returned no usable reply.")
 
 
 class ChatMessageService:
@@ -238,8 +265,14 @@ class ChatMessageService:
         finish_reason: str | None = None,
         usage: TokenUsage | None = None,
         raw: dict[str, Any] | None = None,
+        status_override: str | None = None,
     ) -> None:
-        """Record one LLM-call audit row (fire-and-forget; never raises)."""
+        """Record one LLM-call audit row (fire-and-forget; never raises).
+
+        ``status_override`` records a non-error but non-``success`` outcome
+        (filtered / empty / truncated) so LLM Logs no longer files these as
+        successes.
+        """
         try:
             provider = gateway.provider.provider_type.value
             model = gateway.active_identifier
@@ -291,7 +324,7 @@ class ChatMessageService:
                 completion_tokens=out_tok,
                 total_tokens=tot_tok,
                 latency_ms=latency_ms,
-                status="success",
+                status=status_override or "success",
                 request_payload=api_messages,
                 response_payload=response_payload,
             )
@@ -650,6 +683,8 @@ class ChatMessageService:
                 detail=f"Error communicating with AI provider: {str(e)}",
             ) from e
 
+        outcome = classify_completion(response.content, response.reasoning, response.finish_reason)
+
         await self._record_llm_audit(
             gateway=gateway,
             api_messages=api_messages,
@@ -660,7 +695,21 @@ class ChatMessageService:
             finish_reason=response.finish_reason,
             usage=response.usage,
             raw=response.raw,
+            status_override=None if outcome == CompletionOutcome.USABLE else outcome.value,
         )
+
+        # An empty/filtered/truncated result is not a real reply — surface it
+        # rather than saving a blank assistant message.
+        if outcome != CompletionOutcome.USABLE:
+            logger.warning(
+                "non_usable_completion",
+                chat_id=chat_id,
+                outcome=outcome.value,
+                finish_reason=response.finish_reason,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY, detail=_outcome_message(outcome)
+            )
 
         try:
             # Log token drift if provider reports actual usage
@@ -750,6 +799,12 @@ class ChatMessageService:
                 if chunk.finish_reason:
                     last_finish_reason = chunk.finish_reason
 
+            # Classify the assembled stream: an empty/filtered/truncated result is
+            # not a real reply — surface it instead of persisting a blank message.
+            outcome = classify_completion(
+                full_content or None, full_reasoning or None, last_finish_reason
+            )
+
             # Capture the audit from the raw assembled stream, before think-tag parsing
             await self._record_llm_audit(
                 gateway=gateway,
@@ -760,7 +815,20 @@ class ChatMessageService:
                 reasoning=full_reasoning or None,
                 finish_reason=last_finish_reason,
                 usage=last_usage,
+                status_override=None if outcome == CompletionOutcome.USABLE else outcome.value,
             )
+
+            if outcome != CompletionOutcome.USABLE:
+                logger.warning(
+                    "non_usable_completion",
+                    chat_id=chat_id,
+                    outcome=outcome.value,
+                    finish_reason=last_finish_reason,
+                )
+                yield StreamEvent(
+                    type="error", message=_outcome_message(outcome), code=outcome.value
+                )
+                return
 
             if full_content:
                 reasoning = full_reasoning or None

@@ -97,6 +97,21 @@ class TestOpenAIAdapter:
         assert payload["reasoning_effort"] == "none"
         assert "reasoning" not in payload
 
+    def test_empty_choices_normalized_to_content_filter(self):
+        # A hard block can return 200 with choices:[] — must not IndexError, and
+        # should surface a filter terminal for the completion classifier.
+        resp = self.adapter.parse_response({"choices": [], "usage": {}})
+        assert resp.content == ""
+        assert resp.finish_reason == "content_filter"
+
+    def test_null_content_preserved_as_empty(self):
+        # DeepSeek soft-filter: content null, finish stop → empty string, stop.
+        resp = self.adapter.parse_response(
+            {"choices": [{"message": {"content": None}, "finish_reason": "stop"}]}
+        )
+        assert resp.content == ""
+        assert resp.finish_reason == "stop"
+
     def test_parse_response(self):
         data = {
             "choices": [{"message": {"content": "Hi!"}, "finish_reason": "stop"}],
@@ -264,6 +279,14 @@ class TestAnthropicAdapter:
         assert payload["thinking"] == {"type": "disabled"}
         assert "output_config" not in payload
 
+    def test_refusal_stop_reason_normalized_to_content_filter(self):
+        data = {
+            "content": [{"type": "text", "text": "I can't help with that."}],
+            "stop_reason": "refusal",
+            "usage": {"input_tokens": 5, "output_tokens": 6},
+        }
+        assert self.adapter.parse_response(data).finish_reason == "content_filter"
+
     def test_parse_response(self):
         data = {
             "content": [{"type": "text", "text": "Ahoy!"}],
@@ -428,6 +451,14 @@ class TestGeminiAdapter:
     def test_thinking_level_forwarded(self):
         payload = self.adapter.build_payload([], "gemini-3-pro", False, {"thinking_level": "high"})
         assert payload["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "high"}
+
+    def test_prompt_block_normalized_to_content_filter(self):
+        # A prompt-level block returns no candidate; the reason is under
+        # promptFeedback.blockReason and must surface as a filter terminal.
+        data = {"candidates": [], "promptFeedback": {"blockReason": "SAFETY"}}
+        resp = self.adapter.parse_response(data)
+        assert resp.content == ""
+        assert resp.finish_reason == "content_filter"
 
     def test_minimize_reasoning_uses_declared_control(self):
         # 2.5 disables via budget 0; 3.x drops to the minimal level. Authoritative

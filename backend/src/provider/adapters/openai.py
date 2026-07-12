@@ -114,7 +114,23 @@ class OpenAIAdapter(ProviderAdapter):
         payload.pop("reasoning", None)
 
     def parse_response(self, data: dict[str, Any]) -> CompletionResponse:
-        choice = data.get("choices", [{}])[0]
+        # Some providers return an empty choices list on a hard block/error (still
+        # HTTP 200); guard the index and normalize to a filter terminal so the
+        # completion classifier flags it rather than crashing.
+        choices = data.get("choices")
+        if not choices:
+            u = data.get("usage") or {}
+            return CompletionResponse(
+                content="",
+                finish_reason="content_filter",
+                usage=TokenUsage(
+                    input_tokens=u.get("prompt_tokens", 0),
+                    output_tokens=u.get("completion_tokens", 0),
+                    total_tokens=u.get("total_tokens", 0),
+                ),
+                raw=data,
+            )
+        choice = choices[0]
         message = choice.get("message", {})
         usage_data = data.get("usage", {})
         prompt_details = usage_data.get("prompt_tokens_details", {})
