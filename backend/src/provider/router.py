@@ -1,9 +1,12 @@
 """Provider CRUD API endpoints"""
 
-from fastapi import APIRouter, Query, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query, status
 
 from src.core.persistence import DbSession
 from src.model.schemas import ModelResponse
+from src.model.service import ModelService
 from src.provider.dependencies import ProviderServiceDep
 from src.provider.schemas import (
     AvailableModelsResponse,
@@ -18,6 +21,30 @@ from src.provider.schemas import (
 )
 
 router = APIRouter(prefix="/api/providers", tags=["providers"])
+
+
+def _get_model_service(db: DbSession) -> ModelService:
+    """Build the canonical-model service for the persist endpoint.
+
+    Wired locally rather than importing ``ModelServiceDep`` from
+    ``src.model.dependencies``: that module imports ``provider.dependencies``, so
+    eagerly wiring the reverse edge at module scope would form a load-time import
+    cycle. The repo imports stay in the body for the same reason.
+    """
+    from src.chat_session.repository import ChatRepository
+    from src.model.repository import ModelRepository
+    from src.model_family.repository import ModelFamilyRepository
+    from src.provider.repository import ProviderRepository
+
+    return ModelService(
+        ModelRepository(db),
+        ProviderRepository(db),
+        ModelFamilyRepository(db),
+        ChatRepository(db),
+    )
+
+
+ModelServiceDep = Annotated[ModelService, Depends(_get_model_service)]
 
 
 @router.get("", response_model=list[ProviderResponse])
@@ -123,7 +150,7 @@ def delete_provider_model(
 def persist_provider_model(
     provider_id: str,
     action_data: ModelActionRequest,
-    db: DbSession,
+    model_service: ModelServiceDep,
 ):
     """Persist a discovered model: attach a route to the matching (or new) canonical model.
 
@@ -133,42 +160,4 @@ def persist_provider_model(
     canonical model is created with a best-effort family guess — the user can correct
     the family/slug afterward.
     """
-    from src.chat_session.repository import ChatRepository
-    from src.model.lineage import normalize_slug, resolve_family
-    from src.model.repository import ModelRepository
-    from src.model.service import ModelService
-    from src.model_family.models import ModelFamily
-    from src.model_family.repository import ModelFamilyRepository
-    from src.provider.repository import ProviderRepository
-
-    model_repo = ModelRepository(db)
-    provider_repo = ProviderRepository(db)
-    family_repo = ModelFamilyRepository(db)
-    chat_repo = ChatRepository(db)
-    model_service = ModelService(model_repo, provider_repo, family_repo, chat_repo)
-
-    identifier = action_data.model_identifier
-
-    # Already routed on this provider → return the owning canonical model.
-    existing_route = model_repo.find_route_by_provider_identifier(provider_id, identifier)
-    if existing_route:
-        return model_service.get_by_id(existing_route.model_registry_id)
-
-    # Same canonical model reached through another provider → add this route to it.
-    slug = normalize_slug(identifier)
-    registry = model_repo.find_by_slug(slug)
-    if registry:
-        return model_service.add_route(
-            registry.id, provider_id=provider_id, model_identifier=identifier
-        )
-
-    # New canonical model: best-effort family, else any family (user can correct).
-    family = resolve_family(db, identifier) or db.query(ModelFamily).first()
-    friendly_name = identifier.replace(":", " ").replace("-", " ").replace("/", " ").title()
-    return model_service.create(
-        display_name=friendly_name,
-        model_family_id=family.id if family else "gttl91cmw18b",
-        routes=[{"provider_id": provider_id, "model_identifier": identifier}],
-        slug=slug,
-        enabled=True,
-    )
+    return model_service.persist_discovered_model(provider_id, action_data.model_identifier)
