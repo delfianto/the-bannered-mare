@@ -12,6 +12,7 @@ from src.chat_message import (
     Message,
     MessageRole,
     gateway_factory,
+    llm_audit,
 )
 from src.chat_message.schemas import StreamEvent
 from src.chat_session.models import Chat
@@ -678,7 +679,7 @@ class TestChatMessageService:
         build_main = MagicMock(side_effect=AssertionError("reply must not use the main gateway"))
         monkeypatch.setattr(gateway_factory, "build_task_gateway", build_task)
         monkeypatch.setattr(gateway_factory, "build_gateway", build_main)
-        monkeypatch.setattr(service, "_record_llm_audit", AsyncMock())
+        monkeypatch.setattr(llm_audit, "record_llm_audit", AsyncMock())
 
         result = await service.generate_suggestions(chat.id, mode="reply", count=3)
 
