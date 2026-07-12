@@ -18,6 +18,7 @@ from src.character.models import Character
 from src.character.repository import CharacterRepository
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
+from src.core.utils.upload import read_upload_capped
 
 
 def _parse_gender(value: str) -> Gender:
@@ -214,7 +215,7 @@ class CharacterService:
 
         Supports TavernCard V1 and V2 formats, with PNG tEXt embedding or plain JSON.
         """
-        file_data = await file.read()
+        file_data = await read_upload_capped(file)
         filename = (file.filename or "").lower()
 
         try:

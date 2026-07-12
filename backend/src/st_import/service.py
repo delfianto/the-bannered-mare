@@ -18,6 +18,7 @@ from src.core.persistence import (
     TemplateFragment,
     gen_id,
 )
+from src.core.utils.upload import read_upload_capped
 from src.preset.repository import PresetRepository
 from src.profile.repository import ProfileRepository
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
@@ -57,7 +58,7 @@ class STImportService:
                 detail="Unsupported file format. Upload a .json SillyTavern preset.",
             )
 
-        raw = await file.read()
+        raw = await read_upload_capped(file)
         try:
             preset = parse_st_preset(raw)
         except STImportError as e:
