@@ -2,13 +2,13 @@
 
 Pure functions extracted from ModelService: a value dict is checked against the
 family's declared ``parameters`` (type / min-max / enum) and its
-``unsupported_parameters``. Raises HTTPException(400) on the first violation.
+``unsupported_parameters``. Raises ValidationError (HTTP 422) on the first
+violation.
 """
 
 from typing import Any
 
-from fastapi import HTTPException, status
-
+from src.core.exceptions import ValidationError
 from src.model_family.models import ModelFamily
 
 # param type -> (predicate, human description of the expected type)
@@ -23,29 +23,25 @@ _TYPE_CHECKS: dict[str, tuple[Any, str]] = {
 }
 
 
-def _bad_request(detail: str) -> HTTPException:
-    return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
-
-
 def validate_single_parameter(name: str, value: Any, rule: dict[str, Any]) -> None:
     """Validate one value against a family parameter rule (type, range, enum)."""
     param_type = rule.get("type")
 
     check = _TYPE_CHECKS.get(param_type) if param_type else None
     if check and not check[0](value):
-        raise _bad_request(f"Parameter '{name}' must be {check[1]}.")
+        raise ValidationError(f"Parameter '{name}' must be {check[1]}.")
 
     if param_type in ("int", "float"):
         min_value = rule.get("min_value")
         max_value = rule.get("max_value")
         if min_value is not None and value < min_value:
-            raise _bad_request(f"Parameter '{name}' cannot be less than {min_value}.")
+            raise ValidationError(f"Parameter '{name}' cannot be less than {min_value}.")
         if max_value is not None and value > max_value:
-            raise _bad_request(f"Parameter '{name}' cannot be greater than {max_value}.")
+            raise ValidationError(f"Parameter '{name}' cannot be greater than {max_value}.")
 
     if param_type == "enum" and "str_values" in rule and value not in rule["str_values"]:
         allowed = ", ".join(map(str, rule["str_values"]))
-        raise _bad_request(f"Parameter '{name}' must be one of: {allowed}.")
+        raise ValidationError(f"Parameter '{name}' must be one of: {allowed}.")
 
 
 def validate_parameters(parameters: dict[str, Any], model_family: ModelFamily | None) -> None:
@@ -58,13 +54,13 @@ def validate_parameters(parameters: dict[str, Any], model_family: ModelFamily | 
 
     for param_name, value in parameters.items():
         if param_name in unsupported:
-            raise _bad_request(
+            raise ValidationError(
                 f"Parameter '{param_name}' is explicitly unsupported by model family "
                 f"'{model_family.name}'."
             )
         if param_name not in family_params:
             supported = ", ".join(sorted(family_params.keys()))
-            raise _bad_request(
+            raise ValidationError(
                 f"Parameter '{param_name}' is not defined in model family "
                 f"'{model_family.name}'. Supported: {supported}"
             )
