@@ -16,11 +16,6 @@ class PersonaRepository(BaseRepository[Persona]):
         """Initialize Persona repository"""
         super().__init__(db, Persona)
 
-    def find_default(self) -> Persona | None:
-        """Find the default persona"""
-        stmt = select(Persona).where(Persona.is_default)
-        return self.db.execute(stmt).scalars().first()
-
     def find_all_ordered(self) -> list[Persona]:
         """Find all personas ordered by creation date"""
         stmt = select(Persona).order_by(Persona.created_at.desc())

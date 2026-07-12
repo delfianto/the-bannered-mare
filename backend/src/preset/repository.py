@@ -18,11 +18,6 @@ class PresetRepository(BaseRepository[Preset]):
         stmt = select(Preset).where(Preset.name == name)
         return self.db.execute(stmt).scalars().first()
 
-    def find_default(self) -> Preset | None:
-        """Find the default preset"""
-        stmt = select(Preset).where(Preset.is_default)
-        return self.db.execute(stmt).scalars().first()
-
     def find_all_ordered(self) -> list[Preset]:
         """Find all presets ordered by creation date"""
         stmt = select(Preset).order_by(Preset.created_at.desc())

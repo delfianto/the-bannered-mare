@@ -18,11 +18,6 @@ class ProfileRepository(BaseRepository[Profile]):
         stmt = select(Profile).where(Profile.name == name)
         return self.db.execute(stmt).scalars().first()
 
-    def find_default(self) -> Profile | None:
-        """Find the default profile"""
-        stmt = select(Profile).where(Profile.is_default)
-        return self.db.execute(stmt).scalars().first()
-
     def find_all_ordered(self) -> list[Profile]:
         """Find all profiles ordered by creation date"""
         stmt = select(Profile).order_by(Profile.created_at.desc())
