@@ -142,7 +142,17 @@ class Provider(BaseModel):
         String(100), nullable=True, comment="Name of the environment variable storing the API key"
     )
     provider_type: Mapped[ProviderType] = mapped_column(
-        Enum(ProviderType, values_callable=lambda obj: [e.value for e in obj]),
+        # VARCHAR-backed (native_enum=False), not a PostgreSQL ENUM: adding a
+        # provider type is then a plain code change, with no ALTER TYPE migration
+        # or alembic_postgresql_enum dance. Validation is app-level (the Pydantic
+        # ProviderType schemas); SQLAlchemy still coerces the stored value back to
+        # ProviderType on read. Mirrors ModelFamily.provider_types (StringList).
+        Enum(
+            ProviderType,
+            native_enum=False,
+            length=20,
+            values_callable=lambda obj: [e.value for e in obj],
+        ),
         nullable=False,
         comment="Classification of the provider (openai, anthropic, etc.)",
     )
