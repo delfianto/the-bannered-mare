@@ -132,6 +132,11 @@ def run_migrations_offline() -> None:
         include_object=_include_object,
         render_item=_render_item,
         process_revision_directives=_process_revision_directives,
+        # Compare column types + server defaults so `alembic check` and
+        # autogenerate catch type drift (e.g. json↔jsonb, VARCHAR length), not
+        # just added/dropped tables/columns.
+        compare_type=True,
+        compare_server_default=True,
     )
 
     with context.begin_transaction():
@@ -158,6 +163,9 @@ def run_migrations_online() -> None:
             include_object=_include_object,
             render_item=_render_item,
             process_revision_directives=_process_revision_directives,
+            # See run_migrations_offline: compare types + server defaults too.
+            compare_type=True,
+            compare_server_default=True,
         )
 
         with context.begin_transaction():
