@@ -1,13 +1,6 @@
-from src.chat_message.dependencies import (
-    AsyncMessageRepositoryDep,
-    ChatMessageServiceDep,
-    get_async_message_repository,
-    get_chat_message_service,
-)
 from src.chat_message.models import Message, MessageRole
 from src.chat_message.repository import MessageRepository
 from src.chat_message.repository_async import AsyncMessageRepository
-from src.chat_message.router import preview_router, router
 from src.chat_message.schemas import (
     MessageBase,
     MessageCreate,
@@ -28,10 +21,4 @@ __all__ = [
     "MessageResponse",
     "StreamEvent",
     "stream_event_to_dict",
-    "get_async_message_repository",
-    "get_chat_message_service",
-    "ChatMessageServiceDep",
-    "AsyncMessageRepositoryDep",
-    "router",
-    "preview_router",
 ]

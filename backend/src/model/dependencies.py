@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from src.chat_session.repository import ChatRepository
 from src.core.persistence import DbSession
 from src.model.repository import ModelRepository
 from src.model.service import ModelService
@@ -23,10 +24,7 @@ def get_model_service(
     db: DbSession,
 ) -> ModelService:
     """Factory for ModelService with repository injected"""
-    from src.chat_session.repository import ChatRepository
-
-    chat_repo = ChatRepository(db)
-    return ModelService(model_repo, provider_repo, family_repo, chat_repo)
+    return ModelService(model_repo, provider_repo, family_repo, ChatRepository(db))
 
 
 ModelServiceDep = Annotated[ModelService, Depends(get_model_service)]

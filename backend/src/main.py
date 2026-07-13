@@ -10,26 +10,26 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from src.admin.router import router as admin_router
 from src.audit.middleware import RequestLoggingMiddleware
 from src.bookmarks.router import router as bookmarks_router
-from src.character import router as characters_router
-from src.chat_message import preview_router as chat_preview_router
-from src.chat_message import router as chat_messages_router
-from src.chat_session import router as chats_router
+from src.character.router import router as characters_router
+from src.chat_message.router import preview_router as chat_preview_router
+from src.chat_message.router import router as chat_messages_router
+from src.chat_session.router import router as chats_router
 from src.core.config import settings
 from src.core.exceptions import BanneredMareException
 from src.core.logging import configure_structlog, get_logger
 from src.core.utils.storage import ensure_storage_directories
-from src.health import router as health_router
-from src.lore import router as lore_router
-from src.model import router as models_router
-from src.model_family import router as model_families_router
-from src.persona import router as personas_router
-from src.preset import router as presets_router
-from src.profile import router as profiles_router
-from src.prompt_fragment import fragment_router as prompt_fragments_router
-from src.prompt_fragment import template_fragment_router as template_fragments_router
-from src.prompt_template import router as prompt_templates_router
-from src.provider import router as providers_router
-from src.rag import data_bank_router, rag_router
+from src.health.router import router as health_router
+from src.lore.router import router as lore_router
+from src.model.router import router as models_router
+from src.model_family.router import router as model_families_router
+from src.persona.router import router as personas_router
+from src.preset.router import router as presets_router
+from src.profile.router import router as profiles_router
+from src.prompt_fragment.router import fragment_router as prompt_fragments_router
+from src.prompt_fragment.router import template_fragment_router as template_fragments_router
+from src.prompt_template.router import router as prompt_templates_router
+from src.provider.router import router as providers_router
+from src.rag.router import data_bank_router, rag_router
 
 configure_structlog()
 logger = get_logger(__name__)
