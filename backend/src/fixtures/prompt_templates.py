@@ -32,9 +32,7 @@ PROMPT_TEMPLATES_SEED_DATA = [
 ## Formatting Guidelines
 - Use *asterisks* for actions and narration
 - Use "quotes" for dialogue
-- Write naturally and stay in character
-
-Current date and time: {{date}} {{time}}""",
+- Write naturally and stay in character""",
         "component_order": DEFAULT_COMPONENT_ORDER.copy(),
         "components_enabled": DEFAULT_COMPONENTS_ENABLED.copy(),
         "max_history_tokens": None,
@@ -94,9 +92,7 @@ You are roleplaying as {{char}} in an interactive story with {{user}}.
 - Consider {{char}}'s personality in every response
 - React naturally to {{user}}'s actions and dialogue
 - Drive the narrative forward with engaging responses
-- Show, don't tell - use sensory details and body language
-
-Current session: {{date}} at {{time}}""",
+- Show, don't tell - use sensory details and body language""",
         "component_order": [
             "system_prompt",
             "world_lore_before_character",
@@ -124,10 +120,7 @@ Current session: {{date}} at {{time}}""",
         "is_default": False,
         "system_template": """You are {{char}}, a helpful AI assistant.
 
-Your goal is to provide accurate, helpful, and friendly responses to {{user}}'s questions and requests.
-
-Current date: {{date}}
-Current time: {{time}}""",
+Your goal is to provide accurate, helpful, and friendly responses to {{user}}'s questions and requests.""",
         "component_order": [
             "system_prompt",
             "chat_history",
