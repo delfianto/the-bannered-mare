@@ -2,11 +2,10 @@
 
 from typing import Any
 
-from fastapi import UploadFile
-
 from src.core.base_service import get_or_404, set_as_default
 from src.core.persistence import gen_id
 from src.core.utils.storage import delete_persona_files, save_persona_avatar
+from src.core.utils.upload import UploadedFile
 from src.persona.models import Persona
 from src.persona.repository import PersonaRepository
 
@@ -36,7 +35,7 @@ class PersonaService:
         name: str,
         description: str | None = None,
         is_default: bool = False,
-        avatar: UploadFile | None = None,
+        avatar: UploadedFile | None = None,
     ) -> Persona:
         """Create new persona with optional avatar upload"""
         # If setting as default, unset other defaults
@@ -69,7 +68,7 @@ class PersonaService:
         name: str | None = None,
         description: str | None = None,
         is_default: bool | None = None,
-        avatar: UploadFile | None = None,
+        avatar: UploadedFile | None = None,
     ) -> Persona:
         """Update persona"""
         persona = self.get_by_id(persona_id)

@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, File, Query, UploadFile, status
 
 from src.core.schemas import PaginatedResponse, page_response
+from src.core.utils.upload import read_upload
 from src.preset.dependencies import PresetServiceDep
 from src.preset.schemas import PresetCreate, PresetResponse, PresetUpdate
 from src.st_import.dependencies import STImportServiceDep
@@ -51,7 +52,7 @@ async def import_st_preset(
     settings are present, a Preset. Returns what was created plus warnings for
     anything that did not transfer cleanly.
     """
-    return await service.import_preset(file)
+    return await service.import_preset(await read_upload(file))
 
 
 @router.get("/{preset_id}", response_model=PresetResponse)

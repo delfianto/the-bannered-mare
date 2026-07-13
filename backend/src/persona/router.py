@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 
 from src.core.config import settings
 from src.core.schemas import PaginatedResponse, page_response
+from src.core.utils.upload import read_upload
 from src.persona.dependencies import PersonaServiceDep
 from src.persona.schemas import PersonaFilterParams, PersonaResponse
 
@@ -39,8 +40,9 @@ async def create_persona(
     avatar: Annotated[UploadFile | None, File()] = None,
 ):
     """Create new persona with optional avatar upload"""
+    avatar_upload = await read_upload(avatar) if avatar else None
     return await service.create(
-        name=name, description=description, is_default=is_default, avatar=avatar
+        name=name, description=description, is_default=is_default, avatar=avatar_upload
     )
 
 
@@ -123,12 +125,13 @@ async def update_persona(
     avatar: Annotated[UploadFile | None, File()] = None,
 ):
     """Update persona"""
+    avatar_upload = await read_upload(avatar) if avatar else None
     return await service.update(
         persona_id=persona_id,
         name=name,
         description=description,
         is_default=is_default,
-        avatar=avatar,
+        avatar=avatar_upload,
     )
 
 

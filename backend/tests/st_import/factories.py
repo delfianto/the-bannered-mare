@@ -1,16 +1,14 @@
 """Builders for synthetic SillyTavern preset data used across st_import tests."""
 
-import io
 from typing import Any
 
-from fastapi import UploadFile
 from sqlalchemy.orm import Session
+from src.core.utils.upload import UploadedFile
 from src.preset.repository import PresetRepository
 from src.profile.repository import ProfileRepository
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.prompt_template.repository import PromptTemplateRepository
 from src.st_import.service import STImportService
-from starlette.datastructures import Headers
 
 # Identifiers that resolve to The Bannered Mare components.
 MARKERS = (
@@ -89,14 +87,10 @@ def preset_dict(
     return data
 
 
-def make_upload(data: str | bytes, filename: str = "preset.json") -> UploadFile:
-    """Wrap bytes/str as an UploadFile for service/router tests."""
+def make_upload(data: str | bytes, filename: str = "preset.json") -> UploadedFile:
+    """Wrap bytes/str as an UploadedFile for direct service tests."""
     payload = data.encode("utf-8") if isinstance(data, str) else data
-    return UploadFile(
-        filename=filename,
-        file=io.BytesIO(payload),
-        headers=Headers({"content-type": "application/json"}),
-    )
+    return UploadedFile(payload, filename)
 
 
 def make_service(db: Session) -> STImportService:

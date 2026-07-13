@@ -7,7 +7,6 @@ macros are not rejected by the services' Jinja2 validation.
 
 from collections.abc import Callable
 
-from fastapi import UploadFile
 from sqlalchemy.exc import IntegrityError
 
 from src.core.exceptions import ConflictError, ValidationError
@@ -19,7 +18,7 @@ from src.core.persistence import (
     TemplateFragment,
     gen_id,
 )
-from src.core.utils.upload import read_upload_capped
+from src.core.utils.upload import UploadedFile
 from src.preset.repository import PresetRepository
 from src.profile.repository import ProfileRepository
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
@@ -50,13 +49,13 @@ class STImportService:
         self.preset_repo = preset_repo
         self.profile_repo = profile_repo
 
-    async def import_preset(self, file: UploadFile) -> STImportResult:
-        """Read, validate, and import a .json ST preset. Raises HTTP 400 on bad input."""
-        filename = file.filename or ""
+    async def import_preset(self, upload: UploadedFile) -> STImportResult:
+        """Validate and import a .json ST preset. Raises HTTP 400 on bad input."""
+        filename = upload.filename
         if not filename.lower().endswith(".json"):
             raise ValidationError("Unsupported file format. Upload a .json SillyTavern preset.")
 
-        raw = await read_upload_capped(file)
+        raw = upload.data
         try:
             preset = parse_st_preset(raw)
         except STImportError as e:

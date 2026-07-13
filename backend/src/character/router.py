@@ -10,6 +10,7 @@ from src.character.dependencies import CharacterServiceDep
 from src.character.schemas import CharacterFilterParams, CharacterResponse
 from src.core.config import settings
 from src.core.schemas import PaginatedResponse, page_response
+from src.core.utils.upload import read_upload
 
 router = APIRouter(prefix="/api/characters", tags=["characters"])
 
@@ -53,6 +54,7 @@ async def create_character(
     avatar: Annotated[UploadFile | None, File()] = None,
 ):
     """Create a new character with optional avatar upload"""
+    avatar_upload = await read_upload(avatar) if avatar else None
     return await service.create(
         name=name,
         description=description,
@@ -71,7 +73,7 @@ async def create_character(
         creator_notes=creator_notes,
         species=species,
         age=age,
-        avatar=avatar,
+        avatar=avatar_upload,
     )
 
 
@@ -168,6 +170,7 @@ async def update_character(
     avatar: Annotated[UploadFile | None, File()] = None,
 ):
     """Update character"""
+    avatar_upload = await read_upload(avatar) if avatar else None
     return await service.update(
         character_id=character_id,
         name=name,
@@ -187,7 +190,7 @@ async def update_character(
         creator_notes=creator_notes,
         species=species,
         age=age,
-        avatar=avatar,
+        avatar=avatar_upload,
     )
 
 
@@ -197,7 +200,7 @@ async def import_character(
     file: Annotated[UploadFile, File(description="PNG or JSON character card file")],
 ):
     """Import a character from a TavernCard V1/V2 PNG or JSON file."""
-    return await service.import_card(file)
+    return await service.import_card(await read_upload(file))
 
 
 @router.get("/{character_id}/export/json")

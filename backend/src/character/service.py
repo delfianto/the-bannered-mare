@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 from anyio import to_thread
-from fastapi import UploadFile
 
 from src.character.card_parser import (
     ParsedCard,
@@ -22,7 +21,7 @@ from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
-from src.core.utils.upload import read_upload_capped
+from src.core.utils.upload import UploadedFile
 from src.lore.card_import import build_lorebook, map_lore_entry
 from src.lore.repository import LoreEntryRepository, LoreRepository
 
@@ -76,7 +75,7 @@ class CharacterService:
         personality: str | None = None,
         first_message: str | None = None,
         example_dialogues: str | None = None,
-        avatar: UploadFile | None = None,
+        avatar: UploadedFile | None = None,
         scenario: str | None = None,
         post_history_instructions: str | None = None,
         alternate_greetings: str | None = None,
@@ -139,7 +138,7 @@ class CharacterService:
         personality: str | None = None,
         first_message: str | None = None,
         example_dialogues: str | None = None,
-        avatar: UploadFile | None = None,
+        avatar: UploadedFile | None = None,
         scenario: str | None = None,
         post_history_instructions: str | None = None,
         alternate_greetings: str | None = None,
@@ -220,14 +219,14 @@ class CharacterService:
         self.character_repo.delete(character)
         self.character_repo.commit()
 
-    async def import_card(self, file: UploadFile) -> Character:
+    async def import_card(self, upload: UploadedFile) -> Character:
         """
         Import a character from a PNG or JSON card file.
 
         Supports TavernCard V1 and V2 formats, with PNG tEXt embedding or plain JSON.
         """
-        file_data = await read_upload_capped(file)
-        filename = (file.filename or "").lower()
+        file_data = upload.data
+        filename = upload.filename.lower()
 
         try:
             if filename.endswith(".png"):
@@ -302,18 +301,8 @@ class CharacterService:
 
         # If PNG, use the file itself as avatar
         if filename.endswith(".png"):
-            import io
-
-            from fastapi import UploadFile as FUpload
-            from starlette.datastructures import Headers
-
-            avatar_file = FUpload(
-                filename=f"{card.name}.png",
-                file=io.BytesIO(file_data),
-                headers=Headers({"content-type": "image/png"}),
-            )
             original_path, large_path, thumbnail_path = await save_character_avatar(
-                created.id, avatar_file
+                created.id, UploadedFile(file_data, f"{card.name}.png")
             )
             created.avatar = original_path
             created.avatar_large = large_path
