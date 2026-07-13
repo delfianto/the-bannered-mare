@@ -13,7 +13,10 @@ const LIMIT = 25;
  * Read-only. Deliberately no auto-load — the caller triggers `load(chatId)`; the
  * last fetch is cached by id so reopening the drawer (or toggling tabs) on the
  * same chat won't refetch. An empty result is cached too, so a chat with no logs
- * doesn't refetch on every tab switch.
+ * doesn't refetch on every tab switch. `load(chatId, true)` force-refetches
+ * (keeping the current rows on screen while it does), and `invalidate()` drops
+ * the cache so the next `load` hits the network — used when a completion lands
+ * while the tab isn't visible.
  */
 export function useChatLlmLogs() {
   const logs = ref<LlmAuditLog[]>([]);
@@ -21,14 +24,19 @@ export function useChatLlmLogs() {
   const error = ref<Error | null>(null);
   let lastId: string | null = null;
 
+  const invalidate = () => {
+    lastId = null;
+  };
+
   const load = async (chatId: string, force = false) => {
     if (!chatId) return;
     if (!force && chatId === lastId) return;
 
     loading.value = true;
     error.value = null;
-    // Drop the previous chat's rows so switching chats never flashes stale logs.
-    logs.value = [];
+    // Drop the previous chat's rows so switching chats never flashes stale
+    // logs; a same-chat refresh keeps them visible until the new batch lands.
+    if (chatId !== lastId) logs.value = [];
 
     try {
       const { data, error: apiError } = await client.GET("/admin/logs/llm", {
@@ -51,5 +59,5 @@ export function useChatLlmLogs() {
     }
   };
 
-  return { logs, loading, error, load };
+  return { logs, loading, error, load, invalidate };
 }

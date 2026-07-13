@@ -294,6 +294,7 @@
       "sessionError": "Couldn't load session info",
       "logsEmpty": "No model calls logged for this conversation yet",
       "logsError": "Couldn't load model call logs",
+      "logsRefresh": "Refresh logs",
       "logsStatusSuccess": "OK",
       "logsStatusError": "Error",
       "logsTokens": "Tokens",

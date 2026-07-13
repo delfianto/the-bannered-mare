@@ -1,6 +1,7 @@
 import { ref, watch } from "vue";
 import type { components } from "@/api/schema";
 import { client } from "@/api/client";
+import { useCompletionSignal } from "@/composables/useCompletionSignal";
 
 type Message = components["schemas"]["MessageResponse"];
 
@@ -92,6 +93,10 @@ export function useChatMessages(
   // Track if we are currently generating (prevents double clicks and triggers scroll)
   const isGenerating = ref(false);
 
+  // Announce every settled LLM call (success or error — both write audit rows)
+  // so listeners like the drawer's Logs tab can refresh without a page reload.
+  const { notify: notifyCompletion } = useCompletionSignal();
+
   // Next-turn suggestions (reply candidates / tone-steered impersonation)
   const suggesting = ref(false);
 
@@ -118,6 +123,7 @@ export function useChatMessages(
       return [];
     } finally {
       suggesting.value = false;
+      notifyCompletion(chatId);
     }
   };
 
@@ -241,6 +247,8 @@ export function useChatMessages(
       error.value = err instanceof Error ? err : new Error("Regeneration failed");
       isGenerating.value = false;
       await loadMessages();
+    } finally {
+      notifyCompletion(chatId);
     }
   };
 
@@ -283,6 +291,8 @@ export function useChatMessages(
       isGenerating.value = false;
       // Drop the empty placeholder so a failed send doesn't leave a blank bubble.
       messages.value = messages.value.filter((m) => m.id !== placeholderId || m.content);
+    } finally {
+      notifyCompletion(chatId);
     }
   };
 
