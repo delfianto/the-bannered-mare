@@ -92,6 +92,16 @@ db-seed path=seed_dir:
 
 # ─────────────────────────────── backend ────────────────────────────────
 
+# Install backend dependencies into backend/.venv (uv sync, incl. dev extras).
+[group('backend')]
+be-install:
+    cd {{ backend_dir }} && uv sync --extra dev
+
+# Reinstall backend dependencies from scratch — delete .venv, then resync.
+[group('backend')]
+be-reinstall: && be-install
+    rm -rf {{ backend_dir }}/.venv
+
 # Run the backend in dev mode (uvicorn --reload) on :8000.
 [group('backend')]
 be-dev:
@@ -107,6 +117,16 @@ be-prod:
 be-stop: (kill-port be_port "backend")
 
 # ─────────────────────────────── frontend ───────────────────────────────
+
+# Install frontend dependencies (bun install).
+[group('frontend')]
+fe-install:
+    cd {{ frontend_dir }} && bun install
+
+# Reinstall frontend dependencies from scratch — delete node_modules, then re-install.
+[group('frontend')]
+fe-reinstall: && fe-install
+    rm -rf {{ frontend_dir }}/node_modules
 
 # Run the frontend in dev mode (talks to the real backend) on :5173.
 [group('frontend')]
@@ -128,6 +148,11 @@ fe-prod:
 fe-stop: (kill-port fe_port "frontend (dev)") (kill-port fe_preview_port "frontend (preview)")
 
 # ───────────────────────────────── docs ─────────────────────────────────
+
+# Install docs-site dependencies (bun install).
+[group('docs')]
+docs-install:
+    cd {{ docs_dir }} && bun install
 
 # Run the documentation site (VitePress dev) on :5174.
 [group('docs')]

@@ -47,6 +47,9 @@ just db-restore <file>  # pg_restore from a dump
 just db-seed [path]     # import character cards (default: ./characters)
 
 # backend / frontend / docs
+just be-install         # backend deps → backend/.venv (uv sync, incl. dev extras)
+just fe-install         # frontend deps (bun install; also docs-install)
+just be-reinstall       # wipe backend/.venv, then be-install (also fe-reinstall)
 just be-dev             # backend, uvicorn --reload            (:8000)
 just be-prod            # backend, 4 workers, no reload         (:8000)
 just fe-dev             # frontend against the real backend     (:5173)
