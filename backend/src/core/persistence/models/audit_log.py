@@ -33,6 +33,18 @@ class LlmAuditLog(BaseModel):
     prompt_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     completion_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     total_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    cache_read_tokens: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        comment="Prompt-cache read tokens (cached prefix served from cache)",
+    )
+    cache_creation_tokens: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        comment="Prompt-cache write tokens (prefix written to ephemeral cache)",
+    )
     latency_ms: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, comment="success or an error classification"

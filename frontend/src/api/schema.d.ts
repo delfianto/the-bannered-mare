@@ -2486,6 +2486,10 @@ export interface components {
       completion_tokens: number;
       /** Total Tokens */
       total_tokens: number;
+      /** Cache Read Tokens */
+      cache_read_tokens: number;
+      /** Cache Creation Tokens */
+      cache_creation_tokens: number;
       /** Latency Ms */
       latency_ms: number;
       /** Status */

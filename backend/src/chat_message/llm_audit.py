@@ -79,12 +79,15 @@ async def record_llm_audit(
 
         usage_dict = None
         in_tok = out_tok = tot_tok = 0
+        cache_read = cache_creation = 0
         if usage is not None:
             in_tok, out_tok, tot_tok = (
                 usage.input_tokens,
                 usage.output_tokens,
                 usage.total_tokens,
             )
+            cache_read = usage.cache_read_tokens
+            cache_creation = usage.cache_creation_tokens
             usage_dict = {
                 "input_tokens": usage.input_tokens,
                 "output_tokens": usage.output_tokens,
@@ -112,6 +115,8 @@ async def record_llm_audit(
             status=status_override or "success",
             request_payload=api_messages,
             response_payload=response_payload,
+            cache_read_tokens=cache_read,
+            cache_creation_tokens=cache_creation,
         )
     except Exception:
         logger.warning("llm_audit_capture_failed", exc_info=True)

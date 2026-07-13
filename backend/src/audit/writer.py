@@ -72,6 +72,8 @@ class AuditWriter:
         error_message: str | None = None,
         request_payload: list[dict[str, Any]] | None = None,
         response_payload: dict[str, Any] | None = None,
+        cache_read_tokens: int = 0,
+        cache_creation_tokens: int = 0,
     ) -> None:
         """Record one LLM completion call (request + response payloads)."""
         if not settings.logging.audit_enabled or not settings.logging.log_llm_calls:
@@ -90,6 +92,8 @@ class AuditWriter:
             error_message=error_message,
             request_payload=redact_value(request_payload or []),
             response_payload=redact_value(response_payload),
+            cache_read_tokens=cache_read_tokens,
+            cache_creation_tokens=cache_creation_tokens,
         )
         await self._write(entry, kind="llm_audit_logs")
 
