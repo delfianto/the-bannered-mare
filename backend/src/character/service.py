@@ -23,6 +23,7 @@ from src.core.logging import get_logger
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
 from src.core.utils.upload import read_upload_capped
+from src.lore.card_import import build_lorebook, map_lore_entry
 from src.lore.repository import LoreEntryRepository, LoreRepository
 
 logger = get_logger(__name__)
@@ -289,80 +290,15 @@ class CharacterService:
         )
         created = self.character_repo.create(character)
 
-        # Create character_book if present in card
-        if hasattr(card, "character_book") and card.character_book:
-            from src.core.persistence.enums import InsertionPosition, MessageRole, SecondaryLogic
-            from src.lore.models import Lorebook, LoreEntry
-
-            book_data = card.character_book
-            lorebook = Lorebook(
-                name=book_data.get("name") or f"{card.name} Lorebook",
-                description=book_data.get("description"),
-                is_global=False,
-                character_id=created.id,
+        # Build the character's lorebook from the card, if present.
+        if card.character_book:
+            created_book = self.lore_repo.create(
+                build_lorebook(card.character_book, created.id, card.name)
             )
-            created_book = self.lore_repo.create(lorebook)
-
-            # Map entries
-            entries_data = book_data.get("entries", [])
-            for idx, entry_dict in enumerate(entries_data):
-                keys = entry_dict.get("keys", [])
-                content = entry_dict.get("content", "")
-                if not keys or not content:
-                    continue
-
-                # Map insertion position
-                raw_pos = str(entry_dict.get("position", "after_character")).lower()
-                position = InsertionPosition.AFTER_CHARACTER
-                if "before_char" in raw_pos:
-                    position = InsertionPosition.BEFORE_CHARACTER
-                elif "after_char" in raw_pos:
-                    position = InsertionPosition.AFTER_CHARACTER
-                elif "depth" in raw_pos:
-                    position = InsertionPosition.AT_DEPTH
-                elif "example" in raw_pos:
-                    position = InsertionPosition.BEFORE_EXAMPLES
-
-                # Map secondary logic
-                raw_logic = str(entry_dict.get("secondary_logic", "and_any")).lower()
-                secondary_logic = SecondaryLogic.AND_ANY
-                if "and_all" in raw_logic:
-                    secondary_logic = SecondaryLogic.AND_ALL
-                elif "not_any" in raw_logic:
-                    secondary_logic = SecondaryLogic.NOT_ANY
-                elif "not_all" in raw_logic:
-                    secondary_logic = SecondaryLogic.NOT_ALL
-
-                # Map role
-                raw_role = str(entry_dict.get("role", "system")).lower()
-                role = MessageRole.SYSTEM
-                if "user" in raw_role:
-                    role = MessageRole.USER
-                elif "assistant" in raw_role or "char" in raw_role:
-                    role = MessageRole.ASSISTANT
-
-                lore_entry = LoreEntry(
-                    lorebook_id=created_book.id,
-                    name=entry_dict.get("name")
-                    or entry_dict.get("comment")
-                    or (keys[0] if keys else "Untitled"),
-                    content=content,
-                    keys=keys,
-                    secondary_keys=entry_dict.get("secondary_keys", []),
-                    secondary_logic=secondary_logic,
-                    case_sensitive=entry_dict.get("case_sensitive", False),
-                    match_whole_words=entry_dict.get("match_whole_words", False),
-                    use_regex=entry_dict.get("use_regex", False),
-                    enabled=entry_dict.get("enabled", True),
-                    constant=entry_dict.get("constant", False),
-                    position=position,
-                    depth=entry_dict.get("depth", 4),
-                    role=role,
-                    priority=entry_dict.get("priority", 100),
-                    ignore_budget=entry_dict.get("ignore_budget", False),
-                    order=entry_dict.get("order", idx),
-                )
-                self.lore_entry_repo.create(lore_entry)
+            for idx, entry_dict in enumerate(card.character_book.get("entries", [])):
+                entry = map_lore_entry(entry_dict, created_book.id, idx)
+                if entry is not None:
+                    self.lore_entry_repo.create(entry)
 
         # If PNG, use the file itself as avatar
         if filename.endswith(".png"):
