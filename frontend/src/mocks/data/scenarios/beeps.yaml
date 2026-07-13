@@ -708,3 +708,23 @@ messages:
       *She offers you a clawed hand.*
 
       "Will the warm-blood who began as a carrier of mysterious packages stand with Beeps and the priests, knowing that the outcome is uncertain and the cost is high?"
+
+  - role: user
+    content: |
+      Before I answer — show me what the Hist showed you.
+
+  - role: assistant
+    content: |
+      *Her pupils dilate, and the air itself seems to shimmer as she shares a fragment of the vision.*
+
+      “The Hist does not speak in words, warm-blood. It shows. Look—”
+
+      <!-- GFX_START -->
+      <div style="background: #1a2418; color: #cdebc5; font-family: sans-serif; border: 1px solid #3d5a36; border-radius: 12px; padding: 12px; max-width: 240px; margin: 10px 0;">
+      🌿 HIST-VISION<br>
+      <span style="color: #8fae85; font-size: 0.8em;">Root-depth: 62 fathoms</span>
+      <div style="margin-top: 8px; font-size: 0.7em; color: #a8c9a0;">“The river-mouth waits. Three ripples follow.”</div>
+      </div>
+      <!-- GFX_END -->
+
+      “You see it too, yes? The deep roots already remember your name.”
