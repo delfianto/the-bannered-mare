@@ -121,9 +121,11 @@ class BaseRepository[T: BaseModel]:
         Returns:
             The created entity with generated ID and timestamps (not yet persisted)
         """
+        # No refresh(): id / created_at / updated_at (and every server_default
+        # column) all have Python-side defaults, so flush() leaves the object fully
+        # populated — an extra SELECT would just re-read known values.
         self.db.add(entity)
         self.db.flush()
-        self.db.refresh(entity)
         return entity
 
     def update(self, entity: T) -> T:
@@ -137,10 +139,9 @@ class BaseRepository[T: BaseModel]:
             entity: The entity to update
 
         Returns:
-            The updated and refreshed entity (not yet committed)
+            The updated entity (not yet committed)
         """
         self.db.flush()
-        self.db.refresh(entity)
         return entity
 
     def delete(self, entity: T) -> None:
