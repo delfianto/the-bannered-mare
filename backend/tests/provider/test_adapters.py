@@ -228,6 +228,20 @@ class TestOpenAIAdapter:
         assert chunk.usage.cache_read_tokens == 80
         assert chunk.content is None
 
+    def test_parse_stream_usage_null_prompt_tokens_details(self):
+        """OpenCode Go sends prompt_tokens_details: null in the final chunk —
+        must not crash with 'NoneType' object has no attribute 'get'."""
+        line = (
+            'data: {"choices":[],"usage":{"prompt_tokens":19,'
+            '"completion_tokens":268,"total_tokens":287,'
+            '"prompt_tokens_details":null}}'
+        )
+        chunk = self.adapter.parse_stream_line(line)
+        assert chunk is not None
+        assert chunk.usage is not None
+        assert chunk.usage.input_tokens == 19
+        assert chunk.usage.cache_read_tokens == 0
+
     def test_parse_stream_empty_choices_no_usage_returns_none(self):
         """Empty choices with no usage → still None (skip non-content events)."""
         line = 'data: {"choices":[]}'

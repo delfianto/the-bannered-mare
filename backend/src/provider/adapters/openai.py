@@ -138,8 +138,8 @@ class OpenAIAdapter(ProviderAdapter):
             )
         choice = choices[0]
         message = choice.get("message", {})
-        usage_data = data.get("usage", {})
-        prompt_details = usage_data.get("prompt_tokens_details", {})
+        usage_data = data.get("usage") or {}
+        prompt_details = usage_data.get("prompt_tokens_details") or {}
 
         # reasoning_content used by DeepSeek, xAI, OpenRouter reasoning models
         reasoning = message.get("reasoning_content") or message.get("reasoning") or None
@@ -178,7 +178,7 @@ class OpenAIAdapter(ProviderAdapter):
         usage = None
         if "usage" in data and data["usage"]:
             u = data["usage"]
-            pd = u.get("prompt_tokens_details", {})
+            pd = u.get("prompt_tokens_details") or {}
             usage = TokenUsage(
                 input_tokens=u.get("prompt_tokens", 0),
                 output_tokens=u.get("completion_tokens", 0),
@@ -192,11 +192,13 @@ class OpenAIAdapter(ProviderAdapter):
             return None
 
         choice = choices[0]
-        delta = choice.get("delta", {})
+        if not isinstance(choice, dict):
+            return StreamChunk(usage=usage) if usage is not None else None
+        delta = choice.get("delta") or {}
+        finish_reason = choice.get("finish_reason")
 
         content = delta.get("content")
         reasoning = delta.get("reasoning_content") or delta.get("reasoning")
-        finish_reason = choice.get("finish_reason")
 
         if content is None and reasoning is None and finish_reason is None and usage is None:
             return None
