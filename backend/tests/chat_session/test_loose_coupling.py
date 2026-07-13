@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_message import AsyncMessageRepository, ChatMessageService
 from src.chat_session import Chat, ChatRepository, ChatService
+from src.chat_session.model_snapshot import ChatModelSnapshotService
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.exceptions import BanneredMareException
 from src.model import ModelRepository, ModelService
@@ -59,8 +60,8 @@ class TestLooseCoupling:
         model_repo = ModelRepository(db)
         provider_repo = ProviderRepository(db)
         family_repo = ModelFamilyRepository(db)
-        chat_repo = ChatRepository(db)
-        model_service = ModelService(model_repo, provider_repo, family_repo, chat_repo)
+        chat_snapshot = ChatModelSnapshotService(ChatRepository(db))
+        model_service = ModelService(model_repo, provider_repo, family_repo, chat_snapshot)
 
         model_service.delete(sample_model.id)
 

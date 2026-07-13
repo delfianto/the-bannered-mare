@@ -12,7 +12,7 @@ from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
 
 if TYPE_CHECKING:
-    from src.chat_session.repository import ChatRepository
+    from src.chat_session.model_snapshot import ChatModelSnapshotService
     from src.provider.models import Provider
     from src.provider.repository import ProviderRepository
 
@@ -25,12 +25,12 @@ class ModelService:
         model_repo: ModelRepository,
         provider_repo: ProviderRepository,
         family_repo: ModelFamilyRepository,
-        chat_repo: ChatRepository,
+        chat_snapshot: ChatModelSnapshotService,
     ):
         self.model_repo = model_repo
         self.provider_repo = provider_repo
         self.family_repo = family_repo
-        self.chat_repo = chat_repo
+        self.chat_snapshot = chat_snapshot
 
     def list_all(self) -> list[ModelRegistry]:
         """List all canonical models."""
@@ -241,8 +241,9 @@ class ModelService:
         # covers the chat rename too).
         if display_name is not None:
             model.display_name = display_name
-            # Refresh the denormalized snapshot on every chat using this model.
-            self.chat_repo.update_model_name_for_model_id(model.id, display_name)
+            # The chat domain owns its denormalized model_name snapshot; ask it to
+            # refresh (shares this session, so the single commit below stays atomic).
+            self.chat_snapshot.refresh_model_name(model.id, display_name)
         if slug is not None:
             model.slug = slug
         if original_identifier is not None:
