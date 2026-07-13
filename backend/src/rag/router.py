@@ -5,6 +5,7 @@ from fastapi import APIRouter, Query, status
 from src.core.config import settings
 from src.core.exceptions import ConflictError
 from src.core.logging.logger_config import get_logger
+from src.core.schemas import PaginatedResponse, collection_response
 from src.rag.dependencies import DataBankServiceDep, RetrievalServiceDep
 from src.rag.models import DataBankEntry
 from src.rag.retrieval_service import RetrievalService
@@ -13,6 +14,8 @@ from src.rag.schemas import (
     DataBankResponse,
     DataBankUpdate,
     RAGSearchRequest,
+    RagStatusResponse,
+    RerankStatus,
     RetrievedChunk,
 )
 
@@ -46,7 +49,7 @@ async def _index_entry(retrieval: RetrievalService | None, entry: DataBankEntry)
 # -- Data Bank CRUD --
 
 
-@data_bank_router.get("/", response_model=list[DataBankResponse])
+@data_bank_router.get("/", response_model=PaginatedResponse[DataBankResponse])
 def list_entries(
     service: DataBankServiceDep,
     scope: str | None = Query(None, description="Filter by scope: global, character, chat"),
@@ -54,7 +57,9 @@ def list_entries(
     chat_id: str | None = Query(None, description="Filter by chat ID"),
 ):
     """List data bank entries with optional filtering"""
-    return service.list_entries(scope=scope, character_id=character_id, chat_id=chat_id)
+    return collection_response(
+        service.list_entries(scope=scope, character_id=character_id, chat_id=chat_id)
+    )
 
 
 @data_bank_router.post("/", response_model=DataBankResponse, status_code=status.HTTP_201_CREATED)
@@ -136,23 +141,23 @@ async def search(
     )
 
 
-@rag_router.get("/status")
+@rag_router.get("/status", response_model=RagStatusResponse)
 def rag_status():
     """Return RAG system status and embedding provider info"""
     rag = settings.rag
-    return {
-        "enabled": rag.enabled,
-        "provider": rag.embedding.provider,
-        "model": rag.embedding.model,
-        "dimensions": rag.embedding.dimensions,
-        "chunk_size": rag.chunk_size,
-        "chunk_overlap": rag.chunk_overlap,
-        "similarity_threshold": rag.similarity_threshold,
-        "max_results": rag.max_results,
-        "rerank": {
-            "enabled": rag.rerank.enabled,
-            "model": rag.rerank.model,
-            "candidates": rag.rerank.candidates,
-            "score_threshold": rag.rerank.score_threshold,
-        },
-    }
+    return RagStatusResponse(
+        enabled=rag.enabled,
+        provider=rag.embedding.provider,
+        model=rag.embedding.model,
+        dimensions=rag.embedding.dimensions,
+        chunk_size=rag.chunk_size,
+        chunk_overlap=rag.chunk_overlap,
+        similarity_threshold=rag.similarity_threshold,
+        max_results=rag.max_results,
+        rerank=RerankStatus(
+            enabled=rag.rerank.enabled,
+            model=rag.rerank.model,
+            candidates=rag.rerank.candidates,
+            score_threshold=rag.rerank.score_threshold,
+        ),
+    )

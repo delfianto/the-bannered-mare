@@ -88,3 +88,38 @@ def page_response[T](items: list[T], total: int, page: int, limit: int) -> Pagin
             limit=limit, has_more=(page * limit) < total, total=total, page=page, cursor=None
         ),
     )
+
+
+def collection_response[T](items: list[T]) -> PaginatedResponse[T]:
+    """Wrap a full (unpaginated) collection in the standard envelope.
+
+    For endpoints that return every matching row: ``total`` is the item count and
+    ``has_more`` is always ``False``, so clients still get the uniform
+    ``{items, meta}`` shape instead of a bare array.
+    """
+    count = len(items)
+    return PaginatedResponse(
+        items=items,
+        meta=PaginationMeta(limit=count, has_more=False, total=count, page=1, cursor=None),
+    )
+
+
+def offset_page_response[T](
+    items: list[T], total: int, limit: int, skip: int
+) -> PaginatedResponse[T]:
+    """Build a PaginatedResponse for a skip/offset-based page (e.g. audit logs).
+
+    Derives the 1-based ``page`` from ``skip``/``limit`` so skip-paginated
+    endpoints share the same ``PaginationMeta`` as the page-based ones.
+    """
+    page = (skip // limit) + 1 if limit else 1
+    return PaginatedResponse(
+        items=items,
+        meta=PaginationMeta(
+            limit=limit,
+            has_more=(skip + len(items)) < total,
+            total=total,
+            page=page,
+            cursor=None,
+        ),
+    )

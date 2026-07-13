@@ -32,7 +32,7 @@ export function useLorebooks() {
       }
 
       if (data) {
-        lorebooks.value = data;
+        lorebooks.value = data.items;
       }
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Unknown error");
@@ -64,7 +64,7 @@ export function useLorebooks() {
         if (apiError) {
           throw new Error(`Failed to load lorebooks: ${JSON.stringify(apiError)}`);
         }
-        for (const book of data ?? []) merged.set(book.id, book);
+        for (const book of data?.items ?? []) merged.set(book.id, book);
       }
       lorebooks.value = [...merged.values()];
     } catch (err) {

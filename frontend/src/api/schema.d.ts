@@ -1534,7 +1534,7 @@ export interface paths {
     };
     /**
      * Get Bookmarked Characters
-     * @description Get all favorited characters
+     * @description Get all favorited characters (placeholder until favoriting lands).
      */
     get: operations["get_bookmarked_characters_api_bookmarks_characters_get"];
     put?: never;
@@ -1554,7 +1554,7 @@ export interface paths {
     };
     /**
      * Get Bookmarked Messages
-     * @description Get all pinned message fragments
+     * @description Get all pinned message fragments (placeholder until pinning lands).
      */
     get: operations["get_bookmarked_messages_api_bookmarks_messages_get"];
     put?: never;
@@ -2253,20 +2253,6 @@ export interface components {
       max_context_length?: number | null;
     };
     /**
-     * ErrorLogPage
-     * @description Paginated error logs
-     */
-    ErrorLogPage: {
-      /** Logs */
-      logs: components["schemas"]["ErrorLogResponse"][];
-      /** Total */
-      total: number;
-      /** Limit */
-      limit: number;
-      /** Skip */
-      skip: number;
-    };
-    /**
      * ErrorLogResponse
      * @description A single error audit record
      */
@@ -2394,20 +2380,6 @@ export interface components {
       detail?: components["schemas"]["ValidationError"][];
     };
     /**
-     * HttpLogPage
-     * @description Paginated HTTP logs
-     */
-    HttpLogPage: {
-      /** Logs */
-      logs: components["schemas"]["HttpLogResponse"][];
-      /** Total */
-      total: number;
-      /** Limit */
-      limit: number;
-      /** Skip */
-      skip: number;
-    };
-    /**
      * HttpLogResponse
      * @description A single HTTP request audit record
      */
@@ -2448,20 +2420,6 @@ export interface components {
      * @enum {string}
      */
     InsertionPosition: "before_character" | "after_character" | "at_depth" | "before_examples";
-    /**
-     * LlmAuditLogPage
-     * @description Paginated LLM audit logs
-     */
-    LlmAuditLogPage: {
-      /** Logs */
-      logs: components["schemas"]["LlmAuditLogResponse"][];
-      /** Total */
-      total: number;
-      /** Limit */
-      limit: number;
-      /** Skip */
-      skip: number;
-    };
     /**
      * LlmAuditLogResponse
      * @description A single LLM audit record
@@ -2514,10 +2472,7 @@ export interface components {
     LlmStatsResponse: {
       /** Stats */
       stats: components["schemas"]["LlmUsageStat"][];
-      /** Period */
-      period: {
-        [key: string]: string | null;
-      };
+      period: components["schemas"]["StatsPeriod"];
     };
     /**
      * LlmUsageStat
@@ -3399,10 +3354,40 @@ export interface components {
       items: components["schemas"]["ChatResponse"][];
       meta: components["schemas"]["PaginationMeta"];
     };
+    /** PaginatedResponse[DataBankResponse] */
+    PaginatedResponse_DataBankResponse_: {
+      /** Items */
+      items: components["schemas"]["DataBankResponse"][];
+      meta: components["schemas"]["PaginationMeta"];
+    };
+    /** PaginatedResponse[ErrorLogResponse] */
+    PaginatedResponse_ErrorLogResponse_: {
+      /** Items */
+      items: components["schemas"]["ErrorLogResponse"][];
+      meta: components["schemas"]["PaginationMeta"];
+    };
     /** PaginatedResponse[FragmentResponse] */
     PaginatedResponse_FragmentResponse_: {
       /** Items */
       items: components["schemas"]["FragmentResponse"][];
+      meta: components["schemas"]["PaginationMeta"];
+    };
+    /** PaginatedResponse[HttpLogResponse] */
+    PaginatedResponse_HttpLogResponse_: {
+      /** Items */
+      items: components["schemas"]["HttpLogResponse"][];
+      meta: components["schemas"]["PaginationMeta"];
+    };
+    /** PaginatedResponse[LlmAuditLogResponse] */
+    PaginatedResponse_LlmAuditLogResponse_: {
+      /** Items */
+      items: components["schemas"]["LlmAuditLogResponse"][];
+      meta: components["schemas"]["PaginationMeta"];
+    };
+    /** PaginatedResponse[LorebookResponse] */
+    PaginatedResponse_LorebookResponse_: {
+      /** Items */
+      items: components["schemas"]["LorebookResponse"][];
       meta: components["schemas"]["PaginationMeta"];
     };
     /** PaginatedResponse[MessageResponse] */
@@ -3873,8 +3858,7 @@ export interface components {
       id: string;
       /** Name */
       name: string;
-      /** Provider Type */
-      provider_type: string;
+      provider_type: components["schemas"]["ProviderType"];
       /** Base Url */
       base_url: string | null;
       /** Enabled */
@@ -3973,6 +3957,43 @@ export interface components {
       threshold: number;
     };
     /**
+     * RagStatusResponse
+     * @description RAG system status and embedding/rerank configuration.
+     */
+    RagStatusResponse: {
+      /** Enabled */
+      enabled: boolean;
+      /** Provider */
+      provider: string;
+      /** Model */
+      model: string;
+      /** Dimensions */
+      dimensions: number;
+      /** Chunk Size */
+      chunk_size: number;
+      /** Chunk Overlap */
+      chunk_overlap: number;
+      /** Similarity Threshold */
+      similarity_threshold: number;
+      /** Max Results */
+      max_results: number;
+      rerank: components["schemas"]["RerankStatus"];
+    };
+    /**
+     * RerankStatus
+     * @description Reranker configuration reported by the status endpoint.
+     */
+    RerankStatus: {
+      /** Enabled */
+      enabled: boolean;
+      /** Model */
+      model: string;
+      /** Candidates */
+      candidates: number;
+      /** Score Threshold */
+      score_threshold: number;
+    };
+    /**
      * RetrievedChunk
      * @description Schema for a retrieved RAG chunk
      */
@@ -4016,6 +4037,16 @@ export interface components {
      * @enum {string}
      */
     SecondaryLogic: "and_any" | "and_all" | "not_any" | "not_all";
+    /**
+     * StatsPeriod
+     * @description The time window a stats query covers (ISO-8601 bounds; null = open-ended).
+     */
+    StatsPeriod: {
+      /** Start */
+      start?: string | null;
+      /** End */
+      end?: string | null;
+    };
     /**
      * SuggestionMode
      * @description Which kind of next-turn suggestion to generate.
@@ -4183,7 +4214,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["HttpLogPage"];
+          "application/json": components["schemas"]["PaginatedResponse_HttpLogResponse_"];
         };
       };
       /** @description Validation Error */
@@ -4219,7 +4250,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["LlmAuditLogPage"];
+          "application/json": components["schemas"]["PaginatedResponse_LlmAuditLogResponse_"];
         };
       };
       /** @description Validation Error */
@@ -4284,7 +4315,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ErrorLogPage"];
+          "application/json": components["schemas"]["PaginatedResponse_ErrorLogResponse_"];
         };
       };
       /** @description Validation Error */
@@ -7260,7 +7291,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["LorebookResponse"][];
+          "application/json": components["schemas"]["PaginatedResponse_LorebookResponse_"];
         };
       };
       /** @description Validation Error */
@@ -7518,7 +7549,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["PaginatedResponse_ChatResponse_"];
         };
       };
     };
@@ -7538,7 +7569,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["PaginatedResponse_CharacterResponse_"];
         };
       };
     };
@@ -7558,7 +7589,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["PaginatedResponse_MessageResponse_"];
         };
       };
     };
@@ -7585,7 +7616,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["DataBankResponse"][];
+          "application/json": components["schemas"]["PaginatedResponse_DataBankResponse_"];
         };
       };
       /** @description Validation Error */
@@ -7775,7 +7806,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["RagStatusResponse"];
         };
       };
     };

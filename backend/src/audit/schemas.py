@@ -60,33 +60,6 @@ class ErrorLogResponse(BaseModel):
     context: dict[str, Any]
 
 
-class LlmAuditLogPage(BaseModel):
-    """Paginated LLM audit logs"""
-
-    logs: list[LlmAuditLogResponse]
-    total: int
-    limit: int
-    skip: int
-
-
-class HttpLogPage(BaseModel):
-    """Paginated HTTP logs"""
-
-    logs: list[HttpLogResponse]
-    total: int
-    limit: int
-    skip: int
-
-
-class ErrorLogPage(BaseModel):
-    """Paginated error logs"""
-
-    logs: list[ErrorLogResponse]
-    total: int
-    limit: int
-    skip: int
-
-
 class LlmUsageStat(BaseModel):
     """Aggregated usage stats for one provider/model pair"""
 
@@ -105,8 +78,15 @@ class LlmUsageStat(BaseModel):
     success_rate: float
 
 
+class StatsPeriod(BaseModel):
+    """The time window a stats query covers (ISO-8601 bounds; null = open-ended)."""
+
+    start: str | None = None
+    end: str | None = None
+
+
 class LlmStatsResponse(BaseModel):
     """LLM usage stats over an optional time window"""
 
     stats: list[LlmUsageStat]
-    period: dict[str, str | None]
+    period: StatsPeriod

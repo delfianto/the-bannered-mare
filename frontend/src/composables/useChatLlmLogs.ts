@@ -48,7 +48,7 @@ export function useChatLlmLogs() {
       }
 
       if (data) {
-        logs.value = data.logs;
+        logs.value = data.items;
         lastId = chatId;
       }
     } catch (err) {

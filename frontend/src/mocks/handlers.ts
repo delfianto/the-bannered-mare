@@ -1060,7 +1060,10 @@ export const handlers = [
       items = items.filter((e) => e.chat_id === chatId);
     }
 
-    return HttpResponse.json(items);
+    return HttpResponse.json({
+      items,
+      meta: { limit: items.length, has_more: false, cursor: null, total: items.length, page: 1 },
+    });
   }),
 
   http.post("/api/data-bank/", async ({ request }) => {
@@ -1391,7 +1394,16 @@ export const handlers = [
 
     // Return without entries for list endpoint
     const stripped = items.map(({ entries: _entries, ...rest }) => rest);
-    return HttpResponse.json(stripped);
+    return HttpResponse.json({
+      items: stripped,
+      meta: {
+        limit: stripped.length,
+        has_more: false,
+        cursor: null,
+        total: stripped.length,
+        page: 1,
+      },
+    });
   }),
 
   http.post("/api/lorebooks", async ({ request }) => {
@@ -1958,11 +1970,16 @@ export const handlers = [
     ];
 
     await delay(150);
+    const items = allLogs.slice(skip, skip + limit);
     return HttpResponse.json({
-      logs: allLogs.slice(skip, skip + limit),
-      total: allLogs.length,
-      limit,
-      skip,
+      items,
+      meta: {
+        limit,
+        has_more: skip + items.length < allLogs.length,
+        cursor: null,
+        total: allLogs.length,
+        page: Math.floor(skip / limit) + 1,
+      },
     });
   }),
 
@@ -1985,11 +2002,16 @@ export const handlers = [
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
 
     await delay(150);
+    const items = filtered.slice(skip, skip + limit);
     return HttpResponse.json({
-      logs: filtered.slice(skip, skip + limit),
-      total: filtered.length,
-      limit,
-      skip,
+      items,
+      meta: {
+        limit,
+        has_more: skip + items.length < filtered.length,
+        cursor: null,
+        total: filtered.length,
+        page: Math.floor(skip / limit) + 1,
+      },
     });
   }),
 
@@ -2100,27 +2122,40 @@ export const handlers = [
     ];
 
     await delay(150);
+    const items = allErrors.slice(skip, skip + limit);
     return HttpResponse.json({
-      logs: allErrors.slice(skip, skip + limit),
-      total: allErrors.length,
-      limit,
-      skip,
+      items,
+      meta: {
+        limit,
+        has_more: skip + items.length < allErrors.length,
+        cursor: null,
+        total: allErrors.length,
+        page: Math.floor(skip / limit) + 1,
+      },
     });
   }),
 
   // ── Bookmarks ────────────────────────────────────────────
   http.get("/api/bookmarks/characters", async () => {
     await delay(150);
-    return HttpResponse.json({ items: bookmarkedCharacters });
+    return HttpResponse.json(bookmarkEnvelope(bookmarkedCharacters));
   }),
 
   http.get("/api/bookmarks/sessions", async () => {
     await delay(150);
-    return HttpResponse.json({ items: bookmarkedSessions });
+    return HttpResponse.json(bookmarkEnvelope(bookmarkedSessions));
   }),
 
   http.get("/api/bookmarks/messages", async () => {
     await delay(150);
-    return HttpResponse.json({ items: bookmarkedMessages });
+    return HttpResponse.json(bookmarkEnvelope(bookmarkedMessages));
   }),
 ];
+
+// Bookmarks share the standard {items, meta} collection envelope.
+function bookmarkEnvelope<T>(items: T[]) {
+  return {
+    items,
+    meta: { limit: items.length, has_more: false, cursor: null, total: items.length, page: 1 },
+  };
+}
