@@ -364,6 +364,108 @@ class TestPromptBuilderFragments:
         assert result[0]["role"] == "system"
 
 
+def _make_rag_result(content: str) -> Any:
+    """Create a mock RAG result with a ``.content`` attribute."""
+    r = MagicMock()
+    r.content = content
+    return r
+
+
+# Stored order predating the post-history RAG fix — rag_context sits *before*
+# chat_history. The builder must ignore that and emit RAG after the history.
+_OLD_RAG_EARLY_ORDER = [
+    "system_prompt",
+    "world_lore_before_character",
+    "character_context",
+    "world_lore_after_character",
+    "scenario",
+    "persona",
+    "world_lore_before_examples",
+    "example_dialogues",
+    "rag_context",
+    "chat_history",
+    "post_history_instructions",
+]
+
+
+class TestPromptBuilderRagContextPlacement:
+    def test_rag_after_history_even_when_stored_order_is_early(self, db: Session) -> None:
+        """RAG lands after the last history message and before post_history_instructions,
+        even when the stored component_order places rag_context before chat_history."""
+        template = _make_template(component_order=_OLD_RAG_EARLY_ORDER)
+        chat = _make_chat(template=template)
+        chat.character.post_history_instructions = "Post-history jailbreak."
+        messages = [
+            _make_message("user", "Hello"),
+            _make_message("assistant", "Hi there"),
+        ]
+        rag_results = [_make_rag_result("Remembered fact from RAG.")]
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(
+            chat, messages, activated_lore=None, rag_results=rag_results
+        )
+
+        contents = [m["content"] for m in result]
+        rag_idx = next(i for i, c in enumerate(contents) if "Relevant context" in c)
+        last_history_idx = contents.index("Hi there")
+        post_hist_idx = contents.index("Post-history jailbreak.")
+        assert last_history_idx < rag_idx < post_hist_idx
+
+    def test_rag_before_post_history_fragments(self, db: Session) -> None:
+        """RAG is emitted before post_history fragments (which fire after chat_history)."""
+        tf = _make_template_fragment("Stay in character as {{char}}.", "post_history")
+        template = _make_template(component_order=_OLD_RAG_EARLY_ORDER, template_fragments=[tf])
+        chat = _make_chat(template=template)
+        messages = [_make_message("user", "Hello")]
+        rag_results = [_make_rag_result("RAG fact.")]
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(
+            chat, messages, activated_lore=None, rag_results=rag_results
+        )
+
+        contents = [m["content"] for m in result]
+        rag_idx = next(i for i, c in enumerate(contents) if "Relevant context" in c)
+        frag_idx = contents.index("Stay in character as Alice.")
+        user_idx = contents.index("Hello")
+        assert user_idx < rag_idx < frag_idx
+
+    def test_rag_disabled_no_emission(self, db: Session) -> None:
+        """components_enabled rag_context=False suppresses RAG even with results."""
+        template = _make_template(
+            component_order=_OLD_RAG_EARLY_ORDER,
+            components_enabled={**DEFAULT_COMPONENTS_ENABLED, "rag_context": False},
+        )
+        chat = _make_chat(template=template)
+        messages = [_make_message("user", "Hello")]
+        rag_results = [_make_rag_result("RAG fact.")]
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(
+            chat, messages, activated_lore=None, rag_results=rag_results
+        )
+
+        contents = [m["content"] for m in result]
+        assert not any("Relevant context" in c for c in contents)
+
+    def test_rag_none_no_emission(self, db: Session) -> None:
+        """rag_results=None produces no RAG message."""
+        template = _make_template()
+        chat = _make_chat(template=template)
+        messages = [_make_message("user", "Hello")]
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(chat, messages, activated_lore=None, rag_results=None)
+
+        contents = [m["content"] for m in result]
+        assert not any("Relevant context" in c for c in contents)
+
+
 class TestDefaultComponentOrder:
     def test_default_order_has_11_components(self) -> None:
         assert len(DEFAULT_COMPONENT_ORDER) == 11

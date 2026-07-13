@@ -95,7 +95,6 @@ class PromptBuilder:
                 lore_by_position.get(InsertionPosition.BEFORE_EXAMPLES, [])
             ),
             "example_dialogues": self._build_example_dialogues(chat.character),
-            "rag_context": self._build_rag_context(rag_results),
             "chat_history": self._build_chat_history(messages, template, depth_injections),
             "post_history_instructions": self._build_post_history_instructions(chat.character),
         }
@@ -111,8 +110,17 @@ class PromptBuilder:
 
         component_order = template.component_order
         for component_name in component_order:
+            # RAG is emitted authoritatively after chat_history (below) so the
+            # cacheable prefix is not severed by per-turn retrieval — ignore it
+            # wherever the stored template order places it.
+            if component_name == "rag_context":
+                continue
             if template.components_enabled.get(component_name, True):
                 api_messages.extend(components.get(component_name, []))
+            if component_name == "chat_history" and template.components_enabled.get(
+                "rag_context", True
+            ):
+                api_messages.extend(self._build_rag_context(rag_results))
             # Inject fragments after specific components
             if component_name in _FRAGMENT_POSITIONS:
                 position = _FRAGMENT_POSITIONS[component_name]
