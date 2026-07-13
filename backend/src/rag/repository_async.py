@@ -39,12 +39,21 @@ class AsyncEmbeddingRepository(AsyncBaseRepository[Embedding]):
             except Exception:
                 logger.debug("vchordrq_tuning_skipped", guc=name, exc_info=True)
 
-    async def exists_by_hash(self, content_hash: int, source_type: str) -> bool:
-        """Check if an embedding with this hash + source type already exists."""
+    async def exists_by_hash(
+        self, content_hash: int, source_type: str, chat_id: str | None = None
+    ) -> bool:
+        """Check if an embedding with this hash + source type already exists.
+
+        ``chat_id`` scopes the dedup to a single chat — required for message
+        embeddings, since identical content in two chats must be stored (and
+        retrievable) separately now that retrieval is chat-scoped.
+        """
         stmt = select(Embedding.id).where(
             Embedding.content_hash == content_hash,
             Embedding.source_type == source_type,
         )
+        if chat_id is not None:
+            stmt = stmt.where(Embedding.chat_id == chat_id)
         result = await self.db.execute(stmt)
         return result.first() is not None
 
@@ -60,8 +69,8 @@ class AsyncEmbeddingRepository(AsyncBaseRepository[Embedding]):
     async def search_similar(
         self,
         query_embedding: list[float],
-        source_types: list[str],
-        source_ids: list[str],
+        chat_id: str,
+        data_bank_ids: list[str],
         limit: int,
         threshold: float,
         epsilon: float | None = None,
@@ -71,11 +80,14 @@ class AsyncEmbeddingRepository(AsyncBaseRepository[Embedding]):
 
         Ranks by the `<=>` cosine distance (`ORDER BY ... LIMIT`), the shape the
         vchordrq index accelerates, and keeps only hits at or above `threshold`.
+        The two source types are scoped differently: message embeddings by
+        ``chat_id`` (conversation history), data-bank embeddings by their entry
+        ``source_id`` (the caller resolves the in-scope entry ids).
 
         Args:
             query_embedding: The query vector.
-            source_types: List of source types to filter on.
-            source_ids: List of source IDs to filter on.
+            chat_id: Scope for message embeddings (conversation history).
+            data_bank_ids: In-scope data-bank entry ids (may be empty).
             limit: Maximum number of results.
             threshold: Minimum similarity score (0-1).
             epsilon: Optional vchordrq RaBitQ recall bound (SET LOCAL).
@@ -92,8 +104,10 @@ class AsyncEmbeddingRepository(AsyncBaseRepository[Embedding]):
             SELECT id, content, source_type, source_id, chunk_index,
                    1 - (embedding <=> :query_vec) as score
             FROM embeddings
-            WHERE source_type = ANY(:source_types)
-            AND source_id = ANY(:source_ids)
+            WHERE (
+                (source_type = 'message' AND chat_id = :chat_id)
+                OR (source_type = 'data_bank' AND source_id = ANY(:data_bank_ids))
+            )
             AND 1 - (embedding <=> :query_vec) >= :threshold
             ORDER BY embedding <=> :query_vec
             LIMIT :limit
@@ -103,8 +117,8 @@ class AsyncEmbeddingRepository(AsyncBaseRepository[Embedding]):
             stmt,
             {
                 "query_vec": query_vec_str,
-                "source_types": source_types,
-                "source_ids": source_ids,
+                "chat_id": chat_id,
+                "data_bank_ids": data_bank_ids,
                 "threshold": threshold,
                 "limit": limit,
             },

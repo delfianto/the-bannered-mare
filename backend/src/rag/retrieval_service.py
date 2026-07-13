@@ -55,9 +55,6 @@ class RetrievalService:
         """Embed query, search vectors, return top-K results."""
         query_vec = await self.embedding_service.embed_query(query_text)
 
-        source_types = ["message", "data_bank"]
-        source_ids = [chat_id]
-
         # Include data bank entries scoped to this chat, character, or global
         scopes = ["global"]
         if character_id:
@@ -80,7 +77,7 @@ class RetrievalService:
             return gathered
 
         entries = await to_thread.run_sync(_gather_scoped_entries)
-        source_ids.extend(e.id for e in entries)
+        data_bank_ids = [e.id for e in entries]
 
         # With a reranker, cast a wide net: pull up to `candidates` hits with no
         # vector similarity floor and let the cross-encoder decide relevance
@@ -95,8 +92,8 @@ class RetrievalService:
 
         rows = await self.embedding_repo.search_similar(
             query_embedding=query_vec,
-            source_types=source_types,
-            source_ids=source_ids,
+            chat_id=chat_id,
+            data_bank_ids=data_bank_ids,
             limit=search_limit,
             threshold=search_threshold,
             epsilon=settings.rag.vchordrq_epsilon,
@@ -153,13 +150,15 @@ class RetrievalService:
     async def vectorize_message(
         self,
         message_id: str,
+        chat_id: str,
         content: str,
         model_name: str,
         dimensions: int,
     ) -> None:
-        """Embed and store a single message. Skip if hash already exists."""
+        """Embed and store a single message. Skip if identical content is already
+        embedded within the same chat (dedup is chat-scoped)."""
         content_hash = _content_hash(content)
-        if await self.embedding_repo.exists_by_hash(content_hash, "message"):
+        if await self.embedding_repo.exists_by_hash(content_hash, "message", chat_id=chat_id):
             return
 
         embeddings = await self.embedding_service.embed_documents([content])
@@ -168,6 +167,7 @@ class RetrievalService:
             id=gen_id(),
             source_type="message",
             source_id=message_id,
+            chat_id=chat_id,
             content_hash=content_hash,
             content=content,
             chunk_index=0,

@@ -29,6 +29,14 @@ class Embedding(BaseModel):
     source_id: Mapped[str] = mapped_column(
         String(12), nullable=False, index=True, comment="ID of the source entity"
     )
+    chat_id: Mapped[str | None] = mapped_column(
+        String(12),
+        ForeignKey("chats.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+        comment="Chat scope for message embeddings (null for data_bank); "
+        "retrieval matches message embeddings on this, and chat deletion cascades",
+    )
     content_hash: Mapped[int] = mapped_column(
         BigInteger, nullable=False, index=True, comment="Hash for dedup"
     )

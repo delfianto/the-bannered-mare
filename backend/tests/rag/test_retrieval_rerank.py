@@ -62,3 +62,57 @@ async def test_rerank_fails_open_to_vector_order():
     out = await service._rerank("q", chunks, top_n=5, score_threshold=0.3)
 
     assert out == chunks  # unchanged vector order, nothing dropped
+
+
+@pytest.mark.asyncio
+async def test_vectorize_message_stores_chat_id_and_scopes_dedup():
+    """A message embedding is stamped with its chat_id, and dedup is chat-scoped so
+    identical content in different chats is stored (and retrievable) separately."""
+    embedding_repo = MagicMock()
+    embedding_repo.exists_by_hash = AsyncMock(return_value=False)
+    embedding_repo.create = AsyncMock()
+    embedding_repo.commit = AsyncMock()
+    embedding_service = MagicMock()
+    embedding_service.embed_documents = AsyncMock(return_value=[[0.1] * 768])
+
+    service = RetrievalService(
+        embedding_service=embedding_service,
+        embedding_repo=embedding_repo,
+        data_bank_repo=MagicMock(),
+    )
+
+    await service.vectorize_message(
+        message_id="m1", chat_id="cA", content="hello", model_name="nomic", dimensions=768
+    )
+
+    assert embedding_repo.exists_by_hash.await_args.kwargs["chat_id"] == "cA"
+    stored = embedding_repo.create.await_args.args[0]
+    assert stored.source_type == "message"
+    assert stored.source_id == "m1"
+    assert stored.chat_id == "cA"
+
+
+@pytest.mark.asyncio
+async def test_retrieve_scopes_messages_by_chat_and_data_bank_by_ids():
+    """retrieve() passes the chat_id (message scope) and resolved data-bank entry
+    ids (data_bank scope) to the vector search."""
+    embedding_service = MagicMock()
+    embedding_service.embed_query = AsyncMock(return_value=[0.1] * 768)
+    embedding_repo = MagicMock()
+    embedding_repo.search_similar = AsyncMock(return_value=[])
+    data_bank_repo = MagicMock()
+    entry = MagicMock()
+    entry.id = "db1"
+    data_bank_repo.find_by_scope.return_value = [entry]
+
+    service = RetrievalService(
+        embedding_service=embedding_service,
+        embedding_repo=embedding_repo,
+        data_bank_repo=data_bank_repo,
+    )
+
+    await service.retrieve(chat_id="cA", query_text="q", character_id=None)
+
+    kwargs = embedding_repo.search_similar.await_args.kwargs
+    assert kwargs["chat_id"] == "cA"
+    assert "db1" in kwargs["data_bank_ids"]

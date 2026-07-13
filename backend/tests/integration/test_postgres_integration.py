@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from src.core.persistence.models import Embedding, ModelFamily, PromptTemplate, Provider
 from src.fixtures.service import seed_database
 from src.rag.embedding_service import EmbeddingService
+from src.rag.models import DataBankEntry
 from src.rag.repository import DataBankRepository
 from src.rag.repository_async import AsyncEmbeddingRepository
 from src.rag.retrieval_service import RetrievalService
@@ -84,18 +85,22 @@ def test_vectorchord_extension_and_schema(pg_sync_session: Session) -> None:
 
 @pytest.mark.asyncio
 async def test_pgvector_search_ranking(pg_async_session: AsyncSession) -> None:
-    """Real VectorChord cosine search ranks by closeness and honours the threshold."""
+    """Real VectorChord cosine search ranks by closeness and honours the threshold.
+
+    Uses data-bank embeddings (scoped by ``source_id``) so no chat/message FK rows
+    are needed — the cosine ranking under test is source-type agnostic.
+    """
     repo = AsyncEmbeddingRepository(pg_async_session)
-    chat_id = "itchatrank1"
-    await repo.create(_embedding(chat_id, _pad([1.0, 0.0, 0.0, 0.0]), "near"))
-    await repo.create(_embedding(chat_id, _pad([0.8, 0.2, 0.0, 0.0]), "mid"))
-    await repo.create(_embedding(chat_id, _pad([0.0, 0.0, 0.0, 1.0]), "far"))
+    entry_id = "itdbrank1"
+    await repo.create(_embedding(entry_id, _pad([1.0, 0.0, 0.0, 0.0]), "near", "data_bank"))
+    await repo.create(_embedding(entry_id, _pad([0.8, 0.2, 0.0, 0.0]), "mid", "data_bank"))
+    await repo.create(_embedding(entry_id, _pad([0.0, 0.0, 0.0, 1.0]), "far", "data_bank"))
     await pg_async_session.flush()
 
     rows = await repo.search_similar(
         query_embedding=_pad([1.0, 0.0, 0.0, 0.0]),
-        source_types=["message"],
-        source_ids=[chat_id],
+        chat_id="unused",
+        data_bank_ids=[entry_id],
         limit=10,
         threshold=0.5,
     )
@@ -110,18 +115,24 @@ async def test_pgvector_search_ranking(pg_async_session: AsyncSession) -> None:
 async def test_retrieval_service_mocked_embeddings(
     pg_async_session: AsyncSession, pg_sync_session: Session
 ) -> None:
-    """End-to-end retrieve(): mocked query embedding + real VectorChord search."""
-    chat_id = "itretrieve01"
+    """End-to-end retrieve(): mocked query embedding + real VectorChord search over a
+    global data-bank entry (resolved by scope, matched by source_id)."""
     repo = AsyncEmbeddingRepository(pg_async_session)
-    await repo.create(_embedding(chat_id, _pad([1.0, 0.0, 0.0, 0.0]), "the dragon guards the keep"))
+    data_bank_repo = DataBankRepository(pg_sync_session)
+    entry = data_bank_repo.create(
+        DataBankEntry(name="keep-lore", content="the dragon guards the keep", scope="global")
+    )
+    await repo.create(
+        _embedding(entry.id, _pad([1.0, 0.0, 0.0, 0.0]), "the dragon guards the keep", "data_bank")
+    )
     await pg_async_session.flush()
 
     mock_embed = EmbeddingService.__new__(EmbeddingService)
     mock_embed.embed_query = AsyncMock(return_value=_pad([1.0, 0.0, 0.0, 0.0]))
 
-    service = RetrievalService(mock_embed, repo, DataBankRepository(pg_sync_session))
+    service = RetrievalService(mock_embed, repo, data_bank_repo)
     results = await service.retrieve(
-        chat_id=chat_id, query_text="who guards the keep?", threshold=0.5
+        chat_id="itretrieve01", query_text="who guards the keep?", threshold=0.5
     )
 
     assert any(r.content == "the dragon guards the keep" for r in results)
