@@ -125,8 +125,8 @@ A prompt is assembled by laying out modular sections in the order given by the t
 | `persona` | Description of the user's roleplay character. |
 | `world_lore_before_examples` | Lore entries injected immediately before dialogue examples. |
 | `example_dialogues` | Mock conversations that model the assistant's response style. |
-| `rag_context` | Long-term memory snippets fetched from vector search. |
 | `chat_history` | Recent messages, within the token limit. |
+| `rag_context` | Long-term memory snippets fetched from vector search (emitted after history so per-turn retrieval doesn't sever the cacheable prefix). |
 | `post_history_instructions` | Final system instructions placed after chat history to prevent instruction drift. |
 
 Each component can be globally toggled on or off per template via `components_enabled`.
@@ -199,9 +199,13 @@ budgeting and assembling the history before ordering everything into the final m
 </svg>
 <template #caption>
 
-**Budget before you build.** History is counted in reverse (newest first) so the builder can
-stop exactly at `max_history_tokens`; depth injections are spliced in afterward, and only then
-does the component loop assemble the final ordered message array.
+**Budget before you build.** History is counted from the front so the builder can
+determine the minimum number of oldest messages to drop (`cut_min`); that count is
+rounded up to a multiple of `EVICTION_BLOCK` (8) so the kept prefix stays
+byte-stable for ~8 turns between evictions — prefix caching and llama.cpp KV reuse
+only match when the window start is fixed. Depth injections are spliced in
+afterward, and only then does the component loop assemble the final ordered
+message array.
 
 </template>
 </Figure>
@@ -218,6 +222,39 @@ To keep critical guidelines inside the model's attention window, `at_depth` frag
 
 ### Token Budgeting
 
-To prevent context overflow, the builder reads the chat session's messages in reverse,
-tallies their token count with the `TokenizerService`, and grows the active history slice
-until it reaches the `max_history_tokens` limit.
+To prevent context overflow, the builder counts tokens from the front of the
+message list, determines the minimum number of oldest messages that must be
+dropped to fit `max_history_tokens` (`cut_min`), then rounds that count up to a
+multiple of `EVICTION_BLOCK` (8 messages). Because `cut_min` is monotonically
+non-decreasing as the chat grows and old message token counts never change, the
+rounded cut only moves once per ~8 turns — the history prefix is byte-stable
+between evictions, so prefix caching and KV reuse can match it. Rounding up
+always fits the budget (drops at least `cut_min`).
+
+## 5. Prompt Caching
+
+Prefix caching (OpenAI automatic, DeepSeek/GLM/Kimi auto-cache via OpenRouter,
+Gemini implicit, llama.cpp/LM Studio KV reuse, Anthropic ephemeral breakpoints)
+matches byte-for-byte from token 0 and stops at the first difference. The
+builder is designed so the cacheable prefix — everything before `chat_history`
+— is stable across turns:
+
+- **Scaffolding order** is deterministic and static per chat (system prompt,
+  lore, character context, scenario, persona, examples).
+- **`rag_context`** is emitted *after* `chat_history`, not before it, because
+  RAG retrieval changes every turn and would sever the cache from the first
+  difference.
+- **History eviction** is block-chunked (see Token Budgeting above) so the
+  window start doesn't slide every turn.
+- **`{{time}}`/`{{date}}` macros** must not appear in `system_template` — they
+  re-render every minute/day and bust the cache from token 0. If wall-clock
+  context is wanted, put it in a `post_history` fragment (after the cached
+  prefix) instead.
+
+Anthropic-family models need explicit `cache_control` breakpoints even through
+aggregators. The native `AnthropicAdapter` places two: one on the system block
+(leading system run) and one on the last chat message (history tail). The
+`OpenRouterAdapter` adds the same pass-through for `anthropic/*` model ids.
+Post-history system messages (RAG, `post_history_instructions`, depth
+injections) are converted to user `[System note]` turns on Anthropic routes so
+they don't poison the cached system block.
