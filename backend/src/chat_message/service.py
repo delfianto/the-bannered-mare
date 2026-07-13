@@ -102,6 +102,7 @@ class ChatMessageService:
         try:
             await self.retrieval_service.vectorize_message(
                 message_id=message.id,
+                chat_id=message.chat_id,
                 content=message.content,
                 model_name=settings.rag.embedding.model,
                 dimensions=settings.rag.embedding.dimensions,
