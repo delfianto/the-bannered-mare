@@ -408,7 +408,7 @@ class ChatMessageService:
                     full_reasoning += chunk.reasoning
                     yield StreamEvent(type="reasoning", content=chunk.reasoning)
                 if chunk.usage:
-                    last_usage = chunk.usage
+                    last_usage = last_usage.merge(chunk.usage) if last_usage else chunk.usage
                 if chunk.finish_reason:
                     last_finish_reason = chunk.finish_reason
 

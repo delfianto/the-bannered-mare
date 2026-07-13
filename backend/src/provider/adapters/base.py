@@ -15,6 +15,23 @@ class TokenUsage:
     cache_read_tokens: int = 0
     cache_creation_tokens: int = 0
 
+    def merge(self, other: TokenUsage | None) -> TokenUsage:
+        """Merge another usage into this one, taking the max of each field.
+
+        Providers split usage across stream chunks (Anthropic: ``message_start``
+        carries input + cache, ``message_delta`` carries output). Merging by max
+        avoids clobbering earlier fields when a later chunk only carries a subset.
+        """
+        if other is None:
+            return self
+        return TokenUsage(
+            input_tokens=max(self.input_tokens, other.input_tokens),
+            output_tokens=max(self.output_tokens, other.output_tokens),
+            total_tokens=max(self.total_tokens, other.total_tokens),
+            cache_read_tokens=max(self.cache_read_tokens, other.cache_read_tokens),
+            cache_creation_tokens=max(self.cache_creation_tokens, other.cache_creation_tokens),
+        )
+
 
 @dataclass
 class CompletionResponse:
