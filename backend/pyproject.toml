@@ -37,6 +37,8 @@ dependencies = [
     "tiktoken==0.13.0",
     # Image processing
     "Pillow==12.2.0",
+    # HTML sanitization (model-emitted GFX blocks)
+    "nh3==0.3.6",
 ]
 
 [project.optional-dependencies]
