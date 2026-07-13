@@ -64,6 +64,28 @@ def _cache_tokens_from_normalized_usage(data: dict[str, Any]) -> tuple[int, int]
     return cache_read, cache_creation
 
 
+def _token_usage_from(usage: dict[str, Any], data: dict[str, Any]) -> TokenUsage:
+    """Build a TokenUsage from a standard OpenAI ``usage`` block.
+
+    Shared by the blocking (``parse_response``) and streaming (``parse_stream_line``)
+    paths. cache_read comes from ``prompt_tokens_details.cached_tokens``; when
+    absent, fall back to OpenCode Go's non-standard ``normalizedUsage`` (carried on
+    the same ``data`` payload) for both cache read and creation.
+    """
+    prompt_details = usage.get("prompt_tokens_details") or {}
+    cache_read = prompt_details.get("cached_tokens", 0)
+    cache_creation = 0
+    if not cache_read:
+        cache_read, cache_creation = _cache_tokens_from_normalized_usage(data)
+    return TokenUsage(
+        input_tokens=usage.get("prompt_tokens", 0),
+        output_tokens=usage.get("completion_tokens", 0),
+        total_tokens=usage.get("total_tokens", 0),
+        cache_read_tokens=cache_read,
+        cache_creation_tokens=cache_creation,
+    )
+
+
 class OpenAIAdapter(ProviderAdapter):
     """Adapter for OpenAI and OpenAI-compatible APIs (xAI, OpenRouter, vLLM, etc.)."""
 
@@ -156,12 +178,6 @@ class OpenAIAdapter(ProviderAdapter):
         choice = choices[0]
         message = choice.get("message", {})
         usage_data = data.get("usage") or {}
-        prompt_details = usage_data.get("prompt_tokens_details") or {}
-
-        cache_read = prompt_details.get("cached_tokens", 0)
-        cache_creation = 0
-        if not cache_read:
-            cache_read, cache_creation = _cache_tokens_from_normalized_usage(data)
 
         # reasoning_content used by DeepSeek, xAI, OpenRouter reasoning models
         reasoning = message.get("reasoning_content") or message.get("reasoning") or None
@@ -169,13 +185,7 @@ class OpenAIAdapter(ProviderAdapter):
         return CompletionResponse(
             content=message.get("content") or "",
             finish_reason=choice.get("finish_reason", "stop"),
-            usage=TokenUsage(
-                input_tokens=usage_data.get("prompt_tokens", 0),
-                output_tokens=usage_data.get("completion_tokens", 0),
-                total_tokens=usage_data.get("total_tokens", 0),
-                cache_read_tokens=cache_read,
-                cache_creation_tokens=cache_creation,
-            ),
+            usage=_token_usage_from(usage_data, data),
             reasoning=reasoning,
             raw=data,
         )
@@ -200,19 +210,7 @@ class OpenAIAdapter(ProviderAdapter):
         # choices: [] but carries the full usage block.
         usage = None
         if "usage" in data and data["usage"]:
-            u = data["usage"]
-            pd = u.get("prompt_tokens_details") or {}
-            cache_read = pd.get("cached_tokens", 0)
-            cache_creation = 0
-            if not cache_read:
-                cache_read, cache_creation = _cache_tokens_from_normalized_usage(data)
-            usage = TokenUsage(
-                input_tokens=u.get("prompt_tokens", 0),
-                output_tokens=u.get("completion_tokens", 0),
-                total_tokens=u.get("total_tokens", 0),
-                cache_read_tokens=cache_read,
-                cache_creation_tokens=cache_creation,
-            )
+            usage = _token_usage_from(data["usage"], data)
         elif "normalizedUsage" in data and data["normalizedUsage"]:
             # OpenCode Go sends normalizedUsage in a separate chunk (before the
             # standard usage chunk); parse cache tokens from it — the service

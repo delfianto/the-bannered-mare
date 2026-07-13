@@ -25,7 +25,9 @@ from src.rag.repository import DataBankRepository
 from src.rag.repository_async import AsyncEmbeddingRepository
 from src.rag.retrieval_service import RetrievalService
 
-pytestmark = pytest.mark.postgres
+# Both markers: `postgres` (needs a real PG+pgvector) and `integration` (so the
+# `-m integration` suite run picks it up alongside the provider integration tests).
+pytestmark = [pytest.mark.postgres, pytest.mark.integration]
 
 # Matches the pinned `embeddings.embedding` column type (vector(768)).
 DIM = 768
