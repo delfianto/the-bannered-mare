@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Enum, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import MessageRole
@@ -26,6 +26,10 @@ class Message(BaseModel):
     """Individual message within a chat conversation"""
 
     __tablename__ = "messages"
+    # Serves the hot history query (WHERE chat_id = ? ORDER BY created_at ...);
+    # the single-column chat_id index below is kept for the FK, mirroring the
+    # llm_audit_logs convention.
+    __table_args__ = (Index("ix_messages_chat_created", "chat_id", "created_at"),)
 
     chat_id: Mapped[str] = mapped_column(
         String(12),
