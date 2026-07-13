@@ -28,10 +28,10 @@ async def test_query_llm_returns_dtos(async_db_session: AsyncSession) -> None:
 
     service = AuditQueryService(repo)
     page = await service.query_llm(limit=10, skip=0)
-    assert page.total == 1
-    assert page.logs[0].provider == "openai"
-    assert page.logs[0].request_payload == [{"role": "user", "content": "hi"}]
-    assert page.logs[0].response_payload == {"content": "yo", "finish_reason": "stop"}
+    assert page.meta.total == 1
+    assert page.items[0].provider == "openai"
+    assert page.items[0].request_payload == [{"role": "user", "content": "hi"}]
+    assert page.items[0].response_payload == {"content": "yo", "finish_reason": "stop"}
 
 
 @pytest.mark.asyncio

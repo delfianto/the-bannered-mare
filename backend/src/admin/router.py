@@ -6,7 +6,13 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from src.audit.dependencies import AuditQueryServiceDep
-from src.audit.schemas import ErrorLogPage, HttpLogPage, LlmAuditLogPage, LlmStatsResponse
+from src.audit.schemas import (
+    ErrorLogResponse,
+    HttpLogResponse,
+    LlmAuditLogResponse,
+    LlmStatsResponse,
+)
+from src.core.schemas import PaginatedResponse
 
 router = APIRouter(prefix="/admin/logs", tags=["admin", "logs"])
 
@@ -20,7 +26,7 @@ async def query_http_logs(
     path: Annotated[str | None, Query()] = None,
     status_code: Annotated[int | None, Query()] = None,
     request_id: Annotated[str | None, Query()] = None,
-) -> HttpLogPage:
+) -> PaginatedResponse[HttpLogResponse]:
     """Query HTTP request logs"""
     return await service.query_http(
         limit=limit,
@@ -41,7 +47,7 @@ async def query_llm_logs(
     provider: Annotated[str | None, Query()] = None,
     model: Annotated[str | None, Query()] = None,
     status: Annotated[str | None, Query()] = None,
-) -> LlmAuditLogPage:
+) -> PaginatedResponse[LlmAuditLogResponse]:
     """Query LLM API call logs"""
     return await service.query_llm(
         limit=limit,
@@ -69,6 +75,6 @@ async def query_error_logs(
     limit: Annotated[int, Query(ge=1, le=1000)] = 100,
     skip: Annotated[int, Query(ge=0)] = 0,
     error_type: Annotated[str | None, Query()] = None,
-) -> ErrorLogPage:
+) -> PaginatedResponse[ErrorLogResponse]:
     """Query application error logs"""
     return await service.query_errors(limit=limit, skip=skip, error_type=error_type)

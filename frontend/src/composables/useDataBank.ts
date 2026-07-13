@@ -31,7 +31,7 @@ export function useDataBank(options: { autoLoad?: boolean } = {}) {
       }
 
       if (data) {
-        entries.value = data;
+        entries.value = data.items;
       }
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Unknown error");

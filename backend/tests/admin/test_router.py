@@ -15,19 +15,21 @@ def test_admin_llm_logs_empty(client: TestClient) -> None:
     response = client.get("/admin/logs/llm")
     assert response.status_code == 200
     body = response.json()
-    assert body["logs"] == []
-    assert body["total"] == 0
+    assert body["items"] == []
+    assert body["meta"]["total"] == 0
 
 
 def test_admin_http_logs(client: TestClient) -> None:
     """HTTP logs endpoint returns a page envelope"""
     response = client.get("/admin/logs/http")
     assert response.status_code == 200
-    assert "logs" in response.json()
+    body = response.json()
+    assert "items" in body
+    assert "meta" in body
 
 
 def test_admin_errors_empty(client: TestClient) -> None:
     """Error logs endpoint returns an empty page"""
     response = client.get("/admin/logs/errors")
     assert response.status_code == 200
-    assert response.json()["total"] == 0
+    assert response.json()["meta"]["total"] == 0

@@ -151,7 +151,7 @@ class ProviderResponse(BaseModel):
 
     id: str
     name: str
-    provider_type: str
+    provider_type: ProviderType
     base_url: str | None
     enabled: bool
     created_at: datetime

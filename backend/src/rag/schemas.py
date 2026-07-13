@@ -51,3 +51,26 @@ class RetrievedChunk(BaseModel):
     source_id: str
     score: float
     chunk_index: int
+
+
+class RerankStatus(BaseModel):
+    """Reranker configuration reported by the status endpoint."""
+
+    enabled: bool
+    model: str
+    candidates: int
+    score_threshold: float
+
+
+class RagStatusResponse(BaseModel):
+    """RAG system status and embedding/rerank configuration."""
+
+    enabled: bool
+    provider: str
+    model: str
+    dimensions: int
+    chunk_size: int
+    chunk_overlap: int
+    similarity_threshold: float
+    max_results: int
+    rerank: RerankStatus

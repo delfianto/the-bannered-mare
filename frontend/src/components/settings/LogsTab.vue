@@ -151,10 +151,10 @@ async function fetchAll() {
       client.GET("/admin/logs/llm/stats"),
       client.GET("/admin/logs/errors", { params: { query: { limit: 50 } } }),
     ]);
-    httpLogs.value = httpRes.data?.logs ?? [];
-    llmLogs.value = llmRes.data?.logs ?? [];
+    httpLogs.value = httpRes.data?.items ?? [];
+    llmLogs.value = llmRes.data?.items ?? [];
     llmStats.value = statsRes.data ?? null;
-    errorLogs.value = errRes.data?.logs ?? [];
+    errorLogs.value = errRes.data?.items ?? [];
   } catch {
     // silently handle — backend/mocks may be unavailable
   } finally {

@@ -198,8 +198,8 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       });
 
       let lorebookId = "";
-      if (lorebooks && lorebooks.length > 0) {
-        lorebookId = lorebooks[0].id;
+      if (lorebooks && lorebooks.items.length > 0) {
+        lorebookId = lorebooks.items[0].id;
       } else if (data.lorebook.length > 0) {
         // Create new lorebook
         const newBook = await client.POST("/api/lorebooks", {
@@ -281,8 +281,8 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
         params: { query: { character_id: characterId } },
       });
 
-      if (lorebooks && lorebooks.length > 0) {
-        const lorebookId = lorebooks[0].id;
+      if (lorebooks && lorebooks.items.length > 0) {
+        const lorebookId = lorebooks.items[0].id;
         const { data: bookDetails } = await client.GET("/api/lorebooks/{lorebook_id}", {
           params: { path: { lorebook_id: lorebookId } },
         } as any);

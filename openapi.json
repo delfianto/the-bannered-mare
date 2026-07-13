@@ -110,7 +110,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HttpLogPage"
+                  "$ref": "#/components/schemas/PaginatedResponse_HttpLogResponse_"
                 }
               }
             }
@@ -232,7 +232,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LlmAuditLogPage"
+                  "$ref": "#/components/schemas/PaginatedResponse_LlmAuditLogResponse_"
                 }
               }
             }
@@ -375,7 +375,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorLogPage"
+                  "$ref": "#/components/schemas/PaginatedResponse_ErrorLogResponse_"
                 }
               }
             }
@@ -4996,11 +4996,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/LorebookResponse"
-                  },
-                  "title": "Response List Lorebooks Api Lorebooks Get"
+                  "$ref": "#/components/schemas/PaginatedResponse_LorebookResponse_"
                 }
               }
             }
@@ -5357,7 +5353,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_ChatResponse_"
+                }
               }
             }
           }
@@ -5370,14 +5368,16 @@
           "bookmarks"
         ],
         "summary": "Get Bookmarked Characters",
-        "description": "Get all favorited characters",
+        "description": "Get all favorited characters (placeholder until favoriting lands).",
         "operationId": "get_bookmarked_characters_api_bookmarks_characters_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_CharacterResponse_"
+                }
               }
             }
           }
@@ -5390,14 +5390,16 @@
           "bookmarks"
         ],
         "summary": "Get Bookmarked Messages",
-        "description": "Get all pinned message fragments",
+        "description": "Get all pinned message fragments (placeholder until pinning lands).",
         "operationId": "get_bookmarked_messages_api_bookmarks_messages_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_MessageResponse_"
+                }
               }
             }
           }
@@ -5474,11 +5476,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DataBankResponse"
-                  },
-                  "title": "Response List Entries Api Data Bank  Get"
+                  "$ref": "#/components/schemas/PaginatedResponse_DataBankResponse_"
                 }
               }
             }
@@ -5723,7 +5721,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/RagStatusResponse"
+                }
               }
             }
           }
@@ -7387,38 +7387,6 @@
         "title": "DiscoveredModel",
         "description": "A model discovered by querying a local provider's native API."
       },
-      "ErrorLogPage": {
-        "properties": {
-          "logs": {
-            "items": {
-              "$ref": "#/components/schemas/ErrorLogResponse"
-            },
-            "type": "array",
-            "title": "Logs"
-          },
-          "total": {
-            "type": "integer",
-            "title": "Total"
-          },
-          "limit": {
-            "type": "integer",
-            "title": "Limit"
-          },
-          "skip": {
-            "type": "integer",
-            "title": "Skip"
-          }
-        },
-        "type": "object",
-        "required": [
-          "logs",
-          "total",
-          "limit",
-          "skip"
-        ],
-        "title": "ErrorLogPage",
-        "description": "Paginated error logs"
-      },
       "ErrorLogResponse": {
         "properties": {
           "id": {
@@ -7697,38 +7665,6 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
-      "HttpLogPage": {
-        "properties": {
-          "logs": {
-            "items": {
-              "$ref": "#/components/schemas/HttpLogResponse"
-            },
-            "type": "array",
-            "title": "Logs"
-          },
-          "total": {
-            "type": "integer",
-            "title": "Total"
-          },
-          "limit": {
-            "type": "integer",
-            "title": "Limit"
-          },
-          "skip": {
-            "type": "integer",
-            "title": "Skip"
-          }
-        },
-        "type": "object",
-        "required": [
-          "logs",
-          "total",
-          "limit",
-          "skip"
-        ],
-        "title": "HttpLogPage",
-        "description": "Paginated HTTP logs"
-      },
       "HttpLogResponse": {
         "properties": {
           "id": {
@@ -7834,38 +7770,6 @@
         ],
         "title": "InsertionPosition",
         "description": "Where activated lore entries are injected into the prompt"
-      },
-      "LlmAuditLogPage": {
-        "properties": {
-          "logs": {
-            "items": {
-              "$ref": "#/components/schemas/LlmAuditLogResponse"
-            },
-            "type": "array",
-            "title": "Logs"
-          },
-          "total": {
-            "type": "integer",
-            "title": "Total"
-          },
-          "limit": {
-            "type": "integer",
-            "title": "Limit"
-          },
-          "skip": {
-            "type": "integer",
-            "title": "Skip"
-          }
-        },
-        "type": "object",
-        "required": [
-          "logs",
-          "total",
-          "limit",
-          "skip"
-        ],
-        "title": "LlmAuditLogPage",
-        "description": "Paginated LLM audit logs"
       },
       "LlmAuditLogResponse": {
         "properties": {
@@ -8000,18 +7904,7 @@
             "title": "Stats"
           },
           "period": {
-            "additionalProperties": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "type": "object",
-            "title": "Period"
+            "$ref": "#/components/schemas/StatsPeriod"
           }
         },
         "type": "object",
@@ -9887,6 +9780,46 @@
         ],
         "title": "PaginatedResponse[ChatResponse]"
       },
+      "PaginatedResponse_DataBankResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DataBankResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[DataBankResponse]"
+      },
+      "PaginatedResponse_ErrorLogResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorLogResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[ErrorLogResponse]"
+      },
       "PaginatedResponse_FragmentResponse_": {
         "properties": {
           "items": {
@@ -9906,6 +9839,66 @@
           "meta"
         ],
         "title": "PaginatedResponse[FragmentResponse]"
+      },
+      "PaginatedResponse_HttpLogResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HttpLogResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[HttpLogResponse]"
+      },
+      "PaginatedResponse_LlmAuditLogResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LlmAuditLogResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[LlmAuditLogResponse]"
+      },
+      "PaginatedResponse_LorebookResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LorebookResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[LorebookResponse]"
       },
       "PaginatedResponse_MessageResponse_": {
         "properties": {
@@ -11035,8 +11028,7 @@
             "title": "Name"
           },
           "provider_type": {
-            "type": "string",
-            "title": "Provider Type"
+            "$ref": "#/components/schemas/ProviderType"
           },
           "base_url": {
             "anyOf": [
@@ -11251,6 +11243,88 @@
         "title": "RAGSearchRequest",
         "description": "Schema for manual RAG search"
       },
+      "RagStatusResponse": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "dimensions": {
+            "type": "integer",
+            "title": "Dimensions"
+          },
+          "chunk_size": {
+            "type": "integer",
+            "title": "Chunk Size"
+          },
+          "chunk_overlap": {
+            "type": "integer",
+            "title": "Chunk Overlap"
+          },
+          "similarity_threshold": {
+            "type": "number",
+            "title": "Similarity Threshold"
+          },
+          "max_results": {
+            "type": "integer",
+            "title": "Max Results"
+          },
+          "rerank": {
+            "$ref": "#/components/schemas/RerankStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "provider",
+          "model",
+          "dimensions",
+          "chunk_size",
+          "chunk_overlap",
+          "similarity_threshold",
+          "max_results",
+          "rerank"
+        ],
+        "title": "RagStatusResponse",
+        "description": "RAG system status and embedding/rerank configuration."
+      },
+      "RerankStatus": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "candidates": {
+            "type": "integer",
+            "title": "Candidates"
+          },
+          "score_threshold": {
+            "type": "number",
+            "title": "Score Threshold"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled",
+          "model",
+          "candidates",
+          "score_threshold"
+        ],
+        "title": "RerankStatus",
+        "description": "Reranker configuration reported by the status endpoint."
+      },
       "RetrievedChunk": {
         "properties": {
           "content": {
@@ -11372,6 +11446,35 @@
         ],
         "title": "SecondaryLogic",
         "description": "Logic for combining primary and secondary keyword matches"
+      },
+      "StatsPeriod": {
+        "properties": {
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "title": "StatsPeriod",
+        "description": "The time window a stats query covers (ISO-8601 bounds; null = open-ended)."
       },
       "SuggestionMode": {
         "type": "string",

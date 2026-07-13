@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
+from src.core.schemas import PaginatedResponse, collection_response
 from src.lore.dependencies import LoreServiceDep
 from src.lore.schemas import (
     LorebookCreate,
@@ -19,14 +20,16 @@ router = APIRouter(prefix="/api/lorebooks", tags=["lorebooks"])
 # --- Lorebook endpoints ---
 
 
-@router.get("", response_model=list[LorebookResponse])
+@router.get("", response_model=PaginatedResponse[LorebookResponse])
 def list_lorebooks(
     service: LoreServiceDep,
     character_id: str | None = Query(None, description="Filter by character"),
     is_global: bool | None = Query(None, description="Filter global lorebooks"),
 ):
     """List lorebooks with optional filters."""
-    return service.list_lorebooks(character_id=character_id, is_global=is_global)
+    return collection_response(
+        service.list_lorebooks(character_id=character_id, is_global=is_global)
+    )
 
 
 @router.post("", response_model=LorebookResponse, status_code=status.HTTP_201_CREATED)
