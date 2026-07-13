@@ -6,6 +6,7 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
 
 from src.chat_message.dependencies import ChatMessageServiceDep
+from src.chat_message.llm_audit import classify_error
 from src.chat_message.schemas import (
     AlternativeResponse,
     ChatPromptPreviewResponse,
@@ -20,6 +21,7 @@ from src.chat_message.schemas import (
     stream_event_to_dict,
 )
 from src.chat_message.service import ChatMessageService
+from src.core.exceptions import ProviderException
 from src.core.logging.logger_config import get_logger
 
 logger = get_logger(__name__)
@@ -106,7 +108,14 @@ def _handle_streaming(
 
         except Exception as e:
             logger.error(f"Streaming error: {e!s}", exc_info=True)
-            error_event = StreamEvent(type="error", message=str(e), code="internal_error")
+            # Classify the code so the client can react (retry a rate-limit/timeout
+            # vs surface a fault). Provider errors carry a user-facing message; for
+            # an unexpected internal fault keep it generic (detail is logged above).
+            code = classify_error(e)
+            message = (
+                str(e) if isinstance(e, ProviderException) else "An unexpected error occurred."
+            )
+            error_event = StreamEvent(type="error", message=message, code=code)
             yield f"data: {json.dumps(stream_event_to_dict(error_event))}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
