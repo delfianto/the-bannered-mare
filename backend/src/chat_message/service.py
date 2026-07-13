@@ -2,7 +2,7 @@
 
 import time
 from collections.abc import AsyncIterator
-from datetime import UTC, datetime
+from datetime import datetime
 from functools import partial
 from typing import Any
 
@@ -163,15 +163,6 @@ class ChatMessageService:
             ),
         )
 
-    async def _update_chat_metadata(self, chat_id: str, last_message: str):
-        """Update chat snippet and timestamp for the list view"""
-        chat = await self.chat_repo.find_by_id(chat_id)
-        if chat:
-            chat.preview = last_message[:50]
-            chat.updated_at = datetime.now(UTC)
-            await self.chat_repo.update(chat)
-            await self.chat_repo.commit()
-
     # --- Next-turn Suggestions (reply candidates / impersonation) ---
 
     async def generate_suggestions(
@@ -260,20 +251,25 @@ class ChatMessageService:
     async def _persist_reply(
         self,
         *,
-        chat_id: str,
+        chat: Chat,
         content: str,
         reasoning: str | None,
         token_count: int,
         existing_message: Message | None,
         message_id: str | None = None,
     ) -> Message:
-        """Persist a usable assistant reply and refresh chat metadata.
+        """Persist a usable assistant reply and refresh the chat's list snippet.
 
         Three modes, shared by the blocking and streaming paths:
         - regeneration with alt_repo → store as a swipe alternative;
         - regeneration without alt_repo → overwrite the message in place;
         - a new turn → create a message (and vectorize it).
+
+        ``chat.preview`` is set on the (session-loaded) chat so it commits in the
+        same unit of work as the message — no re-fetch, and ``updated_at`` bumps
+        via the model's onupdate.
         """
+        chat.preview = content[:50]
         if existing_message and self.alt_repo:
             await self.alternatives.store(existing_message, content, token_count)
             stored = existing_message
@@ -287,7 +283,7 @@ class ChatMessageService:
             stored = await self.message_repo.create(
                 Message(
                     id=message_id or gen_id(),
-                    chat_id=chat_id,
+                    chat_id=chat.id,
                     role=MessageRole.ASSISTANT,
                     content=content,
                     token_count=token_count,
@@ -296,7 +292,6 @@ class ChatMessageService:
             )
             await self.message_repo.commit()
             await self._vectorize(stored)
-        await self._update_chat_metadata(chat_id, content)
         return stored
 
     async def _run_blocking_completion(
@@ -362,7 +357,7 @@ class ChatMessageService:
             response.content, response.reasoning, response.usage, tokenizer
         )
         return await self._persist_reply(
-            chat_id=chat_id,
+            chat=chat,
             content=content,
             reasoning=reasoning,
             token_count=token_count,
@@ -383,10 +378,11 @@ class ChatMessageService:
             content=content,
             token_count=tokenizer.count(content),
         )
+        # Bump the chat's list snippet with the user's turn in the same commit, so
+        # a chat whose generation later fails still surfaces its latest message.
+        chat.preview = content[:50]
         _ = await self.message_repo.create(user_message)
         await self.message_repo.commit()
-
-        await self._update_chat_metadata(chat_id, content)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         api_messages = await self.context.assemble(chat, messages)
@@ -465,7 +461,7 @@ class ChatMessageService:
                     full_content, full_reasoning or None, last_usage, tokenizer
                 )
                 await self._persist_reply(
-                    chat_id=chat_id,
+                    chat=chat,
                     content=full_content,
                     reasoning=reasoning,
                     token_count=token_count,
@@ -504,9 +500,10 @@ class ChatMessageService:
             content=content,
             token_count=tokenizer.count(content),
         )
+        # See send_message: fold the list-snippet bump into the user-turn commit.
+        chat.preview = content[:50]
         _ = await self.message_repo.create(user_message)
         await self.message_repo.commit()
-        await self._update_chat_metadata(chat_id, content)
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         api_messages = await self.context.assemble(chat, messages)

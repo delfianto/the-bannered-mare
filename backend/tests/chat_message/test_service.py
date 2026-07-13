@@ -131,6 +131,12 @@ class TestChatMessageService:
         assert messages[0].role == MessageRole.USER
         assert messages[0].content == "Hello"
 
+        # BE-11: the chat list-snippet is folded into the send commits — after a
+        # successful turn it reflects the assistant reply (persisted, not just
+        # in-memory).
+        await async_db_session.refresh(chat)
+        assert chat.preview == "Hello! How can I help you?"
+
     @pytest.mark.asyncio
     async def test_send_message_vectorizes_both_turns(
         self,
