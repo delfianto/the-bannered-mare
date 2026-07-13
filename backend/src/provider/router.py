@@ -1,12 +1,9 @@
 """Provider CRUD API endpoints"""
 
-from typing import Annotated
+from fastapi import APIRouter, Query, status
 
-from fastapi import APIRouter, Depends, Query, status
-
-from src.core.persistence import DbSession
+from src.model.dependencies import ModelServiceDep
 from src.model.schemas import ModelResponse
-from src.model.service import ModelService
 from src.provider.dependencies import ProviderServiceDep
 from src.provider.schemas import (
     AvailableModelsResponse,
@@ -21,30 +18,6 @@ from src.provider.schemas import (
 )
 
 router = APIRouter(prefix="/api/providers", tags=["providers"])
-
-
-def _get_model_service(db: DbSession) -> ModelService:
-    """Build the canonical-model service for the persist endpoint.
-
-    Wired locally rather than importing ``ModelServiceDep`` from
-    ``src.model.dependencies``: that module imports ``provider.dependencies``, so
-    eagerly wiring the reverse edge at module scope would form a load-time import
-    cycle. The repo imports stay in the body for the same reason.
-    """
-    from src.chat_session.repository import ChatRepository
-    from src.model.repository import ModelRepository
-    from src.model_family.repository import ModelFamilyRepository
-    from src.provider.repository import ProviderRepository
-
-    return ModelService(
-        ModelRepository(db),
-        ProviderRepository(db),
-        ModelFamilyRepository(db),
-        ChatRepository(db),
-    )
-
-
-ModelServiceDep = Annotated[ModelService, Depends(_get_model_service)]
 
 
 @router.get("", response_model=list[ProviderResponse])

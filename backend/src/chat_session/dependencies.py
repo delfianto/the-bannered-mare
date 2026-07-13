@@ -6,12 +6,15 @@ from fastapi import Depends
 
 from src.character.dependencies import get_character_repository
 from src.character.repository import CharacterRepository
+from src.chat_message.repository import MessageRepository
 from src.chat_session.repository import ChatRepository
 from src.chat_session.repository_async import AsyncChatRepository
 from src.chat_session.service import ChatService
 from src.core.persistence import AsyncDbSession, DbSession
 from src.model.dependencies import get_model_repository
 from src.model.repository import ModelRepository
+from src.persona.repository import PersonaRepository
+from src.profile.repository import ProfileRepository
 
 
 # Sync repository (for CRUD operations)
@@ -33,15 +36,7 @@ def get_chat_service(
     character_repo: Annotated[CharacterRepository, Depends(get_character_repository)],
     model_repo: Annotated[ModelRepository, Depends(get_model_repository)],
 ) -> ChatService:
-    """Factory for ChatService.
-
-    ProfileRepository is built from a lazy import to avoid an import-time cycle
-    (profile -> preset -> st_import -> prompt_template -> chat_session).
-    """
-    from src.chat_message.repository import MessageRepository
-    from src.persona.repository import PersonaRepository
-    from src.profile.repository import ProfileRepository
-
+    """Factory for ChatService."""
     return ChatService(
         chat_repo,
         character_repo,

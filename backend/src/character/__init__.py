@@ -1,12 +1,5 @@
-from src.character.dependencies import (
-    CharacterRepositoryDep,
-    CharacterServiceDep,
-    get_character_repository,
-    get_character_service,
-)
 from src.character.models import Character
 from src.character.repository import CharacterRepository
-from src.character.router import router
 from src.character.schemas import (
     CharacterBase,
     CharacterCreate,
@@ -23,9 +16,4 @@ __all__ = [
     "CharacterCreate",
     "CharacterUpdate",
     "CharacterResponse",
-    "get_character_repository",
-    "get_character_service",
-    "CharacterServiceDep",
-    "CharacterRepositoryDep",
-    "router",
 ]
