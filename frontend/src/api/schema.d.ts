@@ -1706,7 +1706,7 @@ export interface paths {
     };
     /**
      * Demo
-     * @description Minimal chat UI for developer testing
+     * @description Minimal chat UI for developer testing (development only)
      */
     get: operations["demo_demo_get"];
     put?: never;
