@@ -10,6 +10,7 @@ import { useDataBank } from "@/composables/useDataBank";
 import { useLorebooks } from "@/composables/useLorebooks";
 import { useChatPromptPreview } from "@/composables/useChatPromptPreview";
 import { useChatLlmLogs, type LlmAuditLog } from "@/composables/useChatLlmLogs";
+import { useCompletionSignal } from "@/composables/useCompletionSignal";
 import type { LoreEntryResponse } from "@/composables/useLorebooks";
 import Tabs from "@/components/shared/Tabs.vue";
 import CollapsibleSection from "@/components/shared/CollapsibleSection.vue";
@@ -207,7 +208,13 @@ function roleLabel(role: string): string {
 // Logs tab: this conversation's LLM audit records. Cached by chat id, so it only
 // hits the network the first time a given chat's Logs tab is opened (and again
 // after switching chats).
-const { logs, loading: logsLoading, error: logsError, load: loadLogs } = useChatLlmLogs();
+const {
+  logs,
+  loading: logsLoading,
+  error: logsError,
+  load: loadLogs,
+  invalidate: invalidateLogs,
+} = useChatLlmLogs();
 
 watch(
   [() => props.show, activeTab, () => props.chatId],
@@ -216,6 +223,20 @@ watch(
   },
   { immediate: true },
 );
+
+function refreshLogs() {
+  if (props.chatId) void loadLogs(props.chatId, true);
+}
+
+// When a model call for this chat settles, refresh the visible Logs tab in the
+// background; if the tab isn't showing, just drop the cache so the next open
+// refetches instead of serving stale rows.
+const completionSignal = useCompletionSignal();
+watch(completionSignal.tick, () => {
+  if (completionSignal.chatId.value !== props.chatId) return;
+  if (props.show && activeTab.value === "logs") refreshLogs();
+  else invalidateLogs();
+});
 
 // Newest first, regardless of the order the API hands them back.
 const sortedLogs = computed(() =>
@@ -922,7 +943,31 @@ onUnmounted(() => {
 
           <!-- Logs tab -->
           <div v-else-if="activeTab === 'logs'" class="p-4">
-            <div v-if="logsLoading" class="flex justify-center py-12">
+            <div class="mb-3 flex items-center justify-between">
+              <span
+                class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                {{ $t("chat.drawer.tabs.logs") }}
+              </span>
+              <AppTooltip :text="$t('chat.drawer.logsRefresh')" side="left">
+                <button
+                  class="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-base-300/40 hover:text-foreground disabled:opacity-50"
+                  :disabled="logsLoading"
+                  :aria-label="$t('chat.drawer.logsRefresh')"
+                  @click="refreshLogs"
+                >
+                  <AppIcon
+                    name="i-lucide-refresh-cw"
+                    class="size-3.5"
+                    :class="{ 'animate-spin': logsLoading && sortedLogs.length }"
+                  />
+                </button>
+              </AppTooltip>
+            </div>
+
+            <!-- Full spinner only on the first fetch; a background refresh keeps
+                 the current rows on screen (the button icon spins instead). -->
+            <div v-if="logsLoading && !sortedLogs.length" class="flex justify-center py-12">
               <AppIcon
                 name="i-lucide-loader-circle"
                 class="size-6 animate-spin text-muted-foreground"
