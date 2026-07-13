@@ -6,7 +6,6 @@ from src.core.utils.storage import (
     save_persona_avatar,
 )
 from src.core.utils.template import TemplateContext, TemplateService
-from src.core.utils.tokenizer import TokenizerService
 
 __all__ = [
     "delete_character_files",
@@ -16,5 +15,4 @@ __all__ = [
     "save_persona_avatar",
     "TemplateContext",
     "TemplateService",
-    "TokenizerService",
 ]

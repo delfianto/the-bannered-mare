@@ -1,13 +1,11 @@
 """Resolve a model family to a cached ``Tokenizer`` (never raises).
 
-Kept decoupled from the model_family domain: ``get_tokenizer`` accepts anything
-matching ``FamilyLike`` (``family_identifier`` + ``extra_metadata``), so the
-shared kernel doesn't depend on a vertical slice.
+``ModelFamily`` lives in the shared kernel (``core.persistence.models``), so this
+module can depend on it without inverting the domain layering.
 """
 
-from typing import Any, Protocol
-
 from src.core.logging import get_logger
+from src.core.persistence.models import ModelFamily
 from src.core.tokenization.backends import (
     HeuristicTokenizer,
     HuggingFaceTokenizer,
@@ -23,16 +21,10 @@ from src.core.tokenization.specs import (
 
 logger = get_logger(__name__)
 
-
-class FamilyLike(Protocol):
-    family_identifier: str
-    extra_metadata: dict[str, Any] | None
-
-
 _CACHE: dict[str, Tokenizer] = {}
 
 
-def get_tokenizer(family: FamilyLike | None) -> Tokenizer:
+def get_tokenizer(family: ModelFamily | None) -> Tokenizer:
     """Cached tokenizer for a model family. Loading a HF tokenizer that turns out
     unreachable/gated degrades to a tiktoken proxy; never raises."""
     key = family.family_identifier if family else ""
@@ -44,14 +36,14 @@ def get_tokenizer(family: FamilyLike | None) -> Tokenizer:
     return tokenizer
 
 
-def _resolve_spec(family: FamilyLike | None) -> TokenizerSpec:
+def _resolve_spec(family: ModelFamily | None) -> TokenizerSpec:
     if family is None:
         return DEFAULT_SPEC
     override = (family.extra_metadata or {}).get("tokenizer")
     if isinstance(override, dict):
         try:
             return TokenizerSpec.from_metadata(override)
-        except (KeyError, ValueError):
+        except KeyError, ValueError:
             logger.warning("tokenizer_spec_invalid", family=family.family_identifier)
     return default_spec_for(family.family_identifier)
 

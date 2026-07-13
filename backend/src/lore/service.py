@@ -2,7 +2,7 @@
 
 from src.core.exceptions import NotFoundError
 from src.core.persistence.enums import InsertionPosition
-from src.core.utils.tokenizer import TokenizerService
+from src.core.tokenization import get_tokenizer
 from src.lore.activation_engine import ActivatedEntry, activate_entries
 from src.lore.models import Lorebook, LoreEntry
 from src.lore.repository import LoreEntryRepository, LoreRepository
@@ -19,7 +19,9 @@ class LoreService:
     ):
         self.lore_repo = lore_repo
         self.entry_repo = entry_repo
-        self.tokenizer = TokenizerService()
+        # Lore budgeting is family-agnostic (a rough size guard); a default
+        # tokenizer is fine here.
+        self.tokenizer = get_tokenizer(None)
 
     # --- Lorebook CRUD ---
 
