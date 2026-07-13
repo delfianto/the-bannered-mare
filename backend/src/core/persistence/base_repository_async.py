@@ -88,14 +88,12 @@ class AsyncBaseRepository[T: BaseModel]:
         Returns:
             The created entity with generated ID and timestamps
         """
-        # Ensure session is not in flush state before adding
-        # This prevents SQLAlchemy warnings during concurrent operations
-        if self.db.in_transaction() and self.db.is_active:
-            await self.db.flush()  # Complete any pending flush
-
+        # No refresh(): all defaults are Python-side, so flush() fully populates
+        # the object (and avoids an expired-attribute lazy load, which would raise
+        # under async). flush()'s own unit-of-work ordering handles any pending
+        # changes, so no pre-flush guard is needed either.
         self.db.add(entity)
         await self.db.flush()
-        await self.db.refresh(entity)
         return entity
 
     async def update(self, entity: T) -> T:
@@ -106,10 +104,9 @@ class AsyncBaseRepository[T: BaseModel]:
             entity: The entity to update
 
         Returns:
-            The updated and refreshed entity
+            The updated entity
         """
         await self.db.flush()
-        await self.db.refresh(entity)
         return entity
 
     async def delete(self, entity: T) -> None:
