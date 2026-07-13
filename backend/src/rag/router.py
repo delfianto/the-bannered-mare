@@ -1,8 +1,9 @@
 """RAG and Data Bank API endpoints"""
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Query, status
 
 from src.core.config import settings
+from src.core.exceptions import ConflictError
 from src.core.logging.logger_config import get_logger
 from src.rag.dependencies import DataBankServiceDep, RetrievalServiceDep
 from src.rag.models import DataBankEntry
@@ -125,10 +126,7 @@ async def search(
 ):
     """Manual semantic search across embeddings"""
     if retrieval is None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="RAG is disabled. Set RAG__ENABLED=true to use semantic search.",
-        )
+        raise ConflictError("RAG is disabled. Set RAG__ENABLED=true to use semantic search.")
     return await retrieval.retrieve(
         chat_id=body.chat_id or "",
         query_text=body.query,

@@ -3,12 +3,13 @@
 import os
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from fastapi.responses import FileResponse, Response
 
 from src.character.dependencies import CharacterServiceDep
 from src.character.schemas import CharacterFilterParams, CharacterResponse
 from src.core.config import settings
+from src.core.exceptions import NotFoundError
 from src.core.schemas import PaginatedResponse, page_response
 from src.core.utils.upload import read_upload
 
@@ -89,17 +90,11 @@ def get_character_avatar(character_id: str, service: CharacterServiceDep):
     character = service.get_by_id(character_id)
 
     if not character.avatar:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Character '{character.name}' has no avatar",
-        )
+        raise NotFoundError(f"Character '{character.name}' has no avatar")
 
     avatar_full_path = os.path.join(settings.storage_path, character.avatar)
     if not os.path.exists(avatar_full_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar file not found",
-        )
+        raise NotFoundError("Avatar file not found")
 
     return FileResponse(avatar_full_path)
 
@@ -110,17 +105,11 @@ def get_character_avatar_large(character_id: str, service: CharacterServiceDep):
     character = service.get_by_id(character_id)
 
     if not character.avatar_large:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Character '{character.name}' has no large avatar",
-        )
+        raise NotFoundError(f"Character '{character.name}' has no large avatar")
 
     avatar_full_path = os.path.join(settings.storage_path, character.avatar_large)
     if not os.path.exists(avatar_full_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Large avatar file not found",
-        )
+        raise NotFoundError("Large avatar file not found")
 
     return FileResponse(avatar_full_path)
 
@@ -131,17 +120,11 @@ def get_character_avatar_thumbnail(character_id: str, service: CharacterServiceD
     character = service.get_by_id(character_id)
 
     if not character.avatar_thumbnail:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Character '{character.name}' has no avatar thumbnail",
-        )
+        raise NotFoundError(f"Character '{character.name}' has no avatar thumbnail")
 
     avatar_full_path = os.path.join(settings.storage_path, character.avatar_thumbnail)
     if not os.path.exists(avatar_full_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar thumbnail file not found",
-        )
+        raise NotFoundError("Avatar thumbnail file not found")
 
     return FileResponse(avatar_full_path)
 
