@@ -16,7 +16,9 @@ if TYPE_CHECKING:
     from src.core.persistence.models.chat import Chat
     from src.core.persistence.models.model import ModelRegistry
 
-# Component order for prompt construction
+# Component order for prompt construction. rag_context is listed after
+# chat_history to match the builder's authoritative post-history emission — a
+# per-turn retrieval must not land inside the cacheable prompt prefix.
 DEFAULT_COMPONENT_ORDER = [
     "system_prompt",
     "world_lore_before_character",
@@ -26,8 +28,8 @@ DEFAULT_COMPONENT_ORDER = [
     "persona",
     "world_lore_before_examples",
     "example_dialogues",
-    "rag_context",
     "chat_history",
+    "rag_context",
     "post_history_instructions",
 ]
 
