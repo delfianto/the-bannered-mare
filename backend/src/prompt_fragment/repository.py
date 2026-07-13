@@ -3,30 +3,23 @@
 from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session, joinedload
 
-from src.core.persistence import BaseRepository
+from src.core.persistence import BaseRepository, NamedRepository
 from src.prompt_fragment.models import PromptFragment, TemplateFragment
 
 
-class FragmentRepository(BaseRepository[PromptFragment]):
-    """Repository for PromptFragment data access"""
+class FragmentRepository(NamedRepository[PromptFragment]):
+    """Repository for PromptFragment data access.
+
+    Name lookup and ordered listing come from the base repository + mixin.
+    """
 
     def __init__(self, db: Session):
         super().__init__(db, PromptFragment)
-
-    def find_by_name(self, name: str) -> PromptFragment | None:
-        """Find a fragment by its unique name"""
-        stmt = select(PromptFragment).where(PromptFragment.name == name)
-        return self.db.execute(stmt).scalars().first()
 
     def find_by_content(self, content: str) -> PromptFragment | None:
         """Find a fragment with exactly matching content, for import-time reuse."""
         stmt = select(PromptFragment).where(PromptFragment.content == content)
         return self.db.execute(stmt).scalars().first()
-
-    def find_all_ordered(self) -> list[PromptFragment]:
-        """Find all fragments ordered by creation date"""
-        stmt = select(PromptFragment).order_by(PromptFragment.created_at.desc())
-        return list(self.db.execute(stmt).scalars().all())
 
     def find_paginated_with_usage(
         self,

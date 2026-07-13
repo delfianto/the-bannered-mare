@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from src.core.base_service import get_or_404
+from src.core.base_service import get_or_404, set_as_default
 from src.core.persistence import gen_id
 from src.preset.models import Preset
 from src.preset.repository import PresetRepository
@@ -20,7 +20,7 @@ class PresetService:
 
     def list_paginated(self, limit: int = 10, offset: int = 0) -> tuple[list[Preset], int]:
         """List presets with pagination"""
-        return self.preset_repo.find_paginated_with_count(limit, offset)
+        return self.preset_repo.find_paginated_ordered(limit, offset)
 
     def get_by_id(self, preset_id: str) -> Preset:
         """Get preset by ID, raise 404 if not found"""
@@ -83,11 +83,4 @@ class PresetService:
 
     def set_default(self, preset_id: str) -> Preset:
         """Set preset as default"""
-        preset = self.get_by_id(preset_id)
-
-        self.preset_repo.unset_all_defaults()
-
-        preset.is_default = True
-        updated = self.preset_repo.update(preset)
-        self.preset_repo.commit()
-        return updated
+        return set_as_default(self.preset_repo, self.get_by_id(preset_id))
