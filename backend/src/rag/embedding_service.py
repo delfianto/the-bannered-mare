@@ -1,6 +1,7 @@
 """Async embedding service with llama.cpp, Ollama, and OpenAI-compatible adapters."""
 
 import os
+from typing import assert_never
 
 import httpx
 
@@ -38,19 +39,24 @@ class EmbeddingService:
         results: list[list[float]] = []
         for i in range(0, len(prefixed), BATCH_SIZE):
             batch = prefixed[i : i + BATCH_SIZE]
-            if self.settings.provider == "ollama":
-                results.extend(await self._embed_ollama(batch))
-            elif self.settings.provider == "huggingface":
-                results.extend(await self._embed_hf(batch))
-            elif self.settings.provider == "llamacpp":
-                # llama-server exposes an OpenAI-compatible endpoint under /v1.
-                base_url = f"{self.settings.llamacpp_url}/v1"
-                results.extend(await self._embed_openai_compatible(batch, base_url))
-            else:
-                api_key = os.getenv(self.settings.openai_key_env, "")
-                results.extend(
-                    await self._embed_openai_compatible(batch, self.settings.openai_url, api_key)
-                )
+            match self.settings.provider:
+                case "ollama":
+                    results.extend(await self._embed_ollama(batch))
+                case "huggingface":
+                    results.extend(await self._embed_hf(batch))
+                case "llamacpp":
+                    # llama-server exposes an OpenAI-compatible endpoint under /v1.
+                    base_url = f"{self.settings.llamacpp_url}/v1"
+                    results.extend(await self._embed_openai_compatible(batch, base_url))
+                case "openai":
+                    api_key = os.getenv(self.settings.openai_key_env, "")
+                    results.extend(
+                        await self._embed_openai_compatible(
+                            batch, self.settings.openai_url, api_key
+                        )
+                    )
+                case _:
+                    assert_never(self.settings.provider)
         return results
 
     async def _embed_hf(self, texts: list[str]) -> list[list[float]]:

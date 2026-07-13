@@ -21,7 +21,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 class LoggingSettings(BaseModel):
     """Logging configuration"""
 
-    level: str = "INFO"
+    level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     format: Literal["json", "console"] = "json"
 
     # Persisted audit logging (PostgreSQL). Master switch for the audit writer.
@@ -69,7 +69,7 @@ class EmbeddingSettings(BaseModel):
       native dialect is used for both embeddings and (later) reranking.
     """
 
-    provider: str = "llamacpp"
+    provider: Literal["llamacpp", "openai", "ollama", "huggingface"] = "llamacpp"
     model: str = "embeddinggemma"
     dimensions: int = 768
     llamacpp_url: str = "http://localhost:8080"
