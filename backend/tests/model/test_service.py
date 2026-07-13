@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 from sqlalchemy.orm import Session
 from src.chat_session import Chat, ChatRepository
+from src.chat_session.model_snapshot import ChatModelSnapshotService
 from src.core.exceptions import BanneredMareException
 from src.model import ModelRegistry, ModelRepository, ModelRoute, ModelService
 from src.model_family import ModelFamily, ModelFamilyRepository
@@ -17,7 +18,7 @@ def _service(db: Session) -> ModelService:
         ModelRepository(db),
         ProviderRepository(db),
         ModelFamilyRepository(db),
-        ChatRepository(db),
+        ChatModelSnapshotService(ChatRepository(db)),
     )
 
 
