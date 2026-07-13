@@ -2,7 +2,8 @@
 
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Any, Literal
+from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -59,6 +60,14 @@ class AlternativeResponse(BaseModel):
 MessageListResponse = PaginatedResponse[MessageResponse]
 
 
+class SuggestionMode(StrEnum):
+    """Which kind of next-turn suggestion to generate."""
+
+    REPLY = "reply"
+    IMPERSONATE = "impersonate"
+    TONES = "tones"
+
+
 class SuggestionRequest(BaseModel):
     """Request for next-turn suggestions.
 
@@ -69,7 +78,7 @@ class SuggestionRequest(BaseModel):
       (used to populate the tone chips, each then feeding ``impersonate``).
     """
 
-    mode: Literal["reply", "impersonate", "tones"] = "reply"
+    mode: SuggestionMode = SuggestionMode.REPLY
     tone: str | None = Field(default=None, max_length=40, description="Tone to steer the draft")
     count: int = Field(default=3, ge=1, le=6, description="How many suggestions (reply/tones)")
 

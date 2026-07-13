@@ -4009,6 +4009,12 @@ export interface components {
      */
     SecondaryLogic: "and_any" | "and_all" | "not_any" | "not_all";
     /**
+     * SuggestionMode
+     * @description Which kind of next-turn suggestion to generate.
+     * @enum {string}
+     */
+    SuggestionMode: "reply" | "impersonate" | "tones";
+    /**
      * SuggestionRequest
      * @description Request for next-turn suggestions.
      *
@@ -4019,12 +4025,8 @@ export interface components {
      *       (used to populate the tone chips, each then feeding ``impersonate``).
      */
     SuggestionRequest: {
-      /**
-       * Mode
-       * @default reply
-       * @enum {string}
-       */
-      mode: "reply" | "impersonate" | "tones";
+      /** @default reply */
+      mode: components["schemas"]["SuggestionMode"];
       /**
        * Tone
        * @description Tone to steer the draft

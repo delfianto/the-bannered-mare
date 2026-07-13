@@ -16,7 +16,7 @@ from src.chat_message.repository_async import (
     AsyncMessageAlternativeRepository,
     AsyncMessageRepository,
 )
-from src.chat_message.schemas import MessageResponse, StreamEvent
+from src.chat_message.schemas import MessageResponse, StreamEvent, SuggestionMode
 from src.chat_session.models import Chat
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.config import settings
@@ -161,7 +161,11 @@ class ChatMessageService:
     # --- Next-turn Suggestions (reply candidates / impersonation) ---
 
     async def generate_suggestions(
-        self, chat_id: str, mode: str = "reply", tone: str | None = None, count: int = 3
+        self,
+        chat_id: str,
+        mode: SuggestionMode = SuggestionMode.REPLY,
+        tone: str | None = None,
+        count: int = 3,
     ) -> list[str]:
         """Generate next-turn suggestions (reply cards / impersonation / tone chips)."""
         return await self.aux.generate_suggestions(chat_id, mode=mode, tone=tone, count=count)
