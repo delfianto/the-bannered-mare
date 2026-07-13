@@ -11,9 +11,6 @@ from src.core.model_filters import DEFAULT_MODEL_BLACKLIST, DEFAULT_MODEL_VENDOR
 
 _ = load_dotenv()
 
-# Insecure development defaults that must not survive into a production boot.
-_PLACEHOLDER_ENCRYPTION_KEY = "your-encryption-key-here"
-
 # A relative STORAGE_PATH resolves against the repo root, derived from this file's
 # location (backend/src/core/config.py → parents[3]) rather than the process CWD.
 # Without this, `just db-seed` (run from the repo root) and the server (run from
@@ -179,9 +176,6 @@ class Settings(BaseSettings):
     api_port: int = 8000
     cors_origins: list[str] = ["*"]
 
-    # Security
-    encryption_key: str = _PLACEHOLDER_ENCRYPTION_KEY
-
     # Logging
     logging: LoggingSettings = LoggingSettings()
 
@@ -207,24 +201,16 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _forbid_insecure_production_defaults(self) -> Self:
-        """Refuse to boot in production with the insecure development defaults.
+        """Refuse to boot in production with an insecure default.
 
         Only enforced when ENVIRONMENT=production, so it can never break local/test
-        runs — but it turns a silently-insecure prod deploy into a loud startup
-        failure with an actionable message.
+        runs — but it turns a silently-insecure prod deploy (wildcard CORS) into a
+        loud startup failure with an actionable message.
         """
-        if self.environment != "production":
-            return self
-
-        problems: list[str] = []
-        if self.encryption_key == _PLACEHOLDER_ENCRYPTION_KEY:
-            problems.append("ENCRYPTION_KEY is still the placeholder — set a real secret")
-        if "*" in self.cors_origins:
-            problems.append("CORS_ORIGINS contains '*' — set explicit allowed origins")
-
-        if problems:
+        if self.environment == "production" and "*" in self.cors_origins:
             raise ValueError(
-                "Insecure configuration for ENVIRONMENT=production: " + "; ".join(problems) + "."
+                "Insecure configuration for ENVIRONMENT=production: "
+                "CORS_ORIGINS contains '*' — set explicit allowed origins."
             )
         return self
 
