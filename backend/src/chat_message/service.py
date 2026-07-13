@@ -3,6 +3,7 @@
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
+from functools import partial
 from typing import Any
 
 from anyio import to_thread
@@ -198,8 +199,16 @@ class ChatMessageService:
         gateway would send. No LLM call; used by the chat drawer's Session tab.
         """
         chat = await self._get_chat_by_id(chat_id)
-        api_messages = self.prompt_builder.build_api_messages(
-            chat, messages=[], activated_lore=None, rag_results=None
+        # Sync + potentially blocking (find_default() psycopg2 fallback, Jinja
+        # render) — offload off the event loop like the send path does.
+        api_messages = await to_thread.run_sync(
+            partial(
+                self.prompt_builder.build_api_messages,
+                chat,
+                messages=[],
+                activated_lore=None,
+                rag_results=None,
+            )
         )
         gateway = gateway_factory.build_gateway(chat)
         route = gateway_factory.resolve_active_route(chat.model) if chat.model else None

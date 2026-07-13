@@ -7,6 +7,7 @@ the auxiliary generators (reply suggestions / impersonation) without duplicating
 the lore + RAG plumbing.
 """
 
+from functools import partial
 from typing import Any
 
 from anyio import to_thread
@@ -66,6 +67,15 @@ class MessageContextBuilder:
         # loop so it can't stall other in-flight requests during a send.
         activated_lore = await to_thread.run_sync(self.get_activated_lore, chat, messages)
         rag_results = await self.retrieve_rag_context(chat, messages)
-        return self.prompt_builder.build_api_messages(
-            chat, messages, activated_lore=activated_lore, rag_results=rag_results
+        # build_api_messages is also sync + potentially blocking (a psycopg2
+        # find_default() fallback, Jinja render, history token counting), so offload
+        # it too rather than running it on the event loop.
+        return await to_thread.run_sync(
+            partial(
+                self.prompt_builder.build_api_messages,
+                chat,
+                messages,
+                activated_lore=activated_lore,
+                rag_results=rag_results,
+            )
         )
