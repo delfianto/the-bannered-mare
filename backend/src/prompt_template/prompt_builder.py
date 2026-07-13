@@ -9,11 +9,11 @@ from src.chat_session.models import Chat
 from src.core.persistence.enums import InsertionPosition
 from src.core.persistence.models import Message, ModelFamily
 from src.core.tokenization import Tokenizer, get_tokenizer
-from src.core.utils.template import TemplateContext, TemplateService
 from src.lore.activation_engine import ActivatedEntry
 from src.persona.models import Persona
 from src.prompt_template.models import PromptTemplate
 from src.prompt_template.repository import PromptTemplateRepository
+from src.templating import TemplateContext, TemplateService
 
 # Default depth (messages from the end) for at_depth fragments without an explicit depth.
 DEFAULT_DEPTH = 4

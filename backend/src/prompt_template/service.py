@@ -6,10 +6,10 @@ from typing import Any
 from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import ValidationError
 from src.core.persistence import gen_id
-from src.core.utils.template import TemplateService
 from src.prompt_fragment.repository import FragmentRepository
 from src.prompt_template.models import PromptTemplate
 from src.prompt_template.repository import PromptTemplateRepository
+from src.templating import TemplateService
 
 logger = logging.getLogger(__name__)
 

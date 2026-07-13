@@ -14,9 +14,9 @@ from src.core.exceptions import NotFoundError
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import Message, MessageRole
 from src.core.tokenization import get_tokenizer
-from src.core.utils.template import TemplateContext, TemplateService
 from src.model.repository import ModelRepository
 from src.profile.repository import ProfileRepository
+from src.templating import TemplateContext, TemplateService
 
 if TYPE_CHECKING:
     # Imported lazily for typing only: pulling these from their packages at
