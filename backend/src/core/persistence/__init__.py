@@ -1,7 +1,11 @@
 """Core persistence module exports"""
 
 from src.core.persistence.base_model import Base, BaseModel
-from src.core.persistence.base_repository import BaseRepository
+from src.core.persistence.base_repository import (
+    BaseRepository,
+    DefaultableRepository,
+    NamedRepository,
+)
 from src.core.persistence.base_repository_async import AsyncBaseRepository
 from src.core.persistence.database import (
     AsyncDbSession,
@@ -47,6 +51,8 @@ __all__ = [
     "Base",
     "BaseModel",
     "BaseRepository",
+    "NamedRepository",
+    "DefaultableRepository",
     "AsyncBaseRepository",
     "DbSession",
     "AsyncDbSession",

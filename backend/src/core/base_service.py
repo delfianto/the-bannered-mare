@@ -9,7 +9,7 @@ usable by services that hold specialised or multiple repositories.
 
 from src.core.exceptions import NotFoundError
 from src.core.persistence.base_model import BaseModel
-from src.core.persistence.base_repository import BaseRepository
+from src.core.persistence.base_repository import BaseRepository, DefaultableRepository
 
 
 def get_or_404[T: BaseModel](repo: BaseRepository[T], entity_id: str, resource_name: str) -> T:
@@ -23,4 +23,16 @@ def get_or_404[T: BaseModel](repo: BaseRepository[T], entity_id: str, resource_n
     entity = repo.find_by_id(entity_id)
     if entity is None:
         raise NotFoundError(f"{resource_name} not found")
+    return entity
+
+
+def set_as_default[T: BaseModel](repo: DefaultableRepository[T], entity: T) -> T:
+    """Make ``entity`` the sole default row, commit, and return it reloaded.
+
+    Collapses the identical ``set_default`` bodies across the persona / preset /
+    profile / prompt-template services.
+    """
+    repo.set_default(entity.id)
+    repo.commit()
+    repo.refresh(entity)
     return entity

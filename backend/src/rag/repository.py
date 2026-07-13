@@ -27,8 +27,3 @@ class DataBankRepository(BaseRepository[DataBankEntry]):
             stmt = stmt.where(DataBankEntry.chat_id == chat_id)
         stmt = stmt.order_by(DataBankEntry.created_at.desc())
         return list(self.db.execute(stmt).scalars().all())
-
-    def find_all_ordered(self) -> list[DataBankEntry]:
-        """Find all entries ordered by creation date"""
-        stmt = select(DataBankEntry).order_by(DataBankEntry.created_at.desc())
-        return list(self.db.execute(stmt).scalars().all())

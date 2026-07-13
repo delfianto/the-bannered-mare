@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from src.core.base_service import get_or_404
+from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import ValidationError
 from src.core.persistence import gen_id
 from src.core.utils.template import TemplateService
@@ -32,7 +32,7 @@ class PromptTemplateService:
 
     def list_paginated(self, limit: int = 10, offset: int = 0) -> tuple[list[PromptTemplate], int]:
         """List templates with pagination"""
-        return self.template_repo.find_paginated_with_count(limit, offset)
+        return self.template_repo.find_paginated_ordered(limit, offset)
 
     def get_by_id(self, template_id: str) -> PromptTemplate:
         """Get prompt template by ID, raise 404 if not found"""
@@ -136,13 +136,4 @@ class PromptTemplateService:
 
     def set_default(self, template_id: str) -> PromptTemplate:
         """Set prompt template as default"""
-        template = self.get_by_id(template_id)
-
-        # Unset other defaults
-        self.template_repo.unset_all_defaults()
-
-        template.is_default = True
-        _ = self.template_repo.update(template)
-        self.template_repo.commit()
-
-        return template
+        return set_as_default(self.template_repo, self.get_by_id(template_id))

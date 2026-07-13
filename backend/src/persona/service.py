@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi import UploadFile
 
-from src.core.base_service import get_or_404
+from src.core.base_service import get_or_404, set_as_default
 from src.core.persistence import gen_id
 from src.core.utils.storage import delete_persona_files, save_persona_avatar
 from src.persona.models import Persona
@@ -110,13 +110,4 @@ class PersonaService:
 
     def set_default(self, persona_id: str) -> Persona:
         """Set persona as default"""
-        persona = self.get_by_id(persona_id)
-
-        # Unset other defaults
-        self.persona_repo.unset_all_defaults()
-
-        persona.is_default = True
-        updated = self.persona_repo.update(persona)
-        self.persona_repo.commit()
-
-        return updated
+        return set_as_default(self.persona_repo, self.get_by_id(persona_id))

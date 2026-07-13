@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from src.core.base_service import get_or_404
+from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import NotFoundError
 from src.core.persistence import gen_id
 from src.model.repository import ModelRepository
@@ -36,7 +36,7 @@ class ProfileService:
 
     def list_paginated(self, limit: int = 10, offset: int = 0) -> tuple[list[Profile], int]:
         """List profiles with pagination"""
-        return self.profile_repo.find_paginated_with_count(limit, offset)
+        return self.profile_repo.find_paginated_ordered(limit, offset)
 
     def get_by_id(self, profile_id: str) -> Profile:
         """Get profile by ID, raise 404 if not found"""
@@ -124,14 +124,7 @@ class ProfileService:
 
     def set_default(self, profile_id: str) -> Profile:
         """Set profile as default"""
-        profile = self.get_by_id(profile_id)
-
-        self.profile_repo.unset_all_defaults()
-
-        profile.is_default = True
-        updated = self.profile_repo.update(profile)
-        self.profile_repo.commit()
-        return updated
+        return set_as_default(self.profile_repo, self.get_by_id(profile_id))
 
     def _validate_refs(
         self,

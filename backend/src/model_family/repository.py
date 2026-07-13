@@ -6,11 +6,11 @@ from typing import Any, cast
 from sqlalchemy import any_, func, select
 from sqlalchemy.orm import Session
 
-from src.core.persistence import BaseRepository
+from src.core.persistence import BaseRepository, NamedRepository
 from src.model_family.models import ModelFamily
 
 
-class ModelFamilyRepository(BaseRepository[ModelFamily]):
+class ModelFamilyRepository(NamedRepository[ModelFamily]):
     """Repository for ModelFamily data access with custom queries"""
 
     def __init__(self, db: Session):
@@ -52,19 +52,6 @@ class ModelFamilyRepository(BaseRepository[ModelFamily]):
     def find_first(self) -> ModelFamily | None:
         """Return any one family (name-ordered for determinism), or None if none exist."""
         stmt = select(ModelFamily).order_by(func.lower(ModelFamily.name), ModelFamily.id).limit(1)
-        return self.db.execute(stmt).scalars().first()
-
-    def find_by_name(self, name: str) -> ModelFamily | None:
-        """
-        Find a model family by name.
-
-        Args:
-            name: The unique family name to search for
-
-        Returns:
-            The model family if found, None otherwise
-        """
-        stmt = select(ModelFamily).where(ModelFamily.name == name)
         return self.db.execute(stmt).scalars().first()
 
     def search_by_name(self, name: str) -> Sequence[ModelFamily]:
