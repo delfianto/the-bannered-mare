@@ -14,7 +14,7 @@ from src.chat_message import preview_router as chat_preview_router
 from src.chat_message import router as chat_messages_router
 from src.chat_session import router as chats_router
 from src.core.config import settings
-from src.core.exceptions import BanneredMareException, ProviderException
+from src.core.exceptions import BanneredMareException
 from src.core.logging import RequestLoggingMiddleware, configure_structlog, get_logger
 from src.core.utils.storage import ensure_storage_directories
 from src.health import router as health_router
@@ -77,14 +77,10 @@ async def _domain_exception_handler(_request: Request, exc: BanneredMareExceptio
     ``{"detail": ...}`` body shape so existing clients are unaffected.
 
     Services raise domain exceptions (NotFoundError/ConflictError/...) and stay
-    HTTP-agnostic; the HTTP mapping lives here. Provider errors default to 502
-    (an upstream failure), other domain errors use their declared status_code.
+    HTTP-agnostic; the HTTP mapping lives here. Each exception declares its own
+    ``status_code`` (ProviderException defaults to 502); 400 is the fallback.
     """
-    if isinstance(exc, ProviderException):
-        status_code = exc.status_code or 502
-    else:
-        status_code = getattr(exc, "status_code", None) or 400
-    return JSONResponse(status_code=status_code, content={"detail": exc.message})
+    return JSONResponse(status_code=exc.status_code or 400, content={"detail": exc.message})
 
 
 app.include_router(admin_router)
