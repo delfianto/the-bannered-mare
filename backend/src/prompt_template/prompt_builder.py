@@ -1,5 +1,6 @@
 "Service for building LLM prompts using templates and context"
 
+import math
 from dataclasses import dataclass
 from typing import Any
 
@@ -16,6 +17,11 @@ from src.prompt_template.repository import PromptTemplateRepository
 
 # Default depth (messages from the end) for at_depth fragments without an explicit depth.
 DEFAULT_DEPTH = 4
+
+# History eviction rounds the dropped-count up to a multiple of this block so the
+# kept prefix is byte-stable for ~EVICTION_BLOCK turns between evictions — prefix
+# caching (and llama.cpp KV reuse) only matches when the window start is fixed.
+EVICTION_BLOCK = 8
 
 
 @dataclass
@@ -246,25 +252,37 @@ class PromptBuilder:
         template: PromptTemplate,
         depth_injections: list[DepthInjection] | None = None,
     ) -> list[dict[str, Any]]:
-        """Build chat history with token budget + depth-injected reminders (lore + fragments)."""
+        """Build chat history with token budget + depth-injected reminders (lore + fragments).
+
+        Eviction is block-chunked: the minimum number of oldest messages that must
+        be dropped to fit the budget (``cut_min``) is rounded up to a multiple of
+        ``EVICTION_BLOCK``. Because ``cut_min`` is monotonically non-decreasing as
+        the chat grows and old message token counts never change, the rounded cut
+        only moves once per ``EVICTION_BLOCK`` turns → the history prefix is
+        byte-stable between evictions, so prefix caching / KV reuse can match it.
+        Rounding up always fits the budget (drops at least ``cut_min``).
+        """
         max_tokens = template.max_history_tokens or 4096
 
-        budget_messages = []
-        current_tokens = 0
-
-        for msg in reversed(messages):
+        counts = []
+        for msg in messages:
             msg_tokens = msg.token_count
             if msg_tokens is None:
                 msg_tokens = self.tokenizer_service.count_tokens(msg.content)
-            msg_tokens += 3
+            counts.append(msg_tokens + 3)
 
-            if current_tokens + msg_tokens > max_tokens:
-                break
+        total = sum(counts)
+        cut_min = 0
+        while cut_min < len(messages) and total > max_tokens:
+            total -= counts[cut_min]
+            cut_min += 1
 
-            budget_messages.append({"role": msg.role.value, "content": msg.content})
-            current_tokens += msg_tokens
+        if cut_min:
+            cut = min(len(messages), math.ceil(cut_min / EVICTION_BLOCK) * EVICTION_BLOCK)
+        else:
+            cut = 0
 
-        history = list(reversed(budget_messages))
+        history = [{"role": m.role.value, "content": m.content} for m in messages[cut:]]
 
         # Splice depth-anchored content (lore AT_DEPTH + at_depth fragments) into history.
         # Deeper entries first so earlier insertions don't shift later indices.

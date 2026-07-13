@@ -9,7 +9,7 @@ from src.core.persistence.enums import InsertionPosition
 from src.core.persistence.models import DEFAULT_COMPONENT_ORDER, DEFAULT_COMPONENTS_ENABLED
 from src.lore.activation_engine import ActivatedEntry
 from src.prompt_template.models import PromptTemplate
-from src.prompt_template.prompt_builder import PromptBuilder
+from src.prompt_template.prompt_builder import EVICTION_BLOCK, PromptBuilder
 from src.prompt_template.repository import PromptTemplateRepository
 
 
@@ -464,6 +464,79 @@ class TestPromptBuilderRagContextPlacement:
 
         contents = [m["content"] for m in result]
         assert not any("Relevant context" in c for c in contents)
+
+
+def _make_history_messages(n: int, prefix: str = "msg") -> list[Any]:
+    """n single-word messages: token_count=1 → cost 4 each (1 + 3 framing)."""
+    return [_make_message("user", f"{prefix}{i:02d}") for i in range(n)]
+
+
+class TestPromptBuilderHistoryEviction:
+    def test_under_budget_keeps_all_history(self, db: Session) -> None:
+        """Under the token budget, every message is included in order (cut_min=0 → cut=0)."""
+        template = _make_template(max_history_tokens=4096)
+        chat = _make_chat(template=template)
+        messages = _make_history_messages(5)
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(chat, messages, activated_lore=None)
+
+        contents = [m["content"] for m in result]
+        for m in messages:
+            assert m.content in contents
+        # History preserved in original order
+        hist_contents = [c for c in contents if c.startswith("msg")]
+        assert hist_contents == [m.content for m in messages]
+
+    def test_over_budget_prefix_stable_within_eviction_block(self, db: Session) -> None:
+        """Once over budget, growing the history by 1..EVICTION_BLOCK-1 messages
+        does not change the first included message — the window start is byte-stable
+        between evictions so prefix caching can match it."""
+        # 1-word messages (cost 4), budget 40 → kept window = 10 messages.
+        # N=19 → cut_min=9 (block bottom of [9..16]) → cut=16, first included = msg16.
+        template = _make_template(max_history_tokens=40)
+        chat = _make_chat(template=template)
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+
+        messages = _make_history_messages(19)
+        result = builder.build_api_messages(chat, messages, activated_lore=None)
+        hist = [m["content"] for m in result if m["content"].startswith("msg")]
+        first_included = hist[0]
+
+        # Grow the history by 1..EVICTION_BLOCK-1 appended messages; the first
+        # included message must not move until the next block boundary.
+        for added in range(1, EVICTION_BLOCK):
+            grown = messages + _make_history_messages(EVICTION_BLOCK, prefix="new")
+            result = builder.build_api_messages(chat, grown[: 19 + added], activated_lore=None)
+            hist = [m["content"] for m in result if m["content"].startswith("msg")]
+            assert hist[0] == first_included, (
+                f"first included changed after +{added} msgs: {hist[0]} != {first_included}"
+            )
+
+        # The 8th added message crosses the block boundary → eviction fires.
+        grown = messages + _make_history_messages(EVICTION_BLOCK, prefix="new")
+        result = builder.build_api_messages(chat, grown, activated_lore=None)
+        hist = [m["content"] for m in result if m["content"].startswith(("msg", "new"))]
+        assert hist[0] != first_included
+
+    @pytest.mark.parametrize("n", [0, 1, 5, 10, 17, 19, 23, 24, 25, 30, 40])
+    def test_rounded_cut_never_exceeds_budget(self, db: Session, n: int) -> None:
+        """The kept history's total token cost never exceeds max_history_tokens,
+        for any history length — block rounding drops at least cut_min messages."""
+        max_tokens = 40
+        template = _make_template(max_history_tokens=max_tokens)
+        chat = _make_chat(template=template)
+        messages = _make_history_messages(n)
+
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+        result = builder.build_api_messages(chat, messages, activated_lore=None)
+        hist = [m for m in result if m["content"].startswith("msg")]
+
+        total = sum(len(m["content"].split()) + 3 for m in hist)
+        assert total <= max_tokens, f"n={n}: kept cost {total} > budget {max_tokens}"
 
 
 class TestDefaultComponentOrder:
