@@ -1,12 +1,13 @@
 """Tests for CharacterService"""
 
 import json
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from sqlalchemy.orm import Session
 from src.character import Character, CharacterRepository, CharacterService
 from src.core.exceptions import BanneredMareException
+from src.core.utils.upload import UploadedFile
 
 
 class TestCharacterService:
@@ -113,8 +114,7 @@ class TestCharacterService:
         repo = CharacterRepository(db)
         service = CharacterService(repo)
 
-        mock_file = Mock()
-        mock_file.filename = "avatar.png"
+        mock_file = UploadedFile(b"fake png avatar bytes", "avatar.png")
 
         with patch(
             "src.character.service.save_character_avatar",
@@ -281,9 +281,7 @@ class TestCharacterService:
             }
         )
 
-        mock_file = Mock()
-        mock_file.filename = "hero.json"
-        mock_file.read = AsyncMock(return_value=v2_card.encode("utf-8"))
+        mock_file = UploadedFile(v2_card.encode("utf-8"), "hero.json")
 
         character = await service.import_card(mock_file)
 
@@ -367,9 +365,7 @@ class TestCharacterService:
             }
         )
 
-        mock_file = Mock()
-        mock_file.filename = "keeper.json"
-        mock_file.read = AsyncMock(return_value=v2_card.encode("utf-8"))
+        mock_file = UploadedFile(v2_card.encode("utf-8"), "keeper.json")
 
         character = await service.import_card(mock_file)
         assert character.name == "Lore Keeper"
@@ -425,9 +421,7 @@ class TestCharacterService:
             }
         )
 
-        mock_file = Mock()
-        mock_file.filename = "elf.json"
-        mock_file.read = AsyncMock(return_value=v2_card.encode("utf-8"))
+        mock_file = UploadedFile(v2_card.encode("utf-8"), "elf.json")
 
         character = await service.import_card(mock_file)
         assert character.name == "Custom Elf"

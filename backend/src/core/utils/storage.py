@@ -6,12 +6,12 @@ import shutil
 
 import aiofiles
 from anyio import to_thread
-from fastapi import UploadFile
 from PIL import Image
 
 from src.core.config import settings
 from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
+from src.core.utils.upload import UploadedFile
 
 logger = get_logger(__name__)
 
@@ -32,9 +32,9 @@ ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 MAX_DIMENSIONS = (4096, 4096)
 
 
-async def validate_avatar(file: UploadFile) -> None:
+def validate_avatar(avatar: UploadedFile) -> None:
     """
-    Validate uploaded avatar file.
+    Validate an uploaded avatar (already-read bytes + filename).
 
     Checks:
     - Extension
@@ -42,27 +42,21 @@ async def validate_avatar(file: UploadFile) -> None:
     - Image format/integrity
     - Dimensions
     """
-    file_ext = os.path.splitext(file.filename or "")[1].lower()
+    file_ext = os.path.splitext(avatar.filename)[1].lower()
     if file_ext not in ALLOWED_EXTENSIONS:
         raise ValidationError(
             f"Unsupported file extension. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
         )
 
-    # We read first 5MB + 1 byte to check if it exceeds limit without loading everything
-    content = await file.read(MAX_AVATAR_SIZE + 1)
-    if len(content) > MAX_AVATAR_SIZE:
+    if len(avatar.data) > MAX_AVATAR_SIZE:
         raise ValidationError(f"File too large. Max size: {MAX_AVATAR_SIZE // (1024 * 1024)}MB")
 
-    # Reset file pointer for subsequent reads
-    await file.seek(0)
-
     try:
-        # Load small part of the image to check header
-        img = Image.open(io.BytesIO(content))
+        img = Image.open(io.BytesIO(avatar.data))
         img.verify()  # Verifies integrity
 
         # Need to reopen because verify() closes the file pointer in some versions
-        img = Image.open(io.BytesIO(content))
+        img = Image.open(io.BytesIO(avatar.data))
         if img.width > MAX_DIMENSIONS[0] or img.height > MAX_DIMENSIONS[1]:
             raise ValidationError(
                 f"Image dimensions too large. Max: {MAX_DIMENSIONS[0]}x{MAX_DIMENSIONS[1]}"
@@ -71,8 +65,6 @@ async def validate_avatar(file: UploadFile) -> None:
         raise
     except Exception as e:
         raise ValidationError(f"Invalid image file: {str(e)}") from e
-    finally:
-        await file.seek(0)
 
 
 def _crop_head_square(img: Image.Image) -> Image.Image:
@@ -137,7 +129,9 @@ def generate_avatar_derivatives(entity_type: str, entity_id: str) -> tuple[str, 
     return large_rel, head_rel
 
 
-async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tuple[str, str, str]:
+async def _save_avatar(
+    entity_type: str, entity_id: str, avatar: UploadedFile
+) -> tuple[str, str, str]:
     """
     Save an avatar and generate its derived sizes.
 
@@ -146,12 +140,12 @@ async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tu
     still saved so a later backfill can retry).
     """
     # Validate before saving
-    await validate_avatar(file)
+    validate_avatar(avatar)
 
     entity_dir = os.path.join(settings.storage_path, entity_type, entity_id)
     os.makedirs(entity_dir, exist_ok=True)
 
-    file_ext = os.path.splitext(file.filename)[1] if file.filename else ".png"
+    file_ext = os.path.splitext(avatar.filename)[1] if avatar.filename else ".png"
     if file_ext.lower() not in ALLOWED_EXTENSIONS:
         file_ext = ".png"
 
@@ -160,9 +154,8 @@ async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tu
 
     # Save original image as-is (validated, EXIF kept) — it backs export/download
     # and every derived size is regenerated from it.
-    file_content = await file.read()
     async with aiofiles.open(original_full_path, "wb") as f:
-        _ = await f.write(file_content)
+        _ = await f.write(avatar.data)
 
     original_relative_path = f"{entity_type}/{entity_id}/{original_filename}"
 
@@ -183,22 +176,22 @@ async def _save_avatar(entity_type: str, entity_id: str, file: UploadFile) -> tu
     return original_relative_path, large_relative_path, head_relative_path
 
 
-async def save_character_avatar(character_id: str, file: UploadFile) -> tuple[str, str, str]:
+async def save_character_avatar(character_id: str, avatar: UploadedFile) -> tuple[str, str, str]:
     """
     Save character avatar to storage and generate its derived sizes.
 
     Returns ``(original_path, large_path, head_path)``.
     """
-    return await _save_avatar("characters", character_id, file)
+    return await _save_avatar("characters", character_id, avatar)
 
 
-async def save_persona_avatar(persona_id: str, file: UploadFile) -> tuple[str, str, str]:
+async def save_persona_avatar(persona_id: str, avatar: UploadedFile) -> tuple[str, str, str]:
     """
     Save persona avatar to storage and generate its derived sizes.
 
     Returns ``(original_path, large_path, head_path)``.
     """
-    return await _save_avatar("personas", persona_id, file)
+    return await _save_avatar("personas", persona_id, avatar)
 
 
 def _delete_entity_files(entity_type: str, entity_id: str) -> None:

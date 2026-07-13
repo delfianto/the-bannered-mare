@@ -2,15 +2,15 @@
 
 import os
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
-from fastapi import UploadFile
 from src.core.utils.storage import (
     delete_character_files,
     ensure_storage_directories,
     save_character_avatar,
 )
+from src.core.utils.upload import UploadedFile
 
 
 @pytest.fixture
@@ -33,15 +33,11 @@ def test_ensure_storage_directories(mock_settings: Any) -> None:
 @pytest.mark.asyncio
 async def test_save_character_avatar(mock_settings: Any) -> None:
     """Test saving character avatar (minimal mock)"""
-    # Create a simple mock for UploadFile
-    mock_file = MagicMock(spec=UploadFile)
-    mock_file.filename = "test.png"
-    mock_file.read.return_value = b"dummy image content"
-    mock_file.seek = AsyncMock()  # validate_avatar calls seek
+    avatar = UploadedFile(b"dummy image content", "test.png")
 
-    # Mock validate_avatar to skip real validation
+    # Mock validate_avatar (sync) to skip real validation
     with (
-        patch("src.core.utils.storage.validate_avatar", new_callable=AsyncMock),
+        patch("src.core.utils.storage.validate_avatar"),
         patch("src.core.utils.storage.Image.open") as mock_image_open,
     ):
         mock_img = MagicMock()
@@ -57,7 +53,7 @@ async def test_save_character_avatar(mock_settings: Any) -> None:
         # Setup context manager correctly
         mock_image_open.return_value.__enter__.return_value = mock_img
 
-        orig_path, large_path, thumb_path = await save_character_avatar("char123", mock_file)
+        orig_path, large_path, thumb_path = await save_character_avatar("char123", avatar)
 
         assert "characters/char123/avatar_original.png" in orig_path
         assert "characters/char123/avatar_large.jpg" in large_path  # <=512px full portrait
