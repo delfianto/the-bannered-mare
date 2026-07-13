@@ -11,7 +11,7 @@ from src.chat_message.auxiliary import AuxiliaryGenerationService
 from src.chat_message.context import MessageContextBuilder
 from src.chat_message.helpers import get_chat_or_404
 from src.chat_message.models import Message, MessageRole
-from src.chat_message.normalize import sanitize_narrative
+from src.chat_message.normalize import normalize_quotes, sanitize_narrative
 from src.chat_message.repository_async import (
     AsyncMessageAlternativeRepository,
     AsyncMessageRepository,
@@ -400,7 +400,10 @@ class ChatMessageService:
             async for chunk in gateway.chat_completion_stream(api_messages):
                 if chunk.content:
                     full_content += chunk.content
-                    yield StreamEvent(type="text", content=chunk.content)
+                    # Quote translation is per-codepoint, so it is safe on a
+                    # delta (unlike tag stripping); the live render then matches
+                    # what sanitize_narrative persists at the end.
+                    yield StreamEvent(type="text", content=normalize_quotes(chunk.content))
                 if chunk.reasoning:
                     full_reasoning += chunk.reasoning
                     yield StreamEvent(type="reasoning", content=chunk.reasoning)
