@@ -48,6 +48,7 @@ KIMI_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 262144,
             "supports_vision": False,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "note": "thinking ~temp 1.0, instant ~temp 0.6; max_tokens >= 16000 for full reasoning",
             "models": ["moonshotai/kimi-k2.5", "moonshotai/kimi-k2.6"],
         },

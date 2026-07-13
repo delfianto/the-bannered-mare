@@ -44,6 +44,7 @@ QWEN_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 262144,
             "supports_vision": False,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "thinking_behavior": "hybrid; native enable_thinking toggle",
             "models": ["qwen3.7-max", "qwen3.7-plus", "qwen3.6-plus"],
         },

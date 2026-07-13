@@ -44,6 +44,7 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 131072,
             "supports_vision": False,
             "supports_function_calling": False,
+            "supports_prompt_caching": False,
             "quantization": "Q4_K_M",
             # Exact base model per finetune (Model rows carry no metadata column).
             # Rocinante's HF card has no base_model field; lineage confirmed via
@@ -84,6 +85,7 @@ MISTRAL_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 131072,
             "supports_vision": False,
             "supports_function_calling": False,
+            "supports_prompt_caching": False,
             "quantization": "Q4_K_M",
             "finetunes": {
                 "thedrummer/skyfall-36b-v2": {

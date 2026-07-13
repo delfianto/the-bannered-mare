@@ -44,6 +44,7 @@ CLAUDE_FABLE_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1000000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "models": ["claude-fable-5"],
         },
     },

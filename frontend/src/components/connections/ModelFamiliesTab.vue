@@ -8,6 +8,7 @@ import { useAppToast } from "@/composables/useToast";
 import { useQueryState } from "@/composables/useQueryState";
 import type { components } from "@/api/schema";
 import Modal from "@/components/shared/Modal.vue";
+import AppTooltip from "@/components/shared/AppTooltip.vue";
 import ModelFamilyForm from "./ModelFamilyForm.vue";
 import DataTable, { type DataTableColumn } from "@/components/shared/DataTable.vue";
 
@@ -231,6 +232,18 @@ function openFamily(row: any) {
             >
               +{{ row.provider_types.length - 4 }}
             </span>
+            <AppTooltip
+              v-if="row.extra_metadata?.supports_prompt_caching"
+              text="Supports prompt caching"
+              side="top"
+            >
+              <span
+                class="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[0.5625rem] font-medium text-emerald-500"
+              >
+                <AppIcon name="i-lucide-database" class="size-2.5" />
+                cache
+              </span>
+            </AppTooltip>
           </div>
         </template>
       </DataTable>

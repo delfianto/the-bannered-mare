@@ -51,6 +51,7 @@ LLAMA_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 131072,
             "supports_vision": False,
             "supports_function_calling": False,
+            "supports_prompt_caching": False,
             "notable_finetunes": {
                 "Sao10K Euryale": "L3 v2.1 (70B/8K), L3.1 v2.2 (70B/128K), L3.3 v2.3 (70B/128K) — RP/creative flagship",
                 "Sao10K Hanami": "L3.1 70B (X1) — RP-tuned Euryale sibling",

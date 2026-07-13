@@ -96,6 +96,8 @@ class LlmUsageStat(BaseModel):
     total_prompt_tokens: int
     total_completion_tokens: int
     total_tokens: int
+    total_cache_read_tokens: int
+    total_cache_creation_tokens: int
     total_cost_usd: float | None
     avg_latency_ms: float
     success_count: int
