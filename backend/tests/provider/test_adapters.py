@@ -211,6 +211,48 @@ class TestOpenAIAdapter:
         assert chunk.reasoning == "thinking..."
         assert chunk.content is None
 
+    def test_parse_stream_usage_only_chunk(self):
+        """The final accounting chunk (stream_options.include_usage / OpenRouter)
+        has choices: [] but carries the full usage block — must not be dropped."""
+        line = (
+            'data: {"choices":[],"usage":{"prompt_tokens":100,'
+            '"completion_tokens":50,"total_tokens":150,'
+            '"prompt_tokens_details":{"cached_tokens":80}}}'
+        )
+        chunk = self.adapter.parse_stream_line(line)
+        assert chunk is not None
+        assert chunk.usage is not None
+        assert chunk.usage.input_tokens == 100
+        assert chunk.usage.output_tokens == 50
+        assert chunk.usage.total_tokens == 150
+        assert chunk.usage.cache_read_tokens == 80
+        assert chunk.content is None
+
+    def test_parse_stream_empty_choices_no_usage_returns_none(self):
+        """Empty choices with no usage → still None (skip non-content events)."""
+        line = 'data: {"choices":[]}'
+        assert self.adapter.parse_stream_line(line) is None
+
+    def test_build_payload_streaming_adds_include_usage(self):
+        """Streaming requests get stream_options.include_usage so native-OpenAI
+        streaming returns token counts."""
+        payload = self.adapter.build_payload(
+            [{"role": "user", "content": "hi"}], "gpt-4o", True, {}
+        )
+        assert payload["stream_options"] == {"include_usage": True}
+
+    def test_build_payload_streaming_preserves_caller_stream_options(self):
+        """A caller-provided stream_options is not overwritten."""
+        payload = self.adapter.build_payload(
+            [], "gpt-4o", True, {"stream_options": {"include_usage": False}}
+        )
+        assert payload["stream_options"] == {"include_usage": False}
+
+    def test_build_payload_non_streaming_no_stream_options(self):
+        """Non-streaming requests don't get stream_options."""
+        payload = self.adapter.build_payload([], "gpt-4o", False, {})
+        assert "stream_options" not in payload
+
 
 class TestOpenRouterAdapter:
     def setup_method(self):

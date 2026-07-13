@@ -33,3 +33,64 @@ def test_redact_value_handles_list_payload() -> None:
 def test_short_secret_fully_masked() -> None:
     out = redact_sensitive_data({"token": "abc"})
     assert out["token"] == "***REDACTED***"
+
+
+def test_usage_counters_survive_redaction() -> None:
+    """``input_tokens`` / ``cache_read_tokens`` are usage counters, not secrets —
+    the old substring rule (``"token" in key``) masked them, blinding the audit
+    trail's usage data."""
+    out = redact_sensitive_data(
+        {
+            "input_tokens": 100,
+            "output_tokens": 50,
+            "cache_read_tokens": 80,
+            "cache_creation_tokens": 20,
+            "total_tokens": 150,
+        }
+    )
+    assert out["input_tokens"] == 100
+    assert out["output_tokens"] == 50
+    assert out["cache_read_tokens"] == 80
+    assert out["cache_creation_tokens"] == 20
+    assert out["total_tokens"] == 150
+
+
+def test_access_token_still_redacted() -> None:
+    """``_token`` suffix (singular) is an auth token — must still be masked."""
+    out = redact_sensitive_data({"access_token": "sk-1234567890abcdef"})
+    assert out["access_token"] == "sk-1...cdef"
+
+
+def test_hyphenated_token_still_redacted() -> None:
+    """``-token`` suffix is also an auth token."""
+    out = redact_sensitive_data({"auth-token": "sk-1234567890abcdef"})
+    assert out["auth-token"] == "sk-1...cdef"
+
+
+def test_authorization_still_redacted() -> None:
+    out = redact_sensitive_data({"Authorization": "Bearer verysecret"})
+    assert out["Authorization"] != "Bearer verysecret"
+
+
+def test_x_api_key_still_redacted() -> None:
+    out = redact_sensitive_data({"x-api-key": "sk-1234567890abcdef"})
+    assert out["x-api-key"] == "sk-1...cdef"
+
+
+def test_usage_nested_in_response_payload_survives() -> None:
+    """The LLM audit response_payload.usage.* must survive redaction — this is
+    where the cache hit/miss counts live."""
+    out = redact_value(
+        {
+            "usage": {
+                "input_tokens": 100,
+                "cache_read_tokens": 80,
+                "cache_creation_tokens": 20,
+                "output_tokens": 50,
+            }
+        }
+    )
+    usage = out["usage"]
+    assert usage["input_tokens"] == 100
+    assert usage["cache_read_tokens"] == 80
+    assert usage["cache_creation_tokens"] == 20

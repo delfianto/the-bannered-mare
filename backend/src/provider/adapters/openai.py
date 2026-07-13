@@ -77,6 +77,12 @@ class OpenAIAdapter(ProviderAdapter):
 
         if stream:
             payload["stream"] = True
+            # Request usage in the final stream chunk so native-OpenAI streaming
+            # returns token counts (OpenRouter and LM Studio accept it too).
+            # A strict OpenAI-compat server that rejects it can be handled by
+            # overriding build_payload in the adapter subclass to drop it.
+            if "stream_options" not in payload:
+                payload["stream_options"] = {"include_usage": True}
 
         for key, value in parameters.items():
             if key in _OPENAI_PARAMS:
@@ -165,16 +171,10 @@ class OpenAIAdapter(ProviderAdapter):
             return None
 
         choices = data.get("choices", [])
-        if not choices:
-            return None
 
-        choice = choices[0]
-        delta = choice.get("delta", {})
-
-        content = delta.get("content")
-        reasoning = delta.get("reasoning_content") or delta.get("reasoning")
-        finish_reason = choice.get("finish_reason")
-
+        # Extract usage before the empty-choices guard — the final accounting
+        # chunk (OpenAI stream_options.include_usage, OpenRouter accounting) has
+        # choices: [] but carries the full usage block.
         usage = None
         if "usage" in data and data["usage"]:
             u = data["usage"]
@@ -185,6 +185,18 @@ class OpenAIAdapter(ProviderAdapter):
                 total_tokens=u.get("total_tokens", 0),
                 cache_read_tokens=pd.get("cached_tokens", 0),
             )
+
+        if not choices:
+            if usage is not None:
+                return StreamChunk(usage=usage)
+            return None
+
+        choice = choices[0]
+        delta = choice.get("delta", {})
+
+        content = delta.get("content")
+        reasoning = delta.get("reasoning_content") or delta.get("reasoning")
+        finish_reason = choice.get("finish_reason")
 
         if content is None and reasoning is None and finish_reason is None and usage is None:
             return None

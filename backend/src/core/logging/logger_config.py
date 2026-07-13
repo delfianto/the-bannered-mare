@@ -58,20 +58,40 @@ def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     return structlog.get_logger(name)
 
 
-_SENSITIVE_KEYS = (
-    "api_key",
-    "apikey",
-    "authorization",
-    "password",
-    "secret",
-    "token",
-    "x-api-key",
+_SENSITIVE_EXACT = frozenset(
+    {
+        "token",
+        "api_key",
+        "apikey",
+        "authorization",
+        "password",
+        "secret",
+        "x-api-key",
+    }
 )
+_SENSITIVE_SUFFIXES = ("_token", "-token")
+_USAGE_SUFFIX = "_tokens"
+
+
+def _is_sensitive_key(key: str) -> bool:
+    """Match auth-bearing keys without catching usage counters.
+
+    The old substring rule (``"token" in key``) matched ``input_tokens``,
+    ``cache_read_tokens``, etc., redacting the audit trail's usage data.
+    Exact-set + ``_token``/``-token`` suffix matching avoids that, and the
+    ``_tokens`` plural is explicitly excluded as a safety net.
+    """
+    k = key.lower()
+    if k.endswith(_USAGE_SUFFIX):
+        return False
+    if k in _SENSITIVE_EXACT:
+        return True
+    return any(k.endswith(suffix) for suffix in _SENSITIVE_SUFFIXES)
 
 
 def _redact_field(key: str, value: Any) -> Any:
     """Redact a value whose key looks sensitive; else recurse into it."""
-    if any(sensitive in key.lower() for sensitive in _SENSITIVE_KEYS):
+    if _is_sensitive_key(key):
         if isinstance(value, str) and len(value) > 8:
             return f"{value[:4]}...{value[-4:]}"
         return "***REDACTED***"
