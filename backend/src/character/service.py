@@ -23,6 +23,7 @@ from src.core.logging import get_logger
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
 from src.core.utils.upload import read_upload_capped
+from src.lore.repository import LoreEntryRepository, LoreRepository
 
 logger = get_logger(__name__)
 
@@ -40,8 +41,18 @@ def _parse_gender(value: str) -> Gender:
 class CharacterService:
     """Service for character-related business logic"""
 
-    def __init__(self, character_repo: CharacterRepository):
+    def __init__(
+        self,
+        character_repo: CharacterRepository,
+        lore_repo: LoreRepository | None = None,
+        lore_entry_repo: LoreEntryRepository | None = None,
+    ):
         self.character_repo = character_repo
+        # Character import/export reads & writes the character's lorebook. Inject
+        # the lore repositories (built on the same session, so the import stays one
+        # transaction); default to the character repo's session for direct callers.
+        self.lore_repo = lore_repo or LoreRepository(character_repo.db)
+        self.lore_entry_repo = lore_entry_repo or LoreEntryRepository(character_repo.db)
 
     def list_all(self) -> list[Character]:
         """List all characters"""
@@ -282,10 +293,6 @@ class CharacterService:
         if hasattr(card, "character_book") and card.character_book:
             from src.core.persistence.enums import InsertionPosition, MessageRole, SecondaryLogic
             from src.lore.models import Lorebook, LoreEntry
-            from src.lore.repository import LoreEntryRepository, LoreRepository
-
-            lore_repo = LoreRepository(self.character_repo.db)
-            lore_entry_repo = LoreEntryRepository(self.character_repo.db)
 
             book_data = card.character_book
             lorebook = Lorebook(
@@ -294,7 +301,7 @@ class CharacterService:
                 is_global=False,
                 character_id=created.id,
             )
-            created_book = lore_repo.create(lorebook)
+            created_book = self.lore_repo.create(lorebook)
 
             # Map entries
             entries_data = book_data.get("entries", [])
@@ -355,7 +362,7 @@ class CharacterService:
                     ignore_budget=entry_dict.get("ignore_budget", False),
                     order=entry_dict.get("order", idx),
                 )
-                lore_entry_repo.create(lore_entry)
+                self.lore_entry_repo.create(lore_entry)
 
         # If PNG, use the file itself as avatar
         if filename.endswith(".png"):
@@ -407,18 +414,9 @@ class CharacterService:
         if character.example_dialogues:
             example_str = "\n".join(character.example_dialogues)
 
-        # Fetch character-specific lorebooks
-        from sqlalchemy import select
-        from sqlalchemy.orm import joinedload
-
-        from src.lore.models import Lorebook
-
-        stmt = (
-            select(Lorebook)
-            .where(Lorebook.character_id == character.id)
-            .options(joinedload(Lorebook.entries))
-        )
-        lorebooks = list(self.character_repo.db.execute(stmt).scalars().unique().all())
+        # Fetch character-specific lorebooks (via the lore repository, not raw SQL
+        # on the character session).
+        lorebooks = self.lore_repo.find_for_character_with_entries(character.id)
 
         character_book = {}
         if lorebooks:
