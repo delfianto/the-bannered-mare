@@ -19,6 +19,8 @@ class LlmAuditLogResponse(BaseModel):
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
+    cache_read_tokens: int
+    cache_creation_tokens: int
     latency_ms: float
     status: str
     estimated_cost_usd: float | None

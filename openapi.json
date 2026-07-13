@@ -7909,6 +7909,14 @@
             "type": "integer",
             "title": "Total Tokens"
           },
+          "cache_read_tokens": {
+            "type": "integer",
+            "title": "Cache Read Tokens"
+          },
+          "cache_creation_tokens": {
+            "type": "integer",
+            "title": "Cache Creation Tokens"
+          },
           "latency_ms": {
             "type": "number",
             "title": "Latency Ms"
@@ -7970,6 +7978,8 @@
           "prompt_tokens",
           "completion_tokens",
           "total_tokens",
+          "cache_read_tokens",
+          "cache_creation_tokens",
           "latency_ms",
           "status",
           "estimated_cost_usd",
