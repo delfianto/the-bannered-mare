@@ -3,10 +3,11 @@
 import os
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from fastapi.responses import FileResponse
 
 from src.core.config import settings
+from src.core.exceptions import NotFoundError
 from src.core.schemas import PaginatedResponse, page_response
 from src.core.utils.upload import read_upload
 from src.persona.dependencies import PersonaServiceDep
@@ -58,17 +59,11 @@ def get_persona_avatar(persona_id: str, service: PersonaServiceDep):
     persona = service.get_by_id(persona_id)
 
     if not persona.avatar:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Persona '{persona.name}' has no avatar",
-        )
+        raise NotFoundError(f"Persona '{persona.name}' has no avatar")
 
     avatar_full_path = os.path.join(settings.storage_path, persona.avatar)
     if not os.path.exists(avatar_full_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar file not found",
-        )
+        raise NotFoundError("Avatar file not found")
 
     return FileResponse(avatar_full_path)
 
@@ -79,17 +74,11 @@ def get_persona_avatar_large(persona_id: str, service: PersonaServiceDep):
     persona = service.get_by_id(persona_id)
 
     if not persona.avatar_large:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Persona '{persona.name}' has no large avatar",
-        )
+        raise NotFoundError(f"Persona '{persona.name}' has no large avatar")
 
     avatar_full_path = os.path.join(settings.storage_path, persona.avatar_large)
     if not os.path.exists(avatar_full_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Large avatar file not found",
-        )
+        raise NotFoundError("Large avatar file not found")
 
     return FileResponse(avatar_full_path)
 
@@ -100,17 +89,11 @@ def get_persona_avatar_thumbnail(persona_id: str, service: PersonaServiceDep):
     persona = service.get_by_id(persona_id)
 
     if not persona.avatar_thumbnail:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Persona '{persona.name}' has no avatar thumbnail",
-        )
+        raise NotFoundError(f"Persona '{persona.name}' has no avatar thumbnail")
 
     avatar_full_path = os.path.join(settings.storage_path, persona.avatar_thumbnail)
     if not os.path.exists(avatar_full_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Avatar thumbnail file not found",
-        )
+        raise NotFoundError("Avatar thumbnail file not found")
 
     return FileResponse(avatar_full_path)
 

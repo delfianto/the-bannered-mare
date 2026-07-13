@@ -21,7 +21,7 @@ from src.chat_message.schemas import (
     stream_event_to_dict,
 )
 from src.chat_message.service import ChatMessageService
-from src.core.exceptions import ProviderException
+from src.core.exceptions import ProviderException, ValidationError
 from src.core.logging.logger_config import get_logger
 
 logger = get_logger(__name__)
@@ -73,12 +73,7 @@ async def send_message(
     - **stream=True**: Returns Server-Sent Events (SSE) with typed events.
     """
     if not regenerate and message_data is None:
-        from fastapi import HTTPException, status
-
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Message content is required when not regenerating.",
-        )
+        raise ValidationError("Message content is required when not regenerating.")
 
     if stream:
         return _handle_streaming(request, chat_id, service, message_data, regenerate)

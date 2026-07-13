@@ -1,9 +1,10 @@
 """PromptTemplate API endpoints"""
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 
 from src.character.models import Character
 from src.chat_session.models import Chat
+from src.core.exceptions import BadRequestError
 from src.core.schemas import PaginatedResponse, page_response
 from src.persona.models import Persona
 from src.prompt_template.dependencies import PromptTemplateServiceDep
@@ -112,8 +113,11 @@ def preview_template(
     try:
         rendered = template_service.render(template.system_template, context)
         variables_used = template_service._build_variables(context)  # pyright: ignore[reportPrivateUsage]
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Template rendering error: {str(e)}") from e
+    except ValueError as e:
+        # render() wraps Jinja syntax/security errors as ValueError with a concise,
+        # author-facing message; anything else is unexpected and propagates to the
+        # global handler (a sanitized 500) rather than leaking here as a 400.
+        raise BadRequestError(str(e)) from e
 
     return TemplatePreviewResponse(
         rendered=rendered,
