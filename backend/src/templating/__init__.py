@@ -1,4 +1,11 @@
-"""Template rendering service using Jinja2"""
+"""Jinja2 prompt/greeting template rendering.
+
+Its own module rather than ``core.utils`` because the render context is
+domain-aware (character / persona / chat) — a shared-kernel utility must not
+reference vertical-slice models. Consumed by prompt_template, chat_session, and
+prompt_fragment; the model imports are ``TYPE_CHECKING``-only, so this stays a
+runtime-leaf with no import cycles.
+"""
 
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -11,6 +18,8 @@ if TYPE_CHECKING:
     from src.character.models import Character
     from src.chat_session.models import Chat
     from src.persona.models import Persona
+
+__all__ = ["TemplateContext", "TemplateService"]
 
 
 class TemplateContext:

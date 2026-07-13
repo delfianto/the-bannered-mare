@@ -1,4 +1,10 @@
-"""HTTP request/response logging middleware"""
+"""HTTP request/response logging middleware.
+
+Lives in the ``audit`` slice (not ``core.logging``) because its job is to persist
+request/error audit rows via ``audit_logger`` — a shared-kernel module must not
+depend on a vertical slice, so the dependency runs audit → core here (which also
+removes the load-time import cycle the old lazy import worked around).
+"""
 
 import time
 from collections.abc import Awaitable, Callable
@@ -10,6 +16,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
+from src.audit.writer import audit_logger
 from src.core.logging.logger_config import get_logger
 
 logger = get_logger(__name__)
@@ -26,10 +33,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         """Process request and log details"""
-        # Imported lazily to avoid a circular import at module load
-        # (logging package -> this middleware -> audit.writer -> logging.logger_config).
-        from src.audit.writer import audit_logger
-
         # Generate unique request ID
         request_id = str(uuid4())
         request.state.request_id = request_id

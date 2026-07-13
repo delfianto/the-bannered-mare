@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from src.core.utils.template import TemplateContext, TemplateService
+from src.templating import TemplateContext, TemplateService
 
 
 @pytest.fixture

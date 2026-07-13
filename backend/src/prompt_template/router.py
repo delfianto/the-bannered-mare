@@ -5,7 +5,6 @@ from fastapi import APIRouter, HTTPException, Query
 from src.character.models import Character
 from src.chat_session.models import Chat
 from src.core.schemas import PaginatedResponse, page_response
-from src.core.utils.template import TemplateContext, TemplateService
 from src.persona.models import Persona
 from src.prompt_template.dependencies import PromptTemplateServiceDep
 from src.prompt_template.schemas import (
@@ -15,6 +14,7 @@ from src.prompt_template.schemas import (
     TemplatePreviewRequest,
     TemplatePreviewResponse,
 )
+from src.templating import TemplateContext, TemplateService
 
 router = APIRouter(prefix="/api/prompt-templates", tags=["prompt-templates"])
 

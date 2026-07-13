@@ -5,7 +5,6 @@ from src.core.utils.storage import (
     save_character_avatar,
     save_persona_avatar,
 )
-from src.core.utils.template import TemplateContext, TemplateService
 
 __all__ = [
     "delete_character_files",
@@ -13,6 +12,4 @@ __all__ = [
     "ensure_storage_directories",
     "save_character_avatar",
     "save_persona_avatar",
-    "TemplateContext",
-    "TemplateService",
 ]

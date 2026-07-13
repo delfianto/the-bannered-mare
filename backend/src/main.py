@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from src.admin.router import router as admin_router
+from src.audit.middleware import RequestLoggingMiddleware
 from src.bookmarks.router import router as bookmarks_router
 from src.character import router as characters_router
 from src.chat_message import preview_router as chat_preview_router
@@ -15,7 +16,7 @@ from src.chat_message import router as chat_messages_router
 from src.chat_session import router as chats_router
 from src.core.config import settings
 from src.core.exceptions import BanneredMareException
-from src.core.logging import RequestLoggingMiddleware, configure_structlog, get_logger
+from src.core.logging import configure_structlog, get_logger
 from src.core.utils.storage import ensure_storage_directories
 from src.health import router as health_router
 from src.lore import router as lore_router

@@ -3,9 +3,9 @@
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
 from src.core.persistence import gen_id
-from src.core.utils.template import TemplateService
 from src.prompt_fragment.models import PromptFragment, TemplateFragment
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
+from src.templating import TemplateService
 
 
 class FragmentService:

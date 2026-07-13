@@ -1,10 +1,10 @@
-"""Tests for request logging middleware"""
+"""Tests for the request-logging middleware (audit slice)"""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import Request, Response
-from src.core.logging.request_logging import RequestLoggingMiddleware
+from src.audit.middleware import RequestLoggingMiddleware
 
 
 @pytest.mark.asyncio
@@ -26,10 +26,9 @@ async def test_middleware_logging() -> None:
 
     call_next = AsyncMock(return_value=response)
 
-    # audit_logger is imported lazily inside dispatch from src.audit.writer
     with (
-        patch("src.core.logging.request_logging.logger") as mock_logger,
-        patch("src.audit.writer.audit_logger") as mock_audit_logger,
+        patch("src.audit.middleware.logger") as mock_logger,
+        patch("src.audit.middleware.audit_logger") as mock_audit_logger,
     ):
         mock_audit_logger.log_http_request = AsyncMock()
 
