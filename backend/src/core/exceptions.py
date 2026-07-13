@@ -12,14 +12,19 @@ class BanneredMareException(Exception):
     handler registered in ``main.py`` does the HTTP translation.
     """
 
-    # int for domain subclasses; ProviderException may leave it None (unknown
-    # upstream status) — the handler defaults those to 502.
+    # Each domain subclass declares the HTTP status the handler maps it to.
     status_code: int | None = 400
 
     def __init__(self, message: str, detail: Any | None = None):
         super().__init__(message)
         self.message = message
         self.detail = detail
+
+
+class BadRequestError(BanneredMareException):
+    """A malformed or inapplicable request (HTTP 400)."""
+
+    status_code = 400
 
 
 class NotFoundError(BanneredMareException):
@@ -40,10 +45,20 @@ class ValidationError(BanneredMareException):
     status_code = 422
 
 
-class ProviderException(BanneredMareException):
-    """Exception raised for errors from AI providers"""
+class PayloadTooLargeError(BanneredMareException):
+    """An upload exceeds the allowed size (HTTP 413)."""
 
-    def __init__(self, message: str, status_code: int | None = None, detail: Any | None = None):
+    status_code = 413
+
+
+class ProviderException(BanneredMareException):
+    """Error from an upstream AI provider (HTTP 502 by default).
+
+    ``status_code`` may be overridden to pass an upstream status through (e.g. a
+    401/429 from the provider); left at the default it maps to 502 Bad Gateway.
+    """
+
+    def __init__(self, message: str, status_code: int | None = 502, detail: Any | None = None):
         super().__init__(message, detail)
         self.status_code = status_code
 

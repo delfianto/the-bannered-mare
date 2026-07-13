@@ -1,6 +1,8 @@
 """Shared helpers for bounded file uploads."""
 
-from fastapi import HTTPException, UploadFile, status
+from fastapi import UploadFile
+
+from src.core.exceptions import PayloadTooLargeError
 
 # Character cards (PNG with embedded JSON) and ST presets are read fully into
 # memory before parsing, so cap them to avoid a trivial memory-exhaustion DoS.
@@ -16,8 +18,5 @@ async def read_upload_capped(file: UploadFile, max_bytes: int = MAX_IMPORT_SIZE)
     """
     data = await file.read(max_bytes + 1)
     if len(data) > max_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-            detail=f"File too large. Max size: {max_bytes // (1024 * 1024)}MB",
-        )
+        raise PayloadTooLargeError(f"File too large. Max size: {max_bytes // (1024 * 1024)}MB")
     return data

@@ -3,7 +3,8 @@
 import io
 
 import pytest
-from fastapi import HTTPException, UploadFile
+from fastapi import UploadFile
+from src.core.exceptions import PayloadTooLargeError
 from src.core.utils.upload import read_upload_capped
 
 
@@ -17,6 +18,6 @@ async def test_accepts_within_limit() -> None:
 @pytest.mark.asyncio
 async def test_rejects_oversize_before_full_read() -> None:
     file = UploadFile(filename="huge.png", file=io.BytesIO(b"x" * 5000))
-    with pytest.raises(HTTPException) as exc_info:
+    with pytest.raises(PayloadTooLargeError) as exc_info:
         await read_upload_capped(file, max_bytes=1024)
     assert exc_info.value.status_code == 413
