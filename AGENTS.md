@@ -27,14 +27,16 @@ The root [`justfile`](justfile) is the canonical entrypoint for **running** ever
 | | `db-revision "msg"` | `alembic revision --autogenerate -m "msg"` |
 | | `db-backup` / `db-restore <file>` | `pg_dump` → `$STORAGE_PATH/backups/` / `pg_restore` |
 | | `db-seed [path]` | `scripts/import_card.py` (default `./characters`) |
-| **backend** | `be-dev` / `be-prod` | `scripts/start-backend.sh` (uvicorn `--reload` / 4 workers) — `:8000` |
-| **frontend** | `fe-dev` / `fe-mock` / `fe-prod` | `bun run dev` / `dev:mock` (MSW) / `build`+`preview` — `:5173`, preview `:4173` |
-| **docs** | `docs-dev` | VitePress dev — `:5174` |
+| **backend** | `be-install` / `be-reinstall` | `uv sync --extra dev` → `backend/.venv` (reinstall wipes `.venv` first) |
+| | `be-dev` / `be-prod` | `scripts/start-backend.sh` (uvicorn `--reload` / 4 workers) — `:8000` |
+| **frontend** | `fe-install` / `fe-reinstall` | `bun install` (reinstall wipes `node_modules` first) |
+| | `fe-dev` / `fe-mock` / `fe-prod` | `bun run dev` / `dev:mock` (MSW) / `build`+`preview` — `:5173`, preview `:4173` |
+| **docs** | `docs-install` / `docs-dev` | `bun install` / VitePress dev — `:5174` |
 | **stop** | `status` / `be-stop` / `fe-stop` / `docs-stop` / `stop-all` | report / kill by port / kill everything + sweep strays |
 
 Agent notes:
 
-- **`be-*`, `fe-*`, `docs-dev` are long-running (foreground) servers** — they block and never return. Launch them in the background (or a separate process) and use `just status` to confirm; use `just stop-all` to tear everything down.
+- **`be-dev`/`be-prod`, `fe-dev`/`fe-mock`/`fe-prod`, and `docs-dev` are long-running (foreground) servers** — they block and never return. Launch them in the background (or a separate process) and use `just status` to confirm; use `just stop-all` to tear everything down. The `*-install` recipes run to completion normally.
 - **The justfile does _not_ include lint/type/test gates.** Those live in each half's own `AGENTS.md` (`ruff` / `basedpyright` / `pytest` for backend; `vp check` / `bun run build` for frontend) — run them there.
 - **`db-reset` and `db-restore` are destructive**, and all `db-*` recipes read `DATABASE_URL` from `backend/.env` (which may point at a remote host). Confirm the target before running.
 
