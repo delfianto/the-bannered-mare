@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
+from src.chat_message.repository import MessageRepository
 from src.chat_session import Chat, ChatRepository, ChatService
 from src.core.exceptions import BanneredMareException
 from src.model import ModelRegistry, ModelRepository, ModelRoute
@@ -26,7 +27,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         chats = service.list_all()
 
         assert len(chats) == 2
@@ -43,7 +51,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         result = service.get_by_id(chat.id)
 
         assert result.id == chat.id
@@ -54,7 +69,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.get_by_id("nonexistent-id")
@@ -68,7 +90,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         chat = service.create(
             character_id=sample_character.id,
             model_id=sample_model.id,
@@ -85,7 +114,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.create(
                 character_id="nonexistent-character",
@@ -100,7 +136,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.create(
                 character_id=sample_character.id,
@@ -120,7 +163,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         updated = service.update(chat.id, title="New Title")
 
         assert updated.title == "New Title"
@@ -161,7 +211,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         updated = service.update(chat.id, model_id=model2.id)
 
         assert updated.model_id == model2.id
@@ -179,7 +236,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.update(chat.id, model_id="nonexistent-model")
 
@@ -192,6 +256,7 @@ class TestChatService:
             CharacterRepository(db),
             ModelRepository(db),
             ProfileRepository(db),
+            message_repo=MessageRepository(db),
             persona_repo=PersonaRepository(db),
         )
 
@@ -278,7 +343,14 @@ class TestChatService:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
         service.delete(chat_id)
 
         # Verify chat is deleted

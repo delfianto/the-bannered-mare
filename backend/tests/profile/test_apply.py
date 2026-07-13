@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
+from src.chat_message.repository import MessageRepository
 from src.chat_session import ChatRepository, ChatService
 from src.core.exceptions import BanneredMareException
 from src.core.persistence import Preset, PromptTemplate
@@ -18,7 +19,12 @@ from src.prompt_template.repository import PromptTemplateRepository
 
 def _chat_service(db: Session) -> ChatService:
     return ChatService(
-        ChatRepository(db), CharacterRepository(db), ModelRepository(db), ProfileRepository(db)
+        ChatRepository(db),
+        CharacterRepository(db),
+        ModelRepository(db),
+        ProfileRepository(db),
+        MessageRepository(db),
+        PersonaRepository(db),
     )
 
 

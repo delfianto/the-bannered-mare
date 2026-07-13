@@ -44,15 +44,15 @@ class CharacterService:
     def __init__(
         self,
         character_repo: CharacterRepository,
-        lore_repo: LoreRepository | None = None,
-        lore_entry_repo: LoreEntryRepository | None = None,
+        lore_repo: LoreRepository,
+        lore_entry_repo: LoreEntryRepository,
     ):
         self.character_repo = character_repo
-        # Character import/export reads & writes the character's lorebook. Inject
-        # the lore repositories (built on the same session, so the import stays one
-        # transaction); default to the character repo's session for direct callers.
-        self.lore_repo = lore_repo or LoreRepository(character_repo.db)
-        self.lore_entry_repo = lore_entry_repo or LoreEntryRepository(character_repo.db)
+        # Character import/export reads & writes the character's lorebook. The lore
+        # repositories are injected on the same session, so the import stays one
+        # transaction.
+        self.lore_repo = lore_repo
+        self.lore_entry_repo = lore_entry_repo
 
     def list_all(self) -> list[Character]:
         """List all characters"""

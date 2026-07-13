@@ -42,15 +42,13 @@ class ChatService:
         character_repo: CharacterRepository,
         model_repo: ModelRepository,
         profile_repo: ProfileRepository,
-        message_repo: MessageRepository | None = None,
-        persona_repo: PersonaRepository | None = None,
+        message_repo: MessageRepository,
+        persona_repo: PersonaRepository,
     ):
         self.chat_repo = chat_repo
         self.character_repo = character_repo
         self.model_repo = model_repo
         self.profile_repo = profile_repo
-        # Optional so the many existing 4-arg constructions (tests) keep working;
-        # greeting seeding is skipped when message_repo is absent.
         self.message_repo = message_repo
         self.persona_repo = persona_repo
         self.template_service = TemplateService()
@@ -118,15 +116,12 @@ class ChatService:
         session begins — SillyTavern-style, not a model call. {{char}}/{{user}}
         macros are resolved so it reads correctly before the first user turn.
         """
-        if self.message_repo is None:
-            return
-
         greeting = (character.first_message or "").strip()
         if not greeting:
             return
 
         persona = None
-        if chat.persona_id and self.persona_repo is not None:
+        if chat.persona_id:
             persona = self.persona_repo.find_by_id(chat.persona_id)
 
         context = TemplateContext(character=character, persona=persona, chat=chat)
@@ -195,7 +190,7 @@ class ChatService:
         if persona_id is None:
             chat.persona_id = None
             return
-        if self.persona_repo is not None and not self.persona_repo.find_by_id(persona_id):
+        if not self.persona_repo.find_by_id(persona_id):
             raise NotFoundError(f"Persona with ID '{persona_id}' not found")
         chat.persona_id = persona_id
 
