@@ -37,6 +37,7 @@ POOLSIDE_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 262144,
             "supports_vision": False,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "supports_reasoning": True,
             "note": "coding-agent models (fp8); free on OpenRouter for now",
             "models": ["poolside/laguna-m.1", "poolside/laguna-xs-2.1"],

@@ -61,6 +61,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 128000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "models": ["gpt-4o", "gpt-4o-mini"],
         },
     },
@@ -86,6 +87,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1000000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "models": ["gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano"],
         },
     },
@@ -114,6 +116,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 400000,
             "supports_vision": False,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             # OpenAI only exposes these via the "-chat-latest" rolling alias.
             "models": [
                 "gpt-5-chat-latest",
@@ -165,6 +168,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1000000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             # reasoning_effort "xhigh" is GPT-5.5+; 5.4 caps at "high".
             "note": "reasoning_effort xhigh is GPT-5.5+ only; 5.4 caps at high",
             "models": [
@@ -221,6 +225,7 @@ GPT_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1050000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             # `gpt-5.6` alias routes to Sol; pro reasoning mode is a Sol-tier quality boost.
             "note": (
                 "reasoning_effort adds none + max on 5.6; pro reasoning mode on Sol; "

@@ -48,6 +48,7 @@ GEMMA_FAMILIES: list[ModelFamilySeedData] = [
             "developer": "google",
             "context_window": 262144,
             "supports_vision": True,
+            "supports_prompt_caching": False,
             "supports_thinking": True,
             "quantization": "Q4_K_M",  # local GGUF default
             "models": [

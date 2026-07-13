@@ -2536,6 +2536,10 @@ export interface components {
       total_completion_tokens: number;
       /** Total Tokens */
       total_tokens: number;
+      /** Total Cache Read Tokens */
+      total_cache_read_tokens: number;
+      /** Total Cache Creation Tokens */
+      total_cache_creation_tokens: number;
       /** Total Cost Usd */
       total_cost_usd: number | null;
       /** Avg Latency Ms */

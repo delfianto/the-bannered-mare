@@ -55,6 +55,8 @@ class AuditQueryService:
                 total_prompt_tokens=r["total_prompt_tokens"],
                 total_completion_tokens=r["total_completion_tokens"],
                 total_tokens=r["total_tokens"],
+                total_cache_read_tokens=r["total_cache_read_tokens"],
+                total_cache_creation_tokens=r["total_cache_creation_tokens"],
                 total_cost_usd=(
                     round(r["total_cost_usd"], 4) if r["total_cost_usd"] is not None else None
                 ),

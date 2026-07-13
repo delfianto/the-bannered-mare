@@ -8048,6 +8048,14 @@
             "type": "integer",
             "title": "Total Tokens"
           },
+          "total_cache_read_tokens": {
+            "type": "integer",
+            "title": "Total Cache Read Tokens"
+          },
+          "total_cache_creation_tokens": {
+            "type": "integer",
+            "title": "Total Cache Creation Tokens"
+          },
           "total_cost_usd": {
             "anyOf": [
               {
@@ -8084,6 +8092,8 @@
           "total_prompt_tokens",
           "total_completion_tokens",
           "total_tokens",
+          "total_cache_read_tokens",
+          "total_cache_creation_tokens",
           "total_cost_usd",
           "avg_latency_ms",
           "success_count",

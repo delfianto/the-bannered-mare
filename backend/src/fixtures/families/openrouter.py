@@ -23,6 +23,7 @@ OPENROUTER_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 128000,
             "supports_vision": False,
             "supports_function_calling": False,
+            "supports_prompt_caching": True,
         },
     },
 ]

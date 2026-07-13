@@ -48,6 +48,7 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 200000,
             "supports_vision": False,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             # `thinking` auto-decides on 4.5/4.6; thinks compulsorily when enabled on 4.7.
             "thinking_behavior": "auto on 4.5/4.6, forced-when-enabled on 4.7",
             "models": ["z-ai/glm-4.7", "z-ai/glm-4.7-flash", "z-ai/glm-4.5-air"],
@@ -79,6 +80,7 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 262144,
             "supports_vision": False,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             # Thinking on by default (5/5.1/5.2/Turbo) but caller-disablable via
             # thinking={type:disabled}; reasoning_effort only tunes depth when on.
             "thinking_behavior": "on by default, disablable via thinking={type:disabled}",

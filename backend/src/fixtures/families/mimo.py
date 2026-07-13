@@ -53,6 +53,7 @@ MIMO_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1048576,
             "supports_vision": False,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "supports_reasoning": True,
             "note": (
                 "V2.5-Pro is a 1.02T MoE (42B active); top_k/min_p/repetition_penalty are "

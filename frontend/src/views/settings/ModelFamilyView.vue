@@ -266,6 +266,51 @@ function formatDate(iso: string): string {
             </div>
           </div>
 
+          <!-- Capabilities card -->
+          <div
+            v-if="family.extra_metadata && Object.keys(family.extra_metadata).length"
+            class="rounded-xl border bg-base-200/50 p-5"
+          >
+            <h2
+              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+            >
+              Capabilities
+            </h2>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-if="family.extra_metadata.supports_prompt_caching"
+                class="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-500"
+              >
+                <AppIcon name="i-lucide-database" class="size-3" />
+                Prompt Caching
+              </span>
+              <span
+                v-if="family.extra_metadata.supports_vision"
+                class="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400"
+              >
+                <AppIcon name="i-lucide-eye" class="size-3" />
+                Vision
+              </span>
+              <span
+                v-if="family.extra_metadata.supports_function_calling"
+                class="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400"
+              >
+                <AppIcon name="i-lucide-puzzle" class="size-3" />
+                Function Calling
+              </span>
+              <span
+                v-if="
+                  family.extra_metadata.reasoning_mode &&
+                  family.extra_metadata.reasoning_mode !== 'none'
+                "
+                class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-500"
+              >
+                <AppIcon name="i-lucide-brain" class="size-3" />
+                Reasoning ({{ family.extra_metadata.reasoning_mode }})
+              </span>
+            </div>
+          </div>
+
           <!-- Parameter Schema card -->
           <div
             v-if="family.parameters && Object.keys(family.parameters).length"

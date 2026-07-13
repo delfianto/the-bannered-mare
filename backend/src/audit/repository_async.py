@@ -79,6 +79,12 @@ class AuditRepository:
                     "total_completion_tokens"
                 ),
                 total_tokens.label("total_tokens"),
+                func.coalesce(func.sum(LlmAuditLog.cache_read_tokens), 0).label(
+                    "total_cache_read_tokens"
+                ),
+                func.coalesce(func.sum(LlmAuditLog.cache_creation_tokens), 0).label(
+                    "total_cache_creation_tokens"
+                ),
                 func.sum(LlmAuditLog.estimated_cost_usd).label("total_cost_usd"),
                 func.coalesce(func.avg(LlmAuditLog.latency_ms), 0.0).label("avg_latency_ms"),
                 func.sum(case((LlmAuditLog.status == "success", 1), else_=0)).label(

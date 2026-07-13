@@ -25,6 +25,7 @@ CLAUDE_HAIKU_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 500000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "models": ["claude-4.5-haiku"],
         },
     },

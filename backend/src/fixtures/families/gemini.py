@@ -47,6 +47,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1000000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "models": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"],
         },
     },
@@ -96,6 +97,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1000000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "models": [
                 "gemini-3-flash-preview",
                 "gemini-3.1-pro-preview",
@@ -150,6 +152,7 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "context_window": 1000000,
             "supports_vision": True,
             "supports_function_calling": True,
+            "supports_prompt_caching": True,
             "models": ["gemini-3.5-flash"],
         },
     },

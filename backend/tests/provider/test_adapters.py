@@ -242,6 +242,58 @@ class TestOpenAIAdapter:
         assert chunk.usage.input_tokens == 19
         assert chunk.usage.cache_read_tokens == 0
 
+    def test_parse_stream_normalized_usage_chunk(self):
+        """OpenCode Go sends normalizedUsage as a top-level key on a separate
+        chunk (before the standard usage chunk) — cache tokens must be captured."""
+        line = (
+            'data: {"choices":[],"x-opencode-type":"inference-cost",'
+            '"cost":"0.00120580","normalizedUsage":{'
+            '"inputTokens":19,"outputTokens":268,"reasoningTokens":0,'
+            '"cacheReadTokens":80,"cacheWrite5mTokens":20,"cacheWrite1hTokens":0}}'
+        )
+        chunk = self.adapter.parse_stream_line(line)
+        assert chunk is not None
+        assert chunk.usage is not None
+        assert chunk.usage.cache_read_tokens == 80
+        assert chunk.usage.cache_creation_tokens == 20
+        assert chunk.usage.input_tokens == 0  # not in normalizedUsage
+
+    def test_parse_stream_normalized_usage_zero_cache(self):
+        """normalizedUsage with all-zero cache fields produces a valid usage chunk."""
+        line = (
+            'data: {"choices":[],"normalizedUsage":{'
+            '"inputTokens":19,"outputTokens":268,"reasoningTokens":0,'
+            '"cacheReadTokens":0,"cacheWrite5mTokens":0,"cacheWrite1hTokens":0}}'
+        )
+        chunk = self.adapter.parse_stream_line(line)
+        assert chunk is not None
+        assert chunk.usage is not None
+        assert chunk.usage.cache_read_tokens == 0
+
+    def test_parse_response_normalized_usage_fallback(self):
+        """Non-streaming: normalizedUsage fallback when prompt_tokens_details is
+        null/absent but normalizedUsage carries cache data."""
+        data = {
+            "choices": [{"message": {"content": "Hi"}, "finish_reason": "stop"}],
+            "usage": {
+                "prompt_tokens": 100,
+                "completion_tokens": 50,
+                "total_tokens": 150,
+                "prompt_tokens_details": None,
+            },
+            "normalizedUsage": {
+                "inputTokens": 100,
+                "outputTokens": 50,
+                "reasoningTokens": 0,
+                "cacheReadTokens": 60,
+                "cacheWrite5mTokens": 40,
+                "cacheWrite1hTokens": 0,
+            },
+        }
+        resp = self.adapter.parse_response(data)
+        assert resp.usage.cache_read_tokens == 60
+        assert resp.usage.cache_creation_tokens == 40
+
     def test_parse_stream_empty_choices_no_usage_returns_none(self):
         """Empty choices with no usage → still None (skip non-content events)."""
         line = 'data: {"choices":[]}'
