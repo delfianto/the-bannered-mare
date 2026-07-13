@@ -6,10 +6,19 @@ from unittest.mock import MagicMock
 import pytest
 from sqlalchemy.orm import Session
 from src.core.persistence.enums import InsertionPosition
-from src.core.persistence.models import DEFAULT_COMPONENT_ORDER, DEFAULT_COMPONENTS_ENABLED
+from src.core.persistence.models import (
+    DEFAULT_COMPONENT_ORDER,
+    DEFAULT_COMPONENTS_ENABLED,
+    ModelFamily,
+)
 from src.lore.activation_engine import ActivatedEntry
 from src.prompt_template.models import PromptTemplate
-from src.prompt_template.prompt_builder import EVICTION_BLOCK, PromptBuilder
+from src.prompt_template.prompt_builder import (
+    DEFAULT_MAX_HISTORY_TOKENS,
+    DEFAULT_RESERVED_OUTPUT_TOKENS,
+    EVICTION_BLOCK,
+    PromptBuilder,
+)
 from src.prompt_template.repository import PromptTemplateRepository
 
 
@@ -39,12 +48,16 @@ def _make_chat(
 
     model = MagicMock()
     model.template = None
+    # No real family/preset in these unit tests: an unknown context window keeps
+    # history budgeting on the flat template cap (what these cases assert against).
+    model.model_family = None
 
     chat = MagicMock()
     chat.character = character
     chat.persona = persona
     chat.model = model
     chat.template = template
+    chat.preset = None
     chat.title = "Test Chat"
     return chat
 
@@ -562,3 +575,144 @@ class TestDefaultComponentOrder:
     )
     def test_all_order_items_in_enabled(self, key: str) -> None:
         assert key in DEFAULT_COMPONENTS_ENABLED
+
+
+def _make_family(
+    context_window: int | None, parameters: dict[str, Any] | None = None
+) -> ModelFamily:
+    """Real ModelFamily so context_window/parameters behave via the actual property.
+
+    A ``test/*`` identifier has no vendor mapping, so its tokenizer resolves to the
+    offline heuristic — no network in unit tests.
+    """
+    return ModelFamily(
+        name="Test Family",
+        family_identifier="test/family",
+        provider_types=["openrouter"],
+        parameters=parameters or {},
+        extra_metadata={"context_window": context_window} if context_window else {},
+    )
+
+
+def _chat_for_reserved(
+    *,
+    preset_params: dict[str, Any] | None = None,
+    model_params: dict[str, Any] | None = None,
+    family: ModelFamily | None = None,
+) -> Any:
+    chat = MagicMock()
+    chat.preset = MagicMock(parameters=preset_params) if preset_params is not None else None
+    model = MagicMock()
+    model.parameters = model_params if model_params is not None else {}
+    model.model_family = family
+    chat.model = model
+    return chat
+
+
+class TestReservedOutput:
+    def test_preset_param_wins(self) -> None:
+        chat = _chat_for_reserved(
+            preset_params={"max_tokens": 512}, model_params={"max_tokens": 256}
+        )
+        assert PromptBuilder._reserved_output(chat) == 512
+
+    def test_model_param_when_no_preset(self) -> None:
+        chat = _chat_for_reserved(model_params={"max_completion_tokens": 300})
+        assert PromptBuilder._reserved_output(chat) == 300
+
+    def test_family_default_when_neither(self) -> None:
+        family = _make_family(8000, {"max_tokens": {"type": "int", "default": 128}})
+        chat = _chat_for_reserved(model_params={}, family=family)
+        assert PromptBuilder._reserved_output(chat) == 128
+
+    def test_flat_default_when_nothing_resolves(self) -> None:
+        chat = _chat_for_reserved(model_params={}, family=_make_family(8000))
+        assert PromptBuilder._reserved_output(chat) == DEFAULT_RESERVED_OUTPUT_TOKENS
+
+    def test_ignores_non_positive_value(self) -> None:
+        chat = _chat_for_reserved(model_params={"max_tokens": 0})
+        assert PromptBuilder._reserved_output(chat) == DEFAULT_RESERVED_OUTPUT_TOKENS
+
+
+class TestHistoryBudget:
+    def test_unknown_window_uses_template_cap(self) -> None:
+        template = _make_template(max_history_tokens=1234)
+        budget = PromptBuilder._history_budget(
+            template, None, non_history_tokens=0, reserved_output=0
+        )
+        assert budget == 1234
+
+    def test_unknown_window_no_cap_uses_default(self) -> None:
+        template = _make_template(max_history_tokens=None)
+        budget = PromptBuilder._history_budget(
+            template, None, non_history_tokens=0, reserved_output=0
+        )
+        assert budget == DEFAULT_MAX_HISTORY_TOKENS
+
+    def test_known_window_subtracts_components_and_reply(self) -> None:
+        template = _make_template(max_history_tokens=None)
+        family = _make_family(10000)
+        # int(10000 * 0.9) - 500 reserved - 200 non-history = 8300.
+        budget = PromptBuilder._history_budget(
+            template, family, non_history_tokens=200, reserved_output=500
+        )
+        assert budget == 8300
+
+    def test_template_cap_bounds_a_large_window(self) -> None:
+        template = _make_template(max_history_tokens=50)
+        family = _make_family(1_000_000)
+        budget = PromptBuilder._history_budget(
+            template, family, non_history_tokens=0, reserved_output=0
+        )
+        assert budget == 50
+
+    def test_non_history_reduces_budget(self) -> None:
+        template = _make_template(max_history_tokens=None)
+        family = _make_family(10000)
+        lean = PromptBuilder._history_budget(
+            template, family, non_history_tokens=100, reserved_output=0
+        )
+        heavy = PromptBuilder._history_budget(
+            template, family, non_history_tokens=5000, reserved_output=0
+        )
+        assert heavy == lean - 4900
+
+    def test_budget_floored_at_zero(self) -> None:
+        template = _make_template(max_history_tokens=None)
+        family = _make_family(100)
+        budget = PromptBuilder._history_budget(
+            template, family, non_history_tokens=0, reserved_output=1000
+        )
+        assert budget == 0
+
+
+class TestRealWindowTruncation:
+    def test_small_window_evicts_more_than_flat_default(self, db: Session) -> None:
+        """A small real context window keeps fewer history turns than the flat 4096
+        default the same chat would use when its window is unknown."""
+        messages = _make_history_messages(30)
+        template = _make_template(max_history_tokens=DEFAULT_MAX_HISTORY_TOKENS)
+        repo = PromptTemplateRepository(db)
+        builder = PromptBuilder(repo)
+
+        # Unknown window → flat 4096 cap keeps everything (30 × cost-4 = 120 ≪ 4096).
+        default_chat = _make_chat(template=template)
+        default_hist = [
+            m
+            for m in builder.build_api_messages(default_chat, messages, activated_lore=None)
+            if m["content"].startswith("msg")
+        ]
+
+        # A tiny real window (safe ≈ 90 tokens) forces heavy eviction.
+        small_chat = _make_chat(template=template)
+        small_chat.model.model_family = _make_family(
+            100, {"max_tokens": {"type": "int", "default": 10}}
+        )
+        small_hist = [
+            m
+            for m in builder.build_api_messages(small_chat, messages, activated_lore=None)
+            if m["content"].startswith("msg")
+        ]
+
+        assert len(default_hist) == 30
+        assert len(small_hist) < len(default_hist)

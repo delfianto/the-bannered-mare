@@ -8,7 +8,7 @@ from src.character.models import Character
 from src.chat_session.models import Chat
 from src.core.persistence.enums import InsertionPosition
 from src.core.persistence.models import Message, ModelFamily
-from src.core.tokenization import get_tokenizer
+from src.core.tokenization import Tokenizer, get_tokenizer
 from src.core.utils.template import TemplateContext, TemplateService
 from src.lore.activation_engine import ActivatedEntry
 from src.persona.models import Persona
@@ -22,6 +22,19 @@ DEFAULT_DEPTH = 4
 # kept prefix is byte-stable for ~EVICTION_BLOCK turns between evictions — prefix
 # caching (and llama.cpp KV reuse) only matches when the window start is fixed.
 EVICTION_BLOCK = 8
+
+# History budgeting: when the model's real context window is known, spend at most
+# this fraction of it on the prompt, keeping the rest as headroom for our estimate
+# drifting from the provider's true token count.
+CONTEXT_SAFETY_MARGIN = 0.9
+# Tokens held back for the model's own reply when no max-output param resolves.
+DEFAULT_RESERVED_OUTPUT_TOKENS = 1024
+# History cap used when the family's real context window is unknown (legacy behaviour).
+DEFAULT_MAX_HISTORY_TOKENS = 4096
+# Per-turn framing overhead (role + delimiters), matching Tokenizer.count_messages.
+_PER_MESSAGE_OVERHEAD = 3
+# Output-length caps across adapter dialects (OpenAI / Anthropic / Gemini).
+_OUTPUT_TOKEN_KEYS = ("max_completion_tokens", "max_tokens", "max_output_tokens")
 
 
 @dataclass
@@ -81,6 +94,11 @@ class PromptBuilder:
 
         system_content = self._resolve_system_prompt(chat.character, template, context)
 
+        family = chat.model.model_family if chat.model else None
+        tokenizer = get_tokenizer(family)
+
+        # Every component except chat_history — built first so its token cost can be
+        # subtracted from the real context window when budgeting the history.
         components: dict[str, list[dict[str, Any]]] = {
             "system_prompt": [{"role": "system", "content": system_content}],
             "world_lore_before_character": self._lore_to_messages(
@@ -96,12 +114,6 @@ class PromptBuilder:
                 lore_by_position.get(InsertionPosition.BEFORE_EXAMPLES, [])
             ),
             "example_dialogues": self._build_example_dialogues(chat.character),
-            "chat_history": self._build_chat_history(
-                messages,
-                template,
-                depth_injections,
-                chat.model.model_family if chat.model else None,
-            ),
             "post_history_instructions": self._build_post_history_instructions(chat.character),
         }
 
@@ -112,10 +124,40 @@ class PromptBuilder:
             "chat_history": "post_history",
         }
 
-        api_messages: list[dict[str, Any]] = []
+        # Pre-render the out-of-dict injections (fragments + RAG) once so they are
+        # both counted against the budget and reused verbatim during assembly.
+        fragments = {
+            position: self._build_fragments(template, context, position)
+            for position in set(_FRAGMENT_POSITIONS.values())
+        }
+        rag_messages = (
+            self._build_rag_context(rag_results)
+            if template.components_enabled.get("rag_context", True)
+            else []
+        )
 
-        component_order = template.component_order
-        for component_name in component_order:
+        non_history: list[dict[str, Any]] = [
+            m
+            for name, msgs in components.items()
+            if template.components_enabled.get(name, True)
+            for m in msgs
+        ]
+        non_history.extend(rag_messages)
+        for msgs in fragments.values():
+            non_history.extend(msgs)
+
+        budget = self._history_budget(
+            template,
+            family,
+            non_history_tokens=self._count_message_tokens(non_history, tokenizer),
+            reserved_output=self._reserved_output(chat),
+        )
+        components["chat_history"] = self._build_chat_history(
+            messages, budget, family, depth_injections
+        )
+
+        api_messages: list[dict[str, Any]] = []
+        for component_name in template.component_order:
             # RAG is emitted authoritatively after chat_history (below) so the
             # cacheable prefix is not severed by per-turn retrieval — ignore it
             # wherever the stored template order places it.
@@ -123,14 +165,10 @@ class PromptBuilder:
                 continue
             if template.components_enabled.get(component_name, True):
                 api_messages.extend(components.get(component_name, []))
-            if component_name == "chat_history" and template.components_enabled.get(
-                "rag_context", True
-            ):
-                api_messages.extend(self._build_rag_context(rag_results))
-            # Inject fragments after specific components
+            if component_name == "chat_history":
+                api_messages.extend(rag_messages)
             if component_name in _FRAGMENT_POSITIONS:
-                position = _FRAGMENT_POSITIONS[component_name]
-                api_messages.extend(self._build_fragments(template, context, position))
+                api_messages.extend(fragments[_FRAGMENT_POSITIONS[component_name]])
 
         return api_messages
 
@@ -246,14 +284,68 @@ class PromptBuilder:
                     messages.append({"role": "user", "content": dialogue})
         return messages
 
+    @staticmethod
+    def _count_message_tokens(messages: list[dict[str, Any]], tokenizer: Tokenizer) -> int:
+        """Rough prompt-token cost of a message list (content + per-turn framing)."""
+        return sum(tokenizer.count(m["content"]) + _PER_MESSAGE_OVERHEAD for m in messages)
+
+    @staticmethod
+    def _reserved_output(chat: Chat) -> int:
+        """Tokens to hold back for the model's reply.
+
+        Uses the resolved max-output param (preset > per-model override > family
+        default, mirroring the gateway's precedence), else a flat default.
+        """
+        for source in (
+            chat.preset.parameters if chat.preset else None,
+            chat.model.parameters if chat.model else None,
+        ):
+            if source:
+                for key in _OUTPUT_TOKEN_KEYS:
+                    value = source.get(key)
+                    if isinstance(value, int) and value > 0:
+                        return value
+        family = chat.model.model_family if chat.model else None
+        if family and family.parameters:
+            for key in _OUTPUT_TOKEN_KEYS:
+                schema = family.parameters.get(key)
+                if isinstance(schema, dict):
+                    default = schema.get("default")
+                    if isinstance(default, int) and default > 0:
+                        return default
+        return DEFAULT_RESERVED_OUTPUT_TOKENS
+
+    @staticmethod
+    def _history_budget(
+        template: PromptTemplate,
+        family: ModelFamily | None,
+        *,
+        non_history_tokens: int,
+        reserved_output: int,
+    ) -> int:
+        """History token budget: the real context window (minus the rest of the
+        prompt and the reserved reply), capped by ``max_history_tokens``.
+
+        With no known window the budget falls back to the flat template cap
+        (legacy behaviour). When the window is known, history is sized so the whole
+        prompt fits it, and ``max_history_tokens`` still acts as an upper bound.
+        """
+        template_cap = template.max_history_tokens
+        context_window = family.context_window if family else None
+        if context_window is None:
+            return template_cap or DEFAULT_MAX_HISTORY_TOKENS
+        safe_context = int(context_window * CONTEXT_SAFETY_MARGIN)
+        budget = max(0, safe_context - reserved_output - non_history_tokens)
+        return min(budget, template_cap) if template_cap else budget
+
     def _build_chat_history(
         self,
         messages: list[Message],
-        template: PromptTemplate,
-        depth_injections: list[DepthInjection] | None = None,
+        max_tokens: int,
         family: ModelFamily | None = None,
+        depth_injections: list[DepthInjection] | None = None,
     ) -> list[dict[str, Any]]:
-        """Build chat history with token budget + depth-injected reminders (lore + fragments).
+        """Build chat history within ``max_tokens`` + depth-injected reminders (lore + fragments).
 
         Eviction is block-chunked: the minimum number of oldest messages that must
         be dropped to fit the budget (``cut_min``) is rounded up to a multiple of
@@ -263,8 +355,6 @@ class PromptBuilder:
         byte-stable between evictions, so prefix caching / KV reuse can match it.
         Rounding up always fits the budget (drops at least ``cut_min``).
         """
-        max_tokens = template.max_history_tokens or 4096
-
         # Only messages missing a persisted count need live counting (rare), so the
         # family tokenizer is resolved lazily — avoids loading it for the common
         # all-counted case and for the empty-history preview.
@@ -276,7 +366,7 @@ class PromptBuilder:
                 if tokenizer is None:
                     tokenizer = get_tokenizer(family)
                 msg_tokens = tokenizer.count(msg.content)
-            counts.append(msg_tokens + 3)
+            counts.append(msg_tokens + _PER_MESSAGE_OVERHEAD)
 
         total = sum(counts)
         cut_min = 0

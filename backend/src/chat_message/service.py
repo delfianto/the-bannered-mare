@@ -63,6 +63,12 @@ def _outcome_message(outcome: CompletionOutcome) -> str:
     return _OUTCOME_MESSAGES.get(outcome, "The model returned no usable reply.")
 
 
+# When the provider's real prompt size exceeds our pre-send estimate by more than
+# this factor, our budgeting under-counted (wrong tokenizer / heuristic skew) and
+# risks silent context overflow — worth a warning, not just the info-level drift.
+_TOKEN_DRIFT_WARN_RATIO = 1.2
+
+
 class ChatMessageService:
     """Service for message-related business logic (FULLY ASYNC)"""
 
@@ -325,10 +331,15 @@ class ChatMessageService:
 
         # Prompt-budget observability (send only; regenerate passes no estimate).
         if estimated_tokens is not None and response.usage:
-            if response.usage.input_tokens:
-                logger.info(
-                    "token_drift", estimated=estimated_tokens, actual=response.usage.input_tokens
-                )
+            actual = response.usage.input_tokens
+            if actual:
+                logger.info("token_drift", estimated=estimated_tokens, actual=actual)
+                if estimated_tokens and actual > estimated_tokens * _TOKEN_DRIFT_WARN_RATIO:
+                    # We materially under-counted — history budgeting may have kept
+                    # too much and the real prompt could crowd the context window.
+                    logger.warning(
+                        "token_estimate_underrun", estimated=estimated_tokens, actual=actual
+                    )
             if response.usage.cache_read_tokens:
                 logger.info(
                     "prompt_cache_hit",
