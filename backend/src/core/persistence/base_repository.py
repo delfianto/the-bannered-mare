@@ -60,14 +60,6 @@ class BaseRepository[T: BaseModel]:
         stmt = select(self.model)
         return list(self.db.execute(stmt).scalars().all())
 
-    def find_paginated(self, limit: int = DEFAULT_LIMIT, offset: int = 0) -> list[T]:
-        """Get entities with pagination"""
-        if limit > self.MAX_LIMIT:
-            raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
-
-        stmt = select(self.model).limit(limit).offset(offset)
-        return list(self.db.execute(stmt).scalars().all())
-
     def find_paginated_with_count(
         self, limit: int = DEFAULT_LIMIT, offset: int = 0
     ) -> tuple[list[T], int]:

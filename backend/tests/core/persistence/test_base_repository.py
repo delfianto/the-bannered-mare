@@ -51,17 +51,19 @@ def test_find_all(repo: MockRepository) -> None:
     assert len(all_objs) == 2
 
 
-def test_find_paginated(repo: MockRepository) -> None:
-    """Test paginated retrieval"""
+def test_find_paginated_ordered(repo: MockRepository) -> None:
+    """Test ordered paginated retrieval + total count"""
     for i in range(15):
         _ = repo.create(MockModel(name=str(i)))
     repo.commit()
 
-    page1 = repo.find_paginated(limit=10, offset=0)
+    page1, total = repo.find_paginated_ordered(limit=10, offset=0)
     assert len(page1) == 10
+    assert total == 15
 
-    page2 = repo.find_paginated(limit=10, offset=10)
+    page2, total = repo.find_paginated_ordered(limit=10, offset=10)
     assert len(page2) == 5
+    assert total == 15
 
 
 def test_update_pattern(repo: MockRepository) -> None:

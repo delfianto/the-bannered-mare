@@ -5770,7 +5770,7 @@
     "/demo": {
       "get": {
         "summary": "Demo",
-        "description": "Minimal chat UI for developer testing",
+        "description": "Minimal chat UI for developer testing (development only)",
         "operationId": "demo_demo_get",
         "responses": {
           "200": {

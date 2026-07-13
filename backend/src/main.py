@@ -107,20 +107,26 @@ app.include_router(health_router)
 @app.get("/")
 def root():
     """Root endpoint"""
-    return {
+    info = {
         "message": "The Bannered Mare API",
-        "version": "0.1.0",
+        "version": app.version,
         "docs": "/docs",
         "redoc": "/redoc",
-        "demo": "/demo",
     }
+    if settings.environment == "development":
+        info["demo"] = "/demo"
+    return info
 
 
-@app.get("/demo", response_class=HTMLResponse)
-def demo():
-    """Minimal chat UI for developer testing"""
-    html_path = Path(__file__).parent / "demo" / "index.html"
-    return HTMLResponse(content=html_path.read_text())
+# The demo chat UI is a developer testing aid — only mount it (and advertise it
+# above) in development so it isn't shipped as attack surface in production.
+if settings.environment == "development":
+
+    @app.get("/demo", response_class=HTMLResponse)
+    def demo():
+        """Minimal chat UI for developer testing (development only)"""
+        html_path = Path(__file__).parent / "demo" / "index.html"
+        return HTMLResponse(content=html_path.read_text())
 
 
 if __name__ == "__main__":
