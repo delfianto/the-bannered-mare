@@ -236,6 +236,67 @@ class TestOpenRouterAdapter:
         assert payload["model"] == "m"
         assert payload["messages"] == [{"role": "user", "content": "hi"}]
 
+    def test_anthropic_model_gets_cache_control(self):
+        """anthropic/* ids get cache_control breakpoints on the first system
+        message and the last message — OpenRouter forwards these to Anthropic."""
+        messages = [
+            {"role": "system", "content": "You are a pirate."},
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Ahoy!"},
+        ]
+        payload = self.adapter.build_payload(messages, "anthropic/claude-opus-4.8", False, {})
+        msgs = payload["messages"]
+
+        # First system message → block form with cache_control.
+        assert isinstance(msgs[0]["content"], list)
+        assert msgs[0]["content"][0]["cache_control"] == {"type": "ephemeral"}
+        assert msgs[0]["content"][0]["text"] == "You are a pirate."
+
+        # Last message → block form with cache_control.
+        assert isinstance(msgs[-1]["content"], list)
+        assert msgs[-1]["content"][0]["cache_control"] == {"type": "ephemeral"}
+        assert msgs[-1]["content"][0]["text"] == "Ahoy!"
+
+        # Middle message untouched.
+        assert msgs[1]["content"] == "Hello"
+
+    def test_non_anthropic_model_unchanged(self):
+        """Non-Anthropic models (DeepSeek, GLM, etc.) auto-cache without explicit
+        breakpoints — payload is left untouched."""
+        messages = [
+            {"role": "system", "content": "System."},
+            {"role": "user", "content": "Hi"},
+        ]
+        payload = self.adapter.build_payload(messages, "deepseek/deepseek-v4-pro", False, {})
+        msgs = payload["messages"]
+        assert msgs[0]["content"] == "System."
+        assert msgs[1]["content"] == "Hi"
+
+    def test_anthropic_no_system_message_marks_last_only(self):
+        """Without a system message, only the last message gets a breakpoint."""
+        messages = [
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi"},
+        ]
+        payload = self.adapter.build_payload(messages, "anthropic/claude-sonnet-5", False, {})
+        msgs = payload["messages"]
+        assert msgs[0]["content"] == "Hello"
+        assert isinstance(msgs[-1]["content"], list)
+        assert msgs[-1]["content"][0]["cache_control"] == {"type": "ephemeral"}
+
+    def test_anthropic_empty_messages_no_error(self):
+        """Empty messages list doesn't error and produces no breakpoints."""
+        payload = self.adapter.build_payload([], "anthropic/claude-haiku-4.5", False, {})
+        assert payload["messages"] == []
+
+    def test_anthropic_single_system_message_marked_once(self):
+        """A single system message gets one breakpoint, not two."""
+        messages = [{"role": "system", "content": "System."}]
+        payload = self.adapter.build_payload(messages, "anthropic/claude-opus-4.8", False, {})
+        msgs = payload["messages"]
+        assert isinstance(msgs[0]["content"], list)
+        assert msgs[0]["content"][0]["cache_control"] == {"type": "ephemeral"}
+
 
 class TestAnthropicAdapter:
     def setup_method(self):
