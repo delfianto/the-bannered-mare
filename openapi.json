@@ -11353,16 +11353,20 @@
         "title": "SecondaryLogic",
         "description": "Logic for combining primary and secondary keyword matches"
       },
+      "SuggestionMode": {
+        "type": "string",
+        "enum": [
+          "reply",
+          "impersonate",
+          "tones"
+        ],
+        "title": "SuggestionMode",
+        "description": "Which kind of next-turn suggestion to generate."
+      },
       "SuggestionRequest": {
         "properties": {
           "mode": {
-            "type": "string",
-            "enum": [
-              "reply",
-              "impersonate",
-              "tones"
-            ],
-            "title": "Mode",
+            "$ref": "#/components/schemas/SuggestionMode",
             "default": "reply"
           },
           "tone": {

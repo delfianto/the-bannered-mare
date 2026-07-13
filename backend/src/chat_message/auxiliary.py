@@ -14,6 +14,7 @@ from src.chat_message.context import MessageContextBuilder
 from src.chat_message.helpers import get_chat_or_404
 from src.chat_message.normalize import parse_structured_list
 from src.chat_message.repository_async import AsyncMessageRepository
+from src.chat_message.schemas import SuggestionMode
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.exceptions import ProviderException
 
@@ -45,7 +46,11 @@ class AuxiliaryGenerationService:
         self.context = context
 
     async def generate_suggestions(
-        self, chat_id: str, mode: str = "reply", tone: str | None = None, count: int = 3
+        self,
+        chat_id: str,
+        mode: SuggestionMode = SuggestionMode.REPLY,
+        tone: str | None = None,
+        count: int = 3,
     ) -> list[str]:
         """Generate next-turn suggestions for the chat.
 
@@ -66,7 +71,7 @@ class AuxiliaryGenerationService:
         user_name = chat.persona.name if chat.persona else "the user"
         char_name = chat.character.name if chat.character else "the character"
 
-        if mode == "tones":
+        if mode == SuggestionMode.TONES:
             # Tone chips are throwaway metadata — a few emotional-direction labels.
             # They don't need the system prompt, character card, persona, lorebook,
             # RAG or full history, so we skip build_api_messages entirely and send a
@@ -85,7 +90,7 @@ class AuxiliaryGenerationService:
             )
             api_messages = [{"role": "user", "content": instruction}]
             gateway = gateway_factory.build_task_gateway(chat, minimize_reasoning=True)
-        elif mode == "reply":
+        elif mode == SuggestionMode.REPLY:
             # Reply candidates are disposable — the user picks one, edits it, or
             # ignores them — so they don't warrant the full scene context on the
             # main model. Send a compact prompt (recent exchange + who's-who +
@@ -148,7 +153,7 @@ class AuxiliaryGenerationService:
         )
 
         content = (response.content or "").strip()
-        if mode == "impersonate":
+        if mode == SuggestionMode.IMPERSONATE:
             draft = content.strip().strip('"').strip()
             return [draft] if draft else []
         return parse_structured_list(content, count)

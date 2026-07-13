@@ -14,7 +14,7 @@ from src.chat_message import (
     gateway_factory,
     llm_audit,
 )
-from src.chat_message.schemas import StreamEvent
+from src.chat_message.schemas import StreamEvent, SuggestionMode
 from src.chat_session.models import Chat
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.persistence.enums import ProviderType
@@ -735,7 +735,7 @@ class TestChatMessageService:
         monkeypatch.setattr(gateway_factory, "build_gateway", build_main)
         monkeypatch.setattr(llm_audit, "record_llm_audit", AsyncMock())
 
-        result = await service.generate_suggestions(chat.id, mode="reply", count=3)
+        result = await service.generate_suggestions(chat.id, mode=SuggestionMode.REPLY, count=3)
 
         assert result == ["Stand firm.", "Sheathe it.", "Taunt him."]
         build_task.assert_called_once()
