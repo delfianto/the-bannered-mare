@@ -25,7 +25,7 @@ class TestProviderService:
         db.commit()
 
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
         providers = service.list_all()
 
         assert len(providers) == 2
@@ -40,7 +40,7 @@ class TestProviderService:
         db.refresh(provider)
 
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
         result = service.get_by_id(provider.id)
 
         assert result.id == provider.id
@@ -49,7 +49,7 @@ class TestProviderService:
     def test_get_by_id_not_found(self, db: Session) -> None:
         """Test getting a provider that doesn't exist raises 404"""
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.get_by_id("nonexistent-id")
@@ -60,7 +60,7 @@ class TestProviderService:
     def test_create_provider_success(self, db: Session) -> None:
         """Test creating a provider successfully"""
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
 
         provider = service.create(
             name="OpenAI",
@@ -82,7 +82,7 @@ class TestProviderService:
 
         # Try to create duplicate
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.create(
                 name="OpenAI",
@@ -95,7 +95,7 @@ class TestProviderService:
     def test_create_provider_minimal(self, db: Session) -> None:
         """Test creating a CUSTOM provider with api_key_env_var"""
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
 
         provider = service.create(
             name="Custom Provider",
@@ -121,7 +121,7 @@ class TestProviderService:
         db.refresh(provider)
 
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
         updated = service.update(
             provider.id,
             name="Custom Provider Updated",
@@ -146,7 +146,7 @@ class TestProviderService:
         db.refresh(provider)
 
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
         updated = service.update(provider.id, name="OpenAI Updated")
 
         assert updated.name == "OpenAI Updated"  # Changed
@@ -156,7 +156,7 @@ class TestProviderService:
     def test_update_provider_not_found(self, db: Session) -> None:
         """Test updating non-existent provider raises 404"""
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.update("nonexistent-id", name="New Name")
@@ -172,7 +172,7 @@ class TestProviderService:
         provider_id = provider.id
 
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
 
         # Verify provider deletion is not allowed
         with pytest.raises(NotImplementedError) as exc_info:
@@ -184,7 +184,7 @@ class TestProviderService:
     def test_delete_provider_not_found(self, db: Session) -> None:
         """Test that deleting non-existent provider raises NotImplementedError"""
         repo = ProviderRepository(db)
-        service = ProviderService(repo)
+        service = ProviderService(repo, ModelListCache())
 
         # Even for non-existent providers, deletion should be blocked
         with pytest.raises(NotImplementedError) as exc_info:
@@ -260,7 +260,7 @@ class TestProviderServiceDiscovery:
 
         monkeypatch.setattr(src.provider.service, "get_discovery_client", lambda x: None)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         with pytest.raises(BanneredMareException) as exc_info:
             service.list_available_models(provider.id)
 
@@ -278,7 +278,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
 
         first = service.list_available_models(provider.id)
         assert first.from_cache is False
@@ -301,7 +301,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         first = service.list_available_models(provider.id)
         second = service.list_available_models(provider.id)
 
@@ -321,7 +321,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         service.list_available_models(provider.id)  # populates the cache
 
         fake_client.error = httpx.ConnectError("connection refused")  # box goes down
@@ -335,7 +335,7 @@ class TestProviderServiceDiscovery:
         fake_client = _FakeDiscoveryClient(models=[])
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         service.list_available_models(provider.id)
         assert fake_client.list_calls == 1
 
@@ -353,7 +353,7 @@ class TestProviderServiceDiscovery:
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
         monkeypatch.setattr(settings.discovery_cache, "enabled", False)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         service.list_available_models(provider.id)
         service.list_available_models(provider.id)
         assert fake_client.list_calls == 2
@@ -365,7 +365,7 @@ class TestProviderServiceDiscovery:
         fake_client = _FakeDiscoveryClient(error=httpx.ConnectError("connection refused"))
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         # ProviderException maps to HTTP 502 via the global handler.
         with pytest.raises(ProviderException):
             service.list_available_models(provider.id)
@@ -377,7 +377,7 @@ class TestProviderServiceDiscovery:
         fake_client = _FakeDiscoveryClient(models=[])
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         service.list_available_models(provider.id)
         assert fake_client.list_calls == 1
 
@@ -393,17 +393,11 @@ class TestProviderServiceDiscovery:
         fake_client = _FakeDiscoveryClient(models=[])
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         result = service.unload_model(provider.id, "llama3:8b")
 
         assert result.action == "unloaded"
         assert fake_client.unload_calls == ["llama3:8b"]
-
-    def test_model_cache_is_isolated_per_service_instance_by_default(self, db: Session) -> None:
-        """Two ProviderService(repo) calls without an explicit cache get independent caches."""
-        service_a = ProviderService(ProviderRepository(db))
-        service_b = ProviderService(ProviderRepository(db))
-        assert service_a.model_cache is not service_b.model_cache
 
     def test_model_cache_can_be_shared_explicitly(self, db: Session) -> None:
         shared_cache = ModelListCache()
@@ -425,7 +419,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         result = service.list_available_models(provider.id)
 
         assert [m.identifier for m in result.models] == ["keep:1"]
@@ -442,7 +436,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         result = service.list_available_models(provider.id)
 
         assert {m.identifier for m in result.models} == {"a:1", "b:2"}
@@ -465,7 +459,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         result = service.search_models(provider.id, "GPT-4O")  # case-insensitive
 
         assert [m.identifier for m in result.models] == ["gpt-4o", "gpt-4o-mini"]
@@ -483,7 +477,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         result = service.search_models(provider.id, "wizard")
 
         assert [m.identifier for m in result.models] == ["x:1"]
@@ -499,7 +493,7 @@ class TestProviderServiceDiscovery:
         fake_client = _FakeDiscoveryClient(models=many)
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         result = service.search_models(provider.id, "model-")
 
         assert len(result.models) == 50
@@ -516,7 +510,7 @@ class TestProviderServiceDiscovery:
         )
         monkeypatch.setattr("src.provider.service.get_discovery_client", lambda _t: fake_client)
 
-        service = ProviderService(ProviderRepository(db))
+        service = ProviderService(ProviderRepository(db), ModelListCache())
         result = service.set_allowed_models(provider.id, ["keep:1", "keep:1", "  ", "keep:1"])
 
         refreshed = service.get_by_id(provider.id)

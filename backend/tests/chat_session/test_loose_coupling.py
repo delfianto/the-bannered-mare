@@ -5,12 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_message import AsyncMessageRepository, ChatMessageService
+from src.chat_message.repository import MessageRepository
 from src.chat_session import Chat, ChatRepository, ChatService
 from src.chat_session.model_snapshot import ChatModelSnapshotService
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.exceptions import BanneredMareException
 from src.model import ModelRepository, ModelService
 from src.model_family.repository import ModelFamilyRepository
+from src.persona.repository import PersonaRepository
 from src.profile.repository import ProfileRepository
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.prompt_template.repository import PromptTemplateRepository
@@ -25,7 +27,14 @@ class TestLooseCoupling:
         chat_repo = ChatRepository(db)
         char_repo = CharacterRepository(db)
         model_repo = ModelRepository(db)
-        service = ChatService(chat_repo, char_repo, model_repo, ProfileRepository(db))
+        service = ChatService(
+            chat_repo,
+            char_repo,
+            model_repo,
+            ProfileRepository(db),
+            MessageRepository(db),
+            PersonaRepository(db),
+        )
 
         # Create chat with explicit None
         chat = service.create(

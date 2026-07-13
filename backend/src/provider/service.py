@@ -63,11 +63,9 @@ def _dedupe_preserving_order(identifiers: list[str]) -> list[str]:
 class ProviderService:
     """Service for provider-related business logic"""
 
-    def __init__(
-        self, provider_repo: ProviderRepository, model_cache: ModelListCache | None = None
-    ):
+    def __init__(self, provider_repo: ProviderRepository, model_cache: ModelListCache):
         self.provider_repo = provider_repo
-        self.model_cache = model_cache or ModelListCache()
+        self.model_cache = model_cache
 
     def list_all(self) -> list[Provider]:
         """List all providers"""
