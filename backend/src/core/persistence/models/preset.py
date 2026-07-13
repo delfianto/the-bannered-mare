@@ -7,10 +7,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final
 
-from sqlalchemy import JSON, Boolean, String, Text
+from sqlalchemy import Boolean, String, Text
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.persistence.models._base import BaseModel
+from src.core.persistence.models._base import BaseModel, mutable_json
 
 if TYPE_CHECKING:
     from src.core.persistence.models.chat import Chat
@@ -29,7 +30,7 @@ class Preset(BaseModel):
         Text, nullable=True, comment="Brief description of the preset's purpose"
     )
     parameters: Mapped[dict[str, Any]] = mapped_column(
-        JSON,
+        MutableDict.as_mutable(mutable_json()),
         default=dict,
         nullable=False,
         comment="Sampling parameter overrides (temperature, top_p, etc.)",

@@ -2,8 +2,6 @@
 
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy.orm.attributes import flag_modified
-
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
 from src.model import parameter_validation
@@ -256,8 +254,9 @@ class ModelService:
         if family_changed and model_family_id is not None:
             model.model_family_id = model_family_id
         if new_parameters is not None:
+            # parameters is a MutableDict, so reassignment (and in-place mutation)
+            # is tracked automatically — no flag_modified needed.
             model.parameters = new_parameters
-            flag_modified(model, "parameters")
 
         updated = self.model_repo.update(model)
         self.model_repo.commit()
