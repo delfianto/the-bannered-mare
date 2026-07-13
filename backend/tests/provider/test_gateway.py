@@ -340,3 +340,29 @@ async def test_chat_completion_timeout(mock_provider: Any, mock_registry: Any) -
 
         with pytest.raises(ProviderTimeoutError, match="Provider request timed out"):
             await gateway.chat_completion([{"role": "user", "content": "test"}])
+
+
+def test_get_effective_parameters_removes_negative_seed(mock_provider: Any) -> None:
+    """A seed parameter with value < 0 (such as -1) is removed from effective parameters."""
+    registry = MagicMock()
+    registry.parameters = {}
+    registry.model_family = None
+
+    # Test with preset_parameters containing seed = -1
+    gateway = ProviderGateway(
+        mock_provider, registry, "gpt-4", preset_parameters={"seed": -1, "temperature": 0.7}
+    )
+    params = gateway._get_effective_parameters()
+    assert "seed" not in params
+    assert params["temperature"] == 0.7
+
+    # Test with registry parameters containing seed = -2
+    registry.parameters = {"seed": -2}
+    gateway = ProviderGateway(mock_provider, registry, "gpt-4")
+    params = gateway._get_effective_parameters()
+    assert "seed" not in params
+
+    # Test with non-negative seed (should be preserved)
+    gateway = ProviderGateway(mock_provider, registry, "gpt-4", preset_parameters={"seed": 42})
+    params = gateway._get_effective_parameters()
+    assert params["seed"] == 42

@@ -90,6 +90,12 @@ class ProviderGateway:
                     family.family_identifier,
                 )
 
+        # Remove negative seeds (e.g., -1 for random seed) since APIs expect unsigned/positive integers.
+        if "seed" in effective_params:
+            seed_val = effective_params["seed"]
+            if isinstance(seed_val, (int, float)) and seed_val < 0:
+                del effective_params["seed"]
+
         return effective_params
 
     @property
