@@ -211,3 +211,14 @@ class ModelFamily(BaseModel):
             return ReasoningMode(raw) if raw else ReasoningMode.NONE
         except ValueError:
             return ReasoningMode.NONE
+
+    @property
+    def context_window(self) -> int | None:
+        """Total context length in tokens, read from ``extra_metadata['context_window']``.
+
+        The ceiling history truncation budgets against; ``None`` (missing or a
+        non-positive/non-int value) means "unknown", so callers fall back to the
+        template's flat ``max_history_tokens`` instead of a real window.
+        """
+        raw = (self.extra_metadata or {}).get("context_window")
+        return raw if isinstance(raw, int) and raw > 0 else None
