@@ -7,10 +7,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
+from sqlalchemy.ext.mutable import MutableDict, MutableList
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.persistence.models._base import BaseModel
+from src.core.persistence.models._base import BaseModel, mutable_json
 
 if TYPE_CHECKING:
     from src.core.persistence.models.chat import Chat
@@ -74,13 +75,13 @@ class PromptTemplate(BaseModel):
         Text, nullable=False, comment="Jinja2 template string for the system prompt"
     )
     component_order: Mapped[list[str]] = mapped_column(
-        JSON,
+        MutableList.as_mutable(mutable_json()),
         nullable=False,
         default=DEFAULT_COMPONENT_ORDER,
         comment="Ordered list of component names for prompt construction",
     )
     components_enabled: Mapped[dict[str, bool]] = mapped_column(
-        JSON,
+        MutableDict.as_mutable(mutable_json()),
         nullable=False,
         default=DEFAULT_COMPONENTS_ENABLED,
         comment="Map of component names to their enabled status",

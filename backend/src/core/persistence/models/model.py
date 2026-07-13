@@ -19,11 +19,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, final
 
-from sqlalchemy import JSON, Boolean, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.persistence.enums import ReasoningMode
-from src.core.persistence.models._base import BaseModel, StringList
+from src.core.persistence.models._base import BaseModel, StringList, mutable_json
 
 if TYPE_CHECKING:
     from src.core.persistence.models.chat import Chat
@@ -67,7 +68,7 @@ class ModelRegistry(BaseModel):
         comment="Default prompt template for this model",
     )
     parameters: Mapped[dict[str, Any]] = mapped_column(
-        JSON,
+        MutableDict.as_mutable(mutable_json()),
         default=dict,
         nullable=False,
         comment="Per-model overrides for sampling and generation parameters",
@@ -181,7 +182,7 @@ class ModelFamily(BaseModel):
         comment="List of provider types that support this family",
     )
     parameters: Mapped[dict[str, Any]] = mapped_column(
-        JSON,
+        MutableDict.as_mutable(mutable_json()),
         default=dict,
         nullable=False,
         comment="Schema and default values for supported parameters",
@@ -193,7 +194,9 @@ class ModelFamily(BaseModel):
         comment="List of parameters explicitly known to be unsupported by this family",
     )
     extra_metadata: Mapped[dict[str, Any] | None] = mapped_column(
-        JSON, nullable=True, comment="Additional family-specific technical metadata"
+        MutableDict.as_mutable(mutable_json()),
+        nullable=True,
+        comment="Additional family-specific technical metadata",
     )
 
     models: Mapped[list[ModelRegistry]] = relationship(back_populates="model_family")
