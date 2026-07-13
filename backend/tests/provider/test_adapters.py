@@ -17,6 +17,29 @@ class TestTokenUsage:
         assert usage.cache_read_tokens == 0
         assert usage.cache_creation_tokens == 0
 
+    def test_merge_none_returns_self(self):
+        usage = TokenUsage(input_tokens=10, output_tokens=5)
+        assert usage.merge(None) is usage
+
+    def test_merge_takes_max_per_field(self):
+        a = TokenUsage(input_tokens=10, output_tokens=5, cache_read_tokens=80)
+        b = TokenUsage(input_tokens=12, output_tokens=3, cache_creation_tokens=20)
+        merged = a.merge(b)
+        assert merged.input_tokens == 12
+        assert merged.output_tokens == 5
+        assert merged.cache_read_tokens == 80
+        assert merged.cache_creation_tokens == 20
+
+    def test_merge_does_not_clobber_with_zeros(self):
+        # message_delta carries output only (input=0); must not zero out input.
+        a = TokenUsage(input_tokens=100, cache_read_tokens=80, cache_creation_tokens=20)
+        b = TokenUsage(output_tokens=50)
+        merged = a.merge(b)
+        assert merged.input_tokens == 100
+        assert merged.output_tokens == 50
+        assert merged.cache_read_tokens == 80
+        assert merged.cache_creation_tokens == 20
+
 
 class TestOpenAIAdapter:
     def setup_method(self):
@@ -376,6 +399,124 @@ class TestAnthropicAdapter:
         resp = self.adapter.parse_response(data)
         assert resp.usage.cache_read_tokens == 80
         assert resp.usage.cache_creation_tokens == 20
+
+    def test_post_history_system_converted_to_user(self):
+        """A system message after the first user/assistant turn becomes a user
+        [System note] turn, not hoisted into the cached system block."""
+        messages = [
+            {"role": "system", "content": "You are a pirate."},
+            {"role": "user", "content": "Hello"},
+            {"role": "system", "content": "Relevant context from RAG."},
+            {"role": "system", "content": "Stay in character."},
+        ]
+        payload = self.adapter.build_payload(messages, "claude-sonnet-4-6", False, {})
+
+        system = payload["system"]
+        assert len(system) == 1
+        assert system[0]["text"] == "You are a pirate."
+        assert system[0]["cache_control"] == {"type": "ephemeral"}
+
+        msgs = payload["messages"]
+        # Only one user turn + the [System note] content merged into it (consecutive
+        # same-role after conversion). The last message gets the history breakpoint,
+        # so its content is block form — extract the text.
+        assert all(m["role"] == "user" for m in msgs)
+        last_text = msgs[-1]["content"][0]["text"]
+        assert "Hello" in last_text
+        assert "[System note]\nRelevant context from RAG." in last_text
+        assert "Stay in character." in last_text
+
+    def test_leading_system_run_concatenated_and_cached(self):
+        """Multiple leading system messages are joined into one cached system block."""
+        messages = [
+            {"role": "system", "content": "Rule one."},
+            {"role": "system", "content": "Rule two."},
+            {"role": "user", "content": "Hi"},
+        ]
+        payload = self.adapter.build_payload(messages, "claude-sonnet-4-6", False, {})
+        assert payload["system"][0]["text"] == "Rule one.\n\nRule two."
+        assert payload["system"][0]["cache_control"] == {"type": "ephemeral"}
+
+    def test_consecutive_same_role_merged(self):
+        """Adjacent user messages (e.g. user history + converted RAG) are merged —
+        Anthropic requires alternating user/assistant roles."""
+        messages = [
+            {"role": "system", "content": "System."},
+            {"role": "user", "content": "Question"},
+            {"role": "system", "content": "RAG note."},
+        ]
+        payload = self.adapter.build_payload(messages, "claude-sonnet-4-6", False, {})
+        msgs = payload["messages"]
+        # All three non-system turns collapse into one user turn; the last message
+        # gets the history breakpoint so its content is block form.
+        assert len(msgs) == 1
+        assert msgs[0]["role"] == "user"
+        text = msgs[0]["content"][0]["text"]
+        assert "Question" in text
+        assert "[System note]" in text
+
+    def test_last_message_has_history_breakpoint(self):
+        """The last chat message is converted to block form with cache_control —
+        the second cache breakpoint so prior turns are a cache read next turn."""
+        messages = [
+            {"role": "system", "content": "System."},
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi there"},
+        ]
+        payload = self.adapter.build_payload(messages, "claude-sonnet-4-6", False, {})
+        last = payload["messages"][-1]
+        assert isinstance(last["content"], list)
+        assert last["content"][0]["type"] == "text"
+        assert last["content"][0]["text"] == "Hi there"
+        assert last["content"][0]["cache_control"] == {"type": "ephemeral"}
+
+    def test_breakpoint_count_under_limit(self):
+        """Total cache_control breakpoints ≤ 4 (Anthropic limit): one on the
+        system block + one on the last message."""
+        messages = [
+            {"role": "system", "content": "System."},
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi"},
+            {"role": "user", "content": "Bye"},
+        ]
+        payload = self.adapter.build_payload(messages, "claude-sonnet-4-6", False, {})
+
+        count = 0
+        if "system" in payload:
+            for block in payload["system"]:
+                if "cache_control" in block:
+                    count += 1
+        for msg in payload["messages"]:
+            if isinstance(msg["content"], list):
+                for block in msg["content"]:
+                    if "cache_control" in block:
+                        count += 1
+        assert count <= 4
+
+    def test_no_messages_no_breakpoint(self):
+        """Empty messages list produces no breakpoint and doesn't error."""
+        payload = self.adapter.build_payload([], "claude-sonnet-4-6", False, {})
+        assert payload["messages"] == []
+
+    def test_parse_stream_message_start_usage(self):
+        """message_start carries input + cache usage — must be captured for
+        streaming audit (was silently dropped before)."""
+        line = (
+            'data: {"type":"message_start","message":{"usage":'
+            '{"input_tokens":100,"cache_read_input_tokens":80,'
+            '"cache_creation_input_tokens":20,"output_tokens":0}}}'
+        )
+        chunk = self.adapter.parse_stream_line(line)
+        assert chunk is not None
+        assert chunk.usage is not None
+        assert chunk.usage.input_tokens == 100
+        assert chunk.usage.cache_read_tokens == 80
+        assert chunk.usage.cache_creation_tokens == 20
+
+    def test_parse_stream_message_start_no_usage(self):
+        """message_start without a usage block returns None (skip)."""
+        line = 'data: {"type":"message_start","message":{}}'
+        assert self.adapter.parse_stream_line(line) is None
 
 
 class TestGeminiAdapter:

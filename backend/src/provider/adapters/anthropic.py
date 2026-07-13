@@ -56,11 +56,35 @@ class AnthropicAdapter(ProviderAdapter):
         system_parts: list[str] = []
         chat_messages: list[dict[str, Any]] = []
 
+        # Only the *leading run* of system messages (the stable scaffolding) goes
+        # into the cached system block. A system message after the first
+        # user/assistant turn (RAG post-history, post_history_instructions, depth
+        # injections) is converted in place to a user turn — Anthropic's messages
+        # array only allows user/assistant, and hoisting them into the system block
+        # both poisons the cache and silently reorders them.
+        seen_non_system = False
         for msg in messages:
             if msg.get("role") == "system":
-                system_parts.append(msg.get("content", ""))
+                if not seen_non_system:
+                    system_parts.append(msg.get("content", ""))
+                else:
+                    chat_messages.append(
+                        {"role": "user", "content": f"[System note]\n{msg.get('content', '')}"}
+                    )
             else:
+                seen_non_system = True
                 chat_messages.append({"role": msg["role"], "content": msg.get("content", "")})
+
+        # Merge consecutive same-role messages — Anthropic requires alternation,
+        # and the system→user conversion above can place a [System note] user turn
+        # right after a user history message.
+        merged: list[dict[str, Any]] = []
+        for msg in chat_messages:
+            if merged and merged[-1]["role"] == msg["role"]:
+                merged[-1]["content"] = f"{merged[-1]['content']}\n\n{msg['content']}"
+            else:
+                merged.append({"role": msg["role"], "content": msg["content"]})
+        chat_messages = merged
 
         payload: dict[str, Any] = {"model": model, "messages": chat_messages}
 
@@ -73,6 +97,24 @@ class AnthropicAdapter(ProviderAdapter):
                     "cache_control": {"type": "ephemeral"},
                 }
             ]
+
+        # History breakpoint: mark the last message's content as block form with
+        # cache_control. Two breakpoints total (system + last message) — well
+        # under Anthropic's limit of 4. On the next turn the prior turns are a
+        # cache read; with block-chunked eviction the window is stable between
+        # evictions.
+        if chat_messages:
+            last = chat_messages[-1]
+            chat_messages[-1] = {
+                "role": last["role"],
+                "content": [
+                    {
+                        "type": "text",
+                        "text": last["content"],
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
+            }
 
         if stream:
             payload["stream"] = True
@@ -167,6 +209,18 @@ class AnthropicAdapter(ProviderAdapter):
             return None
 
         event_type = data.get("type")
+
+        if event_type == "message_start":
+            u = data.get("message", {}).get("usage", {})
+            if u:
+                return StreamChunk(
+                    usage=TokenUsage(
+                        input_tokens=u.get("input_tokens", 0),
+                        cache_read_tokens=u.get("cache_read_input_tokens", 0),
+                        cache_creation_tokens=u.get("cache_creation_input_tokens", 0),
+                    )
+                )
+            return None
 
         if event_type == "content_block_delta":
             delta = data.get("delta", {})
