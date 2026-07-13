@@ -5,6 +5,8 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import Any
 
+from anyio import to_thread
+
 from src.chat_message import gateway_factory, llm_audit
 from src.chat_message.alternatives import AlternativesService
 from src.chat_message.auxiliary import AuxiliaryGenerationService
@@ -25,8 +27,8 @@ from src.core.logging.logger_config import get_logger
 from src.core.persistence import gen_id
 from src.core.persistence.models import MessageAlternative
 from src.core.schemas import PaginatedResponse, PaginationMeta
+from src.core.tokenization import Tokenizer, get_tokenizer
 from src.core.utils.reasoning import parse_reasoning_tags
-from src.core.utils.tokenizer import TokenizerService
 from src.lore.service import LoreService
 from src.prompt_template.prompt_builder import PromptBuilder
 from src.provider.adapters.base import TokenUsage
@@ -78,7 +80,6 @@ class ChatMessageService:
         self.prompt_builder = prompt_builder  # retained for the scaffolding-only preview
         self.alt_repo = alt_repo
         self.retrieval_service = retrieval_service  # retained for _vectorize
-        self.tokenizer = TokenizerService()
         self.context = MessageContextBuilder(prompt_builder, lore_service, retrieval_service)
         self.alternatives = AlternativesService(message_repo, alt_repo)
         self.aux = AuxiliaryGenerationService(message_repo, chat_repo, self.context)
@@ -106,9 +107,14 @@ class ChatMessageService:
         """Get a chat with all relations or raise 404."""
         return await get_chat_or_404(self.chat_repo, chat_id)
 
-    def _log_token_budget(self, api_messages: list[dict[str, Any]]) -> int:
+    @staticmethod
+    def _tokenizer(chat: Chat) -> Tokenizer:
+        """The family-appropriate token counter for this chat's model."""
+        return get_tokenizer(chat.model.model_family if chat.model else None)
+
+    def _log_token_budget(self, api_messages: list[dict[str, Any]], tokenizer: Tokenizer) -> int:
         """Log estimated prompt token count and return the total."""
-        total = self.tokenizer.count_messages(api_messages)
+        total = tokenizer.count_messages(api_messages)
         logger.info(
             "prompt_token_estimate", estimated_tokens=total, message_count=len(api_messages)
         )
@@ -204,14 +210,14 @@ class ChatMessageService:
 
     async def edit_message(self, chat_id: str, message_id: str, content: str) -> Message:
         """Edit a message's content and recount tokens."""
-        await self._get_chat_by_id(chat_id)
+        chat = await self._get_chat_by_id(chat_id)
 
         message = await self.message_repo.find_by_id_in_chat(message_id, chat_id)
         if not message:
             raise NotFoundError(f"Message '{message_id}' not found in chat '{chat_id}'")
 
         message.content = content
-        message.token_count = self.tokenizer.count_tokens(content)
+        message.token_count = self._tokenizer(chat).count(content)
         updated = await self.message_repo.update(message)
         await self.message_repo.commit()
         return updated
@@ -221,7 +227,7 @@ class ChatMessageService:
     # --- Shared completion pipeline (blocking + streaming) ---
 
     def _normalize_reply(
-        self, content: str, reasoning: str | None, usage: TokenUsage | None
+        self, content: str, reasoning: str | None, usage: TokenUsage | None, tokenizer: Tokenizer
     ) -> tuple[str, str | None, int]:
         """Post-process a usable reply: split think-tags when the API didn't
         provide reasoning, strip leaked HTML/graphics, and compute the token
@@ -231,9 +237,7 @@ class ChatMessageService:
             content, reasoning = parse_reasoning_tags(content)
         content = sanitize_narrative(content)
         token_count = (
-            usage.output_tokens
-            if usage and usage.output_tokens
-            else self.tokenizer.count_tokens(content)
+            usage.output_tokens if usage and usage.output_tokens else tokenizer.count(content)
         )
         return content, reasoning, token_count
 
@@ -332,8 +336,9 @@ class ChatMessageService:
                     created_tokens=response.usage.cache_creation_tokens,
                 )
 
+        tokenizer = await to_thread.run_sync(self._tokenizer, chat)
         content, reasoning, token_count = self._normalize_reply(
-            response.content, response.reasoning, response.usage
+            response.content, response.reasoning, response.usage, tokenizer
         )
         return await self._persist_reply(
             chat_id=chat_id,
@@ -348,11 +353,14 @@ class ChatMessageService:
         chat = await self._get_chat_by_id(chat_id)
         gateway_factory.validate_model_and_key(chat)
 
+        # Resolve off the loop: an open-weight family's tokenizer downloads once
+        # on first use; after that get_tokenizer is a cached no-op.
+        tokenizer = await to_thread.run_sync(self._tokenizer, chat)
         user_message = Message(
             chat_id=chat_id,
             role=MessageRole.USER,
             content=content,
-            token_count=self.tokenizer.count_tokens(content),
+            token_count=tokenizer.count(content),
         )
         _ = await self.message_repo.create(user_message)
         await self.message_repo.commit()
@@ -361,7 +369,7 @@ class ChatMessageService:
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         api_messages = await self.context.assemble(chat, messages)
-        estimated_tokens = self._log_token_budget(api_messages)
+        estimated_tokens = self._log_token_budget(api_messages, tokenizer)
 
         created = await self._run_blocking_completion(
             chat=chat,
@@ -431,8 +439,9 @@ class ChatMessageService:
                 return
 
             if full_content:
+                tokenizer = await to_thread.run_sync(self._tokenizer, chat)
                 full_content, reasoning, token_count = self._normalize_reply(
-                    full_content, full_reasoning or None, last_usage
+                    full_content, full_reasoning or None, last_usage, tokenizer
                 )
                 await self._persist_reply(
                     chat_id=chat_id,
@@ -467,11 +476,12 @@ class ChatMessageService:
         chat = await self._get_chat_by_id(chat_id)
         gateway_factory.validate_model_and_key(chat)
 
+        tokenizer = await to_thread.run_sync(self._tokenizer, chat)
         user_message = Message(
             chat_id=chat_id,
             role=MessageRole.USER,
             content=content,
-            token_count=self.tokenizer.count_tokens(content),
+            token_count=tokenizer.count(content),
         )
         _ = await self.message_repo.create(user_message)
         await self.message_repo.commit()

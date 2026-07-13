@@ -7,9 +7,9 @@ from typing import Any
 from src.character.models import Character
 from src.chat_session.models import Chat
 from src.core.persistence.enums import InsertionPosition
-from src.core.persistence.models import Message
+from src.core.persistence.models import Message, ModelFamily
+from src.core.tokenization import get_tokenizer
 from src.core.utils.template import TemplateContext, TemplateService
-from src.core.utils.tokenizer import TokenizerService
 from src.lore.activation_engine import ActivatedEntry
 from src.persona.models import Persona
 from src.prompt_template.models import PromptTemplate
@@ -40,14 +40,9 @@ class DepthInjection:
 class PromptBuilder:
     """Builder for constructing multi-component LLM prompts"""
 
-    def __init__(
-        self,
-        template_repo: PromptTemplateRepository,
-        tokenizer_service: TokenizerService | None = None,
-    ):
+    def __init__(self, template_repo: PromptTemplateRepository):
         self.template_repo = template_repo
         self.template_service = TemplateService()
-        self.tokenizer_service = tokenizer_service or TokenizerService()
 
     def build_api_messages(
         self,
@@ -101,7 +96,12 @@ class PromptBuilder:
                 lore_by_position.get(InsertionPosition.BEFORE_EXAMPLES, [])
             ),
             "example_dialogues": self._build_example_dialogues(chat.character),
-            "chat_history": self._build_chat_history(messages, template, depth_injections),
+            "chat_history": self._build_chat_history(
+                messages,
+                template,
+                depth_injections,
+                chat.model.model_family if chat.model else None,
+            ),
             "post_history_instructions": self._build_post_history_instructions(chat.character),
         }
 
@@ -251,6 +251,7 @@ class PromptBuilder:
         messages: list[Message],
         template: PromptTemplate,
         depth_injections: list[DepthInjection] | None = None,
+        family: ModelFamily | None = None,
     ) -> list[dict[str, Any]]:
         """Build chat history with token budget + depth-injected reminders (lore + fragments).
 
@@ -264,11 +265,17 @@ class PromptBuilder:
         """
         max_tokens = template.max_history_tokens or 4096
 
+        # Only messages missing a persisted count need live counting (rare), so the
+        # family tokenizer is resolved lazily — avoids loading it for the common
+        # all-counted case and for the empty-history preview.
+        tokenizer = None
         counts = []
         for msg in messages:
             msg_tokens = msg.token_count
             if msg_tokens is None:
-                msg_tokens = self.tokenizer_service.count_tokens(msg.content)
+                if tokenizer is None:
+                    tokenizer = get_tokenizer(family)
+                msg_tokens = tokenizer.count(msg.content)
             counts.append(msg_tokens + 3)
 
         total = sum(counts)

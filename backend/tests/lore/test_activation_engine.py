@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 from src.core.persistence.enums import InsertionPosition, MessageRole, SecondaryLogic
-from src.core.utils.tokenizer import TokenizerService
+from src.core.tokenization import get_tokenizer
 from src.lore.activation_engine import activate_entries
 
 
@@ -27,7 +27,7 @@ def _make_entry(**kwargs):
     return entry
 
 
-tokenizer = TokenizerService()
+tokenizer = get_tokenizer(None)
 
 
 class TestActivationEngine:

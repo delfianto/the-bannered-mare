@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 
 from src.core.persistence.enums import InsertionPosition, SecondaryLogic
-from src.core.utils.tokenizer import TokenizerService
+from src.core.tokenization import Tokenizer
 from src.lore.models import LoreEntry
 
 
@@ -89,7 +89,7 @@ def activate_entries(
     entries: list[LoreEntry],
     scan_text: str,
     token_budget: int,
-    tokenizer: TokenizerService,
+    tokenizer: Tokenizer,
 ) -> list[ActivatedEntry]:
     """
     One-pass activation: match keywords, enforce budget, return ordered entries.
@@ -128,7 +128,7 @@ def activate_entries(
         if entry.priority < 0:
             continue
 
-        tokens = tokenizer.count_tokens(entry.content)
+        tokens = tokenizer.count(entry.content)
 
         # ignore_budget entries from the original LoreEntry aren't tracked here
         # because ActivatedEntry doesn't carry that flag. We handle it below.

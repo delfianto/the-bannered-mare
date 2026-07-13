@@ -425,11 +425,11 @@ class TestChatMessageService:
         assert updated.token_count is not None
         assert updated.token_count > 0
 
-        # Verify token_count was recomputed (not zero or the same as original)
-        from src.core.utils.tokenizer import TokenizerService
+        # Verify token_count was recomputed with the family tokenizer (the test
+        # family has no vendor prefix, so it resolves to the default tiktoken).
+        from src.core.tokenization import get_tokenizer
 
-        tokenizer = TokenizerService()
-        expected_tokens = tokenizer.count_tokens("Edited text")
+        expected_tokens = get_tokenizer(None).count("Edited text")
         assert updated.token_count == expected_tokens
 
     @pytest.mark.asyncio
