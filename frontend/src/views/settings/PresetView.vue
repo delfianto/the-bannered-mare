@@ -353,7 +353,7 @@ function formatDate(iso: string): string {
                   >
                     <span
                       class="size-1.5 rounded-full"
-                      :class="preset.is_default ? 'bg-emerald-500' : 'bg-muted-foreground'"
+                      :class="preset.is_default ? 'bg-success' : 'bg-muted-foreground'"
                     />
                     {{ preset.is_default ? "Yes" : "No" }}
                   </span>

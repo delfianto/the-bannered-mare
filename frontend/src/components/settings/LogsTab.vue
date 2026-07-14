@@ -70,10 +70,10 @@ function formatTimestamp(iso: string): string {
 }
 
 const methodColors: Record<string, string> = {
-  GET: "bg-emerald-500/10 text-emerald-500",
-  POST: "bg-blue-500/10 text-blue-500",
-  PUT: "bg-amber-500/10 text-amber-500",
-  DELETE: "bg-red-500/10 text-red-500",
+  GET: "bg-success/10 text-success",
+  POST: "bg-info/10 text-info",
+  PUT: "bg-warning/10 text-warning",
+  DELETE: "bg-error/10 text-error",
 };
 
 const providerColors: Record<string, string> = {
@@ -222,8 +222,8 @@ onMounted(fetchAll);
               class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide"
               :class="
                 rowSuccessRate(row) >= 95
-                  ? 'bg-emerald-500/10 text-emerald-500'
-                  : 'bg-amber-500/10 text-amber-500'
+                  ? 'bg-success/10 text-success'
+                  : 'bg-warning/10 text-warning'
               "
             >
               {{ rowSuccessRate(row) }}% ok
@@ -286,10 +286,10 @@ onMounted(fetchAll);
             class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide"
             :class="
               log.status_code < 300
-                ? 'bg-emerald-500/10 text-emerald-500'
+                ? 'bg-success/10 text-success'
                 : log.status_code < 400
-                  ? 'bg-amber-500/10 text-amber-500'
-                  : 'bg-red-500/10 text-red-500'
+                  ? 'bg-warning/10 text-warning'
+                  : 'bg-error/10 text-error'
             "
           >
             {{ log.status_code }}
@@ -340,8 +340,8 @@ onMounted(fetchAll);
               class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
               :class="
                 log.status === 'success'
-                  ? 'bg-emerald-500/10 text-emerald-500'
-                  : 'bg-red-500/10 text-red-500'
+                  ? 'bg-success/10 text-success'
+                  : 'bg-error/10 text-error'
               "
             >
               {{ log.status }}
@@ -369,7 +369,7 @@ onMounted(fetchAll);
           </div>
 
           <!-- Error message -->
-          <p v-if="log.error_message" class="mt-1.5 text-xs text-red-500">
+          <p v-if="log.error_message" class="mt-1.5 text-xs text-error">
             {{ log.error_message }}
           </p>
         </button>
@@ -389,7 +389,7 @@ onMounted(fetchAll);
         >
           <!-- Error type -->
           <span
-            class="rounded-full bg-red-500/10 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-red-500 uppercase"
+            class="rounded-full bg-error/10 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-error uppercase"
           >
             {{ err.error_type }}
           </span>
