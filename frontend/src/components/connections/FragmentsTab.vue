@@ -39,7 +39,8 @@ function typeBadgeClass(type: string): string {
   }
 }
 
-function openFragment(row: any) {
+type FragmentRow = (typeof fragments.value)[number];
+function openFragment(row: FragmentRow) {
   router.push(`/settings/fragments/${row.id}`);
 }
 
@@ -144,7 +145,7 @@ const columns: DataTableColumn[] = [
         <span
           v-else
           class="text-xs text-muted-foreground"
-          :title="(row.used_by ?? []).map((tpl: any) => tpl.name).join(', ')"
+          :title="(row.used_by ?? []).map((tpl) => tpl.name).join(', ')"
         >
           {{ (row.used_by ?? []).length }} template{{ (row.used_by ?? []).length === 1 ? "" : "s" }}
         </span>

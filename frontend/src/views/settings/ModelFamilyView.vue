@@ -67,22 +67,34 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
   }
 });
 
-function getParamType(schema: any): string {
-  return schema?.type || "unknown";
+// Family parameter definitions are an opaque JSON blob in the contract
+// (dict[str, Any]); this captures the fields the UI reads without an `any`.
+interface ParamSchema {
+  type?: string;
+  default?: unknown;
+  min_value?: number;
+  max_value?: number;
+  str_values?: string[];
 }
 
-function getParamDefault(schema: any): string {
-  if (schema?.default === null || schema?.default === undefined) return "none";
-  if (typeof schema.default === "object") return JSON.stringify(schema.default);
-  return String(schema.default);
+function getParamType(schema: unknown): string {
+  return (schema as ParamSchema)?.type || "unknown";
 }
 
-function getParamRange(schema: any): string | null {
-  if (schema?.min_value !== undefined && schema?.max_value !== undefined) {
-    return `${schema.min_value} - ${schema.max_value}`;
+function getParamDefault(schema: unknown): string {
+  const s = schema as ParamSchema;
+  if (s?.default === null || s?.default === undefined) return "none";
+  if (typeof s.default === "object") return JSON.stringify(s.default);
+  return String(s.default);
+}
+
+function getParamRange(schema: unknown): string | null {
+  const s = schema as ParamSchema;
+  if (s?.min_value !== undefined && s?.max_value !== undefined) {
+    return `${s.min_value} - ${s.max_value}`;
   }
-  if (schema?.min_value !== undefined) return `>= ${schema.min_value}`;
-  if (schema?.max_value !== undefined) return `<= ${schema.max_value}`;
+  if (s?.min_value !== undefined) return `>= ${s.min_value}`;
+  if (s?.max_value !== undefined) return `<= ${s.max_value}`;
   return null;
 }
 
@@ -334,10 +346,10 @@ function formatDate(iso: string): string {
                   <span v-if="getParamRange(schema)">
                     Range: <code class="text-foreground/70">{{ getParamRange(schema) }}</code>
                   </span>
-                  <span v-if="(schema as any)?.str_values">
+                  <span v-if="(schema as ParamSchema)?.str_values">
                     Values:
                     <code class="text-foreground/70">{{
-                      (schema as any).str_values.join(", ")
+                      (schema as ParamSchema).str_values?.join(", ")
                     }}</code>
                   </span>
                 </div>

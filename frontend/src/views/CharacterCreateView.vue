@@ -265,7 +265,7 @@ function handleAvatarChange(file: File) {
           <CharacterTab
             v-if="activeTab === 'character'"
             :data="form.data"
-            @update:field="(field: any, val: any) => form.updateField(field, val)"
+            @update:field="(field, val) => form.updateField(field, val)"
             @add:tag="form.addTag"
             @remove:tag="form.removeTag"
             @change="handleAvatarChange"
@@ -273,7 +273,7 @@ function handleAvatarChange(file: File) {
           <BehaviorTab
             v-if="activeTab === 'behavior'"
             :data="form.data"
-            @update:field="(field: any, val: any) => form.updateField(field, val)"
+            @update:field="(field, val) => form.updateField(field, val)"
             @add-dialogue="form.addDialogue"
             @update-dialogue="form.updateDialogue"
             @remove-dialogue="form.removeDialogue"
@@ -281,7 +281,7 @@ function handleAvatarChange(file: File) {
           <WorldTab
             v-if="activeTab === 'world'"
             :data="form.data"
-            @update:field="(field: any, val: any) => form.updateField(field, val)"
+            @update:field="(field, val) => form.updateField(field, val)"
             @add-lorebook="form.addLorebook"
             @update-lorebook="form.updateLorebook"
             @remove-lorebook="form.removeLorebook"

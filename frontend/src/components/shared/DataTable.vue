@@ -10,13 +10,13 @@ export interface DataTableColumn {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, unknown>">
 import AppPagination from "@/components/shared/AppPagination.vue";
 
 withDefaults(
   defineProps<{
     columns: DataTableColumn[];
-    rows: readonly any[];
+    rows: readonly T[];
     rowKey?: string;
     page?: number;
     totalPages?: number;
@@ -29,7 +29,7 @@ withDefaults(
 );
 
 const emit = defineEmits<{
-  rowClick: [row: any];
+  rowClick: [row: T];
   "update:page": [page: number];
 }>();
 </script>
@@ -53,7 +53,7 @@ const emit = defineEmits<{
         <tbody>
           <tr
             v-for="row in rows"
-            :key="row[rowKey]"
+            :key="String(row[rowKey])"
             class="cursor-pointer border-b border-border/50 transition-colors last:border-0 hover:bg-base-300/40"
             @click="emit('rowClick', row)"
           >

@@ -15,7 +15,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:field": [field: keyof CharacterData, value: any];
+  "update:field": [field: keyof CharacterData, value: CharacterData[keyof CharacterData]];
   addDialogue: [];
   updateDialogue: [id: string, field: "userMessage" | "characterReply", value: string];
   removeDialogue: [id: string];
