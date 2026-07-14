@@ -92,7 +92,7 @@ function roleLabel(role: string): string {
             :class="i > 0 ? 'border-t border-border/40' : ''"
           >
             <dt class="shrink-0 text-xs text-muted-foreground">{{ entry.key }}</dt>
-            <dd class="min-w-0 text-right font-mono text-xs break-words text-foreground">
+            <dd class="min-w-0 text-right font-mono text-xs wrap-break-word text-foreground">
               {{ entry.value }}
             </dd>
           </div>
