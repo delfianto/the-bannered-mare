@@ -105,3 +105,27 @@ jobs:
         run: uv run alembic upgrade head
       - name: Run Postgres integration tests
         run: uv run pytest -m postgres
+
+  # Single required status check: fails unless EVERY job above succeeded. Because
+  # it `needs` the integration job and treats any non-`success` result (including
+  # `skipped`) as failure, the Postgres/pgvector job can never silently vanish —
+  # the coverage of the app's most differentiated data path can't drop to zero
+  # behind a green pipeline. Point branch protection at this job.
+  ci-gate:
+    name: CI gate (all backend jobs passed)
+    if: always()
+    needs: [lint, typecheck, test, integration]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every backend job to have succeeded
+        # Override the workflow-level `backend` working dir (no checkout here).
+        working-directory: ${{ github.workspace }}
+        run: |
+          echo "lint=${{ needs.lint.result }} typecheck=${{ needs.typecheck.result }} test=${{ needs.test.result }} integration=${{ needs.integration.result }}"
+          for r in "${{ needs.lint.result }}" "${{ needs.typecheck.result }}" "${{ needs.test.result }}" "${{ needs.integration.result }}"; do
+            if [ "$r" != "success" ]; then
+              echo "::error::A required backend CI job did not succeed (skipped/failed/cancelled). The Postgres integration job must run and pass."
+              exit 1
+            fi
+          done
+          echo "All backend CI jobs succeeded."
