@@ -24,7 +24,12 @@
     "copy": "Copy",
     "copied": "Copied!",
     "search": "Search",
-    "selected": "{count} selected"
+    "selected": "{count} selected",
+    "errorBoundary": {
+      "title": "Something went wrong",
+      "description": "This page hit an unexpected error. Reloading usually fixes it — if it keeps happening, the app may have updated in the background.",
+      "reload": "Reload"
+    }
   },
   "nav": {
     "home": "Home",
