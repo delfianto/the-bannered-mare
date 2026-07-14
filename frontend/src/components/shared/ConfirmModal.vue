@@ -32,7 +32,7 @@ const emit = defineEmits<{
     <template #footer>
       <button
         type="button"
-        class="h-9 rounded-xl border border-border bg-transparent px-4 text-sm font-medium text-foreground transition-colors hover:bg-white/5 disabled:opacity-50"
+        class="h-9 rounded-xl border border-border bg-transparent px-4 text-sm font-medium text-foreground transition-colors hover:bg-base-content/5 disabled:opacity-50"
         :disabled="loading"
         @click="emit('close')"
       >

@@ -83,7 +83,7 @@ function resolveModel(id: string | null | undefined): string | null {
     <template #footer>
       <button
         type="button"
-        class="h-9 rounded-xl border border-border bg-transparent px-4 text-sm font-medium text-foreground transition-colors hover:bg-white/5"
+        class="h-9 rounded-xl border border-border bg-transparent px-4 text-sm font-medium text-foreground transition-colors hover:bg-base-content/5"
         @click="emit('cancel')"
       >
         Cancel
