@@ -98,6 +98,37 @@ class CharacterUpdate(BaseModel):
     version: int | None = None
 
 
+class CharacterFormBase(BaseModel):
+    """Multipart create/update payload, declared once and consumed by both the
+    router and the service so the ~17-field character payload is no longer spelled
+    out four times.
+
+    Distinct from ``CharacterCreate``/``CharacterUpdate``: over multipart the list
+    fields arrive as JSON *strings* (the service parses them) and every field is
+    optional so the same shape serves a partial update. Deliberately carries **no**
+    ``UploadFile`` — the avatar rides on the router-only ``CharacterFormPayload``
+    (see router.py), keeping FastAPI transport types out of the service layer.
+    """
+
+    name: str | None = None
+    description: str | None = None
+    personality: str | None = None
+    first_message: str | None = None
+    example_dialogues: str | None = None  # JSON string
+    scenario: str | None = None
+    post_history_instructions: str | None = None
+    alternate_greetings: str | None = None  # JSON string
+    tags: str | None = None  # JSON string
+    gender: str | None = None
+    custom_gender: str | None = None
+    creator: str | None = None
+    version: int | None = None
+    system_prompt: str | None = None
+    creator_notes: str | None = None
+    species: str | None = None
+    age: str | None = None
+
+
 class CharacterResponse(CharacterBase, AvatarUrlMixin):
     """Schema for character responses"""
 
