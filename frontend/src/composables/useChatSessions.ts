@@ -94,8 +94,10 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
 
   const deleteChat = async (chatId: string) => {
     try {
-      const response = await fetch(`/api/chats/${chatId}`, { method: "DELETE" });
-      if (!response.ok && response.status !== 204) throw new Error("Failed to delete");
+      const { error: apiError } = await client.DELETE("/api/chats/{chat_id}", {
+        params: { path: { chat_id: chatId } },
+      });
+      if (apiError) throw extractApiError(apiError, "Failed to delete chat");
       chatSessions.value = chatSessions.value.filter((c) => c.id !== chatId);
     } catch (err) {
       console.error("Error deleting chat:", err);

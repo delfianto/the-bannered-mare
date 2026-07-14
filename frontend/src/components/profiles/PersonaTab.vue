@@ -2,7 +2,7 @@
 import { fallbackAvatarUrl } from "@/utils/avatar";
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 import type { components } from "@/api/schema";
 import Modal from "@/components/shared/Modal.vue";
 
@@ -150,10 +150,10 @@ function onDeleteClick(personaId: string) {
 
 async function confirmDelete(personaId: string) {
   try {
-    const response = await fetch(`/api/personas/${personaId}`, {
-      method: "DELETE",
+    const { error: apiError } = await client.DELETE("/api/personas/{persona_id}", {
+      params: { path: { persona_id: personaId } },
     });
-    if (!response.ok) throw new Error("Delete failed");
+    if (apiError) throw extractApiError(apiError, "Failed to delete persona");
     personas.value = personas.value.filter((p) => p.id !== personaId);
   } catch {
     // Silently fail for mock
@@ -169,15 +169,14 @@ function cancelDelete() {
 // ── Set Default ─────────────────────────────────────────
 async function setDefault(personaId: string) {
   try {
-    const response = await fetch(`/api/personas/${personaId}/set-default`, {
-      method: "POST",
+    const { data, error: apiError } = await client.POST("/api/personas/{persona_id}/set-default", {
+      params: { path: { persona_id: personaId } },
     });
-    if (!response.ok) throw new Error("Set default failed");
-    const updated: PersonaResponse = await response.json();
+    if (apiError || !data) throw extractApiError(apiError, "Failed to set default persona");
 
     // Update local state
     personas.value.forEach((p) => {
-      p.is_default = p.id === updated.id;
+      p.is_default = p.id === data.id;
     });
   } catch {
     // Silently fail for mock

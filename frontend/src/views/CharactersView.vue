@@ -8,6 +8,7 @@ import { useCreateChat } from "@/composables/useCreateChat";
 import { useLibraryFilters } from "@/composables/useLibraryFilters";
 import { useQueryState } from "@/composables/useQueryState";
 import { useAppToast } from "@/composables/useToast";
+import { client } from "@/api/client";
 import { CATEGORIES } from "@/constants/discoverData";
 import type { SortOption, ViewMode } from "@/types/discover";
 import DiscoverHeader from "@/components/discover/DiscoverHeader.vue";
@@ -175,22 +176,24 @@ async function executeDelete() {
   try {
     if (bulkDeleteMode.value) {
       const count = selected.value.size;
-      const deletePromises = [...selected.value].map((id) =>
-        fetch(`/api/characters/${id}`, { method: "DELETE" }),
+      const responses = await Promise.all(
+        [...selected.value].map((id) =>
+          client.DELETE("/api/characters/{character_id}", {
+            params: { path: { character_id: id } },
+          }),
+        ),
       );
-      const responses = await Promise.all(deletePromises);
-      const failedCount = responses.filter((r) => !r.ok && r.status !== 204).length;
+      const failedCount = responses.filter((r) => r.error).length;
       if (failedCount > 0) {
         throw new Error(`${failedCount} deletions failed`);
       }
       success(t("characters.deleted"), `${count} character(s) deleted.`);
       cancelSelect();
     } else if (characterToDelete.value) {
-      const id = characterToDelete.value;
-      const response = await fetch(`/api/characters/${id}`, { method: "DELETE" });
-      if (!response.ok && response.status !== 204) {
-        throw new Error(`Failed to delete character: ${response.status}`);
-      }
+      const { error: apiError } = await client.DELETE("/api/characters/{character_id}", {
+        params: { path: { character_id: characterToDelete.value } },
+      });
+      if (apiError) throw new Error("Failed to delete character");
       success(t("characters.deleted"), t("characters.deleteSuccess"));
     }
     refresh();

@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 import type { components } from "@/api/schema";
-import { client, extractApiError } from "@/api/client";
+import { client, extractApiError, streamFetch } from "@/api/client";
 import { useCompletionSignal } from "@/composables/useCompletionSignal";
 import type { StreamEvent } from "@/types/chat";
 
@@ -238,14 +238,15 @@ export function useChatMessages(
     abortController = new AbortController();
 
     try {
-      const response = await fetch(`/api/chats/${chatId}/messages?stream=true&regenerate=true`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await streamFetch(
+        `/api/chats/${chatId}/messages?stream=true&regenerate=true`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(null),
+          signal: abortController.signal,
         },
-        body: JSON.stringify(null),
-        signal: abortController.signal,
-      });
+      );
 
       if (!response.ok) {
         const err = await response.json();
@@ -285,11 +286,9 @@ export function useChatMessages(
     abortController = new AbortController();
 
     try {
-      const response = await fetch(`/api/chats/${chatId}/messages?stream=true`, {
+      const response = await streamFetch(`/api/chats/${chatId}/messages?stream=true`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content }),
         signal: abortController.signal,
       });
@@ -316,12 +315,11 @@ export function useChatMessages(
     const chatId = getChatId();
     if (!chatId) return;
     try {
-      const response = await fetch(`/api/chats/${chatId}/messages/${messageId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: newContent }),
+      const { error: apiError } = await client.PUT("/api/chats/{chat_id}/messages/{message_id}", {
+        params: { path: { chat_id: chatId, message_id: messageId } },
+        body: { content: newContent },
       });
-      if (!response.ok) throw new Error("Failed to edit");
+      if (apiError) throw extractApiError(apiError, "Failed to edit message");
       // Optimistic update
       const idx = messages.value.findIndex((m) => m.id === messageId);
       if (idx !== -1) {
@@ -333,35 +331,37 @@ export function useChatMessages(
     }
   };
 
-  const fetchAlternatives = async (messageId: string): Promise<any[]> => {
+  const fetchAlternatives = async (messageId: string) => {
     const chatId = getChatId();
     if (!chatId) return [];
-    try {
-      const response = await fetch(`/api/chats/${chatId}/messages/${messageId}/alternatives`);
-      if (!response.ok) return [];
-      return await response.json();
-    } catch {
-      return [];
-    }
+    const { data, error: apiError } = await client.GET(
+      "/api/chats/{chat_id}/messages/{message_id}/alternatives",
+      { params: { path: { chat_id: chatId, message_id: messageId } } },
+    );
+    if (apiError || !data) return [];
+    return data;
   };
 
   const activateAlternative = async (messageId: string, alternativeId: string) => {
     const chatId = getChatId();
     if (!chatId) return;
     try {
-      const response = await fetch(
-        `/api/chats/${chatId}/messages/${messageId}/alternatives/${alternativeId}/activate`,
-        { method: "PUT" },
+      const { data, error: apiError } = await client.PUT(
+        "/api/chats/{chat_id}/messages/{message_id}/alternatives/{alternative_id}/activate",
+        {
+          params: {
+            path: { chat_id: chatId, message_id: messageId, alternative_id: alternativeId },
+          },
+        },
       );
-      if (!response.ok) throw new Error("Failed to activate");
-      const updated = await response.json();
+      if (apiError || !data) throw extractApiError(apiError, "Failed to activate alternative");
       // Update message content locally
       const idx = messages.value.findIndex((m) => m.id === messageId);
       if (idx !== -1) {
         messages.value[idx] = {
           ...messages.value[idx],
-          content: updated.content,
-          active_index: updated.active_index,
+          content: data.content,
+          active_index: data.active_index,
         };
       }
     } catch (err) {
