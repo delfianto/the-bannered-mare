@@ -126,6 +126,9 @@ export function useChatMessages(
 
     let buffer = "";
     let streamError: string | null = null;
+    // The backend's `start` event carries the persisted message id; adopt it so
+    // post-stream edits/alternatives target the real row, not the client uuid.
+    let currentId = placeholderId;
 
     try {
       while (true) {
@@ -152,9 +155,21 @@ export function useChatMessages(
           }
           if (!event) continue;
 
+          if (event.type === "start") {
+            // Swap the placeholder's client uuid for the backend id up front so
+            // the freshly-streamed reply can be edited/re-rolled without a reload.
+            if (event.message_id) {
+              const startIdx = messages.value.findIndex((m) => m.id === currentId);
+              if (startIdx === -1) return;
+              messages.value[startIdx] = { ...messages.value[startIdx], id: event.message_id };
+              currentId = event.message_id;
+            }
+            continue;
+          }
+
           // Re-find by id every write: a chat switch resets `messages`, so a
           // cached index would write tokens into the wrong (or gone) message.
-          const idx = messages.value.findIndex((m) => m.id === placeholderId);
+          const idx = messages.value.findIndex((m) => m.id === currentId);
           if (idx === -1) return;
           const currentMsg = messages.value[idx];
 
@@ -180,6 +195,9 @@ export function useChatMessages(
     } catch (err) {
       // Abort (stop button / chat switch) is expected — end quietly.
       if ((err as Error)?.name === "AbortError") return;
+      // A mid-stream failure may already have swapped in the backend id, so clean
+      // up by the current id (kept only if it managed to accumulate content).
+      messages.value = messages.value.filter((m) => m.id !== currentId || m.content);
       throw err;
     } finally {
       isGenerating.value = false;
@@ -187,7 +205,7 @@ export function useChatMessages(
 
     if (streamError) {
       // Drop the empty placeholder so an error never lingers as a blank reply.
-      messages.value = messages.value.filter((m) => m.id !== placeholderId || m.content);
+      messages.value = messages.value.filter((m) => m.id !== currentId || m.content);
       throw new Error(streamError);
     }
   };
