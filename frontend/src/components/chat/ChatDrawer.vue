@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import type { ChatCharacterInfo } from "@/types/chat";
@@ -11,6 +11,7 @@ import { usePersonas } from "@/composables/usePersonas";
 import { useDataBank } from "@/composables/useDataBank";
 import { useLorebooks } from "@/composables/useLorebooks";
 import { useConfirmAction } from "@/composables/useConfirmAction";
+import { useOverlayTransition } from "@/composables/useOverlayTransition";
 import { useChatPromptPreview } from "@/composables/useChatPromptPreview";
 import { useChatLlmLogs, type LlmAuditLog } from "@/composables/useChatLlmLogs";
 import { useCompletionSignal } from "@/composables/useCompletionSignal";
@@ -45,12 +46,11 @@ const emit = defineEmits<{
 const router = useRouter();
 const { t } = useI18n();
 
-// Mirror Modal.vue's timer-driven open/close: `visible` gates mounting,
-// `entered` drives the slide/fade CSS (nested transitions can drop leave hooks).
-const DURATION = 200;
-const visible = ref(props.show);
-const entered = ref(props.show);
-let closeTimer: ReturnType<typeof setTimeout> | undefined;
+// Timer-driven open/close + scroll-lock + Escape-to-close, shared with any other
+// teleported overlay (see useOverlayTransition).
+const { visible, entered } = useOverlayTransition(() => props.show, {
+  onEscape: () => emit("close"),
+});
 
 const tabs = [
   { key: "character", label: t("chat.drawer.tabs.character") },
@@ -132,30 +132,6 @@ function goManageLorebooks() {
   emit("close");
   router.push("/lorebooks");
 }
-
-function handleKeyDown(e: KeyboardEvent) {
-  if (e.key === "Escape" && props.show) emit("close");
-}
-
-watch(
-  () => props.show,
-  (show) => {
-    if (closeTimer) clearTimeout(closeTimer);
-    if (show) {
-      visible.value = true;
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-      entered.value = false;
-      requestAnimationFrame(() => requestAnimationFrame(() => (entered.value = true)));
-    } else {
-      entered.value = false;
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
-      closeTimer = setTimeout(() => (visible.value = false), DURATION);
-    }
-  },
-  { immediate: true },
-);
 
 // Lazy-fetch the full character only while the Character tab is on screen; the
 // composable dedupes by id so reopening the drawer won't refetch, but switching
@@ -285,12 +261,6 @@ function formatLogTime(iso: string): string {
 function formatJson(value: unknown): string {
   return JSON.stringify(value, null, 2);
 }
-
-onUnmounted(() => {
-  if (closeTimer) clearTimeout(closeTimer);
-  document.body.style.overflow = "";
-  window.removeEventListener("keydown", handleKeyDown);
-});
 
 // --- Character tab helpers ---
 
