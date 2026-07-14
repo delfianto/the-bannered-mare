@@ -476,7 +476,7 @@ function formatDate(iso: string): string {
                   >
                     <span
                       class="size-1.5 rounded-full"
-                      :class="form.is_default ? 'bg-emerald-500' : 'bg-muted-foreground'"
+                      :class="form.is_default ? 'bg-success' : 'bg-muted-foreground'"
                     />
                     {{ form.is_default ? "Yes" : "No" }}
                   </span>
