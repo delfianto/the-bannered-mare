@@ -44,7 +44,7 @@ obvious.
   <!-- references -->
   <g font-size="12" text-anchor="middle">
     <rect x="30" y="128" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="90" y="152" fill="var(--tbm-dgm-ink)">Chat</text>
-    <rect x="270" y="128" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="330" y="152" fill="var(--tbm-dgm-ink)">Model</text>
+    <rect x="270" y="128" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="330" y="152" font-size="11" fill="var(--tbm-dgm-ink)">ModelRegistry</text>
   </g>
   <line x1="150" y1="147" x2="266" y2="147" stroke="var(--tbm-dgm-arrow)" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#tbm-ah)"/>
   <text x="210" y="138" text-anchor="middle" font-size="11" font-weight="700" fill="var(--tbm-dgm-ink-2)">refs</text>
@@ -52,7 +52,7 @@ obvious.
   <text x="410" y="161" font-size="11.5" fill="var(--tbm-dgm-ink-2)">Delete the target and the link is cleared; the referrer survives with a gap.</text>
   <!-- protected -->
   <g font-size="12" text-anchor="middle">
-    <rect x="30" y="222" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="90" y="246" fill="var(--tbm-dgm-ink)">Model</text>
+    <rect x="30" y="222" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="90" y="246" font-size="11" fill="var(--tbm-dgm-ink)">ModelRegistry</text>
     <rect x="270" y="222" width="120" height="38" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="330" y="246" fill="var(--tbm-dgm-ink)">ModelFamily</text>
   </g>
   <line x1="150" y1="241" x2="266" y2="241" stroke="var(--tbm-dgm-accent)" stroke-width="2.4" marker-end="url(#tbm-ah-accent)"/>
@@ -114,8 +114,9 @@ from another.
   <g fill="none">
     <line x1="480" y1="116" x2="480" y2="138" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
     <line x1="480" y1="174" x2="480" y2="196" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="804" y1="116" x2="804" y2="138" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
-    <line x1="804" y1="174" x2="804" y2="196" stroke="var(--tbm-dgm-accent)" stroke-width="2.2" marker-end="url(#dm-ah-accent)"/>
+    <line x1="804" y1="106" x2="804" y2="120" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="162" x2="804" y2="148" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
+    <line x1="804" y1="190" x2="804" y2="204" stroke="var(--tbm-dgm-accent)" stroke-width="2.2" marker-end="url(#dm-ah-accent)"/>
     <line x1="156" y1="352" x2="156" y2="374" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
     <line x1="804" y1="352" x2="804" y2="374" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
     <line x1="804" y1="432" x2="804" y2="410" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
@@ -124,9 +125,9 @@ from another.
     <path d="M240 110 H306 V334 H242" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
     <line x1="540" y1="316" x2="540" y2="240" stroke="var(--tbm-dgm-data)" stroke-width="2.2" marker-end="url(#dm-ah-data)"/>
     <path d="M396 110 H318 V156 H242" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-    <path d="M564 98 H642 V156 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M564 98 H642 V176 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
     <path d="M564 110 H654 V334 H718" stroke="var(--tbm-dgm-arrow)" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
-    <path d="M888 156 H910 V334 H890" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
+    <path d="M888 176 H910 V334 H890" stroke="var(--tbm-dgm-arrow)" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#dm-ah)"/>
   </g>
   <g font-size="12" text-anchor="middle">
     <rect x="72" y="80" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="103" fill="var(--tbm-dgm-ink)">Character</text>
@@ -134,9 +135,10 @@ from another.
     <rect x="396" y="80" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-backend)" stroke-width="1.8"/><text x="480" y="103" font-weight="700" fill="var(--tbm-dgm-ink)">Chat</text>
     <rect x="396" y="138" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="161" fill="var(--tbm-dgm-ink)">Message</text>
     <rect x="396" y="196" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="219" fill="var(--tbm-dgm-ink)">MessageAlternative</text>
-    <rect x="720" y="80" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="103" fill="var(--tbm-dgm-ink)">Provider</text>
-    <rect x="720" y="138" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="161" fill="var(--tbm-dgm-ink)">Model</text>
-    <rect x="720" y="196" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="219" fill="var(--tbm-dgm-ink)">ModelFamily</text>
+    <rect x="720" y="78" width="168" height="28" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="96" fill="var(--tbm-dgm-ink)">Provider</text>
+    <rect x="720" y="120" width="168" height="28" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="138" fill="var(--tbm-dgm-ink)">ModelRoute</text>
+    <rect x="720" y="162" width="168" height="28" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="180" fill="var(--tbm-dgm-ink)">ModelRegistry</text>
+    <rect x="720" y="204" width="168" height="28" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="804" y="222" fill="var(--tbm-dgm-ink)">ModelFamily</text>
     <rect x="72" y="316" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="339" fill="var(--tbm-dgm-ink)">Lorebook</text>
     <rect x="72" y="374" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="156" y="397" fill="var(--tbm-dgm-ink)">LoreEntry</text>
     <rect x="396" y="316" width="168" height="36" rx="8" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/><text x="480" y="339" fill="var(--tbm-dgm-ink)">DataBankEntry</text>
@@ -157,11 +159,13 @@ from another.
     <text x="516" y="266" font-size="10.5" font-weight="700" fill="var(--tbm-dgm-data)">scoped to (owned by)</text>
     <rect x="244" y="139" width="70" height="14" rx="3" fill="var(--tbm-dgm-surface-2)"/>
     <text x="279" y="150" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs persona</text>
-    <text x="602" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs model</text>
+    <text x="602" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs registry</text>
     <rect x="598" y="245" width="122" height="15" rx="3" fill="var(--tbm-dgm-surface-2)"/>
     <text x="659" y="256" font-size="10.5" fill="var(--tbm-dgm-ink-2)">refs template · preset</text>
     <text x="916" y="256" text-anchor="start" font-size="10" fill="var(--tbm-dgm-ink-2)">refs</text>
-    <text x="826" y="188" font-size="10" fill="var(--tbm-dgm-accent)">needs</text>
+    <text x="836" y="116" font-size="10" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
+    <text x="836" y="158" font-size="10" font-weight="700" fill="var(--tbm-dgm-data)">owns</text>
+    <text x="836" y="200" font-size="10" fill="var(--tbm-dgm-accent)">needs</text>
     <text x="522" y="366" font-size="9.5" fill="var(--tbm-dgm-faint)">indexes</text>
   </g>
 </svg>
@@ -211,7 +215,7 @@ optional task model for auxiliary calls, and a couple of provenance snapshots.
   <text x="410" y="324" text-anchor="middle" font-size="12.5" fill="var(--tbm-dgm-ink)">MessageAlternative (swipes)</text>
   <!-- references left -->
   <rect x="40" y="112" width="150" height="34" rx="8" fill="var(--tbm-dgm-provider-soft)" stroke="var(--tbm-dgm-provider)"/>
-  <text x="115" y="134" text-anchor="middle" font-size="12" fill="var(--tbm-dgm-ink)">Model</text>
+  <text x="115" y="134" text-anchor="middle" font-size="12" fill="var(--tbm-dgm-ink)">ModelRegistry</text>
   <rect x="40" y="160" width="150" height="34" rx="8" fill="var(--tbm-dgm-accent-soft)" stroke="var(--tbm-dgm-accent)"/>
   <text x="115" y="182" text-anchor="middle" font-size="12" fill="var(--tbm-dgm-ink)">Persona</text>
   <!-- references right -->
@@ -245,10 +249,11 @@ optional task model for auxiliary calls, and a couple of provenance snapshots.
 **One owner, four loans, three snapshots.** A `Chat` belongs to exactly one `Character`
 (delete the character and the chat cascades away) and owns its `Message`s, each of which
 owns its swipe `MessageAlternative`s. Everything else it touches is a *reference*: the
-`Model`, `Persona`, `PromptTemplate`, and `Preset` are all nullable and set-null on delete,
-so a chat degrades gracefully rather than breaking. To keep history readable even after a
-referenced record is gone, the chat also stores plain-string **snapshots** —
-`model_name` and the profile names it was created with and last had applied.
+`ModelRegistry` (the canonical model, ×2 for the optional task model), `Persona`,
+`PromptTemplate`, and `Preset` are all nullable and set-null on delete, so a chat degrades
+gracefully rather than breaking. To keep history readable even after a referenced record is
+gone, the chat also stores plain-string **snapshots** — `model_name` and the profile names
+it was created with and last had applied.
 
 </template>
 </Figure>
@@ -276,7 +281,7 @@ column definitions live in the ORM models under
 
 | Entity | Table | Owns | References | Notes |
 |--------|-------|------|-----------|-------|
-| `Chat` | `chats` | `Message` | `Character` (owner), `Model` (×2: main + optional task model), `PromptTemplate`, `Persona`, `Preset` | The session. See [§3](#_3-the-chat-aggregate). Carries `model_name` / profile-name snapshots. |
+| `Chat` | `chats` | `Message` | `Character` (owner), `ModelRegistry` (×2: main + optional task model), `PromptTemplate`, `Persona`, `Preset` | The session. See [§3](#_3-the-chat-aggregate). Carries `model_name` / profile-name snapshots. |
 | `Message` | `messages` | `MessageAlternative` | `Chat` (owner) | `role` (enum: user/assistant/system), `content`, cached `token_count`, optional `reasoning_content`, and `active_index` picking the live swipe. |
 | `MessageAlternative` | `message_alternatives` | — | `Message` (owner) | A regenerated "swipe". Ordered by `ordinal`. |
 
@@ -300,11 +305,11 @@ column definitions live in the ORM models under
 
 | Entity | Table | Owns | References | Notes |
 |--------|-------|------|-----------|-------|
-| `PromptTemplate` | `prompt_templates` | `TemplateFragment` | — | Component `component_order` + `components_enabled` map + a Jinja2 `system_template`. Referenced by `Chat`, `Model`, `Profile`. |
+| `PromptTemplate` | `prompt_templates` | `TemplateFragment` | — | Component `component_order` + `components_enabled` map + a Jinja2 `system_template`. Referenced by `Chat`, `ModelRegistry`, `Profile`. |
 | `PromptFragment` | `prompt_fragments` | `TemplateFragment` | — | A reusable Jinja2 block (`fragment_type`: system/nsfw/jailbreak/instruction/context). `is_global` fragments are available to every template. |
 | `TemplateFragment` | `template_fragments` | — | `PromptTemplate` (owner), `PromptFragment` (owner) | The **many-to-many join** carrying `position`, `ordinal`, `depth`. Owned by *both* ends. |
 | `Preset` | `presets` | — | — | A named sampling-parameter set (`parameters` JSON). Referenced by `Chat`, `Profile`. |
-| `Profile` | `profiles` | — | `PromptTemplate`, `Preset`, `Persona`, `Model` (main + optional task model) — all references | A loadout — a selectable bundle applied to a chat. Owns nothing; `source` / `source_filename` record where an imported one came from. |
+| `Profile` | `profiles` | — | `PromptTemplate`, `Preset`, `Persona`, `ModelRegistry` (main + optional task model) — all references | A loadout — a selectable bundle applied to a chat. Owns nothing; `source` / `source_filename` record where an imported one came from. |
 
 ### Knowledge & RAG
 
