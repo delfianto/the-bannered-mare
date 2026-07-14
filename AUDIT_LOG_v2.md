@@ -71,7 +71,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 | ID | Tier | Half | Sev | Title | Done |
 |---|---|---|---|---|---|
 | V2-A1 | A | BE | Med | RAG history stale on edit/regenerate | [x] |
-| V2-A2 | A | FE | Med | Streamed message never adopts backend `message_id` | [ ] |
+| V2-A2 | A | FE | Med | Streamed message never adopts backend `message_id` | [x] |
 | V2-A3 | A | FE | Med | Modal focus trap leaks on first Shift+Tab | [ ] |
 | V2-A4 | A | FE | Med | SelectMenu combobox ARIA on wrong element | [ ] |
 | V2-B1 | B | FE | Med | 5 multipart sites bypass `VITE_API_URL` + `trackedFetch` | [ ] |
@@ -108,7 +108,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 - **Fix:** On edit and on overwrite-regenerate, re-vectorize the message (delete-by-source then re-embed, or upsert by `(source_type='message', source_id=message_id)`). Reuse the existing `_vectorize` path.
 - **Acceptance:** editing or regenerating a message replaces its stored embedding; a test asserts the embedding row's vector/content changed and that retrieval no longer returns stale text. Gates stay green.
 
-### V2-A2. Streamed message never adopts its backend id  ·  Med · FE  · [ ]
+### V2-A2. Streamed message never adopts its backend id  ·  Med · FE  · [x] DONE
 - **Location:** `frontend/src/composables/useChatMessages.ts:107-118` (`addAssistantPlaceholder` → `crypto.randomUUID()`), `:161-175` (`readStream` handles only `text`/`reasoning`/`error`); union field at `frontend/src/types/chat.ts:20` (`start` → `message_id`).
 - **Problem:** The assistant bubble keeps a client-generated UUID; `readStream` ignores the `start` event that carries the real `message_id`. Confirmed by direct read.
 - **Why it matters:** Edit or fetch-alternatives on a freshly-streamed reply **before any reload** sends `PUT/GET /api/chats/{id}/messages/{client-uuid}` → **404**. The FE-15 union already models the exact field needed.
@@ -278,4 +278,5 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 
 _(Move items here with `[x]` and the fixing commit hash as they're finished — keep the record; don't delete.)_
 
-- **[x] V2-A1** — `vectorize_message` now uses delete-then-insert replace semantics (mirrors `vectorize_data_bank_entry`); `_vectorize` re-runs on every `_persist_reply` branch (new turn, overwrite, alternatives-store), on `edit_message`, and on `activate_alternative` (swipe) — every message-content mutation. New test `test_vectorize_message_replaces_prior_embedding` asserts the old vector is always deleted even on a dedup hit. Validated: ruff clean, basedpyright 0/0/0, 863 passed. Commit: `<pending>`.
+- **[x] V2-A1** — `vectorize_message` now uses delete-then-insert replace semantics (mirrors `vectorize_data_bank_entry`); `_vectorize` re-runs on every `_persist_reply` branch (new turn, overwrite, alternatives-store), on `edit_message`, and on `activate_alternative` (swipe) — every message-content mutation. New test `test_vectorize_message_replaces_prior_embedding` asserts the old vector is always deleted even on a dedup hit. Validated: ruff clean, basedpyright 0/0/0, 863 passed. Commit: `048fef0`.
+- **[x] V2-A2** — `readStream` now handles the backend's `start` event: it swaps the placeholder's client UUID for `event.message_id` and tracks the swapped id (`currentId`) through every subsequent write and both cleanup paths, so a freshly-streamed reply can be edited/re-rolled without a reload. Backend already emitted `StreamEvent(type="start", message_id=…)` (service.py:420); only the FE was ignoring it. Validated: `bun run build` passes (vue-tsc + Rolldown), 8 tests pass. Commit: `<pending>`.
