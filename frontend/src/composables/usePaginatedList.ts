@@ -53,13 +53,21 @@ export function usePaginatedList<TItem, TFilters = Record<string, never>>(
 
   const totalPages = computed(() => (total.value === 0 ? 1 : Math.ceil(total.value / pageSize)));
 
+  // Monotonic request token: fast filter/search changes fire overlapping loads,
+  // and a slower earlier response must not clobber a newer one. Each call captures
+  // its token and only applies its result/error/loading if still the latest
+  // (last-request-wins, without threading an AbortSignal through every fetchPage).
+  let requestSeq = 0;
+
   async function loadPage(pageNum: number = initialPage, filters?: TFilters) {
+    const seq = ++requestSeq;
     loading.value = true;
     error.value = null;
     if (filters !== undefined) currentFilters.value = filters;
 
     try {
       const { data, error: apiError } = await fetchPage(pageNum, pageSize, currentFilters.value);
+      if (seq !== requestSeq) return; // superseded by a newer load — discard
       if (apiError) throw extractApiError(apiError, errorContext);
       if (data) {
         items.value = append && pageNum > 1 ? [...items.value, ...data.items] : data.items;
@@ -68,10 +76,11 @@ export function usePaginatedList<TItem, TFilters = Record<string, never>>(
         total.value = data.meta.total ?? 0;
       }
     } catch (err) {
+      if (seq !== requestSeq) return;
       error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error(errorContext, err);
     } finally {
-      loading.value = false;
+      if (seq === requestSeq) loading.value = false;
     }
   }
 

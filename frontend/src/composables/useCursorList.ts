@@ -59,14 +59,20 @@ export function useCursorList<TItem>(options: CursorListOptions<TItem>) {
   const cursor = ref<string | null>(null);
   const error = ref<Error | null>(null);
 
+  // Monotonic request token so a slower earlier response can't clobber a newer
+  // one (e.g. a rapid chat switch) — last-request-wins.
+  let requestSeq = 0;
+
   async function load(nextCursor?: string) {
     const result = fetchPage(nextCursor, pageSize);
     if (!result) return;
 
+    const seq = ++requestSeq;
     loading.value = true;
     error.value = null;
     try {
       const { data, error: apiError } = await result;
+      if (seq !== requestSeq) return; // superseded by a newer load — discard
       if (apiError) throw extractApiError(apiError, errorContext);
       if (data) {
         items.value = merge(items.value, data.items, !nextCursor);
@@ -74,10 +80,11 @@ export function useCursorList<TItem>(options: CursorListOptions<TItem>) {
         cursor.value = data.meta.cursor || null;
       }
     } catch (err) {
+      if (seq !== requestSeq) return;
       error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error(errorContext, err);
     } finally {
-      loading.value = false;
+      if (seq === requestSeq) loading.value = false;
     }
   }
 
@@ -88,9 +95,13 @@ export function useCursorList<TItem>(options: CursorListOptions<TItem>) {
   }
 
   function reset() {
+    // Invalidate any in-flight load so its late response can't merge into the
+    // freshly-reset list (e.g. a chat switch mid-fetch).
+    requestSeq++;
     items.value = [];
     hasMore.value = hasMoreInitial;
     cursor.value = null;
+    loading.value = false;
   }
 
   onMounted(() => {
