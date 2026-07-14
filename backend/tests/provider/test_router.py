@@ -14,7 +14,9 @@ def test_list_providers_empty(client: TestClient) -> None:
     response = client.get("/api/providers")
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
+    # Unified list envelope: { items, meta } (PaginatedResponse), not a bare list.
+    assert isinstance(data["items"], list)
+    assert "meta" in data
 
 
 def test_create_provider(client: TestClient) -> None:

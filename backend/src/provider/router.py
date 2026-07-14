@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
+from src.core.schemas import PaginatedResponse, collection_response
 from src.model.dependencies import ModelServiceDep
 from src.model.schemas import ModelResponse
 from src.provider.dependencies import ProviderServiceDep
@@ -20,10 +21,10 @@ from src.provider.schemas import (
 router = APIRouter(prefix="/api/providers", tags=["providers"])
 
 
-@router.get("", response_model=list[ProviderResponse])
+@router.get("", response_model=PaginatedResponse[ProviderResponse])
 def list_providers(service: ProviderServiceDep):
     """List configured model providers"""
-    return service.list_all()
+    return collection_response(service.list_all())
 
 
 @router.post("", response_model=ProviderResponse, status_code=status.HTTP_201_CREATED)

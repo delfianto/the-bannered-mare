@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
-from src.core.schemas import PaginatedResponse, page_response
+from src.core.schemas import PaginatedResponse, collection_response, page_response
 from src.prompt_fragment.dependencies import FragmentServiceDep
 from src.prompt_fragment.schemas import (
     AttachFragmentRequest,
@@ -99,10 +99,10 @@ def detach_fragment(
     return None
 
 
-@template_fragment_router.get("/", response_model=list[TemplateFragmentResponse])
+@template_fragment_router.get("/", response_model=PaginatedResponse[TemplateFragmentResponse])
 def list_template_fragments(
     template_id: str,
     service: FragmentServiceDep,
 ):
     """List all prompt fragments attached to a template"""
-    return service.list_template_fragments(template_id)
+    return collection_response(service.list_template_fragments(template_id))

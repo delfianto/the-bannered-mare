@@ -3432,6 +3432,18 @@ export interface components {
       items: components["schemas"]["PromptTemplateResponse"][];
       meta: components["schemas"]["PaginationMeta"];
     };
+    /** PaginatedResponse[ProviderResponse] */
+    PaginatedResponse_ProviderResponse_: {
+      /** Items */
+      items: components["schemas"]["ProviderResponse"][];
+      meta: components["schemas"]["PaginationMeta"];
+    };
+    /** PaginatedResponse[TemplateFragmentResponse] */
+    PaginatedResponse_TemplateFragmentResponse_: {
+      /** Items */
+      items: components["schemas"]["TemplateFragmentResponse"][];
+      meta: components["schemas"]["PaginationMeta"];
+    };
     /**
      * PaginationMeta
      * @description Standard metadata for all paginated responses.
@@ -4344,7 +4356,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ProviderResponse"][];
+          "application/json": components["schemas"]["PaginatedResponse_ProviderResponse_"];
         };
       };
     };
@@ -7192,7 +7204,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["TemplateFragmentResponse"][];
+          "application/json": components["schemas"]["PaginatedResponse_TemplateFragmentResponse_"];
         };
       };
       /** @description Validation Error */

@@ -660,7 +660,16 @@ export const handlers = [
   // LLM Providers
   http.get("/api/providers", async () => {
     await delay(100);
-    return HttpResponse.json(db.providers);
+    return HttpResponse.json({
+      items: db.providers,
+      meta: {
+        limit: db.providers.length,
+        has_more: false,
+        cursor: null,
+        total: db.providers.length,
+        page: 1,
+      },
+    });
   }),
 
   // Provider detail
@@ -1766,7 +1775,10 @@ export const handlers = [
     if (!tpl) return new HttpResponse(null, { status: 404 });
     await delay(100);
     const frags = db.templateFragments.get(templateId) || [];
-    return HttpResponse.json(frags);
+    return HttpResponse.json({
+      items: frags,
+      meta: { limit: frags.length, has_more: false, cursor: null, total: frags.length, page: 1 },
+    });
   }),
 
   http.post("/api/prompt-templates/:templateId/fragments/", async ({ params, request }) => {
