@@ -193,11 +193,12 @@ export function useChatMessages(
         if (streamError) break;
       }
     } catch (err) {
+      // Either way, drop the placeholder if nothing streamed yet (kept only once it
+      // accumulated content) so an early stop or mid-stream failure never leaves a
+      // blank assistant bubble. The id may already be the backend id (start event).
+      messages.value = messages.value.filter((m) => m.id !== currentId || m.content);
       // Abort (stop button / chat switch) is expected — end quietly.
       if ((err as Error)?.name === "AbortError") return;
-      // A mid-stream failure may already have swapped in the backend id, so clean
-      // up by the current id (kept only if it managed to accumulate content).
-      messages.value = messages.value.filter((m) => m.id !== currentId || m.content);
       throw err;
     } finally {
       isGenerating.value = false;
