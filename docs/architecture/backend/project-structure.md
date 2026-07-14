@@ -17,11 +17,11 @@ backend/
 ├── src/                      # Source directory
 │   ├── core/                 # Shared Kernel (Cross-cutting infrastructure)
 │   │   ├── config.py         # Application configuration & environment variable loading
-│   │   ├── exceptions.py     # Application exception hierarchy (provider errors)
+│   │   ├── exceptions.py     # Domain exception hierarchy (translated to HTTP by main.py's global handler)
 │   │   ├── schemas.py        # Shared Pydantic base schemas
 │   │   ├── logging/          # Structured logging + request-logging middleware
 │   │   ├── persistence/      # Engines, sessions, base repositories, centralized models
-│   │   └── utils/            # OpenAPI, reasoning, storage, templating, tokenizer, validators
+│   │   └── utils/            # OpenAPI, reasoning, storage, upload, validators
 │   ├── [domain_module]/      # Vertical Slices (Domain slices)
 │   │   ├── router.py         # API interface layer (routing, payload validation)
 │   │   ├── service.py        # Business logic layer (orchestrating repo tasks)
@@ -69,12 +69,16 @@ token limits, and local asset storage paths.
 
 ### Exceptions (`exceptions.py`)
 
-Defines the application exception hierarchy rooted at `BanneredMareException`. The concrete
-subclasses are all provider-facing: `ProviderException` and its specializations
-`ProviderAuthError`, `ProviderTimeoutError`, `ProviderRateLimitError`, and
-`ProviderInvalidRequestError`. There is no generic "not found" or "validation" exception
-here — service layers raise FastAPI `HTTPException` directly (e.g., a 404 when an entity is
-missing), and routers rely on FastAPI's built-in Pydantic validation for request payloads.
+Defines the full domain exception hierarchy rooted at `BanneredMareException`. Alongside the
+provider-facing errors (`ProviderException` and its specializations `ProviderAuthError`,
+`ProviderTimeoutError`, `ProviderRateLimitError`, `ProviderInvalidRequestError`) it defines
+the general domain exceptions `BadRequestError`, `NotFoundError`, `ConflictError`,
+`ValidationError`, and `PayloadTooLargeError`. Each declares a `status_code`, and both
+services and routers raise these domain exceptions rather than FastAPI `HTTPException` — no
+code in `src/` raises `HTTPException`. A single global handler in `main.py`
+(`_domain_exception_handler`) translates any `BanneredMareException` to the matching HTTP
+status (404, 409, 422, 413, 502, …). Routers still rely on FastAPI's built-in Pydantic
+validation for request-payload shape.
 
 ### Persistence Foundation (`persistence/`)
 
@@ -87,9 +91,13 @@ persistence utilities (nanoid generation). This layer is detailed in
 ### Utilities (`utils/`)
 
 A small toolbox every slice can reach for: `storage` (avatar/asset file handling with
-Pillow), `template` (Jinja2 rendering of prompt templates), `tokenizer` (tiktoken-based
-token counting), `reasoning` (extracting `<think>`-style reasoning from model output),
-`validators` (identifier validation), and `openapi` (generating the API schema).
+Pillow), `upload` (reading size-capped uploads into a transport-agnostic `UploadedFile`),
+`reasoning` (extracting `<think>`-style reasoning from model output), `validators`
+(identifier validation), and `openapi` (generating the API schema). Two things that used to
+live here do not: Jinja2 prompt/greeting rendering is its own top-level `src/templating/`
+package (its render context is domain-aware, so it can't sit in the shared kernel), and
+token counting lives in `src/core/tokenization/` — a multi-backend tokenizer registry
+rather than a single tiktoken helper.
 
 ## 3. The Vertical-Slice Pattern
 
