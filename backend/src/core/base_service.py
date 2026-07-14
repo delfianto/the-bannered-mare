@@ -7,9 +7,12 @@ exception) so the service layer stays HTTP-agnostic — the global handler in
 usable by services that hold specialised or multiple repositories.
 """
 
+from collections.abc import Awaitable, Callable
+
 from src.core.exceptions import NotFoundError
 from src.core.persistence.base_model import BaseModel
 from src.core.persistence.base_repository import BaseRepository, DefaultableRepository
+from src.core.persistence.base_repository_async import AsyncBaseRepository
 
 
 def get_or_404[T: BaseModel](repo: BaseRepository[T], entity_id: str, resource_name: str) -> T:
@@ -21,6 +24,24 @@ def get_or_404[T: BaseModel](repo: BaseRepository[T], entity_id: str, resource_n
         resource_name: human label for the 404 message (e.g. "Persona").
     """
     entity = repo.find_by_id(entity_id)
+    if entity is None:
+        raise NotFoundError(f"{resource_name} not found")
+    return entity
+
+
+async def async_get_or_404[T: BaseModel](
+    repo: AsyncBaseRepository[T],
+    entity_id: str,
+    resource_name: str,
+    finder: Callable[[str], Awaitable[T | None]] | None = None,
+) -> T:
+    """Async counterpart to ``get_or_404``.
+
+    Pass ``finder`` to use a specialised lookup (e.g. a relations-eager variant);
+    defaults to ``repo.find_by_id``.
+    """
+    lookup = finder or repo.find_by_id
+    entity = await lookup(entity_id)
     if entity is None:
         raise NotFoundError(f"{resource_name} not found")
     return entity
