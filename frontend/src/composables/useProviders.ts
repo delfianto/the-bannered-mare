@@ -1,48 +1,27 @@
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
+import { storeToRefs } from "pinia";
 import type { components } from "@/api/schema";
-import { client, extractApiError } from "@/api/client";
+import { useSettingsStore } from "@/stores/settings";
 
 export type Provider = components["schemas"]["ProviderResponse"];
 
+/**
+ * Provider list, backed by the settings store's cached singleton so every
+ * consumer (Providers/Models/Families tabs, model-create modal, setup wizard)
+ * shares one fetch instead of each hitting `/api/providers` on mount. Mutations
+ * (create/edit) call `refresh()` to force the shared cache to refetch.
+ */
 export function useProviders() {
-  const providers = ref<Provider[]>([]);
-  const loading = ref(false);
-  const error = ref<Error | null>(null);
+  const store = useSettingsStore();
+  const { providers, isLoadingProviders: loading, providersError: error } = storeToRefs(store);
 
-  const fetchProviders = async () => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const { data, error: apiError } = await client.GET("/api/providers");
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to load providers");
-      }
-
-      if (data) {
-        providers.value = data;
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error("Unknown error");
-      console.error("Error loading providers:", err);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const refresh = () => {
-    fetchProviders();
-  };
+  // Force so both the error-state retry and post-mutation refreshes actually
+  // re-hit the endpoint (a plain fetch is a no-op once the cache is warm).
+  const refresh = () => store.fetchProviders(true);
 
   onMounted(() => {
-    fetchProviders();
+    store.fetchProviders();
   });
 
-  return {
-    providers,
-    loading,
-    error,
-    refresh,
-  };
+  return { providers, loading, error, refresh };
 }

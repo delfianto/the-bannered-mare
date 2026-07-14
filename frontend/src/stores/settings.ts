@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 import type { components } from "@/api/schema";
 
 export type ParameterDoc = {
@@ -19,6 +19,7 @@ export const useSettingsStore = defineStore("settings", () => {
   const providers = ref<ProviderResponse[]>([]);
   const isLoadingProviders = ref(false);
   const hasLoadedProviders = ref(false);
+  const providersError = ref<Error | null>(null);
 
   const fetchParameterDocs = async () => {
     if (hasLoadedDocs.value || isLoadingDocs.value) return;
@@ -43,15 +44,17 @@ export const useSettingsStore = defineStore("settings", () => {
     if ((hasLoadedProviders.value || isLoadingProviders.value) && !force) return;
 
     isLoadingProviders.value = true;
+    providersError.value = null;
     try {
       const { data, error } = await client.GET("/api/providers");
-      if (error) throw error;
+      if (error) throw extractApiError(error, "Failed to load providers");
 
       if (data) {
         providers.value = data.sort((a, b) => a.name.localeCompare(b.name));
         hasLoadedProviders.value = true;
       }
     } catch (error) {
+      providersError.value = error instanceof Error ? error : new Error("Failed to load providers");
       console.error("Failed to load providers", error);
     } finally {
       isLoadingProviders.value = false;
@@ -66,6 +69,7 @@ export const useSettingsStore = defineStore("settings", () => {
     providers,
     isLoadingProviders,
     hasLoadedProviders,
+    providersError,
     fetchProviders,
   };
 });
