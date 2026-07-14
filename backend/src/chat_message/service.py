@@ -227,6 +227,8 @@ class ChatMessageService:
         message.token_count = self._tokenizer(chat).count(content)
         updated = await self.message_repo.update(message)
         await self.message_repo.commit()
+        # Replace the stale embedding so chat-scoped RAG retrieval reflects the edit.
+        await self._vectorize(updated)
         return updated
 
     # --- Message Send ---
@@ -291,7 +293,10 @@ class ChatMessageService:
                 )
             )
             await self.message_repo.commit()
-            await self._vectorize(stored)
+        # Re-vectorize on every path: the alternatives and overwrite branches mutate
+        # the message content in place, so a prior embedding is now stale. Retrieval
+        # is chat-scoped and would otherwise surface pre-regen text as history.
+        await self._vectorize(stored)
         return stored
 
     async def _run_blocking_completion(
@@ -585,4 +590,8 @@ class ChatMessageService:
         self, chat_id: str, message_id: str, alternative_id: str
     ) -> Message:
         """Switch the active alternative on a message."""
-        return await self.alternatives.activate(chat_id, message_id, alternative_id)
+        message = await self.alternatives.activate(chat_id, message_id, alternative_id)
+        # The active content changed; re-embed so chat-scoped RAG retrieval reflects
+        # the now-active alternative rather than the previously-active text.
+        await self._vectorize(message)
+        return message

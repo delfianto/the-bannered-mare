@@ -69,6 +69,7 @@ async def test_vectorize_message_stores_chat_id_and_scopes_dedup():
     """A message embedding is stamped with its chat_id, and dedup is chat-scoped so
     identical content in different chats is stored (and retrievable) separately."""
     embedding_repo = MagicMock()
+    embedding_repo.delete_by_source = AsyncMock()
     embedding_repo.exists_by_hash = AsyncMock(return_value=False)
     embedding_repo.create = AsyncMock()
     embedding_repo.commit = AsyncMock()
@@ -90,6 +91,37 @@ async def test_vectorize_message_stores_chat_id_and_scopes_dedup():
     assert stored.source_type == "message"
     assert stored.source_id == "m1"
     assert stored.chat_id == "cA"
+
+
+@pytest.mark.asyncio
+async def test_vectorize_message_replaces_prior_embedding():
+    """Edit/regenerate re-vectorize: the message's prior embedding is always deleted
+    first (replace semantics), so a stale pre-edit vector can never be retrieved —
+    even when the new content dedups against another message and no insert happens."""
+    embedding_repo = MagicMock()
+    embedding_repo.delete_by_source = AsyncMock()
+    # Dedup hit: identical content already embedded elsewhere in the chat.
+    embedding_repo.exists_by_hash = AsyncMock(return_value=True)
+    embedding_repo.create = AsyncMock()
+    embedding_repo.commit = AsyncMock()
+    embedding_service = MagicMock()
+    embedding_service.embed_documents = AsyncMock(return_value=[[0.1] * 768])
+
+    service = RetrievalService(
+        embedding_service=embedding_service,
+        embedding_repo=embedding_repo,
+        data_bank_repo=MagicMock(),
+    )
+
+    await service.vectorize_message(
+        message_id="m1", chat_id="cA", content="edited", model_name="nomic", dimensions=768
+    )
+
+    # The old vector is cleared regardless of the dedup outcome...
+    embedding_repo.delete_by_source.assert_awaited_once_with("message", "m1")
+    # ...but no duplicate is inserted when the content already exists in the chat.
+    embedding_repo.create.assert_not_awaited()
+    embedding_repo.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio

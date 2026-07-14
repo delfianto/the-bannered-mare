@@ -155,27 +155,33 @@ class RetrievalService:
         model_name: str,
         dimensions: int,
     ) -> None:
-        """Embed and store a single message. Skip if identical content is already
-        embedded within the same chat (dedup is chat-scoped)."""
+        """Embed and store a single message, replacing any prior embedding for it.
+
+        Delete-then-insert (mirroring ``vectorize_data_bank_entry``) gives edit and
+        regenerate correct replace semantics: a stale pre-edit vector must never
+        linger and resurface as retrieved history. The insert is skipped when
+        identical content is already embedded elsewhere in the same chat (dedup is
+        chat-scoped), but the delete still runs so this message's old vector is
+        always cleared."""
+        await self.embedding_repo.delete_by_source("message", message_id)
+
         content_hash = _content_hash(content)
-        if await self.embedding_repo.exists_by_hash(content_hash, "message", chat_id=chat_id):
-            return
+        if not await self.embedding_repo.exists_by_hash(content_hash, "message", chat_id=chat_id):
+            embeddings = await self.embedding_service.embed_documents([content])
+            entity = Embedding(
+                id=gen_id(),
+                source_type="message",
+                source_id=message_id,
+                chat_id=chat_id,
+                content_hash=content_hash,
+                content=content,
+                chunk_index=0,
+                model_name=model_name,
+                dimensions=dimensions,
+                embedding=embeddings[0],
+            )
+            await self.embedding_repo.create(entity)
 
-        embeddings = await self.embedding_service.embed_documents([content])
-
-        entity = Embedding(
-            id=gen_id(),
-            source_type="message",
-            source_id=message_id,
-            chat_id=chat_id,
-            content_hash=content_hash,
-            content=content,
-            chunk_index=0,
-            model_name=model_name,
-            dimensions=dimensions,
-            embedding=embeddings[0],
-        )
-        await self.embedding_repo.create(entity)
         await self.embedding_repo.commit()
 
     async def vectorize_data_bank_entry(
