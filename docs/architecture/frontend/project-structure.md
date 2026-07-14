@@ -106,7 +106,7 @@ the side; everything else is feature-scoped in composables.
 
 ### Views (`views/`)
 
-The 20 routed pages, one per top-level surface, named `*View.vue` and wired up in
+The 21 routed pages, one per top-level surface, named `*View.vue` and wired up in
 [`router/index.ts`](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/router/index.ts).
 A view reads route params, composes components, and manages page-level layout — it holds no
 business logic and makes no API calls of its own. Two sub-trees group related pages:
@@ -116,7 +116,7 @@ walked through in [Main Screens](/architecture/frontend/main-screens).
 
 ### Components (`components/`)
 
-63 single-file components, grouped into folders that mirror the app's feature areas:
+82 single-file components, grouped into folders that mirror the app's feature areas:
 
 | Folder | What lives there |
 |--------|------------------|
@@ -137,13 +137,14 @@ work to composables. The reusable ones are detailed in
 
 ### Composables (`composables/`)
 
-28 feature-scoped `use*` functions — the heart of the app's logic. Each owns the reactive
+44 feature-scoped `use*` functions — the heart of the app's logic. Each owns the reactive
 state and the data operations for one feature and is the **only** layer permitted to import
 the API client. They come in a few recognizable shapes: list/CRUD pairs (`useCharacters` +
 `useCharacterForm`, `useModels` + `useModel`, `usePromptTemplates` + `usePromptTemplate`),
 the chat trio (`useChatSessions`, `useChatMessages` — which also drives SSE streaming — and
-`useCreateChat`), pure client-side helpers (`useLibraryFilters`), and small UI-state
-singletons persisted to `localStorage` (`useTheme`, `useSidebar`, `useToast`). Every API
+`useCreateChat`), pure client-side helpers (`useLibraryFilters`), small UI-state
+singletons persisted to `localStorage` (`useTheme`, `useSidebar`), and an in-memory toast
+store singleton (`useAppToast`, whose state is **not** persisted). Every API
 call goes through the typed client and returns `{ data, error }`, so error handling is
 explicit at the call site. See
 [Backend Connection](/architecture/frontend/backend-connection) for the client and stream

@@ -22,8 +22,8 @@ styled with Tailwind CSS and DaisyUI 5 primitives.
 ### `MessageBubble.vue`
 
 - **Role**: Renders chat history dialogue bubbles for both the user and assistant, including inline edit mode, per-message action icons, and swipe arrows / an alternative-count badge for assistant replies.
-- **Narrative Rendering**: Delegates message text to `NarrativeText.vue` rather than parsing Markdown. `NarrativeText` splits the content with a regex into typed nodes — `*action*` (asterisk-wrapped stage directions), `"dialogue"` (quoted speech), and plain narration — and styles each differently. It does **not** use `markdown-it`, `dompurify`, or `v-html`; text is rendered through normal template bindings, so no HTML sanitization step is needed.
-- **Note**: `markdown-it` and `dompurify` are still listed as dependencies but are not currently wired into the chat rendering path.
+- **Narrative Rendering**: Delegates message text to `NarrativeText.vue` rather than parsing Markdown. `NarrativeText` splits the content with a regex into typed nodes — `*action*` (asterisk-wrapped stage directions), `"dialogue"` (quoted speech), plain narration, `break` paragraph gaps, and `gfx` blocks (model-drawn HTML cards wrapped in `<!-- GFX_START -->…<!-- GFX_END -->` markers) — and styles each differently. It does **not** use `markdown-it`, but it **does** use `dompurify` and `v-html`: each `gfx` block is sanitized with `DOMPurify.sanitize` (a presentational tag/attr allowlist matching the backend's `nh3` config) and injected via `v-html`, while all other text is rendered through normal template bindings.
+- **Note**: `markdown-it` is still listed as a dependency but is not currently wired into the chat rendering path; `dompurify` **is** in use — it sanitizes the `gfx` HTML blocks described above before injection.
 
 
 ## 3. Specialized Parameter Input Handlers
@@ -65,13 +65,14 @@ styled with Tailwind CSS and DaisyUI 5 primitives.
 ## 6. Shared UI Primitives
 
 DaisyUI is CSS-only, so the app's interactive building blocks live as a small set of shared Vue
-components under `components/shared/`, registered globally in `main.ts` (usable in any template
-without an import):
+components under `components/shared/`. **Three** are registered globally in `main.ts` (usable in
+any template without an import) — `AppIcon`, `SelectMenu`, and `AppToggle`; the rest (e.g.
+`AppTooltip`) are imported per-component from `@/components/shared/`:
 
-- **`AppIcon`**: the single icon component, backed by `lucide-vue-next` (a name → component registry in `icons.ts`). Always `<AppIcon name="i-lucide-*" />` — never a raw icon `<span>`.
-- **`AppTooltip`**: a hover/focus tooltip that **teleports** its bubble to `<body>`, so it escapes ancestor `overflow-hidden` (e.g. the collapsed sidebar). Props: `text`, `side`, `disabled`.
-- **`SelectMenu`**: a searchable, teleported dropdown — the replacement for a listbox. Supports `v-model`, `items`, `value-key`, `search-input`, and keyboard navigation; the default slot is the trigger button, and the listbox width matches it automatically.
-- **`AppToggle`**: a DaisyUI `toggle` switch (`v-model` / `change` / `disabled`) used for every on/off control.
+- **`AppIcon`** (global): the single icon component, backed by `lucide-vue-next` (a name → component registry in `icons.ts`). Always `<AppIcon name="i-lucide-*" />` — never a raw icon `<span>`.
+- **`SelectMenu`** (global): a searchable, teleported dropdown — the replacement for a listbox. Supports `v-model`, `items`, `value-key`, `search-input`, and keyboard navigation; the default slot is the trigger button, and the listbox width matches it automatically.
+- **`AppToggle`** (global): a DaisyUI `toggle` switch (`v-model` / `change` / `disabled`) used for every on/off control.
+- **`AppTooltip`** (imported per-component, **not** global): a hover/focus tooltip that **teleports** its bubble to `<body>`, so it escapes ancestor `overflow-hidden` (e.g. the collapsed sidebar). Props: `text`, `side`, `disabled`.
 
 Everything else is hand-rolled Tailwind using DaisyUI's component classes (`btn`, `badge`, `tabs`,
 `card`, …) and the token utilities described in the [Design System](./design-system).

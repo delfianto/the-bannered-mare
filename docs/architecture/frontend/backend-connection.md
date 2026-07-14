@@ -31,11 +31,19 @@ const { data, error } = await client.GET("/api/providers/{provider_id}", {
 ## 2. File Uploads (FormData)
 
 Typed JSON clients don't handle multipart file payloads (Character or Persona avatar images)
-well, so those operations bypass `openapi-fetch` and use the browser's native `fetch`:
+well, so those operations don't go through `openapi-fetch` directly. Instead they route through
+the typed **`multipartFetch<T>()`** wrapper in
+[client.ts](https://github.com/delfianto/the-bannered-mare/blob/main/frontend/src/api/client.ts) —
+still the browser's native `fetch` under the hood, but centralized so multipart mutations get the
+same base URL and reachability tracking as ordinary calls instead of hardcoding `/api/...`:
 
 - Build a `FormData` object with the file binary and metadata fields.
 - Send a plain POST/PUT **without** setting `Content-Type` manually, so the browser appends
   the correct multipart boundary itself.
+- `multipartFetch` prepends `VITE_API_URL`, reports the response to the shared reachability
+  tracker (`useServerStatus`), and returns an openapi-fetch-shaped `{ data, error }` — the
+  caller supplies the expected `T`, and errors are normalized via `extractApiError` and carry
+  the HTTP status — so call sites branch on `error` exactly like a typed request.
 
 ## 3. Server-Sent Streaming (SSE) Engine
 
@@ -110,7 +118,8 @@ decoded content to that message until the stream ends:
 <template #caption>
 
 **A placeholder, then a growing message.** The UI message is created immediately with a local
-UUID so the user sees the reply forming; each decoded `data:` event appends its `content` and
+UUID so the user sees the reply forming; the first `start` event swaps that client UUID for the
+backend's persisted `message_id`, then each decoded `data:` event appends its `content` and
 loops back to read more, until the stream ends (`[DONE]` is skipped and the reader reports `done`).
 
 </template>
@@ -127,8 +136,14 @@ Network packets can arrive fragmented, so the parser reassembles events from a r
    - skip anything that doesn't start with `data: `;
    - slice off the `data: ` prefix; if the payload is `[DONE]`, skip it (`continue`);
    - otherwise parse the payload as JSON. Backend events are the typed `StreamEvent`
-     shape `{ type, content?, message? }` — **not** `{ text }`.
+     discriminated union (`src/types/chat.ts`, mirroring the backend's `StreamEvent`) whose
+     `type` is one of `start` / `text` / `reasoning` / `usage` / `done` / `error` — each variant
+     carrying its own fields (`message_id`, `content`, token counts, `finish_reason`, `message`),
+     **not** a flat `{ text }`.
 5. Dispatch on `event.type`:
+   - `start` → the first event of a reply; it carries the backend's persisted `message_id`.
+     Swap the placeholder's client UUID for it up front (`currentId = event.message_id`) so
+     later edits / re-rolls target the real row instead of a throwaway client id;
    - `text` → append `event.content` to the active message's `content`;
    - `reasoning` → append `event.content` to the message's `reasoning_content`;
    - `error` → capture `event.message` and stop; the empty placeholder is dropped so a failed
