@@ -8,6 +8,7 @@ import { usePresets } from "@/composables/usePresets";
 import { usePersonas } from "@/composables/usePersonas";
 import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
+import { useKeyedConfirmAction } from "@/composables/useConfirmAction";
 import ProfileCard from "@/components/profiles/ProfileCard.vue";
 import ProfileForm from "@/components/profiles/ProfileForm.vue";
 import EmptyState from "@/components/shared/EmptyState.vue";
@@ -89,21 +90,12 @@ async function onSetDefault(profile: Profile) {
   if (res) toast.success(t("profiles.toast.defaultSet", { name: profile.name }));
 }
 
-// ── Two-click delete confirm ─────────────────────────────
-const pendingDeleteId = ref<string | null>(null);
+// ── Two-click delete confirm (auto-disarms) ──────────────
+const { isArmed: isDeleteArmed, trigger: onDelete, reset: cancelDelete } = useKeyedConfirmAction();
 
-async function onDelete(profile: Profile) {
-  if (pendingDeleteId.value === profile.id) {
-    const ok = await deleteProfile(profile.id);
-    if (ok) toast.success(t("profiles.toast.deleted"));
-    pendingDeleteId.value = null;
-  } else {
-    pendingDeleteId.value = profile.id;
-  }
-}
-
-function cancelDelete() {
-  pendingDeleteId.value = null;
+async function confirmDeleteProfile(profile: Profile) {
+  const ok = await deleteProfile(profile.id);
+  if (ok) toast.success(t("profiles.toast.deleted"));
 }
 </script>
 
@@ -158,12 +150,12 @@ function cancelDelete() {
         :preset-label="resolve(presets, profile.preset_id)"
         :persona-label="resolve(personas, profile.persona_id)"
         :model-label="resolveModel(profile.model_id)"
-        :pending-delete="pendingDeleteId === profile.id"
+        :pending-delete="isDeleteArmed(profile.id)"
         class="animate-fade-in-up"
         :style="{ animationDelay: `${index * 30}ms` }"
         @edit="openEdit(profile)"
         @set-default="onSetDefault(profile)"
-        @delete="onDelete(profile)"
+        @delete="onDelete(profile.id, () => confirmDeleteProfile(profile))"
         @mouseleave="cancelDelete"
       />
     </div>

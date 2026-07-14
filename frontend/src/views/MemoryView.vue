@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDataBank } from "@/composables/useDataBank";
+import { useKeyedConfirmAction } from "@/composables/useConfirmAction";
 import { client } from "@/api/client";
 import type { DataBankCreate, DataBankUpdate, DataBankEntry } from "@/composables/useDataBank";
 import type { components } from "@/api/schema";
@@ -148,21 +149,9 @@ async function saveForm() {
   editingId.value = null;
 }
 
-// ── Delete with two-click confirm ────────────────────────
-const pendingDeleteId = ref<string | null>(null);
-
-function onDeleteClick(entryId: string) {
-  if (pendingDeleteId.value === entryId) {
-    deleteEntry(entryId);
-    pendingDeleteId.value = null;
-  } else {
-    pendingDeleteId.value = entryId;
-  }
-}
-
-function cancelDelete() {
-  pendingDeleteId.value = null;
-}
+// ── Delete with two-click confirm (auto-disarms) ─────────
+const { isArmed: isDeleteArmed, trigger: onDeleteClick, reset: cancelDelete } =
+  useKeyedConfirmAction();
 
 function clearFilters() {
   searchQuery.value = "";
@@ -472,14 +461,12 @@ function scopeBadgeClass(scope: string): string {
                 </button>
                 <button
                   class="flex items-center gap-1"
-                  :class="pendingDeleteId === entry.id ? 'text-error!' : 'hover:text-error'"
-                  @click.stop="onDeleteClick(entry.id)"
+                  :class="isDeleteArmed(entry.id) ? 'text-error!' : 'hover:text-error'"
+                  @click.stop="onDeleteClick(entry.id, () => deleteEntry(entry.id))"
                   @mouseleave="cancelDelete"
                 >
                   <AppIcon name="i-lucide-trash-2" class="size-3" />
-                  {{
-                    pendingDeleteId === entry.id ? $t("memory.confirmDelete") : $t("common.delete")
-                  }}
+                  {{ isDeleteArmed(entry.id) ? $t("memory.confirmDelete") : $t("common.delete") }}
                 </button>
               </div>
             </div>

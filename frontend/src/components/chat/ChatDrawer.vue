@@ -9,6 +9,7 @@ import { useCharacter } from "@/composables/useCharacter";
 import { usePersonas } from "@/composables/usePersonas";
 import { useDataBank } from "@/composables/useDataBank";
 import { useLorebooks } from "@/composables/useLorebooks";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useChatPromptPreview } from "@/composables/useChatPromptPreview";
 import { useChatLlmLogs, type LlmAuditLog } from "@/composables/useChatLlmLogs";
 import { useCompletionSignal } from "@/composables/useCompletionSignal";
@@ -390,8 +391,8 @@ function goManagePersonas() {
 // --- Rename & Delete (relocated from ChatHeader) ---
 
 const editTitle = ref(props.sessionTitle);
-const confirmDelete = ref(false);
-let deleteTimer: ReturnType<typeof setTimeout> | null = null;
+// Two-step delete confirm (auto-disarms + clears its timer on unmount).
+const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(() => emit("delete"));
 
 // Keep the rename field in sync when the drawer (re)opens or the title changes
 // elsewhere — the input is persistent, not remounted per open.
@@ -414,20 +415,6 @@ function handleRenameKeydown(e: KeyboardEvent) {
   }
 }
 
-function handleDelete() {
-  if (confirmDelete.value) {
-    emit("delete");
-    confirmDelete.value = false;
-  } else {
-    confirmDelete.value = true;
-    if (deleteTimer) clearTimeout(deleteTimer);
-    deleteTimer = setTimeout(() => (confirmDelete.value = false), 3000);
-  }
-}
-
-onUnmounted(() => {
-  if (deleteTimer) clearTimeout(deleteTimer);
-});
 </script>
 
 <template>

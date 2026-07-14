@@ -3,6 +3,7 @@ import { fallbackAvatarUrl } from "@/utils/avatar";
 import { ref } from "vue";
 import type { components } from "@/api/schema";
 import { usePersonas } from "@/composables/usePersonas";
+import { useKeyedConfirmAction } from "@/composables/useConfirmAction";
 import Modal from "@/components/shared/Modal.vue";
 
 type PersonaResponse = components["schemas"]["PersonaResponse"];
@@ -19,7 +20,6 @@ const formAvatarFile = ref<File | null>(null);
 const formSaving = ref(false);
 
 // ── Delete state ────────────────────────────────────────
-const pendingDeleteId = ref<string | null>(null);
 
 function getAvatarSrc(persona: PersonaResponse): string {
   return (
@@ -84,23 +84,9 @@ async function saveForm() {
   }
 }
 
-// ── Delete ──────────────────────────────────────────────
-function onDeleteClick(personaId: string) {
-  if (pendingDeleteId.value === personaId) {
-    confirmDelete(personaId);
-  } else {
-    pendingDeleteId.value = personaId;
-  }
-}
-
-async function confirmDelete(personaId: string) {
-  await deletePersona(personaId);
-  pendingDeleteId.value = null;
-}
-
-function cancelDelete() {
-  pendingDeleteId.value = null;
-}
+// ── Delete (two-step confirm, auto-disarms) ─────────────
+const { isArmed: isDeleteArmed, trigger: onDeleteClick, reset: cancelDelete } =
+  useKeyedConfirmAction();
 
 // ── Set Default ─────────────────────────────────────────
 async function setDefault(personaId: string) {
@@ -275,21 +261,17 @@ async function setDefault(personaId: string) {
           <button
             class="inline-flex size-8 items-center justify-center rounded-md text-sm transition-colors"
             :class="
-              pendingDeleteId === persona.id
+              isDeleteArmed(persona.id)
                 ? 'bg-error/10 text-error'
                 : 'text-muted-foreground hover:bg-base-300 hover:text-foreground'
             "
-            :title="pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'"
-            :aria-label="
-              pendingDeleteId === persona.id ? 'Click again to confirm' : 'Delete persona'
-            "
-            @click.stop="onDeleteClick(persona.id)"
+            :title="isDeleteArmed(persona.id) ? 'Click again to confirm' : 'Delete persona'"
+            :aria-label="isDeleteArmed(persona.id) ? 'Click again to confirm' : 'Delete persona'"
+            @click.stop="onDeleteClick(persona.id, () => deletePersona(persona.id))"
             @mouseleave="cancelDelete"
           >
             <AppIcon
-              :name="
-                pendingDeleteId === persona.id ? 'i-lucide-alert-triangle' : 'i-lucide-trash-2'
-              "
+              :name="isDeleteArmed(persona.id) ? 'i-lucide-alert-triangle' : 'i-lucide-trash-2'"
               class="size-4"
             />
           </button>
