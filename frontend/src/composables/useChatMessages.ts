@@ -2,6 +2,7 @@ import { ref, watch } from "vue";
 import type { components } from "@/api/schema";
 import { client } from "@/api/client";
 import { useCompletionSignal } from "@/composables/useCompletionSignal";
+import type { StreamEvent } from "@/types/chat";
 
 type Message = components["schemas"]["MessageResponse"];
 
@@ -171,11 +172,11 @@ export function useChatMessages(
           const dataStr = line.slice(6);
           if (dataStr === "[DONE]") continue;
 
-          // Backend SSE events are { type, content?, message? } — the typed
-          // StreamEvent from the API, NOT { text, error }.
-          let event: { type?: string; content?: string; message?: string } | null = null;
+          // Discriminated StreamEvent (mirrors the backend); JSON.parse is
+          // untyped, so assert to the union and narrow on `type` below.
+          let event: StreamEvent | null = null;
           try {
-            event = JSON.parse(dataStr);
+            event = JSON.parse(dataStr) as StreamEvent;
           } catch (e) {
             console.warn("Stream parse error", e);
           }
