@@ -87,6 +87,16 @@ export function useChatMessages(
   // Track if we are currently generating (prevents double clicks and triggers scroll)
   const isGenerating = ref(false);
 
+  // Aborts the in-flight SSE generation (chat switch or an explicit stop), so we
+  // don't keep reading tokens for a chat the user already left.
+  let abortController: AbortController | null = null;
+
+  const stop = () => {
+    abortController?.abort();
+    abortController = null;
+    isGenerating.value = false;
+  };
+
   // Announce every settled LLM call (success or error — both write audit rows)
   // so listeners like the drawer's Logs tab can refresh without a page reload.
   const { notify: notifyCompletion } = useCompletionSignal();
@@ -144,9 +154,6 @@ export function useChatMessages(
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
 
-    const assistantMsgIndex = messages.value.findIndex((m) => m.id === placeholderId);
-    if (assistantMsgIndex === -1) return;
-
     let buffer = "";
     let streamError: string | null = null;
 
@@ -175,17 +182,20 @@ export function useChatMessages(
           }
           if (!event) continue;
 
-          const currentMsg = messages.value[assistantMsgIndex];
-          if (!currentMsg) continue;
+          // Re-find by id every write: a chat switch resets `messages`, so a
+          // cached index would write tokens into the wrong (or gone) message.
+          const idx = messages.value.findIndex((m) => m.id === placeholderId);
+          if (idx === -1) return;
+          const currentMsg = messages.value[idx];
 
           if (event.type === "text" && event.content) {
             // New object reference so standard watchers trigger.
-            messages.value[assistantMsgIndex] = {
+            messages.value[idx] = {
               ...currentMsg,
               content: currentMsg.content + event.content,
             };
           } else if (event.type === "reasoning" && event.content) {
-            messages.value[assistantMsgIndex] = {
+            messages.value[idx] = {
               ...currentMsg,
               reasoning_content: (currentMsg.reasoning_content ?? "") + event.content,
             };
@@ -197,6 +207,10 @@ export function useChatMessages(
 
         if (streamError) break;
       }
+    } catch (err) {
+      // Abort (stop button / chat switch) is expected — end quietly.
+      if ((err as Error)?.name === "AbortError") return;
+      throw err;
     } finally {
       isGenerating.value = false;
     }
@@ -221,6 +235,7 @@ export function useChatMessages(
     const placeholderId = addAssistantPlaceholder();
     isGenerating.value = true;
     error.value = null;
+    abortController = new AbortController();
 
     try {
       const response = await fetch(`/api/chats/${chatId}/messages?stream=true&regenerate=true`, {
@@ -229,6 +244,7 @@ export function useChatMessages(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(null),
+        signal: abortController.signal,
       });
 
       if (!response.ok) {
@@ -238,10 +254,12 @@ export function useChatMessages(
 
       await readStream(response, placeholderId);
     } catch (err) {
+      if ((err as Error)?.name === "AbortError") return;
       error.value = err instanceof Error ? err : new Error("Regeneration failed");
       isGenerating.value = false;
       await loadMessages();
     } finally {
+      abortController = null;
       notifyCompletion(chatId);
     }
   };
@@ -264,6 +282,7 @@ export function useChatMessages(
     const placeholderId = addAssistantPlaceholder();
     isGenerating.value = true;
     error.value = null;
+    abortController = new AbortController();
 
     try {
       const response = await fetch(`/api/chats/${chatId}/messages?stream=true`, {
@@ -272,6 +291,7 @@ export function useChatMessages(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ content }),
+        signal: abortController.signal,
       });
 
       if (!response.ok) {
@@ -281,11 +301,13 @@ export function useChatMessages(
 
       await readStream(response, placeholderId);
     } catch (err) {
+      if ((err as Error)?.name === "AbortError") return;
       error.value = err instanceof Error ? err : new Error("Failed to send message");
       isGenerating.value = false;
       // Drop the empty placeholder so a failed send doesn't leave a blank bubble.
       messages.value = messages.value.filter((m) => m.id !== placeholderId || m.content);
     } finally {
+      abortController = null;
       notifyCompletion(chatId);
     }
   };
@@ -350,6 +372,9 @@ export function useChatMessages(
   watch(
     () => getChatId(),
     (newChatId) => {
+      // Cancel any in-flight generation for the chat we're leaving before we
+      // reset messages, so its reader can't write into the new chat's array.
+      stop();
       if (autoLoad && newChatId) {
         messages.value = [];
         hasMore.value = false;
@@ -370,6 +395,7 @@ export function useChatMessages(
     hasMore,
     error,
     isGenerating,
+    stop,
     suggesting,
     fetchSuggestions,
     regenerate,
