@@ -4,6 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useCharacterForm } from "@/composables/useCharacterForm";
 import { useLorebooks } from "@/composables/useLorebooks";
+import { downloadJson } from "@/utils/download";
 import CharacterTab from "@/components/creator/CharacterTab.vue";
 import BehaviorTab from "@/components/creator/BehaviorTab.vue";
 import WorldTab from "@/components/creator/WorldTab.vue";
@@ -129,14 +130,7 @@ async function handleDelete() {
 }
 
 function handleExport() {
-  const json = JSON.stringify(form.data, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${form.data.name || "character"}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadJson(`${form.data.name || "character"}.json`, form.data);
 }
 
 function handleImport(data: CharacterData) {
