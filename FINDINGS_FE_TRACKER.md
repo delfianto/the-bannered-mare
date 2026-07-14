@@ -8,8 +8,8 @@
 
 - **Updated:** 2026-07-15
 - **Active:** —
-- **Next up:** FE-H6 (`msw/node` server) + FE-H7 (CI coverage) to finish Wave 1; then Wave 2 bugs (FE-C3, FE-H1)
-- **Progress:** 1 / 29 done (FE-C1 ✓; FE-L8 folded in)
+- **Next up:** FE-H7 (CI coverage) to finish Wave 1; then Wave 2 bugs (FE-C3, FE-H1, FE-C2)
+- **Progress:** 2 / 29 done (FE-C1, FE-H6 ✓; FE-L8 folded in)
 
 ---
 
@@ -48,7 +48,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** the single highest-leverage change — everything in Waves 2–3 test-writing depends on it. Keep it main-thread.
 
-### FE-H6 · Reuse the MSW harness for tests via `msw/node` · [ ] · 🤖 sub · dep: FE-C1
+### FE-H6 · Reuse the MSW harness for tests via `msw/node` · [x] DONE (see §Completed) · 🤖 sub · dep: FE-C1
 - **Ref:** FINDINGS_FE.md §3 FE-H6
 - **Files:** new `src/mocks/server.ts`; the test setup file from FE-C1
 - **Fix:** `export const server = setupServer(...handlers)`; wire `beforeAll(server.listen)`/`afterEach(server.resetHandlers)`/`afterAll(server.close)` in setup. The 2,173-line handler set + 38 fixtures then back all API-coupled composable tests.
@@ -180,4 +180,5 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-H6** (commit tagged `FE-H6`) — added `src/mocks/server.ts` (`setupServer(...handlers)` reusing the exact handler array `browser.ts` feeds `setupWorker`) and wired `beforeAll(server.listen({onUnhandledRequest:"error"}))` / `afterEach(resetHandlers)` / `afterAll(close)` into `src/test/setup.ts`. Demonstration test `useProviders.test.ts` drives the real composable → store → **unpatched** typed client and asserts the `/api/providers` fixture loads through MSW (no `global.fetch`/`client` monkeypatch). **No extra deps or config needed** — msw 2.14.6 was already present; happy-dom resolves the relative `/api/...` path against its default origin and msw/node matches by pathname. Verified independently: `vp test run` = 6 files / 21 tests; build/lint/fmt green. Note: setup now imports the full handler+fixture graph on every test file's critical path (~0.45s) — fine, but known.
 - **[x] FE-C1** (commit tagged `FE-C1`) — switched `"test"` `bun test`→`vp test run`; **removed the `"vitest": "npm:@voidzero-dev/vite-plus-test"` override** — it exposes no `vitest` bin and broke `vp test`, while `vite-plus` already depends on real `vitest@4.1.9`, which now resolves. Added `@vue/test-utils` + `happy-dom`; added a `test` block to `vite.config.ts` (`happy-dom` env + `src/test/setup.ts` registering i18n + the 3 global primitives so `mount()` mirrors `main.ts`); migrated the 4 tests off `bun:test`→`vitest` (dropped the bun-only `process.env` hack → also closes FE-L8); deleted the obsolete `src/bun-test-env.d.ts`; added an `AppToggle` **smoke test that mounts a real SFC**. Verified: `vp test run` = **5 files / 20 tests pass**; `bun run build` + `vp lint` + `vp fmt --check` green; CI runs `bun run test`→`vp test run` (`vp` from `node_modules/.bin`) so it's unbroken. **Surprise:** the blocker was not missing deps — it was the pre-existing `vitest` override clobbering the real bin.
