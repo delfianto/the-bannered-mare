@@ -1,3 +1,10 @@
+<script lang="ts">
+// Shared across all Modal instances so only the top-most open dialog traps keys
+// (Escape/Tab). Without this, a modal stacked over another (e.g. a confirm over
+// an editor) means both keydown handlers fire and fight over focus.
+const modalStack: symbol[] = [];
+</script>
+
 <script setup lang="ts">
 import { nextTick, onUnmounted, ref, useId, watch } from "vue";
 
@@ -22,6 +29,13 @@ const titleId = useId();
 const panelRef = ref<HTMLElement | null>(null);
 // The element focused before the dialog opened, so focus can return to it on close.
 let previouslyFocused: HTMLElement | null = null;
+// Identity for this instance in the shared modal stack (top-most traps keys).
+const instanceId = Symbol("modal");
+function removeFromStack() {
+  const i = modalStack.indexOf(instanceId);
+  if (i !== -1) modalStack.splice(i, 1);
+}
+const isTopModal = () => modalStack[modalStack.length - 1] === instanceId;
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -44,6 +58,8 @@ let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
 const handleKeyDown = (e: KeyboardEvent) => {
   if (!props.show) return;
+  // Only the top-most open modal handles keys; a stacked modal below stays inert.
+  if (!isTopModal()) return;
   if (e.key === "Escape") {
     emit("close");
     return;
@@ -80,6 +96,7 @@ watch(
     if (closeTimer) clearTimeout(closeTimer);
     if (show) {
       previouslyFocused = document.activeElement as HTMLElement | null;
+      modalStack.push(instanceId);
       visible.value = true;
       document.body.style.overflow = "hidden";
       window.addEventListener("keydown", handleKeyDown);
@@ -96,7 +113,9 @@ watch(
       });
     } else {
       entered.value = false;
-      document.body.style.overflow = "";
+      removeFromStack();
+      // Keep scroll locked while any modal remains open beneath this one.
+      document.body.style.overflow = modalStack.length > 0 ? "hidden" : "";
       window.removeEventListener("keydown", handleKeyDown);
       closeTimer = setTimeout(() => (visible.value = false), DURATION);
       // Return focus to whatever launched the dialog (only when we were open).
@@ -111,7 +130,8 @@ watch(
 
 onUnmounted(() => {
   if (closeTimer) clearTimeout(closeTimer);
-  document.body.style.overflow = "";
+  removeFromStack();
+  document.body.style.overflow = modalStack.length > 0 ? "hidden" : "";
   window.removeEventListener("keydown", handleKeyDown);
 });
 
