@@ -72,7 +72,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 |---|---|---|---|---|---|
 | V2-A1 | A | BE | Med | RAG history stale on edit/regenerate | [x] |
 | V2-A2 | A | FE | Med | Streamed message never adopts backend `message_id` | [x] |
-| V2-A3 | A | FE | Med | Modal focus trap leaks on first Shift+Tab | [ ] |
+| V2-A3 | A | FE | Med | Modal focus trap leaks on first Shift+Tab | [x] |
 | V2-A4 | A | FE | Med | SelectMenu combobox ARIA on wrong element | [ ] |
 | V2-B1 | B | FE | Med | 5 multipart sites bypass `VITE_API_URL` + `trackedFetch` | [ ] |
 | V2-B2 | B | FE | Low | `useModel`/`useProvider` still hand-roll (2/6 CRUD) | [ ] |
@@ -115,7 +115,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 - **Fix:** In `readStream`, add a `start` arm that rewrites the placeholder message's `id` (re-find by `placeholderId`, swap in `event.message_id`) and continue matching subsequent writes against the new id. Verify the backend actually emits a `start`/id event; if not, emit it or fetch the id on stream completion.
 - **Acceptance:** after streaming completes (no reload), the message's `id` equals the backend id; editing/alternatives succeed. Guard remains abort-safe.
 
-### V2-A3. Modal focus trap leaks on the first Shift+Tab  ·  Med · FE  · [ ]
+### V2-A3. Modal focus trap leaks on the first Shift+Tab  ·  Med · FE  · [x] DONE
 - **Location:** `frontend/src/components/shared/Modal.vue:88` (focuses panel container, `tabindex=-1`), trap at `:53-71` (only reverses when `active===first/last || !inPanel`).
 - **Problem:** With focus on the panel container, Shift+Tab satisfies none of the reversal conditions, so the browser moves focus backward out of the teleported dialog to the obscured page — the exact escape FE-2 aimed to prevent. Confirmed by direct read.
 - **Fix:** On open, focus the **first focusable child** (fall back to the panel only when empty); OR treat "active is the panel / not a tabbable child" as a trap endpoint in `handleKeyDown`.
@@ -279,4 +279,4 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 _(Move items here with `[x]` and the fixing commit hash as they're finished — keep the record; don't delete.)_
 
 - **[x] V2-A1** — `vectorize_message` now uses delete-then-insert replace semantics (mirrors `vectorize_data_bank_entry`); `_vectorize` re-runs on every `_persist_reply` branch (new turn, overwrite, alternatives-store), on `edit_message`, and on `activate_alternative` (swipe) — every message-content mutation. New test `test_vectorize_message_replaces_prior_embedding` asserts the old vector is always deleted even on a dedup hit. Validated: ruff clean, basedpyright 0/0/0, 863 passed. Commit: `048fef0`.
-- **[x] V2-A2** — `readStream` now handles the backend's `start` event: it swaps the placeholder's client UUID for `event.message_id` and tracks the swapped id (`currentId`) through every subsequent write and both cleanup paths, so a freshly-streamed reply can be edited/re-rolled without a reload. Backend already emitted `StreamEvent(type="start", message_id=…)` (service.py:420); only the FE was ignoring it. Validated: `bun run build` passes (vue-tsc + Rolldown), 8 tests pass. Commit: `<pending>`.
+- **[x] V2-A2** — `readStream` now handles the backend's `start` event: it swaps the placeholder's client UUID for `event.message_id` and tracks the swapped id (`currentId`) through every subsequent write and both cleanup paths, so a freshly-streamed reply can be edited/re-rolled without a reload. Backend already emitted `StreamEvent(type="start", message_id=…)` (service.py:420); only the FE was ignoring it. Validated: `bun run build` passes (vue-tsc + Rolldown), 8 tests pass. Commit: `f324b23`.

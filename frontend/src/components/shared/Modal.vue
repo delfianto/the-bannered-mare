@@ -53,7 +53,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
   if (e.key === "Tab") {
     const els = focusableEls();
     const active = document.activeElement as HTMLElement | null;
-    const inPanel = !!active && !!panelRef.value?.contains(active);
     if (els.length === 0) {
       e.preventDefault();
       panelRef.value?.focus();
@@ -61,10 +60,14 @@ const handleKeyDown = (e: KeyboardEvent) => {
     }
     const first = els[0];
     const last = els[els.length - 1];
-    if (e.shiftKey && (active === first || !inPanel)) {
+    // Recapture to the far end whenever focus is on a boundary element, on the
+    // bare panel container, or has escaped the panel entirely — so Tab/Shift+Tab
+    // wrap inside the dialog instead of leaking to the page behind the backdrop.
+    const onTabbable = !!active && els.includes(active);
+    if (e.shiftKey && (active === first || !onTabbable)) {
       e.preventDefault();
       last.focus();
-    } else if (!e.shiftKey && (active === last || !inPanel)) {
+    } else if (!e.shiftKey && (active === last || !onTabbable)) {
       e.preventDefault();
       first.focus();
     }
@@ -83,9 +86,14 @@ watch(
       // Mount at the "from" state, then flip on the next frame so the CSS transition runs.
       entered.value = false;
       requestAnimationFrame(() => requestAnimationFrame(() => (entered.value = true)));
-      // Move focus into the dialog once the panel is rendered (decoupled from the
-      // transition frames so it lands reliably).
-      void nextTick(() => panelRef.value?.focus());
+      // Focus the first focusable control (not the bare panel) once rendered, so
+      // the tab trap has a real anchor — otherwise the first Shift+Tab, from the
+      // untabbable panel, escapes to the page behind the backdrop. Fall back to
+      // the panel only when the dialog has no focusable children.
+      void nextTick(() => {
+        const els = focusableEls();
+        (els[0] ?? panelRef.value)?.focus();
+      });
     } else {
       entered.value = false;
       document.body.style.overflow = "";
