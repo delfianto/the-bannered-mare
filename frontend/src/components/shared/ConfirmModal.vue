@@ -43,7 +43,7 @@ const emit = defineEmits<{
         class="flex h-9 items-center gap-2 rounded-xl px-5 text-sm font-medium transition-all active:scale-[0.96] disabled:opacity-50"
         :class="
           destructive
-            ? 'bg-error text-error-foreground hover:bg-error/95 shadow-sm'
+            ? 'bg-error text-error-content hover:bg-error/95 shadow-sm'
             : 'bg-primary text-primary-content hover:bg-primary/95 shadow-sm'
         "
         :disabled="loading"
