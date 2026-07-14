@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 import type { components } from "@/api/schema";
 
 type ProviderResponse = components["schemas"]["ProviderResponse"];
@@ -48,16 +48,14 @@ export function useProvider() {
     }
   }
 
-  async function saveProvider(id: string, updates: Record<string, unknown>) {
+  async function saveProvider(id: string, updates: components["schemas"]["ProviderUpdate"]) {
     saving.value = true;
     try {
-      const response = await fetch(`/api/providers/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+      const { data, error: apiError } = await client.PUT("/api/providers/{provider_id}", {
+        params: { path: { provider_id: id } },
+        body: updates,
       });
-      if (!response.ok) throw new Error(`Save failed: ${response.status}`);
-      const data = await response.json();
+      if (apiError || !data) throw extractApiError(apiError, "Failed to save provider");
       provider.value = data;
       return data;
     } finally {
