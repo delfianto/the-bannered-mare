@@ -3,7 +3,7 @@
 import httpx
 import pytest
 from sqlalchemy.orm import Session
-from src.core.exceptions import BanneredMareException, ProviderException
+from src.core.exceptions import BanneredMareException, ConflictError, ProviderException
 from src.provider import (
     DiscoveredModel,
     Provider,
@@ -164,7 +164,7 @@ class TestProviderService:
         assert exc_info.value.status_code == 404
 
     def test_delete_provider_success(self, db: Session) -> None:
-        """Test that deleting a provider raises NotImplementedError"""
+        """Deleting a provider is blocked with a domain ConflictError (→ 409)."""
         provider = Provider(name="OpenAI", provider_type=ProviderType.OPENAI)
         db.add(provider)
         db.commit()
@@ -175,22 +175,22 @@ class TestProviderService:
         service = ProviderService(repo, ModelListCache())
 
         # Verify provider deletion is not allowed
-        with pytest.raises(NotImplementedError) as exc_info:
+        with pytest.raises(ConflictError) as exc_info:
             service.delete(provider_id)
 
-        assert "cannot be deleted" in str(exc_info.value).lower()
-        assert "update_flags" in str(exc_info.value).lower()
+        assert exc_info.value.status_code == 409
+        assert "cannot be deleted" in exc_info.value.message.lower()
+        assert "update_flags" in exc_info.value.message.lower()
 
     def test_delete_provider_not_found(self, db: Session) -> None:
-        """Test that deleting non-existent provider raises NotImplementedError"""
+        """Even for non-existent providers, deletion is blocked with ConflictError."""
         repo = ProviderRepository(db)
         service = ProviderService(repo, ModelListCache())
 
-        # Even for non-existent providers, deletion should be blocked
-        with pytest.raises(NotImplementedError) as exc_info:
+        with pytest.raises(ConflictError) as exc_info:
             service.delete("nonexistent-id")
 
-        assert "cannot be deleted" in str(exc_info.value).lower()
+        assert "cannot be deleted" in exc_info.value.message.lower()
 
 
 class _FakeDiscoveryClient:

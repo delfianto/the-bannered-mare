@@ -398,10 +398,12 @@ class ProviderService:
         )
 
     def delete(self, provider_id: str) -> None:
+        """Providers cannot be deleted (referential integrity); disable instead.
+
+        Raises a domain ``ConflictError`` (→ HTTP 409) rather than
+        ``NotImplementedError`` so that, if ever routed, it maps cleanly through
+        the global handler instead of surfacing as an unhandled 500.
         """
-        Providers cannot be deleted to maintain referential integrity.
-        Use update_flags to disable the provider instead.
-        """
-        raise NotImplementedError(
+        raise ConflictError(
             "Providers cannot be deleted. Use update_flags to disable the provider instead."
         )
