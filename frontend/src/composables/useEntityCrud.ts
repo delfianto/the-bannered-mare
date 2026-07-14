@@ -92,7 +92,8 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
     error.value = null;
     try {
       const { error: apiError, response } = await ops.remove!(id);
-      if (apiError) throw extractApiError(apiError, `Failed to delete ${ops.label}`, response?.status);
+      if (apiError)
+        throw extractApiError(apiError, `Failed to delete ${ops.label}`, response?.status);
     } catch (e) {
       throw recordError(e);
     } finally {

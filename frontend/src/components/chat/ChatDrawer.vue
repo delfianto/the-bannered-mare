@@ -301,11 +301,7 @@ function portraitSrc(): string {
   if (!c) return "";
   // Large tier (<=512px): the drawer portrait renders a few hundred px wide, so
   // the large avatar stays sharp while far lighter than the original.
-  return (
-    c.avatar_large ||
-    c.avatar ||
-    fallbackAvatarUrl(c.name, 400)
-  );
+  return c.avatar_large || c.avatar || fallbackAvatarUrl(c.name, 400);
 }
 
 function genderLabel(): string {
@@ -414,7 +410,6 @@ function handleRenameKeydown(e: KeyboardEvent) {
     (e.target as HTMLInputElement).blur();
   }
 }
-
 </script>
 
 <template>

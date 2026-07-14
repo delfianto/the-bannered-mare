@@ -31,7 +31,11 @@ interface PaginatedListOptions<TFilters> {
  * + its own filter→query mapping stay in the composable) and gets the state back.
  */
 export function usePaginatedList<TItem, TFilters = Record<string, never>>(
-  fetchPage: (page: number, pageSize: number, filters: TFilters) => ClientResult<PageEnvelope<TItem>>,
+  fetchPage: (
+    page: number,
+    pageSize: number,
+    filters: TFilters,
+  ) => ClientResult<PageEnvelope<TItem>>,
   options: PaginatedListOptions<TFilters> = {},
 ) {
   const {

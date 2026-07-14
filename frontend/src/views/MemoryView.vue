@@ -136,8 +136,11 @@ async function saveForm() {
 }
 
 // ── Delete with two-click confirm (auto-disarms) ─────────
-const { isArmed: isDeleteArmed, trigger: onDeleteClick, reset: cancelDelete } =
-  useKeyedConfirmAction();
+const {
+  isArmed: isDeleteArmed,
+  trigger: onDeleteClick,
+  reset: cancelDelete,
+} = useKeyedConfirmAction();
 
 function clearFilters() {
   searchQuery.value = "";

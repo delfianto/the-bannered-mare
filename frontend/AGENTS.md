@@ -107,7 +107,7 @@ src/
 - **API Client:** openapi-fetch (typed against `src/api/schema.d.ts`)
 - **Mocking:** MSW (Mock Service Worker)
 - **Icons:** `lucide-vue-next` via the global `<AppIcon name="i-lucide-*" />` (registry: `src/components/shared/icons.ts`)
-- **Lint / Format:** Oxlint / Oxfmt, run through `vp lint` / `vp fmt` (provided by the Vite+ toolchain — no standalone devDeps)
+- **Lint / Format:** **Oxlint** (`vp lint`) is the JS/Vue linter and **Oxfmt** (`vp fmt`) the formatter — both from the Vite+ toolchain. Two small, non-overlapping Tailwind-canonicalization checks sit alongside them: **`bun run lint:tailwind`** (a minimal ESLint config — `eslint-plugin-tailwindcss` only, no vue/formatting rules, so it doesn't fight Oxfmt — enforcing `no-unnecessary-arbitrary-value` for _named_ scales like `text-[0.875rem]`→`text-sm`) and **`bun run lint:canonical`** (`scripts/canonical-classes.mjs`, for _dynamic spacing_ like `h-[62px]`→`h-15.5`). CI runs all three (see `.github/workflows/frontend-ci.yml`).
 
 ### 4.2 Layered Responsibilities
 

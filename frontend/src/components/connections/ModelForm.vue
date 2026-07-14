@@ -30,9 +30,7 @@ const form = reactive({
   enabled: true,
 });
 
-const selectedFamily = computed(() =>
-  props.families.find((f) => f.id === form.model_family_id),
-);
+const selectedFamily = computed(() => props.families.find((f) => f.id === form.model_family_id));
 const providerItems = computed(() =>
   providersForFamily(props.providers, selectedFamily.value)
     .slice()

@@ -339,9 +339,7 @@ onMounted(fetchAll);
             <span
               class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
               :class="
-                log.status === 'success'
-                  ? 'bg-success/10 text-success'
-                  : 'bg-error/10 text-error'
+                log.status === 'success' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
               "
             >
               {{ log.status }}
