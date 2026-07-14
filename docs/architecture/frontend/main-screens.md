@@ -24,7 +24,7 @@ live under `views/settings/`.
 - **Key Features**:
   - **Session List**: `ChatSessionList` in a side column; auto-selects the first session when none is in the route.
   - **Dialogue Panel**: `MessageBubble` list with a `QuillTypingIndicator` while generating; supports edit, regenerate, and swiping through alternative responses. Messages stream in over SSE (see [Backend Connection](backend-connection.md)).
-  - **Chat Header**: `ChatHeader` shows the character/title and hosts the per-session **profile picker** (`ChatProfilePicker`) to apply a different loadout (model + template + preset) to the active chat on the fly.
+  - **Chat Header**: `ChatHeader` is purely presentational — it shows the character/title (props `character`, `sessionTitle`) and only emits `back` / `openMenu`. The per-session **profile picker** that applies a different loadout (model + template + preset) to the active chat lives in the chat drawer's **Settings tab** (`ChatDrawerSettingsTab.vue`, whose `chooseProfile` / `applyProfile` emit the selection), opened from the header's menu button. `ChatView.vue` owns `drawerOpen` and handles `applyProfile`.
 
 
 ## 3. Characters / Discover (`CharactersView.vue`)
@@ -49,7 +49,7 @@ live under `views/settings/`.
 - **Route**: `/connections`
 - **Role**: Hub for model infrastructure. Tabs are selected via the `?tab=` query param.
 - **Tabs**:
-  - **Providers** (`ProvidersTab`): Configure API endpoints and credentials (OpenAI, Anthropic, Google, OpenRouter, xAI, Ollama, LM Studio).
+  - **Providers** (`ProvidersTab`): Configure API endpoints and credentials (OpenAI, Anthropic, Google, OpenRouter, xAI, Ollama, LM Studio, OpenCode Zen, OpenCode Go).
   - **Models** (`ModelsTab`): Manage individual models, their families, and providers.
   - **Model Families** (`ModelFamiliesTab`): Configure per-family parameters and metadata.
 - Prompt-side configuration (presets, templates, fragments) now lives on the **Loadouts** page, not here. Editing a row opens a dedicated detail view under `views/settings/` (see §10).
@@ -93,7 +93,7 @@ live under `views/settings/`.
 - **`SettingsView.vue`** (`/settings`) — App settings with tabs: **Interface**, **Logs**, and **About**. (Persona management moved to the **Loadouts** page — see §6.)
 - **Detail / edit pages** opened from Connections and Loadouts rows:
   - `ProviderView.vue` (`/settings/providers/:id`) — provider credentials, model sync, and load/unload actions (see [LLM Harness](llm-harness.md)).
-  - `ModelCreateView.vue` (`/settings/models/create`) and `ModelView.vue` (`/settings/models/:id`) — create/edit a model.
+  - `ModelView.vue` (`/settings/models/:id`) — edit a model. There is no `/settings/models/create` route; new models are created through the `ModelCreateModal.vue` modal rather than a routed page.
   - `ModelFamilyView.vue` (`/settings/model-families/:id`) — edit a model family.
   - `TemplateView.vue`, `FragmentView.vue`, `PresetView.vue` (`/settings/templates|fragments|presets/:id`) — edit a prompt template, fragment, or preset.
 

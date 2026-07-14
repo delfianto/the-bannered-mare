@@ -84,10 +84,10 @@ Mock logic is encapsulated under
 - **`handlers.ts`** — implements ~90 endpoints mimicking backend behavior: CRUD, pagination,
   filtering, and model load-state mutations.
 - **`data/`** — TypeScript modules with realistic test data mirroring the seed fixtures:
-  - **7 providers** (OpenAI, Anthropic, Google AI, OpenRouter, xAI, Ollama, LM Studio)
-  - **19 model families** and **34 models**
+  - **9 providers** (OpenAI, Anthropic, Google AI, OpenRouter, xAI, Ollama, LM Studio, OpenCode Zen, OpenCode Go)
+  - **24 model families** and **38 models**
   - **20 characters** (with Unsplash avatar photos)
   - **20 chats** whose conversations are lazily loaded from YAML scenario scripts
-  - **3 personas**, **3 presets**, **6 prompt templates**, **3 prompt fragments**, and **5 RAG data-bank entries**
+  - **3 personas**, **3 presets**, **4 prompt templates**, **3 prompt fragments**, and **5 RAG data-bank entries**
 - **`data/scenarios/`** — **19** YAML scenario scripts describing multi-turn dialogues for
   character cards; a lazy loader (`loader.ts`) resolves them into messages on demand.
