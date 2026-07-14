@@ -69,6 +69,8 @@ src/
 │   ├── creator/            # Character creator form
 │   ├── discover/           # Character library grid/list + filters
 │   ├── layout/             # AppShell, AppSidebar
+│   ├── lorebooks/          # Lore entry cards + edit form
+│   ├── profiles/           # Loadout cards, forms, picker modal, persona tab
 │   ├── settings/           # Settings page tabs
 │   └── shared/             # Reusable primitives (AppIcon, AppTooltip, SelectMenu, AppToggle) + more
 ├── composables/            # Feature-scoped state + API fetchers (use* prefix)
@@ -80,6 +82,7 @@ src/
 ├── router/                 # Vue Router 5 route definitions
 ├── stores/                 # Pinia stores (settings, etc.)
 ├── types/                  # Hand-written TypeScript definitions
+├── utils/                  # Framework-agnostic helpers (avatar, download, formatLog, …)
 └── views/                  # Routed page components
 ```
 
@@ -98,7 +101,7 @@ Styling is **DaisyUI 5** on Tailwind v4. Six palettes — Amber Dawn, Emerald Gl
 
 ## Mock Mode
 
-MSW intercepts all API calls in the browser when `VITE_USE_MOCKS=true`. Fixtures in `src/mocks/data/` include 7 providers, 34 models across 19 families, 20 Elder Scrolls–themed characters, 20 chats with YAML conversation scenarios, and more.
+MSW intercepts all API calls in the browser when `VITE_USE_MOCKS=true`. Fixtures in `src/mocks/data/` include 9 providers, 38 models across 24 families, 20 Elder Scrolls–themed characters, 20 chats with YAML conversation scenarios, and more.
 
 ```bash
 VITE_USE_MOCKS=true vp dev --host                         # mock mode

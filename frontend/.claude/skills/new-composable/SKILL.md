@@ -9,11 +9,13 @@ Create a composable that owns a feature's data fetching and reactive state — t
 
 - File `src/composables/use<Thing>.ts`, camelCase, `use*` prefix. Returns reactive `ref`/`computed` + action functions — never a raw `Response`.
 - Call the **typed client**: `import { client } from "@/api/client"` then `const { data, error } = await client.GET("/api/...", { params: { query: {...} } })`. Branch on `error` before using `data`. Type with `components["schemas"][...]` from `@/api/schema`.
-- FormData / multipart mutations (file uploads) are the one sanctioned `fetch()` exception — openapi-fetch doesn't handle multipart.
+- FormData / multipart mutations (file uploads) can't go through openapi-fetch — use the typed `multipartFetch` wrapper from `@/api/client` (it keeps the base URL + reachability reporting and returns an openapi-fetch-shaped `{ data, error }`), not a raw `fetch()`.
 - Surface user-facing errors via `useAppToast`; don't swallow them.
 - Singletons that outlive a feature (theme, sidebar) share one module-level ref and persist to `localStorage`; truly global app state goes in a Pinia store under `src/stores/`.
 
 ## Shape
+
+Prefer the shared factories over hand-rolling: build list composables on `usePaginatedList` (page-based) / `useCursorList` (infinite scroll), and detail/CRUD composables on `useEntityCrud`, passing typed `client.*` closures. Reserve the bespoke shape below for composables that don't fit those patterns.
 
 ```ts
 import { ref } from "vue";
