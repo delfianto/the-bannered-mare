@@ -1,7 +1,7 @@
 import { reactive, computed, ref } from "vue";
 import type { CharacterData, LorebookEntry } from "@/types/creator";
 import { INITIAL_CHARACTER } from "@/types/creator";
-import { client } from "@/api/client";
+import { client, multipartFetch } from "@/api/client";
 import type { components } from "@/api/schema";
 
 type CharacterResponse = components["schemas"]["CharacterResponse"];
@@ -199,14 +199,12 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       const url = isEdit ? `/api/characters/${id.value}` : "/api/characters";
       const method = isEdit ? "PUT" : "POST";
 
-      const response = await fetch(url, { method, body: fd });
+      const { data: result, error: apiError } = await multipartFetch<CharacterResponse>(url, {
+        method,
+        body: fd,
+      });
+      if (apiError || !result) throw apiError ?? new Error("Failed to save character");
 
-      if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(`API Error ${response.status}: ${errorBody}`);
-      }
-
-      const result: CharacterResponse = await response.json();
       id.value = result.id;
       data.id = result.id;
 

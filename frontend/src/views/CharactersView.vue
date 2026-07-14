@@ -35,7 +35,9 @@ const bulkDeleteMode = ref(false);
 const deleteLoading = ref(false);
 
 // Fetch characters from API (endless scroll — see below)
-const { characters, loading, hasMore, loadMore, refresh } = useCharacters({ pageSize: 24 });
+const { characters, loading, hasMore, loadMore, refresh, importCharacter } = useCharacters({
+  pageSize: 24,
+});
 
 // Restore filters from the URL so they survive opening a character and coming
 // back — mirrored into the query on every change (same idiom as the tables).
@@ -227,18 +229,7 @@ async function onFileSelected(event: Event) {
   importing.value = true;
 
   try {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch("/api/characters/import", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Import failed: ${response.status}`);
-    }
-
+    await importCharacter(file);
     success(t("characters.imported"), t("characters.importSuccess", { name: file.name }));
     refresh();
   } catch {
