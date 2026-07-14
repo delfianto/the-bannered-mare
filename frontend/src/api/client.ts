@@ -35,13 +35,3 @@ export class APIError extends Error {
     this.name = "APIError";
   }
 }
-
-export function getAvatarUrl(characterId: string): string {
-  const baseUrl = import.meta.env.VITE_API_URL || "";
-  return `${baseUrl}/api/characters/${characterId}/avatar`;
-}
-
-export function getPersonaAvatarUrl(personaId: string): string {
-  const baseUrl = import.meta.env.VITE_API_URL || "";
-  return `${baseUrl}/api/personas/${personaId}/avatar`;
-}

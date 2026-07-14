@@ -3,6 +3,9 @@
 interface ImportMetaEnv {
   readonly VITE_USE_MOCKS: string;
   readonly VITE_DEBUG_REQUEST: string;
+  // Backend origin for the typed client + reachability probe. Empty (the default)
+  // uses same-origin / the dev proxy; set it to point at a split-origin backend.
+  readonly VITE_API_URL: string;
 }
 
 interface ImportMeta {
