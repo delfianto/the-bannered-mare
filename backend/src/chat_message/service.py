@@ -494,7 +494,9 @@ class ChatMessageService:
             # Mirror the router boundary: provider errors carry a user-facing
             # message, but a mid-stream internal fault (e.g. an asyncpg error while
             # persisting) must stay generic — the detail is logged above.
-            message = str(e) if isinstance(e, ProviderException) else "An unexpected error occurred."
+            message = (
+                str(e) if isinstance(e, ProviderException) else "An unexpected error occurred."
+            )
             yield StreamEvent(type="error", message=message, code=llm_audit.classify_error(e))
 
     async def send_message_stream(self, chat_id: str, content: str) -> AsyncIterator[StreamEvent]:
