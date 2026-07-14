@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import Terminal from "vite-plugin-terminal";
 import ViteYaml from "@modyfi/vite-plugin-yaml";
 import tailwindcss from "@tailwindcss/vite";
@@ -44,6 +45,14 @@ export default defineConfig(({ command }) => {
               changeOrigin: true,
             },
           },
+    },
+    // `vp test` (Vitest) reuses this config's vue plugin + `@` alias, so SFCs
+    // compile and mount. happy-dom supplies the DOM the UI layer needs.
+    test: {
+      environment: "happy-dom",
+      globals: false,
+      setupFiles: ["./src/test/setup.ts"],
+      include: ["src/**/*.{test,spec}.ts"],
     },
   };
 });

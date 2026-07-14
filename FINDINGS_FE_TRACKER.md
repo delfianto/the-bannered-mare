@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** — (not started)
-- **Next up:** FE-C1 (foundation — unblocks the entire test effort)
-- **Progress:** 0 / 29 done
+- **Active:** —
+- **Next up:** FE-H6 (`msw/node` server) + FE-H7 (CI coverage) to finish Wave 1; then Wave 2 bugs (FE-C3, FE-H1)
+- **Progress:** 1 / 29 done (FE-C1 ✓; FE-L8 folded in)
 
 ---
 
@@ -39,7 +39,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 1 — Establish a safety net (unblocks everything else)
 
-### FE-C1 · Make the runner able to test the UI layer · [ ] · 🧵 main · blocks: FE-C2, FE-H5, FE-M9, all component tests
+### FE-C1 · Make the runner able to test the UI layer · [x] DONE (see §Completed) · 🧵 main · blocks: FE-C2, FE-H5, FE-M9, all component tests
 - **Ref:** FINDINGS_FE.md §2 FE-C1
 - **Files:** `package.json` (`"test"`, devDeps); `vite.config.ts` (add a `test` block); new `src/test/setup.ts`
 - **Problem:** wired `bun test` has no DOM, no `@vue/test-utils`/`happy-dom`, and `.vue` imports resolve to a path string — no component can be mounted (0% of ~24K LOC UI reachable).
@@ -172,10 +172,12 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **FE-L7** `[ ]` typed route-params helper for `ChatView.vue:24`/`ProviderView.vue:169` (low priority for a local app).
 - **FE-M10** `[ ]` define `--text-2xs`/`--text-3xs` in `@theme`; replace the 153 arbitrary micro-rem sizes. *(Rem-based → not a scale-breaking bug; DRY only.)*
 - **FE-L-latent** — folded into **FE-M5** (do not schedule separately).
-- **FE-L8** — resolved by **FE-C1** (`vp test` injects `VITE_*`; drop the `process.env` hack).
+- **FE-L8** — `[x]` resolved by **FE-C1** (`process.env.VITE_API_URL` hack removed; `import.meta.env` now injected by `vp test`).
 
 ---
 
 ## Completed
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
+
+- **[x] FE-C1** (commit tagged `FE-C1`) — switched `"test"` `bun test`→`vp test run`; **removed the `"vitest": "npm:@voidzero-dev/vite-plus-test"` override** — it exposes no `vitest` bin and broke `vp test`, while `vite-plus` already depends on real `vitest@4.1.9`, which now resolves. Added `@vue/test-utils` + `happy-dom`; added a `test` block to `vite.config.ts` (`happy-dom` env + `src/test/setup.ts` registering i18n + the 3 global primitives so `mount()` mirrors `main.ts`); migrated the 4 tests off `bun:test`→`vitest` (dropped the bun-only `process.env` hack → also closes FE-L8); deleted the obsolete `src/bun-test-env.d.ts`; added an `AppToggle` **smoke test that mounts a real SFC**. Verified: `vp test run` = **5 files / 20 tests pass**; `bun run build` + `vp lint` + `vp fmt --check` green; CI runs `bun run test`→`vp test run` (`vp` from `node_modules/.bin`) so it's unbroken. **Surprise:** the blocker was not missing deps — it was the pre-existing `vitest` override clobbering the real bin.

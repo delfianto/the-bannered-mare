@@ -1,6 +1,4 @@
-process.env.VITE_API_URL = "http://localhost:8000";
-
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect } from "vitest";
 import type { components } from "@/api/schema";
 
 type CharacterResponse = components["schemas"]["CharacterResponse"];
