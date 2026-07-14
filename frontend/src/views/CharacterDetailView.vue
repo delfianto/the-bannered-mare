@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { fallbackAvatarUrl } from "@/utils/avatar";
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -56,7 +57,7 @@ function portraitSrc(): string {
   return (
     character.value.avatar_large ||
     character.value.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(character.value.name)}&background=C9922E&color=fff&size=600`
+    fallbackAvatarUrl(character.value.name, 600)
   );
 }
 

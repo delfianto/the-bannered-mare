@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { fallbackAvatarUrl } from "@/utils/avatar";
 import { useRouter } from "vue-router";
 import type { Character } from "@/types/discover";
 import CharacterContextMenu from "./CharacterContextMenu.vue";
@@ -29,7 +30,7 @@ function avatarSrc(): string {
   return (
     props.character.avatar_thumbnail ||
     props.character.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=200`
+    fallbackAvatarUrl(props.character.name, 200)
   );
 }
 
