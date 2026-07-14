@@ -102,7 +102,7 @@ function timeAgo(dateStr: string): string {
             :style="{ animationDelay: `${i * 60}ms` }"
           >
             <img
-              :src="char.avatar"
+              :src="char.avatar || undefined"
               :alt="char.name"
               class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
@@ -151,7 +151,7 @@ function timeAgo(dateStr: string): string {
             :style="{ animationDelay: `${i * 50 + 200}ms` }"
           >
             <img
-              :src="session.character?.avatar_thumbnail || session.character?.avatar"
+              :src="session.character?.avatar_thumbnail || session.character?.avatar || undefined"
               :alt="session.character?.name"
               class="size-12 shrink-0 rounded-full object-cover ring-1 ring-border"
             />
@@ -164,7 +164,7 @@ function timeAgo(dateStr: string): string {
               </p>
             </div>
             <span class="text-[0.625rem] whitespace-nowrap text-muted-foreground">
-              {{ timeAgo(session.bookmarked_at || session.updated_at) }}
+              {{ timeAgo(session.updated_at) }}
             </span>
           </RouterLink>
         </div>
@@ -194,26 +194,13 @@ function timeAgo(dateStr: string): string {
             class="group animate-fade-in-up rounded-xl border bg-base-200/50 p-5 transition-all hover:shadow-lg"
             :style="{ animationDelay: `${i * 60 + 300}ms` }"
           >
-            <!-- Message header -->
+            <!-- Message header — the /bookmarks/messages endpoint is a backend
+                 stub (always empty) returning MessageResponse, so only its
+                 contract fields are shown until pinned-message enrichment lands. -->
             <div class="mb-3 flex items-start justify-between">
-              <div class="flex items-center gap-3">
-                <img
-                  :src="msg.character.avatar"
-                  :alt="msg.character.name"
-                  class="size-10 rounded-full object-cover ring-1 ring-border"
-                />
-                <div>
-                  <h4 class="font-cinzel text-sm font-bold text-foreground">
-                    {{ msg.character.name }}
-                  </h4>
-                  <p class="text-[0.625rem] tracking-widest text-muted-foreground uppercase">
-                    {{ $t("bookmarks.from") }}
-                    <RouterLink :to="`/chats/${msg.chat.id}`" class="text-primary hover:underline">
-                      {{ msg.chat.title }}
-                    </RouterLink>
-                  </p>
-                </div>
-              </div>
+              <span class="text-[0.625rem] tracking-widest text-muted-foreground uppercase">
+                {{ msg.role }}
+              </span>
               <span class="text-[0.625rem] text-muted-foreground">
                 {{ timeAgo(msg.created_at) }}
               </span>

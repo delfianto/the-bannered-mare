@@ -1,19 +1,15 @@
 import { ref, onMounted, computed } from "vue";
+import type { components } from "@/api/schema";
+import { client, extractApiError } from "@/api/client";
 
-export interface BookmarkedMessage {
-  id: string;
-  role: string;
-  content: string;
-  character: { id: string; name: string; avatar: string };
-  chat: { id: string; title: string };
-  bookmarked_at: string;
-  created_at: string;
-}
+type CharacterResponse = components["schemas"]["CharacterResponse"];
+type ChatResponse = components["schemas"]["ChatResponse"];
+type MessageResponse = components["schemas"]["MessageResponse"];
 
 export function useBookmarks() {
-  const characters = ref<any[]>([]);
-  const sessions = ref<any[]>([]);
-  const messages = ref<BookmarkedMessage[]>([]);
+  const characters = ref<CharacterResponse[]>([]);
+  const sessions = ref<ChatResponse[]>([]);
+  const messages = ref<MessageResponse[]>([]);
   const loading = ref(true);
   const error = ref<Error | null>(null);
 
@@ -27,14 +23,17 @@ export function useBookmarks() {
 
     try {
       const [charRes, sessRes, msgRes] = await Promise.all([
-        fetch("/api/bookmarks/characters").then((r) => r.json()),
-        fetch("/api/bookmarks/sessions").then((r) => r.json()),
-        fetch("/api/bookmarks/messages").then((r) => r.json()),
+        client.GET("/api/bookmarks/characters"),
+        client.GET("/api/bookmarks/sessions"),
+        client.GET("/api/bookmarks/messages"),
       ]);
 
-      characters.value = charRes?.items ?? [];
-      sessions.value = sessRes?.items ?? [];
-      messages.value = msgRes?.items ?? [];
+      const firstError = charRes.error || sessRes.error || msgRes.error;
+      if (firstError) throw extractApiError(firstError, "Failed to load bookmarks");
+
+      characters.value = charRes.data?.items ?? [];
+      sessions.value = sessRes.data?.items ?? [];
+      messages.value = msgRes.data?.items ?? [];
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Failed to load bookmarks");
     } finally {

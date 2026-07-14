@@ -31,7 +31,7 @@ function isActive(to: string) {
 }
 
 const favorites = computed(() => {
-  return sessions.value.slice(0, 4).map((session: any) => ({
+  return sessions.value.slice(0, 4).map((session) => ({
     id: session.id,
     name: session.character?.name || "Unknown",
     avatar: session.character?.avatar_thumbnail || session.character?.avatar || "",
