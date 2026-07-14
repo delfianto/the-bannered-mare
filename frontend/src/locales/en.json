@@ -1,4 +1,9 @@
 {
+  "notFound": {
+    "title": "This page wandered off",
+    "message": "The page you're looking for doesn't exist or may have moved.",
+    "home": "Back to the hearth"
+  },
   "common": {
     "save": "Save",
     "saved": "Saved",

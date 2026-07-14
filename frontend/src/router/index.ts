@@ -97,6 +97,13 @@ const routes = [
     name: "preset-edit",
     component: () => import("@/views/settings/PresetView.vue"),
   },
+  // Catch-all: any unmatched URL (typo, stale deep link, post-refactor path)
+  // renders a 404 instead of a blank <RouterView>.
+  {
+    path: "/:pathMatch(.*)*",
+    name: "not-found",
+    component: () => import("@/views/NotFoundView.vue"),
+  },
 ];
 
 const router = createRouter({

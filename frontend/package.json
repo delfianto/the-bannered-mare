@@ -15,6 +15,7 @@
     "lint:canonical": "bun scripts/canonical-classes.mjs",
     "lint:canonical:fix": "bun scripts/canonical-classes.mjs --fix",
     "preview": "vp preview",
+    "test": "bun test",
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {

@@ -24,21 +24,34 @@ describe("useCharacterForm - species and age fields", () => {
     form.updateField("species", "Elf");
     form.updateField("age", "150");
 
-    const mockFetch = (url: string, options: any) => {
+    const emptyLorebooks = {
+      items: [],
+      meta: { limit: 0, has_more: false, cursor: null, total: 0, page: 1 },
+    };
+
+    // openapi-fetch calls fetch with a Request; the raw multipart save calls it
+    // with (urlString, { body }). Discriminate by URL so the lorebook-sync GET
+    // (added after the character save) returns an empty page instead of choking.
+    const mockFetch = (input: any, options?: any) => {
+      const url = typeof input === "string" ? input : input.url;
+      if (url.includes("/api/lorebooks")) {
+        return Promise.resolve(
+          new Response(JSON.stringify(emptyLorebooks), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      }
       const fd = options.body as FormData;
       expect(fd.get("name")).toBe("Test Name");
       expect(fd.get("species")).toBe("Elf");
       expect(fd.get("age")).toBe("150");
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: "123",
-            name: "Test Name",
-            species: "Elf",
-            age: "150",
-          }),
-      });
+      return Promise.resolve(
+        new Response(JSON.stringify({ id: "123", name: "Test Name", species: "Elf", age: "150" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
     };
 
     // @ts-ignore
@@ -72,7 +85,15 @@ describe("useCharacterForm - species and age fields", () => {
     };
 
     const { client } = await import("@/api/client");
-    client.GET = () => Promise.resolve({ data: mockResponse, error: null }) as any;
+    // loadFromApi fetches the character, then its lorebooks; return an empty
+    // lorebook page so only the character mapping is under test here.
+    client.GET = ((path: string) =>
+      path === "/api/lorebooks"
+        ? Promise.resolve({
+            data: { items: [], meta: { limit: 0, has_more: false, cursor: null, total: 0, page: 1 } },
+            error: null,
+          })
+        : Promise.resolve({ data: mockResponse, error: null })) as any;
 
     await form.loadFromApi("ej2Ymmz9-5lO");
 
