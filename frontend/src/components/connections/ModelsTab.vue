@@ -106,13 +106,13 @@ function goToPage(p: number) {
 const providerItems = computed(() => [
   { label: t("connections.allProviders"), value: "all" },
   ...[...providers.value]
-    .sort((a: any, b: any) => a.name.localeCompare(b.name))
-    .map((p: any) => ({ label: p.name, value: p.id })),
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((p) => ({ label: p.name, value: p.id })),
 ]);
 
 const familyItems = computed(() => [
   { label: t("connections.allFamilies"), value: "all" },
-  ...families.value.map((f: any) => ({ label: f.name, value: f.id })),
+  ...families.value.map((f) => ({ label: f.name, value: f.id })),
 ]);
 
 const providerLabel = computed(
@@ -143,10 +143,10 @@ const filteredModels = computed(() => models.value);
 
 // Resolve the raw FK ids to human names (both lists are already loaded above).
 function providerNameFor(id: string): string {
-  return providers.value.find((p: any) => p.id === id)?.name ?? id;
+  return providers.value.find((p) => p.id === id)?.name ?? id;
 }
 function familyNameFor(id: string): string {
-  return families.value.find((f: any) => f.id === id)?.name ?? id;
+  return families.value.find((f) => f.id === id)?.name ?? id;
 }
 
 const columns: DataTableColumn[] = [

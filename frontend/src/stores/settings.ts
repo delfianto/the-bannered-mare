@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { client } from "@/api/client";
+import type { components } from "@/api/schema";
 
 export type ParameterDoc = {
   label: string;
@@ -8,12 +9,14 @@ export type ParameterDoc = {
   detailed_info: string;
 };
 
+type ProviderResponse = components["schemas"]["ProviderResponse"];
+
 export const useSettingsStore = defineStore("settings", () => {
   const parameterDocs = ref<Record<string, ParameterDoc>>({});
   const isLoadingDocs = ref(false);
   const hasLoadedDocs = ref(false);
 
-  const providers = ref<any[]>([]);
+  const providers = ref<ProviderResponse[]>([]);
   const isLoadingProviders = ref(false);
   const hasLoadedProviders = ref(false);
 
@@ -45,7 +48,7 @@ export const useSettingsStore = defineStore("settings", () => {
       if (error) throw error;
 
       if (data) {
-        providers.value = (data as any[]).sort((a: any, b: any) => a.name.localeCompare(b.name));
+        providers.value = data.sort((a, b) => a.name.localeCompare(b.name));
         hasLoadedProviders.value = true;
       }
     } catch (error) {

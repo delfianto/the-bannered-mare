@@ -65,7 +65,7 @@ function handleSearch(value: string) {
 // (matching the Models tab) while keeping the type as the filter value.
 const providerTypeItems = computed(() => {
   const nameByType = new Map<string, string>();
-  for (const p of providers.value as any[]) {
+  for (const p of providers.value) {
     if (!nameByType.has(p.provider_type)) nameByType.set(p.provider_type, p.name);
   }
   return [

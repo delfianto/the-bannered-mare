@@ -91,13 +91,13 @@ const familyName = computed(
 
 // ── Routes (the provider bindings) ───────────────────────
 function providerFor(id: string) {
-  return settingsStore.providers.find((p: any) => p.id === id);
+  return settingsStore.providers.find((p) => p.id === id);
 }
 function providerName(id: string): string {
-  return (providerFor(id) as any)?.name || id;
+  return providerFor(id)?.name || id;
 }
 function identifierHintFor(id: string): string {
-  return (providerFor(id) as any)?.identifier_hint || "";
+  return providerFor(id)?.identifier_hint || "";
 }
 
 const routes = computed(() => model.value?.routes ?? []);
@@ -108,11 +108,11 @@ const activeRoute = computed(
 const activeProvider = computed(() =>
   activeRoute.value ? providerFor(activeRoute.value.provider_id) : null,
 );
-const activeProviderName = computed(() => (activeProvider.value as any)?.name || "—");
+const activeProviderName = computed(() => activeProvider.value?.name || "—");
 // The identifier scheme is provider-specific (the provider is the route):
 // surface the active route's provider hint alongside the status dot.
-const activeIdentifierStyle = computed(() => (activeProvider.value as any)?.identifier_style || "");
-const activeIdentifierHint = computed(() => (activeProvider.value as any)?.identifier_hint || "");
+const activeIdentifierStyle = computed(() => activeProvider.value?.identifier_style || "");
+const activeIdentifierHint = computed(() => activeProvider.value?.identifier_hint || "");
 
 async function handleSetActive(routeId: string) {
   if (!model.value || routeId === model.value.active_route_id) return;
@@ -142,8 +142,8 @@ const newRouteIdentifier = ref("");
 // — a model has at most one route per provider.
 const routeProviderItems = computed(() => {
   const usedProviderIds = new Set(routes.value.map((r) => r.provider_id));
-  return providersForFamily(settingsStore.providers as any, selectedFamily.value as any)
-    .filter((p: any) => !usedProviderIds.has(p.id))
+  return providersForFamily(settingsStore.providers, selectedFamily.value)
+    .filter((p) => !usedProviderIds.has(p.id))
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((p) => ({ label: p.name, value: p.id }));
