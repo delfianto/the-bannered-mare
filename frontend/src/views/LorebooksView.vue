@@ -9,6 +9,7 @@ import type {
   LoreEntryCreate,
 } from "@/composables/useLorebooks";
 import { useAppToast } from "@/composables/useToast";
+import { useKeyedConfirmAction } from "@/composables/useConfirmAction";
 import LoreEntryCard from "@/components/lorebooks/LoreEntryCard.vue";
 import LoreEntryForm from "@/components/lorebooks/LoreEntryForm.vue";
 import EmptyState from "@/components/shared/EmptyState.vue";
@@ -40,21 +41,23 @@ const lbName = ref("");
 const lbDescription = ref("");
 const lbIsGlobal = ref(true);
 const savingLorebook = ref(false);
-const pendingDeleteLb = ref<string | null>(null);
 
 // ── Entry form state ─────────────────────────────────────
 const showEntryForm = ref(false);
 const editingEntry = ref<LoreEntryResponse | null>(null);
 const savingEntry = ref(false);
-const pendingDeleteEntry = ref<string | null>(null);
+
+// Two-click delete confirms (auto-disarm), one per list.
+const lbConfirm = useKeyedConfirmAction();
+const entryConfirm = useKeyedConfirmAction();
 
 function resetForms() {
   showLorebookForm.value = false;
   showEntryForm.value = false;
   editingLorebook.value = null;
   editingEntry.value = null;
-  pendingDeleteLb.value = null;
-  pendingDeleteEntry.value = null;
+  lbConfirm.reset();
+  entryConfirm.reset();
 }
 
 async function selectLorebook(id: string) {
@@ -119,18 +122,16 @@ async function submitLorebook() {
 
 async function onDeleteLorebook() {
   if (!currentLorebook.value) return;
-  if (pendingDeleteLb.value === currentLorebook.value.id) {
+  lbConfirm.trigger(currentLorebook.value.id, async () => {
+    if (!currentLorebook.value) return;
     const ok = await deleteLorebook(currentLorebook.value.id);
     if (ok) {
       toast.success(t("lorebooks.toast.deleted"));
       currentLorebook.value = null;
       selectedId.value = null;
-      pendingDeleteLb.value = null;
       if (lorebooks.value.length > 0) await selectLorebook(lorebooks.value[0].id);
     }
-  } else {
-    pendingDeleteLb.value = currentLorebook.value.id;
-  }
+  });
 }
 
 // ── Entry CRUD ───────────────────────────────────────────
@@ -167,13 +168,11 @@ async function submitEntry(payload: LoreEntryCreate) {
 
 async function onDeleteEntry(entry: LoreEntryResponse) {
   if (!currentLorebook.value) return;
-  if (pendingDeleteEntry.value === entry.id) {
+  entryConfirm.trigger(entry.id, async () => {
+    if (!currentLorebook.value) return;
     const ok = await deleteEntry(currentLorebook.value.id, entry.id);
     if (ok) toast.success(t("lorebooks.toast.entryDeleted"));
-    pendingDeleteEntry.value = null;
-  } else {
-    pendingDeleteEntry.value = entry.id;
-  }
+  });
 }
 
 async function toggleEntry(entry: LoreEntryResponse) {
@@ -408,15 +407,15 @@ async function toggleEntry(entry: LoreEntryResponse) {
               <button
                 class="flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm transition-colors"
                 :class="
-                  pendingDeleteLb === currentLorebook.id
+                  lbConfirm.isArmed(currentLorebook.id)
                     ? 'border-error text-error'
                     : 'text-muted-foreground hover:bg-base-300 hover:text-error'
                 "
                 @click="onDeleteLorebook"
-                @mouseleave="pendingDeleteLb = null"
+                @mouseleave="lbConfirm.reset()"
               >
                 <AppIcon name="i-lucide-trash-2" class="size-4" />
-                {{ pendingDeleteLb === currentLorebook.id ? $t("lorebooks.confirmDelete") : "" }}
+                {{ lbConfirm.isArmed(currentLorebook.id) ? $t("lorebooks.confirmDelete") : "" }}
               </button>
               <button
                 class="flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
@@ -441,11 +440,11 @@ async function toggleEntry(entry: LoreEntryResponse) {
               v-for="entry in entries"
               :key="entry.id"
               :entry="entry"
-              :pending-delete="pendingDeleteEntry === entry.id"
+              :pending-delete="entryConfirm.isArmed(entry.id)"
               @edit="openEditEntry(entry)"
               @delete="onDeleteEntry(entry)"
               @toggle-enabled="toggleEntry(entry)"
-              @mouseleave="pendingDeleteEntry = null"
+              @mouseleave="entryConfirm.reset()"
             />
           </div>
           <div v-else-if="!showEntryForm" class="py-12 text-center text-sm text-muted-foreground">
