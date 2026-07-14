@@ -72,7 +72,7 @@ const columns: DataTableColumn[] = [
         class="flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
         :class="
           unusedOnly
-            ? 'border-amber-500/40 bg-amber-500/10 text-amber-500'
+            ? 'border-warning/40 bg-warning/10 text-warning'
             : 'text-muted-foreground hover:bg-base-300'
         "
         @click="toggleUnusedOnly"
@@ -132,13 +132,13 @@ const columns: DataTableColumn[] = [
         </span>
       </template>
       <template #cell-scope="{ row }">
-        <span v-if="row.is_global" class="text-emerald-500">Global</span>
+        <span v-if="row.is_global" class="text-success">Global</span>
         <span v-else class="text-muted-foreground">Local</span>
       </template>
       <template #cell-usedBy="{ row }">
         <span
           v-if="(row.used_by ?? []).length === 0"
-          class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[0.6875rem] font-medium text-amber-500"
+          class="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[0.6875rem] font-medium text-warning"
         >
           Unused
         </span>

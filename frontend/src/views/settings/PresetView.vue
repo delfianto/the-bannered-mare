@@ -339,7 +339,7 @@ function formatDate(iso: string): string {
                     class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
                     :class="
                       preset.is_default
-                        ? 'bg-emerald-500/10 text-emerald-500'
+                        ? 'bg-success/10 text-success'
                         : 'bg-base-300 text-muted-foreground'
                     "
                   >

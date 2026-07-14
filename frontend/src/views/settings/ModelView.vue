@@ -574,7 +574,7 @@ function formatDate(iso: string): string {
                     <span class="text-sm text-foreground">{{ activeProviderName }}</span>
                     <span
                       class="size-2 rounded-full"
-                      :class="model.provider_enabled ? 'bg-emerald-500' : 'bg-red-500'"
+                      :class="model.provider_enabled ? 'bg-success' : 'bg-error'"
                     />
                   </div>
                 </div>

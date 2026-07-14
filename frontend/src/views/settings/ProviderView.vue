@@ -64,13 +64,13 @@ const apiKeyStatus = computed(() => {
   return p?.api_key_configured
     ? {
         label: t("connections.provider.keyConfigured"),
-        badge: "bg-emerald-500/10 text-emerald-500",
-        dot: "bg-emerald-500",
+        badge: "bg-success/10 text-success",
+        dot: "bg-success",
       }
     : {
         label: t("connections.provider.keyNotSet"),
-        badge: "bg-amber-500/10 text-amber-500",
-        dot: "bg-amber-500",
+        badge: "bg-warning/10 text-warning",
+        dot: "bg-warning",
       };
 });
 
@@ -571,7 +571,7 @@ function toggleMenu(identifier: string) {
                           :name="isFiltered(r.identifier) ? 'i-lucide-check' : 'i-lucide-plus'"
                           class="size-3.5 shrink-0"
                           :class="
-                            isFiltered(r.identifier) ? 'text-emerald-500' : 'text-muted-foreground'
+                            isFiltered(r.identifier) ? 'text-success' : 'text-muted-foreground'
                           "
                         />
                       </button>
@@ -653,13 +653,13 @@ function toggleMenu(identifier: string) {
                     class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.625rem] font-medium"
                     :class="
                       model.state === 'loaded'
-                        ? 'bg-emerald-500/10 text-emerald-500'
-                        : 'bg-amber-500/10 text-amber-500'
+                        ? 'bg-success/10 text-success'
+                        : 'bg-warning/10 text-warning'
                     "
                   >
                     <span
                       class="size-1.5 rounded-full"
-                      :class="model.state === 'loaded' ? 'bg-emerald-500' : 'bg-amber-500'"
+                      :class="model.state === 'loaded' ? 'bg-success' : 'bg-warning'"
                     />
                     {{ model.state === "loaded" ? "Loaded" : "Not Loaded" }}
                   </span>
@@ -728,7 +728,7 @@ function toggleMenu(identifier: string) {
                           v-else
                           class="flex w-full cursor-not-allowed items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/60"
                         >
-                          <AppIcon name="i-lucide-check" class="size-3.5 text-emerald-500" />
+                          <AppIcon name="i-lucide-check" class="size-3.5 text-success" />
                           Added
                         </div>
 
