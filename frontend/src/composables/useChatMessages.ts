@@ -2,6 +2,7 @@ import { ref, watch } from "vue";
 import type { components } from "@/api/schema";
 import { client, extractApiError, streamFetch } from "@/api/client";
 import { useCompletionSignal } from "@/composables/useCompletionSignal";
+import { useCursorList } from "@/composables/useCursorList";
 import type { StreamEvent } from "@/types/chat";
 
 type Message = components["schemas"]["MessageResponse"];
@@ -17,70 +18,39 @@ export function useChatMessages(
 ) {
   const { pageSize = 20, autoLoad = true } = options;
 
-  const messages = ref<Message[]>([]);
-  const loading = ref(false);
-  const hasMore = ref(false);
-  const nextCursor = ref<string | null>(null);
-  const error = ref<Error | null>(null);
-
-  const loadMessages = async (cursor?: string) => {
-    const currentChatId = getChatId();
-    if (!currentChatId) return;
-
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const { data, error: apiError } = await client.GET("/api/chats/{chat_id}/messages", {
-        params: {
-          path: { chat_id: currentChatId },
-          query: {
-            limit: pageSize,
-            cursor: cursor || undefined,
-          },
-        },
+  // The API returns messages Newest -> Oldest; we display Oldest -> Newest, so
+  // each batch is reversed and older pages are prepended on top. `items` is
+  // returned as-is (aliased to `messages`) so the streaming path below can keep
+  // mutating it directly. The chat-switch watch drives the initial load, so the
+  // factory doesn't autoLoad.
+  const {
+    items: messages,
+    loading,
+    hasMore,
+    error,
+    load: loadMessages,
+    loadMore,
+    reset,
+  } = useCursorList<Message>({
+    pageSize,
+    hasMoreInitial: false,
+    autoLoad: false,
+    errorContext: "Failed to load messages",
+    fetchPage: (cursor, limit) => {
+      const chatId = getChatId();
+      if (!chatId) return null;
+      return client.GET("/api/chats/{chat_id}/messages", {
+        params: { path: { chat_id: chatId }, query: { limit, cursor: cursor || undefined } },
       });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to load messages");
-      }
-
-      if (data) {
-        const newMessages = data.items;
-
-        // The API returns Newest -> Oldest.
-        // batch = [Latest_in_batch, ..., Oldest_in_batch]
-        hasMore.value = data.meta.has_more;
-        nextCursor.value = data.meta.cursor || null;
-
-        // We want to display Oldest -> Newest in the UI state.
-        // [Oldest_in_batch, ..., Latest_in_batch]
-        const sortedBatch = [...newMessages].reverse();
-
-        if (cursor) {
-          messages.value = [...sortedBatch, ...messages.value];
-        } else {
-          messages.value = sortedBatch;
-        }
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error("Unknown error");
-      console.error("Error loading messages:", err);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const loadMore = async () => {
-    if (hasMore.value && !loading.value && nextCursor.value) {
-      await loadMessages(nextCursor.value);
-    }
-  };
+    },
+    merge: (existing, batch, isInitial) => {
+      const sortedBatch = [...batch].reverse();
+      return isInitial ? sortedBatch : [...sortedBatch, ...existing];
+    },
+  });
 
   const refresh = () => {
-    messages.value = [];
-    hasMore.value = false;
-    nextCursor.value = null;
+    reset();
     loadMessages();
   };
 
@@ -376,14 +346,10 @@ export function useChatMessages(
       // reset messages, so its reader can't write into the new chat's array.
       stop();
       if (autoLoad && newChatId) {
-        messages.value = [];
-        hasMore.value = false;
-        nextCursor.value = null;
+        reset();
         loadMessages();
       } else if (!newChatId) {
-        messages.value = [];
-        hasMore.value = false;
-        nextCursor.value = null;
+        reset();
       }
     },
     { immediate: true },

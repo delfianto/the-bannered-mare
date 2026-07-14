@@ -1,6 +1,6 @@
-import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
 import { client, extractApiError } from "@/api/client";
+import { useCursorList } from "@/composables/useCursorList";
 
 type Chat = components["schemas"]["ChatResponse"];
 type ChatUpdate = components["schemas"]["ChatUpdate"];
@@ -12,60 +12,27 @@ interface UseChatSessionsOptions {
 export function useChatSessions(options: UseChatSessionsOptions = {}) {
   const { pageSize = 20 } = options;
 
-  const chatSessions = ref<Chat[]>([]);
-  const loading = ref(false);
-  const hasMore = ref(true);
-  const cursor = ref<string | null>(null);
-  const error = ref<Error | null>(null);
-
-  const loadSessions = async (nextCursor?: string) => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const { data, error: apiError } = await client.GET("/api/chats", {
-        params: {
-          query: {
-            limit: pageSize,
-            cursor: nextCursor || undefined,
-          },
-        },
-      });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to load chats");
-      }
-
-      if (data) {
-        const newSessions = data.items;
-
-        if (nextCursor) {
-          chatSessions.value = [...chatSessions.value, ...newSessions];
-        } else {
-          chatSessions.value = newSessions;
-        }
-
-        hasMore.value = data.meta.has_more;
-        cursor.value = data.meta.cursor || null;
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error("Unknown error");
-      console.error("Error loading chats:", err);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const loadMore = async () => {
-    if (hasMore.value && !loading.value && cursor.value) {
-      await loadSessions(cursor.value);
-    }
-  };
+  // Chats page newest-first and append each older batch at the end.
+  const {
+    items: chatSessions,
+    loading,
+    hasMore,
+    error,
+    load: loadSessions,
+    loadMore,
+    reset,
+  } = useCursorList<Chat>({
+    pageSize,
+    hasMoreInitial: true,
+    autoLoad: true,
+    errorContext: "Failed to load chats",
+    fetchPage: (cursor, limit) =>
+      client.GET("/api/chats", { params: { query: { limit, cursor: cursor || undefined } } }),
+    merge: (existing, batch, isInitial) => (isInitial ? batch : [...existing, ...batch]),
+  });
 
   const refresh = () => {
-    chatSessions.value = [];
-    hasMore.value = true;
-    cursor.value = null;
+    reset();
     loadSessions();
   };
 
@@ -142,10 +109,6 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
       return null;
     }
   };
-
-  onMounted(() => {
-    loadSessions();
-  });
 
   return {
     chatSessions,
