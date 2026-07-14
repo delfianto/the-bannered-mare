@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** —
-- **Next up:** BE-H3 (PG CI gate) to finish Wave 1; then Wave 2 is high-risk structural (BE-H1 UoW …) — a pause point per the autonomy setting
-- **Progress:** 3 / 30 done (BE-H8, BE-H4, BE-M6 ✓)
+- **Active:** — (Wave 1 landed)
+- **Next up:** PAUSE — Wave 2 is high-risk structural (BE-H1 Unit of Work → BE-H2 module boundaries → BE-H7 import cycle → BE-H6 RAG async). Per the autonomy setting, stop here for review before starting these.
+- **Progress:** 3 / 30 done (BE-H8, BE-H4, BE-M6 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
 
 ---
 
@@ -51,7 +51,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** foundational — the two-DB trap caps what `client` can integration-test. Do before BE-H4.
 
-### BE-H3 · SQLite hides all Postgres/pgvector behavior · [ ] · 🤖 sub · dep: none
+### BE-H3 · SQLite hides all Postgres/pgvector behavior · [~] PARTIAL — part 1 done, part 2 deferred (see §Completed) · 🤖 sub · dep: none
 - **Ref:** FINDINGS_BE.md §3 BE-H3
 - **Files:** `tests/conftest.py:76,90`; `src/rag/repository_async.py:20-40,109`; `.github/workflows/backend-ci.yml:107`
 - **Problem:** the 841-test unit suite runs on in-memory SQLite; all pgvector `<=>`/`ANY()`/`vchordrq`/JSONB behavior rests on ~2 integration tests behind one CI job that can silently skip.
@@ -212,6 +212,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[~] BE-H3 — part 1 done, part 2 deferred** (commit tagged `BE-H3`) — **Part 1 (headline): added a `ci-gate` job** to `backend-ci.yml` that `needs: [lint, typecheck, test, integration]` with `if: always()` and fails unless every result is `success`, so a skipped/failed Postgres `integration` job turns the pipeline **red** instead of silently passing (point branch protection at `ci-gate`). Validated: workflow parses, all needed jobs exist. **Part 2 (expand PG tests — vchordrq tuning, message `chat_id` scoping, threshold-equality edge, empty results) DEFERRED**: authoring + verifying these needs a live VectorChord container, and **Docker is not available in this environment** — committing unverified integration tests would violate evidence-before-assertions. Follow-up: add them to `tests/integration/test_postgres_integration.py` (which already covers extension/index presence, cosine ranking + threshold, mocked-embedding retrieval, seed data) when a container is available, and confirm `uv run pytest -m postgres` green.
 - **[x] BE-M6** (commit tagged `BE-M6`) — added `tests/lore/test_router.py` (24 tests: all 8 lore endpoints, happy + 404 + validation) and `tests/rag/test_router.py` (27 tests: data-bank CRUD, `POST /rag/search`, `GET /rag/status`). Hermetic via an autouse override of `get_retrieval_service` → `MagicMock(spec=RetrievalService)` with `AsyncMock` methods — no embedding backend or pgvector SQL touched; covered the documented "indexing failure swallowed → CRUD still 2xx" behavior. **Env caveat surfaced:** this machine's `.env` has RAG enabled pointing at a live embedder (`10.0.10.2:4001`), so un-mocked search would hit it — hence the autouse override. No shared conftest touched. Verified independently: ruff/basedpyright clean, pytest **906 passed / 1 skipped**.
 - **[x] BE-H4** (commit tagged `BE-H4`) — added 13 HTTP-level tests to `tests/chat_message/test_router.py` via `AsyncClient(ASGITransport)`: blocking send (200 + both turns persisted / 422 / provider-fault 502), suggestions, title (+persisted), edit (200/404), alternatives list + activate (200/404/wrong-chat). Gateway mocked exactly like `test_service.py` (`patch ProviderGateway`→AsyncMock, `has_api_key` patched) — no real provider. Avoided the BE-H8 single-writer caveat by keeping the sync `get_db` override read-only. **Oddity reported (not fixed):** the blocking path collapses every upstream error to a flat 502 via `ProviderException`, losing the `classify_error` code the streaming path preserves (looks intentional — candidate for a future item). No shared conftest touched. Verified independently: ruff/basedpyright clean, pytest 906 passed.
 - **[x] BE-H8** (commit tagged `BE-H8`) — replaced the two separate `sqlite:///:memory:` engines with a session-scoped `_shared_db_path` temp file that **both** the sync (`sqlite`) and async (`sqlite+aiosqlite`) engines bind to (empirically verified: two `:memory:` engines don't share; one on-disk file shares both directions). Schema created once via a setup engine; per-test isolation unchanged (existing row-cleanup teardown); removed the now-dead `_async_create_tables`. New regression test `test_cross_session_db.py` writes via the sync repo + commits, then reads via the async session. **Deliberately kept** the `get_db` overrides in the streaming tests — they isolate the sync path from the real remote Postgres in `.env`, which is orthogonal to the two-DB trap (removing them risks hanging on the remote host). Verified independently: ruff clean, basedpyright 0/0/0, pytest **842 passed / 1 skipped** (was 841, +1). **Residual → flag for BE-H4:** SQLite's single-writer limit means an *uncommitted* sync write held open across an async write raises "database is locked" (inherent, unfixable via WAL; not exercised by suite/prod) — keep sync-side writes committed before the async path writes in the same flow.
