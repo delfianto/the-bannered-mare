@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type DataBankEntry = components["schemas"]["DataBankResponse"];
 export type DataBankCreate = components["schemas"]["DataBankCreate"];
@@ -27,7 +27,7 @@ export function useDataBank(options: { autoLoad?: boolean } = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load data bank entries: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load data bank entries");
       }
 
       if (data) {
@@ -48,7 +48,7 @@ export function useDataBank(options: { autoLoad?: boolean } = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to create entry: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to create entry");
       }
 
       if (data) {
@@ -73,7 +73,7 @@ export function useDataBank(options: { autoLoad?: boolean } = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to update entry: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to update entry");
       }
 
       if (data) {
@@ -95,7 +95,7 @@ export function useDataBank(options: { autoLoad?: boolean } = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to delete entry: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to delete entry");
       }
 
       entries.value = entries.value.filter((e) => e.id !== entryId);

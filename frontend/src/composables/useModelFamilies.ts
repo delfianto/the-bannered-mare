@@ -1,6 +1,6 @@
 import { ref, computed, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type ModelFamilyListItem = components["schemas"]["ModelFamilyListResponse"];
 
@@ -61,7 +61,7 @@ export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load model families: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load model families");
       }
 
       if (data) {

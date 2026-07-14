@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 type Chat = components["schemas"]["ChatResponse"];
 type ChatUpdate = components["schemas"]["ChatUpdate"];
@@ -33,7 +33,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load chats: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load chats");
       }
 
       if (data) {
@@ -76,7 +76,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
         body: updates,
       });
       if (apiError) {
-        throw new Error(`Failed to update chat: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to update chat");
       }
       if (data) {
         // Merge the fresh response back so consumers (e.g. the header's model
@@ -110,7 +110,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
         body: { profile_id: profileId },
       });
       if (apiError) {
-        throw new Error(`Failed to apply profile: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to apply profile");
       }
       if (data) {
         const idx = chatSessions.value.findIndex((c) => c.id === chatId);

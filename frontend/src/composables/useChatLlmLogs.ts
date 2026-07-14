@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type LlmAuditLog = components["schemas"]["LlmAuditLogResponse"];
 
@@ -44,7 +44,7 @@ export function useChatLlmLogs() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load LLM logs: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load LLM logs");
       }
 
       if (data) {

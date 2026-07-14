@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 import { useCompletionSignal } from "@/composables/useCompletionSignal";
 import type { StreamEvent } from "@/types/chat";
 
@@ -42,7 +42,7 @@ export function useChatMessages(
       });
 
       if (apiError) {
-        throw new Error(`Failed to load messages: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load messages");
       }
 
       if (data) {
@@ -110,7 +110,7 @@ export function useChatMessages(
           body: { mode: opts.mode, tone: opts.tone ?? null, count: opts.count ?? 3 },
         },
       );
-      if (apiError) throw new Error(`Failed to get suggestions: ${JSON.stringify(apiError)}`);
+      if (apiError) throw extractApiError(apiError, "Failed to get suggestions");
       return data?.suggestions ?? [];
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Failed to get suggestions");

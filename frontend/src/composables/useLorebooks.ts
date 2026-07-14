@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type LorebookResponse = components["schemas"]["LorebookResponse"];
 export type LorebookDetail = components["schemas"]["LorebookDetailResponse"];
@@ -28,7 +28,7 @@ export function useLorebooks() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load lorebooks: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load lorebooks");
       }
 
       if (data) {
@@ -62,7 +62,7 @@ export function useLorebooks() {
       const merged = new Map<string, LorebookResponse>();
       for (const { data, error: apiError } of results) {
         if (apiError) {
-          throw new Error(`Failed to load lorebooks: ${JSON.stringify(apiError)}`);
+          throw extractApiError(apiError, "Failed to load lorebooks");
         }
         for (const book of data?.items ?? []) merged.set(book.id, book);
       }
@@ -85,7 +85,7 @@ export function useLorebooks() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load lorebook: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load lorebook");
       }
 
       if (data) {
@@ -106,7 +106,7 @@ export function useLorebooks() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to create lorebook: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to create lorebook");
       }
 
       if (data) {
@@ -131,7 +131,7 @@ export function useLorebooks() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to update lorebook: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to update lorebook");
       }
 
       if (data) {
@@ -153,7 +153,7 @@ export function useLorebooks() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to delete lorebook: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to delete lorebook");
       }
 
       lorebooks.value = lorebooks.value.filter((l) => l.id !== id);
@@ -175,7 +175,7 @@ export function useLorebooks() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to create entry: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to create entry");
       }
 
       if (data && currentLorebook.value?.id === lorebookId) {
@@ -203,7 +203,7 @@ export function useLorebooks() {
       );
 
       if (apiError) {
-        throw new Error(`Failed to update entry: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to update entry");
       }
 
       if (data && currentLorebook.value?.id === lorebookId) {
@@ -227,7 +227,7 @@ export function useLorebooks() {
       );
 
       if (apiError) {
-        throw new Error(`Failed to delete entry: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to delete entry");
       }
 
       if (currentLorebook.value?.id === lorebookId) {

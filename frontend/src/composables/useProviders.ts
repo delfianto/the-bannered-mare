@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type Provider = components["schemas"]["ProviderResponse"];
 
@@ -17,7 +17,7 @@ export function useProviders() {
       const { data, error: apiError } = await client.GET("/api/providers");
 
       if (apiError) {
-        throw new Error(`Failed to load providers: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load providers");
       }
 
       if (data) {

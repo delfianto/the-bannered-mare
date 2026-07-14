@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type Persona = components["schemas"]["PersonaResponse"];
 
@@ -19,7 +19,7 @@ export function usePersonas() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load personas: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load personas");
       }
 
       if (data) {
