@@ -3,7 +3,7 @@
 This is a monorepo with two independent halves. This file only covers what spans both — for anything specific to one side, read that side's own `AGENTS.md`/`CLAUDE.md` first.
 
 - **`backend/`** — Python 3.14 / FastAPI / SQLAlchemy 2.0 / PostgreSQL + pgvector. Full instructions: [backend/AGENTS.md](backend/AGENTS.md).
-- **`frontend/`** — Vue 3.5 / TypeScript 6 / Nuxt UI v4 / Vite+. Full instructions: [frontend/AGENTS.md](frontend/AGENTS.md).
+- **`frontend/`** — Vue 3.5 / TypeScript 6 / Tailwind v4 + DaisyUI 5 / Vite+. Full instructions: [frontend/AGENTS.md](frontend/AGENTS.md).
 
 A single `.claude/` config at the **repo root** holds the merged permissions and path-scoped hooks for both halves. **Launch Claude Code from the repo root** so it loads — Claude Code reads `.claude/settings.json` only from the launch directory, not from subdirectories (unlike `CLAUDE.md`, which is hierarchical), so a `backend/.claude` or `frontend/.claude` settings file would be inert. Each hook self-guards to files of its own half (`ruff` only touches `backend/*.py`, `vp fmt` only `frontend/*`). Each half still keeps its own `AGENTS.md`/`CLAUDE.md` instructions, and the frontend keeps its own `.claude/skills/`.
 
@@ -45,7 +45,7 @@ Agent notes:
 ```text
 the-bannered-mare/
 ├── .claude/     # Shared Claude Code config — merged permissions + path-scoped hooks
-├── .mcp.json    # Shared MCP servers (nuxt-ui)
+├── .mcp.json    # Shared MCP servers (none configured)
 ├── backend/     # FastAPI backend — own AGENTS.md, pyproject.toml
 ├── docs/        # VitePress documentation site (deployed to GitHub Pages)
 ├── frontend/    # Vue 3 SPA — own AGENTS.md, package.json, .claude/skills/

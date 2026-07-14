@@ -7,7 +7,7 @@ Add or update an MSW handler in `src/mocks/handlers.ts` whose request/response s
 
 ## Steps
 
-1. **Find the contract:** locate the endpoint in `src/api/schema.d.ts`. Note the exact path, method, query/path params, and the response schema — including the pagination **envelope** (e.g. `{ logs, total, limit, skip }`) vs a bare array, and every field name / type / nullability.
+1. **Find the contract:** locate the endpoint in `src/api/schema.d.ts`. Note the exact path, method, query/path params, and the response schema — including the pagination **envelope** (`{ items, meta: { limit, has_more, cursor, total, page } }`) vs a bare array, and every field name / type / nullability.
 2. **Match field-for-field:** build the fixture with the spec's exact field names (e.g. `latency_ms`, `created_at`, `prompt_tokens` — not invented aliases) and wrap it in the correct envelope. Mirror the seed-data style already in `src/mocks/data/`.
 3. **Register the handler:** add `http.<method>("<path>", ...)` to `src/mocks/handlers.ts`, honoring query params (limit / skip / filters) and a small `delay()`.
 4. **Verify in the browser:** MSW only runs in-browser. Start `VITE_USE_MOCKS=true vp dev --host`, exercise the feature, and confirm no blank / `undefined` columns — the symptom of a field-name mismatch.

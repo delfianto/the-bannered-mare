@@ -68,6 +68,8 @@ src/
 │   ├── creator/            # Character creator form components
 │   ├── discover/           # Character library grid/list + filters
 │   ├── layout/             # AppShell, AppSidebar
+│   ├── lorebooks/          # Lore entry cards + edit form
+│   ├── profiles/           # Loadout ("profile") cards, forms, picker modal, persona tab
 │   ├── settings/           # Settings page tabs
 │   └── shared/             # Reusable (SearchBar, HomeCharacterCard, etc.)
 ├── composables/            # Feature-scoped state + API fetchers (use* prefix)
@@ -80,6 +82,7 @@ src/
 ├── router/                 # Route definitions (Vue Router 5)
 ├── stores/                 # Pinia stores (global state, e.g. settings)
 ├── types/                  # Hand-written TypeScript type definitions
+├── utils/                  # Framework-agnostic helpers (avatar, download, formatLog, modelProviderFilter)
 ├── views/                  # Routed page components
 │   ├── chat/               # Chat page
 │   ├── settings/           # Settings + detail pages (provider/model/family edit)
@@ -212,7 +215,7 @@ When `VITE_USE_MOCKS=true`, the Vite `/api` proxy is disabled so MSW's service w
 
 #### Mock Data Inventory
 
-Fixtures in `src/mocks/data/` mirror a faithful subset of the backend seed data: **9 providers** (incl. OpenCode Zen + OpenCode Go), **24 model families**, **38 canonical models** (registries — 23 enabled + 15 disabled; several are multi-route — every Claude / GPT-5.x-thinking / Gemini-3.5 = native + OpenRouter + OpenCode Zen, and DeepSeek V4, GLM-5.x, Kimi K2.6 = OpenRouter + OpenCode Go), **20 characters** (Elder Scrolls themed, Unsplash portraits), **20 chats** with YAML conversation scenarios, **3 personas**, **3 presets**, **6 templates**, **3 fragments**, **5 data bank entries**.
+Fixtures in `src/mocks/data/` mirror a faithful subset of the backend seed data: **9 providers** (incl. OpenCode Zen + OpenCode Go), **24 model families**, **38 canonical models** (registries — 23 enabled + 15 disabled; several are multi-route — every Claude / GPT-5.x-thinking / Gemini-3.5 = native + OpenRouter + OpenCode Zen, and DeepSeek V4, GLM-5.x, Kimi K2.6 = OpenRouter + OpenCode Go), **20 characters** (Elder Scrolls themed, Unsplash portraits), **20 chats** with YAML conversation scenarios, **3 personas**, **3 presets**, **4 templates**, **3 fragments**, **5 data bank entries**.
 
 ### 5.3 Claude Code Environment
 
@@ -282,14 +285,14 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 - Light mode: parchment cream backgrounds (`#FFFFFF`), warm walnut text (`#2C2418`), amber primary (`#C9922E`)
 - Dark mode: deep walnut backgrounds (`#0F0D0B`), warm cream text (`#E8DFD0`), bright amber primary (`#D4A544`)
 
-**Semantic status → tokens (not raw palette hues).** Anything that conveys _status_ (enabled/online/success, error/failure, warning/pending, info) must use the DaisyUI semantic tokens so it re-themes across all 12 palettes + Custom: `success` / `error` / `warning` / `info` (`bg-*/10 text-*` for tint-pills, `bg-*` for dots). **Never** use raw palette shades (`text-emerald-500`, `bg-red-400`, `text-amber-500`, `bg-blue-500`) for status. Raw palette hues are reserved for **non-status** meaning and are the documented exceptions: **category** colors (fragment-type badges in `FragmentsTab`, prompt-component position badges in `TemplateView`, capability badges incl. `purple` in `ModelFamilyView`), **scale/gradient** colors (relevance-score ramp in `MemoryView`), **brand** colors (provider chips in `LogsTab`/`LogDetailModal`), and the **toast** surface ramp in `ToastContainer` (a tuned light/dark shade ladder, intentionally theme-independent).
+**Semantic status → tokens (not raw palette hues).** Anything that conveys _status_ (enabled/online/success, error/failure, warning/pending, info) must use the DaisyUI semantic tokens so it re-themes across all 6 palettes + Custom: `success` / `error` / `warning` / `info` (`bg-*/10 text-*` for tint-pills, `bg-*` for dots). **Never** use raw palette shades (`text-emerald-500`, `bg-red-400`, `text-amber-500`, `bg-blue-500`) for status. Raw palette hues are reserved for **non-status** meaning and are the documented exceptions: **category** colors (fragment-type badges in `FragmentsTab`, prompt-component position badges in `TemplateView`, capability badges incl. `purple` in `ModelFamilyView`), **scale/gradient** colors (relevance-score ramp in `MemoryView`), **brand** colors (provider chips in `LogsTab`/`LogDetailModal`), and the **toast** surface ramp in `ToastContainer` (a tuned light/dark shade ladder, intentionally theme-independent).
 
 **Common patterns**
 
 - **Card:** `rounded-xl border bg-base-200/50 p-4`
 - **Input:** `h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
 - **Section heading:** `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
-- **Toggle switch:** custom `div` (not `USwitch`) — see `AppSidebar.vue`
+- **Toggle switch:** the shared `AppToggle` primitive (a DaisyUI `toggle`) — see `AppSidebar.vue`
 - **Entry animation:** `animate-fade-in-up` with staggered `animation-delay`
 
 ### 6.4 State Management

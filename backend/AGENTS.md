@@ -63,7 +63,7 @@ backend/
 │   │   ├── router.py         # Interface Layer (API Routes, HTTP validation)
 │   │   ├── service.py        # Application Layer (Business Logic, Orchestration)
 │   │   ├── repository.py     # Data access layer (SQL queries, ORM access)
-│   │   ├── models.py         # SQL Models (SQLAlchemy Tables)
+│   │   ├── models.py         # Pass-through re-export of the centralized ORM models (core/persistence/models/)
 │   │   ├── schemas.py        # DTOs (Pydantic Request/Response models)
 │   │   └── dependencies.py   # Dependency Injection Providers
 │   └── main.py               # Application Entrypoint
@@ -131,8 +131,8 @@ pytest
 - _Example:_ `service: Annotated[CharacterService, Depends(get_character_service)]`
 
 ### 6.3 Error Handling
-- Use custom exceptions defined in [exceptions.py](src/core/exceptions.py).
-- Map service-level exceptions to HTTP exceptions in the `Router` layer, not the Service layer.
+- Use the domain exceptions defined in [exceptions.py](src/core/exceptions.py) (`NotFoundError`, `ConflictError`, `ValidationError`, `BadRequestError`, `PayloadTooLargeError`, and the `Provider*` errors) — each declares its own `status_code`.
+- Raise these domain exceptions in the Service layer (and Routers). Do **not** raise FastAPI `HTTPException`, and do **not** map exceptions to HTTP in the Router — a single global handler in [main.py](src/main.py) (`_domain_exception_handler`) translates every `BanneredMareException` to its HTTP status.
 
 ### 6.4 Tailwind CSS Conventions
 - **Canonical Classes:** When writing Tailwind CSS utility classes, always use the canonical/short forms instead of deprecated or alias classes.

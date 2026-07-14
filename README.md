@@ -18,7 +18,7 @@ Each half keeps its own tech stack and its own `AGENTS.md`/`CLAUDE.md` with doma
 ```bash
 # Backend (Terminal 1)
 cd backend
-pip install -e ".[dev]"
+uv sync --extra dev
 cp .env.example .env        # Configure database URL and API keys
 alembic upgrade head
 uvicorn src.main:app --reload

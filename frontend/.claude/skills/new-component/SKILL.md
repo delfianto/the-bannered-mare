@@ -8,7 +8,7 @@ Create a component that matches the house style so it looks and behaves like the
 ## Conventions (non-negotiable)
 
 - `<script setup lang="ts">`, PascalCase filename, under `src/components/<area>/` (or `src/views/` if routed).
-- Use **DaisyUI** classes (`btn`, `badge`, `toggle`, `tabs`, `card`, …) on hand-rolled markup, plus the globally-registered shared primitives — `<AppIcon>`, `<AppTooltip>`, `<SelectMenu>` (no import needed). **Always** `<AppIcon name="i-lucide-*" />`, never a bare `<span class="i-lucide-*">`; add new icons to `src/components/shared/icons.ts`.
+- Use **DaisyUI** classes (`btn`, `badge`, `toggle`, `tabs`, `card`, …) on hand-rolled markup, plus the globally-registered shared primitives — `<AppIcon>`, `<SelectMenu>`, `<AppToggle>` (no import needed). Other shared primitives (e.g. `<AppTooltip>`) are **not** global — `import` them per-component from `@/components/shared/`. **Always** `<AppIcon name="i-lucide-*" />`, never a bare `<span class="i-lucide-*">`; add new icons to `src/components/shared/icons.ts`.
 - API types come from `components["schemas"][...]` (`@/api/schema`) — no parallel interfaces. Data fetching lives in a `use*` composable (see `/new-composable`), not inline in the component.
 - Keep it presentational: typed `props`/`emits`, events up; lift API calls and global state to a composable or Pinia store.
 
