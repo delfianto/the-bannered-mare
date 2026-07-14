@@ -17,10 +17,13 @@ case "$file" in
   *) exit 0 ;;
 esac
 
-# Never reformat generated / declaration files.
+# Never reformat generated / vendored files. The MSW worker is re-copied
+# verbatim by `msw init` on every install (unconditional copyFileSync), so
+# reformatting it just fights that and churns the diff — leave it as shipped.
 case "$file" in
   *.d.ts) exit 0 ;;
   */src/api/schema.d.ts) exit 0 ;;
+  */public/mockServiceWorker.js) exit 0 ;;
 esac
 
 # Only touch source files the toolchain understands.
