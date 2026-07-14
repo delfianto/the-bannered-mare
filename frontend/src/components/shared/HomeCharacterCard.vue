@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { fallbackAvatarUrl } from "@/utils/avatar";
 import type { components } from "@/api/schema";
 
 type Character = components["schemas"]["CharacterResponse"];
@@ -11,7 +12,7 @@ const props = defineProps<{
 function avatarSrc(): string {
   return (
     props.character.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(props.character.name)}&background=C9922E&color=fff&size=400`
+    fallbackAvatarUrl(props.character.name, 400)
   );
 }
 </script>

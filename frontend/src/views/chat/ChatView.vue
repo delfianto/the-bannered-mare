@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { fallbackAvatarUrl } from "@/utils/avatar";
 import { ref, computed, nextTick, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -79,7 +80,7 @@ const characterAvatar = computed(() => {
   return (
     char.avatar_thumbnail ||
     char.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(char.name)}&background=C9922E&color=fff&size=80`
+    fallbackAvatarUrl(char.name, 80)
   );
 });
 

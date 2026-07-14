@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { fallbackAvatarUrl } from "@/utils/avatar";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { components } from "@/api/schema";
@@ -39,7 +40,7 @@ function avatarSrc(chat: Chat): string {
   return (
     chat.character.avatar_large ||
     chat.character.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.character.name)}&background=C9922E&color=fff&size=600`
+    fallbackAvatarUrl(chat.character.name, 600)
   );
 }
 </script>

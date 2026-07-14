@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { fallbackAvatarUrl } from "@/utils/avatar";
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
@@ -48,7 +49,7 @@ function getAvatarSrc(persona: PersonaResponse): string {
   return (
     persona.avatar_thumbnail ||
     persona.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(persona.name)}&background=C9922E&color=fff&size=80`
+    fallbackAvatarUrl(persona.name, 80)
   );
 }
 
