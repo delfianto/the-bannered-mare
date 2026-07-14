@@ -20,7 +20,13 @@ class CharacterFormPayload(CharacterFormBase):
     """Router-only transport: the service DTO plus the avatar upload. Kept here (not
     in schemas) so the FastAPI ``UploadFile`` type stays out of the service layer.
     An ``UploadFile`` field inside a ``Form()`` model is how FastAPI spreads the
-    fields as individual multipart parts *and* accepts the file in one request."""
+    fields as individual multipart parts *and* accepts the file in one request.
+
+    The route declares ``Form(media_type="multipart/form-data")`` explicitly: a
+    ``Form()`` model defaults its OpenAPI request body to
+    ``application/x-www-form-urlencoded``, which mislabels the contract for an
+    endpoint that carries a binary avatar. The override only affects the generated
+    schema (Starlette parses the real request by its Content-Type regardless)."""
 
     avatar: UploadFile | None = None
 
@@ -44,7 +50,7 @@ def list_characters(
 @router.post("", response_model=CharacterResponse, status_code=status.HTTP_201_CREATED)
 async def create_character(
     service: CharacterServiceDep,
-    data: Annotated[CharacterFormPayload, Form()],
+    data: Annotated[CharacterFormPayload, Form(media_type="multipart/form-data")],
 ):
     """Create a new character with optional avatar upload"""
     avatar_upload = await read_upload(data.avatar) if data.avatar else None
@@ -107,7 +113,7 @@ def get_character_avatar_thumbnail(character_id: str, service: CharacterServiceD
 async def update_character(
     character_id: str,
     service: CharacterServiceDep,
-    data: Annotated[CharacterFormPayload, Form()],
+    data: Annotated[CharacterFormPayload, Form(media_type="multipart/form-data")],
 ):
     """Update character"""
     avatar_upload = await read_upload(data.avatar) if data.avatar else None
