@@ -207,6 +207,7 @@ class RetrievalService:
                 id=gen_id(),
                 source_type="data_bank",
                 source_id=entry_id,
+                data_bank_entry_id=entry_id,
                 content_hash=_content_hash(chunk),
                 content=chunk,
                 chunk_index=idx,

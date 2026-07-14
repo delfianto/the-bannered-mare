@@ -37,6 +37,15 @@ class Embedding(BaseModel):
         comment="Chat scope for message embeddings (null for data_bank); "
         "retrieval matches message embeddings on this, and chat deletion cascades",
     )
+    data_bank_entry_id: Mapped[str | None] = mapped_column(
+        String(12),
+        ForeignKey("data_bank_entries.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+        comment="Owning entry for data_bank embeddings (null for messages); the FK "
+        "cascades so deleting an entry — directly or when its chat/character is "
+        "removed — also removes its embeddings instead of orphaning them",
+    )
     content_hash: Mapped[int] = mapped_column(
         BigInteger, nullable=False, index=True, comment="Hash for dedup"
     )
