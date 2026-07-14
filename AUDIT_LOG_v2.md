@@ -73,7 +73,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 | V2-A1 | A | BE | Med | RAG history stale on edit/regenerate | [x] |
 | V2-A2 | A | FE | Med | Streamed message never adopts backend `message_id` | [x] |
 | V2-A3 | A | FE | Med | Modal focus trap leaks on first Shift+Tab | [x] |
-| V2-A4 | A | FE | Med | SelectMenu combobox ARIA on wrong element | [ ] |
+| V2-A4 | A | FE | Med | SelectMenu combobox ARIA on wrong element | [x] |
 | V2-B1 | B | FE | Med | 5 multipart sites bypass `VITE_API_URL` + `trackedFetch` | [ ] |
 | V2-B2 | B | FE | Low | `useModel`/`useProvider` still hand-roll (2/6 CRUD) | [ ] |
 | V2-B3 | B | FE | Med | ~44 leaf `any` casts remain in models/families/providers | [ ] |
@@ -121,7 +121,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 - **Fix:** On open, focus the **first focusable child** (fall back to the panel only when empty); OR treat "active is the panel / not a tabbable child" as a trap endpoint in `handleKeyDown`.
 - **Acceptance:** opening any modal and immediately pressing Shift+Tab keeps focus inside the dialog; Tab from the last and Shift+Tab from the first both wrap; empty-dialog case still guarded.
 
-### V2-A4. SelectMenu combobox ARIA on a non-focusable wrapper  ·  Med · FE  · [ ]
+### V2-A4. SelectMenu combobox ARIA on a non-focusable wrapper  ·  Med · FE  · [x] DONE
 - **Location:** `frontend/src/components/shared/SelectMenu.vue:143-147` (`role=combobox`/`aria-expanded`/`aria-controls`/`aria-activedescendant` on a `<div>` with no `tabindex`), `:74` (focus moves to the search `<input>` on open).
 - **Problem:** ARIA sits on an element that never receives focus; screen readers track ARIA on the focused element, so expanded-state and active-option are never announced and arrow-key highlighting is silent to AT.
 - **Fix:** Put `role=combobox` + `aria-*` (especially `aria-activedescendant` pointing at the highlighted `option` id) on the actually-focused control — the search `<input>` when open, or a focusable trigger — with `aria-controls` → the listbox id.
@@ -280,3 +280,5 @@ _(Move items here with `[x]` and the fixing commit hash as they're finished — 
 
 - **[x] V2-A1** — `vectorize_message` now uses delete-then-insert replace semantics (mirrors `vectorize_data_bank_entry`); `_vectorize` re-runs on every `_persist_reply` branch (new turn, overwrite, alternatives-store), on `edit_message`, and on `activate_alternative` (swipe) — every message-content mutation. New test `test_vectorize_message_replaces_prior_embedding` asserts the old vector is always deleted even on a dedup hit. Validated: ruff clean, basedpyright 0/0/0, 863 passed. Commit: `048fef0`.
 - **[x] V2-A2** — `readStream` now handles the backend's `start` event: it swaps the placeholder's client UUID for `event.message_id` and tracks the swapped id (`currentId`) through every subsequent write and both cleanup paths, so a freshly-streamed reply can be edited/re-rolled without a reload. Backend already emitted `StreamEvent(type="start", message_id=…)` (service.py:420); only the FE was ignoring it. Validated: `bun run build` passes (vue-tsc + Rolldown), 8 tests pass. Commit: `f324b23`.
+- **[x] V2-A3** — Modal now focuses the first focusable child on open (fallback panel) and the tab trap recaptures whenever the active element isn't a tabbable child (`onTabbable` includes-check replaces the `inPanel` contains-check), so the first Shift+Tab can't escape. Validated: `bun run build` passes. Commit: `26b469d`.
+- **[x] V2-A4** — combobox semantics (`role=combobox`, `aria-autocomplete=list`, `aria-expanded`, `aria-controls`, `aria-activedescendant`) moved from the non-focusable trigger wrapper onto the search input (the focused control when open); `role=listbox` + `listboxId` moved onto the actual `<ul>` so `aria-controls` resolves to the option container; `aria-activedescendant` guarded to unset when the filtered list is empty. Known residual: `searchInput=false` mode focuses the consumer-slotted trigger button (outside this component's control), so activedescendant can't be conveyed there — default mode is correct. Validated: `bun run build` passes. Commit: `<pending>`.
