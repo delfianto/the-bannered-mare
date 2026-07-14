@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDataBank } from "@/composables/useDataBank";
 import { useKeyedConfirmAction } from "@/composables/useConfirmAction";
-import { client } from "@/api/client";
+import { useRag } from "@/composables/useRag";
+import { useAppToast } from "@/composables/useToast";
 import type { DataBankCreate, DataBankUpdate, DataBankEntry } from "@/composables/useDataBank";
 import type { components } from "@/api/schema";
 import EmptyState from "@/components/shared/EmptyState.vue";
@@ -21,18 +22,9 @@ const searchQuery = ref("");
 const searchLoading = ref(false);
 const searchResults = ref<RetrievedChunk[]>([]);
 const hasSearched = ref(false);
-const ragIndexedCount = ref<number | null>(null);
 
-onMounted(async () => {
-  try {
-    const { data } = await client.GET("/api/rag/status");
-    if (data && typeof data === "object" && "indexed_count" in data) {
-      ragIndexedCount.value = (data as { indexed_count: number }).indexed_count;
-    }
-  } catch {
-    // RAG status is non-critical
-  }
-});
+const { search } = useRag();
+const { error: toastError } = useAppToast();
 
 async function onSearch() {
   if (!searchQuery.value.trim()) return;
@@ -40,16 +32,10 @@ async function onSearch() {
   hasSearched.value = true;
 
   try {
-    const { data } = await client.POST("/api/rag/search", {
-      body: {
-        query: searchQuery.value,
-        max_results: 5,
-        threshold: 0.3,
-      },
-    });
-    searchResults.value = data ?? [];
-  } catch {
+    searchResults.value = await search(searchQuery.value);
+  } catch (e) {
     searchResults.value = [];
+    toastError(t("common.error"), e instanceof Error ? e.message : "Search failed");
   } finally {
     searchLoading.value = false;
   }
@@ -183,12 +169,6 @@ function scopeBadgeClass(scope: string): string {
             <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
               {{ $t("memory.title") }}
             </h1>
-            <span
-              v-if="ragIndexedCount !== null"
-              class="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[0.625rem] font-medium text-emerald-400"
-            >
-              {{ $t("memory.indexed", { count: ragIndexedCount }) }}
-            </span>
           </div>
           <p class="text-sm text-muted-foreground">
             {{ $t("memory.subtitle") }}

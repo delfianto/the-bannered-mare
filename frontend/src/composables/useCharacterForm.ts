@@ -1,7 +1,7 @@
 import { reactive, computed, ref } from "vue";
 import type { CharacterData, LorebookEntry } from "@/types/creator";
 import { INITIAL_CHARACTER } from "@/types/creator";
-import { client, multipartFetch } from "@/api/client";
+import { client, extractApiError, multipartFetch } from "@/api/client";
 import type { components } from "@/api/schema";
 
 type CharacterResponse = components["schemas"]["CharacterResponse"];
@@ -209,9 +209,10 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       data.id = result.id;
 
       // Sync lorebook entries
-      const { data: lorebooks } = await client.GET("/api/lorebooks", {
+      const { data: lorebooks, error: lbErr } = await client.GET("/api/lorebooks", {
         params: { query: { character_id: result.id } },
       });
+      if (lbErr) throw extractApiError(lbErr, "Failed to load lorebooks");
 
       let lorebookId = "";
       if (lorebooks && lorebooks.items.length > 0) {
@@ -233,9 +234,11 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
 
       if (lorebookId) {
         // Fetch existing entries to know what to delete/update
-        const { data: bookDetails } = await client.GET("/api/lorebooks/{lorebook_id}", {
-          params: { path: { lorebook_id: lorebookId } },
-        });
+        const { data: bookDetails, error: bdErr } = await client.GET(
+          "/api/lorebooks/{lorebook_id}",
+          { params: { path: { lorebook_id: lorebookId } } },
+        );
+        if (bdErr) throw extractApiError(bdErr, "Failed to load lorebook entries");
         const existingEntries = bookDetails?.entries ?? [];
 
         // Determine entries to delete
@@ -293,15 +296,18 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       mapResponseToForm(res);
 
       // Load lorebook if it exists
-      const { data: lorebooks } = await client.GET("/api/lorebooks", {
+      const { data: lorebooks, error: lbErr } = await client.GET("/api/lorebooks", {
         params: { query: { character_id: characterId } },
       });
+      if (lbErr) throw extractApiError(lbErr, "Failed to load lorebook");
 
       if (lorebooks && lorebooks.items.length > 0) {
         const lorebookId = lorebooks.items[0].id;
-        const { data: bookDetails } = await client.GET("/api/lorebooks/{lorebook_id}", {
-          params: { path: { lorebook_id: lorebookId } },
-        });
+        const { data: bookDetails, error: bdErr } = await client.GET(
+          "/api/lorebooks/{lorebook_id}",
+          { params: { path: { lorebook_id: lorebookId } } },
+        );
+        if (bdErr) throw extractApiError(bdErr, "Failed to load lorebook entries");
         if (bookDetails?.entries) {
           data.lorebook = bookDetails.entries.map((entry) => ({
             id: entry.id,
