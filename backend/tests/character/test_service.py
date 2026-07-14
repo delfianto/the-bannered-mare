@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from sqlalchemy.orm import Session
 from src.character import Character, CharacterRepository, CharacterService
+from src.character.schemas import CharacterFormBase
 from src.core.exceptions import BanneredMareException
 from src.core.utils.upload import UploadedFile
 from src.lore.repository import LoreEntryRepository, LoreRepository
@@ -64,10 +65,12 @@ class TestCharacterService:
         service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
 
         character = await service.create(
-            name="Alice",
-            description="A friendly AI",
-            personality="Helpful and kind",
-            first_message="Hello! How can I help you?",
+            CharacterFormBase(
+                name="Alice",
+                description="A friendly AI",
+                personality="Helpful and kind",
+                first_message="Hello! How can I help you?",
+            )
         )
 
         assert character.name == "Alice"
@@ -86,9 +89,11 @@ class TestCharacterService:
         greetings = json.dumps(["Hi there!", "Greetings!"])
 
         character = await service.create(
-            name="Alice",
-            example_dialogues=dialogues,
-            alternate_greetings=greetings,
+            CharacterFormBase(
+                name="Alice",
+                example_dialogues=dialogues,
+                alternate_greetings=greetings,
+            )
         )
 
         assert character.example_dialogues == ["<START>\nUser: Hi\nAssistant: Hello!"]
@@ -102,8 +107,7 @@ class TestCharacterService:
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = await service.create(
-                name="Alice",
-                example_dialogues="invalid json {",
+                CharacterFormBase(name="Alice", example_dialogues="invalid json {")
             )
 
         assert exc_info.value.status_code == 422
@@ -127,7 +131,7 @@ class TestCharacterService:
             ),
         ):
             character = await service.create(
-                name="Alice",
+                CharacterFormBase(name="Alice"),
                 avatar=mock_file,
             )
 
@@ -147,8 +151,7 @@ class TestCharacterService:
         service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
         updated = await service.update(
             char.id,
-            name="Alice Updated",
-            description="New description",
+            CharacterFormBase(name="Alice Updated", description="New description"),
         )
 
         assert updated.name == "Alice Updated"
@@ -168,7 +171,9 @@ class TestCharacterService:
 
         repo = CharacterRepository(db)
         service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
-        updated = await service.update(char.id, description="Updated description")
+        updated = await service.update(
+            char.id, CharacterFormBase(description="Updated description")
+        )
 
         assert updated.name == "Alice"  # Unchanged
         assert updated.description == "Updated description"  # Changed
@@ -185,7 +190,7 @@ class TestCharacterService:
         repo = CharacterRepository(db)
         service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
         greetings = json.dumps(["Hello!", "Hi!"])
-        updated = await service.update(char.id, alternate_greetings=greetings)
+        updated = await service.update(char.id, CharacterFormBase(alternate_greetings=greetings))
 
         assert updated.alternate_greetings == ["Hello!", "Hi!"]
 
@@ -196,7 +201,7 @@ class TestCharacterService:
         service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
 
         with pytest.raises(BanneredMareException) as exc_info:
-            _ = await service.update("nonexistent-id", name="New Name")
+            _ = await service.update("nonexistent-id", CharacterFormBase(name="New Name"))
 
         assert exc_info.value.status_code == 404
 

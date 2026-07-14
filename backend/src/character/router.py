@@ -7,13 +7,22 @@ from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from fastapi.responses import FileResponse, Response
 
 from src.character.dependencies import CharacterServiceDep
-from src.character.schemas import CharacterFilterParams, CharacterResponse
+from src.character.schemas import CharacterFilterParams, CharacterFormBase, CharacterResponse
 from src.core.config import settings
 from src.core.exceptions import NotFoundError
 from src.core.schemas import PaginatedResponse, page_response
 from src.core.utils.upload import read_upload
 
 router = APIRouter(prefix="/api/characters", tags=["characters"])
+
+
+class CharacterFormPayload(CharacterFormBase):
+    """Router-only transport: the service DTO plus the avatar upload. Kept here (not
+    in schemas) so the FastAPI ``UploadFile`` type stays out of the service layer.
+    An ``UploadFile`` field inside a ``Form()`` model is how FastAPI spreads the
+    fields as individual multipart parts *and* accepts the file in one request."""
+
+    avatar: UploadFile | None = None
 
 
 @router.get("", response_model=PaginatedResponse[CharacterResponse])
@@ -34,48 +43,13 @@ def list_characters(
 
 @router.post("", response_model=CharacterResponse, status_code=status.HTTP_201_CREATED)
 async def create_character(
-    name: Annotated[str, Form()],
     service: CharacterServiceDep,
-    description: Annotated[str | None, Form()] = None,
-    personality: Annotated[str | None, Form()] = None,
-    first_message: Annotated[str | None, Form()] = None,
-    example_dialogues: Annotated[str | None, Form()] = None,  # JSON string
-    scenario: Annotated[str | None, Form()] = None,
-    post_history_instructions: Annotated[str | None, Form()] = None,
-    alternate_greetings: Annotated[str | None, Form()] = None,  # JSON string
-    tags: Annotated[str | None, Form()] = None,  # JSON string
-    gender: Annotated[str | None, Form()] = None,
-    custom_gender: Annotated[str | None, Form()] = None,
-    creator: Annotated[str | None, Form()] = None,
-    version: Annotated[int | None, Form()] = 1,
-    system_prompt: Annotated[str | None, Form()] = None,
-    creator_notes: Annotated[str | None, Form()] = None,
-    species: Annotated[str | None, Form()] = None,
-    age: Annotated[str | None, Form()] = None,
-    avatar: Annotated[UploadFile | None, File()] = None,
+    data: Annotated[CharacterFormPayload, Form()],
 ):
     """Create a new character with optional avatar upload"""
-    avatar_upload = await read_upload(avatar) if avatar else None
-    return await service.create(
-        name=name,
-        description=description,
-        personality=personality,
-        first_message=first_message,
-        example_dialogues=example_dialogues,
-        scenario=scenario,
-        post_history_instructions=post_history_instructions,
-        alternate_greetings=alternate_greetings,
-        tags=tags,
-        gender=gender,
-        custom_gender=custom_gender,
-        creator=creator,
-        version=version,
-        system_prompt=system_prompt,
-        creator_notes=creator_notes,
-        species=species,
-        age=age,
-        avatar=avatar_upload,
-    )
+    avatar_upload = await read_upload(data.avatar) if data.avatar else None
+    form = CharacterFormBase(**data.model_dump(exclude={"avatar"}))
+    return await service.create(form, avatar=avatar_upload)
 
 
 @router.get("/{character_id}", response_model=CharacterResponse)
@@ -133,48 +107,12 @@ def get_character_avatar_thumbnail(character_id: str, service: CharacterServiceD
 async def update_character(
     character_id: str,
     service: CharacterServiceDep,
-    name: Annotated[str | None, Form()] = None,
-    description: Annotated[str | None, Form()] = None,
-    personality: Annotated[str | None, Form()] = None,
-    first_message: Annotated[str | None, Form()] = None,
-    example_dialogues: Annotated[str | None, Form()] = None,  # JSON string
-    scenario: Annotated[str | None, Form()] = None,
-    post_history_instructions: Annotated[str | None, Form()] = None,
-    alternate_greetings: Annotated[str | None, Form()] = None,  # JSON string
-    tags: Annotated[str | None, Form()] = None,  # JSON string
-    gender: Annotated[str | None, Form()] = None,
-    custom_gender: Annotated[str | None, Form()] = None,
-    creator: Annotated[str | None, Form()] = None,
-    version: Annotated[int | None, Form()] = None,
-    system_prompt: Annotated[str | None, Form()] = None,
-    creator_notes: Annotated[str | None, Form()] = None,
-    species: Annotated[str | None, Form()] = None,
-    age: Annotated[str | None, Form()] = None,
-    avatar: Annotated[UploadFile | None, File()] = None,
+    data: Annotated[CharacterFormPayload, Form()],
 ):
     """Update character"""
-    avatar_upload = await read_upload(avatar) if avatar else None
-    return await service.update(
-        character_id=character_id,
-        name=name,
-        description=description,
-        personality=personality,
-        first_message=first_message,
-        example_dialogues=example_dialogues,
-        scenario=scenario,
-        post_history_instructions=post_history_instructions,
-        alternate_greetings=alternate_greetings,
-        tags=tags,
-        gender=gender,
-        custom_gender=custom_gender,
-        creator=creator,
-        version=version,
-        system_prompt=system_prompt,
-        creator_notes=creator_notes,
-        species=species,
-        age=age,
-        avatar=avatar_upload,
-    )
+    avatar_upload = await read_upload(data.avatar) if data.avatar else None
+    form = CharacterFormBase(**data.model_dump(exclude={"avatar"}))
+    return await service.update(character_id, form, avatar=avatar_upload)
 
 
 @router.post("/import", response_model=CharacterResponse, status_code=status.HTTP_201_CREATED)

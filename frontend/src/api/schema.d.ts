@@ -1785,48 +1785,6 @@ export interface components {
       /** From Cache */
       from_cache: boolean;
     };
-    /** Body_create_character_api_characters_post */
-    Body_create_character_api_characters_post: {
-      /** Name */
-      name: string;
-      /** Description */
-      description?: string | null;
-      /** Personality */
-      personality?: string | null;
-      /** First Message */
-      first_message?: string | null;
-      /** Example Dialogues */
-      example_dialogues?: string | null;
-      /** Scenario */
-      scenario?: string | null;
-      /** Post History Instructions */
-      post_history_instructions?: string | null;
-      /** Alternate Greetings */
-      alternate_greetings?: string | null;
-      /** Tags */
-      tags?: string | null;
-      /** Gender */
-      gender?: string | null;
-      /** Custom Gender */
-      custom_gender?: string | null;
-      /** Creator */
-      creator?: string | null;
-      /**
-       * Version
-       * @default 1
-       */
-      version: number | null;
-      /** System Prompt */
-      system_prompt?: string | null;
-      /** Creator Notes */
-      creator_notes?: string | null;
-      /** Species */
-      species?: string | null;
-      /** Age */
-      age?: string | null;
-      /** Avatar */
-      avatar?: string | null;
-    };
     /** Body_create_persona_api_personas__post */
     Body_create_persona_api_personas__post: {
       /** Name */
@@ -1857,8 +1815,25 @@ export interface components {
        */
       file: string;
     };
-    /** Body_update_character_api_characters__character_id__put */
-    Body_update_character_api_characters__character_id__put: {
+    /** Body_update_persona_api_personas__persona_id__put */
+    Body_update_persona_api_personas__persona_id__put: {
+      /** Name */
+      name?: string | null;
+      /** Description */
+      description?: string | null;
+      /** Is Default */
+      is_default?: boolean | null;
+      /** Avatar */
+      avatar?: string | null;
+    };
+    /**
+     * CharacterFormPayload
+     * @description Router-only transport: the service DTO plus the avatar upload. Kept here (not
+     *     in schemas) so the FastAPI ``UploadFile`` type stays out of the service layer.
+     *     An ``UploadFile`` field inside a ``Form()`` model is how FastAPI spreads the
+     *     fields as individual multipart parts *and* accepts the file in one request.
+     */
+    CharacterFormPayload: {
       /** Name */
       name?: string | null;
       /** Description */
@@ -1893,17 +1868,6 @@ export interface components {
       species?: string | null;
       /** Age */
       age?: string | null;
-      /** Avatar */
-      avatar?: string | null;
-    };
-    /** Body_update_persona_api_personas__persona_id__put */
-    Body_update_persona_api_personas__persona_id__put: {
-      /** Name */
-      name?: string | null;
-      /** Description */
-      description?: string | null;
-      /** Is Default */
-      is_default?: boolean | null;
       /** Avatar */
       avatar?: string | null;
     };
@@ -5300,7 +5264,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "multipart/form-data": components["schemas"]["Body_create_character_api_characters_post"];
+        "application/x-www-form-urlencoded": components["schemas"]["CharacterFormPayload"];
       };
     };
     responses: {
@@ -5364,9 +5328,9 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        "multipart/form-data": components["schemas"]["Body_update_character_api_characters__character_id__put"];
+        "application/x-www-form-urlencoded": components["schemas"]["CharacterFormPayload"];
       };
     };
     responses: {

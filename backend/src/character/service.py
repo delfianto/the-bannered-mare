@@ -16,6 +16,7 @@ from src.character.card_parser import (
 )
 from src.character.models import Character
 from src.character.repository import CharacterRepository
+from src.character.schemas import CharacterFormBase
 from src.core.base_service import get_or_404
 from src.core.config import settings
 from src.core.exceptions import ValidationError
@@ -70,52 +71,37 @@ class CharacterService:
         return get_or_404(self.character_repo, character_id, "Character")
 
     async def create(
-        self,
-        name: str,
-        description: str | None = None,
-        personality: str | None = None,
-        first_message: str | None = None,
-        example_dialogues: str | None = None,
-        avatar: UploadedFile | None = None,
-        scenario: str | None = None,
-        post_history_instructions: str | None = None,
-        alternate_greetings: str | None = None,
-        tags: str | None = None,
-        gender: str | None = None,
-        custom_gender: str | None = None,
-        creator: str | None = None,
-        version: int | None = 1,
-        system_prompt: str | None = None,
-        creator_notes: str | None = None,
-        species: str | None = None,
-        age: str | None = None,
+        self, data: CharacterFormBase, avatar: UploadedFile | None = None
     ) -> Character:
         """Create a new character with optional avatar upload"""
-        parsed_dialogues = self._parse_json_field(example_dialogues, "example_dialogues")
-        parsed_greetings = self._parse_json_field(alternate_greetings, "alternate_greetings")
-        parsed_tags = self._parse_json_field(tags, "tags")
+        if not data.name:
+            raise ValidationError("Character name is required")
+
+        parsed_dialogues = self._parse_json_field(data.example_dialogues, "example_dialogues")
+        parsed_greetings = self._parse_json_field(data.alternate_greetings, "alternate_greetings")
+        parsed_tags = self._parse_json_field(data.tags, "tags")
 
         # Parse gender enum
-        parsed_gender = _parse_gender(gender) if gender else None
+        parsed_gender = _parse_gender(data.gender) if data.gender else None
 
         character = Character(
-            name=name,
-            description=description,
-            personality=personality,
-            first_message=first_message,
+            name=data.name,
+            description=data.description,
+            personality=data.personality,
+            first_message=data.first_message,
             example_dialogues=parsed_dialogues,
-            scenario=scenario,
-            post_history_instructions=post_history_instructions,
+            scenario=data.scenario,
+            post_history_instructions=data.post_history_instructions,
             alternate_greetings=parsed_greetings,
             tags=parsed_tags,
             gender=parsed_gender,
-            custom_gender=custom_gender,
-            creator=creator,
-            version=version or 1,
-            system_prompt=system_prompt,
-            creator_notes=creator_notes,
-            species=species,
-            age=age,
+            custom_gender=data.custom_gender,
+            creator=data.creator,
+            version=data.version or 1,
+            system_prompt=data.system_prompt,
+            creator_notes=data.creator_notes,
+            species=data.species,
+            age=data.age,
         )
         created = self.character_repo.create(character)
 
@@ -134,68 +120,52 @@ class CharacterService:
     async def update(
         self,
         character_id: str,
-        name: str | None = None,
-        description: str | None = None,
-        personality: str | None = None,
-        first_message: str | None = None,
-        example_dialogues: str | None = None,
+        data: CharacterFormBase,
         avatar: UploadedFile | None = None,
-        scenario: str | None = None,
-        post_history_instructions: str | None = None,
-        alternate_greetings: str | None = None,
-        tags: str | None = None,
-        gender: str | None = None,
-        custom_gender: str | None = None,
-        creator: str | None = None,
-        version: int | None = None,
-        system_prompt: str | None = None,
-        creator_notes: str | None = None,
-        species: str | None = None,
-        age: str | None = None,
     ) -> Character:
         """Update character"""
         character = self.get_by_id(character_id)
 
-        if name is not None:
-            character.name = name
-        if description is not None:
-            character.description = description
-        if personality is not None:
-            character.personality = personality
-        if first_message is not None:
-            character.first_message = first_message
-        if scenario is not None:
-            character.scenario = scenario
-        if post_history_instructions is not None:
-            character.post_history_instructions = post_history_instructions
-        if gender is not None:
-            character.gender = _parse_gender(gender)
-        if custom_gender is not None:
-            character.custom_gender = custom_gender
-        if creator is not None:
-            character.creator = creator
-        if version is not None:
-            character.version = version
-        if system_prompt is not None:
-            character.system_prompt = system_prompt
-        if creator_notes is not None:
-            character.creator_notes = creator_notes
-        if species is not None:
-            character.species = species
-        if age is not None:
-            character.age = age
+        if data.name is not None:
+            character.name = data.name
+        if data.description is not None:
+            character.description = data.description
+        if data.personality is not None:
+            character.personality = data.personality
+        if data.first_message is not None:
+            character.first_message = data.first_message
+        if data.scenario is not None:
+            character.scenario = data.scenario
+        if data.post_history_instructions is not None:
+            character.post_history_instructions = data.post_history_instructions
+        if data.gender is not None:
+            character.gender = _parse_gender(data.gender)
+        if data.custom_gender is not None:
+            character.custom_gender = data.custom_gender
+        if data.creator is not None:
+            character.creator = data.creator
+        if data.version is not None:
+            character.version = data.version
+        if data.system_prompt is not None:
+            character.system_prompt = data.system_prompt
+        if data.creator_notes is not None:
+            character.creator_notes = data.creator_notes
+        if data.species is not None:
+            character.species = data.species
+        if data.age is not None:
+            character.age = data.age
 
         # Parse and update JSON fields
-        if example_dialogues is not None:
+        if data.example_dialogues is not None:
             character.example_dialogues = self._parse_json_field(
-                example_dialogues, "example_dialogues"
+                data.example_dialogues, "example_dialogues"
             )
-        if alternate_greetings is not None:
+        if data.alternate_greetings is not None:
             character.alternate_greetings = self._parse_json_field(
-                alternate_greetings, "alternate_greetings"
+                data.alternate_greetings, "alternate_greetings"
             )
-        if tags is not None:
-            character.tags = self._parse_json_field(tags, "tags")
+        if data.tags is not None:
+            character.tags = self._parse_json_field(data.tags, "tags")
 
         # Update avatar if provided
         if avatar:
