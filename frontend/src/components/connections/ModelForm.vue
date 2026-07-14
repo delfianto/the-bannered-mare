@@ -5,12 +5,14 @@ import { providersForFamily } from "@/utils/modelProviderFilter";
 import type { components } from "@/api/schema";
 
 type ModelCreate = components["schemas"]["ModelCreate"];
+type ProviderResponse = components["schemas"]["ProviderResponse"];
+type ModelFamilyListResponse = components["schemas"]["ModelFamilyListResponse"];
 
 const { t } = useI18n();
 
 const props = defineProps<{
-  providers: { id: string; name: string; identifier_style?: string; identifier_hint?: string }[];
-  families: { id: string; name: string }[];
+  providers: ProviderResponse[];
+  families: ModelFamilyListResponse[];
   prefill?: { provider_id?: string; model_identifier?: string; name?: string };
   saving?: boolean;
 }>();
@@ -29,28 +31,28 @@ const form = reactive({
 });
 
 const selectedFamily = computed(() =>
-  props.families.find((f: any) => f.id === form.model_family_id),
+  props.families.find((f) => f.id === form.model_family_id),
 );
 const providerItems = computed(() =>
-  providersForFamily(props.providers as any, selectedFamily.value as any)
+  providersForFamily(props.providers, selectedFamily.value)
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((p) => ({ label: p.name, value: p.id })),
 );
 const familyItems = computed(() =>
   [...props.families]
-    .sort((a: any, b: any) => a.name.localeCompare(b.name))
-    .map((f: any) => ({ label: f.name, value: f.id })),
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((f) => ({ label: f.name, value: f.id })),
 );
 const providerName = computed(
   () =>
-    props.providers.find((p: any) => p.id === form.provider_id)?.name ||
+    props.providers.find((p) => p.id === form.provider_id)?.name ||
     t("connections.model.selectProvider"),
 );
 // The identifier scheme depends on the chosen provider (the route): OpenRouter
 // wants a vendor/model slug, native/OpenCode take the bare name, etc.
 const identifierHint = computed(
-  () => props.providers.find((p: any) => p.id === form.provider_id)?.identifier_hint || "",
+  () => props.providers.find((p) => p.id === form.provider_id)?.identifier_hint || "",
 );
 const familyName = computed(
   () =>

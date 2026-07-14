@@ -13,7 +13,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:field": [field: keyof CharacterData, value: any];
+  "update:field": [field: keyof CharacterData, value: CharacterData[keyof CharacterData]];
   addLorebook: [];
   updateLorebook: [id: string, updates: Partial<LorebookEntry>];
   removeLorebook: [id: string];

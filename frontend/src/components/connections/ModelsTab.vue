@@ -168,13 +168,13 @@ function activeProviderName(row: ModelRow): string {
   return active ? providerNameFor(active.provider_id) : t("connections.model.noRoutes");
 }
 
-function openModel(row: any) {
+function openModel(row: ModelRow) {
   router.push(`/settings/models/${row.id}`);
 }
 
 const togglingIds = ref<Set<string>>(new Set());
 
-async function handleToggleEnabled(row: any) {
+async function handleToggleEnabled(row: ModelRow) {
   if (togglingIds.value.has(row.id)) return;
 
   const previous = row.enabled;

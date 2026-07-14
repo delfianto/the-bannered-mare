@@ -73,14 +73,12 @@ function onUpdateParameters(params: Record<string, unknown>) {
 }
 
 const selectedFamily = computed(
-  () =>
-    families.value.find((f: any) => f.id === form.model_family_id) ||
-    (model.value?.model_family as any),
+  () => families.value.find((f) => f.id === form.model_family_id) ?? model.value?.model_family,
 );
 const familyItems = computed(() =>
   [...families.value]
-    .sort((a: any, b: any) => a.name.localeCompare(b.name))
-    .map((f: any) => ({ label: f.name, value: f.id })),
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((f) => ({ label: f.name, value: f.id })),
 );
 const familyName = computed(
   () =>

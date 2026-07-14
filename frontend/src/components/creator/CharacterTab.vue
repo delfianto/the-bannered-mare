@@ -15,7 +15,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:field": [field: keyof CharacterData, value: any];
+  "update:field": [field: keyof CharacterData, value: CharacterData[keyof CharacterData]];
   "add:tag": [tag: string];
   "remove:tag": [tag: string];
   change: [file: File];

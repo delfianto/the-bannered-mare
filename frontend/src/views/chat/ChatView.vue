@@ -274,7 +274,8 @@ async function handleEditMessage(messageId: string, content: string) {
 
 // --- Alternatives / Swipes ---
 
-const alternativesCache = ref(new Map<string, any[]>());
+type Alternative = Awaited<ReturnType<typeof fetchAlternatives>>[number];
+const alternativesCache = ref(new Map<string, Alternative[]>());
 
 function getAlternativeCount(messageId: string): number | undefined {
   const alts = alternativesCache.value.get(messageId);
