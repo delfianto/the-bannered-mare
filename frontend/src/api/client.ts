@@ -28,10 +28,34 @@ export const client = createClient<paths>({
 
 export class APIError extends Error {
   constructor(
-    public statusCode: number,
-    public details: unknown,
+    message: string,
+    public detail?: unknown,
   ) {
-    super(`API Error ${statusCode}`);
+    super(message);
     this.name = "APIError";
   }
+}
+
+/**
+ * Normalize an openapi-fetch error body into an APIError carrying a human
+ * message. The backend returns `{ detail: string }` (domain errors) or
+ * `{ detail: [{ msg, loc }] }` (HTTPValidationError); pull the message out of
+ * either instead of `JSON.stringify`-ing the whole object into a toast. Falls
+ * back to `fallback` when there's no usable detail.
+ */
+export function extractApiError(error: unknown, fallback = "Request failed"): APIError {
+  const detail = (error as { detail?: unknown } | null | undefined)?.detail;
+  if (typeof detail === "string") {
+    return new APIError(detail, error);
+  }
+  if (Array.isArray(detail)) {
+    const msg = detail
+      .map((d) =>
+        d && typeof d === "object" && "msg" in d ? String((d as { msg: unknown }).msg) : "",
+      )
+      .filter(Boolean)
+      .join("; ");
+    return new APIError(msg || fallback, error);
+  }
+  return new APIError(fallback, error);
 }

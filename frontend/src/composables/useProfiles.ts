@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type Profile = components["schemas"]["ProfileResponse"];
 export type ProfileCreate = components["schemas"]["ProfileCreate"];
@@ -21,7 +21,7 @@ export function useProfiles() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load profiles: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load profiles");
       }
 
       if (data) {
@@ -40,7 +40,7 @@ export function useProfiles() {
       const { data, error: apiError } = await client.POST("/api/profiles/", { body: payload });
 
       if (apiError) {
-        throw new Error(`Failed to create profile: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to create profile");
       }
 
       if (data) {
@@ -63,7 +63,7 @@ export function useProfiles() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to update profile: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to update profile");
       }
 
       if (data) {
@@ -86,7 +86,7 @@ export function useProfiles() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to delete profile: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to delete profile");
       }
 
       profiles.value = profiles.value.filter((p) => p.id !== id);
@@ -104,7 +104,7 @@ export function useProfiles() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to set default profile: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to set default profile");
       }
 
       if (data) {

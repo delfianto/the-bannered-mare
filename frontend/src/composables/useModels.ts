@@ -1,6 +1,6 @@
 import { ref, computed, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type ModelListItem = components["schemas"]["ModelListResponse"];
 
@@ -71,7 +71,7 @@ export function useModels(options: UseModelsOptions = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load models: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load models");
       }
 
       if (data) {

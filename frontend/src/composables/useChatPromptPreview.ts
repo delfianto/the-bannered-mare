@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type ChatPromptPreview = components["schemas"]["ChatPromptPreviewResponse"];
 
@@ -29,7 +29,7 @@ export function useChatPromptPreview() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load prompt preview: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load prompt preview");
       }
 
       if (data) {

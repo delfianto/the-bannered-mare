@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type Preset = components["schemas"]["PresetResponse"];
 
@@ -21,7 +21,7 @@ export function usePresets() {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load presets: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load presets");
       }
 
       if (data) {

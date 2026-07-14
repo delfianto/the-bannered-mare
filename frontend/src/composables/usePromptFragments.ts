@@ -1,6 +1,6 @@
 import { ref, computed, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type PromptFragment = components["schemas"]["FragmentResponse"];
 
@@ -53,7 +53,7 @@ export function usePromptFragments(options: UseFragmentsOptions = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load prompt fragments: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load prompt fragments");
       }
 
       if (data) {

@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 
 export type Character = components["schemas"]["CharacterResponse"];
 
@@ -32,7 +32,7 @@ export function useCharacters(options: UseCharactersOptions = {}) {
       });
 
       if (apiError) {
-        throw new Error(`Failed to load characters: ${JSON.stringify(apiError)}`);
+        throw extractApiError(apiError, "Failed to load characters");
       }
 
       if (data) {
