@@ -88,7 +88,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 | V2-C4 | C | FE | Low | overlapping lint stacks + doc drift | [ ] |
 | V2-C5 | C | BE | Low | no shared character DTO; no async `get_or_404` | [~] |
 | V2-D1 | D | FE | Med | list factories have no request sequencing (race) | [ ] |
-| V2-D2 | D | FE | Low | `useEntityCrud` mutation errors don't set `error` ref | [ ] |
+| V2-D2 | D | FE | Low | `useEntityCrud` mutation errors don't set `error` ref | [x] |
 | V2-D3 | D | FE | Low | silent error swallow (lorebook GETs, MemoryView) | [ ] |
 | V2-D4 | D | BE | Low | `ProviderService.delete()` raises `NotImplementedError` | [x] |
 | V2-D5 | D | BE | Low | data_bank embeddings orphan on cascade delete | [x] |
@@ -216,7 +216,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 - **Fix:** Add per-load `AbortController` (abort the previous in-flight) and/or a request-sequence guard in the factories (one place fixes all callers).
 - **Acceptance:** rapid filter changes always render the newest query's results; earlier responses are discarded.
 
-### V2-D2. `useEntityCrud` mutation errors don't populate `error`  ·  Low · FE  · [ ]
+### V2-D2. `useEntityCrud` mutation errors don't populate `error`  ·  Low · FE  · [x] DONE
 - **Location:** `frontend/src/composables/useEntityCrud.ts:41-42` (only `fetchItem` sets `error`); `createItem`/`updateItem`/`removeItem`/`runSaving` rethrow without touching it.
 - **Fix:** Set `error.value = extractApiError(...)` in the write paths (or document that writes throw and `error` tracks reads only).
 - **Acceptance:** after a failed save, the returned `error` ref reflects it, or the contract is documented + consistent.
@@ -295,4 +295,5 @@ _(Move items here with `[x]` and the fixing commit hash as they're finished — 
 - **[x] V2-D4** — `ProviderService.delete()` now raises the domain `ConflictError` (→ 409) instead of `NotImplementedError`, so if ever routed it maps cleanly through the global handler rather than becoming an unhandled 500. Tests updated to assert `ConflictError`/409. Validated: ruff clean, 28 provider tests pass. Commit: `0220f06`.
 - **[x] V2-D9** — moved `from src.core.config import settings` from inside `export_as_png` to module scope in `character/service.py` (`core.config` is a leaf, not a cycle workaround). Validated: ruff clean, basedpyright 0/0/0, 42 character tests pass. Commit: `23eaa77`.
 - **[x] V2-D5** — added a nullable `data_bank_entry_id` FK on `embeddings` → `data_bank_entries.id` `ON DELETE CASCADE` (mirroring BE-1's `chat_id` fix), stamped in `vectorize_data_bank_entry`. Now deleting an entry — directly or when its chat/character cascades — removes its embeddings instead of orphaning them. Migration `33655fb747cf` adds the column/index/FK, backfills existing data_bank embeddings from `source_id`, and purges pre-existing orphans. New test asserts the FK is stamped. Validated: ruff clean, basedpyright 0/0/0, migration applied + `alembic check` clean, 865 passed. Commit: `fb27f1f`.
-- **[x] V2-D6** — `APIError` regained `statusCode?: number`; `extractApiError(error, fallback, status?)` sets it. `multipartFetch` passes `response.status`, and `useEntityCrud`'s `ClientResult` now carries `response` so all four CRUD paths + `runSaving` thread `response?.status` into the error — so any caller catching an `APIError` from those central paths can branch on 404 vs 409 vs 422. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `<pending>`.
+- **[x] V2-D6** — `APIError` regained `statusCode?: number`; `extractApiError(error, fallback, status?)` sets it. `multipartFetch` passes `response.status`, and `useEntityCrud`'s `ClientResult` now carries `response` so all four CRUD paths + `runSaving` thread `response?.status` into the error — so any caller catching an `APIError` from those central paths can branch on 404 vs 409 vs 422. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `4afa9ae`.
+- **[x] V2-D2** — `useEntityCrud` `createItem`/`updateItem`/`removeItem`/`runSaving` now clear `error` at the start and record it via a shared `recordError()` on failure (still rethrowing), so the returned `error` ref reflects failed writes — consistent with `fetchItem`. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `<pending>`.

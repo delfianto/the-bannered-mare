@@ -47,13 +47,25 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
     }
   }
 
+  // Mutations rethrow (callers await + toast), but they also record the failure on
+  // the shared `error` ref so consumers reading it after a write see the real
+  // error, and clear it on a fresh attempt — matching fetchItem's contract.
+  function recordError(e: unknown): Error {
+    const err = e instanceof Error ? e : new Error("Unknown error");
+    error.value = err;
+    return err;
+  }
+
   async function createItem(body: TCreate): Promise<TDetail> {
     saving.value = true;
+    error.value = null;
     try {
       const { data, error: apiError, response } = await ops.create!(body);
       if (apiError || !data)
         throw extractApiError(apiError, `Failed to create ${ops.label}`, response?.status);
       return data;
+    } catch (e) {
+      throw recordError(e);
     } finally {
       saving.value = false;
     }
@@ -61,12 +73,15 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
 
   async function updateItem(id: string, body: TUpdate): Promise<TDetail> {
     saving.value = true;
+    error.value = null;
     try {
       const { data, error: apiError, response } = await ops.update!(id, body);
       if (apiError || !data)
         throw extractApiError(apiError, `Failed to save ${ops.label}`, response?.status);
       item.value = data;
       return data;
+    } catch (e) {
+      throw recordError(e);
     } finally {
       saving.value = false;
     }
@@ -74,9 +89,12 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
 
   async function removeItem(id: string): Promise<void> {
     deleting.value = true;
+    error.value = null;
     try {
       const { error: apiError, response } = await ops.remove!(id);
       if (apiError) throw extractApiError(apiError, `Failed to delete ${ops.label}`, response?.status);
+    } catch (e) {
+      throw recordError(e);
     } finally {
       deleting.value = false;
     }
@@ -85,10 +103,13 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
   /** Run an entity-specific extra mutation under the shared `saving` flag. */
   async function runSaving<T>(fn: () => ClientResult<T>, context: string): Promise<T> {
     saving.value = true;
+    error.value = null;
     try {
       const { data, error: apiError, response } = await fn();
       if (apiError || data == null) throw extractApiError(apiError, context, response?.status);
       return data;
+    } catch (e) {
+      throw recordError(e);
     } finally {
       saving.value = false;
     }
