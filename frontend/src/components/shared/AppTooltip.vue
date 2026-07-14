@@ -49,7 +49,7 @@ function hide() {
         v-if="visible"
         role="tooltip"
         class="pointer-events-none fixed z-[100] rounded-md bg-foreground px-2 py-1 text-xs font-medium text-base-100 shadow-md"
-        :class="wide ? 'max-w-xs whitespace-normal break-words' : 'whitespace-nowrap'"
+        :class="wide ? 'max-w-xs whitespace-normal wrap-break-word' : 'whitespace-nowrap'"
         :style="pos"
       >
         {{ text }}
