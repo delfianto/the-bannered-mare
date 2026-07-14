@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { reactive, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { usePromptFragment } from "@/composables/usePromptFragment";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
 
 const router = useRouter();
@@ -9,8 +10,6 @@ const route = useRoute();
 const { fragment, loading, saving, deleting, error, fetchFragment, saveFragment, deleteFragment } =
   usePromptFragment();
 const toast = useAppToast();
-
-const confirmDelete = ref(false);
 
 const fragmentTypeOptions = [
   { label: "System", value: "system" },
@@ -71,24 +70,16 @@ async function handleSave() {
   }
 }
 
-async function handleDelete() {
+const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async () => {
   if (!fragment.value) return;
-  if (!confirmDelete.value) {
-    confirmDelete.value = true;
-    setTimeout(() => {
-      confirmDelete.value = false;
-    }, 3000);
-    return;
-  }
   try {
     await deleteFragment(fragment.value.id);
     toast.success("Fragment deleted");
     router.push({ path: "/loadouts", query: { tab: "fragments" } });
-  } catch (e) {
+  } catch {
     toast.error("Failed to delete fragment");
-    confirmDelete.value = false;
   }
-}
+});
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {

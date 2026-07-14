@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { usePromptTemplate } from "@/composables/usePromptTemplate";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
 
 const { t } = useI18n();
@@ -27,7 +28,6 @@ const {
 } = usePromptTemplate();
 const toast = useAppToast();
 
-const confirmDelete = ref(false);
 
 const form = reactive({
   name: "",
@@ -119,24 +119,16 @@ async function handleSave() {
   }
 }
 
-async function handleDelete() {
+const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async () => {
   if (!template.value) return;
-  if (!confirmDelete.value) {
-    confirmDelete.value = true;
-    setTimeout(() => {
-      confirmDelete.value = false;
-    }, 3000);
-    return;
-  }
   try {
     await deleteTemplate(template.value.id);
     toast.success("Template deleted");
     router.push({ path: "/loadouts", query: { tab: "templates" } });
-  } catch (e) {
+  } catch {
     toast.error("Failed to delete template");
-    confirmDelete.value = false;
   }
-}
+});
 
 async function handlePreview() {
   if (!template.value) return;

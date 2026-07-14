@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, computed } from "vue";
+import { reactive, onMounted, watch, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { usePreset } from "@/composables/usePreset";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
 const router = useRouter();
 const route = useRoute();
@@ -18,7 +19,6 @@ const {
 } = usePreset();
 const toast = useAppToast();
 
-const confirmDelete = ref(false);
 
 const form = reactive({
   name: "",
@@ -92,24 +92,16 @@ async function handleSave() {
   }
 }
 
-async function handleDelete() {
+const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async () => {
   if (!preset.value) return;
-  if (!confirmDelete.value) {
-    confirmDelete.value = true;
-    setTimeout(() => {
-      confirmDelete.value = false;
-    }, 3000);
-    return;
-  }
   try {
     await deletePreset(preset.value.id);
     toast.success("Preset deleted");
     router.push({ path: "/loadouts", query: { tab: "presets" } });
   } catch {
     toast.error("Failed to delete preset");
-    confirmDelete.value = false;
   }
-}
+});
 
 async function handleSetDefault() {
   if (!preset.value) return;
