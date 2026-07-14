@@ -37,8 +37,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
       }
 
       if (data) {
-        const newSessions: Chat[] = Array.isArray(data) ? data : data.items;
-        const meta = Array.isArray(data) ? null : data.meta;
+        const newSessions = data.items;
 
         if (nextCursor) {
           chatSessions.value = [...chatSessions.value, ...newSessions];
@@ -46,13 +45,8 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
           chatSessions.value = newSessions;
         }
 
-        if (meta) {
-          hasMore.value = meta.has_more;
-          cursor.value = meta.cursor || null;
-        } else {
-          hasMore.value = newSessions.length >= pageSize;
-          cursor.value = hasMore.value ? newSessions[newSessions.length - 1].updated_at : null;
-        }
+        hasMore.value = data.meta.has_more;
+        cursor.value = data.meta.cursor || null;
       }
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Unknown error");

@@ -46,19 +46,12 @@ export function useChatMessages(
       }
 
       if (data) {
-        const newMessages: Message[] = Array.isArray(data) ? data : data.items;
-        const meta = Array.isArray(data) ? null : data.meta;
+        const newMessages = data.items;
 
         // The API returns Newest -> Oldest.
         // batch = [Latest_in_batch, ..., Oldest_in_batch]
-
-        if (meta) {
-          hasMore.value = meta.has_more;
-          nextCursor.value = meta.cursor || null;
-        } else {
-          hasMore.value = newMessages.length >= pageSize;
-          nextCursor.value = hasMore.value ? newMessages[newMessages.length - 1].created_at : null;
-        }
+        hasMore.value = data.meta.has_more;
+        nextCursor.value = data.meta.cursor || null;
 
         // We want to display Oldest -> Newest in the UI state.
         // [Oldest_in_batch, ..., Latest_in_batch]

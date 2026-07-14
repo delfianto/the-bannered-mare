@@ -36,8 +36,7 @@ export function useCharacters(options: UseCharactersOptions = {}) {
       }
 
       if (data) {
-        const items: Character[] = Array.isArray(data) ? data : data.items;
-        const meta = Array.isArray(data) ? null : data.meta;
+        const items = data.items;
 
         if (pageNum === 1) {
           characters.value = items;
@@ -45,12 +44,8 @@ export function useCharacters(options: UseCharactersOptions = {}) {
           characters.value = [...characters.value, ...items];
         }
 
-        if (meta) {
-          hasMore.value = meta.has_more;
-          page.value = pageNum;
-        } else {
-          hasMore.value = items.length >= pageSize;
-        }
+        hasMore.value = data.meta.has_more;
+        page.value = pageNum;
       }
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Unknown error");
