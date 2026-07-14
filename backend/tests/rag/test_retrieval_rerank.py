@@ -125,6 +125,33 @@ async def test_vectorize_message_replaces_prior_embedding():
 
 
 @pytest.mark.asyncio
+async def test_vectorize_data_bank_entry_stamps_owning_entry_fk():
+    """Data-bank chunks carry data_bank_entry_id so the FK cascades on entry (or
+    parent chat/character) deletion — no orphaned embeddings."""
+    embedding_repo = MagicMock()
+    embedding_repo.delete_by_source = AsyncMock()
+    embedding_repo.create = AsyncMock()
+    embedding_repo.commit = AsyncMock()
+    embedding_service = MagicMock()
+    embedding_service.embed_documents = AsyncMock(return_value=[[0.1] * 768])
+
+    service = RetrievalService(
+        embedding_service=embedding_service,
+        embedding_repo=embedding_repo,
+        data_bank_repo=MagicMock(),
+    )
+
+    await service.vectorize_data_bank_entry(
+        entry_id="e1", content="some knowledge", model_name="nomic", dimensions=768
+    )
+
+    stored = embedding_repo.create.await_args.args[0]
+    assert stored.source_type == "data_bank"
+    assert stored.source_id == "e1"
+    assert stored.data_bank_entry_id == "e1"
+
+
+@pytest.mark.asyncio
 async def test_retrieve_scopes_messages_by_chat_and_data_bank_by_ids():
     """retrieve() passes the chat_id (message scope) and resolved data-bank entry
     ids (data_bank scope) to the vector search."""
