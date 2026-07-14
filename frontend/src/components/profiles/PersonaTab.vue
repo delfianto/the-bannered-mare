@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
-import { ref, onMounted } from "vue";
-import { useI18n } from "vue-i18n";
-import { client, extractApiError } from "@/api/client";
+import { ref } from "vue";
 import type { components } from "@/api/schema";
+import { usePersonas } from "@/composables/usePersonas";
 import Modal from "@/components/shared/Modal.vue";
-
-const { t } = useI18n();
 
 type PersonaResponse = components["schemas"]["PersonaResponse"];
 
-const personas = ref<PersonaResponse[]>([]);
-const loading = ref(true);
-const error = ref<string | null>(null);
+const { personas, loading, error, savePersona, deletePersona, setDefaultPersona } = usePersonas();
 
 // ── Form state ──────────────────────────────────────────
 const showForm = ref(false);
@@ -25,25 +20,6 @@ const formSaving = ref(false);
 
 // ── Delete state ────────────────────────────────────────
 const pendingDeleteId = ref<string | null>(null);
-
-async function loadPersonas() {
-  try {
-    const { data, error: apiError } = await client.GET("/api/personas/");
-    if (apiError) {
-      error.value = t("settings.persona.failedLoad");
-      return;
-    }
-    if (data) {
-      personas.value = data.items;
-    }
-  } catch {
-    error.value = "Failed to load personas";
-  } finally {
-    loading.value = false;
-  }
-}
-
-onMounted(loadPersonas);
 
 function getAvatarSrc(persona: PersonaResponse): string {
   return (
@@ -95,45 +71,14 @@ async function saveForm() {
       formData.append("avatar", formAvatarFile.value);
     }
 
-    if (editingId.value) {
-      // Update
-      const response = await fetch(`/api/personas/${editingId.value}`, {
-        method: "PUT",
-        body: formData,
-      });
-      if (!response.ok) throw new Error("Update failed");
-      const updated: PersonaResponse = await response.json();
-
-      // If this became default, unset others locally
-      if (updated.is_default) {
-        personas.value.forEach((p) => {
-          if (p.id !== updated.id) p.is_default = false;
-        });
-      }
-
-      const idx = personas.value.findIndex((p) => p.id === editingId.value);
-      if (idx !== -1) personas.value[idx] = updated;
-    } else {
-      // Create
-      const response = await fetch("/api/personas/", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) throw new Error("Create failed");
-      const created: PersonaResponse = await response.json();
-
-      // If this became default, unset others locally
-      if (created.is_default) {
-        personas.value.forEach((p) => (p.is_default = false));
-      }
-
-      personas.value.unshift(created);
+    // usePersonas owns the HTTP + local-list reconciliation (single-default
+    // invariant, replace-or-prepend); it returns null and surfaces `error` on
+    // failure. Only close the form on success.
+    const saved = await savePersona(formData, editingId.value);
+    if (saved) {
+      showForm.value = false;
+      editingId.value = null;
     }
-
-    showForm.value = false;
-    editingId.value = null;
-  } catch {
-    // Silently fail for mock — in production would show toast
   } finally {
     formSaving.value = false;
   }
@@ -149,17 +94,8 @@ function onDeleteClick(personaId: string) {
 }
 
 async function confirmDelete(personaId: string) {
-  try {
-    const { error: apiError } = await client.DELETE("/api/personas/{persona_id}", {
-      params: { path: { persona_id: personaId } },
-    });
-    if (apiError) throw extractApiError(apiError, "Failed to delete persona");
-    personas.value = personas.value.filter((p) => p.id !== personaId);
-  } catch {
-    // Silently fail for mock
-  } finally {
-    pendingDeleteId.value = null;
-  }
+  await deletePersona(personaId);
+  pendingDeleteId.value = null;
 }
 
 function cancelDelete() {
@@ -168,19 +104,7 @@ function cancelDelete() {
 
 // ── Set Default ─────────────────────────────────────────
 async function setDefault(personaId: string) {
-  try {
-    const { data, error: apiError } = await client.POST("/api/personas/{persona_id}/set-default", {
-      params: { path: { persona_id: personaId } },
-    });
-    if (apiError || !data) throw extractApiError(apiError, "Failed to set default persona");
-
-    // Update local state
-    personas.value.forEach((p) => {
-      p.is_default = p.id === data.id;
-    });
-  } catch {
-    // Silently fail for mock
-  }
+  await setDefaultPersona(personaId);
 }
 </script>
 
@@ -284,7 +208,7 @@ async function setDefault(personaId: string) {
     <!-- Error State -->
     <div v-else-if="error" class="rounded-xl border bg-base-200/50 p-8 text-center">
       <AppIcon name="i-lucide-alert-circle" class="mx-auto mb-2 size-8 text-muted-foreground" />
-      <p class="text-sm text-muted-foreground">{{ error }}</p>
+      <p class="text-sm text-muted-foreground">{{ error.message }}</p>
     </div>
 
     <!-- Empty State -->

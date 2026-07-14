@@ -75,3 +75,35 @@ export function extractApiError(error: unknown, fallback = "Request failed"): AP
   }
   return new APIError(fallback, error);
 }
+
+/**
+ * Multipart (FormData) mutations can't go through openapi-fetch (it handles
+ * multipart poorly), so they stay on raw fetch — but route them here so they
+ * still get the typed client's base URL (`VITE_API_URL`) and reachability
+ * reporting instead of hardcoding `/api/...` and silently bypassing both.
+ * Returns an openapi-fetch-shaped `{ data, error }`; the caller supplies the
+ * expected response type.
+ */
+export async function multipartFetch<T>(
+  path: string,
+  init: { method: string; body: FormData; signal?: AbortSignal },
+): Promise<{ data?: T; error?: APIError }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}${path}`, {
+      method: init.method,
+      body: init.body,
+      signal: init.signal,
+    });
+    reportResponse(response.status);
+  } catch (err) {
+    reportNetworkError();
+    return { error: new APIError(err instanceof Error ? err.message : "Network error", err) };
+  }
+  if (!response.ok) {
+    const body = await response.json().catch(() => undefined);
+    return { error: extractApiError(body, `Request failed (${response.status})`) };
+  }
+  return { data: (await response.json()) as T };
+}

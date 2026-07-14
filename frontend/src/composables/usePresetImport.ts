@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import type { components } from "@/api/schema";
+import { multipartFetch } from "@/api/client";
 
 export type STImportResult = components["schemas"]["STImportResult"];
 
@@ -19,16 +20,12 @@ export function usePresetImport() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("/api/presets/import", {
-        method: "POST",
-        body: formData,
-      });
+      const { data, error: apiError } = await multipartFetch<STImportResult>(
+        "/api/presets/import",
+        { method: "POST", body: formData },
+      );
+      if (apiError || !data) throw apiError ?? new Error("Import failed");
 
-      if (!response.ok) {
-        throw new Error(`Import failed: ${response.status}`);
-      }
-
-      const data = (await response.json()) as STImportResult;
       result.value = data;
       return data;
     } catch (err) {
