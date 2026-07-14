@@ -6,6 +6,24 @@ import type { components } from "@/api/schema";
 
 type CharacterResponse = components["schemas"]["CharacterResponse"];
 
+// openapi-typescript types LoreEntryCreate's defaulted fields (secondary_logic,
+// position, role, etc.) as required even though the backend supplies them — only
+// name + content are truly required. Send the schema defaults so a new-entry body
+// type-checks without an `as any`.
+const NEW_ENTRY_DEFAULTS = {
+  secondary_logic: "and_any",
+  case_sensitive: false,
+  match_whole_words: false,
+  use_regex: false,
+  constant: false,
+  position: "after_character",
+  depth: 4,
+  role: "system",
+  priority: 100,
+  ignore_budget: false,
+  order: 0,
+} as const satisfies Partial<components["schemas"]["LoreEntryCreate"]>;
+
 export function useCharacterForm(initial?: Partial<CharacterData>) {
   const data = reactive<CharacterData>({ ...INITIAL_CHARACTER, ...initial });
   const id = ref<string | undefined>(initial?.id);
@@ -218,9 +236,9 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
       if (lorebookId) {
         // Fetch existing entries to know what to delete/update
         const { data: bookDetails } = await client.GET("/api/lorebooks/{lorebook_id}", {
-          params: { path: { lore_book_id: lorebookId } }, // Wait! Is it lore_book_id or lorebook_id? Let's check openapi schema.
-        } as any); // Use as any to prevent typings issues if endpoint matches differently
-        const existingEntries = (bookDetails as any)?.entries || [];
+          params: { path: { lorebook_id: lorebookId } },
+        });
+        const existingEntries = bookDetails?.entries ?? [];
 
         // Determine entries to delete
         const currentIds = new Set(data.lorebook.map((e) => e.id));
@@ -228,13 +246,13 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
           if (!currentIds.has(entry.id)) {
             await client.DELETE("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
               params: { path: { lorebook_id: lorebookId, entry_id: entry.id } },
-            } as any);
+            });
           }
         }
 
         // Create or update current entries
         for (const entry of data.lorebook) {
-          const isNew = !existingEntries.some((e: any) => e.id === entry.id);
+          const isNew = !existingEntries.some((e) => e.id === entry.id);
           const payload = {
             name: entry.keywords[0] || "Untitled",
             content: entry.content,
@@ -245,13 +263,13 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
           if (isNew) {
             await client.POST("/api/lorebooks/{lorebook_id}/entries", {
               params: { path: { lorebook_id: lorebookId } },
-              body: payload,
-            } as any);
+              body: { ...payload, ...NEW_ENTRY_DEFAULTS },
+            });
           } else {
             await client.PUT("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
               params: { path: { lorebook_id: lorebookId, entry_id: entry.id } },
               body: payload,
-            } as any);
+            });
           }
         }
       }
@@ -285,11 +303,11 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
         const lorebookId = lorebooks.items[0].id;
         const { data: bookDetails } = await client.GET("/api/lorebooks/{lorebook_id}", {
           params: { path: { lorebook_id: lorebookId } },
-        } as any);
-        if (bookDetails && (bookDetails as any).entries) {
-          data.lorebook = (bookDetails as any).entries.map((entry: any) => ({
+        });
+        if (bookDetails?.entries) {
+          data.lorebook = bookDetails.entries.map((entry) => ({
             id: entry.id,
-            keywords: entry.keys,
+            keywords: entry.keys ?? [],
             content: entry.content,
             enabled: entry.enabled,
           }));
