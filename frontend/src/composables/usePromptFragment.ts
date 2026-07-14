@@ -1,83 +1,37 @@
-import { ref } from "vue";
+import { client } from "@/api/client";
+import { useEntityCrud } from "@/composables/useEntityCrud";
 import type { components } from "@/api/schema";
 
 type FragmentResponse = components["schemas"]["FragmentResponse"];
+type FragmentCreate = components["schemas"]["FragmentCreate"];
+type FragmentUpdate = components["schemas"]["FragmentUpdate"];
 
 export function usePromptFragment() {
-  const fragment = ref<FragmentResponse | null>(null);
-  const loading = ref(false);
-  const saving = ref(false);
-  const deleting = ref(false);
-  const error = ref<Error | null>(null);
-
-  async function fetchFragment(id: string) {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await fetch(`/api/prompt-fragments/${id}`);
-      if (!response.ok) throw new Error(`Failed to load fragment: ${response.status}`);
-      fragment.value = await response.json();
-    } catch (e) {
-      error.value = e instanceof Error ? e : new Error("Unknown error");
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function createFragment(payload: components["schemas"]["FragmentCreate"]) {
-    saving.value = true;
-    try {
-      const response = await fetch(`/api/prompt-fragments/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error(`Create failed: ${response.status}`);
-      return await response.json();
-    } finally {
-      saving.value = false;
-    }
-  }
-
-  async function saveFragment(id: string, updates: Record<string, unknown>) {
-    saving.value = true;
-    try {
-      const response = await fetch(`/api/prompt-fragments/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) throw new Error(`Save failed: ${response.status}`);
-      const data = await response.json();
-      fragment.value = data;
-      return data;
-    } finally {
-      saving.value = false;
-    }
-  }
-
-  async function deleteFragment(id: string) {
-    deleting.value = true;
-    try {
-      const response = await fetch(`/api/prompt-fragments/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok && response.status !== 204)
-        throw new Error(`Delete failed: ${response.status}`);
-    } finally {
-      deleting.value = false;
-    }
-  }
+  const crud = useEntityCrud<FragmentResponse, FragmentCreate, FragmentUpdate>({
+    label: "fragment",
+    fetchOne: (id) =>
+      client.GET("/api/prompt-fragments/{fragment_id}", { params: { path: { fragment_id: id } } }),
+    create: (body) => client.POST("/api/prompt-fragments/", { body }),
+    update: (id, body) =>
+      client.PUT("/api/prompt-fragments/{fragment_id}", {
+        params: { path: { fragment_id: id } },
+        body,
+      }),
+    remove: (id) =>
+      client.DELETE("/api/prompt-fragments/{fragment_id}", {
+        params: { path: { fragment_id: id } },
+      }),
+  });
 
   return {
-    fragment,
-    loading,
-    saving,
-    deleting,
-    error,
-    fetchFragment,
-    createFragment,
-    saveFragment,
-    deleteFragment,
+    fragment: crud.item,
+    loading: crud.loading,
+    saving: crud.saving,
+    deleting: crud.deleting,
+    error: crud.error,
+    fetchFragment: crud.fetchItem,
+    createFragment: crud.createItem,
+    saveFragment: crud.updateItem,
+    deleteFragment: crud.removeItem,
   };
 }
