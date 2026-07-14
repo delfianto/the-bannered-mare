@@ -1,10 +1,11 @@
 import { ref, type Ref } from "vue";
 import { extractApiError } from "@/api/client";
 
-// openapi-fetch calls resolve to `{ data, error }` (plus `response`); accept that
+// openapi-fetch calls resolve to `{ data, error, response }`; accept that
 // structural shape so callers can hand us fully-typed `client.*` closures without
-// losing per-path typing (a generic `basePath` string would).
-type ClientResult<T> = Promise<{ data?: T; error?: unknown }>;
+// losing per-path typing (a generic `basePath` string would). `response` is kept
+// so failures can carry the HTTP status into APIError (see extractApiError).
+type ClientResult<T> = Promise<{ data?: T; error?: unknown; response?: Response }>;
 
 interface EntityCrudOps<TDetail, TCreate, TUpdate> {
   /** Lowercase noun for error messages, e.g. "preset". */
@@ -35,8 +36,9 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
     loading.value = true;
     error.value = null;
     try {
-      const { data, error: apiError } = await ops.fetchOne(id);
-      if (apiError || !data) throw extractApiError(apiError, `Failed to load ${ops.label}`);
+      const { data, error: apiError, response } = await ops.fetchOne(id);
+      if (apiError || !data)
+        throw extractApiError(apiError, `Failed to load ${ops.label}`, response?.status);
       item.value = data;
     } catch (e) {
       error.value = e instanceof Error ? e : new Error("Unknown error");
@@ -48,8 +50,9 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
   async function createItem(body: TCreate): Promise<TDetail> {
     saving.value = true;
     try {
-      const { data, error: apiError } = await ops.create!(body);
-      if (apiError || !data) throw extractApiError(apiError, `Failed to create ${ops.label}`);
+      const { data, error: apiError, response } = await ops.create!(body);
+      if (apiError || !data)
+        throw extractApiError(apiError, `Failed to create ${ops.label}`, response?.status);
       return data;
     } finally {
       saving.value = false;
@@ -59,8 +62,9 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
   async function updateItem(id: string, body: TUpdate): Promise<TDetail> {
     saving.value = true;
     try {
-      const { data, error: apiError } = await ops.update!(id, body);
-      if (apiError || !data) throw extractApiError(apiError, `Failed to save ${ops.label}`);
+      const { data, error: apiError, response } = await ops.update!(id, body);
+      if (apiError || !data)
+        throw extractApiError(apiError, `Failed to save ${ops.label}`, response?.status);
       item.value = data;
       return data;
     } finally {
@@ -71,8 +75,8 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
   async function removeItem(id: string): Promise<void> {
     deleting.value = true;
     try {
-      const { error: apiError } = await ops.remove!(id);
-      if (apiError) throw extractApiError(apiError, `Failed to delete ${ops.label}`);
+      const { error: apiError, response } = await ops.remove!(id);
+      if (apiError) throw extractApiError(apiError, `Failed to delete ${ops.label}`, response?.status);
     } finally {
       deleting.value = false;
     }
@@ -82,8 +86,8 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
   async function runSaving<T>(fn: () => ClientResult<T>, context: string): Promise<T> {
     saving.value = true;
     try {
-      const { data, error: apiError } = await fn();
-      if (apiError || data == null) throw extractApiError(apiError, context);
+      const { data, error: apiError, response } = await fn();
+      if (apiError || data == null) throw extractApiError(apiError, context, response?.status);
       return data;
     } finally {
       saving.value = false;

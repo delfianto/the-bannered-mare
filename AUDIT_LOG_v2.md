@@ -92,7 +92,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 | V2-D3 | D | FE | Low | silent error swallow (lorebook GETs, MemoryView) | [ ] |
 | V2-D4 | D | BE | Low | `ProviderService.delete()` raises `NotImplementedError` | [x] |
 | V2-D5 | D | BE | Low | data_bank embeddings orphan on cascade delete | [x] |
-| V2-D6 | D | FE | Low | `extractApiError` dropped `statusCode` (can't branch) | [ ] |
+| V2-D6 | D | FE | Low | `extractApiError` dropped `statusCode` (can't branch) | [x] |
 | V2-D7 | D | FE | Low | stacked modals double-trap keydown | [ ] |
 | V2-D8 | D | FE | Low | `stop()` before first token leaves empty bubble | [ ] |
 | V2-D9 | D | BE | Nit | cosmetic in-body import in `character/service.py` | [x] |
@@ -239,7 +239,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 - **Fix:** Add cleanup on data-bank/scope deletion (delete-by-source), or a nullable FK + cascade mirroring the message fix.
 - **Acceptance:** deleting a data-bank entry (or its owning scope) removes its embedding rows; a test asserts no orphans remain.
 
-### V2-D6. `extractApiError` dropped `statusCode`  ·  Low · FE  · [ ]
+### V2-D6. `extractApiError` dropped `statusCode`  ·  Low · FE  · [x] DONE
 - **Location:** `frontend/src/api/client.ts` `APIError` + `extractApiError`.
 - **Problem:** FE-7's helper reads `detail` but not HTTP status, so callers can't branch 404 vs 409 vs 422.
 - **Fix:** Thread the `response.status` from the `{ error, response }` openapi-fetch result into `APIError.statusCode`.
@@ -294,4 +294,5 @@ _(Move items here with `[x]` and the fixing commit hash as they're finished — 
 - **[~] V2-C5 (partial)** — **async `get_or_404` DONE**: added `async_get_or_404(repo, id, name, finder=…)` to `core/base_service.py` (optional `finder` for relations-eager variants) and folded `get_chat_or_404` onto it — one async 404 helper. Validated: ruff clean, basedpyright 0/0/0, 864 passed. **Character payload DTO NOT viable / won't-fix**: attempted a `CharacterFormBase`/`CharacterCreateForm` consumed by both router and service, but FastAPI treats `Annotated[Model, Form()]` **alongside** a `File()` param (the avatar) as a single embedded body field named `data` (422s on flat form posts) rather than spreading the model's fields — so a multipart-with-file endpoint genuinely requires enumerated `Form()` params. The "declared once" DTO isn't achievable here without dropping the avatar from the same request; reverted that attempt. (Pydantic field-narrowing also fought pyright's `reportIncompatibleVariableOverride`.) Left the enumerated Form fields as the necessary shape. Commit: `1de55f9`.
 - **[x] V2-D4** — `ProviderService.delete()` now raises the domain `ConflictError` (→ 409) instead of `NotImplementedError`, so if ever routed it maps cleanly through the global handler rather than becoming an unhandled 500. Tests updated to assert `ConflictError`/409. Validated: ruff clean, 28 provider tests pass. Commit: `0220f06`.
 - **[x] V2-D9** — moved `from src.core.config import settings` from inside `export_as_png` to module scope in `character/service.py` (`core.config` is a leaf, not a cycle workaround). Validated: ruff clean, basedpyright 0/0/0, 42 character tests pass. Commit: `23eaa77`.
-- **[x] V2-D5** — added a nullable `data_bank_entry_id` FK on `embeddings` → `data_bank_entries.id` `ON DELETE CASCADE` (mirroring BE-1's `chat_id` fix), stamped in `vectorize_data_bank_entry`. Now deleting an entry — directly or when its chat/character cascades — removes its embeddings instead of orphaning them. Migration `33655fb747cf` adds the column/index/FK, backfills existing data_bank embeddings from `source_id`, and purges pre-existing orphans. New test asserts the FK is stamped. Validated: ruff clean, basedpyright 0/0/0, migration applied + `alembic check` clean, 865 passed. Commit: `<pending>`.
+- **[x] V2-D5** — added a nullable `data_bank_entry_id` FK on `embeddings` → `data_bank_entries.id` `ON DELETE CASCADE` (mirroring BE-1's `chat_id` fix), stamped in `vectorize_data_bank_entry`. Now deleting an entry — directly or when its chat/character cascades — removes its embeddings instead of orphaning them. Migration `33655fb747cf` adds the column/index/FK, backfills existing data_bank embeddings from `source_id`, and purges pre-existing orphans. New test asserts the FK is stamped. Validated: ruff clean, basedpyright 0/0/0, migration applied + `alembic check` clean, 865 passed. Commit: `fb27f1f`.
+- **[x] V2-D6** — `APIError` regained `statusCode?: number`; `extractApiError(error, fallback, status?)` sets it. `multipartFetch` passes `response.status`, and `useEntityCrud`'s `ClientResult` now carries `response` so all four CRUD paths + `runSaving` thread `response?.status` into the error — so any caller catching an `APIError` from those central paths can branch on 404 vs 409 vs 422. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `<pending>`.

@@ -46,6 +46,9 @@ export class APIError extends Error {
   constructor(
     message: string,
     public detail?: unknown,
+    /** HTTP status of the failed response, when known — lets callers branch on
+     *  404 vs 409 vs 422 instead of only reading the message. */
+    public statusCode?: number,
   ) {
     super(message);
     this.name = "APIError";
@@ -59,10 +62,14 @@ export class APIError extends Error {
  * either instead of `JSON.stringify`-ing the whole object into a toast. Falls
  * back to `fallback` when there's no usable detail.
  */
-export function extractApiError(error: unknown, fallback = "Request failed"): APIError {
+export function extractApiError(
+  error: unknown,
+  fallback = "Request failed",
+  status?: number,
+): APIError {
   const detail = (error as { detail?: unknown } | null | undefined)?.detail;
   if (typeof detail === "string") {
-    return new APIError(detail, error);
+    return new APIError(detail, error, status);
   }
   if (Array.isArray(detail)) {
     const msg = detail
@@ -71,9 +78,9 @@ export function extractApiError(error: unknown, fallback = "Request failed"): AP
       )
       .filter(Boolean)
       .join("; ");
-    return new APIError(msg || fallback, error);
+    return new APIError(msg || fallback, error, status);
   }
-  return new APIError(fallback, error);
+  return new APIError(fallback, error, status);
 }
 
 /**
@@ -103,7 +110,7 @@ export async function multipartFetch<T>(
   }
   if (!response.ok) {
     const body = await response.json().catch(() => undefined);
-    return { error: extractApiError(body, `Request failed (${response.status})`) };
+    return { error: extractApiError(body, `Request failed (${response.status})`, response.status) };
   }
   return { data: (await response.json()) as T };
 }
