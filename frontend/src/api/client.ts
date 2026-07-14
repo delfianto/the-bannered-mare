@@ -18,6 +18,22 @@ async function trackedFetch(input: Request): Promise<Response> {
   }
 }
 
+// SSE sends can't go through openapi-fetch (it can't hand back a body reader for
+// streaming), so they stay on raw fetch — but route them here so they still get
+// the typed client's base URL + reachability reporting instead of silently
+// bypassing them.
+export async function streamFetch(path: string, init: RequestInit): Promise<Response> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  try {
+    const response = await fetch(`${baseUrl}${path}`, init);
+    reportResponse(response.status);
+    return response;
+  } catch (err) {
+    reportNetworkError();
+    throw err;
+  }
+}
+
 export const client = createClient<paths>({
   baseUrl: import.meta.env.VITE_API_URL || "",
   headers: {

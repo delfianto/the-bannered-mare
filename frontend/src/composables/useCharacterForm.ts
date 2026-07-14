@@ -324,10 +324,10 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
   async function deleteCharacter(characterId: string) {
     deleting.value = true;
     try {
-      const response = await fetch(`/api/characters/${characterId}`, { method: "DELETE" });
-      if (!response.ok && response.status !== 204) {
-        throw new Error(`Failed to delete character: ${response.status}`);
-      }
+      const { error: apiError } = await client.DELETE("/api/characters/{character_id}", {
+        params: { path: { character_id: characterId } },
+      });
+      if (apiError) throw new Error("Failed to delete character");
     } finally {
       deleting.value = false;
     }
