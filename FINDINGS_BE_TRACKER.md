@@ -8,8 +8,8 @@
 
 - **Updated:** 2026-07-15
 - **Active:** —
-- **Next up:** BE-H3 (PG CI gate, independent) + BE-H4/BE-M6 (router tests, now unblocked by BE-H8) to finish Wave 1
-- **Progress:** 1 / 30 done (BE-H8 ✓)
+- **Next up:** BE-H3 (PG CI gate) to finish Wave 1; then Wave 2 is high-risk structural (BE-H1 UoW …) — a pause point per the autonomy setting
+- **Progress:** 3 / 30 done (BE-H8, BE-H4, BE-M6 ✓)
 
 ---
 
@@ -60,7 +60,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** re-raise of audit BE-20, which only fixed test-file location/markers, not the substance.
 
-### BE-H4 · `chat_message` router HTTP contract untested · [ ] · 🤖 sub · dep: BE-H8
+### BE-H4 · `chat_message` router HTTP contract untested · [x] DONE (see §Completed) · 🤖 sub · dep: BE-H8
 - **Ref:** FINDINGS_BE.md §3 BE-H4
 - **Files:** `src/chat_message/router.py` (10 endpoints); `tests/chat_message/test_router.py` (currently 1 test)
 - **Problem:** blocking `send_message`, `_handle_blocking` error mapping, `suggest_next_turn`, `generate_chat_title`, `edit_message`, `list_alternatives`, `activate_alternative` have no HTTP-level test.
@@ -69,7 +69,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** needs BE-H8's single-DB `client` fixture to be practical.
 
-### BE-M6 · `lore` + `rag` routers have zero HTTP tests · [ ] · 🤖 sub · dep: BE-H8
+### BE-M6 · `lore` + `rag` routers have zero HTTP tests · [x] DONE (see §Completed) · 🤖 sub · dep: BE-H8
 - **Ref:** FINDINGS_BE.md §4 BE-M6
 - **Files:** `src/lore/router.py` (8 endpoints); `src/rag/router.py` (`:127` `/api/rag/search`, `/status`)
 - **Fix:** router tests for lore CRUD/activation; for `/api/rag/search` mock `RetrievalService` and assert shape + validation; test `/status`.
@@ -212,4 +212,6 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] BE-M6** (commit tagged `BE-M6`) — added `tests/lore/test_router.py` (24 tests: all 8 lore endpoints, happy + 404 + validation) and `tests/rag/test_router.py` (27 tests: data-bank CRUD, `POST /rag/search`, `GET /rag/status`). Hermetic via an autouse override of `get_retrieval_service` → `MagicMock(spec=RetrievalService)` with `AsyncMock` methods — no embedding backend or pgvector SQL touched; covered the documented "indexing failure swallowed → CRUD still 2xx" behavior. **Env caveat surfaced:** this machine's `.env` has RAG enabled pointing at a live embedder (`10.0.10.2:4001`), so un-mocked search would hit it — hence the autouse override. No shared conftest touched. Verified independently: ruff/basedpyright clean, pytest **906 passed / 1 skipped**.
+- **[x] BE-H4** (commit tagged `BE-H4`) — added 13 HTTP-level tests to `tests/chat_message/test_router.py` via `AsyncClient(ASGITransport)`: blocking send (200 + both turns persisted / 422 / provider-fault 502), suggestions, title (+persisted), edit (200/404), alternatives list + activate (200/404/wrong-chat). Gateway mocked exactly like `test_service.py` (`patch ProviderGateway`→AsyncMock, `has_api_key` patched) — no real provider. Avoided the BE-H8 single-writer caveat by keeping the sync `get_db` override read-only. **Oddity reported (not fixed):** the blocking path collapses every upstream error to a flat 502 via `ProviderException`, losing the `classify_error` code the streaming path preserves (looks intentional — candidate for a future item). No shared conftest touched. Verified independently: ruff/basedpyright clean, pytest 906 passed.
 - **[x] BE-H8** (commit tagged `BE-H8`) — replaced the two separate `sqlite:///:memory:` engines with a session-scoped `_shared_db_path` temp file that **both** the sync (`sqlite`) and async (`sqlite+aiosqlite`) engines bind to (empirically verified: two `:memory:` engines don't share; one on-disk file shares both directions). Schema created once via a setup engine; per-test isolation unchanged (existing row-cleanup teardown); removed the now-dead `_async_create_tables`. New regression test `test_cross_session_db.py` writes via the sync repo + commits, then reads via the async session. **Deliberately kept** the `get_db` overrides in the streaming tests — they isolate the sync path from the real remote Postgres in `.env`, which is orthogonal to the two-DB trap (removing them risks hanging on the remote host). Verified independently: ruff clean, basedpyright 0/0/0, pytest **842 passed / 1 skipped** (was 841, +1). **Residual → flag for BE-H4:** SQLite's single-writer limit means an *uncommitted* sync write held open across an async write raises "database is locked" (inherent, unfixable via WAL; not exercised by suite/prod) — keep sync-side writes committed before the async path writes in the same flow.
