@@ -336,6 +336,54 @@ class TestChatMessageService:
         assert rows[1].content == "A proper reply."
 
     @pytest.mark.asyncio
+    async def test_stream_internal_error_is_generic(
+        self,
+        async_db_session: AsyncSession,
+        db: Session,
+        async_sample_character: Any,
+        async_sample_model: Any,
+    ) -> None:
+        """A non-provider fault raised mid-stream is surfaced with a generic message
+        (raw exception text stays in the logs, not the wire) plus a classified code —
+        the inner handler agrees with the router boundary."""
+        chat = Chat(
+            title="Chat",
+            character_id=async_sample_character.id,
+            model_id=async_sample_model.id,
+        )
+        async_db_session.add(chat)
+        await async_db_session.commit()
+        await async_db_session.refresh(chat)
+        async_db_session.add(Message(chat_id=chat.id, role=MessageRole.USER, content="Hi"))
+        await async_db_session.commit()
+
+        service = ChatMessageService(
+            AsyncMessageRepository(async_db_session),
+            AsyncChatRepository(async_db_session),
+            PromptBuilder(PromptTemplateRepository(db)),
+        )
+
+        async def boom_stream(messages):
+            raise RuntimeError("secret asyncpg dsn leaked here")
+            yield StreamChunk(content="unreachable")  # pragma: no cover
+
+        with (
+            patch.object(Provider, "has_api_key", return_value=True),
+            patch("src.chat_message.gateway_factory.ProviderGateway") as mock_gateway_class,
+        ):
+            mock_client = AsyncMock()
+            mock_client.chat_completion_stream = MagicMock(side_effect=boom_stream)
+            mock_gateway_class.return_value = mock_client
+
+            events = [e async for e in service.regenerate_stream(chat.id)]
+
+        error_events = [e for e in events if e.type == "error"]
+        assert len(error_events) == 1
+        assert error_events[0].message == "An unexpected error occurred."
+        assert "asyncpg" not in (error_events[0].message or "")
+        assert error_events[0].code  # classified, non-empty
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("finish_reason", "expected_code"),
         [("stop", "empty"), ("content_filter", "filtered")],

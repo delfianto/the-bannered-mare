@@ -491,7 +491,11 @@ class ChatMessageService:
                 gateway=gateway, api_messages=api_messages, chat_id=chat_id, start=start, error=e
             )
             logger.error(f"Error during streaming: {e!s}")
-            yield StreamEvent(type="error", message=str(e), code=llm_audit.classify_error(e))
+            # Mirror the router boundary: provider errors carry a user-facing
+            # message, but a mid-stream internal fault (e.g. an asyncpg error while
+            # persisting) must stay generic — the detail is logged above.
+            message = str(e) if isinstance(e, ProviderException) else "An unexpected error occurred."
+            yield StreamEvent(type="error", message=message, code=llm_audit.classify_error(e))
 
     async def send_message_stream(self, chat_id: str, content: str) -> AsyncIterator[StreamEvent]:
         """Send a message and get a streaming AI response."""
