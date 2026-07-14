@@ -1,39 +1,16 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
-import { ref } from "vue";
 import type { ChatCharacterInfo } from "@/types/chat";
-import type { Profile } from "@/composables/useProfiles";
-import ChatDrawer from "@/components/chat/ChatDrawer.vue";
-
-interface PickerModel {
-  id: string;
-  display_name: string;
-}
 
 const props = defineProps<{
   character: ChatCharacterInfo;
-  chatId?: string;
   sessionTitle: string;
-  profiles?: Profile[];
-  currentProfileName?: string | null;
-  models?: PickerModel[];
-  currentModelId?: string | null;
-  currentModelName?: string | null;
-  currentTaskModelId?: string | null;
-  currentPersonaId?: string | null;
 }>();
 
 const emit = defineEmits<{
   back: [];
-  rename: [title: string];
-  delete: [];
-  applyProfile: [profileId: string];
-  changeModel: [modelId: string];
-  changeTaskModel: [modelId: string | null];
-  changePersona: [personaId: string | null];
+  openMenu: [];
 }>();
-
-const drawerOpen = ref(false);
 
 function avatarSrc(): string {
   return (
@@ -86,31 +63,10 @@ function avatarSrc(): string {
       <button
         :aria-label="$t('chat.sessionMenu')"
         class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
-        @click="drawerOpen = true"
+        @click="emit('openMenu')"
       >
         <AppIcon name="i-lucide-more-horizontal" class="size-5" />
       </button>
-
-      <ChatDrawer
-        :show="drawerOpen"
-        :character="character"
-        :chat-id="chatId"
-        :session-title="sessionTitle"
-        :models="models ?? []"
-        :current-model-id="currentModelId"
-        :current-model-name="currentModelName"
-        :current-task-model-id="currentTaskModelId"
-        :profiles="profiles ?? []"
-        :current-profile-name="currentProfileName"
-        :current-persona-id="currentPersonaId"
-        @close="drawerOpen = false"
-        @rename="emit('rename', $event)"
-        @delete="emit('delete')"
-        @change-model="emit('changeModel', $event)"
-        @change-task-model="emit('changeTaskModel', $event)"
-        @apply-profile="emit('applyProfile', $event)"
-        @change-persona="emit('changePersona', $event)"
-      />
     </div>
   </header>
 </template>

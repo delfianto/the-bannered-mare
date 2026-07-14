@@ -4,7 +4,8 @@ import { computed, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import type { ChatCharacterInfo } from "@/types/chat";
-import type { Profile } from "@/composables/useProfiles";
+import { useProfiles, type Profile } from "@/composables/useProfiles";
+import { useModels } from "@/composables/useModels";
 import { useCharacter } from "@/composables/useCharacter";
 import { usePersonas } from "@/composables/usePersonas";
 import { useDataBank } from "@/composables/useDataBank";
@@ -19,21 +20,14 @@ import CollapsibleSection from "@/components/shared/CollapsibleSection.vue";
 import CollapsibleField from "@/components/discover/CollapsibleField.vue";
 import AppTooltip from "@/components/shared/AppTooltip.vue";
 
-interface PickerModel {
-  id: string;
-  display_name: string;
-}
-
 const props = defineProps<{
   show: boolean;
   character: ChatCharacterInfo;
   chatId?: string;
   sessionTitle: string;
-  models: PickerModel[];
   currentModelId?: string | null;
   currentModelName?: string | null;
   currentTaskModelId?: string | null;
-  profiles: Profile[];
   currentProfileName?: string | null;
   currentPersonaId?: string | null;
 }>();
@@ -68,9 +62,13 @@ const activeTab = ref("character");
 
 const { character: fullCharacter, loading: characterLoading, load: loadCharacter } = useCharacter();
 
-// Personas for the Persona section. usePersonas fetches on mount; the drawer is
-// mounted with the chat header, so the list is warm by the time it opens.
+// Picker lists sourced here rather than prop-drilled through ChatHeader: the
+// drawer owns its own model/profile/persona data. All three fetch on mount; the
+// drawer is mounted with the chat view, so the lists are warm by the time it
+// opens.
 const { personas } = usePersonas();
+const { profiles } = useProfiles();
+const { models: allModels } = useModels({ pageSize: 100, initialFilters: { enabled: true } });
 
 // Memories = this conversation's data-bank entries. Opt out of the auto-fetch so
 // this instance doesn't pull the whole bank; we fetch chat-scoped on open.
@@ -316,7 +314,7 @@ function genderLabel(): string {
 // Model selects use the shared searchable SelectMenu (a long model list would
 // otherwise make the section a very tall scroll).
 const modelItems = computed(() =>
-  props.models.map((m) => ({ label: m.display_name, value: m.id })),
+  allModels.value.map((m) => ({ label: m.display_name, value: m.id })),
 );
 
 // Task model prepends a "Same as chat model" option; its value is "" (SelectMenu
@@ -331,13 +329,13 @@ const taskModelItems = computed(() => [
 // enabled list (e.g. a disabled/legacy one) still shows its real name here.
 const currentModelLabel = computed(
   () =>
-    props.models.find((m) => m.id === props.currentModelId)?.display_name ??
+    allModels.value.find((m) => m.id === props.currentModelId)?.display_name ??
     props.currentModelName ??
     t("chat.model.none"),
 );
 const currentTaskModelLabel = computed(
   () =>
-    props.models.find((m) => m.id === props.currentTaskModelId)?.display_name ??
+    allModels.value.find((m) => m.id === props.currentTaskModelId)?.display_name ??
     t("chat.model.sameAsChat"),
 );
 
@@ -354,7 +352,7 @@ function chooseTaskModel(value: string) {
 // The chat snapshots a loadout by NAME (last_profile_name), so we resolve the
 // active loadout by name to power the footer "Re-apply" button.
 const activeProfile = computed(
-  () => props.profiles.find((p) => p.name === props.currentProfileName) ?? null,
+  () => profiles.value.find((p) => p.name === props.currentProfileName) ?? null,
 );
 
 // Selecting a different loadout switches to it (the radio only fires on change,
