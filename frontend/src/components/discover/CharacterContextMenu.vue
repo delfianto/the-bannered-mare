@@ -19,7 +19,7 @@ const actions = [
 <template>
   <div class="relative">
     <button
-      class="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-white/20"
+      class="flex size-7 items-center justify-center rounded-md transition-colors hover:bg-base-content/10"
       @click.stop="open = !open"
     >
       <AppIcon name="i-lucide-ellipsis-vertical" class="size-4" />

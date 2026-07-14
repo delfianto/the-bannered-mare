@@ -139,7 +139,7 @@ const maxWidthClass = {
         ref="panelRef"
         tabindex="-1"
         :class="[
-          'relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-2xl border border-white/10 bg-base-200/95 p-6 shadow-2xl backdrop-blur-md transition-all duration-200 ease-out outline-none',
+          'relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/95 p-6 shadow-2xl backdrop-blur-md transition-all duration-200 ease-out outline-none',
           entered ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
           maxWidthClass,
         ]"
@@ -156,7 +156,7 @@ const maxWidthClass = {
             </h2>
           </slot>
           <button
-            class="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground active:scale-95"
+            class="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-base-content/10 hover:text-foreground active:scale-95"
             :aria-label="$t('common.close')"
             @click="emit('close')"
           >
