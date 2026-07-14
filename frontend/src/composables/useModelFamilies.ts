@@ -1,6 +1,6 @@
-import { ref, computed, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client, extractApiError } from "@/api/client";
+import { client } from "@/api/client";
+import { usePaginatedList } from "@/composables/usePaginatedList";
 
 export type ModelFamilyListItem = components["schemas"]["ModelFamilyListResponse"];
 
@@ -21,85 +21,39 @@ interface UseModelFamiliesOptions {
 export function useModelFamilies(options: UseModelFamiliesOptions = {}) {
   const { pageSize = 12, initialFilters = {}, initialPage = 1, autoLoad = true } = options;
 
-  const families = ref<ModelFamilyListItem[]>([]);
-  const loading = ref(false);
-  const error = ref<Error | null>(null);
-  const page = ref(initialPage);
-  const hasMore = ref(false);
-  const total = ref(0);
-
-  const totalPages = computed(() => {
-    if (total.value === 0) return 1;
-    return Math.ceil(total.value / pageSize);
-  });
-
-  const currentFilters = ref<ModelFamilyFilters>(initialFilters);
-
-  const loadPage = async (pageNum: number = 1, filters?: ModelFamilyFilters) => {
-    loading.value = true;
-    error.value = null;
-
-    if (filters !== undefined) {
-      currentFilters.value = filters;
-    }
-    const f = currentFilters.value;
-
-    try {
-      const query: Record<string, unknown> = { page: pageNum, limit: pageSize };
-      if (f.name) query.name__ilike = f.name;
-      if (f.provider_type) query.provider_type = f.provider_type;
-
-      const { data, error: apiError } = await client.GET("/api/model-families", {
+  const list = usePaginatedList<ModelFamilyListItem, ModelFamilyFilters>(
+    (page, limit, f) =>
+      client.GET("/api/model-families", {
         params: {
-          query: query as {
-            page?: number;
-            limit?: number;
-            name__ilike?: string | null;
-            provider_type?: string | null;
+          query: {
+            page,
+            limit,
+            name__ilike: f.name || undefined,
+            provider_type: f.provider_type || undefined,
           },
         },
-      });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to load model families");
-      }
-
-      if (data) {
-        families.value = data.items;
-        page.value = data.meta.page ?? pageNum;
-        hasMore.value = data.meta.has_more;
-        total.value = data.meta.total ?? 0;
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error("Unknown error");
-      console.error("Error loading model families:", err);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const search = (name: string) => {
-    loadPage(1, { ...currentFilters.value, name: name || undefined });
-  };
-
-  const filterByProviderType = (providerType: string | undefined) => {
-    loadPage(1, { ...currentFilters.value, provider_type: providerType });
-  };
-
-  onMounted(() => {
-    if (autoLoad) loadPage(initialPage);
-  });
+      }),
+    {
+      pageSize,
+      initialFilters,
+      initialPage,
+      autoLoad,
+      errorContext: "Failed to load model families",
+    },
+  );
 
   return {
-    families,
-    loading,
-    error,
-    page,
-    hasMore,
-    total,
-    totalPages,
-    loadPage,
-    search,
-    filterByProviderType,
+    families: list.items,
+    loading: list.loading,
+    error: list.error,
+    page: list.page,
+    hasMore: list.hasMore,
+    total: list.total,
+    totalPages: list.totalPages,
+    loadPage: list.loadPage,
+    search: (name: string) =>
+      list.loadPage(1, { ...list.currentFilters.value, name: name || undefined }),
+    filterByProviderType: (providerType: string | undefined) =>
+      list.loadPage(1, { ...list.currentFilters.value, provider_type: providerType }),
   };
 }
