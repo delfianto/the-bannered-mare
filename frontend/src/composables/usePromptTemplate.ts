@@ -58,7 +58,7 @@ export function usePromptTemplate() {
         { params: { path: { template_id: id } } },
       );
       if (apiError || !data) throw extractApiError(apiError, "Failed to load fragments");
-      attachedFragments.value = data;
+      attachedFragments.value = data.items;
     } catch (e) {
       console.error("Error loading attached fragments:", e);
     }

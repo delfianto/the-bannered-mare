@@ -50,7 +50,7 @@ export const useSettingsStore = defineStore("settings", () => {
       if (error) throw extractApiError(error, "Failed to load providers");
 
       if (data) {
-        providers.value = data.sort((a, b) => a.name.localeCompare(b.name));
+        providers.value = [...data.items].sort((a, b) => a.name.localeCompare(b.name));
         hasLoadedProviders.value = true;
       }
     } catch (error) {

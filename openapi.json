@@ -407,11 +407,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ProviderResponse"
-                  },
-                  "type": "array",
-                  "title": "Response List Providers Api Providers Get"
+                  "$ref": "#/components/schemas/PaginatedResponse_ProviderResponse_"
                 }
               }
             }
@@ -4877,11 +4873,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TemplateFragmentResponse"
-                  },
-                  "title": "Response List Template Fragments Api Prompt Templates  Template Id  Fragments  Get"
+                  "$ref": "#/components/schemas/PaginatedResponse_TemplateFragmentResponse_"
                 }
               }
             }
@@ -10039,6 +10031,46 @@
           "meta"
         ],
         "title": "PaginatedResponse[PromptTemplateResponse]"
+      },
+      "PaginatedResponse_ProviderResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[ProviderResponse]"
+      },
+      "PaginatedResponse_TemplateFragmentResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateFragmentResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "title": "PaginatedResponse[TemplateFragmentResponse]"
       },
       "PaginationMeta": {
         "properties": {
