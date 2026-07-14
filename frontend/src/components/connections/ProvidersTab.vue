@@ -125,7 +125,7 @@ function formatUrl(url: string | null): string {
           </div>
           <span
             class="size-2.5 shrink-0 rounded-full"
-            :class="provider.enabled ? 'bg-emerald-500' : 'bg-red-400'"
+            :class="provider.enabled ? 'bg-success' : 'bg-error'"
             :title="provider.enabled ? 'Enabled' : 'Disabled'"
           />
         </div>
@@ -140,10 +140,10 @@ function formatUrl(url: string | null): string {
             <AppIcon name="i-lucide-key" class="size-3 shrink-0" />
             <!-- Local providers (no env var) never need a key — show neutral, not a warning -->
             <span v-if="!provider.env_var_name">{{ $t("connections.provider.keyNotSet") }}</span>
-            <span v-else-if="provider.api_key_configured" class="text-emerald-500">{{
+            <span v-else-if="provider.api_key_configured" class="text-success">{{
               $t("connections.provider.keyConfigured")
             }}</span>
-            <span v-else class="text-amber-500">{{ $t("connections.provider.keyNotSet") }}</span>
+            <span v-else class="text-warning">{{ $t("connections.provider.keyNotSet") }}</span>
           </span>
         </div>
       </RouterLink>

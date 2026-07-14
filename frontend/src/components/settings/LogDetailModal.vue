@@ -63,7 +63,7 @@ const responseMeta = computed(() => {
 
 const roleColors: Record<string, string> = {
   system: "bg-base-300 text-muted-foreground",
-  user: "bg-blue-500/10 text-blue-500",
+  user: "bg-info/10 text-info",
   assistant: "bg-primary/10 text-primary",
 };
 
@@ -166,8 +166,8 @@ function formatFullTimestamp(iso: string): string {
           class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
           :class="
             llmLog.status === 'success'
-              ? 'bg-emerald-500/10 text-emerald-500'
-              : 'bg-red-500/10 text-red-500'
+              ? 'bg-success/10 text-success'
+              : 'bg-error/10 text-error'
           "
         >
           {{ llmLog.status }}
@@ -180,7 +180,7 @@ function formatFullTimestamp(iso: string): string {
         <span>{{ llmLog.latency_ms.toFixed(0) }}ms</span>
         <span>{{ formatFullTimestamp(llmLog.created_at) }}</span>
       </div>
-      <p v-if="llmLog.error_message" class="text-xs text-red-500">{{ llmLog.error_message }}</p>
+      <p v-if="llmLog.error_message" class="text-xs text-error">{{ llmLog.error_message }}</p>
 
       <!-- Request messages -->
       <div>
@@ -258,7 +258,7 @@ function formatFullTimestamp(iso: string): string {
       <!-- Meta -->
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <span
-          class="rounded-full bg-red-500/10 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-red-500 uppercase"
+          class="rounded-full bg-error/10 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-error uppercase"
         >
           {{ errLog.error_type }}
         </span>

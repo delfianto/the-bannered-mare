@@ -326,9 +326,9 @@ function onSubmit() {
     <!-- Unsupported-parameter warning: preset knobs the chosen model rejects -->
     <div
       v-if="unsupportedParams.length"
-      class="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5"
+      class="flex items-start gap-2.5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5"
     >
-      <AppIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-amber-500" />
+      <AppIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-warning" />
       <div class="min-w-0 space-y-1.5">
         <p class="text-xs text-foreground">
           {{ t("profiles.unsupportedWarning", { model: modelLabelFor(modelId) }) }}
@@ -337,7 +337,7 @@ function onSubmit() {
           <span
             v-for="p in unsupportedParams"
             :key="p"
-            class="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[0.6875rem] text-amber-600 dark:text-amber-400"
+            class="rounded border border-warning/30 bg-warning/10 px-1.5 py-0.5 font-mono text-[0.6875rem] text-warning"
           >
             {{ p }}
           </span>

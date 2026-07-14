@@ -149,7 +149,7 @@ const favorites = computed(() => {
                 class="size-10 rounded-full object-cover ring-1 ring-border"
               />
               <span
-                class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-200 bg-emerald-500"
+                class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-200 bg-success"
               />
             </div>
             <p class="truncate text-sm font-medium text-foreground">
@@ -182,7 +182,7 @@ const favorites = computed(() => {
                 "
               />
               <span
-                class="absolute right-2.5 bottom-1 size-2 rounded-full border-[1.5px] border-base-200 bg-emerald-500"
+                class="absolute right-2.5 bottom-1 size-2 rounded-full border-[1.5px] border-base-200 bg-success"
               />
             </RouterLink>
           </AppTooltip>

@@ -66,7 +66,7 @@ function avatarSrc(): string {
           class="size-9 rounded-full object-cover ring-2 ring-primary/30"
         />
         <div
-          class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-100 bg-emerald-500"
+          class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-100 bg-success"
         />
       </div>
       <div class="min-w-0 text-center">

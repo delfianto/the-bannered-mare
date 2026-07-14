@@ -282,6 +282,8 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 - Light mode: parchment cream backgrounds (`#FFFFFF`), warm walnut text (`#2C2418`), amber primary (`#C9922E`)
 - Dark mode: deep walnut backgrounds (`#0F0D0B`), warm cream text (`#E8DFD0`), bright amber primary (`#D4A544`)
 
+**Semantic status → tokens (not raw palette hues).** Anything that conveys _status_ (enabled/online/success, error/failure, warning/pending, info) must use the DaisyUI semantic tokens so it re-themes across all 12 palettes + Custom: `success` / `error` / `warning` / `info` (`bg-*/10 text-*` for tint-pills, `bg-*` for dots). **Never** use raw palette shades (`text-emerald-500`, `bg-red-400`, `text-amber-500`, `bg-blue-500`) for status. Raw palette hues are reserved for **non-status** meaning and are the documented exceptions: **category** colors (fragment-type badges in `FragmentsTab`, prompt-component position badges in `TemplateView`, capability badges incl. `purple` in `ModelFamilyView`), **scale/gradient** colors (relevance-score ramp in `MemoryView`), **brand** colors (provider chips in `LogsTab`/`LogDetailModal`), and the **toast** surface ramp in `ToastContainer` (a tuned light/dark shade ladder, intentionally theme-independent).
+
 **Common patterns**
 
 - **Card:** `rounded-xl border bg-base-200/50 p-4`

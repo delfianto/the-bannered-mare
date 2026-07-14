@@ -259,16 +259,16 @@ function finish() {
             </span>
             <span
               v-else-if="localStatus[provider.id]?.reachable"
-              class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-500"
+              class="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success"
             >
-              <span class="size-1.5 rounded-full bg-emerald-500" />
+              <span class="size-1.5 rounded-full bg-success" />
               {{ localStatus[provider.id]?.models?.length ?? 0 }} models found
             </span>
             <span
               v-else
-              class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-500"
+              class="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning"
             >
-              <span class="size-1.5 rounded-full bg-amber-500" />
+              <span class="size-1.5 rounded-full bg-warning" />
               Not reachable
             </span>
           </li>
@@ -298,13 +298,13 @@ function finish() {
               class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
               :class="
                 provider.api_key_configured
-                  ? 'bg-emerald-500/10 text-emerald-500'
-                  : 'bg-amber-500/10 text-amber-500'
+                  ? 'bg-success/10 text-success'
+                  : 'bg-warning/10 text-warning'
               "
             >
               <span
                 class="size-1.5 rounded-full"
-                :class="provider.api_key_configured ? 'bg-emerald-500' : 'bg-amber-500'"
+                :class="provider.api_key_configured ? 'bg-success' : 'bg-warning'"
               />
               {{ provider.api_key_configured ? "Key configured" : `Set ${provider.env_var_name}` }}
             </span>
@@ -335,9 +335,9 @@ function finish() {
         <!-- Unfinished profiles: resume instead of losing track of them -->
         <div
           v-if="incompleteProfiles.length > 0"
-          class="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4"
+          class="mb-4 rounded-xl border border-warning/30 bg-warning/5 p-4"
         >
-          <p class="mb-2 text-xs font-medium text-amber-500">
+          <p class="mb-2 text-xs font-medium text-warning">
             {{
               incompleteProfiles.length === 1
                 ? "You have an unfinished profile"
@@ -549,7 +549,7 @@ function finish() {
       v-else
       class="flex flex-col items-center gap-4 rounded-xl border bg-base-200/50 p-10 text-center"
     >
-      <AppIcon name="i-lucide-circle-check" class="size-10 text-emerald-500" />
+      <AppIcon name="i-lucide-circle-check" class="size-10 text-success" />
       <h2 class="font-cinzel text-lg font-semibold text-foreground">You're all set</h2>
       <p class="text-sm text-muted-foreground">
         Your first profile is ready. Head back and start a tale.

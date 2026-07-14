@@ -70,8 +70,8 @@ function importAnother() {
 
       <!-- Result -->
       <div v-if="result" class="space-y-4">
-        <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
-          <div class="mb-3 flex items-center gap-2 text-emerald-400">
+        <div class="rounded-lg border border-success/30 bg-success/10 p-4">
+          <div class="mb-3 flex items-center gap-2 text-success">
             <AppIcon name="i-lucide-circle-check" class="size-5" />
             <span class="font-medium">{{ $t("presetImport.complete") }}</span>
           </div>
@@ -105,9 +105,9 @@ function importAnother() {
 
         <div
           v-if="result.warnings?.length"
-          class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+          class="rounded-lg border border-warning/30 bg-warning/10 p-3"
         >
-          <div class="mb-1 flex items-center gap-2 text-sm font-medium text-amber-400">
+          <div class="mb-1 flex items-center gap-2 text-sm font-medium text-warning">
             <AppIcon name="i-lucide-triangle-alert" class="size-4" />
             {{ $t("presetImport.warnings") }}
           </div>
