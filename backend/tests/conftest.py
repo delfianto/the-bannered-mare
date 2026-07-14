@@ -1,7 +1,9 @@
 """Pytest configuration and fixtures"""
 
 import asyncio
+import contextlib
 import os
+import tempfile
 from collections.abc import AsyncGenerator, Generator
 from typing import TYPE_CHECKING
 
@@ -65,44 +67,69 @@ async def _async_delete_all_rows(engine: AsyncEngine):
 
 
 # ---------------------------------------------------------------------------
-# Session-scoped engines — create schema ONCE for entire test run
+# Shared SQLite database — ONE physical DB behind both the sync and async engines
 # ---------------------------------------------------------------------------
+#
+# A sync `sqlite` engine speaks the `sqlite3` DBAPI while an async `sqlite+aiosqlite`
+# engine speaks `aiosqlite` (sqlite3 driven from a worker thread). The two drivers
+# cannot share a single in-memory connection object, so binding both to
+# `sqlite:///:memory:` hands each its OWN empty database. That split meant a row
+# committed through the sync path was invisible when read through the async path — a
+# phantom "not found" that cannot happen against the single production Postgres.
+# Pointing both engines at one on-disk temp file (a file survives across connections,
+# unlike `:memory:`) gives the `client` fixture and every sync-write / async-read flow
+# a single coherent database. Schema is created once; per-test isolation is still
+# provided by the row-cleanup in the session fixtures below.
 
 
 @pytest.fixture(scope="session")
-def db_engine() -> Generator[Engine]:
-    """Create an in-memory SQLite engine (sync). Schema created once."""
+def _shared_db_path() -> Generator[str]:
+    """Create the one on-disk SQLite DB shared by both engines; schema created once."""
     _import_all_models()
-    engine = create_engine(
-        "sqlite:///:memory:",
+    fd, path = tempfile.mkstemp(prefix="tbm-test-", suffix=".sqlite")
+    os.close(fd)
+
+    setup_engine = create_engine(
+        f"sqlite:///{path}",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=setup_engine)
+    setup_engine.dispose()
+
+    yield path
+
+    for suffix in ("", "-wal", "-shm"):
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(path + suffix)
+
+
+@pytest.fixture(scope="session")
+def db_engine(_shared_db_path: str) -> Generator[Engine]:
+    """Sync SQLite engine bound to the shared test DB (schema already created)."""
+    engine = create_engine(
+        f"sqlite:///{_shared_db_path}",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     yield engine
     engine.dispose()
 
 
 @pytest.fixture(scope="session")
-def async_db_engine() -> Generator[AsyncEngine]:
-    """Create an in-memory SQLite engine (async). Schema created once."""
-    _import_all_models()
+def async_db_engine(_shared_db_path: str) -> Generator[AsyncEngine]:
+    """Async SQLite engine bound to the SAME shared test DB as ``db_engine``."""
     engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
+        f"sqlite+aiosqlite:///{_shared_db_path}",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
 
-    loop = asyncio.new_event_loop()
-    loop.run_until_complete(_async_create_tables(engine))
     yield engine
+
+    loop = asyncio.new_event_loop()
     loop.run_until_complete(engine.dispose())
     loop.close()
-
-
-async def _async_create_tables(engine: AsyncEngine):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
 
 
 # ---------------------------------------------------------------------------

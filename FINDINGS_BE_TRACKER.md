@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** — (not started)
-- **Next up:** BE-H8 (unblocks the router-test wave)
-- **Progress:** 0 / 30 done
+- **Active:** —
+- **Next up:** BE-H3 (PG CI gate, independent) + BE-H4/BE-M6 (router tests, now unblocked by BE-H8) to finish Wave 1
+- **Progress:** 1 / 30 done (BE-H8 ✓)
 
 ---
 
@@ -42,7 +42,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 1 — Close the test-fidelity gaps (highest leverage; these hide everything else)
 
-### BE-H8 · Unify the two-DB test harness · [ ] · 🧵 main · blocks: BE-H4
+### BE-H8 · Unify the two-DB test harness · [x] DONE (see §Completed) · 🧵 main · blocks: BE-H4
 - **Ref:** FINDINGS_BE.md §3 BE-H8
 - **Files:** `tests/conftest.py:72,86,163-191`; `tests/chat_message/test_message_streaming.py:19-33`
 - **Problem:** sync + async sessions bind to two *separate* in-memory SQLite DBs → phantom "not found" for any sync-write / async-read flow.
@@ -211,3 +211,5 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 ## Completed
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
+
+- **[x] BE-H8** (commit tagged `BE-H8`) — replaced the two separate `sqlite:///:memory:` engines with a session-scoped `_shared_db_path` temp file that **both** the sync (`sqlite`) and async (`sqlite+aiosqlite`) engines bind to (empirically verified: two `:memory:` engines don't share; one on-disk file shares both directions). Schema created once via a setup engine; per-test isolation unchanged (existing row-cleanup teardown); removed the now-dead `_async_create_tables`. New regression test `test_cross_session_db.py` writes via the sync repo + commits, then reads via the async session. **Deliberately kept** the `get_db` overrides in the streaming tests — they isolate the sync path from the real remote Postgres in `.env`, which is orthogonal to the two-DB trap (removing them risks hanging on the remote host). Verified independently: ruff clean, basedpyright 0/0/0, pytest **842 passed / 1 skipped** (was 841, +1). **Residual → flag for BE-H4:** SQLite's single-writer limit means an *uncommitted* sync write held open across an async write raises "database is locked" (inherent, unfixable via WAL; not exercised by suite/prod) — keep sync-side writes committed before the async path writes in the same flow.
