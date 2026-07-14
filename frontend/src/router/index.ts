@@ -111,4 +111,28 @@ const router = createRouter({
   routes,
 });
 
+// A hashed lazy-view chunk can 404 after a redeploy (the loaded HTML references
+// old filenames until a reload). Recover with a one-shot hard navigation to the
+// target instead of leaving a blank <RouterView>; the sessionStorage guard stops
+// a reload loop if the chunk is genuinely gone.
+router.onError((error, to) => {
+  const msg = (error as Error)?.message ?? "";
+  const isChunkError =
+    /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed/i.test(
+      msg,
+    );
+  if (isChunkError && to?.fullPath) {
+    const key = `chunk-reload:${to.fullPath}`;
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, "1");
+      window.location.assign(to.fullPath);
+    }
+  }
+});
+
+// Clear the one-shot reload guard once a navigation actually completes.
+router.afterEach((to) => {
+  sessionStorage.removeItem(`chunk-reload:${to.fullPath}`);
+});
+
 export default router;
