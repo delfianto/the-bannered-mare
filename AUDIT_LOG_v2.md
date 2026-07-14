@@ -89,7 +89,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 | V2-C5 | C | BE | Low | no shared character DTO; no async `get_or_404` | [~] |
 | V2-D1 | D | FE | Med | list factories have no request sequencing (race) | [x] |
 | V2-D2 | D | FE | Low | `useEntityCrud` mutation errors don't set `error` ref | [x] |
-| V2-D3 | D | FE | Low | silent error swallow (lorebook GETs, MemoryView) | [ ] |
+| V2-D3 | D | FE | Low | silent error swallow (lorebook GETs, MemoryView) | [x] |
 | V2-D4 | D | BE | Low | `ProviderService.delete()` raises `NotImplementedError` | [x] |
 | V2-D5 | D | BE | Low | data_bank embeddings orphan on cascade delete | [x] |
 | V2-D6 | D | FE | Low | `extractApiError` dropped `statusCode` (can't branch) | [x] |
@@ -221,7 +221,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 - **Fix:** Set `error.value = extractApiError(...)` in the write paths (or document that writes throw and `error` tracks reads only).
 - **Acceptance:** after a failed save, the returned `error` ref reflects it, or the contract is documented + consistent.
 
-### V2-D3. Silent error swallow  ·  Low · FE  · [ ]
+### V2-D3. Silent error swallow  ·  Low · FE  · [x] DONE
 - **Location:** `useCharacterForm.ts:214,238,298,304` (lorebook GETs destructure `{ data }`, ignore `error`); `MemoryView.vue:27,42` (`/api/rag/status`, `/api/rag/search` ignored + view speaks HTTP).
 - **Problem:** Violates AGENTS §6.5 ("don't swallow errors"); a failed lorebook load silently skips entry sync / renders empty.
 - **Fix:** Branch on `error` and surface via `useAppToast`; move the MemoryView calls into a composable.
@@ -299,4 +299,5 @@ _(Move items here with `[x]` and the fixing commit hash as they're finished — 
 - **[x] V2-D2** — `useEntityCrud` `createItem`/`updateItem`/`removeItem`/`runSaving` now clear `error` at the start and record it via a shared `recordError()` on failure (still rethrowing), so the returned `error` ref reflects failed writes — consistent with `fetchItem`. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `6a70628`.
 - **[x] V2-D1** — added a monotonic request-token guard to `usePaginatedList.loadPage` and `useCursorList.load`: each call captures `++requestSeq` and only applies its result/error/loading if still the latest, so a slower earlier response can't clobber a newer one (fast filter/search or chat switch = last-request-wins). `useCursorList.reset()` bumps the token to invalidate an in-flight load mid-switch. Chose a sequence guard over `AbortController` to avoid threading a signal through every `fetchPage` closure. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `1f9d973`.
 - **[x] V2-D8** — `readStream`'s catch now drops the empty placeholder on **any** exit (abort included) when nothing streamed yet, so hitting stop before the first token no longer leaves a blank assistant bubble. Validated: `bun run build`, 8 tests pass. Commit: `72c7a38`.
-- **[x] V2-D7** — added a module-level `modalStack` (shared across `Modal` instances via a plain `<script>` block); each modal pushes/pops its `Symbol` on open/close/unmount, `handleKeyDown` no-ops unless it's the top of the stack, and body-scroll-lock stays engaged while any modal remains open beneath. Stacked modals no longer fight over focus/keys. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `<pending>`.
+- **[x] V2-D7** — added a module-level `modalStack` (shared across `Modal` instances via a plain `<script>` block); each modal pushes/pops its `Symbol` on open/close/unmount, `handleKeyDown` no-ops unless it's the top of the stack, and body-scroll-lock stays engaged while any modal remains open beneath. Stacked modals no longer fight over focus/keys. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `249f132`.
+- **[x] V2-D3** — `useCharacterForm`'s four lorebook `client.GET`s now branch on `error` and throw `extractApiError` (surfaced by the caller's toast) instead of destructuring `{ data }` and silently skipping sync/load. Extracted a `useRag` composable (`search()`) so `MemoryView` no longer speaks HTTP directly, and its search now toasts on failure instead of resolving to an empty result set. Typing surfaced a second dead path: the `/api/rag/status` "indexed count" badge read `indexed_count`, absent from `RagStatusResponse` — so it never rendered; removed it + the dead status fetch (spawned a task to add the field + badge if wanted). Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `<pending>`.
