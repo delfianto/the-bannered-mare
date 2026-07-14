@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { reactive, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useModelFamily } from "@/composables/useModelFamily";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
 
 const { t } = useI18n();
@@ -13,7 +14,6 @@ const { family, loading, saving, deleting, error, fetchFamily, saveFamily, delet
   useModelFamily();
 const toast = useAppToast();
 
-const confirmDelete = ref(false);
 
 const form = reactive({
   name: "",
@@ -56,24 +56,16 @@ async function handleSave() {
   }
 }
 
-async function handleDelete() {
+const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async () => {
   if (!family.value) return;
-  if (!confirmDelete.value) {
-    confirmDelete.value = true;
-    setTimeout(() => {
-      confirmDelete.value = false;
-    }, 3000);
-    return;
-  }
   try {
     await deleteFamily(family.value.id);
     toast.success("Model family deleted");
     router.push({ path: "/connections", query: { tab: "model-families" } });
-  } catch (e) {
+  } catch {
     toast.error("Failed to delete model family");
-    confirmDelete.value = false;
   }
-}
+});
 
 function getParamType(schema: any): string {
   return schema?.type || "unknown";

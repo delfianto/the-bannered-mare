@@ -3,6 +3,7 @@ import { ref, reactive, onMounted, watch, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useModel } from "@/composables/useModel";
+import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useSettingsStore } from "@/stores/settings";
 import { useAppToast } from "@/composables/useToast";
 import ModelInferenceParams from "@/components/connections/ModelInferenceParams.vue";
@@ -30,7 +31,6 @@ const { families } = useModelFamilies({ pageSize: 100 });
 const settingsStore = useSettingsStore();
 const toast = useAppToast();
 
-const confirmDelete = ref(false);
 
 // The identity form edits registry fields only — a model's provider bindings
 // live in its routes and are managed via the Routes card below.
@@ -213,24 +213,16 @@ async function handleSave() {
   }
 }
 
-async function handleDelete() {
+const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async () => {
   if (!model.value) return;
-  if (!confirmDelete.value) {
-    confirmDelete.value = true;
-    setTimeout(() => {
-      confirmDelete.value = false;
-    }, 3000);
-    return;
-  }
   try {
     await deleteModel(model.value.id);
     toast.success(t("connections.model.toast.deleted"));
     router.push({ path: "/connections", query: { tab: "models" } });
-  } catch (e) {
+  } catch {
     toast.error(t("connections.model.toast.deleteFailed"));
-    confirmDelete.value = false;
   }
-}
+});
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
