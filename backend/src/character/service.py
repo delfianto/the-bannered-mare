@@ -17,6 +17,7 @@ from src.character.card_parser import (
 from src.character.models import Character
 from src.character.repository import CharacterRepository
 from src.core.base_service import get_or_404
+from src.core.config import settings
 from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
 from src.core.persistence.enums import Gender
@@ -325,8 +326,6 @@ class CharacterService:
 
         avatar_data = None
         if character.avatar:
-            from src.core.config import settings
-
             avatar_path = Path(settings.storage_path) / character.avatar
             if avatar_path.exists():
                 avatar_data = avatar_path.read_bytes()

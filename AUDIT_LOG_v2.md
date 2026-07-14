@@ -95,7 +95,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 | V2-D6 | D | FE | Low | `extractApiError` dropped `statusCode` (can't branch) | [ ] |
 | V2-D7 | D | FE | Low | stacked modals double-trap keydown | [ ] |
 | V2-D8 | D | FE | Low | `stop()` before first token leaves empty bubble | [ ] |
-| V2-D9 | D | BE | Nit | cosmetic in-body import in `character/service.py` | [ ] |
+| V2-D9 | D | BE | Nit | cosmetic in-body import in `character/service.py` | [x] |
 
 ---
 
@@ -256,7 +256,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 - **Fix:** On explicit `stop()` with empty content, drop the placeholder (or mark it stopped) as the error path does.
 - **Acceptance:** stopping before the first token leaves no blank assistant message.
 
-### V2-D9. Cosmetic in-body import  ·  Nit · BE  · [ ]
+### V2-D9. Cosmetic in-body import  ·  Nit · BE  · [x] DONE
 - **Location:** `backend/src/character/service.py:328` (`from src.core.config import settings` inside a method).
 - **Problem:** `core.config` is a leaf (not a cycle workaround like the old BE-9 cases); the in-body import is purely stylistic.
 - **Fix:** Move to module scope.
@@ -292,4 +292,5 @@ _(Move items here with `[x]` and the fixing commit hash as they're finished — 
 - **[x] V2-B8** — `GET /api/providers` and `GET /api/prompt-templates/{id}/fragments/` now return `PaginatedResponse[T]` via `collection_response(...)`, matching every other collection endpoint. Regenerated `openapi.json` (`scripts/openapi.sh`) + `frontend/src/api/schema.d.ts` (`bun run api:gen`). Updated consumers to read `data.items` (`stores/settings.ts` fetchProviders, `usePromptTemplate.fetchAttachedFragments`) and both MSW handlers to emit the `{items, meta}` envelope. Backend `test_list_providers_empty` updated to assert the envelope. Validated: backend ruff/basedpyright/238 tests pass; contract regenerated; `bun run build`, 8 tests, `vp lint` pass. Commit: `1409529`.
 - **[x] V2-C3** — `useBookmarks` now uses `client.GET` for all three endpoints, branches on `error` (surfaces via the shared `error` ref instead of resolving 4xx/5xx bodies as "data"), and types refs from the schema (`CharacterResponse[]`/`ChatResponse[]`/`MessageResponse[]`), dropping `any[]`. This also resolved the deferred `AppSidebar` `session: any`. Typing surfaced that `BookmarksView` rendered enriched fields (`msg.character`/`msg.chat`/`session.bookmarked_at`) absent from the contract — the messages/characters endpoints are backend stubs returning `[]`, so the message card was simplified to `MessageResponse` fields and `bookmarked_at` → `updated_at`; nullable avatars coerced. Spawned a follow-up task to implement real message-bookmarking + restore the enriched card. Validated: `bun run build`, 8 tests, `vp lint` all pass. Commit: `402f46e`.
 - **[~] V2-C5 (partial)** — **async `get_or_404` DONE**: added `async_get_or_404(repo, id, name, finder=…)` to `core/base_service.py` (optional `finder` for relations-eager variants) and folded `get_chat_or_404` onto it — one async 404 helper. Validated: ruff clean, basedpyright 0/0/0, 864 passed. **Character payload DTO NOT viable / won't-fix**: attempted a `CharacterFormBase`/`CharacterCreateForm` consumed by both router and service, but FastAPI treats `Annotated[Model, Form()]` **alongside** a `File()` param (the avatar) as a single embedded body field named `data` (422s on flat form posts) rather than spreading the model's fields — so a multipart-with-file endpoint genuinely requires enumerated `Form()` params. The "declared once" DTO isn't achievable here without dropping the avatar from the same request; reverted that attempt. (Pydantic field-narrowing also fought pyright's `reportIncompatibleVariableOverride`.) Left the enumerated Form fields as the necessary shape. Commit: `1de55f9`.
-- **[x] V2-D4** — `ProviderService.delete()` now raises the domain `ConflictError` (→ 409) instead of `NotImplementedError`, so if ever routed it maps cleanly through the global handler rather than becoming an unhandled 500. Tests updated to assert `ConflictError`/409. Validated: ruff clean, 28 provider tests pass. Commit: `<pending>`.
+- **[x] V2-D4** — `ProviderService.delete()` now raises the domain `ConflictError` (→ 409) instead of `NotImplementedError`, so if ever routed it maps cleanly through the global handler rather than becoming an unhandled 500. Tests updated to assert `ConflictError`/409. Validated: ruff clean, 28 provider tests pass. Commit: `0220f06`.
+- **[x] V2-D9** — moved `from src.core.config import settings` from inside `export_as_png` to module scope in `character/service.py` (`core.config` is a leaf, not a cycle workaround). Validated: ruff clean, basedpyright 0/0/0, 42 character tests pass. Commit: `<pending>`.
