@@ -157,7 +157,7 @@ const maxWidthClass = {
     >
       <!-- Backdrop -->
       <div
-        class="fixed inset-0 bg-black/60 backdrop-blur-[4px] transition-opacity duration-200"
+        class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-200"
         :class="entered ? 'opacity-100' : 'opacity-0'"
         @click="closeOnBackdrop && emit('close')"
       />
