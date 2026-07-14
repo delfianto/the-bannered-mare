@@ -31,7 +31,6 @@ const { families } = useModelFamilies({ pageSize: 100 });
 const settingsStore = useSettingsStore();
 const toast = useAppToast();
 
-
 // The identity form edits registry fields only — a model's provider bindings
 // live in its routes and are managed via the Routes card below.
 const form = reactive({

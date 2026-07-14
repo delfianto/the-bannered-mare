@@ -1,20 +1,19 @@
-import eslintPluginVue from "eslint-plugin-vue";
 import tailwind from "eslint-plugin-tailwindcss";
 import vueParser from "vue-eslint-parser";
 import tsParser from "@typescript-eslint/parser";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
 
+// This ESLint config has ONE job: flag Tailwind arbitrary values that have a
+// canonical named scale (e.g. `text-[0.875rem]` -> `text-sm`). JS/Vue linting is
+// Oxlint (`vp lint`) and formatting is Oxfmt (`vp fmt`); the vue-recommended
+// preset is intentionally NOT pulled in here — its formatting rules
+// (`vue/html-indent`, closing-bracket-newline, …) duplicated and fought Oxfmt.
+// Dynamic spacing (`h-[62px]` -> `h-15.5`) is gated separately by
+// scripts/canonical-classes.mjs (`bun run lint:canonical`).
 export default [
-  {
-    ignores: ["dist/**", "node_modules/**", "bun.lock"],
-  },
-  ...eslintPluginVue.configs["flat/recommended"],
+  { ignores: ["dist/**", "node_modules/**", "bun.lock"] },
   {
     files: ["**/*.vue", "**/*.ts"],
-    plugins: {
-      tailwindcss: tailwind,
-      "@typescript-eslint": tsPlugin,
-    },
+    plugins: { tailwindcss: tailwind },
     languageOptions: {
       parser: vueParser,
       parserOptions: {
@@ -29,19 +28,13 @@ export default [
       },
     },
     rules: {
-      "tailwindcss/classnames-order": "warn",
-      "tailwindcss/enforces-shorthand": "warn",
-      // Prefer canonical scale classes over equivalent arbitrary values
-      // (e.g. text-[0.875rem] -> text-sm). "error" so CI fails on it. Note this
-      // rule only catches NAMED scales; dynamic spacing (h-[62px] -> h-15.5) is
-      // gated by scripts/canonical-classes.mjs (bun run lint:canonical).
-      // (messageId: suggestCanonicalClasses)
+      // The single enforced rule (CI-failing): named-scale canonicalization.
+      // Ordering/shorthand are left off so `lint:tailwind` stays silent unless
+      // there's a real arbitrary-value violation (no advisory-warning noise).
       "tailwindcss/no-unnecessary-arbitrary-value": "error",
+      "tailwindcss/classnames-order": "off",
+      "tailwindcss/enforces-shorthand": "off",
       "tailwindcss/no-custom-classname": "off",
-      "vue/multi-word-component-names": "off",
-      "vue/max-attributes-per-line": "off",
-      "vue/html-self-closing": "off",
-      "vue/singleline-html-element-content-newline": "off",
     },
   },
 ];

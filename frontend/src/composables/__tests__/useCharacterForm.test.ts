@@ -92,7 +92,10 @@ describe("useCharacterForm - species and age fields", () => {
     client.GET = ((path: string) =>
       path === "/api/lorebooks"
         ? Promise.resolve({
-            data: { items: [], meta: { limit: 0, has_more: false, cursor: null, total: 0, page: 1 } },
+            data: {
+              items: [],
+              meta: { limit: 0, has_more: false, cursor: null, total: 0, page: 1 },
+            },
             error: null,
           })
         : Promise.resolve({ data: mockResponse, error: null })) as any;

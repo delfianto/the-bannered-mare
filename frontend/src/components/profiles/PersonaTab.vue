@@ -22,11 +22,7 @@ const formSaving = ref(false);
 // ── Delete state ────────────────────────────────────────
 
 function getAvatarSrc(persona: PersonaResponse): string {
-  return (
-    persona.avatar_thumbnail ||
-    persona.avatar ||
-    fallbackAvatarUrl(persona.name, 80)
-  );
+  return persona.avatar_thumbnail || persona.avatar || fallbackAvatarUrl(persona.name, 80);
 }
 
 // ── Create / Edit form ──────────────────────────────────
@@ -85,8 +81,11 @@ async function saveForm() {
 }
 
 // ── Delete (two-step confirm, auto-disarms) ─────────────
-const { isArmed: isDeleteArmed, trigger: onDeleteClick, reset: cancelDelete } =
-  useKeyedConfirmAction();
+const {
+  isArmed: isDeleteArmed,
+  trigger: onDeleteClick,
+  reset: cancelDelete,
+} = useKeyedConfirmAction();
 
 // ── Set Default ─────────────────────────────────────────
 async function setDefault(personaId: string) {

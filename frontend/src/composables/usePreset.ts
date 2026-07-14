@@ -18,7 +18,8 @@ export function usePreset() {
 
   async function setDefault(id: string) {
     const data = await crud.runSaving(
-      () => client.POST("/api/presets/{preset_id}/default", { params: { path: { preset_id: id } } }),
+      () =>
+        client.POST("/api/presets/{preset_id}/default", { params: { path: { preset_id: id } } }),
       "Failed to set preset as default",
     );
     crud.item.value = data;

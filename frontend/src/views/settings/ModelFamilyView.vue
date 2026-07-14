@@ -14,7 +14,6 @@ const { family, loading, saving, deleting, error, fetchFamily, saveFamily, delet
   useModelFamily();
 const toast = useAppToast();
 
-
 const form = reactive({
   name: "",
   family_identifier: "",

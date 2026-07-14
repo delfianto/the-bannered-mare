@@ -77,11 +77,7 @@ const activeSession = computed(() =>
 const characterAvatar = computed(() => {
   const char = activeSession.value?.character;
   if (!char) return "";
-  return (
-    char.avatar_thumbnail ||
-    char.avatar ||
-    fallbackAvatarUrl(char.name, 80)
-  );
+  return char.avatar_thumbnail || char.avatar || fallbackAvatarUrl(char.name, 80);
 });
 
 const { replySuggestionsEnabled, autoGenerateTones } = useSuggestionSettings();

@@ -16,8 +16,7 @@ export function useModel() {
   const crud = useEntityCrud<ModelDetailResponse>({
     label: "model",
     fetchOne: (id) => client.GET("/api/models/{model_id}", { params: { path: { model_id: id } } }),
-    remove: (id) =>
-      client.DELETE("/api/models/{model_id}", { params: { path: { model_id: id } } }),
+    remove: (id) => client.DELETE("/api/models/{model_id}", { params: { path: { model_id: id } } }),
   });
 
   const model = crud.item;
@@ -30,12 +29,16 @@ export function useModel() {
   }
 
   function createModel(payload: ModelCreate) {
-    return crud.runSaving(() => client.POST("/api/models", { body: payload }), "Failed to create model");
+    return crud.runSaving(
+      () => client.POST("/api/models", { body: payload }),
+      "Failed to create model",
+    );
   }
 
   async function saveModel(id: string, updates: ModelUpdate) {
     const data = await crud.runSaving(
-      () => client.PUT("/api/models/{model_id}", { params: { path: { model_id: id } }, body: updates }),
+      () =>
+        client.PUT("/api/models/{model_id}", { params: { path: { model_id: id } }, body: updates }),
       "Failed to save model",
     );
     mergeIntoDetail(data);

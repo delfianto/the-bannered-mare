@@ -10,10 +10,7 @@ const props = defineProps<{
 }>();
 
 function avatarSrc(): string {
-  return (
-    props.character.avatar ||
-    fallbackAvatarUrl(props.character.name, 400)
-  );
+  return props.character.avatar || fallbackAvatarUrl(props.character.name, 400);
 }
 </script>
 

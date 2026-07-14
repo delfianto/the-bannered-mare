@@ -28,7 +28,6 @@ const {
 } = usePromptTemplate();
 const toast = useAppToast();
 
-
 const form = reactive({
   name: "",
   description: "",
