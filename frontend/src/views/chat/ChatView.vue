@@ -5,12 +5,11 @@ import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useChatSessions } from "@/composables/useChatSessions";
 import { useChatMessages } from "@/composables/useChatMessages";
-import { useProfiles } from "@/composables/useProfiles";
-import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
 import { useSuggestionSettings } from "@/composables/useSuggestionSettings";
 import ChatSessionList from "@/components/chat/ChatSessionList.vue";
 import ChatHeader from "@/components/chat/ChatHeader.vue";
+import ChatDrawer from "@/components/chat/ChatDrawer.vue";
 import MessageBubble from "@/components/chat/MessageBubble.vue";
 import MoodChips from "@/components/chat/MoodChips.vue";
 import ReplySuggestions from "@/components/chat/ReplySuggestions.vue";
@@ -34,13 +33,9 @@ const {
   generateTitle,
 } = useChatSessions({ pageSize: 30 });
 
-const { profiles } = useProfiles();
-
-// Enabled models for the per-chat model override picker in the header.
-const { models: allModels } = useModels({ pageSize: 100, initialFilters: { enabled: true } });
-const selectableModels = computed(() =>
-  allModels.value.map((m) => ({ id: m.id, display_name: m.display_name })),
-);
+// The session-settings drawer (model/profile/persona/rename/delete) lives here so
+// ChatHeader stays presentational; the drawer sources its own picker lists.
+const drawerOpen = ref(false);
 
 const {
   messages,
@@ -363,16 +358,22 @@ async function handleSwipe(messageId: string, direction: "left" | "right") {
     <div v-if="activeSession" class="flex flex-1 flex-col overflow-hidden">
       <ChatHeader
         :character="activeSession.character"
+        :session-title="activeSession.title || $t('chat.untitled')"
+        @back="router.push({ name: 'chats' })"
+        @open-menu="drawerOpen = true"
+      />
+
+      <ChatDrawer
+        :show="drawerOpen"
+        :character="activeSession.character"
         :chat-id="activeSession.id"
         :session-title="activeSession.title || $t('chat.untitled')"
-        :profiles="profiles"
-        :current-profile-name="activeSession.last_profile_name"
-        :models="selectableModels"
         :current-model-id="activeSession.model.id"
         :current-model-name="activeSession.model.name"
         :current-task-model-id="activeSession.task_model_id"
+        :current-profile-name="activeSession.last_profile_name"
         :current-persona-id="activeSession.persona_id"
-        @back="router.push({ name: 'chats' })"
+        @close="drawerOpen = false"
         @rename="handleRename"
         @delete="handleDeleteChat"
         @apply-profile="handleApplyProfile"
