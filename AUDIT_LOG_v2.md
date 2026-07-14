@@ -87,7 +87,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 | V2-C3 | C | FE | Low | `useBookmarks` raw fetch, no `.ok`, `any[]` | [x] |
 | V2-C4 | C | FE | Low | overlapping lint stacks + doc drift | [ ] |
 | V2-C5 | C | BE | Low | no shared character DTO; no async `get_or_404` | [~] |
-| V2-D1 | D | FE | Med | list factories have no request sequencing (race) | [ ] |
+| V2-D1 | D | FE | Med | list factories have no request sequencing (race) | [x] |
 | V2-D2 | D | FE | Low | `useEntityCrud` mutation errors don't set `error` ref | [x] |
 | V2-D3 | D | FE | Low | silent error swallow (lorebook GETs, MemoryView) | [ ] |
 | V2-D4 | D | BE | Low | `ProviderService.delete()` raises `NotImplementedError` | [x] |
@@ -210,7 +210,7 @@ These v1 findings were confirmed as *real* structural fixes (not superficial) an
 
 ## Tier D — New smells the v1 audit missed
 
-### V2-D1. List factories have no request sequencing  ·  Med · FE  · [ ]
+### V2-D1. List factories have no request sequencing  ·  Med · FE  · [x] DONE
 - **Location:** `usePaginatedList.ts` (`loadPage`, ~`:56-76`), `useCursorList.ts` (`load`, ~`:62-82`) — no `AbortController`, no in-flight guard; `useModels.filter` calls `loadPage(1)` on each change.
 - **Problem:** Fast filter/search changes race; a slower earlier response can resolve last and clobber the newer list (last-response-wins).
 - **Fix:** Add per-load `AbortController` (abort the previous in-flight) and/or a request-sequence guard in the factories (one place fixes all callers).
@@ -296,4 +296,5 @@ _(Move items here with `[x]` and the fixing commit hash as they're finished — 
 - **[x] V2-D9** — moved `from src.core.config import settings` from inside `export_as_png` to module scope in `character/service.py` (`core.config` is a leaf, not a cycle workaround). Validated: ruff clean, basedpyright 0/0/0, 42 character tests pass. Commit: `23eaa77`.
 - **[x] V2-D5** — added a nullable `data_bank_entry_id` FK on `embeddings` → `data_bank_entries.id` `ON DELETE CASCADE` (mirroring BE-1's `chat_id` fix), stamped in `vectorize_data_bank_entry`. Now deleting an entry — directly or when its chat/character cascades — removes its embeddings instead of orphaning them. Migration `33655fb747cf` adds the column/index/FK, backfills existing data_bank embeddings from `source_id`, and purges pre-existing orphans. New test asserts the FK is stamped. Validated: ruff clean, basedpyright 0/0/0, migration applied + `alembic check` clean, 865 passed. Commit: `fb27f1f`.
 - **[x] V2-D6** — `APIError` regained `statusCode?: number`; `extractApiError(error, fallback, status?)` sets it. `multipartFetch` passes `response.status`, and `useEntityCrud`'s `ClientResult` now carries `response` so all four CRUD paths + `runSaving` thread `response?.status` into the error — so any caller catching an `APIError` from those central paths can branch on 404 vs 409 vs 422. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `4afa9ae`.
-- **[x] V2-D2** — `useEntityCrud` `createItem`/`updateItem`/`removeItem`/`runSaving` now clear `error` at the start and record it via a shared `recordError()` on failure (still rethrowing), so the returned `error` ref reflects failed writes — consistent with `fetchItem`. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `<pending>`.
+- **[x] V2-D2** — `useEntityCrud` `createItem`/`updateItem`/`removeItem`/`runSaving` now clear `error` at the start and record it via a shared `recordError()` on failure (still rethrowing), so the returned `error` ref reflects failed writes — consistent with `fetchItem`. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `6a70628`.
+- **[x] V2-D1** — added a monotonic request-token guard to `usePaginatedList.loadPage` and `useCursorList.load`: each call captures `++requestSeq` and only applies its result/error/loading if still the latest, so a slower earlier response can't clobber a newer one (fast filter/search or chat switch = last-request-wins). `useCursorList.reset()` bumps the token to invalidate an in-flight load mid-switch. Chose a sequence guard over `AbortController` to avoid threading a signal through every `fetchPage` closure. Validated: `bun run build`, 8 tests, `vp lint` pass. Commit: `<pending>`.
