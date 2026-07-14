@@ -214,8 +214,11 @@ CRUD via REST API (`src/rag/router.py`, prefix `/api/data-bank`):
 - `PUT /{id}` -- update
 - `DELETE /{id}` -- delete
 
-Service layer: `DataBankService` (`src/rag/service.py`) -- standard CRUD with
-synchronous database access through `DataBankRepository` (`src/rag/repository.py`).
+Service layer: `DataBankService` (`src/rag/service.py`) -- CRUD with synchronous
+database access through `DataBankRepository` (`src/rag/repository.py`). The router
+(`src/rag/router.py`) wires each mutation to the retrieval service (best-effort,
+skipped when RAG is disabled): create embeds the new entry, update re-indexes it
+(purges the old chunks, then re-embeds), and delete purges its embeddings.
 
 Ingestion: text content only, supplied via the API. No file upload, web scraping,
 wiki scraping, or YouTube transcript extraction.

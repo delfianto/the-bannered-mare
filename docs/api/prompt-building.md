@@ -155,8 +155,8 @@ Fragments are wired to a template through a nested join collection:
 | `POST` | `/api/prompt-templates/{template_id}/fragments/` | Attach a fragment to the template. |
 | `DELETE` | `/api/prompt-templates/{template_id}/fragments/{fragment_id}` | Detach a fragment. |
 
-`GET` returns a bare array of `TemplateFragmentResponse` — the association row (`position`,
-`ordinal`) **with the full `fragment` embedded**. Attach with an `AttachFragmentRequest`:
+`GET` returns a paginated `{ items, meta }` envelope of `TemplateFragmentResponse` — the
+association row (`position`, `ordinal`) **with the full `fragment` embedded**. Attach with an `AttachFragmentRequest`:
 `fragment_id` (**required**), `position` (default `after_system` — one of `after_system`,
 `pre_history`, `post_history`, `at_depth`), and `ordinal` (default `0`).
 

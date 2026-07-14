@@ -23,6 +23,7 @@ chats and lorebooks.
 | `PUT` | `/api/characters/{id}` | Update a character (avatar optional). |
 | `DELETE` | `/api/characters/{id}` | Delete a character (cascades to its chats & lorebooks). |
 | `GET` | `/api/characters/{id}/avatar` | Serve the avatar image. |
+| `GET` | `/api/characters/{id}/avatar_large` | Serve the large (≤512px) full portrait. |
 | `GET` | `/api/characters/{id}/avatar_thumbnail` | Serve the generated thumbnail. |
 | `GET` | `/api/characters/{id}/export/json` | Export as TavernCard V2 JSON. |
 | `GET` | `/api/characters/{id}/export/png` | Export as a PNG with the card embedded in `tEXt`. |
@@ -50,7 +51,7 @@ chats and lorebooks.
 | `creator_notes` | string \| null | Notes for humans — **never** sent to the LLM. |
 | `character_version` | string \| null | Version string from the card spec. |
 | `version` | integer | Internal card version (default `1`). |
-| `avatar`, `avatar_thumbnail` | string \| null | Server paths; fetch the images via the avatar endpoints. |
+| `avatar`, `avatar_large`, `avatar_thumbnail` | string \| null | Server paths; fetch the images via the avatar endpoints. |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
 
 **Listing** is offset-paginated (`page`, `limit`) and filterable by `name__ilike`,
@@ -97,6 +98,7 @@ curl -OJ "http://localhost:8000/api/characters/V1StGXR8Z5jd/export/png"         
 | `PUT` | `/api/personas/{id}` | Update a persona. |
 | `DELETE` | `/api/personas/{id}` | Delete a persona. |
 | `GET` | `/api/personas/{id}/avatar` | Serve the avatar image. |
+| `GET` | `/api/personas/{id}/avatar_large` | Serve the large (≤512px) full portrait. |
 | `GET` | `/api/personas/{id}/avatar_thumbnail` | Serve the thumbnail. |
 | `POST` | `/api/personas/{id}/set-default` | Mark this persona the default for new chats. |
 
@@ -110,7 +112,7 @@ curl -OJ "http://localhost:8000/api/characters/V1StGXR8Z5jd/export/png"         
 | `name` | string | **Required.** Unique. |
 | `description` | string \| null | The user's role/characteristics for RP context. |
 | `is_default` | boolean | Whether new chats adopt this persona automatically. |
-| `avatar`, `avatar_thumbnail` | string \| null | Server paths; fetch via the avatar endpoints. |
+| `avatar`, `avatar_large`, `avatar_thumbnail` | string \| null | Server paths; fetch via the avatar endpoints. |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
 
 Listing is offset-paginated and filterable by `name__ilike` and `is_default`. Create and

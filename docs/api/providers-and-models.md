@@ -24,7 +24,7 @@ deal in discovered models; the `/api/models` endpoints deal in saved ones.
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/providers` | List configured providers (bare array). |
+| `GET` | `/api/providers` | List configured providers (paginated). |
 | `POST` | `/api/providers` | Register a new provider. |
 | `GET` | `/api/providers/{id}` | Get one provider. |
 | `PUT` | `/api/providers/{id}` | Update a provider's configuration. |
@@ -53,9 +53,11 @@ deal in discovered models; the `/api/models` endpoints deal in saved ones.
 | `api_key_configured` | boolean | Whether the expected API key is present **in the environment**. |
 | `env_var_name` | string \| null | Which env var the key is read from. |
 | `last_synced_at` | string \| null | When the model list was last refreshed. |
+| `identifier_style` | string | Short label for this provider's model-identifier scheme (e.g. `vendor/model`). |
+| `identifier_hint` | string | Human-friendly explanation of the identifier scheme, with an example. |
 | `created_at`, `updated_at` | string | ISO 8601 UTC. |
 
-The list is a **bare array** (unpaginated). Note that API keys are **never** sent to or
+The list is **paginated** — a `{ items, meta }` envelope. Note that API keys are **never** sent to or
 stored by this API — a provider only records *which environment variable* holds its key,
 and `api_key_configured` reports whether that variable is set on the server.
 
