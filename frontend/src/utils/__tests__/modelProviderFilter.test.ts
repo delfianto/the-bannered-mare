@@ -1,4 +1,4 @@
-import { describe, it, expect } from "bun:test";
+import { describe, it, expect } from "vitest";
 import { providersForFamily } from "@/utils/modelProviderFilter";
 
 const P = (id: string, provider_type: string) => ({ id, name: id, provider_type }) as any;
