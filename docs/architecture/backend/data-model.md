@@ -170,12 +170,13 @@ from another.
 **Ownership stays home; loans cross the line.** Inside each domain, ownership chains run
 top to bottom (green): a `Character` owns its `Chat`s, a `Chat` owns its `Message`s and
 each `Message` its alternatives; a `Lorebook` owns its `LoreEntry`s; a `Provider` owns its
-`Model`s; a `PromptTemplate` and a `PromptFragment` jointly own the `TemplateFragment` rows
+`ModelRoute`s; a `PromptTemplate` and a `PromptFragment` jointly own the `TemplateFragment` rows
 that join them. The dashed arrows that cross a boundary are all references — a `Chat`
 *borrows* a model, template, preset, and persona but owns none of them (plus an optional
 **task model** — a cheaper model for auxiliary calls like titles and suggestions, which
-falls back to the main model when unset). `Model` *needs* its `ModelFamily` (amber,
-protected). `Profile` is the odd one out: it owns nothing and is owned by nothing — it is a
+falls back to the main model when unset). A canonical `ModelRegistry` resolves to a provider
+through its active `ModelRoute`, and *needs* its `ModelFamily` (amber, protected). `Profile`
+is the odd one out: it owns nothing and is owned by nothing — it is a
 pure bundle of loadout references (see §4). Observability is a write-only sink nothing else
 points at.
 
@@ -290,9 +291,10 @@ column definitions live in the ORM models under
 
 | Entity | Table | Owns | References | Notes |
 |--------|-------|------|-----------|-------|
-| `Provider` | `providers` | `Model` | — | An API connection. `provider_type` (enum: openai, anthropic, google, openrouter, xai, ollama, lmstudio, custom); API keys live in env vars, never the DB. |
-| `Model` | `models` | — | `Provider` (owner), `ModelFamily` (**protected**), `PromptTemplate` | A usable model config. Optional OpenRouter routing; free-form `parameters` JSON. |
-| `ModelFamily` | `model_families` | — | — | Shared capability/parameter schema for a family of models. **Protected**: cannot be deleted while any `Model` uses it. |
+| `Provider` | `providers` | `ModelRoute` | — | An API connection. `provider_type` (enum: openai, anthropic, google, openrouter, xai, ollama, lmstudio, opencode, opencode_go, custom); API keys live in env vars, never the DB. |
+| `ModelRegistry` | `model_registry` | `ModelRoute` | `ModelFamily` (**protected**), `PromptTemplate`, `ModelRoute` (**active_route**) | The canonical model (SKU) a user picks — a provider-independent `slug` + per-model parameter override values. Resolves to a provider through its `active_route`. Chats and profiles bind here. |
+| `ModelRoute` | `model_routing` | — | `ModelRegistry` (owner), `Provider` (owner) | One provider binding: a `provider_id` + that provider's `model_identifier`. `UNIQUE(model_registry_id, provider_id)` and `UNIQUE(provider_id, model_identifier)`. |
+| `ModelFamily` | `model_families` | — | — | Shared capability/parameter schema for a family of models. **Protected**: cannot be deleted while any `ModelRegistry` uses it. |
 
 ### Prompt Building
 
@@ -309,7 +311,7 @@ column definitions live in the ORM models under
 | Entity | Table | Owns | References | Notes |
 |--------|-------|------|-----------|-------|
 | `DataBankEntry` | `data_bank_entries` | — | `Character` (owner) or `Chat` (owner) | User-managed knowledge. `scope` (global/character/chat) decides which owner (if any) it hangs off. |
-| `Embedding` | `embeddings` | — | *(none — see §5)* | A `Vector(768)` chunk with a **polymorphic** `source_type` + `source_id` pointer and a `content_hash` for dedup. |
+| `Embedding` | `embeddings` | — | `Chat` (**cascade**, nullable), `DataBankEntry` (**cascade**, nullable) | A `Vector(768)` chunk. Carries `chat_id` / `data_bank_entry_id` FKs (both `ON DELETE CASCADE`) plus a **polymorphic** `source_type` + `source_id` discriminator and a `content_hash` for dedup — see §5. |
 
 ### Observability
 
@@ -324,14 +326,18 @@ keys. They are written by middleware and the audit writer and read only through 
 Most of the schema follows the ownership rules above, but two entities deliberately don't,
 and both are worth understanding.
 
-**`Embedding` has no foreign keys.** It is a *derived index*, not a domain entity: a vector
-plus a `source_type` (`message` or `data_bank`) and a `source_id` that points at whatever
-it was generated from. Because the pointer is polymorphic it can't be a database FK, so
-integrity is maintained in the service layer instead — deleting a data-bank entry purges
-its embeddings; a `content_hash` prevents re-embedding unchanged text. Treating embeddings
-as a rebuildable cache rather than owned data is what lets the RAG index be dropped and
-regenerated without touching the source records. The vector dimension is pinned at 768 to
-match the embedding model, because the VectorChord index requires a fixed-dimension column.
+**`Embedding` is a rebuildable index, not owned domain data.** It is a vector plus a
+`source_type` (`message` or `data_bank`) and a `source_id` that points at whatever it was
+generated from — a **polymorphic** discriminator that retrieval matches on, paired with a
+`content_hash` that prevents re-embedding unchanged text. It also carries two real foreign
+keys — `chat_id` → `chats` and `data_bank_entry_id` → `data_bank_entries`, both
+`ON DELETE CASCADE` — so deleting a chat or a data-bank entry (directly, or when its owning
+character/chat is removed) cascades to the embeddings at the **database** level; the service
+layer no longer purges them by hand (`DataBankService.delete` just deletes the entry).
+Treating embeddings as a rebuildable cache rather than owned data is what lets the RAG index
+be dropped and regenerated without touching the source records. The vector dimension is
+pinned at 768 to match the embedding model, because the VectorChord index requires a
+fixed-dimension column.
 
 **The audit logs are a sink, not a graph.** They accumulate a record of what happened and
 are never referenced by anything else. The one link they keep — `LlmAuditLog.chat_id` — is

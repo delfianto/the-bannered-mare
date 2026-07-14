@@ -175,5 +175,12 @@ To make connecting a local backend painless, The Bannered Mare auto-discovers mo
   ([model_cache.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/provider/model_cache.py))
   — a process-local, in-memory TTL cache keyed by provider ID that avoids hammering network
   backends while a user browses available models. It is lost on restart by design.
-- **Model Synchronizer** — merges discovered models into the database, creating new `Model`
-  rows automatically while preserving user modifications to existing ones.
+- **Sync** (`ProviderService.sync_models`) — despite the name, this does *not* write models
+  to the database. It forces a live refresh of the provider's discovery list, bypassing and
+  repopulating the in-memory `ModelListCache`; nothing is persisted.
+- **Per-model persistence** (`ModelService.persist_discovered_model`) — the only path that
+  writes discovered models. For one identifier it either returns the `ModelRegistry` already
+  reached by an existing `(provider, identifier)` `ModelRoute`, attaches a new route to the
+  canonical `ModelRegistry` matched by provider-independent `slug`, or — if no registry
+  matches — creates a new `ModelRegistry` (best-effort family guess) with that first route.
+  Existing user edits are never overwritten.

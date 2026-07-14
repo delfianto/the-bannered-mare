@@ -48,27 +48,32 @@ $STORAGE_PATH/                       # default ./storage at the repo root
 ├── characters/
 │   └── {character_id}/
 │       ├── avatar_original.{ext}    # Original upload, extension preserved
-│       └── avatar_thumbnail.jpg     # Generated thumbnail (always JPEG)
+│       ├── avatar_large.jpg         # ≤512² bounding-box portrait, aspect preserved (JPEG q88)
+│       └── avatar_thumbnail.jpg     # 256² head-crop, always JPEG (q85)
 ├── personas/
 │   └── {persona_id}/
 │       ├── avatar_original.{ext}
+│       ├── avatar_large.jpg
 │       └── avatar_thumbnail.jpg
 ├── temp/                            # Created at startup; reserved for file processing
 └── backups/                         # pg_dump archives written by `just db-backup`
 ```
 
 The original keeps its uploaded extension (one of `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`);
-the thumbnail is always re-encoded to JPEG regardless of the source format. The relative
-paths (e.g. `characters/{id}/avatar_original.png` and `characters/{id}/avatar_thumbnail.jpg`)
-are stored in the entity's `avatar` and `avatar_thumbnail` columns.
+both derivatives — the large portrait and the head-crop thumbnail — are always re-encoded to
+JPEG regardless of the source format. The three relative paths (e.g.
+`characters/{id}/avatar_original.png`, `characters/{id}/avatar_large.jpg`, and
+`characters/{id}/avatar_thumbnail.jpg`) are stored in the entity's `avatar`, `avatar_large`,
+and `avatar_thumbnail` columns.
 
 Startup directories are verified and created by `ensure_storage_directories` in
 [storage.py](https://github.com/delfianto/the-bannered-mare/blob/main/backend/src/core/utils/storage.py).
 
 ## 4. Image Processing & Thumbnail Generation
 
-An uploaded avatar is validated up front, then written to the entity's folder and thumbnailed
-in place. Validation is strict — extension, size, Pillow integrity, and dimensions are all
+An uploaded avatar is validated up front, then written to the entity's folder; two
+derivatives — a bounded large portrait and a square head-crop thumbnail — are generated from
+it in place. Validation is strict — extension, size, Pillow integrity, and dimensions are all
 checked before anything is written — so a malformed upload is rejected before it touches disk:
 
 <Figure tag="Figure 1" title="The avatar upload pipeline" id="fig-asset-pipeline">
@@ -91,8 +96,8 @@ checked before anything is written — so a malformed upload is rejected before 
     <text x="675" y="90" font-size="10.5" fill="var(--tbm-dgm-ink-2)">avatar_original.{ext}</text>
     <!-- Row 2 -->
     <rect x="560" y="160" width="230" height="64" rx="10" fill="var(--tbm-dgm-surface)" stroke="var(--tbm-dgm-border-strong)"/>
-    <text x="675" y="188" font-weight="700" fill="var(--tbm-dgm-ink)">4 · Generate thumbnail</text>
-    <text x="675" y="206" font-size="10.5" fill="var(--tbm-dgm-ink-2)">Pillow · max 128×128 · JPEG</text>
+    <text x="675" y="188" font-weight="700" fill="var(--tbm-dgm-ink)">4 · Generate derivatives</text>
+    <text x="675" y="206" font-size="10.5" fill="var(--tbm-dgm-ink-2)">large ≤512² · head-crop 256² · JPEG</text>
     <rect x="295" y="160" width="230" height="64" rx="10" fill="var(--tbm-dgm-data-soft)" stroke="var(--tbm-dgm-data)"/>
     <text x="410" y="185" font-weight="700" fill="var(--tbm-dgm-ink)">5 · Return paths</text>
     <text x="410" y="203" font-size="10.5" fill="var(--tbm-dgm-ink-2)">stored in avatar columns</text>
@@ -111,8 +116,9 @@ checked before anything is written — so a malformed upload is rejected before 
 <template #caption>
 
 **Validate first, then write.** The upload is fully validated before any file is created;
-the original is saved with its uploaded extension, and the thumbnail is derived from it and
-re-encoded to JPEG. The service then persists the two relative paths on the entity row.
+the original is saved with its uploaded extension, and two JPEG derivatives — a bounded large
+portrait and a square head-crop thumbnail — are generated from it. The service then persists
+the three relative paths on the entity row.
 
 </template>
 </Figure>
@@ -126,12 +132,18 @@ The **Pillow** library handles validation and resizing:
    larger than 4096×4096.
 2. **Original** — written verbatim (extension preserved) as `avatar_original.{ext}`; no EXIF
    stripping is applied to the original.
-3. **Thumbnail** — the saved original is reopened, converted to RGB if needed (RGBA/palette),
-   scaled with `Image.thumbnail((128, 128))` preserving aspect ratio, and saved as an
-   optimized JPEG (quality 85) named `avatar_thumbnail.jpg`.
-4. **Storage paths** — returns the relative paths (e.g.,
-   `characters/{id}/avatar_original.png` and `characters/{id}/avatar_thumbnail.jpg`) stored
-   in the `avatar` and `avatar_thumbnail` database columns.
+3. **Large portrait** — the saved original is reopened, converted to RGB if needed
+   (RGBA/palette), scaled into a 512×512 bounding box with `Image.thumbnail((512, 512))`
+   (aspect ratio preserved, never upscaled), and saved as an optimized JPEG (quality 88)
+   named `avatar_large.jpg`.
+4. **Thumbnail** — a square is cropped from the head region (the largest square that fits,
+   centred horizontally and anchored near the top so the crown isn't clipped), resized to
+   256×256 with LANCZOS resampling, and saved as an optimized JPEG (quality 85) named
+   `avatar_thumbnail.jpg`.
+5. **Storage paths** — returns the relative paths (e.g.,
+   `characters/{id}/avatar_original.png`, `characters/{id}/avatar_large.jpg`, and
+   `characters/{id}/avatar_thumbnail.jpg`) stored in the `avatar`, `avatar_large`, and
+   `avatar_thumbnail` database columns.
 
 ### Asset Deletion & Cleanup
 
