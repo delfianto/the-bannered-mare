@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, watch, onBeforeUnmount } from "vue";
+import { ref, computed, nextTick, useId, watch, onBeforeUnmount } from "vue";
 import AppIcon from "./AppIcon.vue";
 
 // Searchable dropdown replacing Nuxt UI's USelectMenu. The default slot is
@@ -33,6 +33,9 @@ const trigger = ref<HTMLElement | null>(null);
 const menu = ref<HTMLElement | null>(null);
 const searchEl = ref<HTMLInputElement | null>(null);
 const menuStyle = ref<Record<string, string>>({});
+
+const listboxId = useId();
+const optionId = (i: number) => `${listboxId}-opt-${i}`;
 
 const filtered = computed(() => {
   const q = query.value.trim().toLowerCase();
@@ -135,12 +138,21 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="root" class="relative" @keydown="onKeydown">
-    <div ref="trigger" @click.prevent="toggle">
+    <div
+      ref="trigger"
+      role="combobox"
+      aria-haspopup="listbox"
+      :aria-expanded="open"
+      :aria-controls="listboxId"
+      :aria-activedescendant="open ? optionId(highlighted) : undefined"
+      @click.prevent="toggle"
+    >
       <slot />
     </div>
     <Teleport to="body">
       <div
         v-if="open"
+        :id="listboxId"
         ref="menu"
         role="listbox"
         class="fixed z-[80] overflow-hidden rounded-lg border bg-base-200 shadow-lg"
@@ -158,6 +170,7 @@ onBeforeUnmount(() => {
         <ul class="max-h-60 overflow-y-auto p-1">
           <li
             v-for="(item, i) in filtered"
+            :id="optionId(i)"
             :key="item[valueKey]"
             role="option"
             :aria-selected="item[valueKey] === modelValue"
