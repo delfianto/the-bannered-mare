@@ -1,8 +1,12 @@
 import { ref } from "vue";
-import { client } from "@/api/client";
+import { client, extractApiError } from "@/api/client";
 import type { components } from "@/api/schema";
 
 type ModelDetailResponse = components["schemas"]["ModelDetailResponse"];
+type ModelResponse = components["schemas"]["ModelResponse"];
+type ModelCreate = components["schemas"]["ModelCreate"];
+type ModelUpdate = components["schemas"]["ModelUpdate"];
+type ModelFlagsUpdate = components["schemas"]["ModelFlagsUpdate"];
 
 export function useModel() {
   const model = ref<ModelDetailResponse | null>(null);
@@ -18,7 +22,7 @@ export function useModel() {
       const { data, error: apiError } = await client.GET("/api/models/{model_id}", {
         params: { path: { model_id: id } },
       });
-      if (apiError || !data) throw new Error("Failed to load model");
+      if (apiError || !data) throw extractApiError(apiError, "Failed to load model");
       model.value = data;
     } catch (e) {
       error.value = e instanceof Error ? e : new Error("Unknown error");
@@ -30,20 +34,18 @@ export function useModel() {
   // PUT / route mutations return a ModelResponse (the registry with its routes
   // but no embedded model_family); merge into the existing detail so the family
   // object and other detail-only fields survive instead of being clobbered.
-  function mergeIntoDetail(data: ModelDetailResponse) {
-    model.value = model.value ? { ...model.value, ...data } : data;
+  function mergeIntoDetail(data: ModelResponse) {
+    if (model.value) model.value = { ...model.value, ...data };
   }
 
-  async function saveModel(id: string, updates: Record<string, unknown>) {
+  async function saveModel(id: string, updates: ModelUpdate) {
     saving.value = true;
     try {
-      const response = await fetch(`/api/models/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+      const { data, error: apiError } = await client.PUT("/api/models/{model_id}", {
+        params: { path: { model_id: id } },
+        body: updates,
       });
-      if (!response.ok) throw new Error(`Save failed: ${response.status}`);
-      const data = await response.json();
+      if (apiError || !data) throw extractApiError(apiError, "Failed to save model");
       mergeIntoDetail(data);
       return data;
     } finally {
@@ -51,18 +53,12 @@ export function useModel() {
     }
   }
 
-  // Create a registry with its initial route(s). Payload is a ModelCreate:
-  // { display_name, model_family_id, routes: [{ provider_id, model_identifier }] }.
-  async function createModel(payload: Record<string, unknown>) {
+  async function createModel(payload: ModelCreate) {
     saving.value = true;
     try {
-      const response = await fetch(`/api/models`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error(`Create failed: ${response.status}`);
-      return await response.json();
+      const { data, error: apiError } = await client.POST("/api/models", { body: payload });
+      if (apiError || !data) throw extractApiError(apiError, "Failed to create model");
+      return data;
     } finally {
       saving.value = false;
     }
@@ -74,13 +70,11 @@ export function useModel() {
   ) {
     saving.value = true;
     try {
-      const response = await fetch(`/api/models/${modelId}/routes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(route),
+      const { data, error: apiError } = await client.POST("/api/models/{model_id}/routes", {
+        params: { path: { model_id: modelId } },
+        body: { ...route, enabled: true },
       });
-      if (!response.ok) throw new Error(`Add route failed: ${response.status}`);
-      const data = await response.json();
+      if (apiError || !data) throw extractApiError(apiError, "Failed to add route");
       mergeIntoDetail(data);
       return data;
     } finally {
@@ -91,11 +85,11 @@ export function useModel() {
   async function deleteRoute(modelId: string, routeId: string) {
     saving.value = true;
     try {
-      const response = await fetch(`/api/models/${modelId}/routes/${routeId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error(`Remove route failed: ${response.status}`);
-      const data = await response.json();
+      const { data, error: apiError } = await client.DELETE(
+        "/api/models/{model_id}/routes/{route_id}",
+        { params: { path: { model_id: modelId, route_id: routeId } } },
+      );
+      if (apiError || !data) throw extractApiError(apiError, "Failed to remove route");
       mergeIntoDetail(data);
       return data;
     } finally {
@@ -108,13 +102,11 @@ export function useModel() {
   async function setActiveRoute(modelId: string, routeId: string) {
     saving.value = true;
     try {
-      const response = await fetch(`/api/models/${modelId}/active-route`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ route_id: routeId }),
+      const { data, error: apiError } = await client.PUT("/api/models/{model_id}/active-route", {
+        params: { path: { model_id: modelId } },
+        body: { route_id: routeId },
       });
-      if (!response.ok) throw new Error(`Set active route failed: ${response.status}`);
-      const data = await response.json();
+      if (apiError || !data) throw extractApiError(apiError, "Failed to set active route");
       mergeIntoDetail(data);
       return data;
     } finally {
@@ -125,24 +117,22 @@ export function useModel() {
   async function deleteModel(id: string) {
     deleting.value = true;
     try {
-      const response = await fetch(`/api/models/${id}`, {
-        method: "DELETE",
+      const { error: apiError } = await client.DELETE("/api/models/{model_id}", {
+        params: { path: { model_id: id } },
       });
-      if (!response.ok && response.status !== 204)
-        throw new Error(`Delete failed: ${response.status}`);
+      if (apiError) throw extractApiError(apiError, "Failed to delete model");
     } finally {
       deleting.value = false;
     }
   }
 
-  async function toggleFlags(id: string, flags: Record<string, unknown>) {
-    const response = await fetch(`/api/models/${id}/flags`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(flags),
+  async function toggleFlags(id: string, flags: ModelFlagsUpdate) {
+    const { data, error: apiError } = await client.PATCH("/api/models/{model_id}/flags", {
+      params: { path: { model_id: id } },
+      body: flags,
     });
-    if (!response.ok) throw new Error(`Toggle failed: ${response.status}`);
-    return await response.json();
+    if (apiError || !data) throw extractApiError(apiError, "Failed to update model flags");
+    return data;
   }
 
   return {

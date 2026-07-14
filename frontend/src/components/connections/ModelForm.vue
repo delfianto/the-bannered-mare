@@ -2,6 +2,9 @@
 import { reactive, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { providersForFamily } from "@/utils/modelProviderFilter";
+import type { components } from "@/api/schema";
+
+type ModelCreate = components["schemas"]["ModelCreate"];
 
 const { t } = useI18n();
 
@@ -13,7 +16,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  submit: [payload: Record<string, unknown>];
+  submit: [payload: ModelCreate];
   cancel: [];
 }>();
 
@@ -98,6 +101,7 @@ function onSubmit() {
       {
         provider_id: form.provider_id,
         model_identifier: form.model_identifier.trim(),
+        enabled: true,
       },
     ],
   });

@@ -5,6 +5,7 @@ import { useModelFamilies } from "@/composables/useModelFamilies";
 import { useAppToast } from "@/composables/useToast";
 import Modal from "@/components/shared/Modal.vue";
 import ModelForm from "./ModelForm.vue";
+import type { components } from "@/api/schema";
 
 // Shared "create a model" modal used both by the Models tab ("New Model") and
 // by a provider's "Add as Model" action, so the latter opens in place instead
@@ -24,7 +25,7 @@ const { providers } = useProviders();
 const { families } = useModelFamilies({ pageSize: 100 });
 const toast = useAppToast();
 
-async function onSubmit(payload: Record<string, unknown>) {
+async function onSubmit(payload: components["schemas"]["ModelCreate"]) {
   try {
     await createModel(payload);
     toast.success("Model created");
