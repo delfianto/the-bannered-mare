@@ -16,7 +16,7 @@ retrieval design is discussed in the [RAG analysis](/sillytavern/analysis/rag).
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/data-bank/` | List entries (filterable; bare array). |
+| `GET` | `/api/data-bank/` | List entries (filterable, paginated). |
 | `POST` | `/api/data-bank/` | Create an entry (indexed for RAG when enabled). |
 | `GET` | `/api/data-bank/{id}` | Get one entry. |
 | `PUT` | `/api/data-bank/{id}` | Update an entry (re-indexed when enabled). |
@@ -38,8 +38,8 @@ retrieval design is discussed in the [RAG analysis](/sillytavern/analysis/rag).
 
 `scope` decides what an entry hangs off: `global` entries are always in scope, while
 `character`- and `chat`-scoped entries carry the matching `*_id` and are owned by that
-record (deleting the character or chat deletes them). Listing is a **bare array**
-(unpaginated) and filters on `scope`, `character_id`, and `chat_id`.
+record (deleting the character or chat deletes them). Listing is **paginated** (a
+`{ items, meta }` envelope) and filters on `scope`, `character_id`, and `chat_id`.
 
 Creating or updating an entry (re)indexes it into the vector store when RAG is enabled;
 deleting one **purges its embeddings** so the index never points at gone content.

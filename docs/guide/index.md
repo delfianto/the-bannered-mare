@@ -147,7 +147,7 @@ type-check in one pass) is the faster inner-loop check while you work.
 
 You don't actually need the backend running to work on the UI. The frontend ships an **MSW
 mock harness** that intercepts every API call in the browser and answers from fixtures —
-7 providers, 34 models across 19 families, 20 Elder Scrolls-themed characters, and 20
+9 providers, 38 models across 24 families, 20 Elder Scrolls-themed characters, and 20
 chats backed by YAML conversation scenarios. Turn it on with an environment flag:
 
 ```bash

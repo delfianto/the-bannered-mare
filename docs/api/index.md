@@ -84,9 +84,9 @@ array plus a `meta` object — so a client can page without special-casing each 
 }
 ```
 
-Not every list is paginated. Small, bounded collections (the provider list, a character's
-lorebooks, a message's alternatives, RAG search hits) return a **bare JSON array**. Each
-per-domain page states which style an endpoint uses.
+Not every list is paginated. Small, bounded collections (a message's alternatives, RAG
+search hits) return a **bare JSON array**. Each per-domain page states which style an
+endpoint uses.
 
 ## Pagination
 
@@ -136,6 +136,7 @@ The API uses standard HTTP semantics:
 | `201 Created` | A resource was created (most `POST`s). |
 | `204 No Content` | A successful `DELETE` — empty body. |
 | `404 Not Found` | The addressed resource doesn't exist. |
+| `409 Conflict` | A uniqueness or state conflict — a duplicate name/slug, or a delete blocked by a dependent resource. |
 | `422 Unprocessable Entity` | Request validation failed (bad/missing fields, wrong types). |
 
 ## Errors

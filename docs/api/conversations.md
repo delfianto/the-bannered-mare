@@ -18,9 +18,10 @@ relationships — a chat's one owner and four references — see
 | `GET` | `/api/chats` | List chats (cursor-paginated, filterable). |
 | `POST` | `/api/chats` | Create a chat. |
 | `GET` | `/api/chats/{id}` | Get one chat. |
-| `PUT` | `/api/chats/{id}` | Update title, model, preset, or bookmark flag. |
+| `PUT` | `/api/chats/{id}` | Update title, model, task model, preset, persona, or bookmark flag. |
 | `DELETE` | `/api/chats/{id}` | Delete a chat (cascades to its messages). |
 | `POST` | `/api/chats/{id}/profile` | Apply a profile (loadout) to the chat. |
+| `GET` | `/api/chats/{id}/prompt-preview` | Preview the assembled prompt (resolved model, parameters, and messages) without sending. |
 
 ### The chat resource
 
@@ -55,8 +56,8 @@ curl -X POST http://localhost:8000/api/chats \
 ```
 
 `ChatCreate` fields: `character_id` (**required**), `model_id`, `title`, `profile_id`,
-`is_bookmarked` (default `false`). `ChatUpdate` accepts `title`, `model_id`, `preset_id`,
-and `is_bookmarked` — this is also how you **bookmark** a session.
+`is_bookmarked` (default `false`). `ChatUpdate` accepts `title`, `model_id`, `task_model_id`,
+`persona_id`, `preset_id`, and `is_bookmarked` — this is also how you **bookmark** a session.
 
 ### Applying a profile
 
@@ -130,8 +131,8 @@ curl -X POST "http://localhost:8000/api/chats/V1StGXR8Z5jd/messages?regenerate=t
 
 `PUT …/messages/{message_id}` replaces a message's `content` (with `{ "content": "…" }`) and
 recounts its tokens. **Swipes** are alternative assistant responses: list them with
-`GET …/alternatives` (a bare array of `AlternativeResponse` — `id`, `content`, `ordinal`,
-`token_count`, `created_at`), and switch which one is live with `PUT
+`GET …/alternatives` (a bare array of `AlternativeResponse` — `id`, `message_id`, `content`,
+`ordinal`, `token_count`, `created_at`), and switch which one is live with `PUT
 …/alternatives/{alternative_id}/activate`, which returns the updated `MessageResponse` with
 its `active_index` moved.
 
@@ -143,7 +144,7 @@ The request body picks the mode:
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `mode` | `"reply"` \| `"impersonate"` | Default `"reply"`. |
+| `mode` | `"reply"` \| `"impersonate"` \| `"tones"` | Default `"reply"`. |
 | `tone` | string \| null | Steers the draft's tone (mainly for `impersonate`), e.g. `"defiant"`. |
 | `count` | integer (1–6) | How many suggestions in `reply` mode. Default `3`. |
 
@@ -183,10 +184,12 @@ curl -X POST http://localhost:8000/api/chats/V1StGXR8Z5jd/messages/title   # →
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/api/bookmarks/sessions` | List bookmarked chat sessions. |
-| `GET` | `/api/bookmarks/messages` | List pinned message fragments. |
-| `GET` | `/api/bookmarks/characters` | List favorited characters. |
+| `GET` | `/api/bookmarks/messages` | List pinned message fragments (placeholder — empty until pinning lands). |
+| `GET` | `/api/bookmarks/characters` | List favorited characters (placeholder — empty until favoriting lands). |
 
-These are **read-only aggregation views** — each returns a bare array of the flagged items.
-There are no bookmark-specific write endpoints: you *set* a bookmark through the owning
-resource (e.g. `is_bookmarked` on `ChatUpdate`), and these endpoints simply collect
-everything currently flagged for the Bookmarks screen.
+These are **read-only aggregation views** — each returns a paginated `{ items, meta }`
+envelope. Only `/api/bookmarks/sessions` is wired up today; `/messages` and `/characters`
+are placeholders that return an empty list until pinning and favoriting land. There are no
+bookmark-specific write endpoints: you *set* a bookmark through the owning resource (e.g.
+`is_bookmarked` on `ChatUpdate`), and these endpoints simply collect everything currently
+flagged for the Bookmarks screen.

@@ -33,18 +33,18 @@ sanity-checking a fresh backend.
 | `GET` | `/admin/logs/http` | Query HTTP request logs. |
 | `GET` | `/admin/logs/errors` | Query unhandled-error logs. |
 
-::: warning Different pagination
-The admin log endpoints predate the shared envelope and use **skip/limit offset
-pagination** with a `{ logs, total, limit, skip }` wrapper — *not* the `{ items, meta }`
-envelope the rest of the API uses. Both `limit` (default `100`) and `skip` (default `0`)
-are query params.
+::: tip Offset pagination
+The admin log endpoints use the shared `{ items, meta }` envelope like the rest of the API,
+but page through it with **skip/limit offset** query params rather than a cursor. Both
+`limit` (default `100`) and `skip` (default `0`) are query params.
 :::
 
 ### LLM logs and stats
 
-`GET /admin/logs/llm` returns an `LlmAuditLogPage` — one row per completion call, filterable
-by `chat_id`, `provider`, `model`, and `status`. Each `LlmAuditLogResponse` records the
-`provider` and `model`, token counts (`prompt_tokens`, `completion_tokens`, `total_tokens`),
+`GET /admin/logs/llm` returns a `PaginatedResponse[LlmAuditLogResponse]` — one row per
+completion call, filterable by `chat_id`, `provider`, `model`, and `status`. Each
+`LlmAuditLogResponse` records the `provider` and `model`, token counts (`prompt_tokens`,
+`completion_tokens`, `total_tokens`, `cache_read_tokens`, `cache_creation_tokens`),
 `latency_ms`, `status`, optional `estimated_cost_usd` and `error_message`, and the raw
 `request_payload` / `response_payload`. Because `chat_id` is a set-null reference, these
 rows **survive the deletion of their chat**, so the audit trail stays complete.
@@ -64,11 +64,11 @@ curl "http://localhost:8000/admin/logs/llm/stats?start_date=2026-07-01&end_date=
 
 ### HTTP and error logs
 
-`GET /admin/logs/http` returns an `HttpLogPage` of `HttpLogResponse` rows — `method`,
-`path`, `status_code`, `latency_ms`, `client_ip`, `user_agent`, and the captured
+`GET /admin/logs/http` returns a `PaginatedResponse[HttpLogResponse]` whose rows carry
+`method`, `path`, `status_code`, `latency_ms`, `client_ip`, `user_agent`, and the captured
 `request_body` / `response_body` — filterable by `method`, `path`, `status_code`, and
-`request_id`. `GET /admin/logs/errors` returns an `ErrorLogPage` of `ErrorLogResponse` rows
-(`error_type`, `message`, `stack_trace`, and a `context` object), filterable by
+`request_id`. `GET /admin/logs/errors` returns a `PaginatedResponse[ErrorLogResponse]` whose
+rows carry `error_type`, `message`, `stack_trace`, and a `context` object, filterable by
 `error_type`. Both feed the **Logs** tab in the app's settings.
 
 ```bash

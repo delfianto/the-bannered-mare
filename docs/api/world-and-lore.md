@@ -16,7 +16,7 @@ their lorebook — there is no top-level entries collection. The activation mode
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/lorebooks` | List lorebooks (filterable; bare array). |
+| `GET` | `/api/lorebooks` | List lorebooks (filterable, paginated). |
 | `POST` | `/api/lorebooks` | Create a lorebook. |
 | `GET` | `/api/lorebooks/{id}` | Get a lorebook **with all its entries**. |
 | `PUT` | `/api/lorebooks/{id}` | Update lorebook metadata. |
@@ -27,8 +27,8 @@ their lorebook — there is no top-level entries collection. The activation mode
 
 ## Lorebooks
 
-`GET /api/lorebooks` returns a **bare array** of `LorebookResponse` (no pagination) and
-accepts two filters: `character_id` and `is_global`. The list view omits entries; fetch a
+`GET /api/lorebooks` returns a **paginated** `{ items, meta }` envelope of `LorebookResponse`
+and accepts two filters: `character_id` and `is_global`. The list view omits entries; fetch a
 single lorebook to get them.
 
 | Field | Type | Notes |
