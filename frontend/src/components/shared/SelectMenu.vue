@@ -140,11 +140,9 @@ onBeforeUnmount(() => {
   <div ref="root" class="relative" @keydown="onKeydown">
     <div
       ref="trigger"
-      role="combobox"
       aria-haspopup="listbox"
       :aria-expanded="open"
       :aria-controls="listboxId"
-      :aria-activedescendant="open ? optionId(highlighted) : undefined"
       @click.prevent="toggle"
     >
       <slot />
@@ -152,22 +150,29 @@ onBeforeUnmount(() => {
     <Teleport to="body">
       <div
         v-if="open"
-        :id="listboxId"
         ref="menu"
-        role="listbox"
         class="fixed z-[80] overflow-hidden rounded-lg border bg-base-200 shadow-lg"
         :style="menuStyle"
       >
         <div v-if="searchInput" class="border-b p-1.5">
+          <!-- The search input is the focused control while open, so the combobox
+               semantics (incl. aria-activedescendant) must live here — not on the
+               non-focusable trigger wrapper — for screen readers to announce the
+               active option as the user arrows. -->
           <input
             ref="searchEl"
             v-model="query"
             type="text"
+            role="combobox"
+            aria-autocomplete="list"
+            :aria-expanded="open"
+            :aria-controls="listboxId"
+            :aria-activedescendant="filtered.length ? optionId(highlighted) : undefined"
             placeholder="Search…"
             class="h-8 w-full rounded-md border bg-base-300/40 px-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
         </div>
-        <ul class="max-h-60 overflow-y-auto p-1">
+        <ul :id="listboxId" role="listbox" class="max-h-60 overflow-y-auto p-1">
           <li
             v-for="(item, i) in filtered"
             :id="optionId(i)"
