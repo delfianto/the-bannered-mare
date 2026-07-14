@@ -52,8 +52,10 @@ jobs:
       - name: Type Check
         run: bun run typecheck
 
-      - name: Test
-        run: bun run test
+      # Runs the suite with V8 coverage; the thresholds in vite.config.ts fail
+      # the job if coverage drops below the floor (ratchets up as tests land).
+      - name: Test + Coverage
+        run: bun run test:coverage
 
       - name: Build
         run: bun run build

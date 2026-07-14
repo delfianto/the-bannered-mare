@@ -51,8 +51,29 @@ export default defineConfig(({ command }) => {
     test: {
       environment: "happy-dom",
       globals: false,
-      setupFiles: ["./src/test/setup.ts"],
+      setupFiles: ["./src/test/setup-globals.ts", "./src/test/setup.ts"],
       include: ["src/**/*.{test,spec}.ts"],
+      coverage: {
+        provider: "v8",
+        // `all` counts un-imported product files as 0%, so the number reflects
+        // real coverage of the app — not just the handful of exercised modules.
+        all: true,
+        include: ["src/**/*.{ts,vue}"],
+        exclude: [
+          "src/**/*.{test,spec}.ts",
+          "src/test/**",
+          "src/mocks/**",
+          "src/api/schema.d.ts",
+          "src/**/*.d.ts",
+          "src/main.ts",
+          "src/types/**",
+        ],
+        reporter: ["text-summary", "json-summary"],
+        // Floor ratchets up as coverage lands (Wave 2/3). Set just under the
+        // current baseline (lines 2.66 / stmts 2.59 / fns 1.4 / branches 1.69)
+        // so CI is honest and catches regressions without being red on day one.
+        thresholds: { lines: 2.5, statements: 2.5, functions: 1.3, branches: 1.6 },
+      },
     },
   };
 });

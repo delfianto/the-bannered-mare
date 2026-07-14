@@ -8,8 +8,8 @@
 
 - **Updated:** 2026-07-15
 - **Active:** —
-- **Next up:** FE-H7 (CI coverage) to finish Wave 1; then Wave 2 bugs (FE-C3, FE-H1, FE-C2)
-- **Progress:** 2 / 29 done (FE-C1, FE-H6 ✓; FE-L8 folded in)
+- **Next up:** Wave 1 COMPLETE. Wave 2 bugs next: FE-C3 (edit-just-sent 🧵), FE-H1 (toggles 🤖), FE-C2 (SSE tests 🤖), FE-M5 (stop button 🧵)
+- **Progress:** 3 / 29 done (FE-C1, FE-H6, FE-H7 ✓; FE-L8 folded in)
 
 ---
 
@@ -55,7 +55,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** a composable test hits a real handler via unpatched `fetch` and asserts typed data (no `global.fetch` monkeypatch); resolves most of FE-H5; gates green.
 - **Commit:** —
 
-### FE-H7 · Make the CI test gate honest · [ ] · 🤖 sub · dep: FE-C1
+### FE-H7 · Make the CI test gate honest · [x] DONE (see §Completed) · 🤖 sub · dep: FE-C1
 - **Ref:** FINDINGS_FE.md §3 FE-H7 · **Files:** `.github/workflows/frontend-ci.yml`
 - **Fix:** run the new `vp test` in CI with coverage reporting + a low floor, ratchet upward as coverage lands.
 - **Accept:** CI reports coverage and fails below the floor; green means something.
@@ -180,5 +180,6 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-H7** (commit tagged `FE-H7`) — added `@vitest/coverage-v8@4.1.9`, a `coverage` block in `vite.config.ts` (v8, `all: true`, product-code include, `text-summary`+`json-summary` reporters), a `test:coverage` script, and switched the CI "Test" step to `bun run test:coverage`. Floor set just under the measured baseline — lines 2.5 / stmts 2.5 / fns 1.3 / branches 1.6 (actual 2.66/2.59/1.4/1.69) — so CI catches regressions and ratchets up as Wave 2/3 tests land. **Surprise + fix:** enabling `--coverage` made `localStorage` resolve to Node's experimental native binding (undefined) instead of happy-dom's on `globalThis`, so `i18n.ts`'s module-load `localStorage.getItem` threw and failed all suites (intermittently — it depends on which global wins). Added `src/test/setup-globals.ts` (a setupFile ordered BEFORE `setup.ts`, since ES imports hoist) that binds `localStorage` to happy-dom's `window.localStorage` or an in-memory stub. Confirmed happy-dom's `document` is otherwise intact under coverage (mount tests pass). Verified: coverage stable 3/3 (2.66% ≥ floor), plain `vp test run` + build + lint + fmt all green; `coverage/` already gitignored.
 - **[x] FE-H6** (commit tagged `FE-H6`) — added `src/mocks/server.ts` (`setupServer(...handlers)` reusing the exact handler array `browser.ts` feeds `setupWorker`) and wired `beforeAll(server.listen({onUnhandledRequest:"error"}))` / `afterEach(resetHandlers)` / `afterAll(close)` into `src/test/setup.ts`. Demonstration test `useProviders.test.ts` drives the real composable → store → **unpatched** typed client and asserts the `/api/providers` fixture loads through MSW (no `global.fetch`/`client` monkeypatch). **No extra deps or config needed** — msw 2.14.6 was already present; happy-dom resolves the relative `/api/...` path against its default origin and msw/node matches by pathname. Verified independently: `vp test run` = 6 files / 21 tests; build/lint/fmt green. Note: setup now imports the full handler+fixture graph on every test file's critical path (~0.45s) — fine, but known.
 - **[x] FE-C1** (commit tagged `FE-C1`) — switched `"test"` `bun test`→`vp test run`; **removed the `"vitest": "npm:@voidzero-dev/vite-plus-test"` override** — it exposes no `vitest` bin and broke `vp test`, while `vite-plus` already depends on real `vitest@4.1.9`, which now resolves. Added `@vue/test-utils` + `happy-dom`; added a `test` block to `vite.config.ts` (`happy-dom` env + `src/test/setup.ts` registering i18n + the 3 global primitives so `mount()` mirrors `main.ts`); migrated the 4 tests off `bun:test`→`vitest` (dropped the bun-only `process.env` hack → also closes FE-L8); deleted the obsolete `src/bun-test-env.d.ts`; added an `AppToggle` **smoke test that mounts a real SFC**. Verified: `vp test run` = **5 files / 20 tests pass**; `bun run build` + `vp lint` + `vp fmt --check` green; CI runs `bun run test`→`vp test run` (`vp` from `node_modules/.bin`) so it's unbroken. **Surprise:** the blocker was not missing deps — it was the pre-existing `vitest` override clobbering the real bin.

@@ -16,6 +16,7 @@
     "lint:canonical:fix": "bun scripts/canonical-classes.mjs --fix",
     "preview": "vp preview",
     "test": "vp test run",
+    "test:coverage": "vp test run --coverage",
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "@types/markdown-it": "^14.1.2",
     "@typescript-eslint/parser": "^8.62.1",
     "@vitejs/plugin-vue": "^6.0.7",
+    "@vitest/coverage-v8": "4.1.9",
     "@vue/test-utils": "^2.4.11",
     "daisyui": "^5.6.16",
     "eslint": "^10.6.0",
