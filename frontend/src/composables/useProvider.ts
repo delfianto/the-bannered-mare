@@ -1,15 +1,26 @@
 import { ref } from "vue";
-import { client, extractApiError } from "@/api/client";
+import { client } from "@/api/client";
+import { useEntityCrud } from "@/composables/useEntityCrud";
 import type { components } from "@/api/schema";
 
 type ProviderResponse = components["schemas"]["ProviderResponse"];
+type ProviderCreate = components["schemas"]["ProviderCreate"];
+type ProviderUpdate = components["schemas"]["ProviderUpdate"];
 type DiscoveredModel = components["schemas"]["DiscoveredModel"];
 
 export function useProvider() {
-  const provider = ref<ProviderResponse | null>(null);
-  const loading = ref(false);
-  const saving = ref(false);
-  const error = ref<Error | null>(null);
+  // Core provider CRUD (item/loading/saving/error + fetch/create/save) comes from
+  // the shared factory; the model-discovery/sync/filter state below is
+  // provider-specific and stays local.
+  const crud = useEntityCrud<ProviderResponse, ProviderCreate, ProviderUpdate>({
+    label: "provider",
+    fetchOne: (id) =>
+      client.GET("/api/providers/{provider_id}", { params: { path: { provider_id: id } } }),
+    create: (body) => client.POST("/api/providers", { body }),
+    update: (id, body) =>
+      client.PUT("/api/providers/{provider_id}", { params: { path: { provider_id: id } }, body }),
+  });
+  const provider = crud.item;
 
   const availableModels = ref<DiscoveredModel[]>([]);
   const modelsLoading = ref(false);
@@ -20,48 +31,6 @@ export function useProvider() {
   const searchResults = ref<DiscoveredModel[]>([]);
   const searchingModels = ref(false);
   const savingFilter = ref(false);
-
-  async function fetchProvider(id: string) {
-    loading.value = true;
-    error.value = null;
-    try {
-      const { data, error: apiError } = await client.GET("/api/providers/{provider_id}", {
-        params: { path: { provider_id: id } },
-      });
-      if (apiError || !data) throw new Error("Failed to load provider");
-      provider.value = data;
-    } catch (e) {
-      error.value = e instanceof Error ? e : new Error("Unknown error");
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function createProvider(payload: components["schemas"]["ProviderCreate"]) {
-    saving.value = true;
-    try {
-      const { data, error: apiError } = await client.POST("/api/providers", { body: payload });
-      if (apiError || !data) throw new Error("Failed to create provider");
-      return data;
-    } finally {
-      saving.value = false;
-    }
-  }
-
-  async function saveProvider(id: string, updates: components["schemas"]["ProviderUpdate"]) {
-    saving.value = true;
-    try {
-      const { data, error: apiError } = await client.PUT("/api/providers/{provider_id}", {
-        params: { path: { provider_id: id } },
-        body: updates,
-      });
-      if (apiError || !data) throw extractApiError(apiError, "Failed to save provider");
-      provider.value = data;
-      return data;
-    } finally {
-      saving.value = false;
-    }
-  }
 
   async function fetchAvailableModels(id: string) {
     modelsLoading.value = true;
@@ -205,12 +174,12 @@ export function useProvider() {
 
   return {
     provider,
-    loading,
-    saving,
-    error,
-    fetchProvider,
-    createProvider,
-    saveProvider,
+    loading: crud.loading,
+    saving: crud.saving,
+    error: crud.error,
+    fetchProvider: crud.fetchItem,
+    createProvider: crud.createItem,
+    saveProvider: crud.updateItem,
     availableModels,
     modelsLoading,
     syncing,

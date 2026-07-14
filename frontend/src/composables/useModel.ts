@@ -1,5 +1,5 @@
-import { ref } from "vue";
 import { client, extractApiError } from "@/api/client";
+import { useEntityCrud } from "@/composables/useEntityCrud";
 import type { components } from "@/api/schema";
 
 type ModelDetailResponse = components["schemas"]["ModelDetailResponse"];
@@ -9,27 +9,18 @@ type ModelUpdate = components["schemas"]["ModelUpdate"];
 type ModelFlagsUpdate = components["schemas"]["ModelFlagsUpdate"];
 
 export function useModel() {
-  const model = ref<ModelDetailResponse | null>(null);
-  const loading = ref(false);
-  const saving = ref(false);
-  const deleting = ref(false);
-  const error = ref<Error | null>(null);
+  // Shared loading/saving/deleting/error + item come from the factory; the
+  // route/flag mutations below stay bespoke because they return a ModelResponse
+  // that must be *merged* into the detail (not clobber it) and run under the
+  // shared `saving` flag via runSaving.
+  const crud = useEntityCrud<ModelDetailResponse>({
+    label: "model",
+    fetchOne: (id) => client.GET("/api/models/{model_id}", { params: { path: { model_id: id } } }),
+    remove: (id) =>
+      client.DELETE("/api/models/{model_id}", { params: { path: { model_id: id } } }),
+  });
 
-  async function fetchModel(id: string) {
-    loading.value = true;
-    error.value = null;
-    try {
-      const { data, error: apiError } = await client.GET("/api/models/{model_id}", {
-        params: { path: { model_id: id } },
-      });
-      if (apiError || !data) throw extractApiError(apiError, "Failed to load model");
-      model.value = data;
-    } catch (e) {
-      error.value = e instanceof Error ? e : new Error("Unknown error");
-    } finally {
-      loading.value = false;
-    }
-  }
+  const model = crud.item;
 
   // PUT / route mutations return a ModelResponse (the registry with its routes
   // but no embedded model_family); merge into the existing detail so the family
@@ -38,92 +29,60 @@ export function useModel() {
     if (model.value) model.value = { ...model.value, ...data };
   }
 
-  async function saveModel(id: string, updates: ModelUpdate) {
-    saving.value = true;
-    try {
-      const { data, error: apiError } = await client.PUT("/api/models/{model_id}", {
-        params: { path: { model_id: id } },
-        body: updates,
-      });
-      if (apiError || !data) throw extractApiError(apiError, "Failed to save model");
-      mergeIntoDetail(data);
-      return data;
-    } finally {
-      saving.value = false;
-    }
+  function createModel(payload: ModelCreate) {
+    return crud.runSaving(() => client.POST("/api/models", { body: payload }), "Failed to create model");
   }
 
-  async function createModel(payload: ModelCreate) {
-    saving.value = true;
-    try {
-      const { data, error: apiError } = await client.POST("/api/models", { body: payload });
-      if (apiError || !data) throw extractApiError(apiError, "Failed to create model");
-      return data;
-    } finally {
-      saving.value = false;
-    }
+  async function saveModel(id: string, updates: ModelUpdate) {
+    const data = await crud.runSaving(
+      () => client.PUT("/api/models/{model_id}", { params: { path: { model_id: id } }, body: updates }),
+      "Failed to save model",
+    );
+    mergeIntoDetail(data);
+    return data;
   }
 
   async function addRoute(
     modelId: string,
     route: { provider_id: string; model_identifier: string },
   ) {
-    saving.value = true;
-    try {
-      const { data, error: apiError } = await client.POST("/api/models/{model_id}/routes", {
-        params: { path: { model_id: modelId } },
-        body: { ...route, enabled: true },
-      });
-      if (apiError || !data) throw extractApiError(apiError, "Failed to add route");
-      mergeIntoDetail(data);
-      return data;
-    } finally {
-      saving.value = false;
-    }
+    const data = await crud.runSaving(
+      () =>
+        client.POST("/api/models/{model_id}/routes", {
+          params: { path: { model_id: modelId } },
+          body: { ...route, enabled: true },
+        }),
+      "Failed to add route",
+    );
+    mergeIntoDetail(data);
+    return data;
   }
 
   async function deleteRoute(modelId: string, routeId: string) {
-    saving.value = true;
-    try {
-      const { data, error: apiError } = await client.DELETE(
-        "/api/models/{model_id}/routes/{route_id}",
-        { params: { path: { model_id: modelId, route_id: routeId } } },
-      );
-      if (apiError || !data) throw extractApiError(apiError, "Failed to remove route");
-      mergeIntoDetail(data);
-      return data;
-    } finally {
-      saving.value = false;
-    }
+    const data = await crud.runSaving(
+      () =>
+        client.DELETE("/api/models/{model_id}/routes/{route_id}", {
+          params: { path: { model_id: modelId, route_id: routeId } },
+        }),
+      "Failed to remove route",
+    );
+    mergeIntoDetail(data);
+    return data;
   }
 
   // Flip which route the model resolves through (redirects existing chats on
   // the backend). Returns the registry with its refreshed active_route_id.
   async function setActiveRoute(modelId: string, routeId: string) {
-    saving.value = true;
-    try {
-      const { data, error: apiError } = await client.PUT("/api/models/{model_id}/active-route", {
-        params: { path: { model_id: modelId } },
-        body: { route_id: routeId },
-      });
-      if (apiError || !data) throw extractApiError(apiError, "Failed to set active route");
-      mergeIntoDetail(data);
-      return data;
-    } finally {
-      saving.value = false;
-    }
-  }
-
-  async function deleteModel(id: string) {
-    deleting.value = true;
-    try {
-      const { error: apiError } = await client.DELETE("/api/models/{model_id}", {
-        params: { path: { model_id: id } },
-      });
-      if (apiError) throw extractApiError(apiError, "Failed to delete model");
-    } finally {
-      deleting.value = false;
-    }
+    const data = await crud.runSaving(
+      () =>
+        client.PUT("/api/models/{model_id}/active-route", {
+          params: { path: { model_id: modelId } },
+          body: { route_id: routeId },
+        }),
+      "Failed to set active route",
+    );
+    mergeIntoDetail(data);
+    return data;
   }
 
   async function toggleFlags(id: string, flags: ModelFlagsUpdate) {
@@ -137,14 +96,14 @@ export function useModel() {
 
   return {
     model,
-    loading,
-    saving,
-    deleting,
-    error,
-    fetchModel,
+    loading: crud.loading,
+    saving: crud.saving,
+    deleting: crud.deleting,
+    error: crud.error,
+    fetchModel: crud.fetchItem,
     createModel,
     saveModel,
-    deleteModel,
+    deleteModel: crud.removeItem,
     toggleFlags,
     addRoute,
     deleteRoute,
