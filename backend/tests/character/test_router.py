@@ -1,5 +1,7 @@
 """Tests for character router"""
 
+from unittest.mock import AsyncMock, patch
+
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.character import Character
@@ -53,6 +55,38 @@ def test_create_character_minimal(client: TestClient) -> None:
     assert data["personality"] is None
     assert data["first_message"] is None
     assert "id" in data
+
+
+def test_create_character_with_avatar(client: TestClient) -> None:
+    """A multipart request with an avatar file routes the upload to the service.
+
+    Guards the endpoint's declared ``multipart/form-data`` contract: the avatar
+    lives inside the ``Form()`` payload model, so posting a real file part must
+    still be parsed, read, and persisted as the three derivative paths.
+    """
+    with patch(
+        "src.character.service.save_character_avatar",
+        new_callable=AsyncMock,
+        return_value=(
+            "characters/abc/avatar.png",
+            "characters/abc/avatar_large.jpg",
+            "characters/abc/avatar_thumbnail.jpg",
+        ),
+    ):
+        response = client.post(
+            "/api/characters",
+            data={"name": "Avatar Hero"},
+            files={"avatar": ("hero.png", b"fake png bytes", "image/png")},
+        )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["name"] == "Avatar Hero"
+    # Persisting the derivative paths surfaces the three avatar URLs on the response.
+    cid = data["id"]
+    assert data["avatar"] == f"/api/characters/{cid}/avatar"
+    assert data["avatar_large"] == f"/api/characters/{cid}/avatar_large"
+    assert data["avatar_thumbnail"] == f"/api/characters/{cid}/avatar_thumbnail"
 
 
 def test_get_character(client: TestClient, db: Session) -> None:

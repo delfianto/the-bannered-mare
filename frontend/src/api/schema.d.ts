@@ -1832,6 +1832,12 @@ export interface components {
      *     in schemas) so the FastAPI ``UploadFile`` type stays out of the service layer.
      *     An ``UploadFile`` field inside a ``Form()`` model is how FastAPI spreads the
      *     fields as individual multipart parts *and* accepts the file in one request.
+     *
+     *     The route declares ``Form(media_type="multipart/form-data")`` explicitly: a
+     *     ``Form()`` model defaults its OpenAPI request body to
+     *     ``application/x-www-form-urlencoded``, which mislabels the contract for an
+     *     endpoint that carries a binary avatar. The override only affects the generated
+     *     schema (Starlette parses the real request by its Content-Type regardless).
      */
     CharacterFormPayload: {
       /** Name */
@@ -5264,7 +5270,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/x-www-form-urlencoded": components["schemas"]["CharacterFormPayload"];
+        "multipart/form-data": components["schemas"]["CharacterFormPayload"];
       };
     };
     responses: {
@@ -5330,7 +5336,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/x-www-form-urlencoded": components["schemas"]["CharacterFormPayload"];
+        "multipart/form-data": components["schemas"]["CharacterFormPayload"];
       };
     };
     responses: {
