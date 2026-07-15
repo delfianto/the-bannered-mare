@@ -38,6 +38,29 @@ from src.rag.retrieval_service import RetrievalService
 
 logger = get_logger(__name__)
 
+_CURSOR_SEP = "|"
+
+
+def _encode_message_cursor(created_at: datetime, message_id: str) -> str:
+    """Composite pagination cursor ``"<iso8601>|<id>"`` (BE-M2 stable tie-breaker)."""
+    return f"{created_at.isoformat()}{_CURSOR_SEP}{message_id}"
+
+
+def _parse_message_cursor(cursor: str) -> tuple[datetime | None, str | None]:
+    """Parse a cursor into ``(created_at, id)``.
+
+    New cursors are ``"<iso8601>|<id>"``; a bare timestamp (no separator) is an older
+    cursor and parses with no id tie-breaker. Returns ``(None, None)`` when the
+    timestamp is unparseable (the request then behaves as an unpaginated first page).
+    """
+    ts_part, _, id_part = cursor.partition(_CURSOR_SEP)
+    try:
+        before_time = datetime.fromisoformat(ts_part.replace("Z", "+00:00"))
+    except ValueError:
+        logger.warning(f"Invalid cursor format: {cursor}")
+        return None, None
+    return before_time, (id_part or None)
+
 # User-facing explanation for a non-USABLE completion (empty/filtered/etc.), shown
 # in place of a silent blank reply. USABLE never surfaces one.
 _OUTCOME_MESSAGES: dict[CompletionOutcome, str] = {
@@ -140,16 +163,14 @@ class ChatMessageService:
         await self._get_chat_by_id(chat_id)
 
         before_time = None
+        before_id = None
         if cursor:
-            try:
-                before_time = datetime.fromisoformat(cursor.replace("Z", "+00:00"))
-            except ValueError:
-                logger.warning(f"Invalid cursor format: {cursor}")
+            before_time, before_id = _parse_message_cursor(cursor)
 
         fetch_limit = limit + 1
 
         raw_messages = await self.message_repo.find_latest_by_chat_id(
-            chat_id=chat_id, limit=fetch_limit, before=before_time
+            chat_id=chat_id, limit=fetch_limit, before=before_time, before_id=before_id
         )
 
         has_more = False
@@ -159,7 +180,8 @@ class ChatMessageService:
 
         next_cursor = None
         if raw_messages:
-            next_cursor = raw_messages[-1].created_at.isoformat()
+            last = raw_messages[-1]
+            next_cursor = _encode_message_cursor(last.created_at, last.id)
 
         return PaginatedResponse(
             items=[MessageResponse.model_validate(msg) for msg in raw_messages],

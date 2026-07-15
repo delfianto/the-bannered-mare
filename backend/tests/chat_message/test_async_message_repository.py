@@ -165,18 +165,12 @@ async def test_find_latest_walks_full_history_page_by_page(
 
 
 @pytest.mark.asyncio
-async def test_find_latest_same_created_at_current_behavior(
+async def test_find_latest_same_created_at_has_total_order(
     async_db_session: AsyncSession, async_test_chat_id: str
 ):
-    """Pin today's behavior when several messages share one ``created_at``.
-
-    The ORDER BY is ``created_at`` desc only — there is no secondary ``id``
-    tie-breaker — so the relative order *among* same-instant rows is unspecified
-    (asserted as a set). And because the cursor filter is strict ``< before``, a
-    cursor AT the tied instant skips *every* row at that instant. This documents
-    the current contract; adding the id tie-breaker is tracked separately (BE-M2).
-    Production code is intentionally left unchanged here.
-    """
+    """When several messages share one ``created_at``, the id tie-breaker makes the
+    order total and stable — newest-first is (created_at desc, id desc), never
+    arbitrary among same-instant rows (BE-M2)."""
     repo = AsyncMessageRepository(async_db_session)
     tie = _BASE_TIME + timedelta(minutes=5)
     await repo.create(_msg(async_test_chat_id, 0, _BASE_TIME + timedelta(minutes=4)))
@@ -187,13 +181,44 @@ async def test_find_latest_same_created_at_current_behavior(
 
     page = await repo.find_latest_by_chat_id(async_test_chat_id, limit=10)
 
-    # The strictly newer/older rows bracket the page deterministically ...
+    # Strictly newer/older rows bracket the tied block deterministically ...
     assert page[0].content == "Message 4"
     assert page[-1].content == "Message 0"
-    # ... with the three tied rows between them, order among them unspecified.
-    assert {m.content for m in page[1:4]} == {"Message 1", "Message 2", "Message 3"}
+    # ... and the whole page is a strict descending run of (created_at, id): a total
+    # order, with the three tied rows sorted among themselves by id.
+    keys = [(m.created_at, m.id) for m in page]
+    assert keys == sorted(keys, reverse=True)
+    assert len({m.id for m in page}) == 5
 
-    # A cursor AT the tied instant drops ALL three tied rows (strict ``<``),
-    # leaving only the strictly-older row — the known cursor gap when ties exist.
-    older = await repo.find_latest_by_chat_id(async_test_chat_id, limit=10, before=tie)
-    assert [m.content for m in older] == ["Message 0"]
+
+@pytest.mark.asyncio
+async def test_find_latest_composite_cursor_no_skip_or_dupe_across_ties(
+    async_db_session: AsyncSession, async_test_chat_id: str
+):
+    """Paging with the composite ``(before, before_id)`` cursor walks a run of
+    same-``created_at`` rows exactly once — no boundary skip, no dupe (BE-M2).
+
+    Five messages share a single instant (the worst case a timestamp-only cursor
+    can't page): the id tie-breaker in both the WHERE and ORDER BY makes it exact.
+    """
+    repo = AsyncMessageRepository(async_db_session)
+    tie = _BASE_TIME + timedelta(minutes=5)
+    for i in range(5):
+        await repo.create(_msg(async_test_chat_id, i, tie))
+    await repo.db.commit()
+
+    seen: list[str] = []
+    before: datetime | None = None
+    before_id: str | None = None
+    for _ in range(5):  # more iterations than pages, to prove it terminates
+        page = await repo.find_latest_by_chat_id(
+            async_test_chat_id, limit=2, before=before, before_id=before_id
+        )
+        if not page:
+            break
+        seen.extend(m.id for m in page)
+        before, before_id = page[-1].created_at, page[-1].id
+
+    # Every message seen exactly once — nothing skipped at the tied boundary, no dupe.
+    assert len(seen) == 5
+    assert len(set(seen)) == 5

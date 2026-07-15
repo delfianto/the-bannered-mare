@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.chat_message.models import Message
@@ -60,14 +60,20 @@ class AsyncMessageRepository(AsyncBaseRepository[Message]):
         stmt = (
             select(Message)
             .where(Message.chat_id == chat_id)
-            .order_by(Message.created_at.desc())
+            # id tie-breaker keeps the order total when messages share a created_at
+            # (BE-M2) — otherwise same-instant rows sort arbitrarily.
+            .order_by(Message.created_at.desc(), Message.id.desc())
             .limit(limit)
         )
         result = await self.db.execute(stmt)
         return list(reversed(list(result.scalars().all())))
 
     async def find_latest_by_chat_id(
-        self, chat_id: str, limit: int, before: datetime | None = None
+        self,
+        chat_id: str,
+        limit: int,
+        before: datetime | None = None,
+        before_id: str | None = None,
     ) -> list[Message]:
         """
         Fetch latest messages for a chat, capable of 'scrolling back' in time.
@@ -75,18 +81,29 @@ class AsyncMessageRepository(AsyncBaseRepository[Message]):
         Args:
             chat_id: The chat ID.
             limit: Maximum number of messages to return.
-            before: The cursor (timestamp). If set, only return messages created BEFORE this time.
+            before: Cursor timestamp — only return messages created before it.
+            before_id: Cursor id tie-breaker (BE-M2). With ``before``, forms a stable
+                composite cursor ``(created_at, id)`` so rows sharing a ``created_at``
+                are never skipped or duplicated across page boundaries. Omit it (legacy
+                timestamp-only cursor) and same-instant boundary rows may be skipped.
 
         Returns:
-            List of messages ordered newest to oldest (reverse chronological).
+            List of messages ordered newest to oldest, total order (created_at, id) desc.
         """
-        # Apply Cursor: "Give me messages older than the top message I currently see"
+        # Apply Cursor: "Give me messages older than the bottom message I currently see."
         stmt = select(Message).where(Message.chat_id == chat_id)
-        if before:
+        if before is not None and before_id is not None:
+            stmt = stmt.where(
+                or_(
+                    Message.created_at < before,
+                    and_(Message.created_at == before, Message.id < before_id),
+                )
+            )
+        elif before is not None:
             stmt = stmt.where(Message.created_at < before)
 
-        # Ordering: ALWAYS Newest -> Oldest for efficient pagination
-        stmt = stmt.order_by(Message.created_at.desc())
+        # Newest -> oldest, with an id tie-breaker so the order is total (BE-M2).
+        stmt = stmt.order_by(Message.created_at.desc(), Message.id.desc())
         stmt = stmt.limit(limit)
 
         result = await self.db.execute(stmt)
