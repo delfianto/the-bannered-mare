@@ -4,13 +4,9 @@ from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import NotFoundError
-from src.core.persistence import UnitOfWork, gen_id
-from src.model.repository import ModelRepository
-from src.persona.repository import PersonaRepository
-from src.preset.repository import PresetRepository
+from src.core.persistence import ExistsPort, UnitOfWork, gen_id
 from src.profile.models import Profile
 from src.profile.repository import ProfileRepository
-from src.prompt_template.repository import PromptTemplateRepository
 
 
 class ProfileService:
@@ -19,10 +15,10 @@ class ProfileService:
     def __init__(
         self,
         profile_repo: ProfileRepository,
-        template_repo: PromptTemplateRepository,
-        preset_repo: PresetRepository,
-        persona_repo: PersonaRepository,
-        model_repo: ModelRepository,
+        template_repo: ExistsPort,
+        preset_repo: ExistsPort,
+        persona_repo: ExistsPort,
+        model_repo: ExistsPort,
         uow: UnitOfWork | None = None,
     ):
         self.profile_repo = profile_repo

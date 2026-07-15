@@ -7,7 +7,7 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** — **BE-H1 COMPLETE (all 6 steps).** `UnitOfWork` + `AsyncUnitOfWork` across all 17 services (sync + async); `commit`/`rollback` removed from both base repositories; atomicity test green; concurrency 10/10 non-flaky (939 passed). Awaiting next direction.
+- **Active:** 🧵 **BE-H2 (module encapsulation) — IN PROGRESS.** Design: thin read-`Port`s (structural `Protocol`s) for cross-module reads, target `Service`s for writes. `ExistsPort`/`ReadPort` added; `profile` migrated (proof, 939 green, zero test edits). **PAUSED for review before the entangled reads + writes + lint** — see the BE-H2 rollout checklist. (BE-H1 complete: UoW sync+async across all 17 services.)
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
 - **Progress:** 16 / 30 done (BE-H1, BE-H4, BE-H8, BE-H9, BE-M1, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b; BE-M12 part c (audit-writer) + BE-H3 part 2 deferred. **Remaining: the deferred structural/contract tier** (BE-H2/H5/H6/H7, BE-M2/M3/M10/M11, BE-L3/L5/L7/L9).
 
@@ -100,7 +100,16 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** large blast radius — do first in this wave, one service cluster at a time, gates between.
 
-### BE-H2 · Encapsulate modules — stop services depending on other domains' repositories · [ ] · 🧵 main · dep: BE-H1 · pairs-with: BE-M11
+### BE-H2 · Encapsulate modules — stop services depending on other domains' repositories · [~] IN PROGRESS · 🧵 main · dep: BE-H1 · pairs-with: BE-M11
+
+**Design (chosen):** cross-module READS depend on a thin structural read `Port` (`core/persistence/ports.py`: `ExistsPort` = `exists(id)`, `ReadPort[T]` adds `find_by_id`); the target repo satisfies it structurally so DI passes the concrete repo unchanged (zero test edits). Cross-module WRITES go through the target slice's published `Service`. The enforced rule: **a `service.py` never imports another slice's `repository.py`** (custom AST lint, since ruff can't express a per-slice contextual ban).
+
+**Rollout checklist:**
+- [x] **Step 1 — proof:** `ExistsPort`/`ReadPort` + migrated `profile` (4 foreign repos → `ExistsPort`, used only for `.exists()`). Verified: ruff/basedpyright clean (structural satisfaction holds), profile 22 + full 939, zero test edits, no foreign repo import in `profile/service.py`.
+- [ ] **Step 2 — entangled reads:** `model`→`model_family` and `chat_session`→{character, model, profile, persona, message} are NOT pure `.exists()` — they use `find_by_id`/custom queries AND reach into `repo.db` (e.g. `model/service.py:187` `resolve_family(self.family_repo.db, …)`, `find_first()`). Need `ReadPort[T]` + a decision on the `.db`-access smell (pass the session explicitly, or widen the port). `prompt_template`→`prompt_fragment` too.
+- [ ] **Step 3 — writes via services:** `character`→`lore` (create lore on card import) and `st_import`→{preset, profile, fragment, template} (creates across 4 domains) → depend on the target slices' published services (`LoreService`, etc.), not their repos. Watch for service→service cycles.
+- [ ] **Step 4 — import-boundary lint:** a custom AST check (like the frontend's `canonical-classes.mjs`) failing CI if any `src/<slice>/service.py` imports `src/<other>/repository(_async)`. Wire into `backend-ci.yml`.
+- **Out of scope:** `fixtures/service.py` (startup seeding), the async `chat_message`→`chat_session` repo (revisit with the BE-H7 cycle work).
 - **Ref:** FINDINGS_BE.md §3 BE-H2 + §4 BE-M11
 - **Files:** `chat_session/service.py:9,17,18,25,26`; `profile/service.py:8-13`; `st_import/service.py:22-25`; `character/service.py:28`
 - **Fix:** define a thin published port/facade per module (`exists(id)`/`get(id)`); cross-module callers depend on that, not the concrete Repository. Standardize on **one** integration style (published-service or published-port) — resolves BE-M11's inconsistency. Add a lint boundary forbidding imports of another slice's `repository.py`.
