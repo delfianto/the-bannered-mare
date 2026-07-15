@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from src.chat_session.model_snapshot import ChatModelSnapshotService
 from src.chat_session.repository import ChatRepository
-from src.core.persistence import DbSession, UnitOfWork
+from src.core.persistence import DbSession
 from src.model.repository import ModelRepository
 from src.model.service import ModelService
 from src.model_family.dependencies import get_model_family_service
@@ -30,9 +30,7 @@ def get_model_service(
     for; family reads go through the published ``ModelFamilyService``.
     """
     chat_snapshot = ChatModelSnapshotService(ChatRepository(db))
-    return ModelService(
-        model_repo, provider_repo, family_service, chat_snapshot, uow=UnitOfWork(db)
-    )
+    return ModelService(model_repo, provider_repo, family_service, chat_snapshot)
 
 
 ModelServiceDep = Annotated[ModelService, Depends(get_model_service)]

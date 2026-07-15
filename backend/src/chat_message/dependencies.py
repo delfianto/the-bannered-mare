@@ -11,7 +11,7 @@ from src.chat_message.repository_async import (
 from src.chat_message.service import ChatMessageService
 from src.chat_session.dependencies import get_async_chat_repository
 from src.chat_session.repository_async import AsyncChatRepository
-from src.core.persistence import AsyncDbSession, AsyncUnitOfWork
+from src.core.persistence import AsyncDbSession
 from src.lore.dependencies import get_lore_service
 from src.lore.service import LoreService
 from src.prompt_template.dependencies import get_prompt_template_repository
@@ -60,7 +60,6 @@ async def get_chat_message_service(
         lore_service,
         alt_repo,
         retrieval_service,
-        uow=AsyncUnitOfWork(message_repo.db),
     )
 
 
