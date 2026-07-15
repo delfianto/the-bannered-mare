@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** — (Wave 2 in progress)
-- **Next up:** FE-C2 (SSE characterization tests 🤖) — last of this batch; then PAUSE before BE-H1 (structural) + the FE 🧵 migrations (FE-H4, FE-M1/M2/M3) and FE-M5
-- **Progress:** 5 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1 ✓; FE-L8 folded in)
+- **Active:** — (PAUSED at the approved batch boundary)
+- **Next up:** PAUSE for go-ahead. Remaining Wave 2 is higher-risk 🧵: FE-M5 (stop button + regen-abort restore), FE-H4 (AppCard/AppInput + focus-ring), FE-M1/M2 (state-cache strategy), FE-M3 (useListCrud factory). Lower-risk 🤖 also remain: FE-H2/H3 (i18n), FE-M9 (form/race tests), FE-L1–L7.
+- **Progress:** 6 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2 ✓; FE-L8 folded in)
 
 ---
 
@@ -80,7 +80,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** toggling "Stream Responses" off measurably changes request behavior, **or** the dead toggles are removed; gates green.
 - **Commit:** —
 
-### FE-C2 · Characterization tests for the SSE state machine · [ ] · 🤖 sub · dep: FE-C1
+### FE-C2 · Characterization tests for the SSE state machine · [x] DONE (see §Completed) · 🤖 sub · dep: FE-C1
 - **Ref:** FINDINGS_FE.md §2 FE-C2 · **Files:** `useChatMessages.ts:122-212` (+ new test)
 - **Fix:** mock `global.fetch` → streaming `Response(new ReadableStream(...))` emitting `data: {...}\n\n` chunks.
 - **Accept:** tests assert partial-chunk reassembly across reads, `[DONE]`, malformed-JSON tolerance, `error` event → throw + placeholder removed, abort mid-stream → quiet return + no blank bubble, chat-switch mid-stream → tokens don't land in the new chat; catches FE-C3-class + FE-L-latent regressions; gates green.
@@ -180,6 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-C2** (commit tagged `FE-C2`) — added 11 characterization tests for `readStream` + `sendMessage`/`regenerate` to `useChatMessages.test.ts` (22→33): partial-chunk reassembly (one frame split across 4 stream chunks), `[DONE]` short-circuit, malformed-JSON tolerance (warn + skip, later text still lands), `reasoning` accumulates separately, `start` id-swap (with/without `message_id`), `error` → placeholder dropped + `error.value` set, non-OK send, **abort mid-stream** (signal-wired mock + `flushPromises` → quiet resolve, no blank bubble), **chat-switch mid-stream** (post-switch token doesn't land — exercises the re-find-by-id `-1` guard), and `regenerate`. Coverage 4.75→**5.73%** lines. **Characterization notes (no bug):** `sendMessage` does NOT reject on stream `error`/non-OK/abort — it surfaces via `error.value` and resolves (for the toast layer); the chat-switch `reset` only fires under `autoLoad:true` (the prod default), so the tests use it. Verified independently: 33 tests, coverage ≥ floor, build/lint/fmt green.
 - **[x] FE-H1** (commit tagged `FE-H1`) — **removed** the write-only "Stream Responses" / "Typing Indicator" toggles from `InterfaceTab.vue` (refs, the `onMounted` localStorage hydration, both handlers, the orphaned `onMounted` import, and the two template rows — three dividers collapsed to one). Chose removal over wiring: wiring "Stream Responses" means building a whole non-streaming (blocking) send path in `useChatMessages` (a feature, unverifiable without running the app) and "Typing Indicator" has no clear consumer — an advertised-but-broken control is worse than none. **Reversible** if you'd rather have it as a feature. Left the 4 now-orphaned `settings.interface.stream*/typing*` i18n keys (present in all 5 locales) for the FE-H2/H3 i18n sweep. Verified: build/lint/fmt green, 22 tests pass.
 - **[x] FE-C3** (commit tagged `FE-C3`) — verified the backend persists the user message but streams only the *assistant* id in `start` (`chat_message/service.py:419-420,508-516`), so a FE-only fix must refetch. Added `reconcileSentUserMessage()`: after `readStream` completes in `sendMessage`, GET the 2 newest messages and swap the just-sent user bubble's client uuid for the persisted id **in place** (mutates `messages` directly — no cursor-list reset, so pagination/scroll are preserved); best-effort (a failed reconcile keeps the pre-fix behavior, never breaks a successful send). Regression test `useChatMessages.test.ts` drives send → reconcile → edit and asserts the edit PUTs `/messages/user-real` (would've been a phantom uuid pre-fix). Verified: 7 files / 22 tests, coverage up to **4.73%**, build/lint/fmt green.
 - **[x] FE-H7** (commit tagged `FE-H7`) — added `@vitest/coverage-v8@4.1.9`, a `coverage` block in `vite.config.ts` (v8, `all: true`, product-code include, `text-summary`+`json-summary` reporters), a `test:coverage` script, and switched the CI "Test" step to `bun run test:coverage`. Floor set just under the measured baseline — lines 2.5 / stmts 2.5 / fns 1.3 / branches 1.6 (actual 2.66/2.59/1.4/1.69) — so CI catches regressions and ratchets up as Wave 2/3 tests land. **Surprise + fix:** enabling `--coverage` made `localStorage` resolve to Node's experimental native binding (undefined) instead of happy-dom's on `globalThis`, so `i18n.ts`'s module-load `localStorage.getItem` threw and failed all suites (intermittently — it depends on which global wins). Added `src/test/setup-globals.ts` (a setupFile ordered BEFORE `setup.ts`, since ES imports hoist) that binds `localStorage` to happy-dom's `window.localStorage` or an in-memory stub. Confirmed happy-dom's `document` is otherwise intact under coverage (mount tests pass). Verified: coverage stable 3/3 (2.66% ≥ floor), plain `vp test run` + build + lint + fmt all green; `coverage/` already gitignored.
