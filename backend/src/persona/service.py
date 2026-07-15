@@ -3,7 +3,7 @@
 from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
-from src.core.persistence import gen_id
+from src.core.persistence import UnitOfWork, gen_id
 from src.core.utils.storage import delete_persona_files, save_persona_avatar
 from src.core.utils.upload import UploadedFile
 from src.persona.models import Persona
@@ -13,8 +13,12 @@ from src.persona.repository import PersonaRepository
 class PersonaService:
     """Service for persona-related business logic"""
 
-    def __init__(self, persona_repo: PersonaRepository):
+    def __init__(self, persona_repo: PersonaRepository, uow: UnitOfWork | None = None):
         self.persona_repo = persona_repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `PersonaService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(persona_repo.db)
 
     def list_all(self) -> list[Persona]:
         """List all personas"""
@@ -59,7 +63,7 @@ class PersonaService:
             created.avatar_thumbnail = thumbnail_path
             _ = self.persona_repo.update(created)
 
-        self.persona_repo.commit()
+        self.uow.commit()
         return created
 
     async def update(
@@ -92,7 +96,7 @@ class PersonaService:
             persona.avatar_large = large_path
             persona.avatar_thumbnail = thumbnail_path
         updated = self.persona_repo.update(persona)
-        self.persona_repo.commit()
+        self.uow.commit()
 
         return updated
 
@@ -103,8 +107,8 @@ class PersonaService:
         delete_persona_files(persona_id)
 
         self.persona_repo.delete(persona)
-        self.persona_repo.commit()
+        self.uow.commit()
 
     def set_default(self, persona_id: str) -> Persona:
         """Set persona as default"""
-        return set_as_default(self.persona_repo, self.get_by_id(persona_id))
+        return set_as_default(self.persona_repo, self.get_by_id(persona_id), self.uow)

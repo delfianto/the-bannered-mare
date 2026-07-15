@@ -5,7 +5,7 @@ from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import ValidationError
-from src.core.persistence import gen_id
+from src.core.persistence import UnitOfWork, gen_id
 from src.prompt_fragment.repository import FragmentRepository
 from src.prompt_template.models import PromptTemplate
 from src.prompt_template.repository import PromptTemplateRepository
@@ -22,10 +22,15 @@ class PromptTemplateService:
         template_repo: PromptTemplateRepository,
         fragment_repo: FragmentRepository | None = None,
         template_service: TemplateService | None = None,
+        uow: UnitOfWork | None = None,
     ):
         self.template_repo = template_repo
         self.fragment_repo = fragment_repo or FragmentRepository(template_repo.db)
         self.template_service = template_service or TemplateService()
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `PromptTemplateService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(template_repo.db)
 
     def list_all(self) -> list[PromptTemplate]:
         """List all prompt templates"""
@@ -73,7 +78,7 @@ class PromptTemplateService:
             max_history_tokens=max_history_tokens,
         )
         created = self.template_repo.create(template)
-        self.template_repo.commit()
+        self.uow.commit()
 
         return created
 
@@ -112,7 +117,7 @@ class PromptTemplateService:
             template.max_history_tokens = max_history_tokens
 
         updated = self.template_repo.update(template)
-        self.template_repo.commit()
+        self.uow.commit()
 
         return updated
 
@@ -127,7 +132,7 @@ class PromptTemplateService:
         fragment_ids = [tf.fragment_id for tf in template.template_fragments]
         self.template_repo.delete(template)
         cleaned_up = self.fragment_repo.delete_orphaned(fragment_ids)
-        self.template_repo.commit()
+        self.uow.commit()
         if cleaned_up:
             logger.info(
                 "Cleaned up %d orphaned fragment(s) after deleting template %s",
@@ -137,4 +142,4 @@ class PromptTemplateService:
 
     def set_default(self, template_id: str) -> PromptTemplate:
         """Set prompt template as default"""
-        return set_as_default(self.template_repo, self.get_by_id(template_id))
+        return set_as_default(self.template_repo, self.get_by_id(template_id), self.uow)

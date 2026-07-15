@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from src.core.persistence import DbSession
+from src.core.persistence import DbSession, UnitOfWork
 from src.preset.repository import PresetRepository
 from src.preset.service import PresetService
 
@@ -18,7 +18,7 @@ def get_preset_service(
     preset_repo: Annotated[PresetRepository, Depends(get_preset_repository)],
 ) -> PresetService:
     """Factory for PresetService with repository injected"""
-    return PresetService(preset_repo)
+    return PresetService(preset_repo, uow=UnitOfWork(preset_repo.db))
 
 
 PresetServiceDep = Annotated[PresetService, Depends(get_preset_service)]

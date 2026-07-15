@@ -48,22 +48,14 @@ async def async_get_or_404[T: BaseModel](
     return entity
 
 
-def set_as_default[T: BaseModel](
-    repo: DefaultableRepository[T], entity: T, uow: UnitOfWork | None = None
-) -> T:
+def set_as_default[T: BaseModel](repo: DefaultableRepository[T], entity: T, uow: UnitOfWork) -> T:
     """Make ``entity`` the sole default row, commit, and return it reloaded.
 
     Collapses the identical ``set_default`` bodies across the persona / preset /
-    profile / prompt-template services.
-
-    Pass ``uow`` to commit through the service's unit of work (BE-H1, the target
-    state). The ``None`` fallback commits via the repo and is transitional until
-    every defaultable service injects a UnitOfWork.
+    profile / prompt-template services. Commits through the service's unit of
+    work (BE-H1) — the single, explicit transaction boundary for the operation.
     """
     repo.set_default(entity.id)
-    if uow is not None:
-        uow.commit()
-    else:
-        repo.commit()
+    uow.commit()
     repo.refresh(entity)
     return entity
