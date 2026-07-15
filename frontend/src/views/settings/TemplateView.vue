@@ -6,6 +6,7 @@ import { usePromptTemplate } from "@/composables/usePromptTemplate";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
 import { formatDate } from "@/utils/date";
+import { routeParam } from "@/utils/route";
 
 const { t } = useI18n();
 
@@ -40,7 +41,7 @@ const form = reactive({
 });
 
 onMounted(async () => {
-  const id = route.params.id as string;
+  const id = routeParam(route.params.id);
   await fetchTemplate(id);
   await fetchAttachedFragments(id);
 });

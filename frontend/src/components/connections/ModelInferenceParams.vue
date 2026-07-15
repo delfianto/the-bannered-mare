@@ -2,9 +2,10 @@
 import { computed } from "vue";
 import ParamInput from "./ParamInput.vue";
 import AppTooltip from "@/components/shared/AppTooltip.vue";
+import type { ParamSchema } from "@/types/params";
 
 const props = defineProps<{
-  familyParameters: Record<string, any>;
+  familyParameters: Record<string, ParamSchema>;
   modelParameters: Record<string, unknown>;
   parameterDocs: Record<string, { label: string; short_info: string; detailed_info: string }>;
 }>();
@@ -15,7 +16,7 @@ const emit = defineEmits<{
 
 type ParamGroup = "general" | "fine-tuning" | "advanced";
 
-function categorizeParam(_key: string, schema: any): ParamGroup {
+function categorizeParam(_key: string, schema: ParamSchema): ParamGroup {
   const type = schema?.type;
   if (type === "object" || type === "list" || type === "json" || type === "string") {
     return "advanced";

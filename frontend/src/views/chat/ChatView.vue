@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
+import { routeParam } from "@/utils/route";
 import { ref, computed, nextTick, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -21,7 +22,7 @@ const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
-const activeSessionId = ref((route.params.chatId as string) || "");
+const activeSessionId = ref(routeParam(route.params.chatId));
 
 // Wire to API via composables
 const {

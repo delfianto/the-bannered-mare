@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import type { ParamSchema } from "@/types/params";
 
 const props = defineProps<{
   paramKey: string;
-  schema: any;
+  schema: ParamSchema;
   modelValue: unknown;
   layout?: "horizontal" | "vertical";
 }>();
@@ -38,7 +39,7 @@ const step = computed(() => (schemaType.value === "float" ? 0.01 : 1));
 const numberValue = computed({
   get: () => {
     const v = currentValue.value;
-    return typeof v === "number" ? v : (props.schema?.default ?? 0);
+    return typeof v === "number" ? v : ((props.schema?.default as number | undefined) ?? 0);
   },
   set: (val) => {
     const num = typeof val === "string" ? parseFloat(val) : val;
@@ -155,13 +156,14 @@ function handleTagKeydown(event: KeyboardEvent) {
 
 // List of objects
 const listItems = computed({
-  get: () => (Array.isArray(currentValue.value) ? (currentValue.value as any[]) : []),
+  get: () =>
+    Array.isArray(currentValue.value) ? (currentValue.value as Record<string, unknown>[]) : [],
   set: (val) => {
     currentValue.value = val;
   },
 });
 
-function updateListItem(index: number, val: any) {
+function updateListItem(index: number, val: Record<string, unknown>) {
   const copy = [...listItems.value];
   copy[index] = val;
   listItems.value = copy;

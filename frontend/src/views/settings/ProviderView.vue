@@ -8,6 +8,7 @@ import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
 import { useSettingsStore } from "@/stores/settings";
 import { formatDate, timeAgo as timeAgoUtil } from "@/utils/date";
+import { routeParam } from "@/utils/route";
 import ModelCreateModal from "@/components/connections/ModelCreateModal.vue";
 import anthropicIcon from "@/assets/icons/anthropic.svg";
 import googleIcon from "@/assets/icons/google.svg";
@@ -167,7 +168,7 @@ async function clearFilter() {
 }
 
 onMounted(async () => {
-  const id = route.params.id as string;
+  const id = routeParam(route.params.id);
   // Independent (all keyed by id) — fetch in parallel so the page isn't gated
   // on three sequential round-trips.
   await Promise.all([

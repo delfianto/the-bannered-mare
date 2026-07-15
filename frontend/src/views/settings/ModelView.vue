@@ -11,6 +11,7 @@ import AppTooltip from "@/components/shared/AppTooltip.vue";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { providersForFamily } from "@/utils/modelProviderFilter";
 import { formatDate } from "@/utils/date";
+import { routeParam } from "@/utils/route";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -42,7 +43,7 @@ const form = reactive({
 });
 
 onMounted(async () => {
-  const id = route.params.id as string;
+  const id = routeParam(route.params.id);
   await Promise.all([
     fetchModel(id),
     settingsStore.fetchProviders(),

@@ -6,6 +6,8 @@ import { useModelFamily } from "@/composables/useModelFamily";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
 import { formatDate } from "@/utils/date";
+import { routeParam } from "@/utils/route";
+import type { ParamSchema } from "@/types/params";
 
 const { t } = useI18n();
 
@@ -22,7 +24,7 @@ const form = reactive({
 });
 
 onMounted(async () => {
-  const id = route.params.id as string;
+  const id = routeParam(route.params.id);
   await fetchFamily(id);
 });
 
@@ -66,16 +68,6 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
     toast.error(t("connections.family.toast.deleteFailed"));
   }
 });
-
-// Family parameter definitions are an opaque JSON blob in the contract
-// (dict[str, Any]); this captures the fields the UI reads without an `any`.
-interface ParamSchema {
-  type?: string;
-  default?: unknown;
-  min_value?: number;
-  max_value?: number;
-  str_values?: string[];
-}
 
 function getParamType(schema: unknown): string {
   return (schema as ParamSchema)?.type || "unknown";
