@@ -42,6 +42,7 @@ const {
   messages,
   loading: messagesLoading,
   isGenerating,
+  stop,
   suggesting,
   fetchSuggestions,
   hasMore,
@@ -473,7 +474,7 @@ async function handleEditMessage(messageId: string, content: string) {
       </div>
 
       <!-- Input -->
-      <ParchmentInput ref="inputRef" :disabled="isGenerating" @send="handleSend" />
+      <ParchmentInput ref="inputRef" :generating="isGenerating" @send="handleSend" @stop="stop" />
     </div>
 
     <!-- No session selected -->

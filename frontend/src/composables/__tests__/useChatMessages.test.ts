@@ -458,3 +458,67 @@ describe("useChatMessages — FE-C2: SSE state machine (readStream + send/regene
     expect(calls.some((c) => c.method === "POST" && c.url.includes("regenerate=true"))).toBe(true);
   });
 });
+
+describe("useChatMessages — FE-M5: stopping a regenerate restores the prior reply", () => {
+  let realFetch: typeof globalThis.fetch;
+  beforeEach(() => {
+    realFetch = globalThis.fetch;
+  });
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+  });
+
+  it("restores the optimistically-removed reply when a regen is aborted mid-stream", async () => {
+    // Regenerate persists only on completion, so an aborted regen leaves the prior
+    // reply as the server's truth; loadMessages refetches it. GET is newest-first
+    // (loadMessages reverses → [user, assistant]).
+    const page = () =>
+      new Response(
+        JSON.stringify({
+          items: [
+            {
+              id: "asst-1",
+              role: "assistant",
+              content: "The original reply.",
+              active_index: 0,
+              created_at: "2020-01-02T00:00:00Z",
+              chat_id: CHAT_ID,
+            },
+            {
+              id: "user-1",
+              role: "user",
+              content: "Hello",
+              active_index: 0,
+              created_at: "2020-01-01T00:00:00Z",
+              chat_id: CHAT_ID,
+            },
+          ],
+          meta: { limit: 30, has_more: false, cursor: null, total: 2, page: 1 },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+
+    installFetch({
+      // A regen stream that emits only `start` (no content), then hangs until abort.
+      stream: (init) =>
+        abortableSse([{ type: "start", message_id: "asst-2" }], init.signal ?? undefined),
+      messages: page,
+    });
+
+    const chat = mountComposable(() => CHAT_ID, true);
+    await flushPromises();
+    expect(chat.messages.value.at(-1)?.content).toBe("The original reply.");
+
+    const regen = chat.regenerate(); // removes asst-1, adds an empty placeholder
+    await flushPromises(); // stream starts; `start` swaps the placeholder id
+    chat.stop(); // abort → readStream re-throws AbortError → regenerate refetches
+    await regen;
+    await flushPromises();
+
+    // The prior reply is back, with no empty placeholder / lost message.
+    const assistants = chat.messages.value.filter((m) => m.role === "assistant");
+    expect(assistants).toHaveLength(1);
+    expect(assistants[0]?.content).toBe("The original reply.");
+    expect(chat.messages.value.some((m) => m.content === "")).toBe(false);
+  });
+});

@@ -193,12 +193,12 @@ export function useChatMessages(
         if (streamError) break;
       }
     } catch (err) {
-      // Either way, drop the placeholder if nothing streamed yet (kept only once it
-      // accumulated content) so an early stop or mid-stream failure never leaves a
-      // blank assistant bubble. The id may already be the backend id (start event).
+      // Drop the placeholder if nothing streamed yet (kept once it accumulated
+      // content) so an early stop or mid-stream failure never leaves a blank
+      // assistant bubble. The id may already be the backend id (start event).
       messages.value = messages.value.filter((m) => m.id !== currentId || m.content);
-      // Abort (stop button / chat switch) is expected — end quietly.
-      if ((err as Error)?.name === "AbortError") return;
+      // Re-throw everything, incl. AbortError, so the caller can react: sendMessage
+      // returns quietly, regenerate restores the reply it optimistically removed.
       throw err;
     } finally {
       isGenerating.value = false;
@@ -244,7 +244,13 @@ export function useChatMessages(
 
       await readStream(response, placeholderId);
     } catch (err) {
-      if ((err as Error)?.name === "AbortError") return;
+      if ((err as Error)?.name === "AbortError") {
+        // Stopped mid-regen: readStream dropped the placeholder, so the reply we
+        // optimistically removed would otherwise vanish. Refetch to bring it back
+        // — but only if we're still on this chat (a chat switch reloads on its own).
+        if (getChatId() === chatId) await loadMessages();
+        return;
+      }
       error.value = err instanceof Error ? err : new Error("Regeneration failed");
       isGenerating.value = false;
       await loadMessages();
