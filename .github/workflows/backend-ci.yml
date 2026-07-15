@@ -103,6 +103,11 @@ jobs:
           echo "postgres did not become ready"; docker logs vchord; exit 1
       - name: Apply migrations
         run: uv run alembic upgrade head
+      # Scope note (BE-L7): this runs ONLY the `postgres`-marked tests
+      # (test_postgres_integration.py — the DB/pgvector path). The other files in
+      # tests/integration/ are `integration`-only and call live provider APIs (keys
+      # required), so they are NOT exercised here — they run locally/on demand. Add
+      # a nightly keyed job if live-provider coverage in CI is ever needed.
       - name: Run Postgres integration tests
         run: uv run pytest -m postgres
 
