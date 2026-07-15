@@ -9,7 +9,7 @@
 - **Updated:** 2026-07-15
 - **Active:** clearing the low-risk 🤖 backlog (structural refactors BE-H1/H2/H7/H6/H5 deferred per the autonomy setting)
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
-- **Progress:** 5 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
+- **Progress:** 6 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
 
 ---
 
@@ -175,7 +175,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Fix:** extend the production validator to reject the known placeholder DSN / require an explicit `DATABASE_URL`.
 - **Accept:** booting with `environment=production` + the placeholder DSN raises; a test covers it. *(Config validation, not network hardening — auth/CORS/SSRF stay out of scope.)*
 
-### BE-M9 · Close the two router escapes · [ ] · 🤖 sub
+### BE-M9 · Close the two router escapes · [x] DONE (see §Completed) · 🤖 sub
 - **Ref:** FINDINGS_BE.md §4 BE-M9 · **Files:** `prompt_template/router.py:115`; `chat_message/router.py:129`
 - **Fix:** make `build_variables` public (drop `reportPrivateUsage`); thread validated `content: str` into `_handle_blocking`/`_handle_streaming` to drop the bare `# type: ignore`.
 - **Accept:** no `pyright: ignore`/bare `type: ignore` at those sites; `basedpyright` clean; gates green.
@@ -212,6 +212,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] BE-M9** (commit tagged `BE-M9`) — closed both router suppressions by refactor (no behavior change). Made `TemplateService.build_variables` **public** (the method actually lives in `templating/__init__.py`, not `prompt_template/service.py` as the finding guessed — grep was authoritative; 1 def + 2 callers updated) and dropped the `pyright: ignore[reportPrivateUsage]` in `prompt_template/router.py`. Threaded validated `content: str | None` through `_handle_blocking`/`_handle_streaming` (dropped the now-redundant `regenerate` param — `content is None ⟺ regenerate`), removing **both** bare `# type: ignore` in `chat_message/router.py` **plus** the annotated `:96` one. (basedpyright wouldn't narrow through the compound `and`-guard in a ternary, so used explicit `if/elif/else`.) Verified: ruff clean, **basedpyright 0/0/0**, pytest 909 unchanged; grep confirms zero suppressions in both routers.
 - **[x] BE-M5** (commit tagged `BE-M5`) — extracted the placeholder DSN to a module constant (`_PLACEHOLDER_DATABASE_URL`) used as BOTH the `database_url` field default and the validator's compare target (can't drift), and extended `_forbid_insecure_production_defaults` to raise (after the existing CORS check) when `environment=production` + the placeholder DSN. Added 3 tests (prod-placeholder raises / prod-real boots / dev-placeholder fine) and made the pre-existing `test_production_with_explicit_origins_boots` pass an explicit DSN so it's env-independent. Verified: ruff/basedpyright clean, pytest **909** (906 + 3). **Env note:** `backend/.env` supplies a real remote DSN + `CORS_ORIGINS=["*"]` that pytest loads. Config-validation only (no auth/network/SSRF, per scope).
 - **[x] BE-M8** (commit tagged `BE-M8`) — removed **21** play-by-play/restatement comments across 8 files (`provider/service.py` ×4, `character/service.py` ×4, `persona/service.py` ×2, `model_family/service.py` ×2, `prompt_template/router.py` ×1, `audit/middleware.py` ×3, `fixtures/seed_*` ×5); `git numstat` confirms **deletion-only** (comment lines only), zero executable/test changes. Deliberately KEPT `prompt_template/router.py:97` (`# Mock chat object …` — a genuine WHY). Stayed within the curated list (no un-cited sweeps). Verified: ruff/basedpyright clean, pytest 909 unchanged.
 - **[~] BE-H3 — part 1 done, part 2 deferred** (commit tagged `BE-H3`) — **Part 1 (headline): added a `ci-gate` job** to `backend-ci.yml` that `needs: [lint, typecheck, test, integration]` with `if: always()` and fails unless every result is `success`, so a skipped/failed Postgres `integration` job turns the pipeline **red** instead of silently passing (point branch protection at `ci-gate`). Validated: workflow parses, all needed jobs exist. **Part 2 (expand PG tests — vchordrq tuning, message `chat_id` scoping, threshold-equality edge, empty results) DEFERRED**: authoring + verifying these needs a live VectorChord container, and **Docker is not available in this environment** — committing unverified integration tests would violate evidence-before-assertions. Follow-up: add them to `tests/integration/test_postgres_integration.py` (which already covers extension/index presence, cosine ranking + threshold, mocked-embedding retrieval, seed data) when a container is available, and confirm `uv run pytest -m postgres` green.

@@ -73,7 +73,7 @@ class TemplateService:
             raise ValueError(f"Template syntax error: {e}") from e
 
         # Build template variables
-        variables = self._build_variables(context)
+        variables = self.build_variables(context)
 
         try:
             return template.render(**variables)
@@ -82,7 +82,7 @@ class TemplateService:
             # attribute/callable (injection attempt) — refuse rather than execute.
             raise ValueError(f"Template rendering blocked (unsafe operation): {e}") from e
 
-    def _build_variables(self, context: TemplateContext) -> dict[str, str]:
+    def build_variables(self, context: TemplateContext) -> dict[str, str]:
         """Build template variables from context
 
         Supported variables:
