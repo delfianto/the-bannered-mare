@@ -123,7 +123,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.name"
                 type="text"
                 placeholder="Template name"
-                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                class="input-field"
               />
             </label>
 
@@ -139,7 +139,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.description"
                 type="text"
                 placeholder="What is this template for?"
-                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                class="input-field"
               />
             </label>
 

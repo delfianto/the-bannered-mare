@@ -126,7 +126,7 @@ onBeforeRouteLeave(() => {
                   v-model="form.name"
                   type="text"
                   placeholder="Fragment name"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                  class="input-field"
                 />
               </label>
 
@@ -141,7 +141,7 @@ onBeforeRouteLeave(() => {
                   v-model="form.fragment_type"
                   type="text"
                   placeholder="instruction"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                  class="input-field font-mono placeholder:font-sans"
                 />
               </label>
             </div>
@@ -158,7 +158,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.description"
                 type="text"
                 placeholder="What is this fragment for?"
-                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                class="input-field"
               />
             </label>
 

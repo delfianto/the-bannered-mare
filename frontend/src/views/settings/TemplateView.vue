@@ -276,7 +276,7 @@ function handleAttachFragment() {
                     v-model="form.name"
                     type="text"
                     placeholder="Template name"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                    class="input-field"
                   />
                 </label>
 
@@ -435,7 +435,7 @@ function handleAttachFragment() {
                     :value="form.max_history_tokens ?? ''"
                     type="number"
                     placeholder="e.g. 4096"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                    class="input-field"
                     @input="
                       (e) => {
                         const v = (e.target as HTMLInputElement).value;

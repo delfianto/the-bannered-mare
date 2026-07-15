@@ -409,7 +409,7 @@ function toggleMenu(identifier: string) {
                   v-model="form.name"
                   type="text"
                   placeholder="Provider name"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                  class="input-field"
                 />
               </label>
 
@@ -424,7 +424,7 @@ function toggleMenu(identifier: string) {
                   v-model="form.base_url"
                   type="text"
                   placeholder="https://api.example.com/v1"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                  class="input-field font-mono"
                 />
               </label>
 

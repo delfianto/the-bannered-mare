@@ -338,7 +338,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                     v-model="form.display_name"
                     type="text"
                     :placeholder="$t('connections.model.namePlaceholder')"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+                    class="input-field"
                   />
                 </label>
 

@@ -44,7 +44,7 @@ function handleBlur(e: FocusEvent) {
       <input
         :value="open ? filter : modelValue"
         :placeholder="placeholder"
-        class="h-11 w-full rounded-lg border bg-base-300/40 px-4 pr-10 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
+        class="input-field pr-10"
         @input="
           filter = ($event.target as HTMLInputElement).value;
           open = true;
