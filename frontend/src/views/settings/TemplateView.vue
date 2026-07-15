@@ -107,15 +107,15 @@ async function handleSave() {
     updates.max_history_tokens = form.max_history_tokens;
 
   if (Object.keys(updates).length === 0) {
-    toast.info("No changes to save");
+    toast.info(t("connections.template.toast.noChanges"));
     return;
   }
 
   try {
     await saveTemplate(template.value.id, updates);
-    toast.success("Template updated");
+    toast.success(t("connections.template.toast.updated"));
   } catch (e) {
-    toast.error("Failed to save template");
+    toast.error(t("connections.template.toast.saveFailed"));
   }
 }
 
@@ -123,10 +123,10 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
   if (!template.value) return;
   try {
     await deleteTemplate(template.value.id);
-    toast.success("Template deleted");
+    toast.success(t("connections.template.toast.deleted"));
     router.push({ path: "/loadouts", query: { tab: "templates" } });
   } catch {
-    toast.error("Failed to delete template");
+    toast.error(t("connections.template.toast.deleteFailed"));
   }
 });
 
@@ -142,7 +142,7 @@ async function handlePreview() {
       persona_description: "A curious person",
     });
   } catch (e) {
-    toast.error("Failed to preview template");
+    toast.error(t("connections.template.toast.previewFailed"));
   }
 }
 
@@ -150,9 +150,9 @@ async function handleDetachFragment(fragmentId: string) {
   if (!template.value) return;
   try {
     await detachFragment(template.value.id, fragmentId);
-    toast.success("Fragment detached");
+    toast.success(t("connections.template.toast.fragmentDetached"));
   } catch (e) {
-    toast.error("Failed to detach fragment");
+    toast.error(t("connections.template.toast.detachFailed"));
   }
 }
 

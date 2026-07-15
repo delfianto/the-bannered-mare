@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { client } from "@/api/client";
 import { useProviders } from "@/composables/useProviders";
@@ -19,6 +20,7 @@ type ProfileCreate = components["schemas"]["ProfileCreate"];
 
 const router = useRouter();
 const toast = useAppToast();
+const { t } = useI18n();
 
 const step = ref<1 | 2 | 3>(1);
 const createPath = ref<"choose" | "manual" | "import">("choose");
@@ -67,9 +69,9 @@ async function quickCreatePersona() {
     if (created) {
       followUpPersonaId.value = created.id;
       quickPersonaName.value = "";
-      toast.success("Persona created");
+      toast.success(t("setup.toast.personaCreated"));
     } else {
-      toast.error("Failed to create persona");
+      toast.error(t("setup.toast.personaFailed"));
     }
   } finally {
     creatingPersona.value = false;
@@ -138,15 +140,15 @@ const incompleteProfiles = computed(() => profiles.value.filter((p) => !p.model_
 // ── Step 2: manual profile creation ──────────────────────
 async function onManualSubmit(payload: ProfileCreate) {
   if (!payload.model_id) {
-    toast.error("Pick a model so this profile can actually start a tale");
+    toast.error(t("setup.toast.pickModel"));
     return;
   }
   const res = await createProfile({ ...payload, is_default: true });
   if (res) {
-    toast.success("Profile created");
+    toast.success(t("setup.toast.profileCreated"));
     step.value = 3;
   } else {
-    toast.error("Failed to create profile");
+    toast.error(t("setup.toast.profileFailed"));
   }
 }
 
@@ -176,7 +178,7 @@ function resumeIncompleteProfile(profile: { id: string; name: string }) {
 async function finishImportSetup() {
   if (!profileToFinish.value) return;
   if (followUpModelId.value === NONE) {
-    toast.error("Pick a model so this profile can actually start a tale");
+    toast.error(t("setup.toast.pickModel"));
     return;
   }
   finishingImport.value = true;
@@ -187,10 +189,10 @@ async function finishImportSetup() {
       is_default: true,
     });
     if (res) {
-      toast.success("Profile ready");
+      toast.success(t("setup.toast.profileReady"));
       step.value = 3;
     } else {
-      toast.error("Failed to finish setup");
+      toast.error(t("setup.toast.finishFailed"));
     }
   } finally {
     finishingImport.value = false;

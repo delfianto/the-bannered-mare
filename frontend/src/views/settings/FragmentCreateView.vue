@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 import { usePromptFragment } from "@/composables/usePromptFragment";
 import { useAppToast } from "@/composables/useToast";
@@ -7,6 +8,7 @@ import { useAppToast } from "@/composables/useToast";
 const router = useRouter();
 const { createFragment, saving } = usePromptFragment();
 const toast = useAppToast();
+const { t } = useI18n();
 
 const form = reactive({
   name: "",
@@ -24,7 +26,7 @@ const canCreate = computed(() => !!form.name.trim() && !!form.content.trim());
 
 async function handleCreate() {
   if (!canCreate.value) {
-    toast.error("Name and content are required");
+    toast.error(t("connections.fragment.toast.required"));
     return;
   }
   try {
@@ -36,10 +38,10 @@ async function handleCreate() {
       is_global: form.is_global,
     });
     saved.value = true; // suppress the unsaved-changes guard on the redirect
-    toast.success("Fragment created");
+    toast.success(t("connections.fragment.toast.created"));
     router.push(`/settings/fragments/${created.id}`);
   } catch {
-    toast.error("Failed to create fragment");
+    toast.error(t("connections.fragment.toast.createFailed"));
   }
 }
 

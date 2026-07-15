@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 import { usePromptTemplate } from "@/composables/usePromptTemplate";
 import { useAppToast } from "@/composables/useToast";
@@ -7,6 +8,7 @@ import { useAppToast } from "@/composables/useToast";
 const router = useRouter();
 const { createTemplate, saving } = usePromptTemplate();
 const toast = useAppToast();
+const { t } = useI18n();
 
 const form = reactive({
   name: "",
@@ -23,7 +25,7 @@ const canCreate = computed(() => !!form.name.trim() && !!form.system_template.tr
 
 async function handleCreate() {
   if (!canCreate.value) {
-    toast.error("Name and system template are required");
+    toast.error(t("connections.template.toast.required"));
     return;
   }
   try {
@@ -34,10 +36,10 @@ async function handleCreate() {
       is_default: form.is_default,
     });
     saved.value = true; // suppress the unsaved-changes guard on the redirect
-    toast.success("Template created");
+    toast.success(t("connections.template.toast.created"));
     router.push(`/settings/templates/${created.id}`);
   } catch {
-    toast.error("Failed to create template");
+    toast.error(t("connections.template.toast.createFailed"));
   }
 }
 

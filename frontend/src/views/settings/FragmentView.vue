@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { usePromptFragment } from "@/composables/usePromptFragment";
 import { useConfirmAction } from "@/composables/useConfirmAction";
@@ -11,6 +12,7 @@ const route = useRoute();
 const { fragment, loading, saving, deleting, error, fetchFragment, saveFragment, deleteFragment } =
   usePromptFragment();
 const toast = useAppToast();
+const { t } = useI18n();
 
 const fragmentTypeOptions = [
   { label: "System", value: "system" },
@@ -59,15 +61,15 @@ async function handleSave() {
   if (form.is_global !== fragment.value.is_global) updates.is_global = form.is_global;
 
   if (Object.keys(updates).length === 0) {
-    toast.info("No changes to save");
+    toast.info(t("connections.fragment.toast.noChanges"));
     return;
   }
 
   try {
     await saveFragment(fragment.value.id, updates);
-    toast.success("Fragment updated");
+    toast.success(t("connections.fragment.toast.updated"));
   } catch (e) {
-    toast.error("Failed to save fragment");
+    toast.error(t("connections.fragment.toast.saveFailed"));
   }
 }
 
@@ -75,10 +77,10 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
   if (!fragment.value) return;
   try {
     await deleteFragment(fragment.value.id);
-    toast.success("Fragment deleted");
+    toast.success(t("connections.fragment.toast.deleted"));
     router.push({ path: "/loadouts", query: { tab: "fragments" } });
   } catch {
-    toast.error("Failed to delete fragment");
+    toast.error(t("connections.fragment.toast.deleteFailed"));
   }
 });
 </script>

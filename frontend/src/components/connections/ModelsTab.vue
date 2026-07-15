@@ -184,7 +184,7 @@ async function handleToggleEnabled(row: ModelRow) {
     await toggleFlags(row.id, { enabled: row.enabled });
   } catch {
     row.enabled = previous;
-    toast.error("Failed to update model");
+    toast.error(t("connections.model.toast.updateFailed"));
   } finally {
     togglingIds.value.delete(row.id);
   }

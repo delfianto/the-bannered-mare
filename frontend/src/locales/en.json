@@ -376,6 +376,10 @@
     "swipe": {
       "previous": "Previous alternative",
       "next": "Next alternative"
+    },
+    "toast": {
+      "setupProfile": "Set up a profile before starting a tale",
+      "startFailed": "Failed to start a new tale"
     }
   },
   "bookmarks": {
@@ -424,7 +428,23 @@
       "envVar": "Environment Variable",
       "keyConfigured": "Key configured",
       "keyNotSet": "Not set",
-      "backToProviders": "Back to providers"
+      "backToProviders": "Back to providers",
+      "toast": {
+        "created": "Provider created",
+        "createFailed": "Failed to create provider",
+        "updated": "Provider updated",
+        "saveFailed": "Failed to save provider",
+        "noChanges": "No changes to save",
+        "filterFailed": "Failed to update model filter",
+        "synced": "Model list synced",
+        "syncFailed": "Failed to sync models",
+        "modelLoaded": "Loaded {model}",
+        "loadFailed": "Failed to load model",
+        "modelUnloaded": "Unloaded {model}",
+        "unloadFailed": "Failed to unload model",
+        "modelDeleted": "Deleted {model}",
+        "deleteFailed": "Failed to delete model"
+      }
     },
     "model": {
       "name": "Name",
@@ -458,7 +478,10 @@
       "createModel": "Create Model",
       "creating": "Creating…",
       "toast": {
+        "created": "Model created",
+        "createFailed": "Failed to create model",
         "updated": "Model updated",
+        "updateFailed": "Failed to update model",
         "saveFailed": "Failed to save model",
         "deleted": "Model deleted",
         "deleteFailed": "Failed to delete model",
@@ -480,7 +503,16 @@
       "parameterSchema": "Parameter Schema",
       "unsupportedParams": "Unsupported Parameters",
       "backToFamilies": "Back to model families",
-      "descriptionPlaceholder": "Describe this model family…"
+      "descriptionPlaceholder": "Describe this model family…",
+      "toast": {
+        "created": "Model family created",
+        "createFailed": "Failed to create model family",
+        "updated": "Model family updated",
+        "saveFailed": "Failed to save model family",
+        "deleted": "Model family deleted",
+        "deleteFailed": "Failed to delete model family",
+        "noChanges": "No changes to save"
+      }
     },
     "preset": {
       "name": "Name",
@@ -491,7 +523,16 @@
       "addParam": "Add Parameter",
       "removeParam": "Remove parameter",
       "metadata": "Metadata",
-      "backToPresets": "Back to presets"
+      "backToPresets": "Back to presets",
+      "toast": {
+        "updated": "Preset updated",
+        "saveFailed": "Failed to save preset",
+        "deleted": "Preset deleted",
+        "deleteFailed": "Failed to delete preset",
+        "defaultSet": "Preset set as default",
+        "setDefaultFailed": "Failed to set default",
+        "noChanges": "No changes to save"
+      }
     },
     "template": {
       "name": "Name",
@@ -509,7 +550,20 @@
       "maxHistoryTokens": "Max History Tokens",
       "preview": "Preview",
       "previewTemplate": "Preview Template",
-      "backToTemplates": "Back to templates"
+      "backToTemplates": "Back to templates",
+      "toast": {
+        "created": "Template created",
+        "createFailed": "Failed to create template",
+        "required": "Name and system template are required",
+        "updated": "Template updated",
+        "saveFailed": "Failed to save template",
+        "deleted": "Template deleted",
+        "deleteFailed": "Failed to delete template",
+        "noChanges": "No changes to save",
+        "previewFailed": "Failed to preview template",
+        "fragmentDetached": "Fragment detached",
+        "detachFailed": "Failed to detach fragment"
+      }
     },
     "fragment": {
       "name": "Name",
@@ -519,7 +573,17 @@
       "content": "Fragment Content",
       "contentPlaceholder": "Jinja2 template content…",
       "contentHint": "Jinja2 template content injected into prompt templates",
-      "backToFragments": "Back to fragments"
+      "backToFragments": "Back to fragments",
+      "toast": {
+        "created": "Fragment created",
+        "createFailed": "Failed to create fragment",
+        "required": "Name and content are required",
+        "updated": "Fragment updated",
+        "saveFailed": "Failed to save fragment",
+        "deleted": "Fragment deleted",
+        "deleteFailed": "Failed to delete fragment",
+        "noChanges": "No changes to save"
+      }
     }
   },
   "memory": {
@@ -630,6 +694,17 @@
     "about": {
       "craftedBy": "Crafted with care by",
       "viewGithub": "View on GitHub"
+    }
+  },
+  "setup": {
+    "toast": {
+      "personaCreated": "Persona created",
+      "personaFailed": "Failed to create persona",
+      "pickModel": "Pick a model so this profile can actually start a tale",
+      "profileCreated": "Profile created",
+      "profileFailed": "Failed to create profile",
+      "profileReady": "Profile ready",
+      "finishFailed": "Failed to finish setup"
     }
   },
   "time": {
