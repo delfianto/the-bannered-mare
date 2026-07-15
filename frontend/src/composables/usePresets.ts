@@ -1,52 +1,19 @@
-import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client, extractApiError } from "@/api/client";
+import { client } from "@/api/client";
+import { useListCrud } from "@/composables/useListCrud";
 
 export type Preset = components["schemas"]["PresetResponse"];
 
 export function usePresets() {
-  const presets = ref<Preset[]>([]);
-  const loading = ref(false);
-  const error = ref<Error | null>(null);
-
-  const fetchPresets = async () => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const { data, error: apiError } = await client.GET("/api/presets/", {
-        params: {
-          query: { limit: 50 },
-        },
-      });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to load presets");
-      }
-
-      if (data) {
-        presets.value = data.items;
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error("Unknown error");
-      console.error("Error loading presets:", err);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const refresh = () => {
-    fetchPresets();
-  };
-
-  onMounted(() => {
-    fetchPresets();
-  });
-
-  return {
-    presets,
+  const {
+    items: presets,
     loading,
     error,
     refresh,
-  };
+  } = useListCrud<Preset>({
+    label: "presets",
+    list: () => client.GET("/api/presets/", { params: { query: { limit: 50 } } }),
+  });
+
+  return { presets, loading, error, refresh };
 }
