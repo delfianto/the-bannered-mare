@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { useModel } from "@/composables/useModel";
 import { useProviders } from "@/composables/useProviders";
 import { useModelFamilies } from "@/composables/useModelFamilies";
@@ -24,15 +25,16 @@ const { createModel, saving } = useModel();
 const { providers } = useProviders();
 const { families } = useModelFamilies({ pageSize: 100 });
 const toast = useAppToast();
+const { t } = useI18n();
 
 async function onSubmit(payload: components["schemas"]["ModelCreate"]) {
   try {
     await createModel(payload);
-    toast.success("Model created");
+    toast.success(t("connections.model.toast.created"));
     emit("created");
     emit("close");
   } catch {
-    toast.error("Failed to create model");
+    toast.error(t("connections.model.toast.createFailed"));
   }
 }
 </script>

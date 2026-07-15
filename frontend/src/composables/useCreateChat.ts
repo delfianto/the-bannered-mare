@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { client } from "@/api/client";
 import { useAppToast } from "@/composables/useToast";
 import type { components } from "@/api/schema";
@@ -9,6 +10,7 @@ type Profile = components["schemas"]["ProfileResponse"];
 export function useCreateChat() {
   const router = useRouter();
   const toast = useAppToast();
+  const { t } = useI18n();
   const creating = ref(false);
   const profileChoices = ref<Profile[] | null>(null);
   let pendingCharacterId: string | null = null;
@@ -34,7 +36,7 @@ export function useCreateChat() {
       const readyProfiles = data.items.filter((p) => p.model_id);
 
       if (readyProfiles.length === 0) {
-        toast.info("Set up a profile before starting a tale");
+        toast.info(t("chat.toast.setupProfile"));
         await router.push("/setup");
         return;
       }
@@ -47,7 +49,7 @@ export function useCreateChat() {
       pendingCharacterId = characterId;
       profileChoices.value = readyProfiles;
     } catch (e) {
-      toast.error("Failed to start a new tale");
+      toast.error(t("chat.toast.startFailed"));
       throw e;
     } finally {
       creating.value = false;
@@ -63,7 +65,7 @@ export function useCreateChat() {
     try {
       await createAndNavigate(characterId, profileId);
     } catch {
-      toast.error("Failed to start a new tale");
+      toast.error(t("chat.toast.startFailed"));
     } finally {
       creating.value = false;
     }

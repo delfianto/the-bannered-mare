@@ -146,7 +146,7 @@ async function persistFilter(next: string[]) {
   try {
     await setModelFilter(provider.value.id, next);
   } catch {
-    toast.error("Failed to update model filter");
+    toast.error(t("connections.provider.toast.filterFailed"));
   }
 }
 
@@ -197,7 +197,7 @@ async function handleSave() {
   if (form.enabled !== provider.value.enabled) updates.enabled = form.enabled;
 
   if (Object.keys(updates).length === 0) {
-    toast.info("No changes to save");
+    toast.info(t("connections.provider.toast.noChanges"));
     return;
   }
 
@@ -206,9 +206,9 @@ async function handleSave() {
     // Refresh the shared provider cache so the Providers/Models tabs reflect the
     // edit instead of showing the stale pre-save name/URL/enabled state.
     await settingsStore.fetchProviders(true);
-    toast.success("Provider updated");
+    toast.success(t("connections.provider.toast.updated"));
   } catch (e) {
-    toast.error("Failed to save provider");
+    toast.error(t("connections.provider.toast.saveFailed"));
   }
 }
 
@@ -226,9 +226,9 @@ async function handleSyncNow() {
   if (!provider.value) return;
   try {
     await syncNow(provider.value.id);
-    toast.success("Model list synced");
+    toast.success(t("connections.provider.toast.synced"));
   } catch (e) {
-    toast.error("Failed to sync models");
+    toast.error(t("connections.provider.toast.syncFailed"));
   }
 }
 
@@ -239,9 +239,9 @@ async function handleLoadModel(identifier: string) {
   }
   try {
     await loadModel(provider.value.id, identifier);
-    toast.success(`Loaded ${identifier}`);
+    toast.success(t("connections.provider.toast.modelLoaded", { model: identifier }));
   } catch (e) {
-    toast.error("Failed to load model");
+    toast.error(t("connections.provider.toast.loadFailed"));
   }
 }
 
@@ -252,9 +252,9 @@ async function handleUnloadModel(identifier: string) {
   }
   try {
     await unloadModel(provider.value.id, identifier);
-    toast.success(`Unloaded ${identifier}`);
+    toast.success(t("connections.provider.toast.modelUnloaded", { model: identifier }));
   } catch (e) {
-    toast.error("Failed to unload model");
+    toast.error(t("connections.provider.toast.unloadFailed"));
   }
 }
 
@@ -269,10 +269,10 @@ async function handleDeleteModel(identifier: string) {
   }
   try {
     await deleteModel(provider.value.id, identifier);
-    toast.success(`Deleted ${identifier}`);
+    toast.success(t("connections.provider.toast.modelDeleted", { model: identifier }));
     await loadPersistedModels(1, { provider_id: provider.value.id });
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : "Failed to delete model");
+    toast.error(e instanceof Error ? e.message : t("connections.provider.toast.deleteFailed"));
   }
 }
 

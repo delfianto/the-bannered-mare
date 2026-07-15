@@ -44,15 +44,15 @@ async function handleSave() {
     updates.description = form.description || null;
 
   if (Object.keys(updates).length === 0) {
-    toast.info("No changes to save");
+    toast.info(t("connections.family.toast.noChanges"));
     return;
   }
 
   try {
     await saveFamily(family.value.id, updates);
-    toast.success("Model family updated");
+    toast.success(t("connections.family.toast.updated"));
   } catch (e) {
-    toast.error("Failed to save model family");
+    toast.error(t("connections.family.toast.saveFailed"));
   }
 }
 
@@ -60,10 +60,10 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
   if (!family.value) return;
   try {
     await deleteFamily(family.value.id);
-    toast.success("Model family deleted");
+    toast.success(t("connections.family.toast.deleted"));
     router.push({ path: "/connections", query: { tab: "model-families" } });
   } catch {
-    toast.error("Failed to delete model family");
+    toast.error(t("connections.family.toast.deleteFailed"));
   }
 });
 

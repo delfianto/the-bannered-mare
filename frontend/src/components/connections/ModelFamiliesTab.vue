@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { useModelFamily } from "@/composables/useModelFamily";
@@ -30,18 +31,19 @@ const { families, loading, error, page, totalPages, loadPage, search, filterByPr
 const { createFamily, saving } = useModelFamily();
 const { providers } = useProviders();
 const toast = useAppToast();
+const { t } = useI18n();
 
 const showCreate = ref(false);
 
 async function onCreate(payload: components["schemas"]["ModelFamilyCreate"]) {
   try {
     await createFamily(payload);
-    toast.success("Model family created");
+    toast.success(t("connections.family.toast.created"));
     showCreate.value = false;
     await loadPage(1);
     patchQuery({ page: undefined });
   } catch {
-    toast.error("Failed to create model family");
+    toast.error(t("connections.family.toast.createFailed"));
   }
 }
 

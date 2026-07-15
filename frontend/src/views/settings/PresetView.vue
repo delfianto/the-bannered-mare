@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, onMounted, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { usePreset } from "@/composables/usePreset";
 import { useConfirmAction } from "@/composables/useConfirmAction";
@@ -19,6 +20,7 @@ const {
   setDefault,
 } = usePreset();
 const toast = useAppToast();
+const { t } = useI18n();
 
 const form = reactive({
   name: "",
@@ -80,15 +82,15 @@ async function handleSave() {
   updates.parameters = parametersToObject();
 
   if (Object.keys(updates).length === 0) {
-    toast.info("No changes to save");
+    toast.info(t("connections.preset.toast.noChanges"));
     return;
   }
 
   try {
     await savePreset(preset.value.id, updates);
-    toast.success("Preset updated");
+    toast.success(t("connections.preset.toast.updated"));
   } catch {
-    toast.error("Failed to save preset");
+    toast.error(t("connections.preset.toast.saveFailed"));
   }
 }
 
@@ -96,10 +98,10 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
   if (!preset.value) return;
   try {
     await deletePreset(preset.value.id);
-    toast.success("Preset deleted");
+    toast.success(t("connections.preset.toast.deleted"));
     router.push({ path: "/loadouts", query: { tab: "presets" } });
   } catch {
-    toast.error("Failed to delete preset");
+    toast.error(t("connections.preset.toast.deleteFailed"));
   }
 });
 
@@ -107,9 +109,9 @@ async function handleSetDefault() {
   if (!preset.value) return;
   try {
     await setDefault(preset.value.id);
-    toast.success("Preset set as default");
+    toast.success(t("connections.preset.toast.defaultSet"));
   } catch {
-    toast.error("Failed to set default");
+    toast.error(t("connections.preset.toast.setDefaultFailed"));
   }
 }
 
