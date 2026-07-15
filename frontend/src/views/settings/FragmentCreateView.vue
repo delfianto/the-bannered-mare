@@ -4,11 +4,13 @@ import { useI18n } from "vue-i18n";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 import { usePromptFragment } from "@/composables/usePromptFragment";
 import { useAppToast } from "@/composables/useToast";
+import { useConfirm } from "@/composables/useConfirm";
 
 const router = useRouter();
 const { createFragment, saving } = usePromptFragment();
 const toast = useAppToast();
 const { t } = useI18n();
+const { confirm } = useConfirm();
 
 const form = reactive({
   name: "",
@@ -63,11 +65,14 @@ function beforeUnloadHandler(e: BeforeUnloadEvent) {
 onMounted(() => window.addEventListener("beforeunload", beforeUnloadHandler));
 onBeforeUnmount(() => window.removeEventListener("beforeunload", beforeUnloadHandler));
 
-onBeforeRouteLeave(() => {
-  if (dirty.value) {
-    return window.confirm("You have unsaved changes. Leave and discard them?");
-  }
-  return true;
+onBeforeRouteLeave(async () => {
+  if (!dirty.value) return true;
+  return confirm({
+    title: "Unsaved changes",
+    message: "You have unsaved changes. Leave and discard them?",
+    confirmLabel: "Discard",
+    danger: true,
+  });
 });
 </script>
 

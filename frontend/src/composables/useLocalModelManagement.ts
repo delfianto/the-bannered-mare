@@ -1,6 +1,7 @@
 import { type Ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useAppToast } from "@/composables/useToast";
+import { useConfirm } from "@/composables/useConfirm";
 import type { components } from "@/api/schema";
 
 type ProviderResponse = components["schemas"]["ProviderResponse"];
@@ -26,6 +27,7 @@ export function useLocalModelManagement(
 ) {
   const { t } = useI18n();
   const toast = useAppToast();
+  const { confirm } = useConfirm();
 
   async function handleSyncNow() {
     if (!provider.value) return;
@@ -39,7 +41,7 @@ export function useLocalModelManagement(
 
   async function handleLoadModel(identifier: string) {
     if (!provider.value) return;
-    if (!confirm(`Are you sure you want to load "${identifier}" into memory?`)) return;
+    if (!(await confirm({ message: `Load "${identifier}" into memory?` }))) return;
     try {
       await api.loadModel(provider.value.id, identifier);
       toast.success(t("connections.provider.toast.modelLoaded", { model: identifier }));
@@ -50,7 +52,7 @@ export function useLocalModelManagement(
 
   async function handleUnloadModel(identifier: string) {
     if (!provider.value) return;
-    if (!confirm(`Are you sure you want to unload "${identifier}" from memory?`)) return;
+    if (!(await confirm({ message: `Unload "${identifier}" from memory?` }))) return;
     try {
       await api.unloadModel(provider.value.id, identifier);
       toast.success(t("connections.provider.toast.modelUnloaded", { model: identifier }));
@@ -61,13 +63,13 @@ export function useLocalModelManagement(
 
   async function handleDeleteModel(identifier: string) {
     if (!provider.value) return;
-    if (
-      !confirm(
-        `Are you sure you want to delete model "${identifier}" from the provider server? This cannot be undone.`,
-      )
-    ) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Delete model",
+      message: `Delete "${identifier}" from the provider server? This cannot be undone.`,
+      confirmLabel: t("common.delete"),
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await api.deleteModel(provider.value.id, identifier);
       toast.success(t("connections.provider.toast.modelDeleted", { model: identifier }));
