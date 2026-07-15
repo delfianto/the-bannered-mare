@@ -8,12 +8,12 @@ from src.core.persistence import ReadPort, UnitOfWork
 from src.model import parameter_validation
 from src.model.lineage import normalize_slug, resolve_family
 from src.model.models import ModelRegistry, ModelRoute
+from src.model.ports import ChatSnapshotPort
 from src.model.repository import ModelRepository
 from src.model_family.models import ModelFamily
 from src.model_family.service import ModelFamilyService
 
 if TYPE_CHECKING:
-    from src.chat_session.model_snapshot import ChatModelSnapshotService
     from src.provider.models import Provider
 
 
@@ -25,7 +25,7 @@ class ModelService:
         model_repo: ModelRepository,
         provider_reader: ReadPort[Provider],
         family_service: ModelFamilyService,
-        chat_snapshot: ChatModelSnapshotService,
+        chat_snapshot: ChatSnapshotPort,
         uow: UnitOfWork | None = None,
     ):
         self.model_repo = model_repo
