@@ -15,7 +15,8 @@ from src.prompt_template.schemas import (
     TemplatePreviewRequest,
     TemplatePreviewResponse,
 )
-from src.templating import TemplateContext, TemplateService
+from src.templating import TemplateContext
+from src.templating.dependencies import TemplateServiceDep
 
 router = APIRouter(prefix="/api/prompt-templates", tags=["prompt-templates"])
 
@@ -75,6 +76,7 @@ def preview_template(
     template_id: str,
     preview_data: TemplatePreviewRequest,
     service: PromptTemplateServiceDep,
+    template_service: TemplateServiceDep,
 ):
     """Preview template rendering with sample data"""
     template = service.get_by_id(template_id)
@@ -102,7 +104,6 @@ def preview_template(
         model_id="preview",
     )
 
-    template_service = TemplateService()
     context = TemplateContext(
         character=mock_character,
         persona=mock_persona,
