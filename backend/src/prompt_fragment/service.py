@@ -1,5 +1,9 @@
 """Prompt fragment business logic service"""
 
+from typing import Self
+
+from sqlalchemy.orm import Session
+
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
 from src.core.persistence import UnitOfWork, gen_id
@@ -25,6 +29,16 @@ class FragmentService:
         # the repos share. Fallback keeps direct `FragmentService(...)` construction
         # (tests) valid — the DI factory injects the request-scoped UoW.
         self.uow = uow or UnitOfWork(fragment_repo.db)
+
+    @classmethod
+    def from_session(cls, db: Session, uow: UnitOfWork | None = None) -> Self:
+        """Build the service (and its repositories) from a bare Session.
+
+        Lets a caller that holds only a Session — e.g. another slice's default
+        construction fallback (BE-H2) — obtain the published service without
+        reaching for the fragment repositories itself, keeping the module boundary.
+        """
+        return cls(FragmentRepository(db), TemplateFragmentRepository(db), uow=uow)
 
     def _validate_content(self, content: str | None) -> None:
         """Validate Jinja2 content syntax, raising 400 if invalid."""
@@ -124,6 +138,16 @@ class FragmentService:
         fragment = self.get_by_id(fragment_id)
         self.fragment_repo.delete(fragment)
         self.uow.commit()
+
+    def delete_orphaned(self, fragment_ids: list[str]) -> int:
+        """Delete any of the given fragments now orphaned (unattached and not global).
+
+        A cross-module cleanup seam (BE-H2): when a template is deleted, the template
+        slice asks the fragment slice to remove the private fragments it leaves
+        behind. Flush-only — it runs inside the CALLER's unit of work so the whole
+        deletion commits through one boundary; it never commits on its own.
+        """
+        return self.fragment_repo.delete_orphaned(fragment_ids)
 
     # -- Template-Fragment attachment --
 

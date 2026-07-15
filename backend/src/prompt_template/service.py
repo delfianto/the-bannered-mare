@@ -6,7 +6,7 @@ from typing import Any
 from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import ValidationError
 from src.core.persistence import UnitOfWork, gen_id
-from src.prompt_fragment.repository import FragmentRepository
+from src.prompt_fragment.service import FragmentService
 from src.prompt_template.models import PromptTemplate
 from src.prompt_template.repository import PromptTemplateRepository
 from src.templating import TemplateService
@@ -20,12 +20,15 @@ class PromptTemplateService:
     def __init__(
         self,
         template_repo: PromptTemplateRepository,
-        fragment_repo: FragmentRepository | None = None,
+        fragment_service: FragmentService | None = None,
         template_service: TemplateService | None = None,
         uow: UnitOfWork | None = None,
     ):
         self.template_repo = template_repo
-        self.fragment_repo = fragment_repo or FragmentRepository(template_repo.db)
+        # Orphan cleanup on delete goes through the fragment slice's published
+        # service, not its repository (BE-H2). Fallback keeps direct construction
+        # (tests) valid — the DI factory injects the request-scoped service.
+        self.fragment_service = fragment_service or FragmentService.from_session(template_repo.db)
         self.template_service = template_service or TemplateService()
         # The unit of work owns the transaction boundary; it wraps the same session
         # the repos share. Fallback keeps direct `PromptTemplateService(...)` construction
@@ -131,7 +134,7 @@ class PromptTemplateService:
         template = self.get_by_id(template_id)
         fragment_ids = [tf.fragment_id for tf in template.template_fragments]
         self.template_repo.delete(template)
-        cleaned_up = self.fragment_repo.delete_orphaned(fragment_ids)
+        cleaned_up = self.fragment_service.delete_orphaned(fragment_ids)
         self.uow.commit()
         if cleaned_up:
             logger.info(

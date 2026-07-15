@@ -265,7 +265,7 @@ class TestPromptTemplateService:
         fragment_id = fragment.id
 
         repo = PromptTemplateRepository(db)
-        service = PromptTemplateService(repo, FragmentRepository(db))
+        service = PromptTemplateService(repo, fragment_service)
         service.delete(template.id)
 
         assert FragmentRepository(db).find_by_id(fragment_id) is None
@@ -285,7 +285,7 @@ class TestPromptTemplateService:
         fragment_id = fragment.id
 
         repo = PromptTemplateRepository(db)
-        service = PromptTemplateService(repo, FragmentRepository(db))
+        service = PromptTemplateService(repo, fragment_service)
         service.delete(template.id)
 
         assert FragmentRepository(db).find_by_id(fragment_id) is not None
@@ -306,7 +306,7 @@ class TestPromptTemplateService:
         fragment_id = fragment.id
 
         repo = PromptTemplateRepository(db)
-        service = PromptTemplateService(repo, FragmentRepository(db))
+        service = PromptTemplateService(repo, fragment_service)
         service.delete(template_a.id)
 
         assert FragmentRepository(db).find_by_id(fragment_id) is not None

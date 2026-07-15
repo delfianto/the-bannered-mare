@@ -247,6 +247,32 @@ class TestFragmentOrphanCleanup:
         assert deleted == 0
         assert repo.find_by_id(fragment.id) is not None
 
+    def test_service_delete_orphaned_delegates(self, db: Session) -> None:
+        """The published service method removes an orphan and reports the count."""
+        repo = FragmentRepository(db)
+        service = _make_service(db)
+        fragment = service.create(name="Private", content="one-off")
+
+        deleted = service.delete_orphaned([fragment.id])
+
+        assert deleted == 1
+        assert repo.find_by_id(fragment.id) is None
+
+    def test_service_delete_orphaned_is_flush_only(self, db: Session) -> None:
+        """delete_orphaned must NOT commit — it runs inside the caller's unit of work.
+
+        Proven by rolling the session back afterwards: the staged delete is undone,
+        so the fragment survives (a self-commit would have made it permanent).
+        """
+        repo = FragmentRepository(db)
+        service = _make_service(db)
+        fragment = service.create(name="Private", content="one-off")  # commits
+
+        service.delete_orphaned([fragment.id])  # flush-only, no commit
+        db.rollback()
+
+        assert repo.find_by_id(fragment.id) is not None
+
 
 class TestTemplateFragmentAttachment:
     def test_attach_fragment_to_template(self, db: Session) -> None:
