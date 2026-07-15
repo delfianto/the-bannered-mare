@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-16
-- **Active:** i18n tier COMPLETE (FE-H2 a/b/c + FE-H3). **Two testing-tier items remain open** (Wave 3): **FE-3a** (component smoke tests for `MessageBubble`/`ParamInput` — mount harness already proven by `AppToggle.test.ts`, but these two aren't written) and **FE-H5** (near-done: `useProviders.test.ts` proves the msw/node seam; residual = one unrestored `client.GET` patch at `useCharacterForm.test.ts:91`, currently neutralized by later suites' beforeEach — formally close with a ~2-line afterEach). Deferred by decision (not blocking): FE-M2 (cache unification — needs a strategy pick), FE-L3 (3 console.log planned-feature stubs — won't-do), ProviderModelRow (presentational extraction — low value).
-- **Next up:** FE-3a (2 component mount tests) + FE-H5 close-out (restore the `client.GET` patch). Both small; the rest is by-decision defers.
-- **Progress:** 21 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3 ✓; FE-L8 + FE-L-latent folded in) + FE-M1 (FE-M1/M2 half-done). **Remaining open:** FE-3a, FE-H5 (both testing-tier, small); deferred by decision: FE-M2, FE-L3, ProviderModelRow.
+- **Active:** **All open tracker items are now resolved** (i18n tier + the last two testing-tier items, FE-3a + FE-H5, done). The only remaining items are the three by-decision defers — none blocking: FE-M2 (cache unification — needs a strategy pick), FE-L3 (3 console.log planned-feature stubs — won't-do), ProviderModelRow (presentational extraction — low value).
+- **Next up:** nothing on the tracker. Optional if ever revisited: FE-M2 (pick `useResource` query-cache vs promote lists to Pinia like providers) or the ProviderModelRow template extraction.
+- **Progress:** 23 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3, FE-H5, FE-3a ✓; FE-L8 + FE-L-latent folded in) + FE-M1 (FE-M1/M2 half-done). **Remaining open:** none; deferred by decision: FE-M2, FE-L3, ProviderModelRow.
 
 ---
 
@@ -97,11 +97,11 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 3 — Extend coverage to the risk surface (all 🤖 sub, dep: FE-C1/FE-H6)
 
-### FE-H5 · Injectable/contract-true API seam for composables · [ ] · 🤖 sub · dep: FE-H6
+### FE-H5 · Injectable/contract-true API seam for composables · [x] DONE (see §Completed) · 🤖 sub · dep: FE-H6
 - **Ref:** FINDINGS_FE.md §3 FE-H5 · **Files:** the 29 composables importing `client`; test setup
 - **Fix:** largely resolved by FE-H6 (composables hit real MSW handlers via unpatched fetch); where a monkeypatch remains, enforce `afterEach` restore.
 - **Accept:** composable tests assert the right endpoint/params via MSW with no unrestored global patching; gates green.
-- **Commit:** —
+- **Commit:** `655ea6b`
 
 ### FE-M9 · Cover `useCharacterForm`'s gnarly paths + the `useCursorList` race guard · [x] DONE (see §Completed) · 🤖 sub · dep: FE-C1
 - **Ref:** FINDINGS_FE.md §4 FE-M9 (+ §6 roadmap) · **Files:** `useCharacterForm.ts:110-119,164-185,211-276`; `useCursorList.ts`
@@ -109,11 +109,11 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** the untested ~80% of `useCharacterForm` and the race guard are covered; gates green.
 - **Commit:** —
 
-### FE-3a · First component smoke tests (prove the mount harness) · [ ] · 🤖 sub · dep: FE-C1
+### FE-3a · First component smoke tests (prove the mount harness) · [x] DONE (see §Completed) · 🤖 sub · dep: FE-C1
 - **Ref:** FINDINGS_FE.md §7 Wave 3 · **Files:** new tests for `MessageBubble.vue`, `ParamInput.vue`
 - **Fix:** `mount(...)` with the global/i18n harness; assert render + emitted events (`edit`/`regenerate`) and recursive param types.
 - **Accept:** two component tests pass under the new runner, proving the mount pattern for the rest of the layer; gates green.
-- **Commit:** —
+- **Commit:** `655ea6b`
 
 ---
 
@@ -189,6 +189,8 @@ _(Move items here with `[x]`, the fixing commit hash, and a one-line note on wha
 
 - **[x] FE-L6 + FE-L7** (commit tagged `FE-L6`, `FE-L7`) — **FE-L6:** introduced a shared recursive `src/types/params.ts` `ParamSchema` (type/default/min/max/str_values + recursive `item_schema`/`properties`) and eliminated every `any` in `ParamInput.vue`/`ModelInferenceParams.vue`; `ModelFamilyView` dropped its local copy for the shared one. Typed cleanly (one narrow `default as number` cast in a numeric-only computed). **FE-L7:** new `utils/route.ts::routeParam(value): string` (+ test) replacing `route.params.x as string` across **8** sites (grep found more than the cited 2); deliberately left `CharacterCreateView:22` (`as string | undefined` — its `undefined` signals create-mode, which `routeParam` would change). Verified: build, 60 tests, coverage ≥ floor, lint/fmt green.
 - **[x] FE-M10** (commit tagged `FE-M10`) — defined 5 named font-size tokens in `main.css` `@theme` (`--text-2xs` 0.6875rem, `--text-3xs` 0.625rem, `--text-4xs` 0.5625rem, `--text-5xs` 0.5rem, `--text-2sm` 0.8125rem) and replaced all **153** arbitrary `text-[…rem]` values across 52 files (66/57/27/2/1). Rem-based so rendering is byte-identical (behavior-preserving, not a bug fix); no line-height companions needed. Verified: `grep text-[…rem]` clean, `lint:tailwind` passes (the new tokens make the old arbitraries "unnecessary" — all converted), build + 59 tests + canonical + fmt green.
+- **[x] FE-3a** (commit `655ea6b`) — first component mount smoke tests on the real risk-surface, proving the FE-C1 runner + harness (i18n plugin + global `AppIcon`/`SelectMenu`/`AppToggle` from `src/test/setup.ts`) can mount and drive actual feature components. **`MessageBubble.test.ts`** (4): renders content/name/action buttons, and pins the emit contract `ChatView` relies on — `action` (regenerate → `[id,"regen"]`), inline-edit → `edit` (`[id,newContent]`), and `swipe` (`[id,"right"]`); selectors resolve labels through the same i18n instance (`i18n.global.t`) so they're locale-independent. **`ParamInput.test.ts`** (4): schema-type→widget mapping (string→text input, boolean→`AppToggle`, unknown→"Unsupported type" fallback) + `update:modelValue` re-emit, and the key one — **recursive rendering**: an `object` schema with two typed properties renders two nested `<ParamInput>` children (one control each + the prop-key labels). Note learned: `findAllComponents(root)` excludes the root, so the recursion assertion is 2 (children), not 3. Gate: 69 tests (was 61), build, fmt:check, oxlint, both tailwind lints.
+- **[x] FE-H5** (commit `655ea6b`) — closed the API-seam item. The bulk was already delivered by FE-H6 (`useProviders.test.ts` drives the composable → settings store → typed client → **unpatched** fetch against msw/node) and FE-M9/FE-C2 (the new suites restore in before/afterEach). Residual was one genuinely unrestored monkeypatch: the old "species and age" suite in `useCharacterForm.test.ts` swapped `global.fetch`/`client.GET` with no cleanup (neutralized only because later suites reinstate the client in `beforeEach`). Made that suite self-clean — capture the pristine `fetch`/`client.GET` at collection time + an `afterEach` restore — so there is now **no unrestored global patching** anywhere; updated the downstream comment to mark its reinstatement as defense-in-depth. Gate: 69 tests, build, fmt:check, oxlint, tailwind.
 - **[x] FE-H3** (commit `e598477`) — filled all four non-English catalogs to **full parity with en.json (690 keys each; was 356, gap 334/locale)**. The gap had grown past the finding's "~200" because FE-H2 b/c added ~90 new en keys on top of the never-translated `profiles`/`lorebooks`/`presetImport`/`chat.profile`/`nav`/`setup` namespaces. **Method (parity-by-construction, not by trust):** extracted the 334 missing keys as a flat English map, fanned out one translator subagent per language (de/es/fr/pt, in parallel), each returning a flat `{key: translation}` map to scratchpad; then a merge script rebuilt each locale in **en.json's exact key order** (existing translation kept where present, else the new one) so structure can't drift. Verified programmatically: 690 keys each, 0 missing / 0 extra, every `{token}` preserved (set-equality per key vs en), valid JSON, real UTF-8 (no `\uXXXX`). Brand + technical placeholders (URLs, snake_case, `provider/model-family`, `N/A`, `Jinja2`) kept verbatim; registers matched each existing catalog (de=Sie, fr=vous, pt=BR). Gate: `fmt:check` (CI-scoped `src`), build, 61 tests, oxlint, both tailwind lints. **This closes the i18n tier and the last substantive tracker item.**
 - **[x] FE-H2 — DONE (a toasts + b SetupWizard + c settings-detail)** (commits `FE-H2` (a), `6904e10` (b/c)) —
   - **(a)** migrated **61 toast calls → vue-i18n keys, 0 hardcoded literals left** (57 cited + 4 backtick/ternary in `ProviderView` → named `{model}` params). Feature-namespaced `.toast` keys added to `en.json` only. Wired `useI18n` into 8 files.
