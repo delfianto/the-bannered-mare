@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from src.core.persistence import DbSession
+from src.core.persistence import DbSession, UnitOfWork
 from src.lore.repository import LoreEntryRepository, LoreRepository
 from src.lore.service import LoreService
 
@@ -21,7 +21,7 @@ def get_lore_service(
     lore_repo: Annotated[LoreRepository, Depends(get_lore_repository)],
     entry_repo: Annotated[LoreEntryRepository, Depends(get_lore_entry_repository)],
 ) -> LoreService:
-    return LoreService(lore_repo, entry_repo)
+    return LoreService(lore_repo, entry_repo, uow=UnitOfWork(lore_repo.db))
 
 
 LoreServiceDep = Annotated[LoreService, Depends(get_lore_service)]

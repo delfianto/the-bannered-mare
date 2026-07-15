@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from src.core.config import settings
-from src.core.persistence import AsyncDbSession, DbSession
+from src.core.persistence import AsyncDbSession, DbSession, UnitOfWork
 from src.rag.embedding_service import EmbeddingService
 from src.rag.repository import DataBankRepository
 from src.rag.repository_async import AsyncEmbeddingRepository
@@ -23,7 +23,7 @@ def get_data_bank_service(
     repo: Annotated[DataBankRepository, Depends(get_data_bank_repository)],
 ) -> DataBankService:
     """Factory for DataBankService with repository injected"""
-    return DataBankService(repo)
+    return DataBankService(repo, uow=UnitOfWork(repo.db))
 
 
 async def get_async_embedding_repository(db: AsyncDbSession) -> AsyncEmbeddingRepository:

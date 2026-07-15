@@ -21,6 +21,7 @@ from src.core.base_service import get_or_404
 from src.core.config import settings
 from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
+from src.core.persistence import UnitOfWork
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
 from src.core.utils.upload import UploadedFile
@@ -102,6 +103,7 @@ class CharacterService:
         character_repo: CharacterRepository,
         lore_repo: LoreRepository,
         lore_entry_repo: LoreEntryRepository,
+        uow: UnitOfWork | None = None,
     ):
         self.character_repo = character_repo
         # Character import/export reads & writes the character's lorebook. The lore
@@ -109,6 +111,10 @@ class CharacterService:
         # transaction.
         self.lore_repo = lore_repo
         self.lore_entry_repo = lore_entry_repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `CharacterService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(character_repo.db)
 
     def list_all(self) -> list[Character]:
         """List all characters"""
@@ -233,7 +239,7 @@ class CharacterService:
             character.avatar_thumbnail = thumbnail_path
 
         updated = self.character_repo.update(character)
-        self.character_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete(self, character_id: str) -> None:
@@ -241,7 +247,7 @@ class CharacterService:
         character = self.get_by_id(character_id)
 
         self.character_repo.delete(character)
-        self.character_repo.commit()
+        self.uow.commit()
 
         # Filesystem after the DB: remove the avatar files only once the delete has
         # committed, so a failed commit can't strand a fileless entity.
@@ -290,7 +296,7 @@ class CharacterService:
         itself is logged and swallowed so the original commit error still surfaces.
         """
         try:
-            self.character_repo.commit()
+            self.uow.commit()
         except Exception:
             if wrote_avatar:
                 try:

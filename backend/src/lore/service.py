@@ -1,6 +1,7 @@
 """Lorebook business logic service"""
 
 from src.core.exceptions import NotFoundError
+from src.core.persistence import UnitOfWork
 from src.core.persistence.enums import InsertionPosition
 from src.core.tokenization import get_tokenizer
 from src.lore.activation_engine import ActivatedEntry, activate_entries
@@ -16,9 +17,14 @@ class LoreService:
         self,
         lore_repo: LoreRepository,
         entry_repo: LoreEntryRepository,
+        uow: UnitOfWork | None = None,
     ):
         self.lore_repo = lore_repo
         self.entry_repo = entry_repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `LoreService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(lore_repo.db)
         # Lore budgeting is family-agnostic (a rough size guard); a default
         # tokenizer is fine here.
         self.tokenizer = get_tokenizer(None)
@@ -48,7 +54,7 @@ class LoreService:
             character_id=data.character_id,
         )
         created = self.lore_repo.create(lorebook)
-        self.lore_repo.commit()
+        self.uow.commit()
         return created
 
     def update_lorebook(self, lorebook_id: str, data: LorebookUpdate) -> Lorebook:
@@ -60,13 +66,13 @@ class LoreService:
         if data.is_global is not None:
             lorebook.is_global = data.is_global
         updated = self.lore_repo.update(lorebook)
-        self.lore_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete_lorebook(self, lorebook_id: str) -> None:
         lorebook = self.get_lorebook(lorebook_id)
         self.lore_repo.delete(lorebook)
-        self.lore_repo.commit()
+        self.uow.commit()
 
     # --- Entry CRUD ---
 
@@ -99,7 +105,7 @@ class LoreService:
             order=data.order,
         )
         created = self.entry_repo.create(entry)
-        self.entry_repo.commit()
+        self.uow.commit()
         return created
 
     def update_entry(self, lorebook_id: str, entry_id: str, data: LoreEntryUpdate) -> LoreEntry:
@@ -107,13 +113,13 @@ class LoreService:
         for field_name, value in data.model_dump(exclude_unset=True).items():
             setattr(entry, field_name, value)
         updated = self.entry_repo.update(entry)
-        self.entry_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete_entry(self, lorebook_id: str, entry_id: str) -> None:
         entry = self.get_entry(lorebook_id, entry_id)
         self.entry_repo.delete(entry)
-        self.entry_repo.commit()
+        self.uow.commit()
 
     # --- Activation ---
 

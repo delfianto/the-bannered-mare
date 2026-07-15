@@ -6,7 +6,7 @@ from fastapi import Depends
 
 from src.character.repository import CharacterRepository
 from src.character.service import CharacterService
-from src.core.persistence import DbSession
+from src.core.persistence import DbSession, UnitOfWork
 from src.lore.repository import LoreEntryRepository, LoreRepository
 
 
@@ -24,7 +24,9 @@ def get_character_service(
     The lore repositories share the request session so character import/export
     reads & writes the lorebook in the same transaction as the character.
     """
-    return CharacterService(character_repo, LoreRepository(db), LoreEntryRepository(db))
+    return CharacterService(
+        character_repo, LoreRepository(db), LoreEntryRepository(db), uow=UnitOfWork(db)
+    )
 
 
 CharacterServiceDep = Annotated[CharacterService, Depends(get_character_service)]

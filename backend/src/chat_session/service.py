@@ -12,7 +12,7 @@ from src.chat_session.repository import ChatRepository
 from src.core.base_service import get_or_404
 from src.core.exceptions import NotFoundError
 from src.core.logging.logger_config import get_logger
-from src.core.persistence import Message, MessageRole
+from src.core.persistence import Message, MessageRole, UnitOfWork
 from src.core.tokenization import get_tokenizer
 from src.model.repository import ModelRepository
 from src.profile.repository import ProfileRepository
@@ -45,6 +45,7 @@ class ChatService:
         message_repo: MessageRepository,
         persona_repo: PersonaRepository,
         template_service: TemplateService | None = None,
+        uow: UnitOfWork | None = None,
     ):
         self.chat_repo = chat_repo
         self.character_repo = character_repo
@@ -53,6 +54,10 @@ class ChatService:
         self.message_repo = message_repo
         self.persona_repo = persona_repo
         self.template_service = template_service or TemplateService()
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `ChatService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(chat_repo.db)
 
     def list_all(self) -> list[Chat]:
         """List all chats"""
@@ -107,7 +112,7 @@ class ChatService:
 
         created = self.chat_repo.create(chat)
         self._seed_greeting(created, character)
-        self.chat_repo.commit()
+        self.uow.commit()
         return created
 
     def _seed_greeting(self, chat: Chat, character: Character) -> None:
@@ -175,7 +180,7 @@ class ChatService:
             chat.is_bookmarked = is_bookmarked
 
         updated = self.chat_repo.update(chat)
-        self.chat_repo.commit()
+        self.uow.commit()
         return updated
 
     def _set_task_model(self, chat: Chat, task_model_id: str | None) -> None:
@@ -200,7 +205,7 @@ class ChatService:
         chat = self.get_by_id(chat_id)
         self._apply_profile(chat, profile_id)
         updated = self.chat_repo.update(chat)
-        self.chat_repo.commit()
+        self.uow.commit()
         return updated
 
     def _set_model(self, chat: Chat, model_id: str) -> None:
@@ -234,4 +239,4 @@ class ChatService:
         """Delete chat"""
         chat = self.get_by_id(chat_id)
         self.chat_repo.delete(chat)
-        self.chat_repo.commit()
+        self.uow.commit()
