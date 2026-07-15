@@ -33,7 +33,7 @@ def test_create_and_find_by_id(repo: MockRepository) -> None:
     """Test creating and finding an entity (manual commit)"""
     obj = MockModel(name="Test")
     created = repo.create(obj)
-    _ = repo.commit()
+    _ = repo.db.commit()
 
     found = repo.find_by_id(created.id)
     assert found is not None
@@ -45,7 +45,7 @@ def test_find_all(repo: MockRepository) -> None:
     """Test finding all entities"""
     _ = repo.create(MockModel(name="1"))
     _ = repo.create(MockModel(name="2"))
-    repo.commit()
+    repo.db.commit()
 
     all_objs = repo.find_all()
     assert len(all_objs) == 2
@@ -55,7 +55,7 @@ def test_find_paginated_ordered(repo: MockRepository) -> None:
     """Test ordered paginated retrieval + total count"""
     for i in range(15):
         _ = repo.create(MockModel(name=str(i)))
-    repo.commit()
+    repo.db.commit()
 
     page1, total = repo.find_paginated_ordered(limit=10, offset=0)
     assert len(page1) == 10
@@ -70,11 +70,11 @@ def test_update_pattern(repo: MockRepository) -> None:
     """Test updating an entity using update + commit"""
     obj = MockModel(name="Old")
     _ = repo.create(obj)
-    repo.commit()
+    repo.db.commit()
 
     obj.name = "New"
     _ = repo.update(obj)
-    repo.commit()
+    repo.db.commit()
 
     assert obj.name == "New"
     result = repo.find_by_id(obj.id)
@@ -86,13 +86,13 @@ def test_update_rollback(repo: MockRepository) -> None:
     """Test updating an entity without committing (manual rollback)"""
     obj = MockModel(name="Old")
     _ = repo.create(obj)
-    repo.commit()
+    repo.db.commit()
 
     obj.name = "Flushed"
     _ = repo.update(obj)
 
     # We rollback to check it wasn't committed
-    _ = repo.rollback()
+    _ = repo.db.rollback()
 
     # It should still be "Old" in DB because flush was rolled back
     result = repo.find_by_id(obj.id)
@@ -104,11 +104,11 @@ def test_delete_pattern(repo: MockRepository) -> None:
     """Test deleting an entity using delete + commit"""
     obj = MockModel(name="DeleteMe")
     _ = repo.create(obj)
-    repo.commit()
+    repo.db.commit()
     obj_id = obj.id
 
     _ = repo.delete(obj)
-    repo.commit()
+    repo.db.commit()
 
     assert repo.find_by_id(obj_id) is None
 
@@ -117,7 +117,7 @@ def test_count_and_exists(repo: MockRepository) -> None:
     """Test count and exists methods"""
     obj = MockModel(name="CountMe")
     _ = repo.create(obj)
-    repo.commit()
+    repo.db.commit()
 
     assert repo.count() == 1
     assert repo.exists(obj.id) is True

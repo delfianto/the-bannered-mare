@@ -53,7 +53,7 @@ def seed_providers(repo: ProviderRepository) -> None:
             _ = repo.create(provider)
             logger.info("provider_created", name=config.display_name)
 
-    repo.commit()
+    repo.db.commit()
     logger.info("seeding_providers_completed")
 
 

@@ -40,7 +40,7 @@ def seed_prompt_templates(repo: PromptTemplateRepository) -> None:
         _ = repo.create(template)
         logger.info("prompt_template_created", name=template_data["name"])
 
-    repo.commit()
+    repo.db.commit()
 
     _seed_drift_reminder(repo)
 
@@ -97,7 +97,7 @@ def _seed_drift_reminder(repo: PromptTemplateRepository) -> None:
         )
         logger.info("template_fragment_linked", template=default.name, position="at_depth", depth=3)
 
-    repo.commit()
+    repo.db.commit()
 
 
 def main():
