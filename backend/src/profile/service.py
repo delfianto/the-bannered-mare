@@ -2,16 +2,27 @@
 
 from typing import Any
 
-from src.core.base_service import get_or_404, set_as_default
+from src.core.base_service import BaseCrudService, apply_update, set_as_default
 from src.core.exceptions import NotFoundError
 from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import ExistsPort, UnitOfWork, gen_id
 from src.profile.models import Profile
 from src.profile.repository import ProfileRepository
 
+_EDITABLE = {
+    "name",
+    "description",
+    "is_default",
+    "prompt_template_id",
+    "preset_id",
+    "persona_id",
+    "model_id",
+    "task_model_id",
+}
 
-class ProfileService:
-    """Service for profile-related business logic"""
+
+class ProfileService(BaseCrudService[Profile, ProfileRepository]):
+    """Service for profile-related business logic (inherits list_all/get_by_id/delete)."""
 
     def __init__(
         self,
@@ -22,29 +33,18 @@ class ProfileService:
         model_repo: ExistsPort,
         uow: UnitOfWork | None = None,
     ):
-        self.profile_repo = profile_repo
+        super().__init__(profile_repo, uow or UnitOfWork(profile_repo.db), "Profile")
+        # Foreign read ports for FK-existence validation (BE-H2) — not the primary repo.
         self.template_repo = template_repo
         self.preset_repo = preset_repo
         self.persona_repo = persona_repo
         self.model_repo = model_repo
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `ProfileService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(profile_repo.db)
-
-    def list_all(self) -> list[Profile]:
-        """List all profiles"""
-        return self.profile_repo.find_all_ordered()
 
     def list_paginated(
         self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0
     ) -> tuple[list[Profile], int]:
         """List profiles with pagination"""
-        return self.profile_repo.find_paginated_ordered(limit, offset)
-
-    def get_by_id(self, profile_id: str) -> Profile:
-        """Get profile by ID, raise 404 if not found"""
-        return get_or_404(self.profile_repo, profile_id, "Profile")
+        return self.repo.find_paginated_ordered(limit, offset)
 
     def create(
         self,
@@ -61,7 +61,7 @@ class ProfileService:
         self._validate_refs(prompt_template_id, preset_id, persona_id, model_id, task_model_id)
 
         if is_default:
-            self.profile_repo.unset_all_defaults()
+            self.repo.unset_all_defaults()
 
         profile = Profile(
             id=gen_id(),
@@ -74,7 +74,7 @@ class ProfileService:
             model_id=model_id,
             task_model_id=task_model_id,
         )
-        created = self.profile_repo.create(profile)
+        created = self.repo.create(profile)
         self.uow.commit()
         return created
 
@@ -96,41 +96,22 @@ class ProfileService:
         )
 
         if updates.get("is_default"):
-            self.profile_repo.unset_all_defaults(exclude_id=profile_id)
+            self.repo.unset_all_defaults(exclude_id=profile_id)
 
-        editable = {
-            "name",
-            "description",
-            "is_default",
-            "prompt_template_id",
-            "preset_id",
-            "persona_id",
-            "model_id",
-            "task_model_id",
-        }
-        for key, value in updates.items():
-            if key not in editable:
-                continue
-            # Name is required — ignore an attempt to clear it.
-            if key == "name" and not value:
-                continue
-            setattr(profile, key, value)
+        # Present keys are applied (None clears); name is required, so drop a
+        # request to blank it before applying.
+        patch = {k: v for k, v in updates.items() if not (k == "name" and not v)}
+        apply_update(profile, patch, _EDITABLE)
 
-        updated = self.profile_repo.update(profile)
+        updated = self.repo.update(profile)
         self.uow.commit()
         return updated
-
-    def delete(self, profile_id: str) -> None:
-        """Delete profile"""
-        profile = self.get_by_id(profile_id)
-        self.profile_repo.delete(profile)
-        self.uow.commit()
 
     # --- SillyTavern import seam (BE-H2) ---
 
     def find_by_name(self, name: str) -> Profile | None:
         """Look up a profile by exact name (import unique-naming)."""
-        return self.profile_repo.find_by_name(name)
+        return self.repo.find_by_name(name)
 
     def create_imported(
         self,
@@ -157,11 +138,11 @@ class ProfileService:
             source_filename=source_filename,
             is_default=False,
         )
-        return self.profile_repo.create(profile)
+        return self.repo.create(profile)
 
     def set_default(self, profile_id: str) -> Profile:
         """Set profile as default"""
-        return set_as_default(self.profile_repo, self.get_by_id(profile_id), self.uow)
+        return set_as_default(self.repo, self.get_by_id(profile_id), self.uow)
 
     def _validate_refs(
         self,
