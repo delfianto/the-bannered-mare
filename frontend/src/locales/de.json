@@ -1,9 +1,16 @@
 {
+  "notFound": {
+    "title": "Diese Seite hat sich verirrt",
+    "message": "Die gesuchte Seite existiert nicht oder wurde möglicherweise verschoben.",
+    "home": "Zurück zum Herdfeuer"
+  },
   "common": {
     "save": "Speichern",
     "saved": "Gespeichert",
     "saving": "Speichern…",
     "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
     "done": "Fertig",
     "delete": "Löschen",
     "deleteConfirm": "Löschen bestätigen?",
@@ -11,6 +18,7 @@
     "export": "Exportieren",
     "loading": "Laden…",
     "retry": "Erneut versuchen",
+    "serverUnreachable": "Server nicht erreichbar – Ihre Änderungen werden nicht gespeichert.",
     "back": "Zurück",
     "goBack": "Zurückgehen",
     "edit": "Bearbeiten",
@@ -18,7 +26,19 @@
     "copied": "Kopiert!",
     "search": "Suchen",
     "selected": "{count} ausgewählt",
-    "serverUnreachable": "Server nicht erreichbar – Ihre Änderungen werden nicht gespeichert."
+    "error": "Etwas ist schiefgelaufen",
+    "errorBoundary": {
+      "title": "Etwas ist schiefgelaufen",
+      "description": "Diese Seite hat einen unerwarteten Fehler erhalten. Ein Neuladen behebt das Problem normalerweise — wenn es weiterhin passiert, wurde die App möglicherweise im Hintergrund aktualisiert.",
+      "reload": "Neu laden"
+    },
+    "basicInfo": "Grundinformationen",
+    "created": "Erstellt",
+    "updated": "Aktualisiert",
+    "status": "Status",
+    "yes": "Ja",
+    "no": "Nein",
+    "notAvailable": "N/A"
   },
   "nav": {
     "home": "Startseite",
@@ -27,16 +47,133 @@
     "dataBank": "Datenbank",
     "sessions": "Sitzungen",
     "connections": "Verbindungen",
+    "profiles": "Ausstattungen",
+    "lorebooks": "Lorebooks",
     "settings": "Einstellungen",
     "favorites": "Favoriten",
     "expandSidebar": "Seitenleiste ausklappen",
     "collapseSidebar": "Seitenleiste einklappen"
+  },
+  "profiles": {
+    "title": "Ausstattungen",
+    "subtitle": "Prompt-Ausstattungen, Voreinstellungen, Vorlagen und Fragmente konfigurieren.",
+    "tabs": {
+      "profiles": "Profile",
+      "personas": "Personas"
+    },
+    "newProfile": "Neues Profil",
+    "empty": "Noch keine Profile. Erstellen Sie eines, um neue Chats schnell zu konfigurieren.",
+    "default": "Standard",
+    "setDefault": "Als Standard festlegen",
+    "confirmDelete": "Bestätigen?",
+    "none": "Keines",
+    "sourceSillyTavern": "SillyTavern",
+    "taskModelSame": "Wie das Chat-Modell",
+    "taskModelHint": "Günstigeres Modell für Titel und Vorschläge. Spart Tokens bei kostenpflichtigen APIs.",
+    "unsupportedWarning": "Diese Voreinstellungsparameter werden von {model} nicht unterstützt und werden nicht gesendet:",
+    "fields": {
+      "template": "Prompt-Vorlage",
+      "preset": "Sampler-Voreinstellung",
+      "persona": "Persona",
+      "model": "Modell",
+      "taskModel": "Aufgabenmodell"
+    },
+    "form": {
+      "newTitle": "Neues Profil",
+      "editTitle": "Profil bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "z. B. Grimdark-GM",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Wofür ist diese Ausstattung?",
+      "setDefault": "Als Standardprofil festlegen",
+      "defaultOn": "Standard-Ausstattung",
+      "defaultOff": "Kein Standard",
+      "create": "Profil erstellen",
+      "save": "Änderungen speichern"
+    },
+    "toast": {
+      "created": "Profil erstellt",
+      "updated": "Profil aktualisiert",
+      "deleted": "Profil gelöscht",
+      "defaultSet": "„{name}“ ist jetzt der Standard",
+      "createFailed": "Profil konnte nicht erstellt werden",
+      "updateFailed": "Profil konnte nicht aktualisiert werden"
+    }
+  },
+  "lorebooks": {
+    "title": "Lorebooks",
+    "newLorebook": "Neues Lorebook",
+    "empty": "Noch keine Lorebooks.",
+    "global": "Global",
+    "entryCount": "{count} Einträge",
+    "editLorebook": "Lorebook bearbeiten",
+    "addEntry": "Eintrag hinzufügen",
+    "noEntries": "Noch keine Einträge. Fügen Sie einen hinzu, um dieses Lorebook zu befüllen.",
+    "selectPrompt": "Wählen Sie ein Lorebook aus, um seine Einträge anzuzeigen.",
+    "order": "Reihenfolge",
+    "constant": "Dauerhaft",
+    "confirmDelete": "Bestätigen?",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "form": {
+      "newTitle": "Neues Lorebook",
+      "editTitle": "Lorebook bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "z. B. Tamriel — Kern-Lore",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Was umfasst dieses Lorebook?",
+      "isGlobal": "Global (gilt für alle Chats)",
+      "create": "Lorebook erstellen",
+      "save": "Änderungen speichern"
+    },
+    "entryForm": {
+      "newTitle": "Neuer Eintrag",
+      "editTitle": "Eintrag bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "z. B. Der Weißgold-Turm",
+      "keys": "Auslöseschlagwörter",
+      "keysPlaceholder": "Kommagetrennt, z. B. Kaiserstadt, Weißgold",
+      "content": "Inhalt",
+      "contentPlaceholder": "Lore-Text, der beim Auslösen in den Prompt eingefügt wird…",
+      "position": "Position",
+      "order": "Reihenfolge",
+      "priority": "Priorität",
+      "enabled": "Aktiviert",
+      "constant": "Immer aktiv",
+      "add": "Eintrag hinzufügen",
+      "save": "Änderungen speichern"
+    },
+    "toast": {
+      "created": "Lorebook erstellt",
+      "updated": "Lorebook aktualisiert",
+      "deleted": "Lorebook gelöscht",
+      "entryAdded": "Eintrag hinzugefügt",
+      "entrySaved": "Eintrag gespeichert",
+      "entryDeleted": "Eintrag gelöscht"
+    }
+  },
+  "presetImport": {
+    "button": "ST-Voreinstellung importieren",
+    "title": "SillyTavern-Voreinstellung importieren",
+    "complete": "Import abgeschlossen",
+    "template": "Vorlage",
+    "fragments": "{count} Prompt-Fragmente",
+    "preset": "Voreinstellung",
+    "profile": "Profil",
+    "warnings": "Warnungen",
+    "done": "Fertig",
+    "importAnother": "Weiteres importieren",
+    "dropzone": "SillyTavern-Voreinstellung als .json hier ablegen oder klicken, um zu durchsuchen",
+    "dropzoneHint": "Erstellt eine Prompt-Vorlage, deren Fragmente, eine Sampler-Voreinstellung und ein passendes Profil.",
+    "importing": "Importieren…",
+    "failed": "Import fehlgeschlagen. Bitte überprüfen Sie die Datei und versuchen Sie es erneut."
   },
   "home": {
     "greeting": "Willkommen zurück, Abenteurer",
     "tagline": "Jede Geschichte beginnt mit einem Funken. Welche Geschichte erzählen Sie heute?",
     "continueTale": "Ihre Geschichte fortsetzen",
     "discoverCharacters": "Charaktere entdecken",
+    "browseAll": "Alle anzeigen",
     "searchPlaceholder": "Durchsuchen Sie die Bibliothek: Geschichten, Charaktere, Welten…"
   },
   "characters": {
@@ -58,6 +195,10 @@
     "failedLoad": "Charakter konnte nicht geladen werden.",
     "failedSave": "Charakter konnte nicht gespeichert werden.",
     "failedDelete": "Charakter konnte nicht gelöscht werden.",
+    "deleted": "Charakter gelöscht",
+    "deleteSuccess": "Der Charakter wurde aus Ihrer Bibliothek gelöscht.",
+    "deleteFailed": "Löschen fehlgeschlagen",
+    "deleteError": "Der Charakter konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
     "sort": {
       "recent": "Zuletzt verwendet",
       "nameAsc": "Name A–Z",
@@ -103,8 +244,12 @@
       "tags": "Schlagwörter",
       "addTagsPlaceholder": "Schlagwörter hinzufügen…",
       "persona": "Persona",
+      "creatorNotes": "Tagline / Erstellernotizen",
+      "creatorNotesHint": "Kurze Zusammenfassung oder Tagline auf den Bibliothekskarten",
       "description": "Beschreibung",
       "descriptionHint": "Hintergrund, Eigenschaften, Motivationen",
+      "systemPrompt": "System-Prompt-Überschreibung",
+      "systemPromptHint": "Benutzerdefinierter Prompt an das LLM (überschreibt den globalen Prompt)",
       "personalitySummary": "Persönlichkeitsprofil",
       "greeting": "Begrüßung",
       "greetingHint": "Erste Nachricht zu Beginn einer Sitzung",
@@ -137,6 +282,69 @@
     "cancelSelection": "Auswahl aufheben"
   },
   "chat": {
+    "settings": {
+      "title": "Chat-Einstellungen"
+    },
+    "drawer": {
+      "tabs": {
+        "character": "Charakter",
+        "settings": "Einstellungen",
+        "session": "Sitzung",
+        "logs": "Protokolle"
+      },
+      "loadouts": "Ausstattungen",
+      "manageLoadouts": "Ausstattungen verwalten",
+      "persona": "Persona",
+      "memories": "Erinnerungen",
+      "memoriesEmpty": "Noch keine Erinnerungen für dieses Gespräch",
+      "manageMemories": "In der Datenbank verwalten",
+      "lorebooks": "Lorebooks",
+      "lorebooksEmpty": "Keine Lorebooks für dieses Gespräch anwendbar",
+      "manageLorebooks": "Lorebooks verwalten",
+      "lorebookGlobal": "Global",
+      "lorebookCharacter": "Charakter",
+      "lorebookTriggers": "Auslöser",
+      "lorebookEntriesEmpty": "Keine Einträge in diesem Lorebook",
+      "sessionModelUnknown": "Kein Modell aufgelöst",
+      "sessionParameters": "Parameter",
+      "sessionParametersEmpty": "Keine Parameter gesetzt",
+      "sessionPrompt": "Prompt",
+      "sessionPromptEmpty": "Kein Prompt-Gerüst",
+      "sessionError": "Sitzungsinformationen konnten nicht geladen werden",
+      "logsEmpty": "Noch keine Modellaufrufe für dieses Gespräch protokolliert",
+      "logsError": "Modellaufrufprotokolle konnten nicht geladen werden",
+      "logsRefresh": "Protokolle aktualisieren",
+      "logsStatusSuccess": "OK",
+      "logsStatusError": "Fehler",
+      "logsTokens": "Tokens",
+      "logsRequest": "Anfrage",
+      "logsResponse": "Antwort",
+      "comingSoon": "Demnächst verfügbar"
+    },
+    "profile": {
+      "title": "Profil",
+      "none": "Kein Profil",
+      "empty": "Noch keine Profile",
+      "manage": "Profile verwalten",
+      "reapply": "Erneut anwenden",
+      "reapplyTooltip": "Erneut anwenden — setzt Modell, Persona, Voreinstellung und Vorlage dieses Chats auf die aktuellen Werte der Ausstattung zurück (verwirft manuelle Anpassungen).",
+      "hint": "Das Anwenden einer Ausstattung legt Modell, Persona, Voreinstellung und Vorlage dieses Chats fest. Spätere Änderungen an der Ausstattung wirken sich nicht auf diesen Chat aus."
+    },
+    "persona": {
+      "title": "Persona",
+      "none": "Keine",
+      "manage": "Personas verwalten"
+    },
+    "model": {
+      "title": "Modell",
+      "mainModel": "Hauptmodell",
+      "taskModel": "Aufgabenmodell",
+      "sameAsChat": "Wie das Chat-Modell",
+      "none": "Kein Modell",
+      "empty": "Keine Modelle verfügbar",
+      "change": "Modell wechseln",
+      "overrideHint": "Überschreibt das Modell nur für diesen Chat — Ihr Profil bleibt unverändert."
+    },
     "selectTale": "Wählen Sie eine Geschichte zum Fortsetzen…",
     "sessionBegan": "Sitzung begann",
     "loadEarlier": "Frühere Nachrichten laden…",
@@ -144,6 +352,7 @@
     "inputPlaceholder": "Die Geschichte fortsetzen…",
     "inputHint": "Umschalt + Eingabe für neue Zeile · Ihre Worte formen die Geschichte",
     "sendMessage": "Nachricht senden",
+    "stopGeneration": "Generierung stoppen",
     "searchPlaceholder": "Geschichten suchen…",
     "activeTales": "Aktive Geschichten",
     "sessionMenu": "Sitzungsmenü",
@@ -155,6 +364,17 @@
       "defiantly": "Trotzig",
       "tenderly": "Zärtlich"
     },
+    "suggest": {
+      "button": "Antworten vorschlagen",
+      "tones": "Töne für diese Szene",
+      "loading": "Nachdenken…",
+      "back": "Zurück zu Tönen",
+      "error": "Das Modell für Vorschläge konnte nicht erreicht werden."
+    },
+    "error": {
+      "retry": "Neu generieren",
+      "dismiss": "Schließen"
+    },
     "actions": {
       "regenerate": "Neu generieren",
       "copy": "Kopieren",
@@ -165,6 +385,10 @@
     "swipe": {
       "previous": "Vorherige Alternative",
       "next": "Nächste Alternative"
+    },
+    "toast": {
+      "setupProfile": "Richten Sie ein Profil ein, bevor Sie eine Geschichte beginnen",
+      "startFailed": "Eine neue Geschichte konnte nicht gestartet werden"
     }
   },
   "bookmarks": {
@@ -193,8 +417,16 @@
     },
     "noModels": "Keine Modelle gefunden",
     "noFamilies": "Keine Modellfamilien gefunden",
+    "newProvider": "Neuer Anbieter",
+    "newModel": "Neues Modell",
+    "newFamily": "Neue Familie",
+    "newTemplate": "Neue Vorlage",
+    "newFragment": "Neues Fragment",
     "allProviders": "Alle Anbieter",
     "allFamilies": "Alle Familien",
+    "allStatuses": "Alle Status",
+    "statusEnabled": "Aktiviert",
+    "statusDisabled": "Deaktiviert",
     "searchModels": "Modelle suchen…",
     "noUrlConfigured": "Keine URL konfiguriert",
     "provider": {
@@ -205,7 +437,48 @@
       "envVar": "Umgebungsvariable",
       "keyConfigured": "Schlüssel konfiguriert",
       "keyNotSet": "Nicht festgelegt",
-      "backToProviders": "Zurück zu Anbietern"
+      "backToProviders": "Zurück zu Anbietern",
+      "toast": {
+        "created": "Anbieter erstellt",
+        "createFailed": "Anbieter konnte nicht erstellt werden",
+        "updated": "Anbieter aktualisiert",
+        "saveFailed": "Anbieter konnte nicht gespeichert werden",
+        "noChanges": "Keine Änderungen zum Speichern",
+        "filterFailed": "Modellfilter konnte nicht aktualisiert werden",
+        "synced": "Modellliste synchronisiert",
+        "syncFailed": "Modelle konnten nicht synchronisiert werden",
+        "modelLoaded": "{model} geladen",
+        "loadFailed": "Modell konnte nicht geladen werden",
+        "modelUnloaded": "{model} entladen",
+        "unloadFailed": "Modell konnte nicht entladen werden",
+        "modelDeleted": "{model} gelöscht",
+        "deleteFailed": "Modell konnte nicht gelöscht werden"
+      },
+      "editTitle": "Anbieter bearbeiten",
+      "providerTypeReadonly": "Anbietertyp (nur lesbar)",
+      "namePlaceholder": "Anbietername",
+      "baseUrlPlaceholder": "https://api.example.com/v1",
+      "availableModels": "Verfügbare Modelle",
+      "lastSynced": "Zuletzt synchronisiert {time}",
+      "neverSynced": "Noch nie synchronisiert",
+      "syncing": "Synchronisieren…",
+      "syncNow": "Jetzt synchronisieren",
+      "searchToFilter": "Modelle suchen, um sie zum Filter hinzuzufügen…",
+      "searching": "Suchen…",
+      "noMatchingModels": "Keine passenden Modelle.",
+      "filterLabel": "Filter:",
+      "removeFromFilter": "Aus Filter entfernen",
+      "clearAll": "Alle entfernen",
+      "noFilterSet": "Kein Filter gesetzt — alle gefundenen Modelle werden angezeigt. Oben suchen, um nur bestimmte anzuzeigen.",
+      "noModelsMatchFilter": "Keine gefundenen Modelle entsprechen dem aktuellen Filter.",
+      "noModelsOnServer": "Keine Modelle auf diesem Server gefunden.",
+      "loaded": "Geladen",
+      "notLoaded": "Nicht geladen",
+      "loadModel": "Modell laden",
+      "unloadModel": "Modell entladen",
+      "addAsModel": "Als Modell hinzufügen…",
+      "added": "Hinzugefügt",
+      "deleteModelAction": "Modell löschen"
     },
     "model": {
       "name": "Name",
@@ -225,8 +498,8 @@
       "addRoute": "Route hinzufügen",
       "removeRoute": "Route entfernen",
       "noRoutes": "Noch keine Routen",
-      "backToModels": "Zurück zu Modellen",
       "allProvidersRouted": "Alle unterstützten Anbieter haben bereits eine Route.",
+      "backToModels": "Zurück zu Modellen",
       "editTitle": "Modell bearbeiten",
       "identity": "Identität",
       "created": "Erstellt",
@@ -239,7 +512,10 @@
       "createModel": "Modell erstellen",
       "creating": "Erstellen…",
       "toast": {
+        "created": "Modell erstellt",
+        "createFailed": "Modell konnte nicht erstellt werden",
         "updated": "Modell aktualisiert",
+        "updateFailed": "Modell konnte nicht aktualisiert werden",
         "saveFailed": "Modell konnte nicht gespeichert werden",
         "deleted": "Modell gelöscht",
         "deleteFailed": "Modell konnte nicht gelöscht werden",
@@ -261,7 +537,27 @@
       "parameterSchema": "Parameterschema",
       "unsupportedParams": "Nicht unterstützte Parameter",
       "backToFamilies": "Zurück zu Modellfamilien",
-      "descriptionPlaceholder": "Beschreiben Sie diese Modellfamilie…"
+      "descriptionPlaceholder": "Beschreiben Sie diese Modellfamilie…",
+      "toast": {
+        "created": "Modellfamilie erstellt",
+        "createFailed": "Modellfamilie konnte nicht erstellt werden",
+        "updated": "Modellfamilie aktualisiert",
+        "saveFailed": "Modellfamilie konnte nicht gespeichert werden",
+        "deleted": "Modellfamilie gelöscht",
+        "deleteFailed": "Modellfamilie konnte nicht gelöscht werden",
+        "noChanges": "Keine Änderungen zum Speichern"
+      },
+      "editTitle": "Modellfamilie bearbeiten",
+      "namePlaceholder": "Familienname",
+      "identifierPlaceholder": "provider/model-family",
+      "capabilities": "Fähigkeiten",
+      "capabilityPromptCaching": "Prompt-Caching",
+      "capabilityVision": "Vision",
+      "capabilityFunctionCalling": "Funktionsaufrufe",
+      "capabilityReasoning": "Reasoning ({mode})",
+      "paramDefault": "Standard",
+      "paramRange": "Bereich",
+      "paramValues": "Werte"
     },
     "preset": {
       "name": "Name",
@@ -272,7 +568,23 @@
       "addParam": "Parameter hinzufügen",
       "removeParam": "Parameter entfernen",
       "metadata": "Metadaten",
-      "backToPresets": "Zurück zu Voreinstellungen"
+      "backToPresets": "Zurück zu Voreinstellungen",
+      "toast": {
+        "updated": "Voreinstellung aktualisiert",
+        "saveFailed": "Voreinstellung konnte nicht gespeichert werden",
+        "deleted": "Voreinstellung gelöscht",
+        "deleteFailed": "Voreinstellung konnte nicht gelöscht werden",
+        "defaultSet": "Voreinstellung als Standard festgelegt",
+        "setDefaultFailed": "Standard konnte nicht festgelegt werden",
+        "noChanges": "Keine Änderungen zum Speichern"
+      },
+      "editTitle": "Voreinstellung bearbeiten",
+      "namePlaceholder": "Name der Voreinstellung",
+      "descriptionPlaceholder": "Beschreibung der Voreinstellung",
+      "paramNamePlaceholder": "parameter_name",
+      "paramValuePlaceholder": "value",
+      "defaultStatus": "Standard",
+      "parameterCount": "Parameter"
     },
     "template": {
       "name": "Name",
@@ -290,7 +602,20 @@
       "maxHistoryTokens": "Max. Verlaufstokens",
       "preview": "Vorschau",
       "previewTemplate": "Vorlagenvorschau",
-      "backToTemplates": "Zurück zu Vorlagen"
+      "backToTemplates": "Zurück zu Vorlagen",
+      "toast": {
+        "created": "Vorlage erstellt",
+        "createFailed": "Vorlage konnte nicht erstellt werden",
+        "required": "Name und Systemvorlage sind erforderlich",
+        "updated": "Vorlage aktualisiert",
+        "saveFailed": "Vorlage konnte nicht gespeichert werden",
+        "deleted": "Vorlage gelöscht",
+        "deleteFailed": "Vorlage konnte nicht gelöscht werden",
+        "noChanges": "Keine Änderungen zum Speichern",
+        "previewFailed": "Vorlagenvorschau konnte nicht angezeigt werden",
+        "fragmentDetached": "Fragment gelöst",
+        "detachFailed": "Fragment konnte nicht gelöst werden"
+      }
     },
     "fragment": {
       "name": "Name",
@@ -300,7 +625,25 @@
       "content": "Fragmentinhalt",
       "contentPlaceholder": "Jinja2-Vorlageninhalt…",
       "contentHint": "Jinja2-Vorlageninhalt, der in Prompt-Vorlagen eingefügt wird",
-      "backToFragments": "Zurück zu Fragmenten"
+      "backToFragments": "Zurück zu Fragmenten",
+      "toast": {
+        "created": "Fragment erstellt",
+        "createFailed": "Fragment konnte nicht erstellt werden",
+        "required": "Name und Inhalt sind erforderlich",
+        "updated": "Fragment aktualisiert",
+        "saveFailed": "Fragment konnte nicht gespeichert werden",
+        "deleted": "Fragment gelöscht",
+        "deleteFailed": "Fragment konnte nicht gelöscht werden",
+        "noChanges": "Keine Änderungen zum Speichern"
+      },
+      "editTitle": "Fragment bearbeiten",
+      "namePlaceholder": "Fragmentname",
+      "descriptionPlaceholder": "Fragmentbeschreibung",
+      "typeSystem": "System",
+      "typeNsfw": "NSFW",
+      "typeJailbreak": "Jailbreak",
+      "typeInstruction": "Anweisung",
+      "typeContext": "Kontext"
     }
   },
   "memory": {
@@ -351,6 +694,7 @@
       "colorScheme": "Farbschema",
       "darkMode": "Dunkelmodus",
       "darkModeDescription": "Zwischen heller und dunkler Darstellung wechseln",
+      "reading": "Lesen",
       "textSize": "Textgröße",
       "textSizeDescription": "Skaliere den Text der Oberfläche für angenehmes Lesen – gilt überall.",
       "textSizeSample": "Das Kaminfeuer der Taverne knisterte, als sie sich vorbeugte, ihre Stimme kaum lauter als ein Flüstern.",
@@ -410,6 +754,54 @@
     "about": {
       "craftedBy": "Mit Sorgfalt erstellt von",
       "viewGithub": "Auf GitHub ansehen"
+    }
+  },
+  "setup": {
+    "title": "Lassen Sie uns loslegen",
+    "subtitle": "Eine kurze Prüfung Ihrer Anbieter, dann erstellen Sie Ihr erstes Profil.",
+    "steps": {
+      "providers": "1. Anbieter",
+      "profile": "2. Profil",
+      "done": "3. Fertig"
+    },
+    "localProviders": "Lokale Anbieter",
+    "noLocalProviders": "Keine lokalen Anbieter konfiguriert.",
+    "checking": "Überprüfen…",
+    "modelsFound": "{count} Modelle gefunden",
+    "notReachable": "Nicht erreichbar",
+    "cloudProviders": "Cloud-Anbieter",
+    "keyConfigured": "Schlüssel konfiguriert",
+    "setEnvVar": "{envVar} setzen",
+    "doManually": "Ich mache das manuell",
+    "next": "Weiter",
+    "unfinishedProfile": "Sie haben ein unfertiges Profil",
+    "unfinishedProfiles": "Sie haben {count} unfertige Profile",
+    "finishSetup": "Einrichtung abschließen",
+    "createManually": "Manuell erstellen",
+    "createManuallyHint": "Wählen Sie selbst ein Modell, eine Vorlage, eine Voreinstellung und eine Persona.",
+    "importPreset": "ST-Voreinstellung importieren",
+    "importPresetHint": "Importieren Sie eine SillyTavern-Chat-Completion-Voreinstellung.",
+    "noPersonaYet": "Sie haben noch keine Persona (optional, aber empfohlen)",
+    "personaNamePlaceholder": "Persona-Name (z. B. Ihr Name)",
+    "create": "Erstellen",
+    "attachModel": "Modell verknüpfen",
+    "attachModelHint": "Wählen Sie ein Modell, um „{name}“ als Ihr Standardprofil fertigzustellen.",
+    "model": "Modell",
+    "persona": "Persona",
+    "noPersona": "Keine Persona",
+    "selectModel": "Modell auswählen…",
+    "finish": "Abschließen",
+    "allSet": "Alles bereit",
+    "allSetHint": "Ihr erstes Profil ist bereit. Kehren Sie zurück und beginnen Sie eine Geschichte.",
+    "importedProfileFallback": "Importiertes Profil",
+    "toast": {
+      "personaCreated": "Persona erstellt",
+      "personaFailed": "Persona konnte nicht erstellt werden",
+      "pickModel": "Wählen Sie ein Modell, damit dieses Profil eine Geschichte beginnen kann",
+      "profileCreated": "Profil erstellt",
+      "profileFailed": "Profil konnte nicht erstellt werden",
+      "profileReady": "Profil bereit",
+      "finishFailed": "Einrichtung konnte nicht abgeschlossen werden"
     }
   },
   "time": {

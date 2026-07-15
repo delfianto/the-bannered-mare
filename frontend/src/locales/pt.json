@@ -1,9 +1,16 @@
 {
+  "notFound": {
+    "title": "Esta página se perdeu",
+    "message": "A página que você está procurando não existe ou pode ter sido movida.",
+    "home": "De volta à lareira"
+  },
   "common": {
     "save": "Salvar",
     "saved": "Salvo",
     "saving": "Salvando…",
     "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Fechar",
     "done": "Concluído",
     "delete": "Excluir",
     "deleteConfirm": "Confirmar exclusão?",
@@ -11,6 +18,7 @@
     "export": "Exportar",
     "loading": "Carregando…",
     "retry": "Tentar novamente",
+    "serverUnreachable": "Não é possível acessar o servidor — suas alterações não serão salvas.",
     "back": "Voltar",
     "goBack": "Voltar",
     "edit": "Editar",
@@ -18,7 +26,19 @@
     "copied": "Copiado!",
     "search": "Buscar",
     "selected": "{count} selecionado(s)",
-    "serverUnreachable": "Não é possível acessar o servidor — suas alterações não serão salvas."
+    "error": "Algo deu errado",
+    "errorBoundary": {
+      "title": "Algo deu errado",
+      "description": "Esta página encontrou um erro inesperado. Recarregar geralmente resolve — se continuar acontecendo, o aplicativo pode ter sido atualizado em segundo plano.",
+      "reload": "Recarregar"
+    },
+    "basicInfo": "Informações básicas",
+    "created": "Criado",
+    "updated": "Atualizado",
+    "status": "Status",
+    "yes": "Sim",
+    "no": "Não",
+    "notAvailable": "N/A"
   },
   "nav": {
     "home": "Início",
@@ -27,16 +47,133 @@
     "dataBank": "Banco de dados",
     "sessions": "Sessões",
     "connections": "Conexões",
+    "profiles": "Perfis",
+    "lorebooks": "Livros de Saber",
     "settings": "Configurações",
     "favorites": "Favoritos",
     "expandSidebar": "Expandir barra lateral",
     "collapseSidebar": "Recolher barra lateral"
+  },
+  "profiles": {
+    "title": "Perfis",
+    "subtitle": "Configure perfis de prompt, presets, templates e fragmentos.",
+    "tabs": {
+      "profiles": "Perfis",
+      "personas": "Personas"
+    },
+    "newProfile": "Novo perfil",
+    "empty": "Nenhum perfil ainda. Crie um para configurar novos chats rapidamente.",
+    "default": "Padrão",
+    "setDefault": "Definir como padrão",
+    "confirmDelete": "Confirmar?",
+    "none": "Nenhum",
+    "sourceSillyTavern": "SillyTavern",
+    "taskModelSame": "Mesmo modelo do chat",
+    "taskModelHint": "Modelo mais econômico para títulos e sugestões. Economiza tokens em APIs pagas.",
+    "unsupportedWarning": "Estes parâmetros de preset não são suportados por {model} e não serão enviados:",
+    "fields": {
+      "template": "Template de prompt",
+      "preset": "Preset de amostragem",
+      "persona": "Persona",
+      "model": "Modelo",
+      "taskModel": "Modelo de tarefas"
+    },
+    "form": {
+      "newTitle": "Novo perfil",
+      "editTitle": "Editar perfil",
+      "name": "Nome",
+      "namePlaceholder": "ex.: Mestre Grimdark",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Para que serve este perfil?",
+      "setDefault": "Definir como perfil padrão",
+      "defaultOn": "Perfil padrão",
+      "defaultOff": "Não é padrão",
+      "create": "Criar perfil",
+      "save": "Salvar alterações"
+    },
+    "toast": {
+      "created": "Perfil criado",
+      "updated": "Perfil atualizado",
+      "deleted": "Perfil excluído",
+      "defaultSet": "\"{name}\" agora é o padrão",
+      "createFailed": "Não foi possível criar o perfil",
+      "updateFailed": "Não foi possível atualizar o perfil"
+    }
+  },
+  "lorebooks": {
+    "title": "Livros de Saber",
+    "newLorebook": "Novo livro de saber",
+    "empty": "Nenhum livro de saber ainda.",
+    "global": "Global",
+    "entryCount": "{count} entradas",
+    "editLorebook": "Editar livro de saber",
+    "addEntry": "Adicionar entrada",
+    "noEntries": "Nenhuma entrada ainda. Adicione uma para preencher este livro de saber.",
+    "selectPrompt": "Selecione um livro de saber para ver suas entradas.",
+    "order": "Ordem",
+    "constant": "Constante",
+    "confirmDelete": "Confirmar?",
+    "enabled": "Habilitado",
+    "disabled": "Desabilitado",
+    "form": {
+      "newTitle": "Novo livro de saber",
+      "editTitle": "Editar livro de saber",
+      "name": "Nome",
+      "namePlaceholder": "ex.: Tamriel — Saber Principal",
+      "description": "Descrição",
+      "descriptionPlaceholder": "O que este livro de saber abrange?",
+      "isGlobal": "Global (aplica-se a todos os chats)",
+      "create": "Criar livro de saber",
+      "save": "Salvar alterações"
+    },
+    "entryForm": {
+      "newTitle": "Nova entrada",
+      "editTitle": "Editar entrada",
+      "name": "Nome",
+      "namePlaceholder": "ex.: A Torre Branco-Dourada",
+      "keys": "Palavras-chave de ativação",
+      "keysPlaceholder": "Separadas por vírgula, ex.: Cidade Imperial, Branco-Dourada",
+      "content": "Conteúdo",
+      "contentPlaceholder": "Texto de saber injetado no prompt quando ativado…",
+      "position": "Posição",
+      "order": "Ordem",
+      "priority": "Prioridade",
+      "enabled": "Habilitado",
+      "constant": "Sempre ativo",
+      "add": "Adicionar entrada",
+      "save": "Salvar alterações"
+    },
+    "toast": {
+      "created": "Livro de saber criado",
+      "updated": "Livro de saber atualizado",
+      "deleted": "Livro de saber excluído",
+      "entryAdded": "Entrada adicionada",
+      "entrySaved": "Entrada salva",
+      "entryDeleted": "Entrada excluída"
+    }
+  },
+  "presetImport": {
+    "button": "Importar Preset ST",
+    "title": "Importar Preset SillyTavern",
+    "complete": "Importação concluída",
+    "template": "Template",
+    "fragments": "{count} fragmentos de prompt",
+    "preset": "Preset",
+    "profile": "Perfil",
+    "warnings": "Avisos",
+    "done": "Concluído",
+    "importAnother": "Importar outro",
+    "dropzone": "Solte um preset .json do SillyTavern aqui, ou clique para navegar",
+    "dropzoneHint": "Cria um template de prompt, seus fragmentos, um preset de amostragem e um perfil correspondente.",
+    "importing": "Importando…",
+    "failed": "Falha na importação. Verifique o arquivo e tente novamente."
   },
   "home": {
     "greeting": "Bem-vindo de volta, Aventureiro",
     "tagline": "Toda história começa com uma faísca. Que história você vai contar hoje?",
     "continueTale": "Continue seu conto",
     "discoverCharacters": "Descobrir personagens",
+    "browseAll": "Ver todos",
     "searchPlaceholder": "Busque na biblioteca por contos, personagens, mundos…"
   },
   "characters": {
@@ -58,6 +195,10 @@
     "failedLoad": "Falha ao carregar personagem.",
     "failedSave": "Falha ao salvar personagem.",
     "failedDelete": "Falha ao excluir personagem.",
+    "deleted": "Personagem excluído",
+    "deleteSuccess": "O personagem foi excluído da sua biblioteca.",
+    "deleteFailed": "Falha ao excluir",
+    "deleteError": "Não foi possível excluir o personagem. Tente novamente.",
     "sort": {
       "recent": "Usados recentemente",
       "nameAsc": "Nome A–Z",
@@ -103,8 +244,12 @@
       "tags": "Tags",
       "addTagsPlaceholder": "Adicionar tags…",
       "persona": "Persona",
+      "creatorNotes": "Tagline / Notas do Criador",
+      "creatorNotesHint": "Resumo curto ou tagline exibido nos cards da biblioteca",
       "description": "Descrição",
       "descriptionHint": "História, traços, motivações",
+      "systemPrompt": "Substituição do Prompt do Sistema",
+      "systemPromptHint": "Prompt personalizado enviado ao LLM (substitui o prompt global)",
       "personalitySummary": "Resumo de personalidade",
       "greeting": "Saudação",
       "greetingHint": "Primeira mensagem ao iniciar uma sessão",
@@ -137,6 +282,69 @@
     "cancelSelection": "Cancelar seleção"
   },
   "chat": {
+    "settings": {
+      "title": "Configurações do chat"
+    },
+    "drawer": {
+      "tabs": {
+        "character": "Personagem",
+        "settings": "Configurações",
+        "session": "Sessão",
+        "logs": "Registros"
+      },
+      "loadouts": "Perfis",
+      "manageLoadouts": "Gerenciar perfis",
+      "persona": "Persona",
+      "memories": "Memórias",
+      "memoriesEmpty": "Nenhuma memória para esta conversa ainda",
+      "manageMemories": "Gerenciar no Banco de Dados",
+      "lorebooks": "Livros de Saber",
+      "lorebooksEmpty": "Nenhum livro de saber se aplica a esta conversa",
+      "manageLorebooks": "Gerenciar livros de saber",
+      "lorebookGlobal": "Global",
+      "lorebookCharacter": "Personagem",
+      "lorebookTriggers": "Ativadores",
+      "lorebookEntriesEmpty": "Nenhuma entrada neste livro de saber",
+      "sessionModelUnknown": "Nenhum modelo resolvido",
+      "sessionParameters": "Parâmetros",
+      "sessionParametersEmpty": "Nenhum parâmetro definido",
+      "sessionPrompt": "Prompt",
+      "sessionPromptEmpty": "Sem estrutura de prompt",
+      "sessionError": "Não foi possível carregar as informações da sessão",
+      "logsEmpty": "Nenhuma chamada de modelo registrada para esta conversa ainda",
+      "logsError": "Não foi possível carregar os registros de chamadas do modelo",
+      "logsRefresh": "Atualizar registros",
+      "logsStatusSuccess": "OK",
+      "logsStatusError": "Erro",
+      "logsTokens": "Tokens",
+      "logsRequest": "Requisição",
+      "logsResponse": "Resposta",
+      "comingSoon": "Em breve"
+    },
+    "profile": {
+      "title": "Perfil",
+      "none": "Nenhum perfil",
+      "empty": "Nenhum perfil ainda",
+      "manage": "Gerenciar perfis",
+      "reapply": "Reaplicar",
+      "reapplyTooltip": "Reaplicar — redefine o modelo, persona, preset e template deste chat para os valores atuais do perfil (descarta ajustes manuais).",
+      "hint": "Aplicar um perfil define o modelo, persona, preset e template deste chat. Editar o perfil posteriormente não alterará este chat."
+    },
+    "persona": {
+      "title": "Persona",
+      "none": "Nenhuma",
+      "manage": "Gerenciar personas"
+    },
+    "model": {
+      "title": "Modelo",
+      "mainModel": "Modelo principal",
+      "taskModel": "Modelo de tarefas",
+      "sameAsChat": "Mesmo modelo do chat",
+      "none": "Nenhum modelo",
+      "empty": "Nenhum modelo disponível",
+      "change": "Alterar modelo",
+      "overrideHint": "Substitui o modelo apenas para este chat — seu perfil permanece inalterado."
+    },
     "selectTale": "Selecione um conto para continuar…",
     "sessionBegan": "A sessão começou",
     "loadEarlier": "Carregar mensagens anteriores…",
@@ -144,6 +352,7 @@
     "inputPlaceholder": "Continue o conto…",
     "inputHint": "Shift + Enter para nova linha · Suas palavras moldam a história",
     "sendMessage": "Enviar mensagem",
+    "stopGeneration": "Parar geração",
     "searchPlaceholder": "Buscar contos…",
     "activeTales": "Contos ativos",
     "sessionMenu": "Menu da sessão",
@@ -155,6 +364,17 @@
       "defiantly": "Com desafio",
       "tenderly": "Com ternura"
     },
+    "suggest": {
+      "button": "Sugerir respostas",
+      "tones": "Tons para esta cena",
+      "loading": "Pensando…",
+      "back": "Voltar aos tons",
+      "error": "Não foi possível alcançar o modelo para sugestões."
+    },
+    "error": {
+      "retry": "Regenerar",
+      "dismiss": "Dispensar"
+    },
     "actions": {
       "regenerate": "Regenerar",
       "copy": "Copiar",
@@ -165,6 +385,10 @@
     "swipe": {
       "previous": "Alternativa anterior",
       "next": "Próxima alternativa"
+    },
+    "toast": {
+      "setupProfile": "Configure um perfil antes de iniciar um conto",
+      "startFailed": "Falha ao iniciar um novo conto"
     }
   },
   "bookmarks": {
@@ -193,8 +417,16 @@
     },
     "noModels": "Nenhum modelo encontrado",
     "noFamilies": "Nenhuma família de modelos encontrada",
+    "newProvider": "Novo provedor",
+    "newModel": "Novo modelo",
+    "newFamily": "Nova família",
+    "newTemplate": "Novo template",
+    "newFragment": "Novo fragmento",
     "allProviders": "Todos os provedores",
     "allFamilies": "Todas as famílias",
+    "allStatuses": "Todos os estados",
+    "statusEnabled": "Habilitado",
+    "statusDisabled": "Desabilitado",
     "searchModels": "Buscar modelos…",
     "noUrlConfigured": "URL não configurada",
     "provider": {
@@ -205,7 +437,48 @@
       "envVar": "Variável de ambiente",
       "keyConfigured": "Chave configurada",
       "keyNotSet": "Não configurada",
-      "backToProviders": "Voltar a provedores"
+      "backToProviders": "Voltar a provedores",
+      "toast": {
+        "created": "Provedor criado",
+        "createFailed": "Falha ao criar provedor",
+        "updated": "Provedor atualizado",
+        "saveFailed": "Falha ao salvar provedor",
+        "noChanges": "Nenhuma alteração para salvar",
+        "filterFailed": "Falha ao atualizar filtro de modelos",
+        "synced": "Lista de modelos sincronizada",
+        "syncFailed": "Falha ao sincronizar modelos",
+        "modelLoaded": "Carregado {model}",
+        "loadFailed": "Falha ao carregar modelo",
+        "modelUnloaded": "Descarregado {model}",
+        "unloadFailed": "Falha ao descarregar modelo",
+        "modelDeleted": "Excluído {model}",
+        "deleteFailed": "Falha ao excluir modelo"
+      },
+      "editTitle": "Editar provedor",
+      "providerTypeReadonly": "Tipo de provedor (somente leitura)",
+      "namePlaceholder": "Nome do provedor",
+      "baseUrlPlaceholder": "https://api.example.com/v1",
+      "availableModels": "Modelos disponíveis",
+      "lastSynced": "Última sincronização {time}",
+      "neverSynced": "Nunca sincronizado",
+      "syncing": "Sincronizando…",
+      "syncNow": "Sincronizar agora",
+      "searchToFilter": "Buscar modelos para adicionar ao filtro…",
+      "searching": "Buscando…",
+      "noMatchingModels": "Nenhum modelo correspondente.",
+      "filterLabel": "Filtro:",
+      "removeFromFilter": "Remover do filtro",
+      "clearAll": "Limpar tudo",
+      "noFilterSet": "Nenhum filtro definido — exibindo todos os modelos descobertos. Busque acima para mostrar apenas específicos.",
+      "noModelsMatchFilter": "Nenhum modelo descoberto corresponde ao filtro atual.",
+      "noModelsOnServer": "Nenhum modelo encontrado neste servidor.",
+      "loaded": "Carregado",
+      "notLoaded": "Não carregado",
+      "loadModel": "Carregar modelo",
+      "unloadModel": "Descarregar modelo",
+      "addAsModel": "Adicionar como modelo…",
+      "added": "Adicionado",
+      "deleteModelAction": "Excluir modelo"
     },
     "model": {
       "name": "Nome",
@@ -225,8 +498,8 @@
       "addRoute": "Adicionar rota",
       "removeRoute": "Remover rota",
       "noRoutes": "Ainda não há rotas",
-      "backToModels": "Voltar a modelos",
       "allProvidersRouted": "Todos os provedores compatíveis já têm uma rota.",
+      "backToModels": "Voltar a modelos",
       "editTitle": "Editar modelo",
       "identity": "Identidade",
       "created": "Criado",
@@ -239,7 +512,10 @@
       "createModel": "Criar modelo",
       "creating": "Criando…",
       "toast": {
+        "created": "Modelo criado",
+        "createFailed": "Falha ao criar modelo",
         "updated": "Modelo atualizado",
+        "updateFailed": "Falha ao atualizar modelo",
         "saveFailed": "Falha ao salvar o modelo",
         "deleted": "Modelo excluído",
         "deleteFailed": "Falha ao excluir o modelo",
@@ -261,7 +537,27 @@
       "parameterSchema": "Esquema de parâmetros",
       "unsupportedParams": "Parâmetros não suportados",
       "backToFamilies": "Voltar a famílias de modelos",
-      "descriptionPlaceholder": "Descreva esta família de modelos…"
+      "descriptionPlaceholder": "Descreva esta família de modelos…",
+      "toast": {
+        "created": "Família de modelos criada",
+        "createFailed": "Falha ao criar família de modelos",
+        "updated": "Família de modelos atualizada",
+        "saveFailed": "Falha ao salvar família de modelos",
+        "deleted": "Família de modelos excluída",
+        "deleteFailed": "Falha ao excluir família de modelos",
+        "noChanges": "Nenhuma alteração para salvar"
+      },
+      "editTitle": "Editar família de modelos",
+      "namePlaceholder": "Nome da família",
+      "identifierPlaceholder": "provider/model-family",
+      "capabilities": "Capacidades",
+      "capabilityPromptCaching": "Cache de prompts",
+      "capabilityVision": "Visão",
+      "capabilityFunctionCalling": "Chamada de funções",
+      "capabilityReasoning": "Raciocínio ({mode})",
+      "paramDefault": "Padrão",
+      "paramRange": "Intervalo",
+      "paramValues": "Valores"
     },
     "preset": {
       "name": "Nome",
@@ -272,7 +568,23 @@
       "addParam": "Adicionar parâmetro",
       "removeParam": "Remover parâmetro",
       "metadata": "Metadados",
-      "backToPresets": "Voltar a presets"
+      "backToPresets": "Voltar a presets",
+      "toast": {
+        "updated": "Preset atualizado",
+        "saveFailed": "Falha ao salvar preset",
+        "deleted": "Preset excluído",
+        "deleteFailed": "Falha ao excluir preset",
+        "defaultSet": "Preset definido como padrão",
+        "setDefaultFailed": "Falha ao definir padrão",
+        "noChanges": "Nenhuma alteração para salvar"
+      },
+      "editTitle": "Editar preset",
+      "namePlaceholder": "Nome do preset",
+      "descriptionPlaceholder": "Descrição do preset",
+      "paramNamePlaceholder": "parameter_name",
+      "paramValuePlaceholder": "value",
+      "defaultStatus": "Padrão",
+      "parameterCount": "Parâmetros"
     },
     "template": {
       "name": "Nome",
@@ -290,7 +602,20 @@
       "maxHistoryTokens": "Máximo de tokens do histórico",
       "preview": "Pré-visualização",
       "previewTemplate": "Pré-visualizar template",
-      "backToTemplates": "Voltar a templates"
+      "backToTemplates": "Voltar a templates",
+      "toast": {
+        "created": "Template criado",
+        "createFailed": "Falha ao criar template",
+        "required": "Nome e template de sistema são obrigatórios",
+        "updated": "Template atualizado",
+        "saveFailed": "Falha ao salvar template",
+        "deleted": "Template excluído",
+        "deleteFailed": "Falha ao excluir template",
+        "noChanges": "Nenhuma alteração para salvar",
+        "previewFailed": "Falha ao pré-visualizar template",
+        "fragmentDetached": "Fragmento desanexado",
+        "detachFailed": "Falha ao desanexar fragmento"
+      }
     },
     "fragment": {
       "name": "Nome",
@@ -300,7 +625,25 @@
       "content": "Conteúdo do fragmento",
       "contentPlaceholder": "Conteúdo de template Jinja2…",
       "contentHint": "Conteúdo de template Jinja2 injetado nos templates de prompt",
-      "backToFragments": "Voltar a fragmentos"
+      "backToFragments": "Voltar a fragmentos",
+      "toast": {
+        "created": "Fragmento criado",
+        "createFailed": "Falha ao criar fragmento",
+        "required": "Nome e conteúdo são obrigatórios",
+        "updated": "Fragmento atualizado",
+        "saveFailed": "Falha ao salvar fragmento",
+        "deleted": "Fragmento excluído",
+        "deleteFailed": "Falha ao excluir fragmento",
+        "noChanges": "Nenhuma alteração para salvar"
+      },
+      "editTitle": "Editar fragmento",
+      "namePlaceholder": "Nome do fragmento",
+      "descriptionPlaceholder": "Descrição do fragmento",
+      "typeSystem": "Sistema",
+      "typeNsfw": "NSFW",
+      "typeJailbreak": "Jailbreak",
+      "typeInstruction": "Instrução",
+      "typeContext": "Contexto"
     }
   },
   "memory": {
@@ -351,6 +694,7 @@
       "colorScheme": "Esquema de cores",
       "darkMode": "Modo escuro",
       "darkModeDescription": "Alternar entre aparência clara e escura",
+      "reading": "Leitura",
       "textSize": "Tamanho do texto",
       "textSizeDescription": "Ajuste o tamanho do texto da interface para leitura confortável — aplica-se em todo lugar.",
       "textSizeSample": "A lareira da taverna crepitava enquanto ela se inclinava, sua voz pouco mais que um sussurro.",
@@ -410,6 +754,54 @@
     "about": {
       "craftedBy": "Criado com carinho por",
       "viewGithub": "Ver no GitHub"
+    }
+  },
+  "setup": {
+    "title": "Vamos Te Preparar",
+    "subtitle": "Uma verificação rápida dos seus provedores e criação do seu primeiro perfil.",
+    "steps": {
+      "providers": "1. Provedores",
+      "profile": "2. Perfil",
+      "done": "3. Concluído"
+    },
+    "localProviders": "Provedores locais",
+    "noLocalProviders": "Nenhum provedor local configurado.",
+    "checking": "Verificando…",
+    "modelsFound": "{count} modelos encontrados",
+    "notReachable": "Inacessível",
+    "cloudProviders": "Provedores na nuvem",
+    "keyConfigured": "Chave configurada",
+    "setEnvVar": "Definir {envVar}",
+    "doManually": "Farei isso manualmente",
+    "next": "Próximo",
+    "unfinishedProfile": "Você tem um perfil inacabado",
+    "unfinishedProfiles": "Você tem {count} perfis inacabados",
+    "finishSetup": "Concluir configuração",
+    "createManually": "Criar manualmente",
+    "createManuallyHint": "Escolha um modelo, template, preset e persona você mesmo.",
+    "importPreset": "Importar Preset ST",
+    "importPresetHint": "Importe um preset de conclusão de chat do SillyTavern.",
+    "noPersonaYet": "Você ainda não tem uma persona (opcional, mas recomendado)",
+    "personaNamePlaceholder": "Nome da persona (ex.: seu nome)",
+    "create": "Criar",
+    "attachModel": "Vincular um modelo",
+    "attachModelHint": "Escolha um modelo para concluir a configuração de \"{name}\" como seu perfil padrão.",
+    "model": "Modelo",
+    "persona": "Persona",
+    "noPersona": "Nenhuma persona",
+    "selectModel": "Selecione um modelo…",
+    "finish": "Concluir",
+    "allSet": "Tudo pronto",
+    "allSetHint": "Seu primeiro perfil está pronto. Volte e comece um conto.",
+    "importedProfileFallback": "Perfil importado",
+    "toast": {
+      "personaCreated": "Persona criada",
+      "personaFailed": "Falha ao criar persona",
+      "pickModel": "Escolha um modelo para que este perfil possa iniciar um conto",
+      "profileCreated": "Perfil criado",
+      "profileFailed": "Falha ao criar perfil",
+      "profileReady": "Perfil pronto",
+      "finishFailed": "Falha ao concluir configuração"
     }
   },
   "time": {
