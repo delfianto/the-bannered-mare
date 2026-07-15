@@ -17,7 +17,14 @@ import pytest
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
-from src.core.persistence.models import Embedding, ModelFamily, PromptTemplate, Provider
+from src.core.persistence.models import (
+    Character,
+    Chat,
+    Embedding,
+    ModelFamily,
+    PromptTemplate,
+    Provider,
+)
 from src.fixtures.service import seed_database
 from src.rag.embedding_service import EmbeddingService
 from src.rag.models import DataBankEntry
@@ -148,3 +155,101 @@ def test_seed_data_populates(pg_sync_session: Session) -> None:
     assert pg_sync_session.execute(select(Provider).limit(1)).scalars().first() is not None
     assert pg_sync_session.execute(select(ModelFamily).limit(1)).scalars().first() is not None
     assert pg_sync_session.execute(select(PromptTemplate).limit(1)).scalars().first() is not None
+
+
+# --- BE-H3 part 2: vchordrq tuning, message scoping, threshold edge, empty results ---
+
+
+@pytest.mark.asyncio
+async def test_vchordrq_tuning_applied(pg_async_session: AsyncSession) -> None:
+    """`_apply_vchordrq_tuning` sets the search GUCs on the transaction (best-effort)."""
+    repo = AsyncEmbeddingRepository(pg_async_session)
+
+    await repo._apply_vchordrq_tuning(epsilon=0.5, max_scan_tuples=100)  # pyright: ignore[reportPrivateUsage]
+
+    eps = (
+        await pg_async_session.execute(text("SELECT current_setting('vchordrq.epsilon', true)"))
+    ).scalar_one()
+    mst = (
+        await pg_async_session.execute(
+            text("SELECT current_setting('vchordrq.max_scan_tuples', true)")
+        )
+    ).scalar_one()
+    assert eps == "0.5"
+    assert mst == "100"
+
+    # None values are skipped (and never raise) — the savepoint isolates each SET LOCAL.
+    await repo._apply_vchordrq_tuning(epsilon=None, max_scan_tuples=None)  # pyright: ignore[reportPrivateUsage]
+
+
+@pytest.mark.asyncio
+async def test_message_embeddings_scoped_by_chat(pg_async_session: AsyncSession) -> None:
+    """Message-embedding search is scoped to its ``chat_id`` — another chat's identical
+    vector is not returned."""
+    char = Character(name="Scoper")
+    pg_async_session.add(char)
+    await pg_async_session.flush()
+    chat_a = Chat(character_id=char.id, title="A")
+    chat_b = Chat(character_id=char.id, title="B")
+    pg_async_session.add_all([chat_a, chat_b])
+    await pg_async_session.flush()
+
+    repo = AsyncEmbeddingRepository(pg_async_session)
+    emb_a = _embedding("msg-a", _pad([1.0, 0.0, 0.0, 0.0]), "alpha history", "message")
+    emb_a.chat_id = chat_a.id
+    emb_b = _embedding("msg-b", _pad([1.0, 0.0, 0.0, 0.0]), "beta history", "message")
+    emb_b.chat_id = chat_b.id
+    await repo.create(emb_a)
+    await repo.create(emb_b)
+    await pg_async_session.flush()
+
+    rows = await repo.search_similar(
+        query_embedding=_pad([1.0, 0.0, 0.0, 0.0]),
+        chat_id=chat_a.id,
+        data_bank_ids=[],
+        limit=10,
+        threshold=0.5,
+    )
+
+    contents = [r["content"] for r in rows]
+    assert "alpha history" in contents
+    assert "beta history" not in contents  # belongs to chat_b — scoped out
+
+
+@pytest.mark.asyncio
+async def test_search_threshold_equality_edge(pg_async_session: AsyncSession) -> None:
+    """A hit whose similarity exactly equals the threshold is kept (the `>=` boundary)."""
+    repo = AsyncEmbeddingRepository(pg_async_session)
+    entry_id = "itedge1"
+    await repo.create(_embedding(entry_id, _pad([1.0, 0.0, 0.0, 0.0]), "identical", "data_bank"))
+    await repo.create(_embedding(entry_id, _pad([0.0, 1.0, 0.0, 0.0]), "orthogonal", "data_bank"))
+    await pg_async_session.flush()
+
+    # Query identical to "identical" → cosine similarity is exactly 1.0.
+    rows = await repo.search_similar(
+        query_embedding=_pad([1.0, 0.0, 0.0, 0.0]),
+        chat_id="unused",
+        data_bank_ids=[entry_id],
+        limit=10,
+        threshold=1.0,
+    )
+
+    contents = [r["content"] for r in rows]
+    assert "identical" in contents  # score == threshold (1.0) → included
+    assert "orthogonal" not in contents  # score 0.0 < 1.0 → excluded
+
+
+@pytest.mark.asyncio
+async def test_search_returns_empty_when_no_matches(pg_async_session: AsyncSession) -> None:
+    """No in-scope embeddings (empty data-bank scope + a chat with none) → empty list."""
+    repo = AsyncEmbeddingRepository(pg_async_session)
+
+    rows = await repo.search_similar(
+        query_embedding=_pad([1.0, 0.0, 0.0, 0.0]),
+        chat_id="no-such-chat",
+        data_bank_ids=[],
+        limit=10,
+        threshold=0.5,
+    )
+
+    assert rows == []
