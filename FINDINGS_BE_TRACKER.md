@@ -7,7 +7,7 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** 🧵 **BE-H2 (module encapsulation) — IN PROGRESS.** Design: thin read-`Port`s (structural `Protocol`s) for cross-module reads, target `Service`s for writes. `ExistsPort`/`ReadPort` added; `profile` migrated (proof, 939 green, zero test edits). **PAUSED for review before the entangled reads + writes + lint** — see the BE-H2 rollout checklist. (BE-H1 complete: UoW sync+async across all 17 services.)
+- **Active:** ⏸️ **CHECKPOINTED at BE-H2 Step 1.** Design is proven (`profile`: read-`Port`, 939 green, zero test edits) and validated against the hard case (`model` plan is turnkey — see Step 2). Remaining BE-H2 (model → family/provider, chat_session, the writes, the import lint) is deferred to a **fresh session** to keep the high-stakes core changes off a deep session. **To resume:** start at the BE-H2 → Step 2 checklist. (BE-H1 complete: UoW sync+async across all 17 services.)
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
 - **Progress:** 16 / 30 done (BE-H1, BE-H4, BE-H8, BE-H9, BE-M1, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b; BE-M12 part c (audit-writer) + BE-H3 part 2 deferred. **Remaining: the deferred structural/contract tier** (BE-H2/H5/H6/H7, BE-M2/M3/M10/M11, BE-L3/L5/L7/L9).
 
