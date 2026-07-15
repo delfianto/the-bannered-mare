@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-16
-- **Active:** i18n tier COMPLETE (FE-H2 a/b/c + FE-H3). **All substantive tracker items are now done** — only 3 by-decision defers remain open (none blocking). Deferred: FE-M2 (cache unification — needs a strategy pick), FE-L3 (3 console.log planned-feature stubs — won't-do), ProviderModelRow (presentational extraction — low value).
-- **Next up:** nothing substantive. Optional if revisited: FE-M2 (pick `useResource` query-cache vs promote lists to Pinia like providers), or the ProviderModelRow template extraction.
-- **Progress:** 21 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3 ✓; FE-L8 + FE-L-latent folded in) + FE-M1 (FE-M1/M2 half-done). **Remaining:** none substantive; deferred by decision: FE-M2, FE-L3, ProviderModelRow.
+- **Active:** i18n tier COMPLETE (FE-H2 a/b/c + FE-H3). **Two testing-tier items remain open** (Wave 3): **FE-3a** (component smoke tests for `MessageBubble`/`ParamInput` — mount harness already proven by `AppToggle.test.ts`, but these two aren't written) and **FE-H5** (near-done: `useProviders.test.ts` proves the msw/node seam; residual = one unrestored `client.GET` patch at `useCharacterForm.test.ts:91`, currently neutralized by later suites' beforeEach — formally close with a ~2-line afterEach). Deferred by decision (not blocking): FE-M2 (cache unification — needs a strategy pick), FE-L3 (3 console.log planned-feature stubs — won't-do), ProviderModelRow (presentational extraction — low value).
+- **Next up:** FE-3a (2 component mount tests) + FE-H5 close-out (restore the `client.GET` patch). Both small; the rest is by-decision defers.
+- **Progress:** 21 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3 ✓; FE-L8 + FE-L-latent folded in) + FE-M1 (FE-M1/M2 half-done). **Remaining open:** FE-3a, FE-H5 (both testing-tier, small); deferred by decision: FE-M2, FE-L3, ProviderModelRow.
 
 ---
 
