@@ -5,6 +5,7 @@ import { useRouter, useRoute } from "vue-router";
 import { usePromptTemplate } from "@/composables/usePromptTemplate";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
+import { formatDate } from "@/utils/date";
 
 const { t } = useI18n();
 
@@ -157,13 +158,6 @@ async function handleDetachFragment(fragmentId: string) {
 
 function handleAttachFragment() {
   console.log("Attach fragment clicked — fragment picker modal needed");
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
 }
 </script>
 

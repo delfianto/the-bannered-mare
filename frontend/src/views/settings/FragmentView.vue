@@ -4,6 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import { usePromptFragment } from "@/composables/usePromptFragment";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
+import { formatDate } from "@/utils/date";
 
 const router = useRouter();
 const route = useRoute();
@@ -80,13 +81,6 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
     toast.error("Failed to delete fragment");
   }
 });
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 </script>
 
 <template>

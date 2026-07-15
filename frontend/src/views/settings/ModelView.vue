@@ -10,6 +10,7 @@ import ModelInferenceParams from "@/components/connections/ModelInferenceParams.
 import AppTooltip from "@/components/shared/AppTooltip.vue";
 import { useModelFamilies } from "@/composables/useModelFamilies";
 import { providersForFamily } from "@/utils/modelProviderFilter";
+import { formatDate } from "@/utils/date";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -220,13 +221,6 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
     toast.error(t("connections.model.toast.deleteFailed"));
   }
 });
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 </script>
 
 <template>

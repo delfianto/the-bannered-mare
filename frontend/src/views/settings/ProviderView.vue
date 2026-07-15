@@ -7,6 +7,7 @@ import { useProvider } from "@/composables/useProvider";
 import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
 import { useSettingsStore } from "@/stores/settings";
+import { formatDate, timeAgo as timeAgoUtil } from "@/utils/date";
 import ModelCreateModal from "@/components/connections/ModelCreateModal.vue";
 import anthropicIcon from "@/assets/icons/anthropic.svg";
 import googleIcon from "@/assets/icons/google.svg";
@@ -211,22 +212,8 @@ async function handleSave() {
   }
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
 function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return t("time.justNow");
-  if (mins < 60) return t("time.minutesAgo", { count: mins });
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return t("time.hoursAgo", { count: hours });
-  const days = Math.floor(hours / 24);
-  return t("time.daysAgo", { count: days });
+  return timeAgoUtil(iso, t);
 }
 
 function formatSize(bytes: number | null | undefined): string | null {

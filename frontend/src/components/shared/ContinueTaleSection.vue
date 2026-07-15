@@ -3,6 +3,7 @@ import { fallbackAvatarUrl } from "@/utils/avatar";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { components } from "@/api/schema";
+import { timeAgo as timeAgoUtil } from "@/utils/date";
 
 type Chat = components["schemas"]["ChatResponse"];
 
@@ -24,14 +25,7 @@ function scroll(direction: "left" | "right") {
 }
 
 function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return t("time.justNow");
-  if (mins < 60) return t("time.minutesAgo", { count: mins });
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return t("time.hoursAgo", { count: hours });
-  const days = Math.floor(hours / 24);
-  return t("time.daysAgo", { count: days });
+  return timeAgoUtil(dateStr, t);
 }
 
 function avatarSrc(chat: Chat): string {
