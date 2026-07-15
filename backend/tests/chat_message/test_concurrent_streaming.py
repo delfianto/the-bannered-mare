@@ -7,9 +7,10 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import Engine, select
+from sqlalchemy import Engine, create_engine, select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 from src.chat_message.models import Message, MessageRole
 from src.core.persistence import get_async_db, get_db
 from src.main import app
@@ -52,7 +53,21 @@ async def test_concurrent_streaming(
         yield StreamChunk(content=" chunk")
         yield StreamChunk(finish_reason="stop")
 
-    sync_session_local = sessionmaker(bind=db_engine, autocommit=False, autoflush=False)
+    # The shared `db_engine` uses a StaticPool — ONE SQLite connection. Each of the
+    # concurrent streams offloads the sync prompt build (a DB read: `find_default`,
+    # lore) to a worker thread, and concurrent access to that single connection's
+    # result proxy races -> `IndexError: tuple index out of range`. Production gives
+    # each request its own connection; mirror that with a NullPool over the SAME DB
+    # file so the concurrent sync reads don't collide. (Reads only here — message
+    # writes go through the async path — so SQLite's single-writer limit isn't hit.)
+    concurrent_sync_engine = create_engine(
+        db_engine.url,
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
+    sync_session_local = sessionmaker(
+        bind=concurrent_sync_engine, autocommit=False, autoflush=False
+    )
     async_session_local = async_sessionmaker(
         bind=async_db_engine, class_=AsyncSession, expire_on_commit=False
     )
@@ -103,6 +118,7 @@ async def test_concurrent_streaming(
         app.dependency_overrides.pop(get_db, None)
         app.dependency_overrides.pop(get_async_db, None)
         app.dependency_overrides.pop(get_retrieval_service, None)
+        concurrent_sync_engine.dispose()
 
     assert len(streams) == _CONCURRENCY
 
