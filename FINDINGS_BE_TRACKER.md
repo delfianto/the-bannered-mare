@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** ⏸️ **BE-M10 DEFERRED (user decision)** — the `bookmarks` stubs stay: the frontend consumes all three endpoints (built-out `BookmarksView`), so removal would tear out scaffolding for a soon-to-land favoriting/pinning feature; revisit by *implementing* (not removing) then. No code changed. Prior: BE-M3 done (946 backend + frontend green). **Next up:** BE-H5 (BaseCrudService — unify the 3 update idioms), BE-H6 (RAG router→service), then BE-L3/L5/L7/L9. Still deferred (need Docker/live PG): BE-H3 part 2, BE-M12(c).
-- **Next up:** BE-H5 (BaseCrudService), BE-H6 (RAG router→service), then the remaining BE-L items.
-- **Progress:** 20 / 30 done (BE-H1, **BE-H2**, BE-H4, **BE-H7**, BE-H8, BE-H9, BE-M1, **BE-M2**, **BE-M3**, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓; **BE-M11 resolved by BE-H2**) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b. **Deferred:** BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG). **Remaining active: BE-H5, BE-H6, BE-L3, BE-L5, BE-L7, BE-L9.**
+- **Active:** ✅ **BE-H6 DONE** — RAG persist+index orchestration moved out of the router into `rag/write_service.py::DataBankWriteService` (async; composes sync persist + async index/purge, owns the best-effort try/except). Router write endpoints are one call each; internal-only (openapi byte-identical). 950 green. **Next up:** BE-H5 (BaseCrudService — unify the 3 `update()` idioms + `list/get/delete` across ~11 services), then BE-L3/L5/L7/L9. Deferred: BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG).
+- **Next up:** BE-H5 (BaseCrudService), then the remaining BE-L items (L3/L5/L7/L9).
+- **Progress:** 21 / 30 done (BE-H1, **BE-H2**, BE-H4, **BE-H6**, **BE-H7**, BE-H8, BE-H9, BE-M1, **BE-M2**, **BE-M3**, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓; **BE-M11 resolved by BE-H2**) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b. **Deferred:** BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG). **Remaining active: BE-H5, BE-L3, BE-L5, BE-L7, BE-L9.**
 
 ---
 
@@ -135,13 +135,14 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Also owns (folded in from BE-H2 Step 3):** the `chat_session`→`chat_message` greeting-seed write. Plan: a sync `chat_message/seeding.py::MessageSeedService.seed_greeting` (flush-only, participates in the caller's UoW), injected into `ChatService` (rename `message_repo`→`message_seeder`, typed under `TYPE_CHECKING`; construct in `chat_session/dependencies.py` as `MessageSeedService(MessageRepository(db))`). This removes chat_session/service.py's last foreign `repository.py` import — the prerequisite for BE-H2 Step 4's lint. Watch the bidirectional import order (mirror the existing MessageRepository TYPE_CHECKING+DI pattern). ~13 `ChatService(...)` test constructions across `tests/chat_session/test_service.py`, `test_loose_coupling.py`, `tests/profile/test_apply.py` need the arg wrapped in `MessageSeedService(...)`.
 - **Commit:** —
 
-### BE-H6 · Move RAG persist+index orchestration out of the HTTP router · [ ] · 🧵 main · dep: none · ⚠ contract (no, internal)
+### BE-H6 · Move RAG persist+index orchestration out of the HTTP router · [x] DONE · 🧵 main · dep: none · ⚠ contract (no, internal)
 - **Ref:** FINDINGS_BE.md §3 BE-H6
 - **Files:** `src/rag/router.py:65-121`; `src/rag/service.py`
 - **Problem:** the router owns the two-phase "persist then (re)index / purge embeddings" workflow + its own try/except because the DataBank service is sync and embedding is async.
 - **Fix:** give the RAG write-path an async service that owns persist+index as one operation (async repo variant, like chat); the router calls one method.
 - **Accept:** `rag/router.py` create/update/delete each call a single service method with no `await _index_*` in the router; a service test covers persist+index and delete+purge; gates green.
-- **Commit:** —
+- **DONE** (commit tagged `BE-H6`) — new `rag/write_service.py::DataBankWriteService` (async) composes the sync `DataBankService` (persist) + the async `RetrievalService | None` (index/purge) and owns the two-phase workflow + best-effort try/except that used to live in the router. The router's `_index_entry` helper + `logger` are gone; `create`/`update`/`delete` are now one `await service.{create,update,delete}(...)` each (list/get stay on `DataBankServiceDep`, search on `RetrievalServiceDep`). Kept the persist path **sync** (composition, not a new async repo) — behavior-identical to the old async-endpoint-calls-sync-service flow, and lighter than the "(async repo variant)" hint. DI: `get_data_bank_write_service` depends on `get_data_bank_service` + `get_retrieval_service`, so the router tests' `get_retrieval_service` override still flows into the orchestrator → **27 router tests pass unchanged** + 4 new `TestDataBankWriteService` tests (persist+index, index-failure-survival, delete+purge, RAG-disabled skip). **No contract change** (Depends params aren't in the schema): regenerated `openapi.json` → byte-identical. Verified: ruff/basedpyright clean, pytest **950**.
+- **Commit:** `BE-H6`
 
 ---
 
