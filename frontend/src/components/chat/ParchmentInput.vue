@@ -103,7 +103,7 @@ function handleKeyDown(e: KeyboardEvent) {
       </button>
     </div>
 
-    <p class="mt-2 text-center text-[0.625rem] text-muted-foreground opacity-60">
+    <p class="mt-2 text-center text-3xs text-muted-foreground opacity-60">
       {{ $t("chat.inputHint") }}
     </p>
   </div>

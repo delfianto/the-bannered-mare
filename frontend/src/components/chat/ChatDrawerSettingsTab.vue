@@ -210,7 +210,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
         <!-- Main model -->
         <div>
           <div
-            class="px-1 py-1 text-[0.625rem] font-semibold tracking-wider text-muted-foreground uppercase"
+            class="px-1 py-1 text-3xs font-semibold tracking-wider text-muted-foreground uppercase"
           >
             {{ $t("chat.model.mainModel") }}
           </div>
@@ -229,7 +229,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
               />
             </button>
           </SelectMenu>
-          <p class="px-1 py-1 text-[0.625rem] leading-snug text-muted-foreground/70">
+          <p class="px-1 py-1 text-3xs leading-snug text-muted-foreground/70">
             {{ $t("chat.model.overrideHint") }}
           </p>
         </div>
@@ -237,7 +237,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
         <!-- Task model -->
         <div>
           <div
-            class="px-1 py-1 text-[0.625rem] font-semibold tracking-wider text-muted-foreground uppercase"
+            class="px-1 py-1 text-3xs font-semibold tracking-wider text-muted-foreground uppercase"
           >
             {{ $t("chat.model.taskModel") }}
           </div>
@@ -263,7 +263,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
         <!-- Profile -->
         <div>
           <div
-            class="px-1 py-1 text-[0.625rem] font-semibold tracking-wider text-muted-foreground uppercase"
+            class="px-1 py-1 text-3xs font-semibold tracking-wider text-muted-foreground uppercase"
           >
             {{ $t("chat.profile.title") }}
           </div>
@@ -287,10 +287,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
             />
             <span class="min-w-0 flex-1">
               <span class="block truncate text-sm font-medium text-foreground">{{ p.name }}</span>
-              <span
-                v-if="p.description"
-                class="block truncate text-[0.6875rem] text-muted-foreground"
-              >
+              <span v-if="p.description" class="block truncate text-2xs text-muted-foreground">
                 {{ p.description }}
               </span>
             </span>
@@ -301,7 +298,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
           >
             {{ $t("chat.profile.empty") }}
           </div>
-          <p class="px-1 pt-1.5 text-[0.625rem] leading-snug text-muted-foreground/70">
+          <p class="px-1 pt-1.5 text-3xs leading-snug text-muted-foreground/70">
             {{ $t("chat.profile.hint") }}
           </p>
         </div>
@@ -360,10 +357,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
           />
           <span class="min-w-0 flex-1">
             <span class="block truncate text-sm font-medium text-foreground">{{ p.name }}</span>
-            <span
-              v-if="p.description"
-              class="block truncate text-[0.6875rem] text-muted-foreground"
-            >
+            <span v-if="p.description" class="block truncate text-2xs text-muted-foreground">
               {{ p.description }}
             </span>
           </span>
@@ -428,7 +422,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
           >
             <template #badge>
               <span
-                class="shrink-0 rounded-full bg-base-300 px-2.5 py-0.5 text-[0.625rem] font-medium tracking-wide text-base-content uppercase"
+                class="shrink-0 rounded-full bg-base-300 px-2.5 py-0.5 text-3xs font-medium tracking-wide text-base-content uppercase"
               >
                 {{
                   lb.is_global
@@ -447,10 +441,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
             <ul v-else-if="lorebookEntries[lb.id]?.length" class="space-y-2">
               <li v-for="entry in lorebookEntries[lb.id]" :key="entry.id">
                 <p class="truncate text-sm text-foreground">{{ entry.name }}</p>
-                <p
-                  v-if="entry.keys?.length"
-                  class="mt-0.5 truncate text-[0.6875rem] text-muted-foreground"
-                >
+                <p v-if="entry.keys?.length" class="mt-0.5 truncate text-2xs text-muted-foreground">
                   {{ $t("chat.drawer.lorebookTriggers") }}: {{ entry.keys.join(", ") }}
                 </p>
               </li>

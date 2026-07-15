@@ -101,7 +101,7 @@ function onSubmit() {
         placeholder="https://api.example.com/v1"
         class="w-full rounded-lg border bg-base-100 px-3 py-2 font-mono text-sm text-foreground placeholder:font-sans placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
       />
-      <span class="mt-1 block text-[0.625rem] text-muted-foreground/70">
+      <span class="mt-1 block text-3xs text-muted-foreground/70">
         Known providers use a sensible default when left blank.
       </span>
     </label>
@@ -117,7 +117,7 @@ function onSubmit() {
         placeholder="E.G. MY_PROVIDER_API_KEY"
         class="w-full rounded-lg border bg-base-100 px-3 py-2 font-mono text-sm text-foreground placeholder:font-sans placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
       />
-      <span class="mt-1 block text-[0.625rem] text-muted-foreground/70">
+      <span class="mt-1 block text-3xs text-muted-foreground/70">
         The environment variable the server reads the API key from.
       </span>
     </label>

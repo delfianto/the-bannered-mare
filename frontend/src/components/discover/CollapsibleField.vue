@@ -40,7 +40,7 @@ const teaser = computed(() => props.content.replace(/\s+/g, " ").trim().slice(0,
         <span v-if="!open" class="truncate text-xs text-muted-foreground/50">{{ teaser }}</span>
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <span class="text-[0.625rem] tabular-nums text-muted-foreground/40">{{ charCount }}</span>
+        <span class="text-3xs tabular-nums text-muted-foreground/40">{{ charCount }}</span>
         <AppIcon
           name="i-lucide-chevron-down"
           class="size-4 text-muted-foreground transition-transform"
@@ -53,7 +53,7 @@ const teaser = computed(() => props.content.replace(/\s+/g, " ").trim().slice(0,
       <div class="max-h-80 overflow-y-auto pr-1">
         <p
           class="text-sm leading-relaxed whitespace-pre-wrap text-foreground"
-          :class="mono ? 'font-mono text-[0.8125rem]' : ''"
+          :class="mono ? 'font-mono text-2sm' : ''"
         >
           {{ content }}
         </p>

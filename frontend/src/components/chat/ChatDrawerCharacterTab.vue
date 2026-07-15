@@ -63,20 +63,20 @@ function genderLabel(): string {
       >
         <span
           v-if="genderLabel()"
-          class="rounded-full bg-base-300 px-2.5 py-0.5 text-[0.625rem] font-medium tracking-wide text-base-content uppercase"
+          class="rounded-full bg-base-300 px-2.5 py-0.5 text-3xs font-medium tracking-wide text-base-content uppercase"
         >
           {{ genderLabel() }}
         </span>
         <span
           v-if="fullCharacter.species"
-          class="rounded-full bg-base-300 px-2.5 py-0.5 text-[0.625rem] font-medium tracking-wide text-base-content uppercase"
+          class="rounded-full bg-base-300 px-2.5 py-0.5 text-3xs font-medium tracking-wide text-base-content uppercase"
         >
           {{ fullCharacter.species }}
         </span>
         <span
           v-for="tag in fullCharacter.tags ?? []"
           :key="tag"
-          class="rounded-full bg-base-300 px-2.5 py-0.5 text-[0.625rem] font-medium tracking-wide text-base-content uppercase"
+          class="rounded-full bg-base-300 px-2.5 py-0.5 text-3xs font-medium tracking-wide text-base-content uppercase"
         >
           {{ tag }}
         </span>

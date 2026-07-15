@@ -323,7 +323,7 @@ function handleAttachFragment() {
                 :placeholder="t('connections.template.systemTemplatePlaceholder')"
                 class="min-h-50 w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
-              <p class="mt-2 text-[0.6875rem] text-muted-foreground/60">
+              <p class="mt-2 text-2xs text-muted-foreground/60">
                 {{ $t("connections.template.systemTemplateHint") }}
               </p>
             </div>
@@ -378,20 +378,18 @@ function handleAttachFragment() {
                       <p class="text-sm font-medium text-foreground">{{ tf.fragment.name }}</p>
                       <div class="mt-1 flex items-center gap-2">
                         <span
-                          class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
+                          class="rounded-full px-2 py-0.5 text-4xs font-medium tracking-wide uppercase"
                           :class="typeBadgeClass(tf.fragment.fragment_type)"
                         >
                           {{ tf.fragment.fragment_type }}
                         </span>
                         <span
-                          class="rounded-full px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide uppercase"
+                          class="rounded-full px-2 py-0.5 text-4xs font-medium tracking-wide uppercase"
                           :class="positionColors[tf.position] || 'bg-base-300 text-foreground'"
                         >
                           {{ humanize(tf.position) }}
                         </span>
-                        <span class="text-[0.625rem] text-muted-foreground/60">
-                          #{{ tf.ordinal }}
-                        </span>
+                        <span class="text-3xs text-muted-foreground/60"> #{{ tf.ordinal }} </span>
                       </div>
                     </div>
                   </div>
@@ -469,7 +467,7 @@ function handleAttachFragment() {
 
                 <!-- Timestamps -->
                 <div class="border-t border-border/50 pt-3">
-                  <div class="space-y-1.5 text-[0.6875rem] text-muted-foreground/60">
+                  <div class="space-y-1.5 text-2xs text-muted-foreground/60">
                     <div class="flex justify-between">
                       <span>Created</span>
                       <span>{{ formatDate(template.created_at) }}</span>

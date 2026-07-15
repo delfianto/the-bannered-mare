@@ -53,7 +53,7 @@ function avatarSrc(): string {
         >
           {{ character.name }}
         </h2>
-        <p class="mt-0.5 truncate text-[0.6875rem] leading-tight text-muted-foreground">
+        <p class="mt-0.5 truncate text-2xs leading-tight text-muted-foreground">
           {{ sessionTitle }}
         </p>
       </div>

@@ -123,7 +123,7 @@ const sections = computed(() => {
       <div class="flex items-center gap-2 text-xs text-muted-foreground">
         <span
           v-if="overrideCount > 0"
-          class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-[0.625rem] font-semibold text-primary"
+          class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-3xs font-semibold text-primary"
         >
           {{ overrideCount }}
         </span>
@@ -151,7 +151,7 @@ const sections = computed(() => {
         </h3>
         <span
           v-if="overrideCountForGroup(section.params) > 0"
-          class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary/15 px-1 text-[0.5625rem] font-semibold text-primary"
+          class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary/15 px-1 text-4xs font-semibold text-primary"
         >
           {{ overrideCountForGroup(section.params) }}
         </span>

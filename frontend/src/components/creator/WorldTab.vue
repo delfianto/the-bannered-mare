@@ -81,7 +81,7 @@ function handleImport(e: Event) {
           :class="lorebookOpen ? 'rotate-90' : ''"
         />
         <AppIcon name="i-lucide-book-open" class="size-3.5" />
-        <span class="font-cinzel text-[0.6875rem] tracking-[0.08em] uppercase">{{
+        <span class="font-cinzel text-2xs tracking-[0.08em] uppercase">{{
           $t("characters.form.lorebook")
         }}</span>
         <span class="ml-auto text-xs text-muted-foreground">
@@ -131,7 +131,7 @@ function handleImport(e: Event) {
           :class="advancedOpen ? 'rotate-90' : ''"
         />
         <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5" />
-        <span class="font-cinzel text-[0.6875rem] tracking-[0.08em] uppercase">{{
+        <span class="font-cinzel text-2xs tracking-[0.08em] uppercase">{{
           $t("characters.form.advanced")
         }}</span>
       </button>
@@ -174,7 +174,7 @@ function handleImport(e: Event) {
         <span class="text-sm font-medium text-foreground">{{
           $t("characters.form.importCharacter")
         }}</span>
-        <span class="text-[0.6875rem] text-muted-foreground">{{
+        <span class="text-2xs text-muted-foreground">{{
           $t("characters.form.importFileTypes")
         }}</span>
         <input
@@ -195,7 +195,7 @@ function handleImport(e: Event) {
         <span class="text-sm font-medium text-foreground">{{
           $t("characters.form.exportJson")
         }}</span>
-        <span class="text-[0.6875rem] text-muted-foreground">{{
+        <span class="text-2xs text-muted-foreground">{{
           $t("characters.form.exportFileType")
         }}</span>
       </button>

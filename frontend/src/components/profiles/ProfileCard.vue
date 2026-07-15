@@ -29,13 +29,13 @@ defineEmits<{
       <div class="flex shrink-0 items-center gap-1.5">
         <span
           v-if="profile.source === 'sillytavern'"
-          class="rounded-full bg-base-300 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-muted-foreground uppercase"
+          class="rounded-full bg-base-300 px-2 py-0.5 text-4xs font-medium tracking-wide text-muted-foreground uppercase"
         >
           {{ $t("profiles.sourceSillyTavern") }}
         </span>
         <span
           v-if="profile.is_default"
-          class="flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-primary uppercase"
+          class="flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-4xs font-medium tracking-wide text-primary uppercase"
         >
           <AppIcon name="i-lucide-star" class="size-3" />
           {{ $t("profiles.default") }}
@@ -53,7 +53,7 @@ defineEmits<{
 
     <!-- Bundled components (template / preset / persona / model) -->
     <div class="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-border/30 pt-3">
-      <div class="flex min-w-0 items-center gap-1.5 text-[0.6875rem]">
+      <div class="flex min-w-0 items-center gap-1.5 text-2xs">
         <AppIcon name="i-lucide-scroll-text" class="size-3.5 shrink-0 text-muted-foreground" />
         <span
           class="truncate"
@@ -62,7 +62,7 @@ defineEmits<{
           {{ templateLabel ?? $t("profiles.none") }}
         </span>
       </div>
-      <div class="flex min-w-0 items-center gap-1.5 text-[0.6875rem]">
+      <div class="flex min-w-0 items-center gap-1.5 text-2xs">
         <AppIcon
           name="i-lucide-sliders-horizontal"
           class="size-3.5 shrink-0 text-muted-foreground"
@@ -74,7 +74,7 @@ defineEmits<{
           {{ presetLabel ?? $t("profiles.none") }}
         </span>
       </div>
-      <div class="flex min-w-0 items-center gap-1.5 text-[0.6875rem]">
+      <div class="flex min-w-0 items-center gap-1.5 text-2xs">
         <AppIcon name="i-lucide-user" class="size-3.5 shrink-0 text-muted-foreground" />
         <span
           class="truncate"
@@ -83,7 +83,7 @@ defineEmits<{
           {{ personaLabel ?? $t("profiles.none") }}
         </span>
       </div>
-      <div class="flex min-w-0 items-center gap-1.5 text-[0.6875rem]">
+      <div class="flex min-w-0 items-center gap-1.5 text-2xs">
         <AppIcon name="i-lucide-cpu" class="size-3.5 shrink-0 text-muted-foreground" />
         <span
           class="truncate"
@@ -96,7 +96,7 @@ defineEmits<{
 
     <!-- Hover actions -->
     <div
-      class="absolute right-3 bottom-3 flex items-center gap-2 text-[0.625rem] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+      class="absolute right-3 bottom-3 flex items-center gap-2 text-3xs text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
     >
       <button
         v-if="!profile.is_default"

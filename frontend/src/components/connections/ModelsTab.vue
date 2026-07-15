@@ -326,7 +326,7 @@ async function handleToggleEnabled(row: ModelRow) {
             </span>
             <span
               v-if="row.routes.length > 1"
-              class="rounded-full bg-base-300 px-1.5 py-0.5 text-[0.625rem] font-medium text-muted-foreground"
+              class="rounded-full bg-base-300 px-1.5 py-0.5 text-3xs font-medium text-muted-foreground"
             >
               +{{ row.routes.length - 1 }}
             </span>

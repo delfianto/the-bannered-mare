@@ -305,7 +305,7 @@ function updateObjectProp(key: string, val: unknown) {
         :key="i"
         class="rounded-lg border border-border/50 bg-base-300/10 p-3"
       >
-        <div class="mb-1 text-[0.625rem] font-medium text-muted-foreground uppercase">
+        <div class="mb-1 text-3xs font-medium text-muted-foreground uppercase">
           Item {{ i + 1 }}
         </div>
         <div class="space-y-2">

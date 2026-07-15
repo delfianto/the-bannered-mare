@@ -58,11 +58,11 @@ function removeKeyword(kw: string) {
         <span
           v-for="kw in entry.keywords.slice(0, 3)"
           :key="kw"
-          class="rounded-full bg-base-300 px-2 py-0.5 text-[0.625rem] font-medium text-base-content"
+          class="rounded-full bg-base-300 px-2 py-0.5 text-3xs font-medium text-base-content"
         >
           {{ kw }}
         </span>
-        <span v-if="entry.keywords.length > 3" class="text-[0.625rem] text-muted-foreground">
+        <span v-if="entry.keywords.length > 3" class="text-3xs text-muted-foreground">
           +{{ entry.keywords.length - 3 }}
         </span>
       </div>
@@ -103,7 +103,7 @@ function removeKeyword(kw: string) {
           <span
             v-for="kw in entry.keywords"
             :key="kw"
-            class="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/15 px-2 py-0.5 text-[0.6875rem] font-medium text-primary"
+            class="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/15 px-2 py-0.5 text-2xs font-medium text-primary"
           >
             {{ kw }}
             <button
@@ -129,7 +129,7 @@ function removeKeyword(kw: string) {
           <span class="text-xs font-medium text-muted-foreground">{{
             t("characters.form.content")
           }}</span>
-          <span class="text-[0.625rem] text-muted-foreground">{{ entry.content.length }}/2000</span>
+          <span class="text-3xs text-muted-foreground">{{ entry.content.length }}/2000</span>
         </div>
         <textarea
           :value="entry.content"

@@ -292,15 +292,12 @@ async function toggleEntry(entry: LoreEntryResponse) {
             }}</span>
             <span
               v-if="lb.is_global"
-              class="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-[0.5rem] font-medium tracking-wide text-primary uppercase"
+              class="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-5xs font-medium tracking-wide text-primary uppercase"
             >
               {{ $t("lorebooks.global") }}
             </span>
           </div>
-          <p
-            v-if="lb.description"
-            class="mt-0.5 line-clamp-1 text-[0.6875rem] text-muted-foreground"
-          >
+          <p v-if="lb.description" class="mt-0.5 line-clamp-1 text-2xs text-muted-foreground">
             {{ lb.description }}
           </p>
         </button>
@@ -384,7 +381,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
                 </h2>
                 <span
                   v-if="currentLorebook.is_global"
-                  class="rounded-full bg-primary/15 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-primary uppercase"
+                  class="rounded-full bg-primary/15 px-2 py-0.5 text-4xs font-medium tracking-wide text-primary uppercase"
                 >
                   {{ $t("lorebooks.global") }}
                 </span>

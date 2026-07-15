@@ -52,7 +52,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
           </div>
           <span
             v-if="template.is_default"
-            class="shrink-0 rounded-full bg-base-300 px-2 py-0.5 text-[0.5625rem] font-medium tracking-wide text-foreground uppercase"
+            class="shrink-0 rounded-full bg-base-300 px-2 py-0.5 text-4xs font-medium tracking-wide text-foreground uppercase"
           >
             Default
           </span>
@@ -70,9 +70,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
         <div class="flex-1" />
 
         <!-- Details -->
-        <div
-          class="space-y-1.5 border-t border-border/30 pt-3 text-[0.6875rem] text-muted-foreground"
-        >
+        <div class="space-y-1.5 border-t border-border/30 pt-3 text-2xs text-muted-foreground">
           <div v-if="template.max_history_tokens" class="flex items-center gap-1.5">
             <AppIcon name="i-lucide-hash" class="size-3 shrink-0" />
             <span>{{ template.max_history_tokens.toLocaleString() }} max history tokens</span>
@@ -85,7 +83,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
 
         <!-- Edit hint -->
         <div
-          class="absolute right-3 bottom-3 flex items-center gap-1 text-[0.625rem] text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
+          class="absolute right-3 bottom-3 flex items-center gap-1 text-3xs text-muted-foreground/0 transition-colors group-hover:text-muted-foreground/60"
         >
           <AppIcon name="i-lucide-pencil" class="size-3" />
           {{ $t("common.edit") }}
