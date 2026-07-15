@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, onMounted, watch } from "vue";
+import { reactive, onMounted, watch, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { usePromptFragment } from "@/composables/usePromptFragment";
@@ -15,13 +15,13 @@ const { fragment, loading, saving, deleting, error, fetchFragment, saveFragment,
 const toast = useAppToast();
 const { t } = useI18n();
 
-const fragmentTypeOptions = [
-  { label: "System", value: "system" },
-  { label: "NSFW", value: "nsfw" },
-  { label: "Jailbreak", value: "jailbreak" },
-  { label: "Instruction", value: "instruction" },
-  { label: "Context", value: "context" },
-];
+const fragmentTypeOptions = computed(() => [
+  { label: t("connections.fragment.typeSystem"), value: "system" },
+  { label: t("connections.fragment.typeNsfw"), value: "nsfw" },
+  { label: t("connections.fragment.typeJailbreak"), value: "jailbreak" },
+  { label: t("connections.fragment.typeInstruction"), value: "instruction" },
+  { label: t("connections.fragment.typeContext"), value: "context" },
+]);
 
 const form = reactive({
   name: "",
@@ -129,7 +129,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
               <AppIcon name="i-lucide-puzzle" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
-              Edit Fragment
+              {{ $t("connections.fragment.editTitle") }}
             </h1>
           </div>
         </div>
@@ -184,7 +184,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
             <h2
               class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
-              Basic Info
+              {{ $t("common.basicInfo") }}
             </h2>
             <div class="space-y-4">
               <!-- Name -->
@@ -197,7 +197,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                 <input
                   v-model="form.name"
                   type="text"
-                  placeholder="Fragment name"
+                  :placeholder="$t('connections.fragment.namePlaceholder')"
                   class="input-field"
                 />
               </label>
@@ -212,7 +212,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                 <textarea
                   v-model="form.description"
                   rows="3"
-                  placeholder="Fragment description"
+                  :placeholder="$t('connections.fragment.descriptionPlaceholder')"
                   class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
@@ -251,7 +251,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                 </label>
                 <AppToggle
                   :model-value="form.is_global"
-                  aria-label="Global fragment"
+                  :aria-label="$t('connections.fragment.isGlobal')"
                   @change="toggleGlobal"
                 />
               </div>
@@ -278,8 +278,8 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
 
           <!-- Metadata -->
           <div class="flex items-center justify-between px-1 text-2xs text-muted-foreground/60">
-            <span>Created {{ formatDate(fragment.created_at) }}</span>
-            <span>Updated {{ formatDate(fragment.updated_at) }}</span>
+            <span>{{ $t("common.created") }} {{ formatDate(fragment.created_at) }}</span>
+            <span>{{ $t("common.updated") }} {{ formatDate(fragment.updated_at) }}</span>
           </div>
         </div>
       </div>
