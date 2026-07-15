@@ -1,5 +1,6 @@
 import { client } from "@/api/client";
 import { useEntityCrud } from "@/composables/useEntityCrud";
+import { usePresetsStore } from "@/composables/usePresets";
 import type { components } from "@/api/schema";
 
 type PresetResponse = components["schemas"]["PresetResponse"];
@@ -16,6 +17,21 @@ export function usePreset() {
       client.DELETE("/api/presets/{preset_id}", { params: { path: { preset_id: id } } }),
   });
 
+  // Invalidate the shared presets list after a mutation (FE-M2), so the cached
+  // singleton every list consumer reads stays in sync — mirrors useProvider.
+  const store = usePresetsStore();
+
+  async function savePreset(id: string, body: PresetUpdate) {
+    const saved = await crud.updateItem(id, body);
+    await store.refresh();
+    return saved;
+  }
+
+  async function deletePreset(id: string) {
+    await crud.removeItem(id);
+    await store.refresh();
+  }
+
   async function setDefault(id: string) {
     const data = await crud.runSaving(
       () =>
@@ -23,6 +39,7 @@ export function usePreset() {
       "Failed to set preset as default",
     );
     crud.item.value = data;
+    await store.refresh();
     return data;
   }
 
@@ -33,8 +50,8 @@ export function usePreset() {
     deleting: crud.deleting,
     error: crud.error,
     fetchPreset: crud.fetchItem,
-    savePreset: crud.updateItem,
-    deletePreset: crud.removeItem,
+    savePreset,
+    deletePreset,
     setDefault,
   };
 }
