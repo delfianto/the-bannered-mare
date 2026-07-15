@@ -11,18 +11,18 @@ from src.chat_session.repository import ChatRepository
 from src.core.base_service import get_or_404
 from src.core.exceptions import NotFoundError
 from src.core.logging.logger_config import get_logger
-from src.core.persistence import Message, MessageRole, UnitOfWork
+from src.core.persistence import UnitOfWork
 from src.core.tokenization import get_tokenizer
 from src.templating import TemplateContext, TemplateService
 
 if TYPE_CHECKING:
-    # Cross-slice READS depend on a structural ReadPort, not the foreign repos
-    # (BE-H2). MessageRepository stays a foreign type only until the greeting-seed
-    # WRITE moves behind a chat_message seam (deferred, with BE-H7). All stay under
-    # TYPE_CHECKING: they're annotation-only, and importing MessageRepository at
-    # module load would re-enter chat_message.dependencies -> chat_session.dependencies.
+    # Cross-slice READS depend on a structural ReadPort; the greeting-seed WRITE
+    # goes through chat_message's published MessageSeedService seam (BE-H7) — not
+    # its repository. All stay under TYPE_CHECKING: they're annotation-only, and a
+    # runtime import of a chat_message module here would re-enter
+    # chat_message.dependencies -> chat_session.dependencies at module load.
     from src.character.models import Character
-    from src.chat_message.repository import MessageRepository
+    from src.chat_message.seeding import MessageSeedService
     from src.core.persistence import ModelRegistry, Persona, Profile, ReadPort
 
 logger = get_logger(__name__)
@@ -42,7 +42,7 @@ class ChatService:
         character_repo: ReadPort[Character],
         model_repo: ReadPort[ModelRegistry],
         profile_repo: ReadPort[Profile],
-        message_repo: MessageRepository,
+        message_seeder: MessageSeedService,
         persona_repo: ReadPort[Persona],
         template_service: TemplateService | None = None,
         uow: UnitOfWork | None = None,
@@ -53,7 +53,9 @@ class ChatService:
         self.character_repo = character_repo
         self.model_repo = model_repo
         self.profile_repo = profile_repo
-        self.message_repo = message_repo
+        # The opening-greeting write goes through chat_message's published seam
+        # (BE-H7), not its repository; it flushes into this service's transaction.
+        self.message_seeder = message_seeder
         self.persona_repo = persona_repo
         self.template_service = template_service or TemplateService()
         # The unit of work owns the transaction boundary; it wraps the same session
@@ -141,13 +143,7 @@ class ChatService:
             rendered = greeting
 
         tokenizer = get_tokenizer(chat.model.model_family if chat.model else None)
-        message = Message(
-            chat_id=chat.id,
-            role=MessageRole.ASSISTANT,
-            content=rendered,
-            token_count=tokenizer.count(rendered),
-        )
-        self.message_repo.create(message)
+        self.message_seeder.seed_greeting(chat.id, rendered, tokenizer.count(rendered))
         chat.preview = rendered[:50]
 
     def update(
