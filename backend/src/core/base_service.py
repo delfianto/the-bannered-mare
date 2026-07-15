@@ -98,11 +98,15 @@ class BaseCrudService[T: BaseModel, R: BaseRepository[Any]]:
         """List all rows, name-ordered. Override for a different order/query."""
         return self.repo.find_all_ordered()
 
-    def get_by_id(self, entity_id: str) -> T:
-        """Return the row by id, or raise NotFoundError (→ HTTP 404)."""
+    def get_by_id(self, entity_id: str, /) -> T:
+        """Return the row by id, or raise NotFoundError (→ HTTP 404).
+
+        ``entity_id`` is positional-only so subclasses may override with a
+        domain-specific name (``persona_id``, …) and stay LSP-compatible.
+        """
         return get_or_404(self.repo, entity_id, self._resource_name)
 
-    def delete(self, entity_id: str) -> None:
+    def delete(self, entity_id: str, /) -> None:
         """Delete the row (plain). Override when deletion has side effects."""
         entity = self.get_by_id(entity_id)
         self.repo.delete(entity)
