@@ -17,7 +17,7 @@ from src.character.card_parser import (
 from src.character.models import Character
 from src.character.repository import CharacterRepository
 from src.character.schemas import CharacterFormBase
-from src.core.base_service import get_or_404
+from src.core.base_service import BaseCrudService
 from src.core.config import settings
 from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
@@ -95,8 +95,8 @@ def _build_character_from_card(card: ParsedCard) -> Character:
     )
 
 
-class CharacterService:
-    """Service for character-related business logic"""
+class CharacterService(BaseCrudService[Character, CharacterRepository]):
+    """Service for character-related business logic (inherits list_all/get_by_id)."""
 
     def __init__(
         self,
@@ -104,29 +104,17 @@ class CharacterService:
         lore_service: LoreService,
         uow: UnitOfWork | None = None,
     ):
-        self.character_repo = character_repo
+        super().__init__(character_repo, uow or UnitOfWork(character_repo.db), "Character")
         # Character import/export writes & reads the character's lorebook through the
         # lore slice's published service (BE-H2), not its repositories. The service
         # shares this session, so the whole import stays one transaction.
         self.lore_service = lore_service
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `CharacterService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(character_repo.db)
-
-    def list_all(self) -> list[Character]:
-        """List all characters"""
-        return self.character_repo.find_all_ordered()
 
     def list_paginated(
         self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0, filters: dict[str, Any] | None = None
     ) -> tuple[list[Character], int]:
         """List characters with pagination and filtering"""
-        return self.character_repo.find_paginated_ordered(limit, offset, filters)
-
-    def get_by_id(self, character_id: str) -> Character:
-        """Get character by ID, raise 404 if not found"""
-        return get_or_404(self.character_repo, character_id, "Character")
+        return self.repo.find_paginated_ordered(limit, offset, filters)
 
     async def create(
         self, data: CharacterFormBase, avatar: UploadedFile | None = None
@@ -160,7 +148,7 @@ class CharacterService:
             species=data.species,
             age=data.age,
         )
-        created = self.character_repo.create(character)
+        created = self.repo.create(character)
 
         # The avatar's stored paths must be persisted on the row, so the file has to
         # be written before commit; ``_commit_or_purge_avatar_files`` reverses the
@@ -173,7 +161,7 @@ class CharacterService:
             created.avatar = original_path
             created.avatar_large = large_path
             created.avatar_thumbnail = thumbnail_path
-            _ = self.character_repo.update(created)
+            _ = self.repo.update(created)
             avatar_written = True
 
         self._commit_or_purge_avatar_files(created.id, wrote_avatar=avatar_written)
@@ -236,7 +224,7 @@ class CharacterService:
             character.avatar_large = large_path
             character.avatar_thumbnail = thumbnail_path
 
-        updated = self.character_repo.update(character)
+        updated = self.repo.update(character)
         self.uow.commit()
         return updated
 
@@ -244,7 +232,7 @@ class CharacterService:
         """Delete character and associated files"""
         character = self.get_by_id(character_id)
 
-        self.character_repo.delete(character)
+        self.repo.delete(character)
         self.uow.commit()
 
         # Filesystem after the DB: remove the avatar files only once the delete has
@@ -274,7 +262,7 @@ class CharacterService:
                 "Failed to parse character card: unsupported or corrupt file."
             ) from e
 
-        created = self.character_repo.create(_build_character_from_card(card))
+        created = self.repo.create(_build_character_from_card(card))
         self.lore_service.import_character_book(card.character_book, created.id, card.name)
         # PNG imports write the uploaded file as the avatar before commit (its paths
         # land on the row); purge it if the commit fails so nothing is orphaned.
@@ -324,7 +312,7 @@ class CharacterService:
         character.avatar = original_path
         character.avatar_large = large_path
         character.avatar_thumbnail = thumbnail_path
-        _ = self.character_repo.update(character)
+        _ = self.repo.update(character)
         return True
 
     def export_as_json(self, character_id: str) -> str:

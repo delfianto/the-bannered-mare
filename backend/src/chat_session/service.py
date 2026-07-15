@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from src.chat_session.models import Chat
 from src.chat_session.repository import ChatRepository
-from src.core.base_service import get_or_404
+from src.core.base_service import BaseCrudService, get_or_404
 from src.core.exceptions import NotFoundError
 from src.core.logging.logger_config import get_logger
 from src.core.pagination import DEFAULT_PAGE_SIZE
@@ -34,8 +34,8 @@ logger = get_logger(__name__)
 _UNSET: Any = object()
 
 
-class ChatService:
-    """Service for chat and message-related business logic"""
+class ChatService(BaseCrudService[Chat, ChatRepository]):
+    """Service for chat and message-related business logic (inherits list_all/get_by_id/delete)."""
 
     def __init__(
         self,
@@ -48,7 +48,7 @@ class ChatService:
         template_service: TemplateService | None = None,
         uow: UnitOfWork | None = None,
     ):
-        self.chat_repo = chat_repo
+        super().__init__(chat_repo, uow or UnitOfWork(chat_repo.db), "Chat")
         # character/model/profile/persona are cross-slice reads → structural
         # ReadPorts (BE-H2); the concrete repos injected by DI satisfy them.
         self.character_repo = character_repo
@@ -59,18 +59,10 @@ class ChatService:
         self.message_seeder = message_seeder
         self.persona_repo = persona_repo
         self.template_service = template_service or TemplateService()
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `ChatService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(chat_repo.db)
-
-    def list_all(self) -> list[Chat]:
-        """List all chats"""
-        return self.chat_repo.find_all_ordered()
 
     def list_bookmarked(self) -> list[Chat]:
         """List all bookmarked chat sessions."""
-        return self.chat_repo.find_bookmarked()
+        return self.repo.find_bookmarked()
 
     def list_paginated(
         self,
@@ -85,17 +77,13 @@ class ChatService:
                 # Handle "Z" suffix if present from JS Date.toISOString()
                 cursor_dt = datetime.fromisoformat(cursor.replace("Z", "+00:00"))
 
-        items, has_more = self.chat_repo.find_paginated_by_cursor(limit, cursor_dt, filters)
+        items, has_more = self.repo.find_paginated_by_cursor(limit, cursor_dt, filters)
 
         next_cursor = None
         if has_more and items:
             next_cursor = items[-1].updated_at.isoformat()
 
         return items, next_cursor
-
-    def get_by_id(self, chat_id: str) -> Chat:
-        """Get chat by ID, raise 404 if not found"""
-        return get_or_404(self.chat_repo, chat_id, "Chat")
 
     def create(
         self,
@@ -118,7 +106,7 @@ class ChatService:
         if model_id is not None:
             self._set_model(chat, model_id)
 
-        created = self.chat_repo.create(chat)
+        created = self.repo.create(chat)
         self._seed_greeting(created, character)
         self.uow.commit()
         return created
@@ -181,7 +169,7 @@ class ChatService:
         if is_bookmarked is not None:
             chat.is_bookmarked = is_bookmarked
 
-        updated = self.chat_repo.update(chat)
+        updated = self.repo.update(chat)
         self.uow.commit()
         return updated
 
@@ -206,7 +194,7 @@ class ChatService:
         """Apply a profile to an existing chat: copy its axes, update last_profile_name."""
         chat = self.get_by_id(chat_id)
         self._apply_profile(chat, profile_id)
-        updated = self.chat_repo.update(chat)
+        updated = self.repo.update(chat)
         self.uow.commit()
         return updated
 
@@ -236,9 +224,3 @@ class ChatService:
             self._set_model(chat, profile.model_id)
         if profile.task_model_id is not None:
             chat.task_model_id = profile.task_model_id
-
-    def delete(self, chat_id: str) -> None:
-        """Delete chat"""
-        chat = self.get_by_id(chat_id)
-        self.chat_repo.delete(chat)
-        self.uow.commit()
