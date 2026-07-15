@@ -122,7 +122,8 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** no service imports another slice's `repository.py`; one documented integration style used everywhere; import-boundary check in CI; gates green.
 - **Commit:** —
 
-### BE-H7 · Break the `model` ↔ `chat_session` structural coupling · [ ] · 🧵 main · dep: BE-H2
+### BE-H7 · Break the `model` ↔ `chat_session` structural coupling · [~] IN PROGRESS · 🧵 main · dep: BE-H2
+- **Progress:** **Part A done** (commit tagged `BE-H7`) — the model→chat_session snapshot coupling is inverted via a `ChatSnapshotPort` Protocol in `model/ports.py`: `model/service.py` now depends on that port (its own slice), NOT `chat_session.model_snapshot` — the TYPE_CHECKING import is gone. `chat_session`'s `ChatModelSnapshotService` satisfies the port structurally (it does NOT import the port → no reverse coupling), so DI passes it unchanged → **zero test edits**; the rename-snapshot test (`test_update_display_name_snapshots_onto_chats`) still green. The composition-root wire (`model/dependencies.py` builds `ChatModelSnapshotService`) stays — cross-slice wiring is the DI root's job (the Step 4 lint targets `service.py`, not `dependencies.py`). **Remaining:** Part B (greeting-seed seam, below) then BE-H2 Step 4 lint. Verified: ruff clean, basedpyright 0/0/0, pytest 943.
 - **Ref:** FINDINGS_BE.md §3 BE-H7
 - **Files:** `chat_session/service.py:17,21-26`; `chat_session/dependencies.py:14`; `model/dependencies.py:5`; `chat_session/model_snapshot.py:14-17`
 - **Problem:** bidirectional dep managed by `TYPE_CHECKING` deferral + the snapshot service; audit BE-9 removed the *runtime* cycle but the structural coupling remains.
