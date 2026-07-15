@@ -28,7 +28,6 @@ def seed_prompt_templates(repo: PromptTemplateRepository) -> None:
     logger.info("seeding_prompt_templates")
 
     for template_data in PROMPT_TEMPLATES_SEED_DATA:
-        # Check if template already exists
         existing = repo.find_by_name(template_data["name"])
 
         if existing:
@@ -37,7 +36,6 @@ def seed_prompt_templates(repo: PromptTemplateRepository) -> None:
             )
             continue
 
-        # Create new prompt template
         template = PromptTemplate(**template_data)
         _ = repo.create(template)
         logger.info("prompt_template_created", name=template_data["name"])

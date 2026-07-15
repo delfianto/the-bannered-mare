@@ -34,7 +34,6 @@ class ModelFamilyService:
 
     def create(self, family_data: ModelFamilyCreate) -> ModelFamily:
         """Create a new model family"""
-        # Check if family with same name already exists
         existing = self.family_repo.find_by_name(family_data.name)
         if existing:
             raise ConflictError(f"Model family with name '{family_data.name}' already exists")
@@ -80,7 +79,6 @@ class ModelFamilyService:
         """Delete model family"""
         family = self.get_by_id(family_id)
 
-        # Check if family is being used by any models
         if family.models:
             raise ConflictError(
                 f"Cannot delete model family '{family.name}' because it is being used by "

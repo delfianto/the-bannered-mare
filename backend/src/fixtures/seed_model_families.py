@@ -32,11 +32,9 @@ def seed_model_families(repo: ModelFamilyRepository) -> None:
             )
             continue
 
-        # Check if family already exists by identifier
         existing = repo.find_by_identifier(family_data["family_identifier"])
 
         if existing:
-            # Update existing model family
             existing.name = family_data["name"]
             existing.description = family_data.get("description")
             existing.provider_types = family_data.get("provider_types", [])
@@ -51,7 +49,6 @@ def seed_model_families(repo: ModelFamilyRepository) -> None:
             )
             continue
 
-        # Create new model family
         family = ModelFamily(
             name=family_data["name"],
             family_identifier=family_data["family_identifier"],

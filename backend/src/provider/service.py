@@ -83,7 +83,6 @@ class ProviderService:
         api_key_env_var: str | None = None,
     ) -> Provider:
         """Create a new provider"""
-        # Validation logic remains same...
         if provider_type == ProviderType.CUSTOM:
             if not api_key_env_var:
                 raise ValidationError("Custom providers must specify api_key_env_var")
@@ -103,7 +102,6 @@ class ProviderService:
                 f"This provider uses predefined environment variable"
             )
 
-        # Check if provider with same name already exists
         existing = self.provider_repo.find_by_name(name)
         if existing:
             raise ConflictError(f"Provider with name '{name}' already exists")
@@ -118,7 +116,6 @@ class ProviderService:
         created = self.provider_repo.create(provider)
         self.provider_repo.commit()
 
-        # Log warning if API key not configured
         if not created.has_api_key():
             env_var_name = created.get_env_var_name()
             logger.warning(
@@ -139,7 +136,6 @@ class ProviderService:
         """Update provider"""
         provider = self.get_by_id(provider_id)
 
-        # Validate api_key_env_var updates
         if api_key_env_var is not None:
             if provider.provider_type != ProviderType.CUSTOM:
                 raise ValidationError(

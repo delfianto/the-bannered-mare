@@ -50,7 +50,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         client_ip = request.client.host if request.client else None
         user_agent = request.headers.get("user-agent")
 
-        # Log request start
         logger.info(
             "http_request_started",
             request_id=request_id,
@@ -67,7 +66,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             # Calculate latency
             latency_ms = (time.time() - start_time) * 1000
 
-            # Log request completion
             logger.info(
                 "http_request_completed",
                 request_id=request_id,
@@ -97,7 +95,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             # Calculate latency even on error
             latency_ms = (time.time() - start_time) * 1000
 
-            # Log error
             logger.error(
                 "http_request_failed",
                 request_id=request_id,
