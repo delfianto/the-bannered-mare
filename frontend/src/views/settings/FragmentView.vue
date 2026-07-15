@@ -6,6 +6,7 @@ import { usePromptFragment } from "@/composables/usePromptFragment";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
 import { formatDate } from "@/utils/date";
+import { routeParam } from "@/utils/route";
 
 const router = useRouter();
 const route = useRoute();
@@ -31,7 +32,7 @@ const form = reactive({
 });
 
 onMounted(async () => {
-  const id = route.params.id as string;
+  const id = routeParam(route.params.id);
   await fetchFragment(id);
 });
 

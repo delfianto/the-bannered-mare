@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
 import { formatDate as fmtDate } from "@/utils/date";
+import { routeParam } from "@/utils/route";
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -28,7 +29,7 @@ const character = ref<CharacterResponse | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-const characterId = computed(() => route.params.id as string);
+const characterId = computed(() => routeParam(route.params.id));
 
 onMounted(async () => {
   try {
