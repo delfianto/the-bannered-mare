@@ -383,6 +383,53 @@ export function useChatMessages(
     }
   };
 
+  // Swipe between an assistant message's alternatives — lazy-loads + caches the
+  // list, then activates the neighbour. Moved out of ChatView (FE-M7); operates
+  // purely on `messages` + fetchAlternatives/activateAlternative above.
+  type Alternative = Awaited<ReturnType<typeof fetchAlternatives>>[number];
+  const alternativesCache = ref(new Map<string, Alternative[]>());
+
+  function getAlternativeCount(messageId: string): number | undefined {
+    const alts = alternativesCache.value.get(messageId);
+    return alts ? alts.length : undefined;
+  }
+
+  function getCurrentAltIndex(messageId: string): number | undefined {
+    const msg = messages.value.find((m) => m.id === messageId);
+    if (!msg) return undefined;
+    return msg.active_index ?? 0;
+  }
+
+  async function handleSwipe(messageId: string, direction: "left" | "right") {
+    // Lazy-load alternatives if not cached
+    if (!alternativesCache.value.has(messageId)) {
+      const alts = await fetchAlternatives(messageId);
+      if (alts.length === 0) return;
+      alternativesCache.value.set(messageId, alts);
+      // Force reactivity by reassigning
+      alternativesCache.value = new Map(alternativesCache.value);
+    }
+
+    const alts = alternativesCache.value.get(messageId);
+    if (!alts || alts.length === 0) return;
+
+    const msg = messages.value.find((m) => m.id === messageId);
+    if (!msg) return;
+
+    const currentIdx = msg.active_index ?? 0;
+    let newIdx: number;
+
+    if (direction === "left") {
+      newIdx = currentIdx > 0 ? currentIdx - 1 : alts.length - 1;
+    } else {
+      newIdx = currentIdx < alts.length - 1 ? currentIdx + 1 : 0;
+    }
+
+    if (newIdx !== currentIdx && alts[newIdx]) {
+      await activateAlternative(messageId, alts[newIdx].id);
+    }
+  }
+
   watch(
     () => getChatId(),
     (newChatId) => {
@@ -415,5 +462,8 @@ export function useChatMessages(
     editMessage,
     fetchAlternatives,
     activateAlternative,
+    getAlternativeCount,
+    getCurrentAltIndex,
+    handleSwipe,
   };
 }
