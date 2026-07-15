@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** structural/DRY tier — FE-M3 + FE-M4 done (`useListCrud`). Next: FE-H4 (Card/Input primitives), FE-M1/M2 (provider cache) — both 🧵 main.
-- **Next up:** FE-H4, FE-M1/M2; then FE-M7, FE-M5; i18n FE-H2 b/c + FE-H3; low FE-L2/L3.
-- **Progress:** 15 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4 ✓; FE-L8 folded in) + FE-H2 part-a (61 toasts→i18n). **Remaining:** FE-H4, FE-M1/M2, FE-M5, FE-M7, FE-L2/L3, FE-H2 b/c, FE-H3.
+- **Active:** structural/DRY tier — FE-M3/M4 (`useListCrud`) + FE-H4 (focus-ring / input-field / app-card `@utility`s) done. Next: FE-M1/M2 (provider cache) — 🧵 main.
+- **Next up:** FE-M1/M2; then FE-M7, FE-M5; i18n FE-H2 b/c + FE-H3; low FE-L2/L3.
+- **Progress:** 16 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4 ✓; FE-L8 folded in) + FE-H2 part-a (61 toasts→i18n). **Remaining:** FE-M1/M2, FE-M5, FE-M7, FE-L2/L3, FE-H2 b/c, FE-H3.
 
 ---
 
@@ -131,7 +131,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** each locale has the same key set as `en.json`; a key-parity check passes; gates green.
 - **Commit:** —
 
-### FE-H4 · Extract `AppCard`/`AppInput` + a `focus-ring` utility · [ ] · 🧵 main · dep: none
+### FE-H4 · Extract `AppCard`/`AppInput` + a `focus-ring` utility · [x] DONE — shipped as `@utility` classes (see §Completed) · 🧵 main · dep: none
 - **Ref:** FINDINGS_FE.md §3 FE-H4 · **Files:** new `components/shared/AppCard.vue`/`AppInput.vue`; `assets/main.css` (`@utility focus-ring`); ~68 Card + ~20 Input + 42 focus-ring sites
 - **Fix:** build the two primitives + the utility; migrate call sites incrementally.
 - **Accept:** the focus-ring magic shadow lives in one `@utility`; Card/Input inline copies materially reduced; `lint:tailwind`/`lint:canonical` clean; gates green.
@@ -180,6 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-H4** (commits `213bfbb`, `60d5b4f`, `577b5a6`) — shipped as **three `@utility` classes**, NOT the tracked `AppCard.vue`/`AppInput.vue` components (user call: style-only patterns with varied bindings → a utility is a drop-in class swap with zero binding churn, consistent with the focus-ring approach). `focus-ring` (46 sites: 42 `focus:`, 1 `focus-within:`, 3 bare-in-ternary), `input-field` (19 sites, composes focus-ring; `font-mono`/`pr-10` kept at call sites), `app-card` (10 exact-`p-4` sites; named `app-card` to dodge DaisyUI's `.card`). Each verified against the **built CSS** — byte-identical declarations incl. the composed `:focus` ring. Deliberately left: the different-value shadows (/0.1 glow, /0.12), 2 flex trigger-buttons, PresetView's `flex-1` input, SetupWizard's divergent `px-3`/`focus:ring-1` input, and all non-`p-4` card-ish surfaces (the finding's "~68" counted those loosely; the canonical p-4 card is 10). AGENTS/CLAUDE §6.3 Input/Card patterns updated to reference the utilities. Gate: build, 60 tests, oxlint, both tailwind lints.
 - **[x] FE-M3 + FE-M4** (commits `049e825`, `330e8f1`) — added `useListCrud` (the list sibling of `useEntityCrud`) and migrated presets/templates (list-only), then profiles/dataBank/personas (list+CRUD) onto it — killed the usePresets≈usePromptTemplates copy-paste. **FE-M4:** the migrated mutations now record failures on the shared `error` ref instead of `console.error`+swallow (useProfiles/useDataBank never set `error` before — the real silent-failure bug); kept the null/false **return contract** the callers already branch on (ProfilesTab toasts on the result; PersonaTab keeps the form open + shows `error`), so **zero caller changes** — verified by a full `vue-tsc -b` across every consumer. Design note: the list factory records-and-returns rather than rethrowing like useEntityCrud, because these list callers switch on the result inline (vs a detail page's one-shot await). **Deliberately NOT migrated:** `useLorebooks` (outlier — detail `currentLorebook`, parallel fetch-for-chat merge, nested entry CRUD); `usePersonas.savePersona` stays bespoke (multipart avatar upload openapi-fetch can't do) but runs on the factory's items/error refs. Only signature change: `useProfiles.setDefault` Profile|null→boolean (truthiness-only). Not yet covered by a failed-mutation test — behavior mirrors the proven useEntityCrud path. Gate: build, 60 tests, oxlint, both tailwind lints.
 
 - **[x] FE-L6 + FE-L7** (commit tagged `FE-L6`, `FE-L7`) — **FE-L6:** introduced a shared recursive `src/types/params.ts` `ParamSchema` (type/default/min/max/str_values + recursive `item_schema`/`properties`) and eliminated every `any` in `ParamInput.vue`/`ModelInferenceParams.vue`; `ModelFamilyView` dropped its local copy for the shared one. Typed cleanly (one narrow `default as number` cast in a numeric-only computed). **FE-L7:** new `utils/route.ts::routeParam(value): string` (+ test) replacing `route.params.x as string` across **8** sites (grep found more than the cited 2); deliberately left `CharacterCreateView:22` (`as string | undefined` — its `undefined` signals create-mode, which `routeParam` would change). Verified: build, 60 tests, coverage ≥ floor, lint/fmt green.
