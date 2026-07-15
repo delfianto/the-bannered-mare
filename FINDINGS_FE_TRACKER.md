@@ -9,7 +9,7 @@
 - **Updated:** 2026-07-16
 - **Active:** **All open + medium tracker items are resolved**, incl. FE-M1/M2 now DONE in full (Option A — shared Pinia list stores for presets/templates/personas/profiles). The only things left are two by-decision non-items: FE-L3 (3 console.log planned-feature stubs — won't-do) and ProviderModelRow (a low-value presentational template extraction). Nothing blocking, nothing pending.
 - **Next up:** nothing on the tracker. The one genuinely-open remainder is ProviderModelRow (presentational split of ProviderView's model-row markup) if ever wanted; FE-L3 is a won't-do.
-- **Progress:** 24 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3, FE-H5, FE-3a, FE-M1/M2 ✓; FE-L8 + FE-L-latent folded in). **Remaining open:** none; deferred by decision: FE-L3 (won't-do), ProviderModelRow (low value). useDataBank left per-instance on purpose (scope-parameterized — see FE-M2 note).
+- **Progress:** 24 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3, FE-H5, FE-3a, FE-M1/M2 ✓; FE-L8 + FE-L-latent folded in). **Remaining open:** none. **Closed by decision:** FE-L3 (`[-]` won't-do, stubs stay). **Open-if-ever-wanted (low value):** ProviderModelRow. useDataBank left per-instance on purpose (scope-parameterized — see FE-M2 note).
 
 ---
 
@@ -21,7 +21,7 @@
 4. **Write decisions/surprises into the item the moment they happen.** A decision left only in chat is lost.
 5. **Update the STATE block** (Active / Next / Progress) on every status change.
 
-**Legend** — Status: `[ ]` todo · `[~]` in progress / partial · `[!]` blocked · `[x]` done.
+**Legend** — Status: `[ ]` todo · `[~]` in progress / partial · `[!]` blocked · `[x]` done · `[-]` won't-do (descoped by decision).
 Exec: **🧵 main** = interdependent/structural, do sequentially in the main thread with full gate runs · **🤖 sub** = self-contained, safe to delegate to a fresh subagent.
 
 ## Gate baseline (must stay green after every item)
@@ -165,7 +165,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 ### Low items (batch as 🤖 sub)
 - **FE-L1** `[x]` DONE (see §Completed) — `utils/date.ts` (`formatDate` + i18n `timeAgo`); 10 sites routed through it, behavior preserved.
 - **FE-L2** `[x]` DONE (commit `a3b561a`, see §Completed) — built a reusable async confirm **dialog** (`useConfirm` + `ConfirmDialog`) rather than `useConfirmAction`: the remaining sites are nav-guards + menu-triggered destructive ops, which the two-click inline pattern doesn't fit. Routed model load/unload/delete + the two `onBeforeRouteLeave` unsaved-changes guards through it.
-- **FE-L3** `[~]` WON'T-DO (by decision) — the 3 `console.log` stubs (bulk Export, Attach-fragment, context-action fallback) are harmless placeholders for planned features; left as-is until those land.
+- **FE-L3** `[-]` WON'T-DO (final, by decision) — the 3 `console.log` stubs (bulk Export, Attach-fragment, context-action fallback) are harmless placeholders for planned features. **Intentionally kept as-is** — they mark where those features will hook in; converting them now would only trade a clear stub for a no-op. Revisit only when the underlying feature is actually built.
 - **FE-L4** `[x]` DONE — removed `main.ts` prod `console.log`; the catch-block→`useAppToast` surfacing folds into FE-M4.
 - **FE-L5** `[x]` DONE — `ModelFamilyView` unsupported-params pill → `error` token; MemoryView category maps left as documented-category-color (doc-wording nit deferred).
 - **FE-L6** `[x]` DONE (see §Completed) — shared `src/types/params.ts` `ParamSchema`; all `any`s in ParamInput/ModelInferenceParams eliminated.
