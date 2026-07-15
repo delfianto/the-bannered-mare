@@ -157,8 +157,7 @@ class BaseRepository[T: BaseModel]:
         Example:
             family = repo.find_by_id("123")
             repo.delete(family)
-            # Entity marked for deletion, but not yet committed
-            repo.commit()  # Now it's deleted
+            # Marked for deletion; the service commits its UnitOfWork to persist.
         """
         self.db.delete(entity)
         self.db.flush()
@@ -181,15 +180,6 @@ class BaseRepository[T: BaseModel]:
         stmt = select(self.model.id).where(self.model.id == entity_id)
         return self.db.execute(stmt).first() is not None
 
-    def commit(self) -> None:
-        """
-        Commit the current transaction.
-
-        This allows the service layer to control transaction boundaries
-        without directly accessing the database session.
-        """
-        self.db.commit()
-
     def refresh(self, entity: T) -> T:
         """
         Refresh entity state from the database.
@@ -202,14 +192,6 @@ class BaseRepository[T: BaseModel]:
         """
         self.db.refresh(entity)
         return entity
-
-    def rollback(self) -> None:
-        """
-        Perform rollback for the current transaction.
-
-        Useful for error handling in the service layer.
-        """
-        self.db.rollback()
 
 
 class NamedRepository[T: BaseModel](BaseRepository[T]):

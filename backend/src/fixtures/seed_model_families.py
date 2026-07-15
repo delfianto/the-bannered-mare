@@ -66,7 +66,7 @@ def seed_model_families(repo: ModelFamilyRepository) -> None:
             identifier=family_data["family_identifier"],
         )
 
-    repo.commit()
+    repo.db.commit()
     logger.info("seeding_model_families_completed")
 
 

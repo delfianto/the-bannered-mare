@@ -31,7 +31,7 @@ def test_search_by_name_exact_match(family_repo: ModelFamilyRepository, db_sessi
     )
     family_repo.create(family1)
     family_repo.create(family2)
-    family_repo.commit()
+    family_repo.db.commit()
 
     # Search for exact match
     results = family_repo.search_by_name("GPT-4")
@@ -66,7 +66,7 @@ def test_search_by_name_partial_match(family_repo: ModelFamilyRepository, db_ses
     family_repo.create(family1)
     family_repo.create(family2)
     family_repo.create(family3)
-    family_repo.commit()
+    family_repo.db.commit()
 
     # Search for partial match
     results = family_repo.search_by_name("GPT")
@@ -87,7 +87,7 @@ def test_search_by_name_case_insensitive(family_repo: ModelFamilyRepository, db_
         parameters={},
     )
     family_repo.create(family1)
-    family_repo.commit()
+    family_repo.db.commit()
 
     # Search for match with different case
     results = family_repo.search_by_name("gpt")
@@ -106,7 +106,7 @@ def test_search_by_name_no_match(family_repo: ModelFamilyRepository, db_session:
         parameters={},
     )
     family_repo.create(family1)
-    family_repo.commit()
+    family_repo.db.commit()
 
     # Search for non-existent name
     results = family_repo.search_by_name("NonExistent")

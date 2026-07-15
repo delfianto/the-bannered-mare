@@ -127,7 +127,7 @@ def seed_models(
             if registry.active_route_id is None:
                 registry.active_route_id = route.id
 
-        model_repo.commit()
+        model_repo.db.commit()
 
     logger.info("seeding_models_completed")
 
