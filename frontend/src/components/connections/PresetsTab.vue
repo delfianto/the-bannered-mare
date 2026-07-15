@@ -66,7 +66,7 @@ function onImported() {
         v-for="(preset, index) in presets"
         :key="preset.id"
         :to="`/settings/presets/${preset.id}`"
-        class="group relative flex animate-fade-in-up cursor-pointer flex-col rounded-xl border bg-base-200/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+        class="group relative flex animate-fade-in-up cursor-pointer flex-col app-card pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
         :style="{ animationDelay: `${index * 30}ms` }"
       >
         <!-- Header -->

@@ -289,7 +289,7 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 
 **Common patterns**
 
-- **Card:** `rounded-xl border bg-base-200/50 p-4`
+- **Card:** the `app-card` `@utility` (= `rounded-xl border bg-base-200/50 p-4`, in `main.css`); add hover / extra padding at the call site
 - **Input:** `h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring` (the focus ring is the `focus-ring` `@utility`, see `main.css`)
 - **Section heading:** `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
 - **Toggle switch:** the shared `AppToggle` primitive (a DaisyUI `toggle`) — see `AppSidebar.vue`

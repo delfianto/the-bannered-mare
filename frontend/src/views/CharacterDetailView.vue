@@ -273,10 +273,7 @@ async function startTale() {
         </div>
 
         <!-- Metadata Card -->
-        <div
-          class="animate-fade-in-up rounded-xl border bg-base-200/50 p-4"
-          style="animation-delay: 120ms"
-        >
+        <div class="animate-fade-in-up app-card" style="animation-delay: 120ms">
           <h3
             class="mb-4 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
           >
@@ -331,7 +328,7 @@ async function startTale() {
         <!-- Post History Instructions -->
         <div
           v-if="character.post_history_instructions"
-          class="animate-fade-in-up rounded-xl border bg-base-200/50 p-4"
+          class="animate-fade-in-up app-card"
           style="animation-delay: 240ms"
         >
           <h3
