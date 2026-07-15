@@ -198,7 +198,7 @@ function getParamRange(schema: unknown): string | null {
                   v-model="form.name"
                   type="text"
                   placeholder="Family name"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
 
@@ -213,7 +213,7 @@ function getParamRange(schema: unknown): string | null {
                   v-model="form.family_identifier"
                   type="text"
                   placeholder="provider/model-family"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
 
@@ -228,7 +228,7 @@ function getParamRange(schema: unknown): string | null {
                   v-model="form.description"
                   rows="3"
                   :placeholder="t('connections.family.descriptionPlaceholder')"
-                  class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
             </div>

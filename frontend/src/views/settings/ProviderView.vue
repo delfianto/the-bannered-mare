@@ -409,7 +409,7 @@ function toggleMenu(identifier: string) {
                   v-model="form.name"
                   type="text"
                   placeholder="Provider name"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
 
@@ -424,7 +424,7 @@ function toggleMenu(identifier: string) {
                   v-model="form.base_url"
                   type="text"
                   placeholder="https://api.example.com/v1"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
 
@@ -515,7 +515,7 @@ function toggleMenu(identifier: string) {
                   v-model="modelSearchQuery"
                   type="text"
                   placeholder="Search models to add to the filter…"
-                  class="h-10 w-full rounded-lg border bg-base-300/40 pr-9 pl-9 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-10 w-full rounded-lg border bg-base-300/40 pr-9 pl-9 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   @input="onSearchInput"
                   @focus="modelSearchQuery && (showSearchResults = true)"
                 />

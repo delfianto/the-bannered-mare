@@ -290,7 +290,7 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 **Common patterns**
 
 - **Card:** `rounded-xl border bg-base-200/50 p-4`
-- **Input:** `h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]`
+- **Input:** `h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring` (the focus ring is the `focus-ring` `@utility`, see `main.css`)
 - **Section heading:** `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
 - **Toggle switch:** the shared `AppToggle` primitive (a DaisyUI `toggle`) — see `AppSidebar.vue`
 - **Entry animation:** `animate-fade-in-up` with staggered `animation-delay`

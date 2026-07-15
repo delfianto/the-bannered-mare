@@ -123,7 +123,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.name"
                 type="text"
                 placeholder="Template name"
-                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
               />
             </label>
 
@@ -139,7 +139,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.description"
                 type="text"
                 placeholder="What is this template for?"
-                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
               />
             </label>
 
@@ -154,7 +154,7 @@ onBeforeRouteLeave(() => {
                 v-model="form.system_template"
                 rows="12"
                 placeholder="The Jinja2 system prompt template…"
-                class="w-full resize-y rounded-lg border bg-base-300/40 px-4 py-2.5 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="w-full resize-y rounded-lg border bg-base-300/40 px-4 py-2.5 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
               />
               <span class="mt-1 block text-3xs text-muted-foreground/70">
                 Supports Jinja2. Component ordering and attached fragments can be tuned after

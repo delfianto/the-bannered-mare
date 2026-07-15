@@ -146,7 +146,7 @@ function openFamily(row: FamilyRow) {
           class="flex items-center gap-2 rounded-lg border px-3 transition-all duration-200"
           :class="
             searchFocused
-              ? 'border-primary/40 bg-base-100 shadow-[0_0_0_3px_var(--color-primary)/0.08]'
+              ? 'border-primary/40 bg-base-100 focus-ring'
               : 'border-border bg-base-300/40 hover:border-muted-foreground/30'
           "
         >

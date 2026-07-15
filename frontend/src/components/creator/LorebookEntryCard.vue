@@ -135,7 +135,7 @@ function removeKeyword(kw: string) {
           :value="entry.content"
           placeholder="The Sunken Library was once the greatest repository of arcane knowledge…"
           rows="3"
-          class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2.5 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+          class="w-full resize-y rounded-lg border bg-base-100 px-3 py-2.5 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
           @input="
             emit('update', entry.id, { content: ($event.target as HTMLTextAreaElement).value })
           "

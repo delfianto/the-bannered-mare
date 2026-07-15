@@ -276,7 +276,7 @@ function handleAttachFragment() {
                     v-model="form.name"
                     type="text"
                     placeholder="Template name"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                 </label>
 
@@ -291,7 +291,7 @@ function handleAttachFragment() {
                     v-model="form.description"
                     rows="3"
                     placeholder="Template description"
-                    class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                 </label>
 
@@ -322,7 +322,7 @@ function handleAttachFragment() {
                 v-model="form.system_template"
                 rows="8"
                 :placeholder="t('connections.template.systemTemplatePlaceholder')"
-                class="min-h-50 w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                class="min-h-50 w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
               />
               <p class="mt-2 text-2xs text-muted-foreground/60">
                 {{ $t("connections.template.systemTemplateHint") }}
@@ -435,7 +435,7 @@ function handleAttachFragment() {
                     :value="form.max_history_tokens ?? ''"
                     type="number"
                     placeholder="e.g. 4096"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                     @input="
                       (e) => {
                         const v = (e.target as HTMLInputElement).value;

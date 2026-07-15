@@ -235,7 +235,7 @@ function isNumericValue(value: string): boolean {
                     v-model="form.name"
                     type="text"
                     placeholder="Preset name"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                 </label>
 
@@ -250,7 +250,7 @@ function isNumericValue(value: string): boolean {
                     v-model="form.description"
                     rows="3"
                     placeholder="Preset description"
-                    class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                 </label>
 
@@ -288,7 +288,7 @@ function isNumericValue(value: string): boolean {
                     v-model="param.key"
                     type="text"
                     placeholder="parameter_name"
-                    class="h-11 w-50 shrink-0 rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-50 shrink-0 rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                   <!-- Parameter value -->
                   <input
@@ -296,7 +296,7 @@ function isNumericValue(value: string): boolean {
                     :type="isNumericValue(param.value) ? 'number' : 'text'"
                     :step="isNumericValue(param.value) ? 'any' : undefined"
                     placeholder="value"
-                    class="h-11 flex-1 rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 flex-1 rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                   <!-- Remove button -->
                   <button
