@@ -5,6 +5,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useModelFamily } from "@/composables/useModelFamily";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
+import { formatDate } from "@/utils/date";
 
 const { t } = useI18n();
 
@@ -95,13 +96,6 @@ function getParamRange(schema: unknown): string | null {
   if (s?.min_value !== undefined) return `>= ${s.min_value}`;
   if (s?.max_value !== undefined) return `<= ${s.max_value}`;
   return null;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
 }
 </script>
 

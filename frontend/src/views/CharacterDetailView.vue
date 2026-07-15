@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
+import { formatDate as fmtDate } from "@/utils/date";
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -72,11 +73,7 @@ function goBack() {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return fmtDate(dateStr, { year: "numeric", month: "long", day: "numeric" }, "en-US");
 }
 
 function genderLabel(

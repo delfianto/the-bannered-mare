@@ -4,6 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import { usePreset } from "@/composables/usePreset";
 import { useConfirmAction } from "@/composables/useConfirmAction";
 import { useAppToast } from "@/composables/useToast";
+import { formatDate } from "@/utils/date";
 const router = useRouter();
 const route = useRoute();
 const {
@@ -114,13 +115,6 @@ async function handleSetDefault() {
 
 function isNumericValue(value: string): boolean {
   return value.trim() !== "" && !isNaN(Number(value));
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
 }
 </script>
 
