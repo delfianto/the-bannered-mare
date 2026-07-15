@@ -12,6 +12,7 @@ from src.chat_session.schemas import (
     ChatSessionFilterParams,
     ChatUpdate,
 )
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, PaginationMeta
 
 router = APIRouter(prefix="/api/chats", tags=["chats"])
@@ -22,7 +23,7 @@ def list_chats(
     service: ChatServiceDep,
     filter_params: ChatSessionFilterParams = Depends(),
     cursor: str | None = Query(None, description="ISO 8601 timestamp cursor for pagination"),
-    limit: int = Query(20, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
 ):
     """List chats with cursor-based pagination and filtering"""
     items, next_cursor = service.list_paginated(

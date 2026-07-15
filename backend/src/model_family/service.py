@@ -5,6 +5,7 @@ from typing import Any
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError
 from src.core.logging import get_logger
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork
 from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
@@ -28,7 +29,7 @@ class ModelFamilyService:
         return self.family_repo.find_all()
 
     def list_paginated(
-        self, limit: int = 10, offset: int = 0, filters: dict[str, Any] | None = None
+        self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0, filters: dict[str, Any] | None = None
     ) -> tuple[list[ModelFamily], int]:
         """List model families with pagination and filtering"""
         return self.family_repo.find_paginated_with_count(limit, offset, filters=filters)

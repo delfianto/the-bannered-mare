@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, collection_response, page_response
 from src.prompt_fragment.dependencies import FragmentServiceDep
 from src.prompt_fragment.schemas import (
@@ -26,7 +27,7 @@ template_fragment_router = APIRouter(
 def list_fragments(
     service: FragmentServiceDep,
     page: int = Query(1, ge=1, description="Page number (1-based)"),
-    limit: int = Query(20, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
     fragment_type: str | None = Query(None, description="Filter by fragment type"),
     is_global: bool | None = Query(None, description="Filter by global status"),
     unused_only: bool = Query(False, description="Only fragments not attached to any template"),

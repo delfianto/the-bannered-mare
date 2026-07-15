@@ -2387,7 +2387,7 @@
               "maximum": 100,
               "minimum": 1,
               "description": "Items per page",
-              "default": 20,
+              "default": 10,
               "title": "Limit"
             },
             "description": "Items per page"
@@ -2731,7 +2731,7 @@
               "maximum": 100,
               "minimum": 1,
               "description": "Number of messages to load",
-              "default": 20,
+              "default": 10,
               "title": "Limit"
             },
             "description": "Number of messages to load"
@@ -4552,7 +4552,7 @@
               "maximum": 100,
               "minimum": 1,
               "description": "Items per page",
-              "default": 20,
+              "default": 10,
               "title": "Limit"
             },
             "description": "Items per page"

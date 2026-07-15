@@ -10,6 +10,7 @@ from src.character.dependencies import CharacterServiceDep
 from src.character.schemas import CharacterFilterParams, CharacterFormBase, CharacterResponse
 from src.core.config import settings
 from src.core.exceptions import NotFoundError
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, page_response
 from src.core.utils.upload import read_upload
 
@@ -36,7 +37,7 @@ def list_characters(
     service: CharacterServiceDep,
     filter_params: CharacterFilterParams = Depends(),
     page: int = Query(1, ge=1, description="Page number (1-based)"),
-    limit: int = Query(10, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
 ):
     """List characters with pagination and filtering"""
     offset = (page - 1) * limit

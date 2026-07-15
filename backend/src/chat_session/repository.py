@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from src.chat_session import queries
 from src.chat_session.models import Chat
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import BaseRepository
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ class ChatRepository(BaseRepository[Chat]):
 
     def find_paginated_ordered(
         self,
-        limit: int = 10,
+        limit: int = DEFAULT_PAGE_SIZE,
         offset: int = 0,
         filters: dict[str, Any] | None = None,
         order_by: Any | None = None,
@@ -55,7 +56,7 @@ class ChatRepository(BaseRepository[Chat]):
 
     def find_paginated_by_cursor(
         self,
-        limit: int = 20,
+        limit: int = DEFAULT_PAGE_SIZE,
         cursor: datetime | None = None,
         filters: dict[str, Any] | None = None,
     ) -> tuple[list[Chat], bool]:

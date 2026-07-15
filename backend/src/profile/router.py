@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Query, status
 
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, page_response
 from src.profile.dependencies import ProfileServiceDep
 from src.profile.schemas import ProfileCreate, ProfileResponse, ProfileUpdate
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/api/profiles", tags=["profiles"])
 def list_profiles(
     service: ProfileServiceDep,
     page: int = Query(1, ge=1, description="Page number (1-based)"),
-    limit: int = Query(10, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
 ):
     """List profiles with pagination"""
     offset = (page - 1) * limit

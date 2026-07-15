@@ -25,6 +25,7 @@ from src.chat_session.repository_async import AsyncChatRepository
 from src.core.config import settings
 from src.core.exceptions import NotFoundError, ProviderException, ValidationError
 from src.core.logging.logger_config import get_logger
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import AsyncUnitOfWork, gen_id
 from src.core.persistence.models import MessageAlternative
 from src.core.schemas import PaginatedResponse, PaginationMeta
@@ -60,6 +61,7 @@ def _parse_message_cursor(cursor: str) -> tuple[datetime | None, str | None]:
         logger.warning(f"Invalid cursor format: {cursor}")
         return None, None
     return before_time, (id_part or None)
+
 
 # User-facing explanation for a non-USABLE completion (empty/filtered/etc.), shown
 # in place of a silent blank reply. USABLE never surfaces one.
@@ -157,7 +159,7 @@ class ChatMessageService:
         return total
 
     async def get_messages(
-        self, chat_id: str, limit: int = 20, cursor: str | None = None
+        self, chat_id: str, limit: int = DEFAULT_PAGE_SIZE, cursor: str | None = None
     ) -> PaginatedResponse[MessageResponse]:
         """Get messages with cursor-based pagination."""
         await self._get_chat_by_id(chat_id)

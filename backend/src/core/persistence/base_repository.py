@@ -5,6 +5,7 @@ from typing import Any
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.persistence.base_model import BaseModel
 from src.core.persistence.statements import apply_filters
 
@@ -18,8 +19,8 @@ class BaseRepository[T: BaseModel]:
     to allow service layer to control transaction boundaries.
     """
 
-    DEFAULT_LIMIT = 10
-    MAX_LIMIT = 100
+    DEFAULT_LIMIT = DEFAULT_PAGE_SIZE
+    MAX_LIMIT = MAX_PAGE_SIZE
 
     def __init__(self, db: Session, model: type[T]):
         """

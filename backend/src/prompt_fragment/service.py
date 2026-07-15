@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork, gen_id
 from src.prompt_fragment.models import PromptFragment, TemplateFragment
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
@@ -63,7 +64,7 @@ class FragmentService:
 
     def list_paginated(
         self,
-        limit: int = 10,
+        limit: int = DEFAULT_PAGE_SIZE,
         offset: int = 0,
         fragment_type: str | None = None,
         is_global: bool | None = None,

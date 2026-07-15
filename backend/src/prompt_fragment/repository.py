@@ -3,6 +3,7 @@
 from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session, joinedload
 
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import BaseRepository, NamedRepository
 from src.prompt_fragment.models import PromptFragment, TemplateFragment
 
@@ -23,7 +24,7 @@ class FragmentRepository(NamedRepository[PromptFragment]):
 
     def find_paginated_with_usage(
         self,
-        limit: int = 10,
+        limit: int = DEFAULT_PAGE_SIZE,
         offset: int = 0,
         fragment_type: str | None = None,
         is_global: bool | None = None,

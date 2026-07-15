@@ -4,6 +4,7 @@ from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import NotFoundError
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import ExistsPort, UnitOfWork, gen_id
 from src.profile.models import Profile
 from src.profile.repository import ProfileRepository
@@ -35,7 +36,9 @@ class ProfileService:
         """List all profiles"""
         return self.profile_repo.find_all_ordered()
 
-    def list_paginated(self, limit: int = 10, offset: int = 0) -> tuple[list[Profile], int]:
+    def list_paginated(
+        self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0
+    ) -> tuple[list[Profile], int]:
         """List profiles with pagination"""
         return self.profile_repo.find_paginated_ordered(limit, offset)
 

@@ -23,6 +23,7 @@ from src.chat_message.schemas import (
 from src.chat_message.service import ChatMessageService
 from src.core.exceptions import ProviderException, ValidationError
 from src.core.logging.logger_config import get_logger
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 
 logger = get_logger(__name__)
 
@@ -45,7 +46,9 @@ async def get_prompt_preview(chat_id: str, service: ChatMessageServiceDep):
 async def get_chat_messages(
     chat_id: str,
     service: ChatMessageServiceDep,
-    limit: int = Query(default=20, ge=1, le=100, description="Number of messages to load"),
+    limit: int = Query(
+        default=DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Number of messages to load"
+    ),
     cursor: str | None = Query(
         default=None, description="ISO datetime of the oldest loaded message"
     ),
