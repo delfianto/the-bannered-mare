@@ -63,7 +63,7 @@ function timeAgo(dateStr: string): string {
               {{ $t("bookmarks.favoriteCharacters") }}
             </h2>
             <span
-              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary uppercase"
+              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-3xs font-bold tracking-wide text-primary uppercase"
             >
               {{ characters.length }}
             </span>
@@ -110,7 +110,7 @@ function timeAgo(dateStr: string): string {
                 <span
                   v-for="tag in char.tags.slice(0, 2)"
                   :key="tag"
-                  class="rounded-full border border-white/10 bg-white/10 px-2 py-0.5 text-[0.5rem] font-medium tracking-widest text-white/80 uppercase backdrop-blur-sm"
+                  class="rounded-full border border-white/10 bg-white/10 px-2 py-0.5 text-5xs font-medium tracking-widest text-white/80 uppercase backdrop-blur-sm"
                 >
                   {{ tag }}
                 </span>
@@ -128,7 +128,7 @@ function timeAgo(dateStr: string): string {
               {{ $t("bookmarks.savedSessions") }}
             </h2>
             <span
-              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary uppercase"
+              class="rounded-full bg-primary/15 px-2.5 py-0.5 text-3xs font-bold tracking-wide text-primary uppercase"
             >
               {{ sessions.length }}
             </span>
@@ -152,11 +152,11 @@ function timeAgo(dateStr: string): string {
               <h3 class="truncate font-cinzel text-sm font-semibold text-foreground">
                 {{ session.title }}
               </h3>
-              <p class="mt-0.5 text-[0.625rem] font-medium tracking-wide text-primary uppercase">
+              <p class="mt-0.5 text-3xs font-medium tracking-wide text-primary uppercase">
                 {{ $t("bookmarks.with", { name: session.character?.name }) }}
               </p>
             </div>
-            <span class="text-[0.625rem] whitespace-nowrap text-muted-foreground">
+            <span class="text-3xs whitespace-nowrap text-muted-foreground">
               {{ timeAgo(session.updated_at) }}
             </span>
           </RouterLink>
@@ -174,7 +174,7 @@ function timeAgo(dateStr: string): string {
             {{ $t("bookmarks.pinnedFragments") }}
           </h2>
           <span
-            class="rounded-full bg-primary/15 px-2.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-primary uppercase"
+            class="rounded-full bg-primary/15 px-2.5 py-0.5 text-3xs font-bold tracking-wide text-primary uppercase"
           >
             {{ messages.length }}
           </span>
@@ -191,10 +191,10 @@ function timeAgo(dateStr: string): string {
                  stub (always empty) returning MessageResponse, so only its
                  contract fields are shown until pinned-message enrichment lands. -->
             <div class="mb-3 flex items-start justify-between">
-              <span class="text-[0.625rem] tracking-widest text-muted-foreground uppercase">
+              <span class="text-3xs tracking-widest text-muted-foreground uppercase">
                 {{ msg.role }}
               </span>
-              <span class="text-[0.625rem] text-muted-foreground">
+              <span class="text-3xs text-muted-foreground">
                 {{ timeAgo(msg.created_at) }}
               </span>
             </div>

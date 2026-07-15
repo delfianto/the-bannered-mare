@@ -118,7 +118,7 @@ function formatUrl(url: string | null): string {
               <h3 class="truncate font-cinzel text-sm font-semibold tracking-wide text-foreground">
                 {{ provider.name }}
               </h3>
-              <span class="text-[0.625rem] tracking-wide text-muted-foreground uppercase">
+              <span class="text-3xs tracking-wide text-muted-foreground uppercase">
                 {{ provider.provider_type }}
               </span>
             </div>
@@ -131,7 +131,7 @@ function formatUrl(url: string | null): string {
         </div>
 
         <!-- Info line: url + key status -->
-        <div class="flex items-center justify-between gap-2 text-[0.6875rem] text-muted-foreground">
+        <div class="flex items-center justify-between gap-2 text-2xs text-muted-foreground">
           <span class="flex min-w-0 items-center gap-1.5">
             <AppIcon name="i-lucide-link" class="size-3 shrink-0" />
             <span class="truncate">{{ formatUrl(provider.base_url) }}</span>

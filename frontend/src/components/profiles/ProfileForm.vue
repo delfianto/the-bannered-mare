@@ -337,7 +337,7 @@ function onSubmit() {
           <span
             v-for="p in unsupportedParams"
             :key="p"
-            class="rounded border border-warning/30 bg-warning/10 px-1.5 py-0.5 font-mono text-[0.6875rem] text-warning"
+            class="rounded border border-warning/30 bg-warning/10 px-1.5 py-0.5 font-mono text-2xs text-warning"
           >
             {{ p }}
           </span>

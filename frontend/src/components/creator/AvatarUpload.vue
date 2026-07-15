@@ -73,7 +73,7 @@ function onChange(e: Event) {
           </div>
           <div class="text-center">
             <p class="text-xs font-medium text-foreground">Drop image here</p>
-            <p class="mt-0.5 text-[0.6875rem] text-muted-foreground">or click to browse</p>
+            <p class="mt-0.5 text-2xs text-muted-foreground">or click to browse</p>
           </div>
         </div>
       </template>

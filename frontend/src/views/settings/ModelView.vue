@@ -425,7 +425,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                       }}</span>
                       <span
                         v-if="r.id === activeRouteId"
-                        class="rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.625rem] font-medium text-primary"
+                        class="rounded-full bg-primary/10 px-1.5 py-0.5 text-3xs font-medium text-primary"
                       >
                         {{ $t("connections.model.activeRoute") }}
                       </span>
@@ -588,7 +588,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
 
                 <!-- Timestamps -->
                 <div class="border-t border-border/50 pt-3">
-                  <div class="space-y-1.5 text-[0.6875rem] text-muted-foreground/60">
+                  <div class="space-y-1.5 text-2xs text-muted-foreground/60">
                     <div class="flex justify-between">
                       <span>{{ $t("connections.model.created") }}</span>
                       <span>{{ formatDate(model.created_at) }}</span>

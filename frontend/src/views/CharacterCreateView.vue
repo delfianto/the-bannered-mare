@@ -231,7 +231,7 @@ function handleAvatarChange(file: File) {
       >
         <div class="sticky top-0">
           <p
-            class="mb-4 font-cinzel text-[0.625rem] font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+            class="mb-4 font-cinzel text-3xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
           >
             {{ $t("characters.form.livePreview") }}
           </p>

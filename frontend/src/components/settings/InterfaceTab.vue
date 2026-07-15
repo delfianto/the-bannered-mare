@@ -346,10 +346,10 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
             <!-- Label -->
             <div class="text-center">
-              <p class="font-cinzel text-[0.6875rem] font-semibold tracking-wide text-foreground">
+              <p class="font-cinzel text-2xs font-semibold tracking-wide text-foreground">
                 {{ preset.name }}
               </p>
-              <p class="text-[0.5625rem] text-muted-foreground">{{ preset.description }}</p>
+              <p class="text-4xs text-muted-foreground">{{ preset.description }}</p>
             </div>
           </button>
 
@@ -397,10 +397,8 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
             <!-- Label -->
             <div class="text-center">
-              <p class="font-cinzel text-[0.6875rem] font-semibold tracking-wide text-foreground">
-                Custom
-              </p>
-              <p class="text-[0.5625rem] text-muted-foreground">Your own palette</p>
+              <p class="font-cinzel text-2xs font-semibold tracking-wide text-foreground">Custom</p>
+              <p class="text-4xs text-muted-foreground">Your own palette</p>
             </div>
           </button>
         </div>

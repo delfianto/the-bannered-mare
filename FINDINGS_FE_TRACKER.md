@@ -9,7 +9,7 @@
 - **Updated:** 2026-07-15
 - **Active:** clearing the low-risk 🤖 backlog (structural 🧵 FE-H4/FE-M1/M2/M3/M5/M7 deferred per the autonomy setting)
 - **Next up:** FE-L2 (native confirm→useConfirmAction), FE-L4 (prod console.log), FE-L5 (status hues), FE-L3 (stub handlers); FE-H2/H3 (i18n) are larger.
-- **Progress:** 10 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5 ✓; FE-L8 folded in) + FE-H2 part-a (61 toasts→i18n); FE-H2 parts b/c deferred
+- **Progress:** 11 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10 ✓; FE-L8 folded in) + FE-H2 part-a (61 toasts→i18n); FE-H2 parts b/c deferred
 
 ---
 
@@ -170,7 +170,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **FE-L5** `[x]` DONE — `ModelFamilyView` unsupported-params pill → `error` token; MemoryView category maps left as documented-category-color (doc-wording nit deferred).
 - **FE-L6** `[ ]` type the recursive `ParamInput.vue:6`/`ModelInferenceParams.vue:18` schema (or document the `any`).
 - **FE-L7** `[ ]` typed route-params helper for `ChatView.vue:24`/`ProviderView.vue:169` (low priority for a local app).
-- **FE-M10** `[ ]` define `--text-2xs`/`--text-3xs` in `@theme`; replace the 153 arbitrary micro-rem sizes. *(Rem-based → not a scale-breaking bug; DRY only.)*
+- **FE-M10** `[x]` DONE (see §Completed) — 5 `@theme` tokens; 153 arbitrary micro-rem sizes converted across 52 files. *(Rem-based → not a scale-breaking bug; DRY only.)*
 - **FE-L-latent** — folded into **FE-M5** (do not schedule separately).
 - **FE-L8** — `[x]` resolved by **FE-C1** (`process.env.VITE_API_URL` hack removed; `import.meta.env` now injected by `vp test`).
 
@@ -180,6 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-M10** (commit tagged `FE-M10`) — defined 5 named font-size tokens in `main.css` `@theme` (`--text-2xs` 0.6875rem, `--text-3xs` 0.625rem, `--text-4xs` 0.5625rem, `--text-5xs` 0.5rem, `--text-2sm` 0.8125rem) and replaced all **153** arbitrary `text-[…rem]` values across 52 files (66/57/27/2/1). Rem-based so rendering is byte-identical (behavior-preserving, not a bug fix); no line-height companions needed. Verified: `grep text-[…rem]` clean, `lint:tailwind` passes (the new tokens make the old arbitraries "unnecessary" — all converted), build + 59 tests + canonical + fmt green.
 - **[~] FE-H2 — part (a) toasts done; (b) SetupWizard + (c) settings-headings deferred** (commit tagged `FE-H2`) — migrated **61 toast calls → vue-i18n keys, 0 hardcoded literals left** (57 cited + 4 backtick/ternary in `ProviderView` with interpolation → named `{model}` params). Added feature-namespaced keys to `en.json` ONLY (chat/setup/connections.provider·model·family·preset·template·fragment `.toast`) — de/es/fr/pt fall back to English (the FE-H3 gap; don't widen further without FE-H3). Wired `useI18n` into 8 files, reused `t` in 5; `useCreateChat` gets `t` at composable-body top (valid setup context). Left `SetupWizardView`'s non-toast strings + settings headings/date-labels for parts (b)/(c). Verified independently: build (vue-tsc → all keys resolve), 59 tests, coverage exit 0, lint/fmt clean, 0 remaining literals, en.json valid, 0 missing keys.
 - **[x] FE-L4 + FE-L5** (commit tagged `FE-L4`, `FE-L5`) — **FE-L4:** removed the unconditional prod `console.log("The Bannered Mare initialized…")` from `main.ts` (the broader "route catch-block logs through `useAppToast`" folds into FE-M4). **FE-L5:** converted the "unsupported parameters" pill in `ModelFamilyView.vue` from raw `bg-red-500/10 text-red-400` to the semantic `bg-error/10 text-error` token (negative status, not a capability/category badge); the MemoryView category/scope maps are left as defensible category colors (widening the AGENTS.md exception wording is a deferred doc nit). Verified: build, 59 tests, oxlint + `lint:tailwind` + `lint:canonical` + fmt all clean.
 - **[x] FE-L1** (commit tagged `FE-L1`) — created `src/utils/date.ts` (`formatDate` + `timeAgo`, pure, `t`-injected like `formatLog.ts`) + `date.test.ts` (6 tests), and routed 10 call sites through it. **Behavior preserved exactly:** 6/7 `formatDate` were identical (medium date + short time); `CharacterDetailView`'s outlier (long date-only `en-US`) kept via a parameterized call + thin local wrapper. `timeAgo` was 3 distinct behaviors — consolidated the **4 i18n** variants (`justNow`/`weeks` knobs; `BookmarksView` uniquely omits just-now + adds a weeks bucket) and **deliberately left** the non-i18n `CharacterListRow` (variant A, hardcoded compact English) untouched to avoid changing its output. Verified: 59 tests, coverage 6.61% lines ≥ floor, build/lint/fmt green.

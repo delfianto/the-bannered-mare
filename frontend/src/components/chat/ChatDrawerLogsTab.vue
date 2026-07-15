@@ -111,7 +111,7 @@ function formatLogTime(iso: string): string {
                 {{ log.model }}
               </span>
               <span
-                class="shrink-0 rounded-full px-2 py-0.5 text-[0.625rem] font-medium tracking-wide uppercase"
+                class="shrink-0 rounded-full px-2 py-0.5 text-3xs font-medium tracking-wide uppercase"
                 :class="isErrorLog(log) ? 'bg-error/15 text-error' : 'bg-success/15 text-success'"
               >
                 {{
@@ -121,9 +121,7 @@ function formatLogTime(iso: string): string {
                 }}
               </span>
             </div>
-            <p
-              class="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[0.6875rem] text-muted-foreground"
-            >
+            <p class="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-2xs text-muted-foreground">
               <span>{{ log.provider }}</span>
               <span class="text-muted-foreground/40">·</span>
               <span>{{ formatLogTime(log.created_at) }}</span>
@@ -138,7 +136,7 @@ function formatLogTime(iso: string): string {
 
         <!-- Metrics -->
         <div
-          class="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border/40 px-4 py-2 text-[0.6875rem] text-muted-foreground"
+          class="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border/40 px-4 py-2 text-2xs text-muted-foreground"
         >
           <span class="flex items-center gap-1">
             <AppIcon name="i-lucide-hash" class="size-3 text-muted-foreground/60" />
@@ -164,7 +162,7 @@ function formatLogTime(iso: string): string {
         <!-- Error message -->
         <p
           v-if="log.error_message"
-          class="border-t border-border/40 px-4 py-2 text-[0.6875rem] leading-snug text-error"
+          class="border-t border-border/40 px-4 py-2 text-2xs leading-snug text-error"
         >
           {{ log.error_message }}
         </p>

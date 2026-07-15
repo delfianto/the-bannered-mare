@@ -85,7 +85,7 @@ const favorites = computed(() => {
             class="absolute top-1/2 left-1.5 h-4 w-0.75 -translate-y-1/2 rounded-full bg-primary"
           />
           <AppIcon :name="item.icon" class="size-5" />
-          <span class="text-[0.6875rem] font-medium tracking-wide">{{ item.label }}</span>
+          <span class="text-2xs font-medium tracking-wide">{{ item.label }}</span>
         </RouterLink>
       </div>
 
@@ -127,7 +127,7 @@ const favorites = computed(() => {
     >
       <p
         v-if="!collapsed"
-        class="mb-2.5 px-3 text-[0.6875rem] font-semibold tracking-widest text-muted-foreground uppercase"
+        class="mb-2.5 px-3 text-2xs font-semibold tracking-widest text-muted-foreground uppercase"
       >
         {{ $t("nav.favorites") }}
       </p>

@@ -175,9 +175,7 @@ onBeforeRouteLeave(() => {
                 placeholder="The Jinja2 fragment content…"
                 class="w-full resize-y rounded-lg border bg-base-300/40 px-4 py-2.5 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
               />
-              <span class="mt-1 block text-[0.625rem] text-muted-foreground/70">
-                Supports Jinja2.
-              </span>
+              <span class="mt-1 block text-3xs text-muted-foreground/70"> Supports Jinja2. </span>
             </label>
 
             <!-- Global toggle -->
@@ -188,7 +186,7 @@ onBeforeRouteLeave(() => {
                 >
                   Global
                 </span>
-                <span class="text-[0.625rem] text-muted-foreground/70">
+                <span class="text-3xs text-muted-foreground/70">
                   Global fragments apply to every template automatically.
                 </span>
               </div>
