@@ -1,10 +1,13 @@
 """Lorebook business logic service"""
 
+from typing import Any
+
 from src.core.exceptions import NotFoundError
 from src.core.persistence import UnitOfWork
 from src.core.persistence.enums import InsertionPosition
 from src.core.tokenization import get_tokenizer
 from src.lore.activation_engine import ActivatedEntry, activate_entries
+from src.lore.card_import import build_lorebook, map_lore_entry
 from src.lore.models import Lorebook, LoreEntry
 from src.lore.repository import LoreEntryRepository, LoreRepository
 from src.lore.schemas import LorebookCreate, LorebookUpdate, LoreEntryCreate, LoreEntryUpdate
@@ -56,6 +59,32 @@ class LoreService:
         created = self.lore_repo.create(lorebook)
         self.uow.commit()
         return created
+
+    # --- Character card import/export seam (BE-H2) ---
+
+    def import_character_book(
+        self, character_book: dict[str, Any], character_id: str, card_name: str
+    ) -> Lorebook | None:
+        """Create an imported character's lorebook + entries from its card book.
+
+        Flush-only: participates in the CALLER's unit of work (character import
+        commits once), so a failed import rolls the character and its lore back
+        together. Returns the created lorebook, or None when the card has no book.
+        """
+        if not character_book:
+            return None
+        created_book = self.lore_repo.create(
+            build_lorebook(character_book, character_id, card_name)
+        )
+        for idx, entry_dict in enumerate(character_book.get("entries", [])):
+            entry = map_lore_entry(entry_dict, created_book.id, idx)
+            if entry is not None:
+                self.entry_repo.create(entry)
+        return created_book
+
+    def list_for_character_with_entries(self, character_id: str) -> list[Lorebook]:
+        """Character-specific lorebooks with their entries eagerly loaded (export read)."""
+        return self.lore_repo.find_for_character_with_entries(character_id)
 
     def update_lorebook(self, lorebook_id: str, data: LorebookUpdate) -> Lorebook:
         lorebook = self.get_lorebook(lorebook_id)

@@ -25,8 +25,7 @@ from src.core.persistence import UnitOfWork
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
 from src.core.utils.upload import UploadedFile
-from src.lore.card_import import build_lorebook, map_lore_entry
-from src.lore.repository import LoreEntryRepository, LoreRepository
+from src.lore.service import LoreService
 
 logger = get_logger(__name__)
 
@@ -101,16 +100,14 @@ class CharacterService:
     def __init__(
         self,
         character_repo: CharacterRepository,
-        lore_repo: LoreRepository,
-        lore_entry_repo: LoreEntryRepository,
+        lore_service: LoreService,
         uow: UnitOfWork | None = None,
     ):
         self.character_repo = character_repo
-        # Character import/export reads & writes the character's lorebook. The lore
-        # repositories are injected on the same session, so the import stays one
-        # transaction.
-        self.lore_repo = lore_repo
-        self.lore_entry_repo = lore_entry_repo
+        # Character import/export writes & reads the character's lorebook through the
+        # lore slice's published service (BE-H2), not its repositories. The service
+        # shares this session, so the whole import stays one transaction.
+        self.lore_service = lore_service
         # The unit of work owns the transaction boundary; it wraps the same session
         # the repos share. Fallback keeps direct `CharacterService(...)` construction
         # (tests) valid — the DI factory injects the request-scoped UoW.
@@ -277,7 +274,7 @@ class CharacterService:
             ) from e
 
         created = self.character_repo.create(_build_character_from_card(card))
-        self._import_character_book(card, created)
+        self.lore_service.import_character_book(card.character_book, created.id, card.name)
         # PNG imports write the uploaded file as the avatar before commit (its paths
         # land on the row); purge it if the commit fails so nothing is orphaned.
         wrote_avatar = await self._maybe_set_png_avatar(created, file_data, filename, card.name)
@@ -308,19 +305,6 @@ class CharacterService:
                         exc_info=True,
                     )
             raise
-
-    def _import_character_book(self, card: ParsedCard, character: Character) -> None:
-        """Build and persist the imported character's lorebook from the card, if any."""
-        if not card.character_book:
-            return
-
-        created_book = self.lore_repo.create(
-            build_lorebook(card.character_book, character.id, card.name)
-        )
-        for idx, entry_dict in enumerate(card.character_book.get("entries", [])):
-            entry = map_lore_entry(entry_dict, created_book.id, idx)
-            if entry is not None:
-                self.lore_entry_repo.create(entry)
 
     async def _maybe_set_png_avatar(
         self, character: Character, file_data: bytes, filename: str, card_name: str
@@ -367,9 +351,8 @@ class CharacterService:
         if character.example_dialogues:
             example_str = "\n".join(character.example_dialogues)
 
-        # Fetch character-specific lorebooks (via the lore repository, not raw SQL
-        # on the character session).
-        lorebooks = self.lore_repo.find_for_character_with_entries(character.id)
+        # Fetch character-specific lorebooks through the lore service (BE-H2).
+        lorebooks = self.lore_service.list_for_character_with_entries(character.id)
 
         character_book = {}
         if lorebooks:

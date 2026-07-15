@@ -12,6 +12,7 @@ from src.core.exceptions import BanneredMareException
 from src.core.persistence.enums import Gender
 from src.core.utils.upload import UploadedFile
 from src.lore.repository import LoreEntryRepository, LoreRepository
+from src.lore.service import LoreService
 
 
 class TestCharacterService:
@@ -27,7 +28,9 @@ class TestCharacterService:
 
         # Test
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         characters = service.list_all()
 
         assert len(characters) == 2
@@ -42,7 +45,9 @@ class TestCharacterService:
         db.refresh(char)
 
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         result = service.get_by_id(char.id)
 
         assert result.id == char.id
@@ -52,7 +57,9 @@ class TestCharacterService:
     def test_get_by_id_not_found(self, db: Session) -> None:
         """Test getting a character that doesn't exist raises 404"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service.get_by_id("nonexistent-id")
@@ -64,7 +71,9 @@ class TestCharacterService:
     async def test_create_character_basic(self, db: Session) -> None:
         """Test creating a character with basic fields"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         character = await service.create(
             CharacterFormBase(
@@ -85,7 +94,9 @@ class TestCharacterService:
     async def test_create_character_with_json_fields(self, db: Session) -> None:
         """Test creating a character with JSON fields"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         dialogues = json.dumps(["<START>\nUser: Hi\nAssistant: Hello!"])
         greetings = json.dumps(["Hi there!", "Greetings!"])
@@ -105,7 +116,9 @@ class TestCharacterService:
     async def test_create_character_invalid_json(self, db: Session) -> None:
         """Test creating a character with invalid JSON raises error"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = await service.create(
@@ -119,7 +132,9 @@ class TestCharacterService:
     async def test_create_character_with_avatar(self, db: Session) -> None:
         """Test creating a character with avatar upload"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         mock_file = UploadedFile(b"fake png avatar bytes", "avatar.png")
 
@@ -150,7 +165,9 @@ class TestCharacterService:
         db.refresh(char)
 
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         updated = await service.update(
             char.id,
             CharacterFormBase(name="Alice Updated", description="New description"),
@@ -172,7 +189,9 @@ class TestCharacterService:
         db.refresh(char)
 
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         updated = await service.update(
             char.id, CharacterFormBase(description="Updated description")
         )
@@ -190,7 +209,9 @@ class TestCharacterService:
         db.refresh(char)
 
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         greetings = json.dumps(["Hello!", "Hi!"])
         updated = await service.update(char.id, CharacterFormBase(alternate_greetings=greetings))
 
@@ -200,7 +221,9 @@ class TestCharacterService:
     async def test_update_character_not_found(self, db: Session) -> None:
         """Test updating non-existent character raises 404"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = await service.update("nonexistent-id", CharacterFormBase(name="New Name"))
@@ -216,7 +239,9 @@ class TestCharacterService:
         char_id = char.id
 
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         with patch("src.character.service.delete_character_files"):
             service.delete(char_id)
@@ -228,7 +253,9 @@ class TestCharacterService:
     def test_delete_character_not_found(self, db: Session) -> None:
         """Test deleting non-existent character raises 404"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         with pytest.raises(BanneredMareException) as exc_info:
             service.delete("nonexistent-id")
@@ -238,21 +265,27 @@ class TestCharacterService:
     def test_parse_json_field_valid(self, db: Session) -> None:
         """Test JSON field parsing with valid JSON"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         result = service._parse_json_field('{"key": "value"}', "test_field")  # pyright: ignore[reportPrivateUsage]
         assert result == {"key": "value"}
 
     def test_parse_json_field_none(self, db: Session) -> None:
         """Test JSON field parsing with None returns None"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         result = service._parse_json_field(None, "test_field")  # pyright: ignore[reportPrivateUsage]
         assert result is None
 
     def test_parse_json_field_invalid(self, db: Session) -> None:
         """Test JSON field parsing with invalid JSON raises error"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         with pytest.raises(BanneredMareException) as exc_info:
             _ = service._parse_json_field("invalid json", "test_field")  # pyright: ignore[reportPrivateUsage]
@@ -264,7 +297,9 @@ class TestCharacterService:
     async def test_import_card_json(self, db: Session) -> None:
         """Test importing a V2 JSON character card"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         v2_card = json.dumps(
             {
@@ -324,7 +359,9 @@ class TestCharacterService:
         db.refresh(char)
 
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
         json_str = service.export_as_json(char.id)
 
         exported = json.loads(json_str)
@@ -345,7 +382,9 @@ class TestCharacterService:
     async def test_import_and_export_character_book(self, db: Session) -> None:
         """Test importing and exporting a V2 JSON card with a character_book"""
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         v2_card = json.dumps(
             {
@@ -409,7 +448,9 @@ class TestCharacterService:
         from src.core.persistence.enums import Gender
 
         repo = CharacterRepository(db)
-        service = CharacterService(repo, LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
 
         # 1. Test importing a card with species, age, gender in extensions
         v2_card = json.dumps(
