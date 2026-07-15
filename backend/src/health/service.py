@@ -17,6 +17,9 @@ class HealthService:
     def get_db_status(self) -> bool:
         """Check database connection status"""
         try:
+            # Deliberate carve-out from the "no raw SQL / no session in a service"
+            # rule: a liveness probe needs a raw DB round-trip to prove connectivity,
+            # with no domain entity to route through a repository.
             _ = self.db.execute(text("SELECT 1"))
             return True
         except Exception:

@@ -402,7 +402,7 @@ class TestCharacterService:
         assert exported["data"]["character_book"]["entries"][0]["name"] == "Ancient Spells"
         assert exported["data"]["character_book"]["entries"][0]["keys"] == ["library", "books"]
 
-    @pytest.mark.anyio
+    @pytest.mark.asyncio
     async def test_import_and_export_custom_fields(self, db):
         from src.core.persistence.enums import Gender
 
