@@ -9,7 +9,7 @@
 - **Updated:** 2026-07-15
 - **Active:** clearing the low-risk 🤖 backlog (structural refactors BE-H1/H2/H7/H6/H5 deferred per the autonomy setting)
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
-- **Progress:** 7 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9, BE-M1 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
+- **Progress:** 10 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9, BE-M1, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
 
 ---
 
@@ -199,11 +199,11 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **BE-L1** `[ ]` inject `TemplateService` instead of inline-`new` (`prompt_template/router.py:106`, `chat_session/service.py:54`, +3).
 - **BE-L2** `[ ]` reconcile `find_by_chat_id` semantics — bound the sync variant or rename (`chat_message/repository.py:17` vs `repository_async.py:54`).
 - **BE-L3** `[ ]` move large model-catalog fixtures out of `.py` into validated JSON/TOML (or generate) — `fixtures/parameter_definitions.py`, `fixtures/models/*`.
-- **BE-L4** `[ ]` collapse the redundant `card_parser.py:150-154` branch.
+- **BE-L4** `[x]` DONE — removed the crash-prone branch A, kept the `isinstance`-guarded B (valid cards unchanged); docstring refreshed.
 - **BE-L5** `[ ]` rename `ChatApplyProfile`; even out `list_all`/`list_models` naming.
-- **BE-L6** `[ ]` flip `@pytest.mark.anyio`→`asyncio` (`tests/character/test_service.py:405`).
+- **BE-L6** `[x]` DONE — `@pytest.mark.anyio`→`asyncio` (`test_service.py:405`); zero anyio markers remain.
 - **BE-L7** `[ ]` document that only 1 of the "6 integration files" runs in CI; optionally add a nightly keyed job.
-- **BE-L8** `[ ]` add a carve-out comment where `health/service.py:20` + `fixtures/*` touch the session with raw SQL.
+- **BE-L8** `[x]` DONE — WHY carve-out comments at `health/service.py` (liveness probe) + `seed_model_families.py` (startup seeding outside the DI lifecycle).
 - **BE-L9** `[ ]` document that module shapes intentionally vary (router-only `admin`/`bookmarks`, etc.) so nobody enforces a false uniform template.
 
 ---
@@ -212,6 +212,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] BE-L4 + BE-L6 + BE-L8** (commit tagged `BE-L4`, `BE-L6`, `BE-L8`) — **BE-L4:** collapsed `card_parser.parse_card_json`'s redundant branch (removed the `spec`+non-dict-`data` path that crashed `_parse_v2_data`; kept the `isinstance`-guarded branch), verified no test relied on it — valid V1/V2 cards parse identically; docstring refreshed. **BE-L6:** `@pytest.mark.anyio`→`asyncio` (the sole anyio marker under `--strict-markers`). **BE-L8:** WHY carve-out comments at `health/service.py` (`SELECT 1` liveness probe needs a raw round-trip) + `seed_model_families.py` (startup seeding runs outside the request/DI lifecycle). Verified: ruff clean, basedpyright 0/0/0, pytest **916** unchanged.
 - **[x] BE-M1** (commit tagged `BE-M1`) — ported the missing surface to `AsyncBaseRepository`: `_column`, `find_all_ordered`, `find_paginated_ordered`, and the new `AsyncNamedRepository` (`find_by_name`) / `AsyncDefaultableRepository` (`unset_all_defaults`/`set_default`) mixins (exported alongside the sync ones). Reused `_apply_filters`→`statements.apply_filters` for WHERE construction (no SQL copy-paste; only the `await execute/.scalars()` wrapper differs). Adding the base methods surfaced the predicted drift: `AsyncChatRepository` had narrower bespoke `find_all_ordered`/`find_paginated_ordered` (eager-load, no `order_by`) → basedpyright flagged incompatible overrides; **resolved exactly as the sync `ChatRepository` already does** — accept `order_by` for signature compat but ignore it (fixed eager-loaded query), documented in the docstring. Verified diff: signature-only widening, method bodies unchanged. New `test_base_repository_async.py` (7 tests over a mixin-combining mock, mirroring the sync test). Verified: ruff clean, basedpyright 0/0/0, pytest **916** (909 + 7).
 - **[x] BE-M9** (commit tagged `BE-M9`) — closed both router suppressions by refactor (no behavior change). Made `TemplateService.build_variables` **public** (the method actually lives in `templating/__init__.py`, not `prompt_template/service.py` as the finding guessed — grep was authoritative; 1 def + 2 callers updated) and dropped the `pyright: ignore[reportPrivateUsage]` in `prompt_template/router.py`. Threaded validated `content: str | None` through `_handle_blocking`/`_handle_streaming` (dropped the now-redundant `regenerate` param — `content is None ⟺ regenerate`), removing **both** bare `# type: ignore` in `chat_message/router.py` **plus** the annotated `:96` one. (basedpyright wouldn't narrow through the compound `and`-guard in a ternary, so used explicit `if/elif/else`.) Verified: ruff clean, **basedpyright 0/0/0**, pytest 909 unchanged; grep confirms zero suppressions in both routers.
 - **[x] BE-M5** (commit tagged `BE-M5`) — extracted the placeholder DSN to a module constant (`_PLACEHOLDER_DATABASE_URL`) used as BOTH the `database_url` field default and the validator's compare target (can't drift), and extended `_forbid_insecure_production_defaults` to raise (after the existing CORS check) when `environment=production` + the placeholder DSN. Added 3 tests (prod-placeholder raises / prod-real boots / dev-placeholder fine) and made the pre-existing `test_production_with_explicit_origins_boots` pass an explicit DSN so it's env-independent. Verified: ruff/basedpyright clean, pytest **909** (906 + 3). **Env note:** `backend/.env` supplies a real remote DSN + `CORS_ORIGINS=["*"]` that pytest loads. Config-validation only (no auth/network/SSRF, per scope).

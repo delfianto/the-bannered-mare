@@ -143,12 +143,10 @@ def parse_card_json(raw_json: str | dict[str, Any]) -> ParsedCard:
     """
     Parse a character card from JSON (string or dict).
 
-    Detects V1 vs V2 automatically based on the presence of 'spec' and 'data' keys.
+    Detects V1 vs V2 automatically: a dict ``data`` key marks a V2 card (the
+    ``spec`` key is advisory, not required), otherwise the payload is flat V1.
     """
     data = json.loads(raw_json) if isinstance(raw_json, str) else raw_json
-
-    if "spec" in data and "data" in data:
-        return _parse_v2_data(data["data"])
 
     if "data" in data and isinstance(data["data"], dict):
         return _parse_v2_data(data["data"])

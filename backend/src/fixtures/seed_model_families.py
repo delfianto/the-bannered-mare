@@ -72,6 +72,8 @@ def seed_model_families(repo: ModelFamilyRepository) -> None:
 
 def main():
     """Main function to run seeding"""
+    # Startup/CLI seeding runs outside the request/DI lifecycle, so it opens a
+    # Session directly rather than receiving one via FastAPI Depends.
     db = SessionLocal()
     try:
         repo = ModelFamilyRepository(db)
