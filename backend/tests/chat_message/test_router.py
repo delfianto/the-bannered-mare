@@ -114,7 +114,7 @@ async def test_get_messages_empty(
         assert "items" in data
         assert "meta" in data
         assert data["items"] == []
-        assert data["meta"]["limit"] == 20
+        assert data["meta"]["limit"] == 10  # shared DEFAULT_PAGE_SIZE (BE-M3)
         assert data["meta"]["has_more"] is False
         assert data["meta"]["cursor"] is None  # No cursor when there are no messages
 

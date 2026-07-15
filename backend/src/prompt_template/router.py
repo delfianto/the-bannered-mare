@@ -5,6 +5,7 @@ from fastapi import APIRouter, Query
 from src.character.models import Character
 from src.chat_session.models import Chat
 from src.core.exceptions import BadRequestError
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, page_response
 from src.persona.models import Persona
 from src.prompt_template.dependencies import PromptTemplateServiceDep
@@ -25,7 +26,7 @@ router = APIRouter(prefix="/api/prompt-templates", tags=["prompt-templates"])
 def list_templates(
     service: PromptTemplateServiceDep,
     page: int = Query(1, ge=1, description="Page number (1-based)"),
-    limit: int = Query(10, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
 ):
     """List prompt templates with pagination"""
     offset = (page - 1) * limit

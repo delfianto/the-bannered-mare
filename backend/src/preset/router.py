@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, Query, UploadFile, status
 
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, page_response
 from src.core.utils.upload import read_upload
 from src.preset.dependencies import PresetServiceDep
@@ -18,7 +19,7 @@ router = APIRouter(prefix="/api/presets", tags=["presets"])
 def list_presets(
     service: PresetServiceDep,
     page: int = Query(1, ge=1, description="Page number (1-based)"),
-    limit: int = Query(10, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
 ):
     """List presets with pagination"""
     offset = (page - 1) * limit

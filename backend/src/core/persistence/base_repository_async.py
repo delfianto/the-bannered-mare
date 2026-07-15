@@ -5,6 +5,7 @@ from typing import Any
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.persistence.base_model import BaseModel
 from src.core.persistence.statements import apply_filters
 
@@ -18,8 +19,8 @@ class AsyncBaseRepository[T: BaseModel]:
     to control transaction boundaries.
     """
 
-    DEFAULT_LIMIT = 10
-    MAX_LIMIT = 100
+    DEFAULT_LIMIT = DEFAULT_PAGE_SIZE
+    MAX_LIMIT = MAX_PAGE_SIZE
 
     def __init__(self, db: AsyncSession, model: type[T]):
         """

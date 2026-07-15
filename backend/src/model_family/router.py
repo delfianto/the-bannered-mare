@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, Query, status
 
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, page_response
 from src.fixtures.parameter_definitions import PARAMETER_DEFINITIONS_SEED_DATA
 from src.model_family.dependencies import ModelFamilyServiceDep
@@ -27,7 +28,7 @@ def list_model_families(
     service: ModelFamilyServiceDep,
     filter_params: ModelFamilyFilterParams = Depends(),
     page: int = Query(1, ge=1, description="Page number (1-based)"),
-    limit: int = Query(10, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
 ):
     """List all model families with pagination and filtering"""
     offset = (page - 1) * limit

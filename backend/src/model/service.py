@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import ReadPort, UnitOfWork
 from src.model import parameter_validation
 from src.model.lineage import normalize_slug, resolve_family
@@ -45,7 +46,7 @@ class ModelService:
         return self.model_repo.find_all()
 
     def list_paginated(
-        self, limit: int = 10, offset: int = 0, filters: dict[str, Any] | None = None
+        self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0, filters: dict[str, Any] | None = None
     ) -> tuple[list[ModelRegistry], int]:
         """List canonical models with pagination and filtering."""
         return self.model_repo.find_paginated_with_count(limit, offset, filters=filters)

@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, Query, status
 
+from src.core.pagination import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse, page_response
 from src.model.dependencies import ModelServiceDep
 from src.model.schemas import (
@@ -24,7 +25,7 @@ def list_models(
     service: ModelServiceDep,
     filter_params: ModelFilterParams = Depends(),
     page: int = Query(1, ge=1, description="Page number (1-based)"),
-    limit: int = Query(10, ge=1, le=100, description="Items per page"),
+    limit: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE, description="Items per page"),
 ):
     """List canonical models with pagination and filtering."""
     offset = (page - 1) * limit

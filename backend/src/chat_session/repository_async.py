@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 
 from src.chat_session import queries
 from src.chat_session.models import Chat
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence.base_repository_async import AsyncBaseRepository
 from src.core.persistence.models import PromptTemplate, TemplateFragment
 from src.model.models import ModelRegistry, ModelRoute
@@ -70,7 +71,7 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
 
     async def find_paginated_ordered(
         self,
-        limit: int = 10,
+        limit: int = DEFAULT_PAGE_SIZE,
         offset: int = 0,
         filters: dict[str, Any] | None = None,
         order_by: Any | None = None,
@@ -89,7 +90,7 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
 
     async def find_paginated_by_cursor(
         self,
-        limit: int = 20,
+        limit: int = DEFAULT_PAGE_SIZE,
         cursor: datetime | None = None,
         filters: dict[str, Any] | None = None,
     ) -> tuple[list[Chat], bool]:

@@ -11,6 +11,7 @@ from src.chat_session.repository import ChatRepository
 from src.core.base_service import get_or_404
 from src.core.exceptions import NotFoundError
 from src.core.logging.logger_config import get_logger
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork
 from src.core.tokenization import get_tokenizer
 from src.templating import TemplateContext, TemplateService
@@ -72,7 +73,10 @@ class ChatService:
         return self.chat_repo.find_bookmarked()
 
     def list_paginated(
-        self, limit: int = 10, cursor: str | None = None, filters: dict[str, Any] | None = None
+        self,
+        limit: int = DEFAULT_PAGE_SIZE,
+        cursor: str | None = None,
+        filters: dict[str, Any] | None = None,
     ) -> tuple[list[Chat], str | None]:
         """List chats with cursor-based pagination and filtering"""
         cursor_dt = None

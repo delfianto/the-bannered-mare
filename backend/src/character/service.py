@@ -21,6 +21,7 @@ from src.core.base_service import get_or_404
 from src.core.config import settings
 from src.core.exceptions import ValidationError
 from src.core.logging import get_logger
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork
 from src.core.persistence.enums import Gender
 from src.core.utils.storage import delete_character_files, save_character_avatar
@@ -118,7 +119,7 @@ class CharacterService:
         return self.character_repo.find_all_ordered()
 
     def list_paginated(
-        self, limit: int = 10, offset: int = 0, filters: dict[str, Any] | None = None
+        self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0, filters: dict[str, Any] | None = None
     ) -> tuple[list[Character], int]:
         """List characters with pagination and filtering"""
         return self.character_repo.find_paginated_ordered(limit, offset, filters)

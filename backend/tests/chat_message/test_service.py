@@ -69,8 +69,8 @@ class TestChatMessageService:
         assert result.items[1].role == MessageRole.USER
         assert result.items[1].content == "Hello"
 
-        # Verify metadata
-        assert result.meta.limit == 20
+        # Verify metadata (default page size is the shared DEFAULT_PAGE_SIZE, BE-M3)
+        assert result.meta.limit == 10
         assert result.meta.has_more is False
         assert (
             result.meta.cursor is not None

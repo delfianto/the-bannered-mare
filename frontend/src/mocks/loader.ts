@@ -52,7 +52,7 @@ class ConversationCache {
    */
   async getCursorPaginated(
     chatId: string,
-    limit: number = 20,
+    limit: number = 10,
     cursor?: string,
   ): Promise<{ messages: Message[]; hasMore: boolean } | null> {
     const allMessages = await this.get(chatId);

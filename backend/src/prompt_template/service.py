@@ -5,6 +5,7 @@ from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import ValidationError
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork, gen_id
 from src.prompt_fragment.service import FragmentService
 from src.prompt_template.models import PromptTemplate
@@ -39,7 +40,9 @@ class PromptTemplateService:
         """List all prompt templates"""
         return self.template_repo.find_all_ordered()
 
-    def list_paginated(self, limit: int = 10, offset: int = 0) -> tuple[list[PromptTemplate], int]:
+    def list_paginated(
+        self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0
+    ) -> tuple[list[PromptTemplate], int]:
         """List templates with pagination"""
         return self.template_repo.find_paginated_ordered(limit, offset)
 

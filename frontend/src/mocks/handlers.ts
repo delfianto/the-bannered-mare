@@ -199,7 +199,7 @@ export const handlers = [
   // Chats
   http.get("/api/chats", async ({ request }) => {
     const url = new URL(request.url);
-    const limit = parseInt(url.searchParams.get("limit") || "20", 10);
+    const limit = parseInt(url.searchParams.get("limit") || "10", 10);
     const cursor = url.searchParams.get("cursor") || undefined;
 
     await delay(200);
@@ -371,7 +371,7 @@ export const handlers = [
     const chatId = params.chatId as string;
     const url = new URL(request.url);
 
-    const limit = parseInt(url.searchParams.get("limit") || "20", 10);
+    const limit = parseInt(url.searchParams.get("limit") || "10", 10);
     const cursor = url.searchParams.get("cursor") || undefined;
 
     if (!conversationCache.has(chatId)) {
@@ -1346,7 +1346,7 @@ export const handlers = [
     const isGlobal = url.searchParams.get("is_global");
     const unusedOnly = url.searchParams.get("unused_only");
     const page = Number(url.searchParams.get("page") ?? "1");
-    const limit = Number(url.searchParams.get("limit") ?? "20");
+    const limit = Number(url.searchParams.get("limit") ?? "10");
 
     await delay(150);
 

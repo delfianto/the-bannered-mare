@@ -3,6 +3,7 @@
 from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
+from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork, gen_id
 from src.preset.models import Preset
 from src.preset.repository import PresetRepository
@@ -22,7 +23,9 @@ class PresetService:
         """List all presets"""
         return self.preset_repo.find_all_ordered()
 
-    def list_paginated(self, limit: int = 10, offset: int = 0) -> tuple[list[Preset], int]:
+    def list_paginated(
+        self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0
+    ) -> tuple[list[Preset], int]:
         """List presets with pagination"""
         return self.preset_repo.find_paginated_ordered(limit, offset)
 

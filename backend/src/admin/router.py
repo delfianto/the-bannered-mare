@@ -12,6 +12,7 @@ from src.audit.schemas import (
     LlmAuditLogResponse,
     LlmStatsResponse,
 )
+from src.core.pagination import ADMIN_DEFAULT_PAGE_SIZE, ADMIN_MAX_PAGE_SIZE
 from src.core.schemas import PaginatedResponse
 
 router = APIRouter(prefix="/admin/logs", tags=["admin", "logs"])
@@ -20,7 +21,7 @@ router = APIRouter(prefix="/admin/logs", tags=["admin", "logs"])
 @router.get("/http")
 async def query_http_logs(
     service: AuditQueryServiceDep,
-    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+    limit: Annotated[int, Query(ge=1, le=ADMIN_MAX_PAGE_SIZE)] = ADMIN_DEFAULT_PAGE_SIZE,
     skip: Annotated[int, Query(ge=0)] = 0,
     method: Annotated[str | None, Query()] = None,
     path: Annotated[str | None, Query()] = None,
@@ -41,7 +42,7 @@ async def query_http_logs(
 @router.get("/llm")
 async def query_llm_logs(
     service: AuditQueryServiceDep,
-    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+    limit: Annotated[int, Query(ge=1, le=ADMIN_MAX_PAGE_SIZE)] = ADMIN_DEFAULT_PAGE_SIZE,
     skip: Annotated[int, Query(ge=0)] = 0,
     chat_id: Annotated[str | None, Query()] = None,
     provider: Annotated[str | None, Query()] = None,
@@ -72,7 +73,7 @@ async def get_llm_stats(
 @router.get("/errors")
 async def query_error_logs(
     service: AuditQueryServiceDep,
-    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+    limit: Annotated[int, Query(ge=1, le=ADMIN_MAX_PAGE_SIZE)] = ADMIN_DEFAULT_PAGE_SIZE,
     skip: Annotated[int, Query(ge=0)] = 0,
     error_type: Annotated[str | None, Query()] = None,
 ) -> PaginatedResponse[ErrorLogResponse]:
