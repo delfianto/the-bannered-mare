@@ -7,7 +7,9 @@ import pytest
 from sqlalchemy.orm import Session
 from src.character import Character, CharacterRepository, CharacterService
 from src.character.schemas import CharacterFormBase
+from src.character.service import _map_card_gender
 from src.core.exceptions import BanneredMareException
+from src.core.persistence.enums import Gender
 from src.core.utils.upload import UploadedFile
 from src.lore.repository import LoreEntryRepository, LoreRepository
 
@@ -446,3 +448,38 @@ class TestCharacterService:
         assert exported["data"]["extensions"]["species"] == "Altmer"
         assert exported["data"]["extensions"]["gender"] == "female"
         assert exported["data"]["extensions"]["age"] == "130"
+
+
+class TestMapCardGender:
+    """Unit tests for the consolidated card gender mapper (import path)."""
+
+    @pytest.mark.parametrize(
+        ("gender", "custom_gender", "expected"),
+        [
+            # Recognized values map to their enum member (same lookup as create path).
+            ("male", "", (Gender.MALE, None)),
+            ("female", "", (Gender.FEMALE, None)),
+            ("non-binary", "", (Gender.NON_BINARY, None)),
+            ("MALE", "", (Gender.MALE, None)),
+            ("  female  ", "", (Gender.FEMALE, None)),
+            # Unknown label -> OTHERS, original string kept verbatim as the custom label.
+            ("Attack Helicopter", "", (Gender.OTHERS, "Attack Helicopter")),
+            # The literal "others" is treated as a custom label, not a recognized gender.
+            ("others", "", (Gender.OTHERS, "others")),
+            # No card gender: fall back to a free-text custom_gender if present.
+            ("", "femboy", (Gender.OTHERS, "femboy")),
+            ("", "", (None, None)),
+            (None, None, (None, None)),
+        ],
+    )
+    def test_map_card_gender(
+        self,
+        gender: str | None,
+        custom_gender: str | None,
+        expected: tuple[Gender | None, str | None],
+    ) -> None:
+        assert _map_card_gender(gender, custom_gender) == expected
+
+    def test_card_gender_takes_precedence_over_custom(self) -> None:
+        """A recognized card gender wins; custom_gender is ignored when gender is set."""
+        assert _map_card_gender("male", "ignored") == (Gender.MALE, None)
