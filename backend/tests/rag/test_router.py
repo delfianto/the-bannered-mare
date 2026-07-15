@@ -140,9 +140,7 @@ def test_create_entry_indexes_for_retrieval(client: TestClient, retrieval_mock: 
     assert kwargs["content"] == "Embed me please."
 
 
-def test_create_entry_survives_index_failure(
-    client: TestClient, retrieval_mock: MagicMock
-) -> None:
+def test_create_entry_survives_index_failure(client: TestClient, retrieval_mock: MagicMock) -> None:
     """A failed embed is swallowed — the entry is still created (best-effort index)."""
     retrieval_mock.vectorize_data_bank_entry.side_effect = RuntimeError("embed backend down")
     response = client.post(

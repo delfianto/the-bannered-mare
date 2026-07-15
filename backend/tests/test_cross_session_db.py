@@ -28,9 +28,7 @@ async def test_sync_write_is_visible_to_async_read(
     db.commit()
 
     found = (
-        await async_db_session.execute(
-            select(Character).where(Character.id == created.id)
-        )
+        await async_db_session.execute(select(Character).where(Character.id == created.id))
     ).scalar_one_or_none()
 
     assert found is not None, (

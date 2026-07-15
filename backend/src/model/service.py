@@ -162,9 +162,7 @@ class ModelService(BaseCrudService[ModelRegistry, ModelRepository]):
         the family/slug afterward.
         """
         # Already routed on this provider → return the owning canonical model.
-        existing_route = self.repo.find_route_by_provider_identifier(
-            provider_id, model_identifier
-        )
+        existing_route = self.repo.find_route_by_provider_identifier(provider_id, model_identifier)
         if existing_route:
             return self.get_by_id(existing_route.model_registry_id)
 
@@ -180,9 +178,7 @@ class ModelService(BaseCrudService[ModelRegistry, ModelRepository]):
         # (the user can correct it afterward).
         # ``resolve_family`` is model's own helper (lineage.py) and only needs a
         # Session, so pass model's own — the family lookup stays behind the service.
-        family = (
-            resolve_family(self.repo.db, model_identifier) or self.family_service.get_first()
-        )
+        family = resolve_family(self.repo.db, model_identifier) or self.family_service.get_first()
         if family is None:
             raise ConflictError(
                 "Cannot persist a discovered model: no model families are configured."
