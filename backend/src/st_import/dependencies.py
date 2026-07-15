@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from src.core.persistence import DbSession
+from src.core.persistence import DbSession, UnitOfWork
 from src.preset.repository import PresetRepository
 from src.profile.repository import ProfileRepository
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
@@ -20,6 +20,7 @@ def get_st_import_service(db: DbSession) -> STImportService:
         template_fragment_repo=TemplateFragmentRepository(db),
         preset_repo=PresetRepository(db),
         profile_repo=ProfileRepository(db),
+        uow=UnitOfWork(db),
     )
 
 

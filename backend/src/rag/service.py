@@ -1,7 +1,7 @@
 """Data Bank CRUD business logic service"""
 
 from src.core.base_service import get_or_404
-from src.core.persistence import gen_id
+from src.core.persistence import UnitOfWork, gen_id
 from src.rag.models import DataBankEntry
 from src.rag.repository import DataBankRepository
 
@@ -9,8 +9,12 @@ from src.rag.repository import DataBankRepository
 class DataBankService:
     """Service for data bank entry CRUD operations"""
 
-    def __init__(self, repo: DataBankRepository):
+    def __init__(self, repo: DataBankRepository, uow: UnitOfWork | None = None):
         self.repo = repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `DataBankService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(repo.db)
 
     def list_entries(
         self,
@@ -45,7 +49,7 @@ class DataBankService:
             chat_id=chat_id,
         )
         created = self.repo.create(entry)
-        self.repo.commit()
+        self.uow.commit()
         return created
 
     def update(
@@ -66,11 +70,11 @@ class DataBankService:
             entry.scope = scope
 
         updated = self.repo.update(entry)
-        self.repo.commit()
+        self.uow.commit()
         return updated
 
     def delete(self, entry_id: str) -> None:
         """Delete a data bank entry."""
         entry = self.get_by_id(entry_id)
         self.repo.delete(entry)
-        self.repo.commit()
+        self.uow.commit()

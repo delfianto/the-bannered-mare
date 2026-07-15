@@ -16,6 +16,7 @@ from src.core.persistence import (
     PromptFragment,
     PromptTemplate,
     TemplateFragment,
+    UnitOfWork,
     gen_id,
 )
 from src.core.utils.upload import UploadedFile
@@ -42,12 +43,17 @@ class STImportService:
         template_fragment_repo: TemplateFragmentRepository,
         preset_repo: PresetRepository,
         profile_repo: ProfileRepository,
+        uow: UnitOfWork | None = None,
     ):
         self.template_repo = template_repo
         self.fragment_repo = fragment_repo
         self.template_fragment_repo = template_fragment_repo
         self.preset_repo = preset_repo
         self.profile_repo = profile_repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `STImportService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(template_repo.db)
 
     async def import_preset(self, upload: UploadedFile) -> STImportResult:
         """Validate and import a .json ST preset. Raises HTTP 400 on bad input."""
@@ -66,11 +72,11 @@ class STImportService:
         try:
             return self._persist(plan, filename or None)
         except IntegrityError as e:
-            self.template_repo.rollback()
+            self.uow.rollback()
             raise ConflictError("Import failed due to a database conflict.") from e
         except Exception:
             # Never leave a half-built import in the session.
-            self.template_repo.rollback()
+            self.uow.rollback()
             raise
 
     def _persist(self, plan: ImportPlan, source_filename: str | None) -> STImportResult:
@@ -149,7 +155,7 @@ class STImportService:
             )
         )
 
-        self.template_repo.commit()
+        self.uow.commit()
 
         return STImportResult(
             template_id=template.id,
