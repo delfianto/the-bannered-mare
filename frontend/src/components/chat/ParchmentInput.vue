@@ -3,10 +3,12 @@ import { ref, computed, nextTick } from "vue";
 
 defineProps<{
   disabled?: boolean;
+  generating?: boolean;
 }>();
 
 const emit = defineEmits<{
   send: [message: string];
+  stop: [];
 }>();
 
 const value = ref("");
@@ -80,15 +82,26 @@ function handleKeyDown(e: KeyboardEvent) {
         :placeholder="$t('chat.inputPlaceholder')"
         rows="1"
         class="max-h-35 flex-1 resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
-        :disabled="disabled"
+        :disabled="disabled || generating"
         @input="handleInput"
         @focus="focused = true"
         @blur="focused = false"
         @keydown="handleKeyDown"
       />
 
+      <!-- Stop button (while generating) — same slot as Send, morphed -->
+      <button
+        v-if="generating"
+        :aria-label="$t('chat.stopGeneration')"
+        class="flex size-8 shrink-0 items-center justify-center rounded-full bg-base-300 text-foreground shadow-sm transition-all duration-200 hover:bg-base-300/70 active:scale-[0.92]"
+        @click="$emit('stop')"
+      >
+        <AppIcon name="i-lucide-square" class="size-3.5" />
+      </button>
+
       <!-- Send button -->
       <button
+        v-else
         :aria-label="$t('chat.sendMessage')"
         :disabled="!canSend || disabled"
         class="flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"

@@ -344,6 +344,7 @@
     "inputPlaceholder": "Continue the tale…",
     "inputHint": "Shift + Enter for new line · Your words shape the story",
     "sendMessage": "Send message",
+    "stopGeneration": "Stop generation",
     "searchPlaceholder": "Search tales…",
     "activeTales": "Active Tales",
     "sessionMenu": "Session menu",
