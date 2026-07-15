@@ -7,6 +7,7 @@ from fastapi import Depends
 from src.character.dependencies import get_character_repository
 from src.character.repository import CharacterRepository
 from src.chat_message.repository import MessageRepository
+from src.chat_message.seeding import MessageSeedService
 from src.chat_session.repository import ChatRepository
 from src.chat_session.repository_async import AsyncChatRepository
 from src.chat_session.service import ChatService
@@ -44,7 +45,7 @@ def get_chat_service(
         character_repo,
         model_repo,
         ProfileRepository(db),
-        MessageRepository(db),
+        MessageSeedService(MessageRepository(db)),
         PersonaRepository(db),
         template_service,
         uow=UnitOfWork(db),

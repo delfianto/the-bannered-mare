@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_message import AsyncMessageRepository, ChatMessageService
 from src.chat_message.repository import MessageRepository
+from src.chat_message.seeding import MessageSeedService
 from src.chat_session import Chat, ChatRepository, ChatService
 from src.chat_session.model_snapshot import ChatModelSnapshotService
 from src.chat_session.repository_async import AsyncChatRepository
@@ -33,7 +34,7 @@ class TestLooseCoupling:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
 

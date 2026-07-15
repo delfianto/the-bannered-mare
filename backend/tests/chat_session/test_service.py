@@ -6,6 +6,7 @@ import pytest
 from sqlalchemy.orm import Session
 from src.character import CharacterRepository
 from src.chat_message.repository import MessageRepository
+from src.chat_message.seeding import MessageSeedService
 from src.chat_session import Chat, ChatRepository, ChatService
 from src.core.exceptions import BanneredMareException
 from src.model import ModelRegistry, ModelRepository, ModelRoute
@@ -32,7 +33,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         chats = service.list_all()
@@ -56,7 +57,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         result = service.get_by_id(chat.id)
@@ -74,7 +75,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
 
@@ -95,7 +96,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         chat = service.create(
@@ -109,6 +110,34 @@ class TestChatService:
         assert chat.title == "Test Chat"
         assert chat.id is not None
 
+    def test_create_chat_seeds_character_greeting(self, db: Session, sample_model: Any) -> None:
+        """The character greeting is seeded as the chat's opening message via the seam."""
+        from src.character import Character
+        from src.core.persistence import MessageRole
+
+        character = Character(
+            name="Bram", description="Innkeeper", first_message="Well met, traveler."
+        )
+        db.add(character)
+        db.commit()
+        db.refresh(character)
+
+        service = ChatService(
+            ChatRepository(db),
+            CharacterRepository(db),
+            ModelRepository(db),
+            ProfileRepository(db),
+            MessageSeedService(MessageRepository(db)),
+            PersonaRepository(db),
+        )
+        chat = service.create(character_id=character.id, model_id=sample_model.id)
+
+        messages = MessageRepository(db).find_all_by_chat_id(chat.id)
+        assert len(messages) == 1
+        assert messages[0].role == MessageRole.ASSISTANT
+        assert messages[0].content == "Well met, traveler."
+        assert chat.preview == "Well met, traveler."
+
     def test_create_chat_character_not_found(self, db: Session, sample_model: Any) -> None:
         """Test creating chat with non-existent character raises error"""
         chat_repo = ChatRepository(db)
@@ -119,7 +148,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         with pytest.raises(BanneredMareException) as exc_info:
@@ -141,7 +170,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         with pytest.raises(BanneredMareException) as exc_info:
@@ -168,7 +197,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         updated = service.update(chat.id, title="New Title")
@@ -216,7 +245,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         updated = service.update(chat.id, model_id=model2.id)
@@ -241,7 +270,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         with pytest.raises(BanneredMareException) as exc_info:
@@ -256,7 +285,7 @@ class TestChatService:
             CharacterRepository(db),
             ModelRepository(db),
             ProfileRepository(db),
-            message_repo=MessageRepository(db),
+            message_seeder=MessageSeedService(MessageRepository(db)),
             persona_repo=PersonaRepository(db),
         )
 
@@ -348,7 +377,7 @@ class TestChatService:
             char_repo,
             model_repo,
             ProfileRepository(db),
-            MessageRepository(db),
+            MessageSeedService(MessageRepository(db)),
             PersonaRepository(db),
         )
         service.delete(chat_id)
