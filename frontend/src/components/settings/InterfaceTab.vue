@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "@/composables/useTheme";
 import { useCustomTheme } from "@/composables/useCustomTheme";
@@ -66,31 +66,6 @@ const currentLocale = computed({
   get: () => locale.value,
   set: (val: string) => setLocale(val),
 });
-
-const streamResponses = ref(true);
-const typingIndicator = ref(true);
-
-onMounted(() => {
-  const storedStream = localStorage.getItem("setting-stream-responses");
-  if (storedStream !== null) {
-    streamResponses.value = storedStream === "true";
-  }
-
-  const storedTyping = localStorage.getItem("setting-typing-indicator");
-  if (storedTyping !== null) {
-    typingIndicator.value = storedTyping === "true";
-  }
-});
-
-function toggleStream() {
-  streamResponses.value = !streamResponses.value;
-  localStorage.setItem("setting-stream-responses", String(streamResponses.value));
-}
-
-function toggleTyping() {
-  typingIndicator.value = !typingIndicator.value;
-  localStorage.setItem("setting-typing-indicator", String(typingIndicator.value));
-}
 
 function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
   return isDark.value ? preset.preview.backgroundDark : preset.preview.background;
@@ -239,52 +214,6 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               :disabled="!replySuggestionsEnabled"
               aria-label="Auto-generate tone"
               @change="autoGenerateTones = !autoGenerateTones"
-            />
-          </div>
-
-          <!-- Divider -->
-          <div class="h-px bg-border" />
-
-          <!-- Stream Responses -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <AppIcon name="i-lucide-radio" class="size-5 text-primary" />
-              <div>
-                <p class="text-sm font-medium text-foreground">
-                  {{ $t("settings.interface.streamResponses") }}
-                </p>
-                <p class="text-xs text-muted-foreground">
-                  {{ $t("settings.interface.streamDescription") }}
-                </p>
-              </div>
-            </div>
-            <AppToggle
-              :model-value="streamResponses"
-              aria-label="Stream responses"
-              @change="toggleStream"
-            />
-          </div>
-
-          <!-- Divider -->
-          <div class="h-px bg-border" />
-
-          <!-- Show Typing Indicator -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <AppIcon name="i-lucide-pen-tool" class="size-5 text-primary" />
-              <div>
-                <p class="text-sm font-medium text-foreground">
-                  {{ $t("settings.interface.typingIndicator") }}
-                </p>
-                <p class="text-xs text-muted-foreground">
-                  {{ $t("settings.interface.typingDescription") }}
-                </p>
-              </div>
-            </div>
-            <AppToggle
-              :model-value="typingIndicator"
-              aria-label="Typing indicator"
-              @change="toggleTyping"
             />
           </div>
 

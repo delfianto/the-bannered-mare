@@ -8,8 +8,8 @@
 
 - **Updated:** 2026-07-15
 - **Active:** — (Wave 2 in progress)
-- **Next up:** FE-H1 (toggles 🤖), then FE-C2 (SSE tests 🤖); pause before BE-H1 (structural) + the FE 🧵 migrations (FE-H4, FE-M1/M2/M3) and FE-M5
-- **Progress:** 4 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3 ✓; FE-L8 folded in)
+- **Next up:** FE-C2 (SSE characterization tests 🤖) — last of this batch; then PAUSE before BE-H1 (structural) + the FE 🧵 migrations (FE-H4, FE-M1/M2/M3) and FE-M5
+- **Progress:** 5 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1 ✓; FE-L8 folded in)
 
 ---
 
@@ -74,7 +74,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** residual of audit V2-A2, which fixed the **assistant** side only. Verified by direct code read this session.
 
-### FE-H1 · Wire or delete the "Stream Responses" / "Typing Indicator" toggles · [ ] · 🤖 sub · dep: none
+### FE-H1 · Wire or delete the "Stream Responses" / "Typing Indicator" toggles · [x] DONE — removed (see §Completed) · 🤖 sub · dep: none
 - **Ref:** FINDINGS_FE.md §3 FE-H1 · **Files:** `InterfaceTab.vue:70-93`; `useChatMessages.ts:231,278`
 - **Fix:** either pass a `stream` flag into `sendMessage`/`regenerate` and branch on it (lift the setting into a `useChatSettings` singleton so the chat can read it), or delete the two toggles.
 - **Accept:** toggling "Stream Responses" off measurably changes request behavior, **or** the dead toggles are removed; gates green.
@@ -180,6 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-H1** (commit tagged `FE-H1`) — **removed** the write-only "Stream Responses" / "Typing Indicator" toggles from `InterfaceTab.vue` (refs, the `onMounted` localStorage hydration, both handlers, the orphaned `onMounted` import, and the two template rows — three dividers collapsed to one). Chose removal over wiring: wiring "Stream Responses" means building a whole non-streaming (blocking) send path in `useChatMessages` (a feature, unverifiable without running the app) and "Typing Indicator" has no clear consumer — an advertised-but-broken control is worse than none. **Reversible** if you'd rather have it as a feature. Left the 4 now-orphaned `settings.interface.stream*/typing*` i18n keys (present in all 5 locales) for the FE-H2/H3 i18n sweep. Verified: build/lint/fmt green, 22 tests pass.
 - **[x] FE-C3** (commit tagged `FE-C3`) — verified the backend persists the user message but streams only the *assistant* id in `start` (`chat_message/service.py:419-420,508-516`), so a FE-only fix must refetch. Added `reconcileSentUserMessage()`: after `readStream` completes in `sendMessage`, GET the 2 newest messages and swap the just-sent user bubble's client uuid for the persisted id **in place** (mutates `messages` directly — no cursor-list reset, so pagination/scroll are preserved); best-effort (a failed reconcile keeps the pre-fix behavior, never breaks a successful send). Regression test `useChatMessages.test.ts` drives send → reconcile → edit and asserts the edit PUTs `/messages/user-real` (would've been a phantom uuid pre-fix). Verified: 7 files / 22 tests, coverage up to **4.73%**, build/lint/fmt green.
 - **[x] FE-H7** (commit tagged `FE-H7`) — added `@vitest/coverage-v8@4.1.9`, a `coverage` block in `vite.config.ts` (v8, `all: true`, product-code include, `text-summary`+`json-summary` reporters), a `test:coverage` script, and switched the CI "Test" step to `bun run test:coverage`. Floor set just under the measured baseline — lines 2.5 / stmts 2.5 / fns 1.3 / branches 1.6 (actual 2.66/2.59/1.4/1.69) — so CI catches regressions and ratchets up as Wave 2/3 tests land. **Surprise + fix:** enabling `--coverage` made `localStorage` resolve to Node's experimental native binding (undefined) instead of happy-dom's on `globalThis`, so `i18n.ts`'s module-load `localStorage.getItem` threw and failed all suites (intermittently — it depends on which global wins). Added `src/test/setup-globals.ts` (a setupFile ordered BEFORE `setup.ts`, since ES imports hoist) that binds `localStorage` to happy-dom's `window.localStorage` or an in-memory stub. Confirmed happy-dom's `document` is otherwise intact under coverage (mount tests pass). Verified: coverage stable 3/3 (2.66% ≥ floor), plain `vp test run` + build + lint + fmt all green; `coverage/` already gitignored.
 - **[x] FE-H6** (commit tagged `FE-H6`) — added `src/mocks/server.ts` (`setupServer(...handlers)` reusing the exact handler array `browser.ts` feeds `setupWorker`) and wired `beforeAll(server.listen({onUnhandledRequest:"error"}))` / `afterEach(resetHandlers)` / `afterAll(close)` into `src/test/setup.ts`. Demonstration test `useProviders.test.ts` drives the real composable → store → **unpatched** typed client and asserts the `/api/providers` fixture loads through MSW (no `global.fetch`/`client` monkeypatch). **No extra deps or config needed** — msw 2.14.6 was already present; happy-dom resolves the relative `/api/...` path against its default origin and msw/node matches by pathname. Verified independently: `vp test run` = 6 files / 21 tests; build/lint/fmt green. Note: setup now imports the full handler+fixture graph on every test file's critical path (~0.45s) — fine, but known.
