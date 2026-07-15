@@ -81,7 +81,6 @@ class CharacterService:
         parsed_greetings = self._parse_json_field(data.alternate_greetings, "alternate_greetings")
         parsed_tags = self._parse_json_field(data.tags, "tags")
 
-        # Parse gender enum
         parsed_gender = _parse_gender(data.gender) if data.gender else None
 
         character = Character(
@@ -155,7 +154,6 @@ class CharacterService:
         if data.age is not None:
             character.age = data.age
 
-        # Parse and update JSON fields
         if data.example_dialogues is not None:
             character.example_dialogues = self._parse_json_field(
                 data.example_dialogues, "example_dialogues"
@@ -167,7 +165,6 @@ class CharacterService:
         if data.tags is not None:
             character.tags = self._parse_json_field(data.tags, "tags")
 
-        # Update avatar if provided
         if avatar:
             original_path, large_path, thumbnail_path = await save_character_avatar(
                 character.id, avatar
@@ -184,7 +181,6 @@ class CharacterService:
         """Delete character and associated files"""
         character = self.get_by_id(character_id)
 
-        # Delete character files
         delete_character_files(character_id)
 
         self.character_repo.delete(character)

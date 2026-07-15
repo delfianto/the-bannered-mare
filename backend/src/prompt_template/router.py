@@ -102,7 +102,6 @@ def preview_template(
         model_id="preview",
     )
 
-    # Render template
     template_service = TemplateService()
     context = TemplateContext(
         character=mock_character,

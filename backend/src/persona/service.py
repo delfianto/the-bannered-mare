@@ -84,7 +84,6 @@ class PersonaService:
         if is_default is not None:
             persona.is_default = is_default
 
-        # Update avatar if provided
         if avatar:
             original_path, large_path, thumbnail_path = await save_persona_avatar(
                 persona.id, avatar
@@ -101,7 +100,6 @@ class PersonaService:
         """Delete persona and associated files"""
         persona = self.get_by_id(persona_id)
 
-        # Delete persona files
         delete_persona_files(persona_id)
 
         self.persona_repo.delete(persona)
