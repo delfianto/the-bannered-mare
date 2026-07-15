@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** ✅ **BE-H6 DONE** — RAG persist+index orchestration moved out of the router into `rag/write_service.py::DataBankWriteService` (async; composes sync persist + async index/purge, owns the best-effort try/except). Router write endpoints are one call each; internal-only (openapi byte-identical). 950 green. **Next up:** BE-H5 (BaseCrudService — unify the 3 `update()` idioms + `list/get/delete` across ~11 services), then BE-L3/L5/L7/L9. Deferred: BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG).
-- **Next up:** BE-H5 (BaseCrudService), then the remaining BE-L items (L3/L5/L7/L9).
-- **Progress:** 21 / 30 done (BE-H1, **BE-H2**, BE-H4, **BE-H6**, **BE-H7**, BE-H8, BE-H9, BE-M1, **BE-M2**, **BE-M3**, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓; **BE-M11 resolved by BE-H2**) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b. **Deferred:** BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG). **Remaining active: BE-H5, BE-L3, BE-L5, BE-L7, BE-L9.**
+- **Active:** ✅ **BE-H5 DONE** — all 11 services inherit `BaseCrudService[T, R]`; the 3 `update()` idioms collapse to one `apply_update(entity, patch, editable)` mechanism (bespoke validate-then-mutate updates in model/chat_session/character kept as non-generic). +4 null-semantics tests. Internal-only (no contract change). 954 green. **All HIGH + in-scope MEDIUM items are now done.** **Next up:** the remaining BE-L cleanups — BE-L3 (fixtures → JSON/TOML), BE-L5 (rename `ChatApplyProfile`/`list_all`↔`list_models`), BE-L7 (document the 1-of-6 integration-file CI gap), BE-L9 (document intentional module-shape variance). Deferred: BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG).
+- **Next up:** BE-L3, BE-L5, BE-L7, BE-L9 (all low-severity cleanups).
+- **Progress:** 22 / 30 done (BE-H1, **BE-H2**, BE-H4, **BE-H5**, **BE-H6**, **BE-H7**, BE-H8, BE-H9, BE-M1, **BE-M2**, **BE-M3**, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓; **BE-M11 resolved by BE-H2**) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b. **Deferred:** BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG). **Remaining active: BE-L3, BE-L5, BE-L7, BE-L9 (LOW).**
 
 ---
 
@@ -148,7 +148,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 3 — Finish the DRY job + kill the hotspots
 
-### BE-H5 · Build `BaseCrudService` and unify the 3 `update()` idioms · [~] IN PROGRESS · 🧵 main · dep: BE-H1
+### BE-H5 · Build `BaseCrudService` and unify the 3 `update()` idioms · [x] DONE · 🧵 main · dep: BE-H1
 - **Ref:** FINDINGS_BE.md §3 BE-H5
 - **Files:** `core/base_service.py`; the ~11 domain services (`persona/preset/profile/model_family/character/prompt_fragment/prompt_template/model/provider/chat_session/rag`)
 - **Problem:** `list_all`/`get_by_id`/`delete` re-declared in 9–12 services; partial-update done 3 incompatible ways (kwargs+None, Pydantic+None, dict+setattr) with different null-clearing semantics.
@@ -161,9 +161,10 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
   - [x] **model_family, profile, persona** (commit `BE-H5`) — all inherit get_by_id; model_family overrides list_all(→find_all)/list_paginated/delete(in-use guard) + update via `apply_update(model_dump(exclude_none=True))`; profile inherits list_all/delete, keeps clearable dict-patch update via apply_update + 4 foreign ExistsPorts + import seam; persona inherits list_all, overrides list_paginated/delete(files), async create/update (apply_update). Base `get_by_id`/`delete` made **positional-only** so descriptive override param names (`persona_id`, `family_id`) stay LSP-compatible. Renamed `self.<x>_repo`→`self.repo`; no external refs. 950 green.
   - [x] **prompt_template, prompt_fragment** (commit `BE-H5`) — prompt_template inherits list_all/get_by_id, overrides list_paginated + delete (orphan cleanup), update via apply_update (skip-on-None) after Jinja validate, keeps import seam + set_default. FragmentService inherits get_by_id + plain delete; overrides list_all (optional filter params — LSP-safe) + list_paginated; keeps `from_session`, template-fragment ops, all import seams; update via apply_update. 950 green.
   - [x] **model, provider** (commit `BE-H5`) — both inherit get_by_id; override list_all (find_all). model inherits plain delete, overrides list_paginated, keeps its **bespoke validate-then-mutate update** (display_name→chat snapshot, family-change revalidation) — genuinely non-generic, NOT forced through apply_update — plus all route/create/persist logic. provider overrides delete (raises — providers aren't deletable), has no list_paginated, keeps update_flags + discovery; its update() now uses apply_update (skip-on-None) after the api-key-env validation. Renamed repo attr → self.repo. 950 green.
-  - [ ] **rag (DataBank), character, chat_session** (selective inherit for the async/cursor/complex ones)
-  - [ ] **null-clearing test** proving `apply_update` semantics (profile clear vs skip-on-None)
-- **Commit:** —
+  - [x] **rag (DataBank), character, chat_session** (commit `BE-H5`) — DataBank inherits get_by_id/delete (self.repo already named right), keeps list_entries (scope) + update via apply_update. character inherits list_all/get_by_id, keeps async create + bespoke CharacterFormBase update + BE-M4 delete (files). chat_session inherits list_all/get_by_id/plain-delete, keeps cursor list_paginated + bespoke `_UNSET`-sentinel update + apply_profile/greeting. (Fixed a self-inflicted duplicate `apply_profile` mid-edit.) 950 green.
+  - [x] **null-clearing test** (commit `BE-H5`) — `tests/core/test_base_service.py`: 4 tests pin `apply_update` semantics (present→set, explicit None→clear, non-editable key ignored/over-post defense, skip-on-None pattern never clears). 954 green.
+- **Result:** all 11 services inherit `BaseCrudService[T, R]`; the 3 update idioms collapse to one `apply_update` mechanism (skip-on-None services drop None from the patch; profile/chat pass explicit-present) — the genuinely non-generic updates (model/chat_session validate-then-mutate, character async field-parse) stay bespoke as the finding allows. No router signatures changed → **no contract change** (openapi untouched). Verified: ruff clean, basedpyright 0/0/0, pytest **954**.
+- **Commit:** `BE-H5` (base+preset `3cfdda5`; then model_family/profile/persona, prompt_template/prompt_fragment, model/provider, rag/character/chat_session+test)
 - **Notes:** completes audit BE-6's own recommendation (repo layer was done; service layer never was). Do after BE-H1 so the transaction boundary is settled.
 
 ### BE-M1 · Bring `AsyncBaseRepository` to parity with the sync base · [x] DONE (see §Completed) · 🤖 sub · dep: none
