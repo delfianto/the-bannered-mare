@@ -11,7 +11,7 @@ from src.chat_message.seeding import MessageSeedService
 from src.chat_session.repository import ChatRepository
 from src.chat_session.repository_async import AsyncChatRepository
 from src.chat_session.service import ChatService
-from src.core.persistence import AsyncDbSession, DbSession, UnitOfWork
+from src.core.persistence import AsyncDbSession, DbSession
 from src.model.dependencies import get_model_repository
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
@@ -48,7 +48,6 @@ def get_chat_service(
         MessageSeedService(MessageRepository(db)),
         PersonaRepository(db),
         template_service,
-        uow=UnitOfWork(db),
     )
 
 

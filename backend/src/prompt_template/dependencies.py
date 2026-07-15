@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from src.core.persistence import DbSession, UnitOfWork
+from src.core.persistence import DbSession
 from src.prompt_fragment.dependencies import get_fragment_service
 from src.prompt_fragment.service import FragmentService
 from src.prompt_template.repository import PromptTemplateRepository
@@ -20,13 +20,10 @@ def get_prompt_template_repository(db: DbSession) -> PromptTemplateRepository:
 def get_prompt_template_service(
     template_repo: Annotated[PromptTemplateRepository, Depends(get_prompt_template_repository)],
     fragment_service: Annotated[FragmentService, Depends(get_fragment_service)],
-    db: DbSession,
     template_service: TemplateServiceDep,
 ) -> PromptTemplateService:
     """Factory for PromptTemplateService with its fragment-cleanup seam injected"""
-    return PromptTemplateService(
-        template_repo, fragment_service, template_service, uow=UnitOfWork(db)
-    )
+    return PromptTemplateService(template_repo, fragment_service, template_service)
 
 
 PromptTemplateServiceDep = Annotated[PromptTemplateService, Depends(get_prompt_template_service)]
