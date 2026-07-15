@@ -347,4 +347,13 @@ If the user asks for a step-by-step plan, output specifically using this format:
 
 ## 8. Outstanding TODOs
 
-- [ ] **Translate the new-screen i18n keys.** Profiles, Lorebooks, SillyTavern preset import, and chat profile-apply added their keys (`profiles.*`, `lorebooks.*`, `presetImport.*`, `chat.profile.*`, plus `nav.profiles` / `nav.lorebooks`) to `src/locales/en.json` only. The other locales (`de`, `es`, `fr`, `pt`) currently fall back to English — mirror the en.json structure into each, keeping interpolation tokens (`{name}`, `{count}`) intact.
+_No outstanding TODOs. Standing rule below._
+
+### i18n parity (keep all 5 locales in lockstep)
+
+All five catalogs (`en`, `de`, `es`, `fr`, `pt`) are at **full key parity** (~690 keys each). When you add or rename a key, add it to **`en.json` and mirror it into the other four** in the same run — don't leave en-only keys that silently fall back to English. Preserve interpolation tokens (`{name}`, `{count}`, `{model}`, `{mode}`, `{time}`, `{envVar}`) verbatim, and keep the brand ("The Bannered Mare") and technical placeholders (URLs, snake_case identifiers, `provider/model-family`, `N/A`, `Jinja2`) untranslated. Quick parity check:
+
+```bash
+# from frontend/ — prints missing/extra per locale vs en.json (should be 0/0)
+python3 -c "import json;L=lambda o,p='':set().union(*[L(v,p+k+'.') for k,v in o.items()]) if isinstance(o,dict) else {p[:-1]};e=L(json.load(open('src/locales/en.json')));[print(l,'missing',len(e-L(json.load(open(f'src/locales/{l}.json')))),'extra',len(L(json.load(open(f'src/locales/{l}.json')))-e)) for l in ['de','es','fr','pt']]"
+```

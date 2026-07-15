@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-16
-- **Active:** FE-H2 now DONE in full (part-a toasts + b SetupWizard + c settings-detail views). Only FE-H3 remains (fill the 4 non-English catalogs). Deferred by decision: FE-M2, FE-L3, ProviderModelRow.
-- **Next up:** FE-H3 — mirror the en.json key set into de/es/fr/pt, preserving interpolation tokens. Large + mechanical; ideal to fan out to subagents.
-- **Progress:** 20 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2 ✓; FE-L8 + FE-L-latent folded in) + FE-M1 (FE-M1/M2 half-done). **Remaining:** FE-H3; deferred: FE-M2, FE-L3, ProviderModelRow.
+- **Active:** i18n tier COMPLETE (FE-H2 a/b/c + FE-H3). **All substantive tracker items are now done** — only 3 by-decision defers remain open (none blocking). Deferred: FE-M2 (cache unification — needs a strategy pick), FE-L3 (3 console.log planned-feature stubs — won't-do), ProviderModelRow (presentational extraction — low value).
+- **Next up:** nothing substantive. Optional if revisited: FE-M2 (pick `useResource` query-cache vs promote lists to Pinia like providers), or the ProviderModelRow template extraction.
+- **Progress:** 21 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3 ✓; FE-L8 + FE-L-latent folded in) + FE-M1 (FE-M1/M2 half-done). **Remaining:** none substantive; deferred by decision: FE-M2, FE-L3, ProviderModelRow.
 
 ---
 
@@ -125,11 +125,11 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** `toast.*("literal")` count → 0; `SetupWizardView` uses `$t`; a lint rule fails on new raw text; gates green.
 - **Commit:** `<toasts>` (a) · `6904e10` (b/c). **Lint-guard deliberately skipped** — `vue-i18n/no-raw-text` needs `@intlify/eslint-plugin-vue-i18n` + `vue-eslint-parser` (a whole ESLint/Vue stack this repo doesn't run — it uses oxlint) and would false-positive on inline punctuation (`":"`, counts). Too much machinery for a local app; the migration itself delivers the value. Regression risk accepted.
 
-### FE-H3 · Fill the 4 non-English locale catalogs (~200 keys each) · [ ] · 🤖 sub · dep: FE-H2 (so keys are final)
+### FE-H3 · Fill the 4 non-English locale catalogs · [x] DONE (see §Completed) · 🤖 sub · dep: FE-H2 (so keys are final)
 - **Ref:** FINDINGS_FE.md §3 FE-H3 · **Files:** `locales/de.json`, `es.json`, `fr.json`, `pt.json`
 - **Fix:** mirror the `en.json` structure (incl. `profiles`/`lorebooks`/`presetImport`/`chat.profile`/`nav.*`), preserving `{name}`/`{count}` tokens.
 - **Accept:** each locale has the same key set as `en.json`; a key-parity check passes; gates green.
-- **Commit:** —
+- **Commit:** `e598477`
 
 ### FE-H4 · Extract `AppCard`/`AppInput` + a `focus-ring` utility · [x] DONE — shipped as `@utility` classes (see §Completed) · 🧵 main · dep: none
 - **Ref:** FINDINGS_FE.md §3 FE-H4 · **Files:** new `components/shared/AppCard.vue`/`AppInput.vue`; `assets/main.css` (`@utility focus-ring`); ~68 Card + ~20 Input + 42 focus-ring sites
@@ -189,6 +189,7 @@ _(Move items here with `[x]`, the fixing commit hash, and a one-line note on wha
 
 - **[x] FE-L6 + FE-L7** (commit tagged `FE-L6`, `FE-L7`) — **FE-L6:** introduced a shared recursive `src/types/params.ts` `ParamSchema` (type/default/min/max/str_values + recursive `item_schema`/`properties`) and eliminated every `any` in `ParamInput.vue`/`ModelInferenceParams.vue`; `ModelFamilyView` dropped its local copy for the shared one. Typed cleanly (one narrow `default as number` cast in a numeric-only computed). **FE-L7:** new `utils/route.ts::routeParam(value): string` (+ test) replacing `route.params.x as string` across **8** sites (grep found more than the cited 2); deliberately left `CharacterCreateView:22` (`as string | undefined` — its `undefined` signals create-mode, which `routeParam` would change). Verified: build, 60 tests, coverage ≥ floor, lint/fmt green.
 - **[x] FE-M10** (commit tagged `FE-M10`) — defined 5 named font-size tokens in `main.css` `@theme` (`--text-2xs` 0.6875rem, `--text-3xs` 0.625rem, `--text-4xs` 0.5625rem, `--text-5xs` 0.5rem, `--text-2sm` 0.8125rem) and replaced all **153** arbitrary `text-[…rem]` values across 52 files (66/57/27/2/1). Rem-based so rendering is byte-identical (behavior-preserving, not a bug fix); no line-height companions needed. Verified: `grep text-[…rem]` clean, `lint:tailwind` passes (the new tokens make the old arbitraries "unnecessary" — all converted), build + 59 tests + canonical + fmt green.
+- **[x] FE-H3** (commit `e598477`) — filled all four non-English catalogs to **full parity with en.json (690 keys each; was 356, gap 334/locale)**. The gap had grown past the finding's "~200" because FE-H2 b/c added ~90 new en keys on top of the never-translated `profiles`/`lorebooks`/`presetImport`/`chat.profile`/`nav`/`setup` namespaces. **Method (parity-by-construction, not by trust):** extracted the 334 missing keys as a flat English map, fanned out one translator subagent per language (de/es/fr/pt, in parallel), each returning a flat `{key: translation}` map to scratchpad; then a merge script rebuilt each locale in **en.json's exact key order** (existing translation kept where present, else the new one) so structure can't drift. Verified programmatically: 690 keys each, 0 missing / 0 extra, every `{token}` preserved (set-equality per key vs en), valid JSON, real UTF-8 (no `\uXXXX`). Brand + technical placeholders (URLs, snake_case, `provider/model-family`, `N/A`, `Jinja2`) kept verbatim; registers matched each existing catalog (de=Sie, fr=vous, pt=BR). Gate: `fmt:check` (CI-scoped `src`), build, 61 tests, oxlint, both tailwind lints. **This closes the i18n tier and the last substantive tracker item.**
 - **[x] FE-H2 — DONE (a toasts + b SetupWizard + c settings-detail)** (commits `FE-H2` (a), `6904e10` (b/c)) —
   - **(a)** migrated **61 toast calls → vue-i18n keys, 0 hardcoded literals left** (57 cited + 4 backtick/ternary in `ProviderView` → named `{model}` params). Feature-namespaced `.toast` keys added to `en.json` only. Wired `useI18n` into 8 files.
   - **(b/c)** migrated the remaining **view text**: `SetupWizardView` wholesale (was 0 i18n — headings, step labels, provider-readiness states, both persona quick-create paths incl. one the first `replace_all` missed on deeper indent, attach-model flow, + script labels via `t()`); and the four settings-detail views (`Provider`/`ModelFamily`/`Fragment`/`Preset`) — edit-titles, section headings, status pills, model-menu actions, filter/empty states, placeholders, capability badges, Created/Updated labels. `FragmentView`'s fragment-type options became a `computed()` so labels re-render on locale switch. Added ~90 keys (`setup.*` subtree, `connections.*` detail keys, generic `common.*` = basicInfo/created/updated/status/yes/no/notAvailable).
