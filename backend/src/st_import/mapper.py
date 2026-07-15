@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from src.core.persistence import DEFAULT_COMPONENT_ORDER
-from src.st_import.schemas import STPreset, STPrompt, STPromptOrder
+from src.st_import.schemas import STOrderItem, STPreset, STPrompt, STPromptOrder
 
 # ST marker identifier -> The Bannered Mare prompt component.
 _MARKER_TO_COMPONENT: dict[str, str] = {
@@ -132,121 +132,117 @@ def _select_global_order(
     )
 
 
+@dataclass
+class _OrderState:
+    """Mutable accumulator threaded through order-item classification.
+
+    Replaces the ``nonlocal``-mutating closure in the original loop: it owns the
+    ST-ordered component sequence + enabled map, the running system template, the
+    per-position fragment ordinals, and the seen-marker flags that decide where a
+    relative fragment lands. Its methods are the branch handlers the loop calls.
+    """
+
+    base_name: str
+    warnings: list[str]
+    system_template: str = _DEFAULT_SYSTEM_TEMPLATE
+    system_template_set: bool = False
+    components_enabled: dict[str, bool] = field(default_factory=dict)
+    component_sequence: list[str] = field(default_factory=list)
+    fragments: list[FragmentSpec] = field(default_factory=list)
+    ordinals: dict[str, int] = field(
+        default_factory=lambda: {
+            "after_system": 0,
+            "pre_history": 0,
+            "post_history": 0,
+            "at_depth": 0,
+        }
+    )
+    seen_chat_history: bool = False
+    seen_examples: bool = False
+
+    def enable_component(self, comp: str) -> None:
+        """Enable a component, preserving first-seen ST order; track history/examples."""
+        if comp not in self.component_sequence:
+            self.component_sequence.append(comp)
+        self.components_enabled[comp] = True
+        if comp == "chat_history":
+            self.seen_chat_history = True
+        if comp == "example_dialogues":
+            self.seen_examples = True
+
+    def set_system_template(self, prompt: STPrompt) -> None:
+        """Adopt the 'main' prompt as the system template (or warn if it is empty)."""
+        if prompt.content.strip():
+            self.system_template = prompt.content
+            self.system_template_set = True
+        else:
+            self.warnings.append("'main' prompt has no content; used a default system prompt.")
+
+    def add_custom_fragment(self, ident: str, prompt: STPrompt) -> None:
+        """Append a system fragment for a non-marker content prompt."""
+        position, depth = self._resolve_position(prompt)
+        if prompt.role and prompt.role != "system":
+            self.warnings.append(
+                f"Prompt '{prompt.name or ident}' has role '{prompt.role}'; imported as a "
+                "system fragment (The Bannered Mare fragments are system-only)."
+            )
+        name = (prompt.name or ident).strip() or ident
+        self.fragments.append(
+            FragmentSpec(
+                name=name,
+                content=prompt.content,
+                fragment_type=_BUILTIN_FRAGMENT_TYPES.get(ident, "instruction"),
+                description=f"Imported from SillyTavern preset '{self.base_name}'.",
+                position=position,
+                ordinal=self.ordinals[position],
+                depth=depth,
+            )
+        )
+        self.ordinals[position] += 1
+
+    def _resolve_position(self, prompt: STPrompt) -> tuple[str, int | None]:
+        """Absolute injection -> at_depth; else relative to the seen history/examples markers."""
+        if prompt.injection_position == 1:
+            depth = prompt.injection_depth if prompt.injection_depth is not None else _DEFAULT_DEPTH
+            return "at_depth", depth
+        if self.seen_chat_history:
+            return "post_history", None
+        if self.seen_examples:
+            return "pre_history", None
+        return "after_system", None
+
+
+def _index_prompts(prompts: list[STPrompt], warnings: list[str]) -> dict[str, STPrompt]:
+    """Index prompts by identifier; later duplicates win (with a warning)."""
+    by_id: dict[str, STPrompt] = {}
+    for p in prompts:
+        if p.identifier in by_id:
+            warnings.append(f"Duplicate prompt identifier '{p.identifier}'; the later one wins.")
+        by_id[p.identifier] = p
+    return by_id
+
+
 def build_import_plan(preset: STPreset, base_name: str) -> ImportPlan:
     """Map a parsed preset to a Bannered Mare ``ImportPlan`` (names are pre-collision)."""
     warnings: list[str] = []
-
-    prompts_by_id: dict[str, STPrompt] = {}
-    for p in preset.prompts:
-        if p.identifier in prompts_by_id:
-            warnings.append(f"Duplicate prompt identifier '{p.identifier}'; the later one wins.")
-        prompts_by_id[p.identifier] = p
+    prompts_by_id = _index_prompts(preset.prompts, warnings)
 
     order, order_warn = _select_global_order(preset.prompt_order)
     if order_warn:
         warnings.append(order_warn)
     order_items = order.order if order else []
 
-    system_template = _DEFAULT_SYSTEM_TEMPLATE
-    system_template_set = False
-    components_enabled: dict[str, bool] = {}
-    component_sequence: list[str] = []
-    fragments: list[FragmentSpec] = []
-    ordinals = {"after_system": 0, "pre_history": 0, "post_history": 0, "at_depth": 0}
-    seen_chat_history = False
-    seen_examples = False
+    state = _OrderState(base_name=base_name, warnings=warnings)
+    _classify_order_items(order_items, prompts_by_id, state)
 
-    def enable_component(comp: str) -> None:
-        nonlocal seen_chat_history, seen_examples
-        if comp not in component_sequence:
-            component_sequence.append(comp)
-        components_enabled[comp] = True
-        if comp == "chat_history":
-            seen_chat_history = True
-        if comp == "example_dialogues":
-            seen_examples = True
-
-    for item in order_items:
-        if not item.enabled:
-            continue
-        ident = item.identifier
-        prompt = prompts_by_id.get(ident)
-
-        # Marker referenced by order; its definition may or may not be in prompts[].
-        if prompt is None:
-            if ident in _MARKER_TO_COMPONENT:
-                enable_component(_MARKER_TO_COMPONENT[ident])
-            else:
-                warnings.append(f"prompt_order references unknown prompt '{ident}'; skipped.")
-            continue
-
-        if prompt.marker:
-            comp = _MARKER_TO_COMPONENT.get(ident)
-            if comp is None:
-                warnings.append(f"Unknown marker '{ident}' dropped.")
-            else:
-                enable_component(comp)
-            continue
-
-        if ident == "main":
-            if prompt.content.strip():
-                system_template = prompt.content
-                system_template_set = True
-            else:
-                warnings.append("'main' prompt has no content; used a default system prompt.")
-            continue
-
-        if not prompt.content.strip():
-            warnings.append(f"Prompt '{prompt.name or ident}' has empty content; skipped.")
-            continue
-
-        if prompt.injection_position == 1:
-            position = "at_depth"
-            depth = prompt.injection_depth if prompt.injection_depth is not None else _DEFAULT_DEPTH
-        else:
-            depth = None
-            if seen_chat_history:
-                position = "post_history"
-            elif seen_examples:
-                position = "pre_history"
-            else:
-                position = "after_system"
-
-        if prompt.role and prompt.role != "system":
-            warnings.append(
-                f"Prompt '{prompt.name or ident}' has role '{prompt.role}'; imported as a "
-                "system fragment (The Bannered Mare fragments are system-only)."
-            )
-
-        name = (prompt.name or ident).strip() or ident
-        fragments.append(
-            FragmentSpec(
-                name=name,
-                content=prompt.content,
-                fragment_type=_BUILTIN_FRAGMENT_TYPES.get(ident, "instruction"),
-                description=f"Imported from SillyTavern preset '{base_name}'.",
-                position=position,
-                ordinal=ordinals[position],
-                depth=depth,
-            )
-        )
-        ordinals[position] += 1
-
-    if not system_template_set and not _has_enabled_main(order_items, prompts_by_id):
+    if not state.system_template_set and not _has_enabled_main(order_items, prompts_by_id):
         if "main" in prompts_by_id:
             warnings.append("'main' prompt is disabled; used a default system prompt.")
         else:
             warnings.append("No 'main' prompt found; used a default system prompt.")
 
-    template = TemplateSpec(
-        name=base_name,
-        system_template=system_template,
-        description=f"Imported from SillyTavern preset '{base_name}'.",
-        component_order=_build_component_order(component_sequence, components_enabled),
-        components_enabled=components_enabled,
-    )
-
-    preset_spec = _build_preset_spec(preset, base_name, warnings)
+    template = _build_template(base_name, state)
+    preset_spec = _build_preset(preset, base_name, warnings)
 
     dropped = [k for k in _FORMAT_STRING_KEYS if getattr(preset, k, None)]
     if dropped:
@@ -255,22 +251,75 @@ def build_import_plan(preset: STPreset, base_name: str) -> ImportPlan:
             + ", ".join(dropped)
         )
 
-    profile = ProfileSpec(
-        name=base_name,
-        description=f"Imported from SillyTavern preset '{base_name}'.",
-    )
-
     return ImportPlan(
         template=template,
-        profile=profile,
-        fragments=fragments,
+        profile=_build_profile(base_name),
+        fragments=state.fragments,
         preset=preset_spec,
         warnings=warnings,
     )
 
 
-def _has_enabled_main(order_items: list[Any], prompts_by_id: dict[str, STPrompt]) -> bool:
+def _classify_order_items(
+    order_items: list[STOrderItem],
+    prompts_by_id: dict[str, STPrompt],
+    state: _OrderState,
+) -> None:
+    """Walk the global order, enabling components and collecting fragments into ``state``.
+
+    Six item classes: disabled (skip); marker referenced by order but absent from
+    prompts[]; marker prompt; 'main' (system template); empty custom (skip); and a
+    custom content prompt (fragment). Each was a ``continue`` arm in the original loop.
+    """
+    for item in order_items:
+        if not item.enabled:
+            continue
+        ident = item.identifier
+        prompt = prompts_by_id.get(ident)
+
+        if prompt is None:
+            # Marker referenced by order; its definition may or may not be in prompts[].
+            if ident in _MARKER_TO_COMPONENT:
+                state.enable_component(_MARKER_TO_COMPONENT[ident])
+            else:
+                state.warnings.append(
+                    f"prompt_order references unknown prompt '{ident}'; skipped."
+                )
+        elif prompt.marker:
+            comp = _MARKER_TO_COMPONENT.get(ident)
+            if comp is None:
+                state.warnings.append(f"Unknown marker '{ident}' dropped.")
+            else:
+                state.enable_component(comp)
+        elif ident == "main":
+            state.set_system_template(prompt)
+        elif not prompt.content.strip():
+            state.warnings.append(f"Prompt '{prompt.name or ident}' has empty content; skipped.")
+        else:
+            state.add_custom_fragment(ident, prompt)
+
+
+def _has_enabled_main(order_items: list[STOrderItem], prompts_by_id: dict[str, STPrompt]) -> bool:
     return any(it.enabled and it.identifier == "main" for it in order_items)
+
+
+def _build_template(base_name: str, state: _OrderState) -> TemplateSpec:
+    """Assemble the PromptTemplate spec from the classified order state."""
+    return TemplateSpec(
+        name=base_name,
+        system_template=state.system_template,
+        description=f"Imported from SillyTavern preset '{base_name}'.",
+        component_order=_build_component_order(state.component_sequence, state.components_enabled),
+        components_enabled=state.components_enabled,
+    )
+
+
+def _build_profile(base_name: str) -> ProfileSpec:
+    """Assemble the Profile spec that ties the template + optional preset together."""
+    return ProfileSpec(
+        name=base_name,
+        description=f"Imported from SillyTavern preset '{base_name}'.",
+    )
 
 
 def _build_component_order(
@@ -289,7 +338,7 @@ def _build_component_order(
     return order
 
 
-def _build_preset_spec(preset: STPreset, base_name: str, warnings: list[str]) -> PresetSpec | None:
+def _build_preset(preset: STPreset, base_name: str, warnings: list[str]) -> PresetSpec | None:
     params: dict[str, Any] = {}
     for st_key, ck_key in _SAMPLER_KEYS.items():
         value = getattr(preset, st_key, None)
