@@ -201,7 +201,7 @@ class TestAtomicity:
         def _boom(_entity: Any) -> Any:
             raise RuntimeError("boom")
 
-        monkeypatch.setattr(service.preset_repo, "create", _boom)
+        monkeypatch.setattr(service.preset_service.preset_repo, "create", _boom)
 
         data = _json(
             [st_prompt("main", system_prompt=True, content="X"), st_prompt("r", content="y")],

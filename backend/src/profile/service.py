@@ -123,6 +123,39 @@ class ProfileService:
         self.profile_repo.delete(profile)
         self.uow.commit()
 
+    # --- SillyTavern import seam (BE-H2) ---
+
+    def find_by_name(self, name: str) -> Profile | None:
+        """Look up a profile by exact name (import unique-naming)."""
+        return self.profile_repo.find_by_name(name)
+
+    def create_imported(
+        self,
+        name: str,
+        prompt_template_id: str,
+        preset_id: str | None,
+        description: str | None = None,
+        source: str | None = None,
+        source_filename: str | None = None,
+    ) -> Profile:
+        """Create a profile from a trusted import (its FKs were created in this unit).
+
+        Flush-only — participates in the caller's UoW; skips ``_validate_refs`` since
+        the template/preset were just created in the same transaction, and records
+        the import provenance (``source``/``source_filename``).
+        """
+        profile = Profile(
+            id=gen_id(),
+            name=name,
+            description=description,
+            prompt_template_id=prompt_template_id,
+            preset_id=preset_id,
+            source=source,
+            source_filename=source_filename,
+            is_default=False,
+        )
+        return self.profile_repo.create(profile)
+
     def set_default(self, profile_id: str) -> Profile:
         """Set profile as default"""
         return set_as_default(self.profile_repo, self.get_by_id(profile_id), self.uow)

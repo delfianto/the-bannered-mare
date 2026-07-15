@@ -1,8 +1,11 @@
 """Application service: import a SillyTavern preset into The Bannered Mare entities.
 
-Persists via repositories directly (not the domain services) so the whole import
-is one transaction, the ``at_depth`` depth can be set on join rows, and ST-specific
-macros are not rejected by the services' Jinja2 validation.
+Persists through each target slice's published *import seam* (``create_imported`` /
+``attach_imported``) rather than its repositories (BE-H2). Those seams are
+flush-only — they participate in this service's single unit of work, so the whole
+import commits (or rolls back) atomically — and they skip the domain services'
+Jinja2 validation, which would otherwise reject ST-specific macros. The join-row
+``at_depth`` depth and the profile's import provenance are set through the seams too.
 """
 
 from collections.abc import Callable
@@ -10,20 +13,12 @@ from collections.abc import Callable
 from sqlalchemy.exc import IntegrityError
 
 from src.core.exceptions import ConflictError, ValidationError
-from src.core.persistence import (
-    Preset,
-    Profile,
-    PromptFragment,
-    PromptTemplate,
-    TemplateFragment,
-    UnitOfWork,
-    gen_id,
-)
+from src.core.persistence import UnitOfWork
 from src.core.utils.upload import UploadedFile
-from src.preset.repository import PresetRepository
-from src.profile.repository import ProfileRepository
-from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
-from src.prompt_template.repository import PromptTemplateRepository
+from src.preset.service import PresetService
+from src.profile.service import ProfileService
+from src.prompt_fragment.service import FragmentService
+from src.prompt_template.service import PromptTemplateService
 from src.st_import.errors import STImportError
 from src.st_import.mapper import ImportPlan, build_import_plan
 from src.st_import.parser import parse_st_preset
@@ -38,22 +33,19 @@ class STImportService:
 
     def __init__(
         self,
-        template_repo: PromptTemplateRepository,
-        fragment_repo: FragmentRepository,
-        template_fragment_repo: TemplateFragmentRepository,
-        preset_repo: PresetRepository,
-        profile_repo: ProfileRepository,
-        uow: UnitOfWork | None = None,
+        template_service: PromptTemplateService,
+        fragment_service: FragmentService,
+        preset_service: PresetService,
+        profile_service: ProfileService,
+        uow: UnitOfWork,
     ):
-        self.template_repo = template_repo
-        self.fragment_repo = fragment_repo
-        self.template_fragment_repo = template_fragment_repo
-        self.preset_repo = preset_repo
-        self.profile_repo = profile_repo
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `STImportService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(template_repo.db)
+        self.template_service = template_service
+        self.fragment_service = fragment_service
+        self.preset_service = preset_service
+        self.profile_service = profile_service
+        # This application service owns the transaction boundary for the whole
+        # cross-slice import: the slice import seams flush, and this uow commits once.
+        self.uow = uow
 
     async def import_preset(self, upload: UploadedFile) -> STImportResult:
         """Validate and import a .json ST preset. Raises HTTP 400 on bad input."""
@@ -81,16 +73,12 @@ class STImportService:
 
     def _persist(self, plan: ImportPlan, source_filename: str | None) -> STImportResult:
         """Create template -> fragments -> join rows -> optional preset -> profile; commit once."""
-        template = self.template_repo.create(
-            PromptTemplate(
-                id=gen_id(),
-                name=self._unique_name(plan.template.name, self.template_repo.find_by_name),
-                description=plan.template.description,
-                is_default=False,
-                system_template=plan.template.system_template,
-                component_order=plan.template.component_order,
-                components_enabled=plan.template.components_enabled,
-            )
+        template = self.template_service.create_imported(
+            name=self._unique_name(plan.template.name, self.template_service.find_by_name),
+            system_template=plan.template.system_template,
+            description=plan.template.description,
+            component_order=plan.template.component_order,
+            components_enabled=plan.template.components_enabled,
         )
 
         used_fragment_names: set[str] = set()
@@ -99,60 +87,45 @@ class STImportService:
             # Reimporting the same (or another preset sharing boilerplate) should
             # reuse the existing fragment rather than pile up "(2)", "(3)", ...
             # duplicates that only differ by name.
-            fragment = self.fragment_repo.find_by_content(spec.content)
+            fragment = self.fragment_service.find_by_content(spec.content)
             if fragment is None:
                 frag_name = self._unique_name(
-                    spec.name, self.fragment_repo.find_by_name, used_fragment_names
+                    spec.name, self.fragment_service.find_by_name, used_fragment_names
                 )
                 used_fragment_names.add(frag_name)
-                fragment = self.fragment_repo.create(
-                    PromptFragment(
-                        id=gen_id(),
-                        name=frag_name,
-                        description=spec.description,
-                        fragment_type=spec.fragment_type,
-                        content=spec.content,
-                        is_global=False,
-                    )
+                fragment = self.fragment_service.create_imported(
+                    name=frag_name,
+                    content=spec.content,
+                    fragment_type=spec.fragment_type,
+                    description=spec.description,
                 )
-            _ = self.template_fragment_repo.create(
-                TemplateFragment(
-                    id=gen_id(),
-                    template_id=template.id,
-                    fragment_id=fragment.id,
-                    position=spec.position,
-                    ordinal=spec.ordinal,
-                    depth=spec.depth,
-                )
+            _ = self.fragment_service.attach_imported(
+                template_id=template.id,
+                fragment_id=fragment.id,
+                position=spec.position,
+                ordinal=spec.ordinal,
+                depth=spec.depth,
             )
             fragment_ids.append(fragment.id)
 
         preset_id: str | None = None
         preset_name: str | None = None
         if plan.preset is not None:
-            created_preset = self.preset_repo.create(
-                Preset(
-                    id=gen_id(),
-                    name=self._unique_name(plan.preset.name, self.preset_repo.find_by_name),
-                    description=plan.preset.description,
-                    parameters=plan.preset.parameters,
-                    is_default=False,
-                )
+            created_preset = self.preset_service.create_imported(
+                name=self._unique_name(plan.preset.name, self.preset_service.find_by_name),
+                description=plan.preset.description,
+                parameters=plan.preset.parameters,
             )
             preset_id = created_preset.id
             preset_name = created_preset.name
 
-        created_profile = self.profile_repo.create(
-            Profile(
-                id=gen_id(),
-                name=self._unique_name(plan.profile.name, self.profile_repo.find_by_name),
-                description=plan.profile.description,
-                prompt_template_id=template.id,
-                preset_id=preset_id,
-                source="sillytavern",
-                source_filename=source_filename,
-                is_default=False,
-            )
+        created_profile = self.profile_service.create_imported(
+            name=self._unique_name(plan.profile.name, self.profile_service.find_by_name),
+            description=plan.profile.description,
+            prompt_template_id=template.id,
+            preset_id=preset_id,
+            source="sillytavern",
+            source_filename=source_filename,
         )
 
         self.uow.commit()
