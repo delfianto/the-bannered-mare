@@ -6,11 +6,7 @@ from src.core.persistence.base_repository import (
     DefaultableRepository,
     NamedRepository,
 )
-from src.core.persistence.base_repository_async import (
-    AsyncBaseRepository,
-    AsyncDefaultableRepository,
-    AsyncNamedRepository,
-)
+from src.core.persistence.base_repository_async import AsyncBaseRepository
 from src.core.persistence.database import (
     AsyncDbSession,
     AsyncSessionLocal,
@@ -60,8 +56,6 @@ __all__ = [
     "NamedRepository",
     "DefaultableRepository",
     "AsyncBaseRepository",
-    "AsyncNamedRepository",
-    "AsyncDefaultableRepository",
     "DbSession",
     "AsyncDbSession",
     "UnitOfWork",
