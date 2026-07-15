@@ -140,7 +140,7 @@ function timeAgo(dateStr: string): string {
             v-for="(session, i) in sessions"
             :key="session.id"
             :to="`/chats/${session.id}`"
-            class="group flex animate-fade-in-up items-center gap-4 rounded-xl border bg-base-200/50 p-4 transition-all hover:bg-base-300/30"
+            class="group flex animate-fade-in-up items-center gap-4 app-card transition-all hover:bg-base-300/30"
             :style="{ animationDelay: `${i * 50 + 200}ms` }"
           >
             <img

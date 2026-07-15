@@ -183,11 +183,7 @@ onMounted(fetchAll);
 
         <!-- Stat Cards -->
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div
-            v-for="card in statCards"
-            :key="card.label"
-            class="rounded-xl border bg-base-200/50 p-4 text-center"
-          >
+          <div v-for="card in statCards" :key="card.label" class="app-card text-center">
             <AppIcon :name="card.icon" class="mx-auto mb-1 size-4 text-muted-foreground" />
             <p class="text-2xl font-bold text-foreground">{{ card.value }}</p>
             <p class="text-xs text-muted-foreground">{{ card.label }}</p>

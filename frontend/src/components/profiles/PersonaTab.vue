@@ -207,7 +207,7 @@ async function setDefault(personaId: string) {
       <div
         v-for="persona in personas"
         :key="persona.id"
-        class="group flex items-center gap-4 rounded-xl border bg-base-200/50 p-4 transition-colors hover:bg-base-200/80"
+        class="group flex items-center gap-4 app-card transition-colors hover:bg-base-200/80"
       >
         <!-- Avatar -->
         <img

@@ -22,7 +22,7 @@ const positionLabels: Record<string, string> = {
 
 <template>
   <div
-    class="group relative flex flex-col rounded-xl border bg-base-200/50 p-4 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+    class="group relative flex flex-col app-card transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
     :class="{ 'opacity-60': !entry.enabled }"
   >
     <!-- Header: name + enabled toggle -->

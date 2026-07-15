@@ -86,6 +86,13 @@
   @apply h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring;
 }
 
+/* Card — the app-wide raised-surface panel, one definition (FE-H4). Named
+   `app-card` (not `card`) to avoid colliding with DaisyUI's `.card` component.
+   Add hover states / extra padding at the call site. */
+@utility app-card {
+  @apply rounded-xl border bg-base-200/50 p-4;
+}
+
 @layer base {
   *,
   ::after,

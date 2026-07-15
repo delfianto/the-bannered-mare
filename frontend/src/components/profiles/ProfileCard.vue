@@ -19,7 +19,7 @@ defineEmits<{
 
 <template>
   <div
-    class="group relative flex flex-col rounded-xl border bg-base-200/50 p-4 pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
+    class="group relative flex flex-col app-card pb-8 transition-all hover:shadow-[0_4px_16px_var(--color-primary)/0.08]"
   >
     <!-- Header -->
     <div class="mb-2 flex items-start justify-between gap-2">
