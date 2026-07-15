@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, Any
 
-from src.core.base_service import get_or_404
+from src.core.base_service import BaseCrudService, get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
 from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import ReadPort, UnitOfWork
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from src.provider.models import Provider
 
 
-class ModelService:
-    """Service for canonical-model + route business logic."""
+class ModelService(BaseCrudService[ModelRegistry, ModelRepository]):
+    """Service for canonical-model + route business logic (inherits get_by_id/delete)."""
 
     def __init__(
         self,
@@ -29,31 +29,23 @@ class ModelService:
         chat_snapshot: ChatSnapshotPort,
         uow: UnitOfWork | None = None,
     ):
-        self.model_repo = model_repo
+        super().__init__(model_repo, uow or UnitOfWork(model_repo.db), "Model")
         # Cross-module deps go through published seams (BE-H2): a thin read Port for
         # provider lookups, and the model_family Service for family reads — never the
         # foreign repositories.
         self.provider_reader = provider_reader
         self.family_service = family_service
         self.chat_snapshot = chat_snapshot
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `ModelService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(model_repo.db)
 
     def list_all(self) -> list[ModelRegistry]:
-        """List all canonical models."""
-        return self.model_repo.find_all()
+        """List all canonical models (insertion order)."""
+        return self.repo.find_all()
 
     def list_paginated(
         self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0, filters: dict[str, Any] | None = None
     ) -> tuple[list[ModelRegistry], int]:
         """List canonical models with pagination and filtering."""
-        return self.model_repo.find_paginated_with_count(limit, offset, filters=filters)
-
-    def get_by_id(self, model_id: str) -> ModelRegistry:
-        """Get a canonical model by ID, raise 404 if not found."""
-        return get_or_404(self.model_repo, model_id, "Model")
+        return self.repo.find_paginated_with_count(limit, offset, filters=filters)
 
     # ── Validation ───────────────────────────────────────────
     def _get_family(self, model_family_id: str) -> ModelFamily:
@@ -75,7 +67,7 @@ class ModelService:
                 f"model family '{family.name}'. "
                 f"Supported: {', '.join(family.provider_types) or 'none'}."
             )
-        existing = self.model_repo.find_route_by_provider_identifier(provider_id, model_identifier)
+        existing = self.repo.find_route_by_provider_identifier(provider_id, model_identifier)
         if existing:
             raise ConflictError(
                 f"A route already exists for '{model_identifier}' on provider '{provider.name}'."
@@ -113,7 +105,7 @@ class ModelService:
         if not original_identifier:
             original_identifier = slug
 
-        if self.model_repo.find_by_slug(slug):
+        if self.repo.find_by_slug(slug):
             raise ConflictError(f"A model with slug '{slug}' already exists.")
 
         # Validate every route up front so we never half-create. A model has at
@@ -134,12 +126,12 @@ class ModelService:
             parameters=parameters,
             enabled=enabled,
         )
-        registry = self.model_repo.create(registry)
+        registry = self.repo.create(registry)
 
         created_routes: list[ModelRoute] = []
         for route in routes:
             created_routes.append(
-                self.model_repo.add_route(
+                self.repo.add_route(
                     ModelRoute(
                         model_registry_id=registry.id,
                         provider_id=route["provider_id"],
@@ -157,7 +149,7 @@ class ModelService:
             registry.active_route_id = active.id
 
         self.uow.commit()
-        self.model_repo.refresh(registry)
+        self.repo.refresh(registry)
         return registry
 
     def persist_discovered_model(self, provider_id: str, model_identifier: str) -> ModelRegistry:
@@ -170,7 +162,7 @@ class ModelService:
         the family/slug afterward.
         """
         # Already routed on this provider → return the owning canonical model.
-        existing_route = self.model_repo.find_route_by_provider_identifier(
+        existing_route = self.repo.find_route_by_provider_identifier(
             provider_id, model_identifier
         )
         if existing_route:
@@ -178,7 +170,7 @@ class ModelService:
 
         # Same canonical model reached through another provider → add this route to it.
         slug = normalize_slug(model_identifier)
-        registry = self.model_repo.find_by_slug(slug)
+        registry = self.repo.find_by_slug(slug)
         if registry:
             return self.add_route(
                 registry.id, provider_id=provider_id, model_identifier=model_identifier
@@ -189,7 +181,7 @@ class ModelService:
         # ``resolve_family`` is model's own helper (lineage.py) and only needs a
         # Session, so pass model's own — the family lookup stays behind the service.
         family = (
-            resolve_family(self.model_repo.db, model_identifier) or self.family_service.get_first()
+            resolve_family(self.repo.db, model_identifier) or self.family_service.get_first()
         )
         if family is None:
             raise ConflictError(
@@ -230,7 +222,7 @@ class ModelService:
             target_family = self._get_family(model_family_id)
             family_changed = True
 
-        if slug is not None and slug != model.slug and self.model_repo.find_by_slug(slug):
+        if slug is not None and slug != model.slug and self.repo.find_by_slug(slug):
             raise ConflictError(f"A model with slug '{slug}' already exists.")
 
         # A family change can invalidate existing routes (provider no longer supported).
@@ -270,7 +262,7 @@ class ModelService:
             # is tracked automatically — no flag_modified needed.
             model.parameters = new_parameters
 
-        updated = self.model_repo.update(model)
+        updated = self.repo.update(model)
         self.uow.commit()
         return updated
 
@@ -279,15 +271,9 @@ class ModelService:
         model = self.get_by_id(model_id)
         if enabled is not None:
             model.enabled = enabled
-        updated = self.model_repo.update(model)
+        updated = self.repo.update(model)
         self.uow.commit()
         return updated
-
-    def delete(self, model_id: str) -> None:
-        """Delete a canonical model (cascades to its routes)."""
-        model = self.get_by_id(model_id)
-        self.model_repo.delete(model)
-        self.uow.commit()
 
     # ── Route management ─────────────────────────────────────
     def add_route(
@@ -295,11 +281,11 @@ class ModelService:
     ) -> ModelRegistry:
         """Add a provider route; make it active if the model had none."""
         model = self.get_by_id(model_id)
-        if self.model_repo.find_route_by_registry_provider(model.id, provider_id):
+        if self.repo.find_route_by_registry_provider(model.id, provider_id):
             raise ConflictError("This model already has a route on that provider.")
         self._validate_route(provider_id, model_identifier, model.model_family)
 
-        route = self.model_repo.add_route(
+        route = self.repo.add_route(
             ModelRoute(
                 model_registry_id=model.id,
                 provider_id=provider_id,
@@ -311,34 +297,34 @@ class ModelService:
             model.active_route_id = route.id
 
         self.uow.commit()
-        self.model_repo.refresh(model)
+        self.repo.refresh(model)
         return model
 
     def delete_route(self, model_id: str, route_id: str) -> ModelRegistry:
         """Remove a route; repoint the active route if it was the one removed."""
         model = self.get_by_id(model_id)
-        route = self.model_repo.find_route_by_id(route_id)
+        route = self.repo.find_route_by_id(route_id)
         if not route or route.model_registry_id != model.id:
             raise NotFoundError(f"Route '{route_id}' not found for this model.")
 
         if model.active_route_id == route.id:
             remaining = [r for r in model.routes if r.id != route.id]
             model.active_route_id = remaining[0].id if remaining else None
-            self.model_repo.update(model)
+            self.repo.update(model)
 
-        self.model_repo.delete_route(route)
+        self.repo.delete_route(route)
         self.uow.commit()
-        self.model_repo.refresh(model)
+        self.repo.refresh(model)
         return model
 
     def set_active_route(self, model_id: str, route_id: str) -> ModelRegistry:
         """Flip which route the model resolves to (redirects every chat using it)."""
         model = self.get_by_id(model_id)
-        route = self.model_repo.find_route_by_id(route_id)
+        route = self.repo.find_route_by_id(route_id)
         if not route or route.model_registry_id != model.id:
             raise NotFoundError(f"Route '{route_id}' not found for this model.")
         model.active_route_id = route.id
-        self.model_repo.update(model)
+        self.repo.update(model)
         self.uow.commit()
-        self.model_repo.refresh(model)
+        self.repo.refresh(model)
         return model
