@@ -354,12 +354,8 @@ async def test_list_alternatives_wrong_chat_returns_404(
     async_db_session: AsyncSession, async_sample_character: Any, async_sample_model: Any
 ) -> None:
     """A message requested under a different chat is not found (chat-scoped lookup)."""
-    chat_a = Chat(
-        character_id=async_sample_character.id, model_id=async_sample_model.id, title="A"
-    )
-    chat_b = Chat(
-        character_id=async_sample_character.id, model_id=async_sample_model.id, title="B"
-    )
+    chat_a = Chat(character_id=async_sample_character.id, model_id=async_sample_model.id, title="A")
+    chat_b = Chat(character_id=async_sample_character.id, model_id=async_sample_model.id, title="B")
     async_db_session.add_all([chat_a, chat_b])
     await async_db_session.commit()
     await async_db_session.refresh(chat_a)
@@ -368,9 +364,7 @@ async def test_list_alternatives_wrong_chat_returns_404(
     message = await _add_message(async_db_session, chat_a.id, MessageRole.ASSISTANT, "in chat A")
 
     async with _asgi_client() as client:
-        response = await client.get(
-            f"/api/chats/{chat_b.id}/messages/{message.id}/alternatives"
-        )
+        response = await client.get(f"/api/chats/{chat_b.id}/messages/{message.id}/alternatives")
 
     assert response.status_code == 404
 
@@ -435,12 +429,8 @@ async def test_activate_alternative_wrong_chat_returns_404(
     async_db_session: AsyncSession, async_sample_character: Any, async_sample_model: Any
 ) -> None:
     """Activating an alternative via the wrong chat is a 404 (chat-scoped message lookup)."""
-    chat_a = Chat(
-        character_id=async_sample_character.id, model_id=async_sample_model.id, title="A"
-    )
-    chat_b = Chat(
-        character_id=async_sample_character.id, model_id=async_sample_model.id, title="B"
-    )
+    chat_a = Chat(character_id=async_sample_character.id, model_id=async_sample_model.id, title="A")
+    chat_b = Chat(character_id=async_sample_character.id, model_id=async_sample_model.id, title="B")
     async_db_session.add_all([chat_a, chat_b])
     await async_db_session.commit()
     await async_db_session.refresh(chat_a)

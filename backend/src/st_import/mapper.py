@@ -282,9 +282,7 @@ def _classify_order_items(
             if ident in _MARKER_TO_COMPONENT:
                 state.enable_component(_MARKER_TO_COMPONENT[ident])
             else:
-                state.warnings.append(
-                    f"prompt_order references unknown prompt '{ident}'; skipped."
-                )
+                state.warnings.append(f"prompt_order references unknown prompt '{ident}'; skipped.")
         elif prompt.marker:
             comp = _MARKER_TO_COMPONENT.get(ident)
             if comp is None:

@@ -30,6 +30,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 | Gate | Command |
 |---|---|
 | Lint | `cd backend && uv run ruff check .` |
+| Format | `cd backend && uv run ruff format --check .` (CI runs this too — `ruff check` alone won't catch wrap/format drift) |
 | Types | `cd backend && uv run basedpyright` |
 | Tests (unit) | `cd backend && uv run pytest -m "not integration"` |
 | Tests (PG) | `cd backend && uv run pytest -m postgres` (needs the VectorChord container) |

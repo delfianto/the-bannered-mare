@@ -84,7 +84,12 @@ class PresetService(BaseCrudService[Preset, PresetRepository]):
         if is_default:
             self.repo.unset_all_defaults(exclude_id=preset_id)
 
-        patch = {"name": name, "description": description, "parameters": parameters, "is_default": is_default}
+        patch = {
+            "name": name,
+            "description": description,
+            "parameters": parameters,
+            "is_default": is_default,
+        }
         apply_update(preset, {k: v for k, v in patch.items() if v is not None}, _EDITABLE)
 
         updated = self.repo.update(preset)
