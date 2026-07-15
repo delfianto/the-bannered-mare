@@ -118,6 +118,21 @@ class TestModelFamilyService:
 
         assert exc_info.value.status_code == 404
 
+    def test_get_first_returns_a_family(self, db: Session, sample_family: Any) -> None:
+        """get_first returns a configured family (the model-discovery fallback)."""
+        service = ModelFamilyService(ModelFamilyRepository(db))
+
+        result = service.get_first()
+
+        assert result is not None
+        assert result.id == sample_family.id
+
+    def test_get_first_returns_none_when_empty(self, db: Session) -> None:
+        """get_first returns None when no families are configured."""
+        service = ModelFamilyService(ModelFamilyRepository(db))
+
+        assert service.get_first() is None
+
     def test_create_family_success(self, db: Session) -> None:
         """Test creating a model family successfully"""
         repo = ModelFamilyRepository(db)

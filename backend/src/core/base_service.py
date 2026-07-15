@@ -11,16 +11,18 @@ from collections.abc import Awaitable, Callable
 
 from src.core.exceptions import NotFoundError
 from src.core.persistence.base_model import BaseModel
-from src.core.persistence.base_repository import BaseRepository, DefaultableRepository
+from src.core.persistence.base_repository import DefaultableRepository
 from src.core.persistence.base_repository_async import AsyncBaseRepository
+from src.core.persistence.ports import ReadPort
 from src.core.persistence.unit_of_work import UnitOfWork
 
 
-def get_or_404[T: BaseModel](repo: BaseRepository[T], entity_id: str, resource_name: str) -> T:
+def get_or_404[T: BaseModel](repo: ReadPort[T], entity_id: str, resource_name: str) -> T:
     """Return the entity by id, or raise NotFoundError (→ HTTP 404).
 
     Args:
-        repo: any repository exposing ``find_by_id``.
+        repo: any read port / repository exposing ``find_by_id`` (BE-H2 — lets a
+            cross-module caller pass a thin ``ReadPort`` instead of a foreign repo).
         entity_id: the id to look up.
         resource_name: human label for the 404 message (e.g. "Persona").
     """

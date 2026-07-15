@@ -37,6 +37,15 @@ class ModelFamilyService:
         """Get model family details by ID, raise 404 if not found"""
         return get_or_404(self.family_repo, family_id, "Model family")
 
+    def get_first(self) -> ModelFamily | None:
+        """Return any one family (name-ordered), or None if none exist.
+
+        A discovery fallback (BE-H2): when an auto-created model matches no family
+        by identifier, the caller falls back to any configured one and lets the user
+        correct it afterward.
+        """
+        return self.family_repo.find_first()
+
     def create(self, family_data: ModelFamilyCreate) -> ModelFamily:
         """Create a new model family"""
         existing = self.family_repo.find_by_name(family_data.name)

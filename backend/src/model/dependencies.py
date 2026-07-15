@@ -7,8 +7,8 @@ from src.chat_session.repository import ChatRepository
 from src.core.persistence import DbSession, UnitOfWork
 from src.model.repository import ModelRepository
 from src.model.service import ModelService
-from src.model_family.dependencies import get_model_family_repository
-from src.model_family.repository import ModelFamilyRepository
+from src.model_family.dependencies import get_model_family_service
+from src.model_family.service import ModelFamilyService
 from src.provider.dependencies import get_provider_repository
 from src.provider.repository import ProviderRepository
 
@@ -21,12 +21,18 @@ def get_model_repository(db: DbSession) -> ModelRepository:
 def get_model_service(
     model_repo: Annotated[ModelRepository, Depends(get_model_repository)],
     provider_repo: Annotated[ProviderRepository, Depends(get_provider_repository)],
-    family_repo: Annotated[ModelFamilyRepository, Depends(get_model_family_repository)],
+    family_service: Annotated[ModelFamilyService, Depends(get_model_family_service)],
     db: DbSession,
 ) -> ModelService:
-    """Factory for ModelService with repository injected"""
+    """Factory for ModelService with its cross-module read seams injected.
+
+    The concrete ``ProviderRepository`` satisfies the ``ReadPort`` the service asks
+    for; family reads go through the published ``ModelFamilyService``.
+    """
     chat_snapshot = ChatModelSnapshotService(ChatRepository(db))
-    return ModelService(model_repo, provider_repo, family_repo, chat_snapshot, uow=UnitOfWork(db))
+    return ModelService(
+        model_repo, provider_repo, family_service, chat_snapshot, uow=UnitOfWork(db)
+    )
 
 
 ModelServiceDep = Annotated[ModelService, Depends(get_model_service)]
