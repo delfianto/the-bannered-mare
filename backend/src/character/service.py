@@ -158,6 +158,10 @@ class CharacterService:
         )
         created = self.character_repo.create(character)
 
+        # The avatar's stored paths must be persisted on the row, so the file has to
+        # be written before commit; ``_commit_or_purge_avatar_files`` reverses the
+        # exposure by removing those files if the commit then fails.
+        avatar_written = False
         if avatar:
             original_path, large_path, thumbnail_path = await save_character_avatar(
                 created.id, avatar
@@ -166,8 +170,9 @@ class CharacterService:
             created.avatar_large = large_path
             created.avatar_thumbnail = thumbnail_path
             _ = self.character_repo.update(created)
+            avatar_written = True
 
-        self.character_repo.commit()
+        self._commit_or_purge_avatar_files(created.id, wrote_avatar=avatar_written)
         return created
 
     async def update(
@@ -235,10 +240,12 @@ class CharacterService:
         """Delete character and associated files"""
         character = self.get_by_id(character_id)
 
-        delete_character_files(character_id)
-
         self.character_repo.delete(character)
         self.character_repo.commit()
+
+        # Filesystem after the DB: remove the avatar files only once the delete has
+        # committed, so a failed commit can't strand a fileless entity.
+        delete_character_files(character_id)
 
     async def import_card(self, upload: UploadedFile) -> Character:
         """
@@ -265,10 +272,36 @@ class CharacterService:
 
         created = self.character_repo.create(_build_character_from_card(card))
         self._import_character_book(card, created)
-        await self._maybe_set_png_avatar(created, file_data, filename, card.name)
+        # PNG imports write the uploaded file as the avatar before commit (its paths
+        # land on the row); purge it if the commit fails so nothing is orphaned.
+        wrote_avatar = await self._maybe_set_png_avatar(created, file_data, filename, card.name)
 
-        self.character_repo.commit()
+        self._commit_or_purge_avatar_files(created.id, wrote_avatar=wrote_avatar)
         return created
+
+    def _commit_or_purge_avatar_files(self, character_id: str, *, wrote_avatar: bool) -> None:
+        """Commit the pending character transaction, ordering the filesystem after the DB.
+
+        ``create``/``import_card`` must write the avatar to disk *before* commit
+        because the derived paths are persisted on the row. If that commit then
+        fails the row is rolled back, so any avatar files just written (keyed by the
+        character id) are removed before the error propagates — a rolled-back
+        create/import leaves nothing orphaned on disk. A failure of the cleanup
+        itself is logged and swallowed so the original commit error still surfaces.
+        """
+        try:
+            self.character_repo.commit()
+        except Exception:
+            if wrote_avatar:
+                try:
+                    delete_character_files(character_id)
+                except Exception:
+                    logger.warning(
+                        "avatar_cleanup_after_failed_commit_failed",
+                        character_id=character_id,
+                        exc_info=True,
+                    )
+            raise
 
     def _import_character_book(self, card: ParsedCard, character: Character) -> None:
         """Build and persist the imported character's lorebook from the card, if any."""
@@ -285,10 +318,14 @@ class CharacterService:
 
     async def _maybe_set_png_avatar(
         self, character: Character, file_data: bytes, filename: str, card_name: str
-    ) -> None:
-        """For PNG imports, reuse the uploaded file itself as the character's avatar."""
+    ) -> bool:
+        """For PNG imports, reuse the uploaded file itself as the character's avatar.
+
+        Returns ``True`` when avatar files were written to disk (PNG imports only),
+        so the caller can purge them if the ensuing commit fails.
+        """
         if not filename.endswith(".png"):
-            return
+            return False
 
         original_path, large_path, thumbnail_path = await save_character_avatar(
             character.id, UploadedFile(file_data, f"{card_name}.png")
@@ -297,6 +334,7 @@ class CharacterService:
         character.avatar_large = large_path
         character.avatar_thumbnail = thumbnail_path
         _ = self.character_repo.update(character)
+        return True
 
     def export_as_json(self, character_id: str) -> str:
         """Export a character as TavernCard V2 JSON."""
