@@ -12,6 +12,7 @@ from src.rag.repository_async import AsyncEmbeddingRepository
 from src.rag.rerank_service import RerankService
 from src.rag.retrieval_service import RetrievalService
 from src.rag.service import DataBankService
+from src.rag.write_service import DataBankWriteService
 
 
 def get_data_bank_repository(db: DbSession) -> DataBankRepository:
@@ -67,5 +68,18 @@ async def get_retrieval_service(
     )
 
 
+def get_data_bank_write_service(
+    data_bank: Annotated[DataBankService, Depends(get_data_bank_service)],
+    retrieval: Annotated[RetrievalService | None, Depends(get_retrieval_service)],
+) -> DataBankWriteService:
+    """Factory for the async persist+index write-path (BE-H6).
+
+    Composes the sync DataBank CRUD service with the async retrieval service so the
+    router calls one method per write; ``retrieval`` is None when RAG is disabled.
+    """
+    return DataBankWriteService(data_bank, retrieval)
+
+
 DataBankServiceDep = Annotated[DataBankService, Depends(get_data_bank_service)]
 RetrievalServiceDep = Annotated[RetrievalService | None, Depends(get_retrieval_service)]
+DataBankWriteServiceDep = Annotated[DataBankWriteService, Depends(get_data_bank_write_service)]

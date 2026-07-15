@@ -4,11 +4,12 @@ from fastapi import APIRouter, Query, status
 
 from src.core.config import settings
 from src.core.exceptions import ConflictError
-from src.core.logging.logger_config import get_logger
 from src.core.schemas import PaginatedResponse, collection_response
-from src.rag.dependencies import DataBankServiceDep, RetrievalServiceDep
-from src.rag.models import DataBankEntry
-from src.rag.retrieval_service import RetrievalService
+from src.rag.dependencies import (
+    DataBankServiceDep,
+    DataBankWriteServiceDep,
+    RetrievalServiceDep,
+)
 from src.rag.schemas import (
     DataBankCreate,
     DataBankResponse,
@@ -19,31 +20,8 @@ from src.rag.schemas import (
     RetrievedChunk,
 )
 
-logger = get_logger(__name__)
-
 data_bank_router = APIRouter(prefix="/api/data-bank", tags=["data-bank"])
 rag_router = APIRouter(prefix="/api/rag", tags=["rag"])
-
-
-async def _index_entry(retrieval: RetrievalService | None, entry: DataBankEntry) -> None:
-    """Chunk and embed a data-bank entry for retrieval (best-effort; already saved).
-
-    No-op when RAG is disabled (retrieval is None). A failed embed must not fail
-    the CRUD request — the entry persists and can be re-indexed on next update.
-    """
-    if retrieval is None:
-        return
-    try:
-        await retrieval.vectorize_data_bank_entry(
-            entry_id=entry.id,
-            content=entry.content,
-            model_name=settings.rag.embedding.model,
-            dimensions=settings.rag.embedding.dimensions,
-            chunk_size=settings.rag.chunk_size,
-            chunk_overlap=settings.rag.chunk_overlap,
-        )
-    except Exception:
-        logger.warning("data_bank_vectorize_failed", entry_id=entry.id, exc_info=True)
 
 
 # -- Data Bank CRUD --
@@ -63,21 +41,15 @@ def list_entries(
 
 
 @data_bank_router.post("/", response_model=DataBankResponse, status_code=status.HTTP_201_CREATED)
-async def create_entry(
-    body: DataBankCreate,
-    service: DataBankServiceDep,
-    retrieval: RetrievalServiceDep,
-):
+async def create_entry(body: DataBankCreate, service: DataBankWriteServiceDep):
     """Create a new data bank entry (indexed for RAG when enabled)."""
-    entry = service.create(
+    return await service.create(
         name=body.name,
         content=body.content,
         scope=body.scope,
         character_id=body.character_id,
         chat_id=body.chat_id,
     )
-    await _index_entry(retrieval, entry)
-    return entry
 
 
 @data_bank_router.get("/{entry_id}", response_model=DataBankResponse)
@@ -87,37 +59,20 @@ def get_entry(entry_id: str, service: DataBankServiceDep):
 
 
 @data_bank_router.put("/{entry_id}", response_model=DataBankResponse)
-async def update_entry(
-    entry_id: str,
-    body: DataBankUpdate,
-    service: DataBankServiceDep,
-    retrieval: RetrievalServiceDep,
-):
+async def update_entry(entry_id: str, body: DataBankUpdate, service: DataBankWriteServiceDep):
     """Update a data bank entry (re-indexed for RAG when enabled)."""
-    entry = service.update(
+    return await service.update(
         entry_id=entry_id,
         name=body.name,
         content=body.content,
         scope=body.scope,
     )
-    # vectorize_data_bank_entry purges the old chunks first, so this re-indexes cleanly.
-    await _index_entry(retrieval, entry)
-    return entry
 
 
 @data_bank_router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_entry(
-    entry_id: str,
-    service: DataBankServiceDep,
-    retrieval: RetrievalServiceDep,
-):
+async def delete_entry(entry_id: str, service: DataBankWriteServiceDep):
     """Delete a data bank entry and purge its embeddings."""
-    service.delete(entry_id)
-    if retrieval is not None:
-        try:
-            await retrieval.remove_embeddings("data_bank", entry_id)
-        except Exception:
-            logger.warning("data_bank_embedding_purge_failed", entry_id=entry_id, exc_info=True)
+    await service.delete(entry_id)
     return None
 
 
