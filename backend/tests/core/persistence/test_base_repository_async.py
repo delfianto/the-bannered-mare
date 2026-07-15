@@ -55,7 +55,7 @@ async def test_find_all_ordered_defaults_to_newest_first(async_db_session: Async
         entity = MockAsyncModel(name=name)
         entity.created_at = base + timedelta(days=i)  # deterministic ordering
         _ = await repo.create(entity)
-    await repo.commit()
+    await repo.db.commit()
 
     ordered = await repo.find_all_ordered()
     assert [m.name for m in ordered] == ["c", "b", "a"]
@@ -67,7 +67,7 @@ async def test_find_all_ordered_honours_explicit_order_by(async_db_session: Asyn
     repo = MockAsyncRepository(async_db_session)
     for name in ("charlie", "alpha", "bravo"):
         _ = await repo.create(MockAsyncModel(name=name))
-    await repo.commit()
+    await repo.db.commit()
 
     ordered = await repo.find_all_ordered(order_by=MockAsyncModel.name.asc())
     assert [m.name for m in ordered] == ["alpha", "bravo", "charlie"]
@@ -79,7 +79,7 @@ async def test_find_paginated_ordered(async_db_session: AsyncSession) -> None:
     repo = MockAsyncRepository(async_db_session)
     for i in range(15):
         _ = await repo.create(MockAsyncModel(name=str(i)))
-    await repo.commit()
+    await repo.db.commit()
 
     page1, total = await repo.find_paginated_ordered(limit=10, offset=0)
     assert len(page1) == 10
@@ -96,7 +96,7 @@ async def test_find_paginated_ordered_applies_filters(async_db_session: AsyncSes
     repo = MockAsyncRepository(async_db_session)
     for name in ("keep", "keep", "drop"):
         _ = await repo.create(MockAsyncModel(name=name))
-    await repo.commit()
+    await repo.db.commit()
 
     items, total = await repo.find_paginated_ordered(filters={"name": "keep"})
     assert total == 2
@@ -118,7 +118,7 @@ async def test_find_by_name(async_db_session: AsyncSession) -> None:
     """AsyncNamedRepository.find_by_name resolves the unique ``name`` column."""
     repo = MockAsyncRepository(async_db_session)
     _ = await repo.create(MockAsyncModel(name="Unique"))
-    await repo.commit()
+    await repo.db.commit()
 
     found = await repo.find_by_name("Unique")
     assert found is not None
@@ -133,17 +133,17 @@ async def test_set_default_keeps_a_single_default(async_db_session: AsyncSession
     a, b, c = (MockAsyncModel(name=n) for n in ("a", "b", "c"))
     for entity in (a, b, c):
         _ = await repo.create(entity)
-    await repo.commit()
+    await repo.db.commit()
 
     await repo.set_default(b.id)
-    await repo.commit()
+    await repo.db.commit()
     assert await _default_ids(async_db_session) == [b.id]
 
     # Switching the default clears the previously-set one.
     await repo.set_default(c.id)
-    await repo.commit()
+    await repo.db.commit()
     assert await _default_ids(async_db_session) == [c.id]
 
     await repo.unset_all_defaults()
-    await repo.commit()
+    await repo.db.commit()
     assert await _default_ids(async_db_session) == []

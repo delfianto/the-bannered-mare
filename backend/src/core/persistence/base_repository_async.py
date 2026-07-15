@@ -172,15 +172,6 @@ class AsyncBaseRepository[T: BaseModel]:
         result = await self.db.execute(stmt)
         return result.first() is not None
 
-    async def commit(self) -> None:
-        """
-        Commit the current transaction.
-
-        This allows the service layer to control transaction boundaries
-        without directly accessing the database session.
-        """
-        await self.db.commit()
-
     async def refresh(self, entity: T) -> T:
         """
         Refresh entity state from the database.
@@ -193,14 +184,6 @@ class AsyncBaseRepository[T: BaseModel]:
         """
         await self.db.refresh(entity)
         return entity
-
-    async def rollback(self) -> None:
-        """
-        Perform rollback for the current transaction.
-
-        Useful for error handling in the service layer.
-        """
-        await self.db.rollback()
 
 
 class AsyncNamedRepository[T: BaseModel](AsyncBaseRepository[T]):

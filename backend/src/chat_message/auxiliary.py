@@ -17,6 +17,7 @@ from src.chat_message.repository_async import AsyncMessageRepository
 from src.chat_message.schemas import SuggestionMode
 from src.chat_session.repository_async import AsyncChatRepository
 from src.core.exceptions import ProviderException
+from src.core.persistence import AsyncUnitOfWork
 
 # Appended to the cheap suggestion/tone prompts. Reply candidates and tone chips
 # are throwaway scaffolding, so the task model should answer immediately with a
@@ -40,10 +41,13 @@ class AuxiliaryGenerationService:
         message_repo: AsyncMessageRepository,
         chat_repo: AsyncChatRepository,
         context: MessageContextBuilder,
+        uow: AsyncUnitOfWork | None = None,
     ):
         self.message_repo = message_repo
         self.chat_repo = chat_repo
         self.context = context
+        # Commits the title write; shares the parent's UoW (same session as chat_repo).
+        self.uow = uow or AsyncUnitOfWork(chat_repo.db)
 
     async def generate_suggestions(
         self,
@@ -187,5 +191,5 @@ class AuxiliaryGenerationService:
         if title:
             chat.title = title
             _ = await self.chat_repo.update(chat)
-            await self.chat_repo.commit()
+            await self.uow.commit()
         return chat.title or ""

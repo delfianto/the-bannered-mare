@@ -35,7 +35,7 @@ async def test_create_message(async_db_session: AsyncSession, async_test_chat_id
     )
 
     created = await repo.create(message)
-    await repo.commit()
+    await repo.db.commit()
 
     assert created.id is not None
     assert created.content == "Hello world"
@@ -56,7 +56,7 @@ async def test_find_by_chat_id(async_db_session: AsyncSession, async_test_chat_i
         )
         await repo.create(msg)
 
-    await repo.commit()
+    await repo.db.commit()
 
     # Find messages
     messages = await repo.find_by_chat_id(async_test_chat_id)
@@ -80,7 +80,7 @@ async def test_find_by_chat_id_caps_to_newest_ascending(
                 token_count=2,
             )
         )
-    await repo.commit()
+    await repo.db.commit()
 
     messages = await repo.find_by_chat_id(async_test_chat_id, limit=2)
 
@@ -110,7 +110,7 @@ async def test_find_latest_orders_newest_first_and_caps_to_limit(
     repo = AsyncMessageRepository(async_db_session)
     for i in range(5):
         await repo.create(_msg(async_test_chat_id, i, _BASE_TIME + timedelta(minutes=i)))
-    await repo.commit()
+    await repo.db.commit()
 
     page = await repo.find_latest_by_chat_id(async_test_chat_id, limit=3)
 
@@ -125,7 +125,7 @@ async def test_find_latest_before_cursor_is_exclusive(
     repo = AsyncMessageRepository(async_db_session)
     for i in range(5):
         await repo.create(_msg(async_test_chat_id, i, _BASE_TIME + timedelta(minutes=i)))
-    await repo.commit()
+    await repo.db.commit()
 
     cursor = _BASE_TIME + timedelta(minutes=3)  # Message 3's timestamp
     page = await repo.find_latest_by_chat_id(async_test_chat_id, limit=10, before=cursor)
@@ -143,7 +143,7 @@ async def test_find_latest_walks_full_history_page_by_page(
     repo = AsyncMessageRepository(async_db_session)
     for i in range(5):
         await repo.create(_msg(async_test_chat_id, i, _BASE_TIME + timedelta(minutes=i)))
-    await repo.commit()
+    await repo.db.commit()
 
     first = await repo.find_latest_by_chat_id(async_test_chat_id, limit=2)
     assert [m.content for m in first] == ["Message 4", "Message 3"]
@@ -183,7 +183,7 @@ async def test_find_latest_same_created_at_current_behavior(
     for i in (1, 2, 3):
         await repo.create(_msg(async_test_chat_id, i, tie))  # three rows share `tie`
     await repo.create(_msg(async_test_chat_id, 4, _BASE_TIME + timedelta(minutes=6)))
-    await repo.commit()
+    await repo.db.commit()
 
     page = await repo.find_latest_by_chat_id(async_test_chat_id, limit=10)
 

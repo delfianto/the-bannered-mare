@@ -13,6 +13,7 @@ service ``dependencies.py`` factories do this). A raised exception before
 when ``get_db`` closes it, so a failed operation persists nothing.
 """
 
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 
@@ -33,3 +34,28 @@ class UnitOfWork:
     def flush(self) -> None:
         """Flush pending changes into the transaction without committing."""
         self._session.flush()
+
+
+class AsyncUnitOfWork:
+    """Async counterpart of ``UnitOfWork`` (the ``chat_message`` streaming path).
+
+    Wraps the request-scoped ``AsyncSession`` the async repositories share; the
+    service commits its work via ``await uow.commit()``. Same rationale as the
+    sync version — the boundary is explicit and singular, not a per-repo side
+    effect.
+    """
+
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def commit(self) -> None:
+        """Persist every pending change in this unit of work."""
+        await self._session.commit()
+
+    async def rollback(self) -> None:
+        """Discard every pending change in this unit of work."""
+        await self._session.rollback()
+
+    async def flush(self) -> None:
+        """Flush pending changes into the transaction without committing."""
+        await self._session.flush()
