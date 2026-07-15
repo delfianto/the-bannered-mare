@@ -5,6 +5,7 @@ from typing import Any
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError
 from src.core.logging import get_logger
+from src.core.persistence import UnitOfWork
 from src.model_family.models import ModelFamily
 from src.model_family.repository import ModelFamilyRepository
 from src.model_family.schemas import ModelFamilyCreate, ModelFamilyUpdate
@@ -15,8 +16,12 @@ logger = get_logger(__name__)
 class ModelFamilyService:
     """Service for model-family-related business logic"""
 
-    def __init__(self, family_repo: ModelFamilyRepository):
+    def __init__(self, family_repo: ModelFamilyRepository, uow: UnitOfWork | None = None):
         self.family_repo = family_repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `ModelFamilyService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(family_repo.db)
 
     def list_all(self) -> list[ModelFamily]:
         """List all model families"""
@@ -49,7 +54,7 @@ class ModelFamilyService:
         )
 
         created = self.family_repo.create(family)
-        self.family_repo.commit()
+        self.uow.commit()
         return created
 
     def update(self, family_id: str, family_data: ModelFamilyUpdate) -> ModelFamily:
@@ -72,7 +77,7 @@ class ModelFamilyService:
             family.extra_metadata = family_data.extra_metadata
 
         updated = self.family_repo.update(family)
-        self.family_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete(self, family_id: str) -> None:
@@ -86,4 +91,4 @@ class ModelFamilyService:
             )
 
         self.family_repo.delete(family)
-        self.family_repo.commit()
+        self.uow.commit()

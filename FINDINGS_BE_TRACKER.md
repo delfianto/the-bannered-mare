@@ -86,7 +86,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 **Rollout checklist:**
 - [x] **Step 1 — foundation + proof:** `UnitOfWork` class + export; `set_as_default(repo, entity, uow=None)` transitional shim; migrated the `profile` cluster (service + DI). Verified: ruff/basedpyright clean, profile 22 + full suite **937**.
-- [ ] **Step 2 — remaining sync CRUD services** (persona, preset, model_family, prompt_fragment, prompt_template, model, provider): inject UoW, `repo.commit()`→`uow.commit()`; migrate the 3 remaining `set_as_default` callers so the shim's `uow` becomes required.
+- [x] **Step 2 — 7 sync CRUD services** (persona, preset, model_family, prompt_fragment, prompt_template, model, provider): injected UoW, 30 `repo.commit()`→`uow.commit()` (1:1, no consolidation); `set_as_default` finalized to require `uow` (all 4 callers pass it). Verified: ruff/basedpyright clean, 937, zero test edits.
 - [ ] **Step 3 — orchestrating sync services** (character, lore, rag, st_import — the ones that write via multiple foreign repos, where the leak matters most): inject UoW, single `uow.commit()` per operation.
 - [ ] **Step 4 — remove `commit`/`rollback` from `BaseRepository`** once all sync callers are migrated (grep-verify none remain).
 - [ ] **Step 5 — async path:** an `AsyncUnitOfWork` + migrate the `chat_message` async services (service/alternatives/auxiliary) + remove `commit`/`rollback` from `AsyncBaseRepository`. (Respect the documented deliberate two-commit send sequencing.)

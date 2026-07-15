@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
+from src.core.persistence import UnitOfWork
 from src.model import parameter_validation
 from src.model.lineage import normalize_slug, resolve_family
 from src.model.models import ModelRegistry, ModelRoute
@@ -26,11 +27,16 @@ class ModelService:
         provider_repo: ProviderRepository,
         family_repo: ModelFamilyRepository,
         chat_snapshot: ChatModelSnapshotService,
+        uow: UnitOfWork | None = None,
     ):
         self.model_repo = model_repo
         self.provider_repo = provider_repo
         self.family_repo = family_repo
         self.chat_snapshot = chat_snapshot
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `ModelService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(model_repo.db)
 
     def list_all(self) -> list[ModelRegistry]:
         """List all canonical models."""
@@ -147,7 +153,7 @@ class ModelService:
             )
             registry.active_route_id = active.id
 
-        self.model_repo.commit()
+        self.uow.commit()
         self.model_repo.refresh(registry)
         return registry
 
@@ -260,7 +266,7 @@ class ModelService:
             model.parameters = new_parameters
 
         updated = self.model_repo.update(model)
-        self.model_repo.commit()
+        self.uow.commit()
         return updated
 
     def update_flags(self, model_id: str, enabled: bool | None = None) -> ModelRegistry:
@@ -269,14 +275,14 @@ class ModelService:
         if enabled is not None:
             model.enabled = enabled
         updated = self.model_repo.update(model)
-        self.model_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete(self, model_id: str) -> None:
         """Delete a canonical model (cascades to its routes)."""
         model = self.get_by_id(model_id)
         self.model_repo.delete(model)
-        self.model_repo.commit()
+        self.uow.commit()
 
     # ── Route management ─────────────────────────────────────
     def add_route(
@@ -299,7 +305,7 @@ class ModelService:
         if model.active_route_id is None:
             model.active_route_id = route.id
 
-        self.model_repo.commit()
+        self.uow.commit()
         self.model_repo.refresh(model)
         return model
 
@@ -316,7 +322,7 @@ class ModelService:
             self.model_repo.update(model)
 
         self.model_repo.delete_route(route)
-        self.model_repo.commit()
+        self.uow.commit()
         self.model_repo.refresh(model)
         return model
 
@@ -328,6 +334,6 @@ class ModelService:
             raise NotFoundError(f"Route '{route_id}' not found for this model.")
         model.active_route_id = route.id
         self.model_repo.update(model)
-        self.model_repo.commit()
+        self.uow.commit()
         self.model_repo.refresh(model)
         return model

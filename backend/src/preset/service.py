@@ -3,7 +3,7 @@
 from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
-from src.core.persistence import gen_id
+from src.core.persistence import UnitOfWork, gen_id
 from src.preset.models import Preset
 from src.preset.repository import PresetRepository
 
@@ -11,8 +11,12 @@ from src.preset.repository import PresetRepository
 class PresetService:
     """Service for preset-related business logic"""
 
-    def __init__(self, preset_repo: PresetRepository):
+    def __init__(self, preset_repo: PresetRepository, uow: UnitOfWork | None = None):
         self.preset_repo = preset_repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `PresetService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(preset_repo.db)
 
     def list_all(self) -> list[Preset]:
         """List all presets"""
@@ -45,7 +49,7 @@ class PresetService:
             is_default=is_default,
         )
         created = self.preset_repo.create(preset)
-        self.preset_repo.commit()
+        self.uow.commit()
         return created
 
     def update(
@@ -72,15 +76,15 @@ class PresetService:
             preset.is_default = is_default
 
         updated = self.preset_repo.update(preset)
-        self.preset_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete(self, preset_id: str) -> None:
         """Delete preset"""
         preset = self.get_by_id(preset_id)
         self.preset_repo.delete(preset)
-        self.preset_repo.commit()
+        self.uow.commit()
 
     def set_default(self, preset_id: str) -> Preset:
         """Set preset as default"""
-        return set_as_default(self.preset_repo, self.get_by_id(preset_id))
+        return set_as_default(self.preset_repo, self.get_by_id(preset_id), self.uow)

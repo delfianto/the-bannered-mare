@@ -2,7 +2,7 @@
 
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
-from src.core.persistence import gen_id
+from src.core.persistence import UnitOfWork, gen_id
 from src.prompt_fragment.models import PromptFragment, TemplateFragment
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.templating import TemplateService
@@ -16,10 +16,15 @@ class FragmentService:
         fragment_repo: FragmentRepository,
         template_fragment_repo: TemplateFragmentRepository,
         template_service: TemplateService | None = None,
+        uow: UnitOfWork | None = None,
     ):
         self.fragment_repo = fragment_repo
         self.template_fragment_repo = template_fragment_repo
         self.template_service = template_service or TemplateService()
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `FragmentService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(fragment_repo.db)
 
     def _validate_content(self, content: str | None) -> None:
         """Validate Jinja2 content syntax, raising 400 if invalid."""
@@ -83,7 +88,7 @@ class FragmentService:
             is_global=is_global,
         )
         created = self.fragment_repo.create(fragment)
-        self.fragment_repo.commit()
+        self.uow.commit()
         return created
 
     def update(
@@ -111,14 +116,14 @@ class FragmentService:
             fragment.is_global = is_global
 
         updated = self.fragment_repo.update(fragment)
-        self.fragment_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete(self, fragment_id: str) -> None:
         """Delete a prompt fragment"""
         fragment = self.get_by_id(fragment_id)
         self.fragment_repo.delete(fragment)
-        self.fragment_repo.commit()
+        self.uow.commit()
 
     # -- Template-Fragment attachment --
 
@@ -147,7 +152,7 @@ class FragmentService:
             ordinal=ordinal,
         )
         created = self.template_fragment_repo.create(tf)
-        self.template_fragment_repo.commit()
+        self.uow.commit()
         return created
 
     def detach_from_template(self, template_id: str, fragment_id: str) -> None:
@@ -157,7 +162,7 @@ class FragmentService:
         )
         if not deleted:
             raise NotFoundError("Fragment is not attached to this template")
-        self.template_fragment_repo.commit()
+        self.uow.commit()
 
     def list_template_fragments(self, template_id: str) -> list[TemplateFragment]:
         """List all fragments attached to a template, ordered by position and ordinal"""
@@ -181,5 +186,5 @@ class FragmentService:
             tf.ordinal = int(item["ordinal"])
             self.template_fragment_repo.update(tf)
 
-        self.template_fragment_repo.commit()
+        self.uow.commit()
         return self.template_fragment_repo.find_by_template_id(template_id)

@@ -9,6 +9,7 @@ from src.core.base_service import get_or_404
 from src.core.config import settings
 from src.core.exceptions import ConflictError, ProviderException, ValidationError
 from src.core.logging import get_logger
+from src.core.persistence import UnitOfWork
 from src.core.persistence.base_model import utc_now
 from src.provider.discovery import get_discovery_client
 from src.provider.model_cache import ModelListCache
@@ -63,9 +64,18 @@ def _dedupe_preserving_order(identifiers: list[str]) -> list[str]:
 class ProviderService:
     """Service for provider-related business logic"""
 
-    def __init__(self, provider_repo: ProviderRepository, model_cache: ModelListCache):
+    def __init__(
+        self,
+        provider_repo: ProviderRepository,
+        model_cache: ModelListCache,
+        uow: UnitOfWork | None = None,
+    ):
         self.provider_repo = provider_repo
         self.model_cache = model_cache
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `ProviderService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(provider_repo.db)
 
     def list_all(self) -> list[Provider]:
         """List all providers"""
@@ -114,7 +124,7 @@ class ProviderService:
         )
 
         created = self.provider_repo.create(provider)
-        self.provider_repo.commit()
+        self.uow.commit()
 
         if not created.has_api_key():
             env_var_name = created.get_env_var_name()
@@ -159,7 +169,7 @@ class ProviderService:
             provider.enabled = enabled
 
         updated = self.provider_repo.update(provider)
-        self.provider_repo.commit()
+        self.uow.commit()
         return updated
 
     def update_flags(self, provider_id: str, enabled: bool) -> Provider:
@@ -167,7 +177,7 @@ class ProviderService:
         provider = self.get_by_id(provider_id)
         provider.enabled = enabled
         updated = self.provider_repo.update(provider)
-        self.provider_repo.commit()
+        self.uow.commit()
 
         logger.info(
             "provider_flags_updated",
@@ -227,7 +237,7 @@ class ProviderService:
         provider = self.get_by_id(provider_id)
         provider.allowed_models = _dedupe_preserving_order(allowed_models)
         self.provider_repo.update(provider)
-        self.provider_repo.commit()
+        self.uow.commit()
 
         # Reuse the cache — changing the filter never needs a fresh provider call.
         models, from_cache = self._fetch_discovered_models(provider, force_refresh=False)
@@ -277,7 +287,7 @@ class ProviderService:
 
         provider.last_synced_at = utc_now()
         self.provider_repo.update(provider)
-        self.provider_repo.commit()
+        self.uow.commit()
 
         # Cache the raw discovered list; the blacklist is applied on the way out
         # so editing settings.model_blacklist takes effect without a re-sync.

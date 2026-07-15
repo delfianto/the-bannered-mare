@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from src.core.persistence import DbSession
+from src.core.persistence import DbSession, UnitOfWork
 from src.prompt_fragment.repository import FragmentRepository
 from src.prompt_template.repository import PromptTemplateRepository
 from src.prompt_template.service import PromptTemplateService
@@ -22,7 +22,9 @@ def get_prompt_template_service(
     template_service: TemplateServiceDep,
 ) -> PromptTemplateService:
     """Factory for PromptTemplateService with repository injected"""
-    return PromptTemplateService(template_repo, FragmentRepository(db), template_service)
+    return PromptTemplateService(
+        template_repo, FragmentRepository(db), template_service, uow=UnitOfWork(db)
+    )
 
 
 PromptTemplateServiceDep = Annotated[PromptTemplateService, Depends(get_prompt_template_service)]
