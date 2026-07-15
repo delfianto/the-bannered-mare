@@ -1,11 +1,11 @@
-"""Provider CRUD API endpoints"""
+"""Provider CRUD + model-catalog API endpoints"""
 
 from fastapi import APIRouter, Query, status
 
 from src.core.schemas import PaginatedResponse, collection_response
 from src.model.dependencies import ModelServiceDep
 from src.model.schemas import ModelResponse
-from src.provider.dependencies import ProviderServiceDep
+from src.provider.dependencies import ProviderModelServiceDep, ProviderServiceDep
 from src.provider.schemas import (
     AvailableModelsResponse,
     ModelActionRequest,
@@ -65,59 +65,59 @@ def update_provider_flags(
 
 
 @router.get("/{provider_id}/models/available", response_model=AvailableModelsResponse)
-def list_available_models(provider_id: str, service: ProviderServiceDep):
+def list_available_models(provider_id: str, model_service: ProviderModelServiceDep):
     """List models live-detected on a local provider (Ollama/LM Studio), cache-aware"""
-    return service.list_available_models(provider_id)
+    return model_service.list_available_models(provider_id)
 
 
 @router.post("/{provider_id}/models/sync", response_model=AvailableModelsResponse)
-def sync_provider_models(provider_id: str, service: ProviderServiceDep):
+def sync_provider_models(provider_id: str, model_service: ProviderModelServiceDep):
     """Force a live refresh of a provider's model list, bypassing the cache"""
-    return service.sync_models(provider_id)
+    return model_service.sync_models(provider_id)
 
 
 @router.get("/{provider_id}/models/search", response_model=ModelSearchResponse)
 def search_provider_models(
     provider_id: str,
-    service: ProviderServiceDep,
+    model_service: ProviderModelServiceDep,
     q: str = Query(default="", description="Substring to match against model id or name"),
 ):
     """Search a provider's live model list by name, ignoring the allow-list filter"""
-    return service.search_models(provider_id, q)
+    return model_service.search_models(provider_id, q)
 
 
 @router.put("/{provider_id}/models/filter", response_model=AvailableModelsResponse)
 def set_provider_model_filter(
-    provider_id: str, filter_data: ProviderModelFilterUpdate, service: ProviderServiceDep
+    provider_id: str, filter_data: ProviderModelFilterUpdate, model_service: ProviderModelServiceDep
 ):
     """Set the curated allow-list and return the newly-filtered available models"""
-    return service.set_allowed_models(provider_id, filter_data.allowed_models)
+    return model_service.set_allowed_models(provider_id, filter_data.allowed_models)
 
 
 @router.post("/{provider_id}/models/load", response_model=ModelActionResponse)
 def load_provider_model(
-    provider_id: str, action_data: ModelActionRequest, service: ProviderServiceDep
+    provider_id: str, action_data: ModelActionRequest, model_service: ProviderModelServiceDep
 ):
     """Load a model into memory on a local provider"""
-    return service.load_model(provider_id, action_data.model_identifier)
+    return model_service.load_model(provider_id, action_data.model_identifier)
 
 
 @router.post("/{provider_id}/models/unload", response_model=ModelActionResponse)
 def unload_provider_model(
-    provider_id: str, action_data: ModelActionRequest, service: ProviderServiceDep
+    provider_id: str, action_data: ModelActionRequest, model_service: ProviderModelServiceDep
 ):
     """Unload a model from memory on a local provider"""
-    return service.unload_model(provider_id, action_data.model_identifier)
+    return model_service.unload_model(provider_id, action_data.model_identifier)
 
 
 @router.delete("/{provider_id}/models", response_model=ModelActionResponse)
 def delete_provider_model(
     provider_id: str,
-    service: ProviderServiceDep,
+    model_service: ProviderModelServiceDep,
     model_identifier: str = Query(..., description="Provider-native model identifier"),
 ):
     """Delete/remove a model from a local provider's registry/filesystem"""
-    return service.delete_model(provider_id, model_identifier)
+    return model_service.delete_model(provider_id, model_identifier)
 
 
 @router.post("/{provider_id}/models/persist", response_model=ModelResponse)

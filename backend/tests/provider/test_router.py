@@ -64,7 +64,7 @@ def test_list_available_models_unsupported_provider_type(
     db.refresh(provider)
 
     monkeypatch.setattr(
-        "src.provider.service.get_discovery_client",
+        "src.provider.model_service.get_discovery_client",
         lambda _t: None,
     )
 
@@ -78,7 +78,7 @@ def test_list_available_models(
     provider = _make_ollama_provider(db)
     models = [DiscoveredModel(identifier="llama3:8b", display_name="llama3:8b", state="loaded")]
     monkeypatch.setattr(
-        "src.provider.service.get_discovery_client",
+        "src.provider.model_service.get_discovery_client",
         lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: models})(),
     )
 
@@ -95,7 +95,7 @@ def test_sync_provider_models(
 ) -> None:
     provider = _make_ollama_provider(db)
     monkeypatch.setattr(
-        "src.provider.service.get_discovery_client",
+        "src.provider.model_service.get_discovery_client",
         lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: []})(),
     )
 
@@ -110,7 +110,7 @@ def test_load_provider_model(
     provider = _make_ollama_provider(db)
     calls: list[str] = []
     monkeypatch.setattr(
-        "src.provider.service.get_discovery_client",
+        "src.provider.model_service.get_discovery_client",
         lambda _t: type(
             "_C", (), {"load_model": lambda self, base_url, identifier: calls.append(identifier)}
         )(),
@@ -130,7 +130,7 @@ def test_unload_provider_model(
     provider = _make_ollama_provider(db)
     calls: list[str] = []
     monkeypatch.setattr(
-        "src.provider.service.get_discovery_client",
+        "src.provider.model_service.get_discovery_client",
         lambda _t: type(
             "_C",
             (),
@@ -156,7 +156,7 @@ def test_search_provider_models(
         DiscoveredModel(identifier="claude-3", display_name="Claude 3", state="loaded"),
     ]
     monkeypatch.setattr(
-        "src.provider.service.get_discovery_client",
+        "src.provider.model_service.get_discovery_client",
         lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: models})(),
     )
 
@@ -176,7 +176,7 @@ def test_set_provider_model_filter(
         DiscoveredModel(identifier="drop:2", display_name="Drop Two", state="loaded"),
     ]
     monkeypatch.setattr(
-        "src.provider.service.get_discovery_client",
+        "src.provider.model_service.get_discovery_client",
         lambda _t: type("_C", (), {"list_models": lambda self, base_url, api_key=None: models})(),
     )
 

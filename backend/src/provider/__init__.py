@@ -1,6 +1,7 @@
 from src.provider.discovery import ModelDiscoveryClient, get_discovery_client
 from src.provider.gateway import ProviderGateway
 from src.provider.model_cache import ModelListCache, get_model_list_cache
+from src.provider.model_service import ProviderModelService
 from src.provider.models import PROVIDER_CONFIGS, Provider, ProviderConfig, ProviderType
 from src.provider.repository import ProviderRepository
 from src.provider.schemas import (
@@ -21,6 +22,7 @@ __all__ = [
     "PROVIDER_CONFIGS",
     "ProviderRepository",
     "ProviderService",
+    "ProviderModelService",
     "ProviderCreate",
     "ProviderUpdate",
     "ProviderResponse",
