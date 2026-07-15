@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from src.core.persistence import DbSession
+from src.core.persistence import DbSession, UnitOfWork
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
 from src.preset.repository import PresetRepository
@@ -29,6 +29,7 @@ def get_profile_service(db: DbSession) -> ProfileService:
         preset_repo=PresetRepository(db),
         persona_repo=PersonaRepository(db),
         model_repo=ModelRepository(db),
+        uow=UnitOfWork(db),
     )
 
 

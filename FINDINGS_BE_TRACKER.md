@@ -7,7 +7,7 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** clearing the low-risk 🤖 backlog (structural refactors BE-H1/H2/H7/H6/H5 deferred per the autonomy setting)
+- **Active:** 🧵 **BE-H1 (Unit of Work) — IN PROGRESS.** Foundation + `profile` cluster done & green (commit `BE-H1`); **PAUSED for review of the pattern before rolling out to the remaining sync services + async path.** See the BE-H1 rollout checklist.
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
 - **Progress:** 15 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9, BE-M1, BE-H9, BE-M7, BE-M4, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b; BE-M12 part c (audit-writer) + BE-H3 part 2 deferred. **Remaining: only the deferred structural/contract tier** (BE-H1/H2/H5/H6/H7, BE-M2/M3/M10/M11, BE-L3/L5/L7/L9).
 
@@ -80,7 +80,18 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 2 — De-risk the architecture before it grows (sequential; full gate run each)
 
-### BE-H1 · Introduce a Unit of Work; stop `repo.commit()` committing the shared session · [ ] · 🧵 main · dep: none
+### BE-H1 · Introduce a Unit of Work; stop `repo.commit()` committing the shared session · [~] IN PROGRESS · 🧵 main · dep: none
+
+**Design (chosen):** a thin service-owned `UnitOfWork` (`core/persistence/unit_of_work.py`) wrapping the request session; a service holds one and commits its work ONCE via `uow.commit()`; repos keep only `flush()`. Behavior-identical (`uow.commit()` ≡ the old `repo.commit()` on the same session), but the boundary is explicit and singular. Migrates incrementally — `repo.commit()` stays on `BaseRepository` until every service is moved, so nothing breaks mid-rollout. Services take `uow: UnitOfWork | None = None` with a `uow or UnitOfWork(<repo>.db)` fallback (the BE-L1 idiom) → zero test edits.
+
+**Rollout checklist:**
+- [x] **Step 1 — foundation + proof:** `UnitOfWork` class + export; `set_as_default(repo, entity, uow=None)` transitional shim; migrated the `profile` cluster (service + DI). Verified: ruff/basedpyright clean, profile 22 + full suite **937**.
+- [ ] **Step 2 — remaining sync CRUD services** (persona, preset, model_family, prompt_fragment, prompt_template, model, provider): inject UoW, `repo.commit()`→`uow.commit()`; migrate the 3 remaining `set_as_default` callers so the shim's `uow` becomes required.
+- [ ] **Step 3 — orchestrating sync services** (character, lore, rag, st_import — the ones that write via multiple foreign repos, where the leak matters most): inject UoW, single `uow.commit()` per operation.
+- [ ] **Step 4 — remove `commit`/`rollback` from `BaseRepository`** once all sync callers are migrated (grep-verify none remain).
+- [ ] **Step 5 — async path:** an `AsyncUnitOfWork` + migrate the `chat_message` async services (service/alternatives/auxiliary) + remove `commit`/`rollback` from `AsyncBaseRepository`. (Respect the documented deliberate two-commit send sequencing.)
+- [ ] **Step 6 — atomicity test:** assert a mid-orchestration failure (e.g. in `st_import` or a multi-repo write) before `uow.commit()` persists nothing.
+- **Out of scope (own sessions):** `audit/writer.py` (isolated best-effort session), `fixtures/seed_*` (startup seeding outside request scope).
 - **Ref:** FINDINGS_BE.md §3 BE-H1
 - **Files:** `core/persistence/base_repository.py:184-191,206-212`; `core/base_service.py:57`; every `*/dependencies.py` that shares `DbSession`; every `*/service.py` calling `repo.commit()`
 - **Problem:** `repo.commit()` commits the whole per-request session, not "the repo's work"; the transaction boundary is invisible/non-local.

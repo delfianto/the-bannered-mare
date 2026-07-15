@@ -4,7 +4,7 @@ from typing import Any
 
 from src.core.base_service import get_or_404, set_as_default
 from src.core.exceptions import NotFoundError
-from src.core.persistence import gen_id
+from src.core.persistence import UnitOfWork, gen_id
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
 from src.preset.repository import PresetRepository
@@ -23,12 +23,17 @@ class ProfileService:
         preset_repo: PresetRepository,
         persona_repo: PersonaRepository,
         model_repo: ModelRepository,
+        uow: UnitOfWork | None = None,
     ):
         self.profile_repo = profile_repo
         self.template_repo = template_repo
         self.preset_repo = preset_repo
         self.persona_repo = persona_repo
         self.model_repo = model_repo
+        # The unit of work owns the transaction boundary; it wraps the same session
+        # the repos share. Fallback keeps direct `ProfileService(...)` construction
+        # (tests) valid — the DI factory injects the request-scoped UoW.
+        self.uow = uow or UnitOfWork(profile_repo.db)
 
     def list_all(self) -> list[Profile]:
         """List all profiles"""
@@ -71,7 +76,7 @@ class ProfileService:
             task_model_id=task_model_id,
         )
         created = self.profile_repo.create(profile)
-        self.profile_repo.commit()
+        self.uow.commit()
         return created
 
     def update(self, profile_id: str, updates: dict[str, Any]) -> Profile:
@@ -113,18 +118,18 @@ class ProfileService:
             setattr(profile, key, value)
 
         updated = self.profile_repo.update(profile)
-        self.profile_repo.commit()
+        self.uow.commit()
         return updated
 
     def delete(self, profile_id: str) -> None:
         """Delete profile"""
         profile = self.get_by_id(profile_id)
         self.profile_repo.delete(profile)
-        self.profile_repo.commit()
+        self.uow.commit()
 
     def set_default(self, profile_id: str) -> Profile:
         """Set profile as default"""
-        return set_as_default(self.profile_repo, self.get_by_id(profile_id))
+        return set_as_default(self.profile_repo, self.get_by_id(profile_id), self.uow)
 
     def _validate_refs(
         self,
