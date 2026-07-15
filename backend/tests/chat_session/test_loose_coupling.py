@@ -12,6 +12,7 @@ from src.chat_session.repository_async import AsyncChatRepository
 from src.core.exceptions import BanneredMareException
 from src.model import ModelRepository, ModelService
 from src.model_family.repository import ModelFamilyRepository
+from src.model_family.service import ModelFamilyService
 from src.persona.repository import PersonaRepository
 from src.profile.repository import ProfileRepository
 from src.prompt_template.prompt_builder import PromptBuilder
@@ -68,9 +69,9 @@ class TestLooseCoupling:
         # 2. Delete Model via Service
         model_repo = ModelRepository(db)
         provider_repo = ProviderRepository(db)
-        family_repo = ModelFamilyRepository(db)
+        family_service = ModelFamilyService(ModelFamilyRepository(db))
         chat_snapshot = ChatModelSnapshotService(ChatRepository(db))
-        model_service = ModelService(model_repo, provider_repo, family_repo, chat_snapshot)
+        model_service = ModelService(model_repo, provider_repo, family_service, chat_snapshot)
 
         model_service.delete(sample_model.id)
 

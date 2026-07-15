@@ -9,7 +9,7 @@ from src.chat_session import Chat, ChatRepository
 from src.chat_session.model_snapshot import ChatModelSnapshotService
 from src.core.exceptions import BanneredMareException
 from src.model import ModelRegistry, ModelRepository, ModelRoute, ModelService
-from src.model_family import ModelFamily, ModelFamilyRepository
+from src.model_family import ModelFamily, ModelFamilyRepository, ModelFamilyService
 from src.provider import Provider, ProviderRepository, ProviderType
 
 
@@ -17,7 +17,7 @@ def _service(db: Session) -> ModelService:
     return ModelService(
         ModelRepository(db),
         ProviderRepository(db),
-        ModelFamilyRepository(db),
+        ModelFamilyService(ModelFamilyRepository(db)),
         ChatModelSnapshotService(ChatRepository(db)),
     )
 

@@ -4,18 +4,17 @@ from typing import TYPE_CHECKING, Any
 
 from src.core.base_service import get_or_404
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
-from src.core.persistence import UnitOfWork
+from src.core.persistence import ReadPort, UnitOfWork
 from src.model import parameter_validation
 from src.model.lineage import normalize_slug, resolve_family
 from src.model.models import ModelRegistry, ModelRoute
 from src.model.repository import ModelRepository
 from src.model_family.models import ModelFamily
-from src.model_family.repository import ModelFamilyRepository
+from src.model_family.service import ModelFamilyService
 
 if TYPE_CHECKING:
     from src.chat_session.model_snapshot import ChatModelSnapshotService
     from src.provider.models import Provider
-    from src.provider.repository import ProviderRepository
 
 
 class ModelService:
@@ -24,14 +23,17 @@ class ModelService:
     def __init__(
         self,
         model_repo: ModelRepository,
-        provider_repo: ProviderRepository,
-        family_repo: ModelFamilyRepository,
+        provider_reader: ReadPort[Provider],
+        family_service: ModelFamilyService,
         chat_snapshot: ChatModelSnapshotService,
         uow: UnitOfWork | None = None,
     ):
         self.model_repo = model_repo
-        self.provider_repo = provider_repo
-        self.family_repo = family_repo
+        # Cross-module deps go through published seams (BE-H2): a thin read Port for
+        # provider lookups, and the model_family Service for family reads — never the
+        # foreign repositories.
+        self.provider_reader = provider_reader
+        self.family_service = family_service
         self.chat_snapshot = chat_snapshot
         # The unit of work owns the transaction boundary; it wraps the same session
         # the repos share. Fallback keeps direct `ModelService(...)` construction
@@ -54,13 +56,13 @@ class ModelService:
 
     # ── Validation ───────────────────────────────────────────
     def _get_family(self, model_family_id: str) -> ModelFamily:
-        return get_or_404(self.family_repo, model_family_id, "Model family")
+        return self.family_service.get_by_id(model_family_id)
 
     def _validate_route(
         self, provider_id: str, model_identifier: str, family: ModelFamily
     ) -> Provider:
         """A route's provider must exist, be keyed, serve the family, and be unique."""
-        provider = get_or_404(self.provider_repo, provider_id, "Provider")
+        provider = get_or_404(self.provider_reader, provider_id, "Provider")
         if not provider.has_api_key():
             raise ValidationError(
                 f"Cannot add route: Provider '{provider.name}' requires "
@@ -183,8 +185,10 @@ class ModelService:
 
         # New canonical model: best-effort family match, else any configured family
         # (the user can correct it afterward).
+        # ``resolve_family`` is model's own helper (lineage.py) and only needs a
+        # Session, so pass model's own — the family lookup stays behind the service.
         family = (
-            resolve_family(self.family_repo.db, model_identifier) or self.family_repo.find_first()
+            resolve_family(self.model_repo.db, model_identifier) or self.family_service.get_first()
         )
         if family is None:
             raise ConflictError(
