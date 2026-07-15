@@ -15,6 +15,7 @@ from src.model.dependencies import get_model_repository
 from src.model.repository import ModelRepository
 from src.persona.repository import PersonaRepository
 from src.profile.repository import ProfileRepository
+from src.templating.dependencies import TemplateServiceDep
 
 
 # Sync repository (for CRUD operations)
@@ -35,6 +36,7 @@ def get_chat_service(
     chat_repo: Annotated[ChatRepository, Depends(get_chat_repository)],
     character_repo: Annotated[CharacterRepository, Depends(get_character_repository)],
     model_repo: Annotated[ModelRepository, Depends(get_model_repository)],
+    template_service: TemplateServiceDep,
 ) -> ChatService:
     """Factory for ChatService."""
     return ChatService(
@@ -44,6 +46,7 @@ def get_chat_service(
         ProfileRepository(db),
         MessageRepository(db),
         PersonaRepository(db),
+        template_service,
     )
 
 

@@ -53,9 +53,13 @@ class DepthInjection:
 class PromptBuilder:
     """Builder for constructing multi-component LLM prompts"""
 
-    def __init__(self, template_repo: PromptTemplateRepository):
+    def __init__(
+        self,
+        template_repo: PromptTemplateRepository,
+        template_service: TemplateService | None = None,
+    ):
         self.template_repo = template_repo
-        self.template_service = TemplateService()
+        self.template_service = template_service or TemplateService()
 
     def build_api_messages(
         self,

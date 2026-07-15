@@ -19,6 +19,7 @@ from src.prompt_template.prompt_builder import PromptBuilder
 from src.prompt_template.repository import PromptTemplateRepository
 from src.rag.dependencies import get_retrieval_service
 from src.rag.retrieval_service import RetrievalService
+from src.templating.dependencies import TemplateServiceDep
 
 
 async def get_async_message_repository(db: AsyncDbSession) -> AsyncMessageRepository:
@@ -35,9 +36,10 @@ async def get_async_alternative_repository(
 
 def get_prompt_builder(
     template_repo: Annotated[PromptTemplateRepository, Depends(get_prompt_template_repository)],
+    template_service: TemplateServiceDep,
 ) -> PromptBuilder:
     """Factory for PromptBuilder with repository injected"""
-    return PromptBuilder(template_repo)
+    return PromptBuilder(template_repo, template_service)
 
 
 async def get_chat_message_service(

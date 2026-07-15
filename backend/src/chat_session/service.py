@@ -44,6 +44,7 @@ class ChatService:
         profile_repo: ProfileRepository,
         message_repo: MessageRepository,
         persona_repo: PersonaRepository,
+        template_service: TemplateService | None = None,
     ):
         self.chat_repo = chat_repo
         self.character_repo = character_repo
@@ -51,7 +52,7 @@ class ChatService:
         self.profile_repo = profile_repo
         self.message_repo = message_repo
         self.persona_repo = persona_repo
-        self.template_service = TemplateService()
+        self.template_service = template_service or TemplateService()
 
     def list_all(self) -> list[Chat]:
         """List all chats"""

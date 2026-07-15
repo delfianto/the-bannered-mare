@@ -21,10 +21,11 @@ class PromptTemplateService:
         self,
         template_repo: PromptTemplateRepository,
         fragment_repo: FragmentRepository | None = None,
+        template_service: TemplateService | None = None,
     ):
         self.template_repo = template_repo
         self.fragment_repo = fragment_repo or FragmentRepository(template_repo.db)
-        self.template_service = TemplateService()
+        self.template_service = template_service or TemplateService()
 
     def list_all(self) -> list[PromptTemplate]:
         """List all prompt templates"""

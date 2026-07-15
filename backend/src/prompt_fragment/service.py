@@ -15,10 +15,11 @@ class FragmentService:
         self,
         fragment_repo: FragmentRepository,
         template_fragment_repo: TemplateFragmentRepository,
+        template_service: TemplateService | None = None,
     ):
         self.fragment_repo = fragment_repo
         self.template_fragment_repo = template_fragment_repo
-        self.template_service = TemplateService()
+        self.template_service = template_service or TemplateService()
 
     def _validate_content(self, content: str | None) -> None:
         """Validate Jinja2 content syntax, raising 400 if invalid."""
