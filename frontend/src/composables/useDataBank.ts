@@ -1,127 +1,44 @@
-import { ref, onMounted } from "vue";
 import type { components } from "@/api/schema";
-import { client, extractApiError } from "@/api/client";
+import { client } from "@/api/client";
+import { useListCrud } from "@/composables/useListCrud";
 
 export type DataBankEntry = components["schemas"]["DataBankResponse"];
 export type DataBankCreate = components["schemas"]["DataBankCreate"];
 export type DataBankUpdate = components["schemas"]["DataBankUpdate"];
 
 export function useDataBank(options: { autoLoad?: boolean } = {}) {
-  const { autoLoad = true } = options;
-  const entries = ref<DataBankEntry[]>([]);
-  const loading = ref(false);
-  const error = ref<Error | null>(null);
-
-  const fetchEntries = async (scope?: string, chatId?: string, characterId?: string) => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const query: { scope?: string; chat_id?: string; character_id?: string } = {};
-      if (scope) query.scope = scope;
-      if (chatId) query.chat_id = chatId;
-      if (characterId) query.character_id = characterId;
-
-      const { data, error: apiError } = await client.GET("/api/data-bank/", {
-        params: { query },
-      });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to load data bank entries");
-      }
-
-      if (data) {
-        entries.value = data.items;
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err : new Error("Unknown error");
-      console.error("Error loading data bank entries:", err);
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const createEntry = async (payload: DataBankCreate): Promise<DataBankEntry | null> => {
-    try {
-      const { data, error: apiError } = await client.POST("/api/data-bank/", {
-        body: payload,
-      });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to create entry");
-      }
-
-      if (data) {
-        entries.value.unshift(data);
-        return data;
-      }
-      return null;
-    } catch (err) {
-      console.error("Error creating data bank entry:", err);
-      return null;
-    }
-  };
-
-  const updateEntry = async (
-    entryId: string,
-    payload: DataBankUpdate,
-  ): Promise<DataBankEntry | null> => {
-    try {
-      const { data, error: apiError } = await client.PUT("/api/data-bank/{entry_id}", {
-        params: { path: { entry_id: entryId } },
-        body: payload,
-      });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to update entry");
-      }
-
-      if (data) {
-        const idx = entries.value.findIndex((e) => e.id === entryId);
-        if (idx !== -1) entries.value[idx] = data;
-        return data;
-      }
-      return null;
-    } catch (err) {
-      console.error("Error updating data bank entry:", err);
-      return null;
-    }
-  };
-
-  const deleteEntry = async (entryId: string): Promise<boolean> => {
-    try {
-      const { error: apiError } = await client.DELETE("/api/data-bank/{entry_id}", {
-        params: { path: { entry_id: entryId } },
-      });
-
-      if (apiError) {
-        throw extractApiError(apiError, "Failed to delete entry");
-      }
-
-      entries.value = entries.value.filter((e) => e.id !== entryId);
-      return true;
-    } catch (err) {
-      console.error("Error deleting data bank entry:", err);
-      return false;
-    }
-  };
-
-  const refresh = (scope?: string) => {
-    fetchEntries(scope);
-  };
-
-  onMounted(() => {
-    if (autoLoad) fetchEntries();
-  });
+  const { items, loading, error, fetchList, refresh, createItem, updateItem, removeItem } =
+    useListCrud<
+      DataBankEntry,
+      [scope?: string, chatId?: string, characterId?: string],
+      DataBankCreate,
+      DataBankUpdate
+    >({
+      label: "entry",
+      labelPlural: "data bank entries",
+      autoLoad: options.autoLoad ?? true,
+      list: (scope, chatId, characterId) => {
+        const query: { scope?: string; chat_id?: string; character_id?: string } = {};
+        if (scope) query.scope = scope;
+        if (chatId) query.chat_id = chatId;
+        if (characterId) query.character_id = characterId;
+        return client.GET("/api/data-bank/", { params: { query } });
+      },
+      create: (body) => client.POST("/api/data-bank/", { body }),
+      update: (id, body) =>
+        client.PUT("/api/data-bank/{entry_id}", { params: { path: { entry_id: id } }, body }),
+      remove: (id) =>
+        client.DELETE("/api/data-bank/{entry_id}", { params: { path: { entry_id: id } } }),
+    });
 
   return {
-    entries,
+    entries: items,
     loading,
     error,
-    fetchEntries,
-    createEntry,
-    updateEntry,
-    deleteEntry,
+    fetchEntries: fetchList,
+    createEntry: createItem,
+    updateEntry: updateItem,
+    deleteEntry: removeItem,
     refresh,
   };
 }
