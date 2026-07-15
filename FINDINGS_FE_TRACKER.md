@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-16
-- **Active:** **All open + medium tracker items are resolved**, incl. FE-M1/M2 now DONE in full (Option A — shared Pinia list stores for presets/templates/personas/profiles). The only things left are two by-decision non-items: FE-L3 (3 console.log planned-feature stubs — won't-do) and ProviderModelRow (a low-value presentational template extraction). Nothing blocking, nothing pending.
-- **Next up:** nothing on the tracker. The one genuinely-open remainder is ProviderModelRow (presentational split of ProviderView's model-row markup) if ever wanted; FE-L3 is a won't-do.
-- **Progress:** 24 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3, FE-H5, FE-3a, FE-M1/M2 ✓; FE-L8 + FE-L-latent folded in). **Remaining open:** none. **Closed by decision:** FE-L3 (`[-]` won't-do, stubs stay). **Open-if-ever-wanted (low value):** ProviderModelRow. useDataBank left per-instance on purpose (scope-parameterized — see FE-M2 note).
+- **Active:** the big tiers are all done (i18n, testing runner+coverage, state-cache FE-M1/M2, DRY factories, view-logic extraction). **Correction (2026-07-16):** two findings — **FE-M6** and **FE-M8** — were never carried into this tracker and so were wrongly excluded from earlier "complete" claims; both are now added below with honest status.
+- **Next up:** **FE-M6** is the one item of real substance still open — the lorebook-sync N+1 + non-atomicity in `useCharacterForm` (frontend `Promise.all` improvement possible now; a fully-atomic fix wants a backend bulk endpoint). **FE-M8** is mostly-moot (FE-C1 mooted the practical bleed; only a nice-to-have reset seam remains). ProviderModelRow (low-value presentational) also open-if-wanted.
+- **Progress:** 24 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3, FE-H5, FE-3a, FE-M1/M2 ✓; FE-L8 + FE-L-latent folded in). **Open:** FE-M6 (substantive), FE-M8 (mostly-moot), ProviderModelRow (low-value sub-item of FE-M7). **Closed by decision:** FE-L3 (`[-]` won't-do, stubs stay). useDataBank left per-instance on purpose (scope-parameterized — see FE-M2 note).
 
 ---
 
@@ -160,6 +160,18 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Ref:** FINDINGS_FE.md §4 FE-M7 · **Files:** `ProviderView.vue:111-164,238-274`; `ChatView.vue:268-310`
 - **Fix:** `useProviderModelFilter`/`useLocalModelManagement` + a `ProviderModelRow` subcomponent; move ChatView swipe/alternatives logic into `useChatMessages`.
 - **Accept:** no repository-layer/business logic left in these views; gates green. (Do `ProviderView` and `ChatView` as separate commits.)
+- **Commit:** —
+
+### FE-M6 · `useCharacterForm` lorebook sync is sequential N+1 + non-atomic · [ ] NOT STARTED — was omitted from this tracker originally; surfaced 2026-07-16 · 🤖 sub · dep: none
+- **Ref:** FINDINGS_FE.md §4 FE-M6 · **Files:** `useCharacterForm.ts:246-273` (the delete / create / update loops)
+- **Fix:** `Promise.all` the independent per-entry ops (delete-missing / create-new / update-existing hit disjoint entries) to kill the N+1 latency and surface partial-failure; the fully-atomic fix wants a **backend** bulk-sync endpoint (cross-cutting — separate, larger decision).
+- **Accept:** the independent lorebook writes issue concurrently; a mid-sync failure is surfaced (not a silent half-sync); gates green.
+- **Commit:** —
+
+### FE-M8 · Singleton composables share module state with no reset seam · [~] MOSTLY-MOOT — was omitted from this tracker originally; surfaced 2026-07-16 · 🤖 sub · dep: FE-C1
+- **Ref:** FINDINGS_FE.md §4 FE-M8 · **Files:** `useTheme.ts:7,29`, `useToast.ts:29`, `useServerStatus.ts`
+- **Fix:** export a test-only `__reset()` (or factory reset) + fake timers for toast expiry. The finding itself notes this is "resolved in practice once FE-C1 lands a proper harness."
+- **Assess:** FE-C1 has landed and **no current test touches these singletons**, so there is no live state-bleed. Residual is only a nice-to-have reset seam for WHEN one gets a direct test — low value; leave until then.
 - **Commit:** —
 
 ### Low items (batch as 🤖 sub)
