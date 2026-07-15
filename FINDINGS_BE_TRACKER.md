@@ -9,7 +9,7 @@
 - **Updated:** 2026-07-15
 - **Active:** clearing the low-risk 🤖 backlog (structural refactors BE-H1/H2/H7/H6/H5 deferred per the autonomy setting)
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
-- **Progress:** 10 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9, BE-M1, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
+- **Progress:** 12 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9, BE-M1, BE-H9, BE-M7, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
 
 ---
 
@@ -133,14 +133,14 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** residual of audit BE-6 (fixed sync side only).
 
-### BE-H9 · Decompose `import_card()` + consolidate gender parsing · [ ] · 🤖 sub · dep: none
+### BE-H9 · Decompose `import_card()` + consolidate gender parsing · [x] DONE (see §Completed) · 🤖 sub · dep: none
 - **Ref:** FINDINGS_BE.md §3 BE-H9
 - **Files:** `character/service.py:193,222-239,305,331-337,33`
 - **Fix:** extract `_map_card_gender`, `_build_character_from_card`, `_import_character_book`, `_maybe_set_png_avatar`; route all gender parsing through the existing `_parse_gender`; drop the `hasattr(enum,"value")` guards.
 - **Accept:** `import_card` cyclomatic complexity materially reduced; one gender-parse path with a unit test covering `non-binary`; existing character tests green.
 - **Commit:** —
 
-### BE-M7 · Refactor `build_import_plan()` (135 LOC / cx 37) · [ ] · 🤖 sub · dep: none
+### BE-M7 · Refactor `build_import_plan()` (135 LOC / cx 37) · [x] DONE (see §Completed) · 🤖 sub · dep: none
 - **Ref:** FINDINGS_BE.md §4 BE-M7
 - **Files:** `st_import/mapper.py:135`
 - **Fix:** split into `_classify_order_items(...)` + `_build_template/_build_preset/_build_profile`; turn the `nonlocal` closure state into a small `_OrderState` dataclass.
@@ -212,6 +212,8 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] BE-H9** (commit tagged `BE-H9`) — decomposed `import_card()` **92 LOC/cx-42/depth-5 → 29 LOC/cx-4/depth-2** via 4 extracted helpers (`_map_card_gender`, `_build_character_from_card`, `_import_character_book`, `_maybe_set_png_avatar`). Consolidated gender parsing to ONE path — `_map_card_gender` delegates to the existing `_parse_gender` and applies the import-only `OTHERS`+custom-label fallback (the hand-maintained `["male","female","non-binary"]` ladder is gone; `non-binary` output unchanged — the "disagreement" was structural duplication). Dropped the `hasattr(enum,"value")` guards in `_character_to_card` (enum columns always carry `.value`). Behavior preserved exactly (two-phase commit ordering untouched per BE-M4 scope; the `"others"`-literal and whitespace-tolerance edges pinned by new tests). +11 `TestMapCardGender` tests; all 4 import/export round-trips unchanged. Verified: ruff clean, basedpyright 0/0/0, pytest **928**.
+- **[x] BE-M7** (commit tagged `BE-M7`) — decomposed `build_import_plan()` **135 LOC/cx-30 → 30 LOC/cx-9**: an `_OrderState` dataclass replaces the nested `nonlocal`-mutating `enable_component` closure (owns the counters/seen-sets + branch-handler methods), plus extracted `_index_prompts`, `_classify_order_items`, `_build_template`, `_build_profile`, `_build_preset`. Behavior byte-identical (shared `warnings` list + same object aliasing threaded through). All **38** existing mapper tests unchanged + 1 new test for the marker-in-`prompt_order`-but-absent-from-`prompts[]` branch. Verified: ruff clean, basedpyright 0/0/0, pytest 928.
 - **[x] BE-L4 + BE-L6 + BE-L8** (commit tagged `BE-L4`, `BE-L6`, `BE-L8`) — **BE-L4:** collapsed `card_parser.parse_card_json`'s redundant branch (removed the `spec`+non-dict-`data` path that crashed `_parse_v2_data`; kept the `isinstance`-guarded branch), verified no test relied on it — valid V1/V2 cards parse identically; docstring refreshed. **BE-L6:** `@pytest.mark.anyio`→`asyncio` (the sole anyio marker under `--strict-markers`). **BE-L8:** WHY carve-out comments at `health/service.py` (`SELECT 1` liveness probe needs a raw round-trip) + `seed_model_families.py` (startup seeding runs outside the request/DI lifecycle). Verified: ruff clean, basedpyright 0/0/0, pytest **916** unchanged.
 - **[x] BE-M1** (commit tagged `BE-M1`) — ported the missing surface to `AsyncBaseRepository`: `_column`, `find_all_ordered`, `find_paginated_ordered`, and the new `AsyncNamedRepository` (`find_by_name`) / `AsyncDefaultableRepository` (`unset_all_defaults`/`set_default`) mixins (exported alongside the sync ones). Reused `_apply_filters`→`statements.apply_filters` for WHERE construction (no SQL copy-paste; only the `await execute/.scalars()` wrapper differs). Adding the base methods surfaced the predicted drift: `AsyncChatRepository` had narrower bespoke `find_all_ordered`/`find_paginated_ordered` (eager-load, no `order_by`) → basedpyright flagged incompatible overrides; **resolved exactly as the sync `ChatRepository` already does** — accept `order_by` for signature compat but ignore it (fixed eager-loaded query), documented in the docstring. Verified diff: signature-only widening, method bodies unchanged. New `test_base_repository_async.py` (7 tests over a mixin-combining mock, mirroring the sync test). Verified: ruff clean, basedpyright 0/0/0, pytest **916** (909 + 7).
 - **[x] BE-M9** (commit tagged `BE-M9`) — closed both router suppressions by refactor (no behavior change). Made `TemplateService.build_variables` **public** (the method actually lives in `templating/__init__.py`, not `prompt_template/service.py` as the finding guessed — grep was authoritative; 1 def + 2 callers updated) and dropped the `pyright: ignore[reportPrivateUsage]` in `prompt_template/router.py`. Threaded validated `content: str | None` through `_handle_blocking`/`_handle_streaming` (dropped the now-redundant `regenerate` param — `content is None ⟺ regenerate`), removing **both** bare `# type: ignore` in `chat_message/router.py` **plus** the annotated `:96` one. (basedpyright wouldn't narrow through the compound `and`-guard in a ternary, so used explicit `if/elif/else`.) Verified: ruff clean, **basedpyright 0/0/0**, pytest 909 unchanged; grep confirms zero suppressions in both routers.

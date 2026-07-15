@@ -40,6 +40,60 @@ def _parse_gender(value: str) -> Gender:
         ) from None
 
 
+def _map_card_gender(
+    gender: str | None, custom_gender: str | None
+) -> tuple[Gender | None, str | None]:
+    """Resolve a card's gender / custom_gender strings to ``(Gender, custom_gender)``.
+
+    Recognized values (male / female / non-binary) map to their enum member via the
+    same lookup as the create/update path (``_parse_gender``). Anything else — an
+    unknown label, or a card that only carries a free-text ``custom_gender`` —
+    becomes ``Gender.OTHERS`` with the original string kept as the custom label.
+    Unlike the create/update path this never raises: an unmapped card gender is
+    stored as a custom gender, not rejected.
+    """
+    if gender:
+        try:
+            parsed = _parse_gender(gender.strip())
+        except ValidationError:
+            parsed = Gender.OTHERS
+        if parsed is not Gender.OTHERS:
+            return parsed, None
+        return Gender.OTHERS, gender
+    if custom_gender:
+        return Gender.OTHERS, custom_gender
+    return None, None
+
+
+def _build_character_from_card(card: ParsedCard) -> Character:
+    """Construct an (unsaved) Character ORM instance from a parsed card."""
+    # Cards store one freeform mes_example string with <START>-delimited blocks —
+    # store one entry per block, dropping empties, rather than one giant "example".
+    example_list = split_example_dialogues(card.example_dialogues) or None
+    gender_enum, custom_gender = _map_card_gender(card.gender, card.custom_gender)
+
+    return Character(
+        name=card.name,
+        description=card.description or None,
+        personality=card.personality or None,
+        first_message=card.first_message or None,
+        example_dialogues=example_list,
+        scenario=card.scenario or None,
+        system_prompt=card.system_prompt or None,
+        post_history_instructions=card.post_history_instructions or None,
+        creator_notes=card.creator_notes or None,
+        creator=card.creator or None,
+        character_version=card.character_version or None,
+        alternate_greetings=card.alternate_greetings or None,
+        tags=card.tags or None,
+        species=card.species or None,
+        age=card.age or None,
+        gender=gender_enum,
+        custom_gender=custom_gender,
+        version=2,
+    )
+
+
 class CharacterService:
     """Service for character-related business logic"""
 
@@ -209,75 +263,40 @@ class CharacterService:
                 "Failed to parse character card: unsupported or corrupt file."
             ) from e
 
-        # Map example_dialogues: cards store one freeform mes_example string with
-        # <START>-delimited blocks — store one entry per block, dropping empties,
-        # rather than dumping the whole thing into a single giant "example".
-        blocks = split_example_dialogues(card.example_dialogues)
-        example_list = blocks or None
-
-        # Map gender string to Gender enum or OTHERS
-        gender_enum = None
-        custom_gender = None
-        if card.gender:
-            g_str = card.gender.lower().strip()
-            if g_str in ["male", "female", "non-binary"]:
-                if g_str == "male":
-                    gender_enum = Gender.MALE
-                elif g_str == "female":
-                    gender_enum = Gender.FEMALE
-                elif g_str == "non-binary":
-                    gender_enum = Gender.NON_BINARY
-            else:
-                gender_enum = Gender.OTHERS
-                custom_gender = card.gender
-        elif card.custom_gender:
-            gender_enum = Gender.OTHERS
-            custom_gender = card.custom_gender
-
-        character = Character(
-            name=card.name,
-            description=card.description or None,
-            personality=card.personality or None,
-            first_message=card.first_message or None,
-            example_dialogues=example_list,
-            scenario=card.scenario or None,
-            system_prompt=card.system_prompt or None,
-            post_history_instructions=card.post_history_instructions or None,
-            creator_notes=card.creator_notes or None,
-            creator=card.creator or None,
-            character_version=card.character_version or None,
-            alternate_greetings=card.alternate_greetings or None,
-            tags=card.tags or None,
-            species=card.species or None,
-            age=card.age or None,
-            gender=gender_enum,
-            custom_gender=custom_gender,
-            version=2,
-        )
-        created = self.character_repo.create(character)
-
-        # Build the character's lorebook from the card, if present.
-        if card.character_book:
-            created_book = self.lore_repo.create(
-                build_lorebook(card.character_book, created.id, card.name)
-            )
-            for idx, entry_dict in enumerate(card.character_book.get("entries", [])):
-                entry = map_lore_entry(entry_dict, created_book.id, idx)
-                if entry is not None:
-                    self.lore_entry_repo.create(entry)
-
-        # If PNG, use the file itself as avatar
-        if filename.endswith(".png"):
-            original_path, large_path, thumbnail_path = await save_character_avatar(
-                created.id, UploadedFile(file_data, f"{card.name}.png")
-            )
-            created.avatar = original_path
-            created.avatar_large = large_path
-            created.avatar_thumbnail = thumbnail_path
-            _ = self.character_repo.update(created)
+        created = self.character_repo.create(_build_character_from_card(card))
+        self._import_character_book(card, created)
+        await self._maybe_set_png_avatar(created, file_data, filename, card.name)
 
         self.character_repo.commit()
         return created
+
+    def _import_character_book(self, card: ParsedCard, character: Character) -> None:
+        """Build and persist the imported character's lorebook from the card, if any."""
+        if not card.character_book:
+            return
+
+        created_book = self.lore_repo.create(
+            build_lorebook(card.character_book, character.id, card.name)
+        )
+        for idx, entry_dict in enumerate(card.character_book.get("entries", [])):
+            entry = map_lore_entry(entry_dict, created_book.id, idx)
+            if entry is not None:
+                self.lore_entry_repo.create(entry)
+
+    async def _maybe_set_png_avatar(
+        self, character: Character, file_data: bytes, filename: str, card_name: str
+    ) -> None:
+        """For PNG imports, reuse the uploaded file itself as the character's avatar."""
+        if not filename.endswith(".png"):
+            return
+
+        original_path, large_path, thumbnail_path = await save_character_avatar(
+            character.id, UploadedFile(file_data, f"{card_name}.png")
+        )
+        character.avatar = original_path
+        character.avatar_large = large_path
+        character.avatar_thumbnail = thumbnail_path
+        _ = self.character_repo.update(character)
 
     def export_as_json(self, character_id: str) -> str:
         """Export a character as TavernCard V2 JSON."""
@@ -324,13 +343,9 @@ class CharacterService:
                         "case_sensitive": entry.case_sensitive,
                         "use_regex": entry.use_regex,
                         "match_whole_words": entry.match_whole_words,
-                        "position": entry.position.value
-                        if hasattr(entry.position, "value")
-                        else str(entry.position),
+                        "position": entry.position.value,
                         "depth": entry.depth,
-                        "role": entry.role.value
-                        if hasattr(entry.role, "value")
-                        else str(entry.role),
+                        "role": entry.role.value,
                         "priority": entry.priority,
                         "ignore_budget": entry.ignore_budget,
                         "order": entry.order,
