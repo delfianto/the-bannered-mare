@@ -262,7 +262,7 @@ function toggleMenu(identifier: string) {
               <AppIcon name="i-lucide-plug" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
-              Edit Provider
+              {{ $t("connections.provider.editTitle") }}
             </h1>
           </div>
         </div>
@@ -301,7 +301,9 @@ function toggleMenu(identifier: string) {
                 >
                   {{ provider.provider_type }}
                 </span>
-                <p class="mt-0.5 text-3xs text-muted-foreground">Provider Type (read-only)</p>
+                <p class="mt-0.5 text-3xs text-muted-foreground">
+                  {{ $t("connections.provider.providerTypeReadonly") }}
+                </p>
               </div>
             </div>
 
@@ -316,7 +318,7 @@ function toggleMenu(identifier: string) {
                 <input
                   v-model="form.name"
                   type="text"
-                  placeholder="Provider name"
+                  :placeholder="$t('connections.provider.namePlaceholder')"
                   class="input-field"
                 />
               </label>
@@ -331,7 +333,7 @@ function toggleMenu(identifier: string) {
                 <input
                   v-model="form.base_url"
                   type="text"
-                  placeholder="https://api.example.com/v1"
+                  :placeholder="$t('connections.provider.baseUrlPlaceholder')"
                   class="input-field font-mono"
                 />
               </label>
@@ -345,7 +347,7 @@ function toggleMenu(identifier: string) {
                 </label>
                 <AppToggle
                   :model-value="form.enabled"
-                  aria-label="Enabled"
+                  :aria-label="$t('connections.provider.enabled')"
                   @change="toggleEnabled"
                 />
               </div>
@@ -365,11 +367,11 @@ function toggleMenu(identifier: string) {
                   $t("connections.provider.envVar")
                 }}</span>
                 <code class="rounded bg-base-300 px-2 py-0.5 text-xs text-foreground">
-                  {{ provider.env_var_name || "N/A" }}
+                  {{ provider.env_var_name || $t("common.notAvailable") }}
                 </code>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-sm text-muted-foreground">Status</span>
+                <span class="text-sm text-muted-foreground">{{ $t("common.status") }}</span>
                 <span
                   class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
                   :class="apiKeyStatus.badge"
@@ -388,13 +390,15 @@ function toggleMenu(identifier: string) {
                 <h2
                   class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
-                  Available Models
+                  {{ $t("connections.provider.availableModels") }}
                 </h2>
                 <p class="mt-0.5 text-3xs text-muted-foreground">
                   {{
                     provider.last_synced_at
-                      ? `Last synced ${timeAgo(provider.last_synced_at)}`
-                      : "Never synced"
+                      ? $t("connections.provider.lastSynced", {
+                          time: timeAgo(provider.last_synced_at),
+                        })
+                      : $t("connections.provider.neverSynced")
                   }}
                 </p>
               </div>
@@ -408,7 +412,9 @@ function toggleMenu(identifier: string) {
                   class="size-3.5"
                   :class="{ 'animate-spin': syncing }"
                 />
-                {{ syncing ? "Syncing..." : "Sync Now" }}
+                {{
+                  syncing ? $t("connections.provider.syncing") : $t("connections.provider.syncNow")
+                }}
               </button>
             </div>
 
@@ -422,7 +428,7 @@ function toggleMenu(identifier: string) {
                 <input
                   v-model="modelSearchQuery"
                   type="text"
-                  placeholder="Search models to add to the filter…"
+                  :placeholder="$t('connections.provider.searchToFilter')"
                   class="h-10 w-full rounded-lg border bg-base-300/40 pr-9 pl-9 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   @input="onSearchInput"
                   @focus="modelSearchQuery && (showSearchResults = true)"
@@ -443,13 +449,13 @@ function toggleMenu(identifier: string) {
                     v-if="searchingModels && searchResults.length === 0"
                     class="px-3 py-2 text-xs text-muted-foreground"
                   >
-                    Searching…
+                    {{ $t("connections.provider.searching") }}
                   </div>
                   <div
                     v-else-if="searchResults.length === 0"
                     class="px-3 py-2 text-xs text-muted-foreground"
                   >
-                    No matching models.
+                    {{ $t("connections.provider.noMatchingModels") }}
                   </div>
                   <ul v-else class="max-h-64 overflow-y-auto py-1">
                     <li v-for="r in searchResults" :key="r.identifier">
@@ -476,7 +482,9 @@ function toggleMenu(identifier: string) {
 
               <!-- Active filter chips -->
               <div v-if="allowedModels.length > 0" class="flex flex-wrap items-center gap-1.5">
-                <span class="text-3xs tracking-wide text-muted-foreground uppercase">Filter:</span>
+                <span class="text-3xs tracking-wide text-muted-foreground uppercase">{{
+                  $t("connections.provider.filterLabel")
+                }}</span>
                 <span
                   v-for="id in allowedModels"
                   :key="id"
@@ -486,7 +494,7 @@ function toggleMenu(identifier: string) {
                   <button
                     class="flex size-4 items-center justify-center rounded-full transition-colors hover:bg-primary/20 disabled:opacity-50"
                     :disabled="savingFilter"
-                    aria-label="Remove from filter"
+                    :aria-label="$t('connections.provider.removeFromFilter')"
                     @click="removeFromFilter(id)"
                   >
                     <AppIcon name="i-lucide-x" class="size-3" />
@@ -497,12 +505,11 @@ function toggleMenu(identifier: string) {
                   :disabled="savingFilter"
                   @click="clearFilter"
                 >
-                  Clear all
+                  {{ $t("connections.provider.clearAll") }}
                 </button>
               </div>
               <p v-else class="text-3xs text-muted-foreground">
-                No filter set — showing all discovered models. Search above to show only specific
-                ones.
+                {{ $t("connections.provider.noFilterSet") }}
               </p>
             </div>
 
@@ -519,8 +526,8 @@ function toggleMenu(identifier: string) {
               <p class="text-xs text-muted-foreground">
                 {{
                   allowedModels.length > 0
-                    ? "No discovered models match the current filter."
-                    : "No models found on this server."
+                    ? $t("connections.provider.noModelsMatchFilter")
+                    : $t("connections.provider.noModelsOnServer")
                 }}
               </p>
             </div>
@@ -553,7 +560,11 @@ function toggleMenu(identifier: string) {
                       class="size-1.5 rounded-full"
                       :class="model.state === 'loaded' ? 'bg-success' : 'bg-warning'"
                     />
-                    {{ model.state === "loaded" ? "Loaded" : "Not Loaded" }}
+                    {{
+                      model.state === "loaded"
+                        ? $t("connections.provider.loaded")
+                        : $t("connections.provider.notLoaded")
+                    }}
                   </span>
 
                   <!-- Context Dropdown Menu -->
@@ -601,7 +612,11 @@ function toggleMenu(identifier: string) {
                             :name="model.state === 'loaded' ? 'i-lucide-square' : 'i-lucide-play'"
                             class="size-3.5"
                           />
-                          {{ model.state === "loaded" ? "Unload Model" : "Load Model" }}
+                          {{
+                            model.state === "loaded"
+                              ? $t("connections.provider.unloadModel")
+                              : $t("connections.provider.loadModel")
+                          }}
                         </button>
 
                         <!-- Add as model (opens the create form prefilled) -->
@@ -614,14 +629,14 @@ function toggleMenu(identifier: string) {
                           "
                         >
                           <AppIcon name="i-lucide-plus" class="size-3.5" />
-                          Add as Model…
+                          {{ $t("connections.provider.addAsModel") }}
                         </button>
                         <div
                           v-else
                           class="flex w-full cursor-not-allowed items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground/60"
                         >
                           <AppIcon name="i-lucide-check" class="size-3.5 text-success" />
-                          Added
+                          {{ $t("connections.provider.added") }}
                         </div>
 
                         <!-- Delete option (Ollama only) -->
@@ -634,7 +649,7 @@ function toggleMenu(identifier: string) {
                           "
                         >
                           <AppIcon name="i-lucide-trash-2" class="size-3.5" />
-                          Delete Model
+                          {{ $t("connections.provider.deleteModelAction") }}
                         </button>
                       </div>
                     </Transition>
@@ -646,8 +661,8 @@ function toggleMenu(identifier: string) {
 
           <!-- Timestamps -->
           <div class="flex items-center justify-between px-1 text-2xs text-muted-foreground/60">
-            <span>Created {{ formatDate(provider.created_at) }}</span>
-            <span>Updated {{ formatDate(provider.updated_at) }}</span>
+            <span>{{ $t("common.created") }} {{ formatDate(provider.created_at) }}</span>
+            <span>{{ $t("common.updated") }} {{ formatDate(provider.updated_at) }}</span>
           </div>
         </div>
       </div>

@@ -45,7 +45,7 @@ function toOptions(list: { id: string; name: string }[], noneLabel: string) {
 // (an inline array crashes Reka UI's combobox popper — see ProfileForm).
 // Models are registries labelled by display_name, not the generic `name`.
 const modelOptions = computed(() => [
-  { label: "Select a model...", value: NONE },
+  { label: t("setup.selectModel"), value: NONE },
   ...models.value.map((m) => ({ label: m.display_name, value: m.id })),
 ]);
 
@@ -54,7 +54,7 @@ function labelFor(list: { id: string; name: string }[], id: string, noneLabel: s
 }
 
 function modelLabelFor(id: string) {
-  return models.value.find((m) => m.id === id)?.display_name ?? "Select a model...";
+  return models.value.find((m) => m.id === id)?.display_name ?? t("setup.selectModel");
 }
 
 // ── Quick persona creation (shown inline when none exist yet) ───
@@ -166,7 +166,7 @@ function onImported(result: STImportResult) {
   if (!result.profile_id) return;
   profileToFinish.value = {
     id: result.profile_id,
-    name: result.profile_name ?? "Imported Profile",
+    name: result.profile_name ?? t("setup.importedProfileFallback"),
   };
   showImportModal.value = false;
 }
@@ -209,20 +209,20 @@ function finish() {
     <!-- Header -->
     <div class="text-center">
       <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
-        Let's Get You Set Up
+        {{ $t("setup.title") }}
       </h1>
       <p class="text-sm text-muted-foreground">
-        A quick check of your providers, then create your first profile.
+        {{ $t("setup.subtitle") }}
       </p>
     </div>
 
     <!-- Step indicator -->
     <div class="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-      <span :class="step >= 1 ? 'text-primary' : ''">1. Providers</span>
+      <span :class="step >= 1 ? 'text-primary' : ''">{{ $t("setup.steps.providers") }}</span>
       <AppIcon name="i-lucide-chevron-right" class="size-3" />
-      <span :class="step >= 2 ? 'text-primary' : ''">2. Profile</span>
+      <span :class="step >= 2 ? 'text-primary' : ''">{{ $t("setup.steps.profile") }}</span>
       <AppIcon name="i-lucide-chevron-right" class="size-3" />
-      <span :class="step >= 3 ? 'text-primary' : ''">3. Done</span>
+      <span :class="step >= 3 ? 'text-primary' : ''">{{ $t("setup.steps.done") }}</span>
     </div>
 
     <!-- Step 1: Provider readiness -->
@@ -231,13 +231,13 @@ function finish() {
         <h2
           class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
-          Local Providers
+          {{ $t("setup.localProviders") }}
         </h2>
         <div v-if="providersLoading" class="flex justify-center py-4">
           <AppIcon name="i-lucide-loader-2" class="size-5 animate-spin text-muted-foreground" />
         </div>
         <div v-else-if="localProviders.length === 0" class="text-xs text-muted-foreground">
-          No local providers configured.
+          {{ $t("setup.noLocalProviders") }}
         </div>
         <ul v-else class="space-y-2">
           <li
@@ -257,21 +257,23 @@ function finish() {
               class="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
               <AppIcon name="i-lucide-loader-2" class="size-3.5 animate-spin" />
-              Checking...
+              {{ $t("setup.checking") }}
             </span>
             <span
               v-else-if="localStatus[provider.id]?.reachable"
               class="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success"
             >
               <span class="size-1.5 rounded-full bg-success" />
-              {{ localStatus[provider.id]?.models?.length ?? 0 }} models found
+              {{
+                $t("setup.modelsFound", { count: localStatus[provider.id]?.models?.length ?? 0 })
+              }}
             </span>
             <span
               v-else
               class="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning"
             >
               <span class="size-1.5 rounded-full bg-warning" />
-              Not reachable
+              {{ $t("setup.notReachable") }}
             </span>
           </li>
         </ul>
@@ -281,7 +283,7 @@ function finish() {
         <h2
           class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
-          Cloud Providers
+          {{ $t("setup.cloudProviders") }}
         </h2>
         <ul class="space-y-2">
           <li
@@ -308,7 +310,11 @@ function finish() {
                 class="size-1.5 rounded-full"
                 :class="provider.api_key_configured ? 'bg-success' : 'bg-warning'"
               />
-              {{ provider.api_key_configured ? "Key configured" : `Set ${provider.env_var_name}` }}
+              {{
+                provider.api_key_configured
+                  ? $t("setup.keyConfigured")
+                  : $t("setup.setEnvVar", { envVar: provider.env_var_name })
+              }}
             </span>
           </li>
         </ul>
@@ -319,13 +325,13 @@ function finish() {
           class="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
           @click="skip"
         >
-          I'll do this manually
+          {{ $t("setup.doManually") }}
         </button>
         <button
           class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3]"
           @click="step = 2"
         >
-          Next
+          {{ $t("setup.next") }}
           <AppIcon name="i-lucide-arrow-right" class="size-4" />
         </button>
       </div>
@@ -342,8 +348,8 @@ function finish() {
           <p class="mb-2 text-xs font-medium text-warning">
             {{
               incompleteProfiles.length === 1
-                ? "You have an unfinished profile"
-                : `You have ${incompleteProfiles.length} unfinished profiles`
+                ? $t("setup.unfinishedProfile")
+                : $t("setup.unfinishedProfiles", { count: incompleteProfiles.length })
             }}
           </p>
           <div class="space-y-2">
@@ -358,7 +364,7 @@ function finish() {
                 class="rounded-lg border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-base-300"
                 @click="resumeIncompleteProfile(p)"
               >
-                Finish Setup
+                {{ $t("setup.finishSetup") }}
               </button>
             </div>
           </div>
@@ -370,20 +376,20 @@ function finish() {
             @click="createPath = 'manual'"
           >
             <AppIcon name="i-lucide-sliders-horizontal" class="size-8 text-primary" />
-            <span class="font-cinzel text-sm font-semibold text-foreground">Create Manually</span>
-            <span class="text-xs text-muted-foreground"
-              >Pick a model, template, preset, and persona yourself.</span
-            >
+            <span class="font-cinzel text-sm font-semibold text-foreground">{{
+              $t("setup.createManually")
+            }}</span>
+            <span class="text-xs text-muted-foreground">{{ $t("setup.createManuallyHint") }}</span>
           </button>
           <button
             class="flex flex-col items-center gap-3 rounded-xl border bg-base-200/50 p-6 text-center transition-colors hover:border-primary/40 hover:bg-base-300"
             @click="showImportModal = true"
           >
             <AppIcon name="i-lucide-upload" class="size-8 text-primary" />
-            <span class="font-cinzel text-sm font-semibold text-foreground">Import ST Preset</span>
-            <span class="text-xs text-muted-foreground"
-              >Bring in a SillyTavern chat-completion preset.</span
-            >
+            <span class="font-cinzel text-sm font-semibold text-foreground">{{
+              $t("setup.importPreset")
+            }}</span>
+            <span class="text-xs text-muted-foreground">{{ $t("setup.importPresetHint") }}</span>
           </button>
         </div>
       </div>
@@ -391,14 +397,14 @@ function finish() {
       <div v-else-if="createPath === 'manual'" class="space-y-4">
         <!-- No personas yet: offer to create one before the form's persona dropdown is reached -->
         <div v-if="personas.length === 0" class="rounded-xl border bg-base-200/50 p-5">
-          <span class="mb-1.5 block text-xs font-medium text-muted-foreground"
-            >You don't have a persona yet (optional, but recommended)</span
-          >
+          <span class="mb-1.5 block text-xs font-medium text-muted-foreground">{{
+            $t("setup.noPersonaYet")
+          }}</span>
           <div class="flex items-center gap-2">
             <input
               v-model="quickPersonaName"
               type="text"
-              placeholder="Persona name (e.g. your name)"
+              :placeholder="$t('setup.personaNamePlaceholder')"
               class="h-11 w-full rounded-lg border bg-base-100 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
               @keydown.enter="quickCreatePersona"
             />
@@ -413,7 +419,7 @@ function finish() {
                 class="size-4"
                 :class="{ 'animate-spin': creatingPersona }"
               />
-              Create
+              {{ $t("setup.create") }}
             </button>
           </div>
         </div>
@@ -431,14 +437,16 @@ function finish() {
       <!-- Attach a model to finish a just-imported or previously-abandoned profile -->
       <div v-if="profileToFinish" class="rounded-xl border bg-base-200/50 p-6">
         <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
-          Attach a Model
+          {{ $t("setup.attachModel") }}
         </h2>
         <p class="mb-4 text-xs text-muted-foreground">
-          Pick a model to finish setting up "{{ profileToFinish.name }}" as your default profile.
+          {{ $t("setup.attachModelHint", { name: profileToFinish.name }) }}
         </p>
         <div class="space-y-4">
           <div>
-            <span class="mb-1 block text-xs font-medium text-muted-foreground">Model</span>
+            <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+              $t("setup.model")
+            }}</span>
             <SelectMenu
               v-model="followUpModelId"
               :items="modelOptions"
@@ -462,14 +470,16 @@ function finish() {
           </div>
 
           <div>
-            <span class="mb-1 block text-xs font-medium text-muted-foreground">Persona</span>
+            <span class="mb-1 block text-xs font-medium text-muted-foreground">{{
+              $t("setup.persona")
+            }}</span>
 
             <!-- No personas yet: guide the user to create one first -->
             <div v-if="personas.length === 0" class="flex items-center gap-2">
               <input
                 v-model="quickPersonaName"
                 type="text"
-                placeholder="Persona name (e.g. your name)"
+                :placeholder="$t('setup.personaNamePlaceholder')"
                 class="h-11 w-full rounded-lg border bg-base-300/40 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:ring-1 focus:ring-primary focus:outline-none"
                 @keydown.enter="quickCreatePersona"
               />
@@ -484,14 +494,14 @@ function finish() {
                   class="size-4"
                   :class="{ 'animate-spin': creatingPersona }"
                 />
-                Create
+                {{ $t("setup.create") }}
               </button>
             </div>
 
             <SelectMenu
               v-else
               v-model="followUpPersonaId"
-              :items="toOptions(personas, 'No persona')"
+              :items="toOptions(personas, $t('setup.noPersona'))"
               value-key="value"
               :search-input="false"
             >
@@ -502,7 +512,7 @@ function finish() {
                 <span class="flex min-w-0 items-center gap-2">
                   <AppIcon name="i-lucide-user" class="size-4 shrink-0 text-muted-foreground" />
                   <span class="truncate">{{
-                    labelFor(personas, followUpPersonaId, "No persona")
+                    labelFor(personas, followUpPersonaId, $t("setup.noPersona"))
                   }}</span>
                 </span>
                 <AppIcon
@@ -524,13 +534,13 @@ function finish() {
                 class="size-4"
                 :class="{ 'animate-spin': finishingImport }"
               />
-              Finish
+              {{ $t("setup.finish") }}
             </button>
             <button
               class="rounded-lg border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
               @click="profileToFinish = null"
             >
-              Back
+              {{ $t("common.back") }}
             </button>
           </div>
         </div>
@@ -541,7 +551,7 @@ function finish() {
           class="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
           @click="skip"
         >
-          I'll do this manually
+          {{ $t("setup.doManually") }}
         </button>
       </div>
     </div>
@@ -552,15 +562,15 @@ function finish() {
       class="flex flex-col items-center gap-4 rounded-xl border bg-base-200/50 p-10 text-center"
     >
       <AppIcon name="i-lucide-circle-check" class="size-10 text-success" />
-      <h2 class="font-cinzel text-lg font-semibold text-foreground">You're all set</h2>
+      <h2 class="font-cinzel text-lg font-semibold text-foreground">{{ $t("setup.allSet") }}</h2>
       <p class="text-sm text-muted-foreground">
-        Your first profile is ready. Head back and start a tale.
+        {{ $t("setup.allSetHint") }}
       </p>
       <button
         class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm"
         @click="finish"
       >
-        Done
+        {{ $t("common.done") }}
       </button>
     </div>
 

@@ -164,7 +164,7 @@ function isNumericValue(value: string): boolean {
               <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
-              Edit Preset
+              {{ $t("connections.preset.editTitle") }}
             </h1>
           </div>
         </div>
@@ -221,7 +221,7 @@ function isNumericValue(value: string): boolean {
               <h2
                 class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
-                Basic Info
+                {{ $t("common.basicInfo") }}
               </h2>
               <div class="space-y-4">
                 <!-- Name -->
@@ -234,7 +234,7 @@ function isNumericValue(value: string): boolean {
                   <input
                     v-model="form.name"
                     type="text"
-                    placeholder="Preset name"
+                    :placeholder="$t('connections.preset.namePlaceholder')"
                     class="input-field"
                   />
                 </label>
@@ -249,7 +249,7 @@ function isNumericValue(value: string): boolean {
                   <textarea
                     v-model="form.description"
                     rows="3"
-                    placeholder="Preset description"
+                    :placeholder="$t('connections.preset.descriptionPlaceholder')"
                     class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                 </label>
@@ -263,7 +263,7 @@ function isNumericValue(value: string): boolean {
                   </label>
                   <AppToggle
                     :model-value="form.is_default"
-                    aria-label="Default preset"
+                    :aria-label="$t('connections.preset.isDefault')"
                     @change="toggleDefault"
                   />
                 </div>
@@ -287,7 +287,7 @@ function isNumericValue(value: string): boolean {
                   <input
                     v-model="param.key"
                     type="text"
-                    placeholder="parameter_name"
+                    :placeholder="$t('connections.preset.paramNamePlaceholder')"
                     class="h-11 w-50 shrink-0 rounded-lg border bg-base-300/40 px-4 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                   <!-- Parameter value -->
@@ -295,7 +295,7 @@ function isNumericValue(value: string): boolean {
                     v-model="param.value"
                     :type="isNumericValue(param.value) ? 'number' : 'text'"
                     :step="isNumericValue(param.value) ? 'any' : undefined"
-                    placeholder="value"
+                    :placeholder="$t('connections.preset.paramValuePlaceholder')"
                     class="h-11 flex-1 rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                   <!-- Remove button -->
@@ -330,7 +330,9 @@ function isNumericValue(value: string): boolean {
               <div class="space-y-3">
                 <!-- Is Default status -->
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-muted-foreground">Default</span>
+                  <span class="text-sm text-muted-foreground">{{
+                    $t("connections.preset.defaultStatus")
+                  }}</span>
                   <span
                     class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
                     :class="
@@ -343,7 +345,7 @@ function isNumericValue(value: string): boolean {
                       class="size-1.5 rounded-full"
                       :class="preset.is_default ? 'bg-success' : 'bg-muted-foreground'"
                     />
-                    {{ preset.is_default ? "Yes" : "No" }}
+                    {{ preset.is_default ? $t("common.yes") : $t("common.no") }}
                   </span>
                 </div>
 
@@ -366,7 +368,9 @@ function isNumericValue(value: string): boolean {
 
                 <!-- Parameter count -->
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-muted-foreground">Parameters</span>
+                  <span class="text-sm text-muted-foreground">{{
+                    $t("connections.preset.parameterCount")
+                  }}</span>
                   <span class="text-sm text-foreground">{{ parameterCount }}</span>
                 </div>
 
@@ -374,11 +378,11 @@ function isNumericValue(value: string): boolean {
                 <div class="border-t border-border/50 pt-3">
                   <div class="space-y-1.5 text-2xs text-muted-foreground/60">
                     <div class="flex justify-between">
-                      <span>Created</span>
+                      <span>{{ $t("common.created") }}</span>
                       <span>{{ formatDate(preset.created_at) }}</span>
                     </div>
                     <div class="flex justify-between">
-                      <span>Updated</span>
+                      <span>{{ $t("common.updated") }}</span>
                       <span>{{ formatDate(preset.updated_at) }}</span>
                     </div>
                   </div>

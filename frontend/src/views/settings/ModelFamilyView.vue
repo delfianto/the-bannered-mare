@@ -134,7 +134,7 @@ function getParamRange(schema: unknown): string | null {
               <AppIcon name="i-lucide-layers" class="size-3.5 text-primary-content" />
             </div>
             <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
-              Edit Model Family
+              {{ $t("connections.family.editTitle") }}
             </h1>
           </div>
         </div>
@@ -197,7 +197,7 @@ function getParamRange(schema: unknown): string | null {
                 <input
                   v-model="form.name"
                   type="text"
-                  placeholder="Family name"
+                  :placeholder="$t('connections.family.namePlaceholder')"
                   class="input-field"
                 />
               </label>
@@ -212,7 +212,7 @@ function getParamRange(schema: unknown): string | null {
                 <input
                   v-model="form.family_identifier"
                   type="text"
-                  placeholder="provider/model-family"
+                  :placeholder="$t('connections.family.identifierPlaceholder')"
                   class="input-field font-mono"
                 />
               </label>
@@ -263,7 +263,7 @@ function getParamRange(schema: unknown): string | null {
             <h2
               class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
-              Capabilities
+              {{ $t("connections.family.capabilities") }}
             </h2>
             <div class="flex flex-wrap gap-2">
               <span
@@ -271,21 +271,21 @@ function getParamRange(schema: unknown): string | null {
                 class="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-500"
               >
                 <AppIcon name="i-lucide-database" class="size-3" />
-                Prompt Caching
+                {{ $t("connections.family.capabilityPromptCaching") }}
               </span>
               <span
                 v-if="family.extra_metadata.supports_vision"
                 class="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400"
               >
                 <AppIcon name="i-lucide-eye" class="size-3" />
-                Vision
+                {{ $t("connections.family.capabilityVision") }}
               </span>
               <span
                 v-if="family.extra_metadata.supports_function_calling"
                 class="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400"
               >
                 <AppIcon name="i-lucide-puzzle" class="size-3" />
-                Function Calling
+                {{ $t("connections.family.capabilityFunctionCalling") }}
               </span>
               <span
                 v-if="
@@ -295,7 +295,11 @@ function getParamRange(schema: unknown): string | null {
                 class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-500"
               >
                 <AppIcon name="i-lucide-brain" class="size-3" />
-                Reasoning ({{ family.extra_metadata.reasoning_mode }})
+                {{
+                  $t("connections.family.capabilityReasoning", {
+                    mode: family.extra_metadata.reasoning_mode,
+                  })
+                }}
               </span>
             </div>
           </div>
@@ -326,13 +330,15 @@ function getParamRange(schema: unknown): string | null {
                 </div>
                 <div class="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                   <span>
-                    Default: <code class="text-foreground/70">{{ getParamDefault(schema) }}</code>
+                    {{ $t("connections.family.paramDefault") }}:
+                    <code class="text-foreground/70">{{ getParamDefault(schema) }}</code>
                   </span>
                   <span v-if="getParamRange(schema)">
-                    Range: <code class="text-foreground/70">{{ getParamRange(schema) }}</code>
+                    {{ $t("connections.family.paramRange") }}:
+                    <code class="text-foreground/70">{{ getParamRange(schema) }}</code>
                   </span>
                   <span v-if="(schema as ParamSchema)?.str_values">
-                    Values:
+                    {{ $t("connections.family.paramValues") }}:
                     <code class="text-foreground/70">{{
                       (schema as ParamSchema).str_values?.join(", ")
                     }}</code>
@@ -365,8 +371,8 @@ function getParamRange(schema: unknown): string | null {
 
           <!-- Timestamps -->
           <div class="flex items-center justify-between px-1 text-2xs text-muted-foreground/60">
-            <span>Created {{ formatDate(family.created_at) }}</span>
-            <span>Updated {{ formatDate(family.updated_at) }}</span>
+            <span>{{ $t("common.created") }} {{ formatDate(family.created_at) }}</span>
+            <span>{{ $t("common.updated") }} {{ formatDate(family.updated_at) }}</span>
           </div>
         </div>
       </div>

@@ -31,7 +31,14 @@
       "title": "Something went wrong",
       "description": "This page hit an unexpected error. Reloading usually fixes it — if it keeps happening, the app may have updated in the background.",
       "reload": "Reload"
-    }
+    },
+    "basicInfo": "Basic Info",
+    "created": "Created",
+    "updated": "Updated",
+    "status": "Status",
+    "yes": "Yes",
+    "no": "No",
+    "notAvailable": "N/A"
   },
   "nav": {
     "home": "Home",
@@ -446,7 +453,32 @@
         "unloadFailed": "Failed to unload model",
         "modelDeleted": "Deleted {model}",
         "deleteFailed": "Failed to delete model"
-      }
+      },
+      "editTitle": "Edit Provider",
+      "providerTypeReadonly": "Provider Type (read-only)",
+      "namePlaceholder": "Provider name",
+      "baseUrlPlaceholder": "https://api.example.com/v1",
+      "availableModels": "Available Models",
+      "lastSynced": "Last synced {time}",
+      "neverSynced": "Never synced",
+      "syncing": "Syncing…",
+      "syncNow": "Sync Now",
+      "searchToFilter": "Search models to add to the filter…",
+      "searching": "Searching…",
+      "noMatchingModels": "No matching models.",
+      "filterLabel": "Filter:",
+      "removeFromFilter": "Remove from filter",
+      "clearAll": "Clear all",
+      "noFilterSet": "No filter set — showing all discovered models. Search above to show only specific ones.",
+      "noModelsMatchFilter": "No discovered models match the current filter.",
+      "noModelsOnServer": "No models found on this server.",
+      "loaded": "Loaded",
+      "notLoaded": "Not Loaded",
+      "loadModel": "Load Model",
+      "unloadModel": "Unload Model",
+      "addAsModel": "Add as Model…",
+      "added": "Added",
+      "deleteModelAction": "Delete Model"
     },
     "model": {
       "name": "Name",
@@ -514,7 +546,18 @@
         "deleted": "Model family deleted",
         "deleteFailed": "Failed to delete model family",
         "noChanges": "No changes to save"
-      }
+      },
+      "editTitle": "Edit Model Family",
+      "namePlaceholder": "Family name",
+      "identifierPlaceholder": "provider/model-family",
+      "capabilities": "Capabilities",
+      "capabilityPromptCaching": "Prompt Caching",
+      "capabilityVision": "Vision",
+      "capabilityFunctionCalling": "Function Calling",
+      "capabilityReasoning": "Reasoning ({mode})",
+      "paramDefault": "Default",
+      "paramRange": "Range",
+      "paramValues": "Values"
     },
     "preset": {
       "name": "Name",
@@ -534,7 +577,14 @@
         "defaultSet": "Preset set as default",
         "setDefaultFailed": "Failed to set default",
         "noChanges": "No changes to save"
-      }
+      },
+      "editTitle": "Edit Preset",
+      "namePlaceholder": "Preset name",
+      "descriptionPlaceholder": "Preset description",
+      "paramNamePlaceholder": "parameter_name",
+      "paramValuePlaceholder": "value",
+      "defaultStatus": "Default",
+      "parameterCount": "Parameters"
     },
     "template": {
       "name": "Name",
@@ -585,7 +635,15 @@
         "deleted": "Fragment deleted",
         "deleteFailed": "Failed to delete fragment",
         "noChanges": "No changes to save"
-      }
+      },
+      "editTitle": "Edit Fragment",
+      "namePlaceholder": "Fragment name",
+      "descriptionPlaceholder": "Fragment description",
+      "typeSystem": "System",
+      "typeNsfw": "NSFW",
+      "typeJailbreak": "Jailbreak",
+      "typeInstruction": "Instruction",
+      "typeContext": "Context"
     }
   },
   "memory": {
@@ -699,6 +757,43 @@
     }
   },
   "setup": {
+    "title": "Let's Get You Set Up",
+    "subtitle": "A quick check of your providers, then create your first profile.",
+    "steps": {
+      "providers": "1. Providers",
+      "profile": "2. Profile",
+      "done": "3. Done"
+    },
+    "localProviders": "Local Providers",
+    "noLocalProviders": "No local providers configured.",
+    "checking": "Checking…",
+    "modelsFound": "{count} models found",
+    "notReachable": "Not reachable",
+    "cloudProviders": "Cloud Providers",
+    "keyConfigured": "Key configured",
+    "setEnvVar": "Set {envVar}",
+    "doManually": "I'll do this manually",
+    "next": "Next",
+    "unfinishedProfile": "You have an unfinished profile",
+    "unfinishedProfiles": "You have {count} unfinished profiles",
+    "finishSetup": "Finish Setup",
+    "createManually": "Create Manually",
+    "createManuallyHint": "Pick a model, template, preset, and persona yourself.",
+    "importPreset": "Import ST Preset",
+    "importPresetHint": "Bring in a SillyTavern chat-completion preset.",
+    "noPersonaYet": "You don't have a persona yet (optional, but recommended)",
+    "personaNamePlaceholder": "Persona name (e.g. your name)",
+    "create": "Create",
+    "attachModel": "Attach a Model",
+    "attachModelHint": "Pick a model to finish setting up \"{name}\" as your default profile.",
+    "model": "Model",
+    "persona": "Persona",
+    "noPersona": "No persona",
+    "selectModel": "Select a model…",
+    "finish": "Finish",
+    "allSet": "You're all set",
+    "allSetHint": "Your first profile is ready. Head back and start a tale.",
+    "importedProfileFallback": "Imported Profile",
     "toast": {
       "personaCreated": "Persona created",
       "personaFailed": "Failed to create persona",
