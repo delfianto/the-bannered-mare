@@ -10,6 +10,16 @@ async function getForm(initial?: any) {
 }
 
 describe("useCharacterForm - species and age fields", () => {
+  // FE-H5: this suite swaps `global.fetch` / `client.GET` for a couple of cases;
+  // capture the pristine references at collection time and restore after each
+  // test so nothing leaks into later suites (no unrestored global patching).
+  const realFetch = globalThis.fetch;
+  const realGet = client.GET;
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+    client.GET = realGet;
+  });
+
   it("should initialize with default species and age values", async () => {
     const { data } = await getForm();
     expect(data.species).toBe("");
@@ -116,9 +126,10 @@ describe("useCharacterForm - species and age fields", () => {
 // fetch/client boundary.
 //
 // `client` (the openapi-fetch singleton) is captured pristine at module-load
-// time: the "species and age" suite above swaps `client.GET` out with no
-// restore, so these suites reinstate the real fetch-backed methods in beforeEach
-// (and tidy up after) — otherwise loadFromApi would hit that leftover stub.
+// time and reinstated in beforeEach here as defense-in-depth. The "species and
+// age" suite above now restores its own `client.GET`/`fetch` swaps (FE-H5), so
+// this is belt-and-suspenders — it keeps these suites order-independent even if
+// a future test forgets to clean up.
 // ---------------------------------------------------------------------------
 
 const PRISTINE_CLIENT = {
