@@ -6,7 +6,6 @@ import contextlib
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from src.character.repository import CharacterRepository
 from src.chat_session.models import Chat
 from src.chat_session.repository import ChatRepository
 from src.core.base_service import get_or_404
@@ -14,16 +13,17 @@ from src.core.exceptions import NotFoundError
 from src.core.logging.logger_config import get_logger
 from src.core.persistence import Message, MessageRole, UnitOfWork
 from src.core.tokenization import get_tokenizer
-from src.model.repository import ModelRepository
-from src.profile.repository import ProfileRepository
 from src.templating import TemplateContext, TemplateService
 
 if TYPE_CHECKING:
-    # Imported lazily for typing only: pulling these from their packages at
-    # module load re-enters chat_message.dependencies -> chat_session.dependencies.
+    # Cross-slice READS depend on a structural ReadPort, not the foreign repos
+    # (BE-H2). MessageRepository stays a foreign type only until the greeting-seed
+    # WRITE moves behind a chat_message seam (deferred, with BE-H7). All stay under
+    # TYPE_CHECKING: they're annotation-only, and importing MessageRepository at
+    # module load would re-enter chat_message.dependencies -> chat_session.dependencies.
     from src.character.models import Character
     from src.chat_message.repository import MessageRepository
-    from src.persona.repository import PersonaRepository
+    from src.core.persistence import ModelRegistry, Persona, Profile, ReadPort
 
 logger = get_logger(__name__)
 
@@ -39,15 +39,17 @@ class ChatService:
     def __init__(
         self,
         chat_repo: ChatRepository,
-        character_repo: CharacterRepository,
-        model_repo: ModelRepository,
-        profile_repo: ProfileRepository,
+        character_repo: ReadPort[Character],
+        model_repo: ReadPort[ModelRegistry],
+        profile_repo: ReadPort[Profile],
         message_repo: MessageRepository,
-        persona_repo: PersonaRepository,
+        persona_repo: ReadPort[Persona],
         template_service: TemplateService | None = None,
         uow: UnitOfWork | None = None,
     ):
         self.chat_repo = chat_repo
+        # character/model/profile/persona are cross-slice reads → structural
+        # ReadPorts (BE-H2); the concrete repos injected by DI satisfy them.
         self.character_repo = character_repo
         self.model_repo = model_repo
         self.profile_repo = profile_repo
