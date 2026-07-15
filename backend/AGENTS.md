@@ -34,6 +34,7 @@ Your goal is to build a high-performance, strictly typed, and modular system tha
 - **Primary Tool:** Use the PostgreSQL interface for all database inspections (schema checks, table listing, running ad-hoc verification queries).
 - **Migration Rule:** Never modify the database schema manually. Always generate an Alembic migration script for schema changes.
 - **Verification:** After writing SQL or ORM queries, verify the logic against the actual schema.
+- **Seed fixtures stay typed Python:** the model-catalog seed data (`src/fixtures/models/*.py`, `src/fixtures/parameter_definitions.py`) is maintained as typed `.py` (a `ModelSeedData` TypedDict) — edit it directly to add/adjust models. Do **not** migrate it to JSON/TOML: its only motivation is non-dev editability (which doesn't apply — an agent maintains it), and JSON would lose the compile-time typing.
 
 ### 2.3 Code Documentation Style
 - **Minimalist Commenting:**
@@ -101,18 +102,31 @@ When asked to implement a feature, follow this strict template:
 4. **Verify:** Run strict type checking and linting.
 
 ### 5.2 Quality Assurance Commands
-You must fix **ALL** errors before considering a task complete.
+
+Run everything from `backend/` via **`uv run`** — bare `ruff`/`basedpyright`/`pytest` can hit stale `.venv` shims until the next `uv sync`. You must fix **ALL** errors before a task is done. **CI runs _both_ ruff gates** — `check` (lint) *and* `format --check` — so a green `ruff check` locally is not enough; run the formatter too, or CI's Lint job fails on wrap/format drift.
 
 ```bash
-# 1. Format & Lint (Fix auto-fixable issues)
-ruff format .
-ruff check . --fix
+# 0. Install / sync deps. CI uses `uv sync --locked` — commit uv.lock version
+#    bumps, never revert them (a stale lock fails CI's --locked install).
+uv sync --extra dev
 
-# 2. Type Checking (Strict)
-basedpyright
+# 1. Lint AND format — CI enforces both.
+uv run ruff check .            # lint (append --fix to auto-fix)
+uv run ruff format .           # apply formatting (CI runs `ruff format --check .`)
 
-# 3. Testing
-pytest
+# 2. Type checking (strict)
+uv run basedpyright
+
+# 3. Unit tests (SQLite in-memory; no container)
+uv run pytest -m "not integration"
+```
+
+**Postgres/pgvector integration tests** (`-m postgres`, under `tests/integration/`) exercise the VectorChord vector path that SQLite can't. They need a real **Postgres + VectorChord** container — start it from the recipe in [.github/workflows/backend-ci.yml](../.github/workflows/backend-ci.yml) using **Docker or Podman** (`… run … tensorchord/vchord-postgres:pgNN-*`), point `DATABASE_URL` at it (this overrides the `.env` DSN), migrate, then run:
+
+```bash
+export DATABASE_URL=postgresql://banneredmare:banneredmare@localhost:5432/banneredmare
+uv run alembic upgrade head
+uv run pytest -m postgres
 ```
 
 ---
