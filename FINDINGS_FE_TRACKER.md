@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** structural/DRY tier — FE-M3/M4 (`useListCrud`) + FE-H4 (focus-ring / input-field / app-card `@utility`s) done. Next: FE-M1/M2 (provider cache) — 🧵 main.
-- **Next up:** FE-M1/M2; then FE-M7, FE-M5; i18n FE-H2 b/c + FE-H3; low FE-L2/L3.
-- **Progress:** 16 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4 ✓; FE-L8 folded in) + FE-H2 part-a (61 toasts→i18n). **Remaining:** FE-M1/M2, FE-M5, FE-M7, FE-L2/L3, FE-H2 b/c, FE-H3.
+- **Active:** structural/DRY tier — FE-M3/M4 (`useListCrud`) + FE-H4 (utilities) + FE-M1 (provider mutations self-invalidate the store) done. Next: FE-M2 (unify per-instance list caching) — needs a strategy pick (useResource query-cache vs store-promotion).
+- **Next up:** FE-M2; then FE-M7, FE-M5; i18n FE-H2 b/c + FE-H3; low FE-L2/L3.
+- **Progress:** 16 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4 ✓; FE-L8 folded in) + FE-M1 (FE-M1/M2 half-done) + FE-H2 part-a. **Remaining:** FE-M2, FE-M5, FE-M7, FE-L2/L3, FE-H2 b/c, FE-H3.
 
 ---
 
@@ -150,7 +150,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** a failed mutation sets `error`/surfaces a toast (never silent); gates green.
 - **Commit:** —
 
-### FE-M1 / FE-M2 · One state-cache strategy (kill provider split-brain) · [ ] · 🧵 main · dep: none
+### FE-M1 / FE-M2 · One state-cache strategy (kill provider split-brain) · [~] FE-M1 done (see §Completed); FE-M2 open · 🧵 main · dep: none
 - **Ref:** FINDINGS_FE.md §4 FE-M1, FE-M2 · **Files:** `stores/settings.ts:19-62`; `useProvider.ts`; the per-instance-fetch composables
 - **Fix:** pick one strategy — a small `useResource`/query cache keyed by endpoint, or promote shared lists to the store (like providers) with self-invalidating mutations.
 - **Accept:** provider mutations no longer require manual `fetchProviders(true)` at each call site; no per-instance duplicate fetches for shared lists; gates green.
@@ -180,6 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[~] FE-M1** (commit `3939e5c`; the FE-M1 half of the FE-M1/M2 item) — the provider list is a Pinia store singleton, but `useProvider`'s create/save (via `useEntityCrud`) never touched it, so the shared list went stale unless each call site manually `fetchProviders(true)` (ProviderView + ProvidersTab both did). Moved the invalidation into `useProvider.createProvider/saveProvider` (refresh the store on success) and removed both manual call sites (ProviderView drops the now-unused `settingsStore`; ProvidersTab keeps `refresh` for its error-retry). **FE-M2 still open** — the broader "unify per-instance list caching (presets/templates/personas/profiles/databank)" half needs a strategy pick (a `useResource` query-cache vs promoting those lists to the store like providers). Gate: build, 60 tests, oxlint, tailwind.
 - **[x] FE-H4** (commits `213bfbb`, `60d5b4f`, `577b5a6`) — shipped as **three `@utility` classes**, NOT the tracked `AppCard.vue`/`AppInput.vue` components (user call: style-only patterns with varied bindings → a utility is a drop-in class swap with zero binding churn, consistent with the focus-ring approach). `focus-ring` (46 sites: 42 `focus:`, 1 `focus-within:`, 3 bare-in-ternary), `input-field` (19 sites, composes focus-ring; `font-mono`/`pr-10` kept at call sites), `app-card` (10 exact-`p-4` sites; named `app-card` to dodge DaisyUI's `.card`). Each verified against the **built CSS** — byte-identical declarations incl. the composed `:focus` ring. Deliberately left: the different-value shadows (/0.1 glow, /0.12), 2 flex trigger-buttons, PresetView's `flex-1` input, SetupWizard's divergent `px-3`/`focus:ring-1` input, and all non-`p-4` card-ish surfaces (the finding's "~68" counted those loosely; the canonical p-4 card is 10). AGENTS/CLAUDE §6.3 Input/Card patterns updated to reference the utilities. Gate: build, 60 tests, oxlint, both tailwind lints.
 - **[x] FE-M3 + FE-M4** (commits `049e825`, `330e8f1`) — added `useListCrud` (the list sibling of `useEntityCrud`) and migrated presets/templates (list-only), then profiles/dataBank/personas (list+CRUD) onto it — killed the usePresets≈usePromptTemplates copy-paste. **FE-M4:** the migrated mutations now record failures on the shared `error` ref instead of `console.error`+swallow (useProfiles/useDataBank never set `error` before — the real silent-failure bug); kept the null/false **return contract** the callers already branch on (ProfilesTab toasts on the result; PersonaTab keeps the form open + shows `error`), so **zero caller changes** — verified by a full `vue-tsc -b` across every consumer. Design note: the list factory records-and-returns rather than rethrowing like useEntityCrud, because these list callers switch on the result inline (vs a detail page's one-shot await). **Deliberately NOT migrated:** `useLorebooks` (outlier — detail `currentLorebook`, parallel fetch-for-chat merge, nested entry CRUD); `usePersonas.savePersona` stays bespoke (multipart avatar upload openapi-fetch can't do) but runs on the factory's items/error refs. Only signature change: `useProfiles.setDefault` Profile|null→boolean (truthiness-only). Not yet covered by a failed-mutation test — behavior mirrors the proven useEntityCrud path. Gate: build, 60 tests, oxlint, both tailwind lints.
 
