@@ -9,7 +9,7 @@
 - **Updated:** 2026-07-15
 - **Active:** clearing the low-risk 🤖 backlog (structural refactors BE-H1/H2/H7/H6/H5 deferred per the autonomy setting)
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
-- **Progress:** 6 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
+- **Progress:** 7 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9, BE-M1 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
 
 ---
 
@@ -125,7 +125,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Commit:** —
 - **Notes:** completes audit BE-6's own recommendation (repo layer was done; service layer never was). Do after BE-H1 so the transaction boundary is settled.
 
-### BE-M1 · Bring `AsyncBaseRepository` to parity with the sync base · [ ] · 🤖 sub · dep: none
+### BE-M1 · Bring `AsyncBaseRepository` to parity with the sync base · [x] DONE (see §Completed) · 🤖 sub · dep: none
 - **Ref:** FINDINGS_BE.md §4 BE-M1 (⊕ found by 2 lenses)
 - **Files:** `core/persistence/base_repository_async.py` vs `base_repository.py:78-102,215-242`
 - **Fix:** port `find_all_ordered`/`find_paginated_ordered`/`_column` + the `NamedRepository`/`DefaultableRepository` mixins to the async base (or factor shared statement-building from the execute step). If a subset is intentional, document why.
@@ -212,6 +212,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] BE-M1** (commit tagged `BE-M1`) — ported the missing surface to `AsyncBaseRepository`: `_column`, `find_all_ordered`, `find_paginated_ordered`, and the new `AsyncNamedRepository` (`find_by_name`) / `AsyncDefaultableRepository` (`unset_all_defaults`/`set_default`) mixins (exported alongside the sync ones). Reused `_apply_filters`→`statements.apply_filters` for WHERE construction (no SQL copy-paste; only the `await execute/.scalars()` wrapper differs). Adding the base methods surfaced the predicted drift: `AsyncChatRepository` had narrower bespoke `find_all_ordered`/`find_paginated_ordered` (eager-load, no `order_by`) → basedpyright flagged incompatible overrides; **resolved exactly as the sync `ChatRepository` already does** — accept `order_by` for signature compat but ignore it (fixed eager-loaded query), documented in the docstring. Verified diff: signature-only widening, method bodies unchanged. New `test_base_repository_async.py` (7 tests over a mixin-combining mock, mirroring the sync test). Verified: ruff clean, basedpyright 0/0/0, pytest **916** (909 + 7).
 - **[x] BE-M9** (commit tagged `BE-M9`) — closed both router suppressions by refactor (no behavior change). Made `TemplateService.build_variables` **public** (the method actually lives in `templating/__init__.py`, not `prompt_template/service.py` as the finding guessed — grep was authoritative; 1 def + 2 callers updated) and dropped the `pyright: ignore[reportPrivateUsage]` in `prompt_template/router.py`. Threaded validated `content: str | None` through `_handle_blocking`/`_handle_streaming` (dropped the now-redundant `regenerate` param — `content is None ⟺ regenerate`), removing **both** bare `# type: ignore` in `chat_message/router.py` **plus** the annotated `:96` one. (basedpyright wouldn't narrow through the compound `and`-guard in a ternary, so used explicit `if/elif/else`.) Verified: ruff clean, **basedpyright 0/0/0**, pytest 909 unchanged; grep confirms zero suppressions in both routers.
 - **[x] BE-M5** (commit tagged `BE-M5`) — extracted the placeholder DSN to a module constant (`_PLACEHOLDER_DATABASE_URL`) used as BOTH the `database_url` field default and the validator's compare target (can't drift), and extended `_forbid_insecure_production_defaults` to raise (after the existing CORS check) when `environment=production` + the placeholder DSN. Added 3 tests (prod-placeholder raises / prod-real boots / dev-placeholder fine) and made the pre-existing `test_production_with_explicit_origins_boots` pass an explicit DSN so it's env-independent. Verified: ruff/basedpyright clean, pytest **909** (906 + 3). **Env note:** `backend/.env` supplies a real remote DSN + `CORS_ORIGINS=["*"]` that pytest loads. Config-validation only (no auth/network/SSRF, per scope).
 - **[x] BE-M8** (commit tagged `BE-M8`) — removed **21** play-by-play/restatement comments across 8 files (`provider/service.py` ×4, `character/service.py` ×4, `persona/service.py` ×2, `model_family/service.py` ×2, `prompt_template/router.py` ×1, `audit/middleware.py` ×3, `fixtures/seed_*` ×5); `git numstat` confirms **deletion-only** (comment lines only), zero executable/test changes. Deliberately KEPT `prompt_template/router.py:97` (`# Mock chat object …` — a genuine WHY). Stayed within the curated list (no un-cited sweeps). Verified: ruff/basedpyright clean, pytest 909 unchanged.
