@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** — (PAUSED at the approved batch boundary)
-- **Next up:** PAUSE for go-ahead. Remaining Wave 2 is higher-risk 🧵: FE-M5 (stop button + regen-abort restore), FE-H4 (AppCard/AppInput + focus-ring), FE-M1/M2 (state-cache strategy), FE-M3 (useListCrud factory). Lower-risk 🤖 also remain: FE-H2/H3 (i18n), FE-M9 (form/race tests), FE-L1–L7.
-- **Progress:** 6 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2 ✓; FE-L8 folded in)
+- **Active:** clearing the low-risk 🤖 backlog (structural 🧵 FE-H4/FE-M1/M2/M3/M5/M7 deferred per the autonomy setting)
+- **Next up:** FE-L1 (utils/date), FE-L2 (native confirm→useConfirmAction), FE-L4 (prod console.log), FE-L5 (status hues); FE-H2/H3 (i18n) are larger.
+- **Progress:** 7 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9 ✓; FE-L8 folded in)
 
 ---
 
@@ -103,7 +103,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** composable tests assert the right endpoint/params via MSW with no unrestored global patching; gates green.
 - **Commit:** —
 
-### FE-M9 · Cover `useCharacterForm`'s gnarly paths + the `useCursorList` race guard · [ ] · 🤖 sub · dep: FE-C1
+### FE-M9 · Cover `useCharacterForm`'s gnarly paths + the `useCursorList` race guard · [x] DONE (see §Completed) · 🤖 sub · dep: FE-C1
 - **Ref:** FINDINGS_FE.md §4 FE-M9 (+ §6 roadmap) · **Files:** `useCharacterForm.ts:110-119,164-185,211-276`; `useCursorList.ts`
 - **Fix:** tests for gender→`custom_gender` normalization, the dialogue regex round-trip, a non-empty lorebook entry-diff (delete/create/update); and the `requestSeq` last-request-wins guard (fire two loads, resolve the stale one last, assert discarded; `reset()` invalidates in-flight).
 - **Accept:** the untested ~80% of `useCharacterForm` and the race guard are covered; gates green.
@@ -180,6 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-M9** (commit tagged `FE-M9`) — +20 tests (33→53): extended `useCharacterForm.test.ts` (+13: gender→`custom_gender` incl. free-text→`others`+verbatim and blank-omit; `example_dialogues` regex round-trip incl. freeform preservation + `<START>` stripping; the lorebook entry-diff driving exactly one DELETE / one PUT / one POST) and new `useCursorList.test.ts` (+7: last-request-wins race via out-of-order resolution, `reset()` invalidation, `loadMore` gating, null-`fetchPage` no-op). Target coverage: `useCharacterForm.ts` **80.7%** lines, `useCursorList.ts` **91.2%**. Also fixed a latent pollution hazard — the old "species and age" test swaps `client.GET` with no restore, so the new suites capture the pristine client and restore in `before/afterEach`. **2 findings (documented, not fixed — follow-up candidates):** (a) dead self-assignment `useCharacterForm.ts:155` (`if (data.gender === "Non-binary") data.gender = "Non-binary";`); (b) a freeform dialogue edit+save restructures the stored format to `User: \nCharacter: <text>` (content preserved, not data loss). Verified independently: 53 tests, coverage 6.4% lines ≥ floor, build/lint/fmt green.
 - **[x] FE-C2** (commit tagged `FE-C2`) — added 11 characterization tests for `readStream` + `sendMessage`/`regenerate` to `useChatMessages.test.ts` (22→33): partial-chunk reassembly (one frame split across 4 stream chunks), `[DONE]` short-circuit, malformed-JSON tolerance (warn + skip, later text still lands), `reasoning` accumulates separately, `start` id-swap (with/without `message_id`), `error` → placeholder dropped + `error.value` set, non-OK send, **abort mid-stream** (signal-wired mock + `flushPromises` → quiet resolve, no blank bubble), **chat-switch mid-stream** (post-switch token doesn't land — exercises the re-find-by-id `-1` guard), and `regenerate`. Coverage 4.75→**5.73%** lines. **Characterization notes (no bug):** `sendMessage` does NOT reject on stream `error`/non-OK/abort — it surfaces via `error.value` and resolves (for the toast layer); the chat-switch `reset` only fires under `autoLoad:true` (the prod default), so the tests use it. Verified independently: 33 tests, coverage ≥ floor, build/lint/fmt green.
 - **[x] FE-H1** (commit tagged `FE-H1`) — **removed** the write-only "Stream Responses" / "Typing Indicator" toggles from `InterfaceTab.vue` (refs, the `onMounted` localStorage hydration, both handlers, the orphaned `onMounted` import, and the two template rows — three dividers collapsed to one). Chose removal over wiring: wiring "Stream Responses" means building a whole non-streaming (blocking) send path in `useChatMessages` (a feature, unverifiable without running the app) and "Typing Indicator" has no clear consumer — an advertised-but-broken control is worse than none. **Reversible** if you'd rather have it as a feature. Left the 4 now-orphaned `settings.interface.stream*/typing*` i18n keys (present in all 5 locales) for the FE-H2/H3 i18n sweep. Verified: build/lint/fmt green, 22 tests pass.
 - **[x] FE-C3** (commit tagged `FE-C3`) — verified the backend persists the user message but streams only the *assistant* id in `start` (`chat_message/service.py:419-420,508-516`), so a FE-only fix must refetch. Added `reconcileSentUserMessage()`: after `readStream` completes in `sendMessage`, GET the 2 newest messages and swap the just-sent user bubble's client uuid for the persisted id **in place** (mutates `messages` directly — no cursor-list reset, so pagination/scroll are preserved); best-effort (a failed reconcile keeps the pre-fix behavior, never breaks a successful send). Regression test `useChatMessages.test.ts` drives send → reconcile → edit and asserts the edit PUTs `/messages/user-real` (would've been a phantom uuid pre-fix). Verified: 7 files / 22 tests, coverage up to **4.73%**, build/lint/fmt green.

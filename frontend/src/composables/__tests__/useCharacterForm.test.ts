@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { client } from "@/api/client";
 import type { components } from "@/api/schema";
 
 type CharacterResponse = components["schemas"]["CharacterResponse"];
@@ -104,5 +105,372 @@ describe("useCharacterForm - species and age fields", () => {
     expect(form.data.age).toBe("24");
     expect(form.data.creatorNotes).toBe("Janitor import");
     expect(form.data.systemPrompt).toBe("Strict prompt");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FE-M9 — the gnarly paths the original suite skipped: gender→custom_gender
+// normalization, the example_dialogues regex round-trip, and the lorebook
+// entry-diff in saveCharacter. buildFormData/mapResponseToForm aren't exported,
+// so each case drives the public saveCharacter/loadFromApi and mocks the
+// fetch/client boundary.
+//
+// `client` (the openapi-fetch singleton) is captured pristine at module-load
+// time: the "species and age" suite above swaps `client.GET` out with no
+// restore, so these suites reinstate the real fetch-backed methods in beforeEach
+// (and tidy up after) — otherwise loadFromApi would hit that leftover stub.
+// ---------------------------------------------------------------------------
+
+const PRISTINE_CLIENT = {
+  GET: client.GET,
+  POST: client.POST,
+  PUT: client.PUT,
+  DELETE: client.DELETE,
+} as const;
+
+function restoreClient() {
+  Object.assign(client, PRISTINE_CLIENT);
+}
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+const EMPTY_LOREBOOK_PAGE = {
+  items: [],
+  meta: { limit: 0, has_more: false, cursor: null, total: 0, page: 1 },
+};
+
+function reqInfo(input: unknown, init: RequestInit | undefined): { url: string; method: string } {
+  const req = input instanceof Request ? input : null;
+  const url = req ? req.url : String(input);
+  const method = (init?.method ?? req?.method ?? "GET").toUpperCase();
+  return { url, method };
+}
+
+// openapi-fetch (0.17) calls fetch(new Request(url, { body: <json string> })) —
+// one Request arg, no init; the raw multipartFetch calls fetch(urlString, { body:
+// FormData }). Read a JSON body out of whichever shape a request used (a FormData
+// body reads back as undefined, which is fine — those assertions read the
+// FormData directly).
+async function readJsonBody(input: unknown, init: RequestInit | undefined): Promise<any> {
+  if (init && typeof init.body === "string") {
+    try {
+      return JSON.parse(init.body);
+    } catch {
+      return undefined;
+    }
+  }
+  if (input instanceof Request) {
+    return await input
+      .clone()
+      .json()
+      .catch(() => undefined);
+  }
+  return undefined;
+}
+
+describe("useCharacterForm - gender → custom_gender normalization (buildFormData)", () => {
+  let realFetch: typeof globalThis.fetch;
+  let captured: FormData | undefined;
+
+  beforeEach(() => {
+    realFetch = globalThis.fetch;
+    restoreClient();
+    captured = undefined;
+    // Capture the multipart character save's FormData; stub the lorebook-sync GET
+    // empty so saveCharacter's diff loop stays a no-op for these cases.
+    globalThis.fetch = vi.fn(async (input: unknown, init?: RequestInit) => {
+      const { url } = reqInfo(input, init);
+      if (url.includes("/api/lorebooks")) return jsonResponse(EMPTY_LOREBOOK_PAGE);
+      captured = init!.body as FormData;
+      return jsonResponse({ id: "char-gender", name: "Gender Test" });
+    }) as typeof globalThis.fetch;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+    restoreClient();
+    vi.restoreAllMocks();
+  });
+
+  async function formDataForGender(gender: string): Promise<FormData> {
+    const form = await getForm();
+    form.updateField("name", "Gender Test");
+    form.updateField("gender", gender);
+    await form.saveCharacter();
+    return captured!;
+  }
+
+  it("lowercases a standard gender and appends no custom_gender", async () => {
+    const fd = await formDataForGender("Male");
+    expect(fd.get("gender")).toBe("male");
+    expect(fd.get("custom_gender")).toBeNull();
+  });
+
+  it("keeps the hyphenated 'Non-binary' option as canonical 'non-binary'", async () => {
+    const fd = await formDataForGender("Non-binary");
+    expect(fd.get("gender")).toBe("non-binary");
+    expect(fd.get("custom_gender")).toBeNull();
+  });
+
+  it("routes a free-text gender to gender=others + custom_gender=<verbatim>", async () => {
+    const fd = await formDataForGender("Genderfluid");
+    expect(fd.get("gender")).toBe("others");
+    expect(fd.get("custom_gender")).toBe("Genderfluid");
+  });
+
+  it("omits gender entirely when the field is blank", async () => {
+    const fd = await formDataForGender("");
+    expect(fd.get("gender")).toBeNull();
+    expect(fd.get("custom_gender")).toBeNull();
+  });
+});
+
+describe("useCharacterForm - example_dialogues regex round-trip", () => {
+  let realFetch: typeof globalThis.fetch;
+  let captured: FormData | undefined;
+  let loadResponse: Partial<CharacterResponse>;
+
+  beforeEach(() => {
+    realFetch = globalThis.fetch;
+    restoreClient();
+    captured = undefined;
+    loadResponse = {};
+    globalThis.fetch = vi.fn(async (input: unknown, init?: RequestInit) => {
+      const { url, method } = reqInfo(input, init);
+      if (url.includes("/api/lorebooks")) return jsonResponse(EMPTY_LOREBOOK_PAGE);
+      // loadFromApi's character GET → the fixture under test; any other verb is
+      // the multipart save, whose serialized FormData we capture.
+      if (method === "GET" && url.includes("/api/characters")) return jsonResponse(loadResponse);
+      captured = init!.body as FormData;
+      return jsonResponse({ id: "dlg-1", name: "Dialogue Test" });
+    }) as typeof globalThis.fetch;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+    restoreClient();
+    vi.restoreAllMocks();
+  });
+
+  function charWithDialogues(dialogues: string[]): Partial<CharacterResponse> {
+    return { id: "dlg-1", name: "Dialogue Test", example_dialogues: dialogues };
+  }
+
+  function serializedDialogues(): string[] {
+    return JSON.parse(captured!.get("example_dialogues") as string);
+  }
+
+  it("parses an explicit User:/Character: exchange into the two fields", async () => {
+    loadResponse = charWithDialogues([
+      "<START>\nUser: Hail, friend\nCharacter: Well met, traveller",
+    ]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+
+    expect(form.data.exampleDialogues).toHaveLength(1);
+    expect(form.data.exampleDialogues[0].userMessage).toBe("Hail, friend");
+    expect(form.data.exampleDialogues[0].characterReply).toBe("Well met, traveller");
+  });
+
+  it("preserves a freeform (marker-less) example verbatim in the reply field", async () => {
+    loadResponse = charWithDialogues(["She studies you from across the smoky tavern."]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+
+    expect(form.data.exampleDialogues[0].userMessage).toBe("");
+    expect(form.data.exampleDialogues[0].characterReply).toBe(
+      "She studies you from across the smoky tavern.",
+    );
+  });
+
+  it("strips a bare <START> marker from a freeform example", async () => {
+    loadResponse = charWithDialogues(["<START>\nAn ancient tale unfolds by the hearth."]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+
+    expect(form.data.exampleDialogues[0].userMessage).toBe("");
+    expect(form.data.exampleDialogues[0].characterReply).toBe(
+      "An ancient tale unfolds by the hearth.",
+    );
+  });
+
+  it("handles a User:-only exchange (no Character marker) → empty reply", async () => {
+    loadResponse = charWithDialogues(["User: Just the user speaks"]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+
+    expect(form.data.exampleDialogues[0].userMessage).toBe("Just the user speaks");
+    expect(form.data.exampleDialogues[0].characterReply).toBe("");
+  });
+
+  it("serializes each dialogue pair as a <START>/User/Character block", async () => {
+    const form = await getForm();
+    form.updateField("name", "Dialogue Test");
+    form.addDialogue();
+    const dlgId = form.data.exampleDialogues[0].id;
+    form.updateDialogue(dlgId, "userMessage", "What news?");
+    form.updateDialogue(dlgId, "characterReply", "War in the east.");
+
+    await form.saveCharacter();
+
+    expect(serializedDialogues()).toEqual([
+      "<START>\nUser: What news?\nCharacter: War in the east.",
+    ]);
+  });
+
+  it("round-trips a well-formed exchange parse→serialize without drift", async () => {
+    loadResponse = charWithDialogues(["<START>\nUser: Hail\nCharacter: Well met"]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+    await form.saveCharacter();
+
+    expect(serializedDialogues()).toEqual(["<START>\nUser: Hail\nCharacter: Well met"]);
+  });
+
+  it("round-trips a freeform example into the Character slot (content survives)", async () => {
+    loadResponse = charWithDialogues(["A lone figure warms by the fire."]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+    await form.saveCharacter();
+
+    // Freeform text has no User half, so it re-emits under Character — lossy in
+    // structure but the content is never dropped.
+    expect(serializedDialogues()).toEqual([
+      "<START>\nUser: \nCharacter: A lone figure warms by the fire.",
+    ]);
+  });
+});
+
+describe("useCharacterForm - lorebook entry diff (saveCharacter)", () => {
+  let realFetch: typeof globalThis.fetch;
+  let calls: { method: string; url: string; body: any }[];
+
+  beforeEach(() => {
+    realFetch = globalThis.fetch;
+    restoreClient();
+    calls = [];
+  });
+
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+    restoreClient();
+    vi.restoreAllMocks();
+  });
+
+  // Record every request (method/url/json-body) and delegate the response to
+  // `route`. The lorebook-sync calls all flow through the typed client, so
+  // routing on url + verb exercises the real delete/update/create branches.
+  function install(route: (url: string, method: string) => Response) {
+    globalThis.fetch = vi.fn(async (input: unknown, init?: RequestInit) => {
+      const { url, method } = reqInfo(input, init);
+      const body = await readJsonBody(input, init);
+      calls.push({ method, url, body });
+      return route(url, method);
+    }) as typeof globalThis.fetch;
+  }
+
+  it("deletes removed entries, updates kept ones, and creates new ones against the existing book", async () => {
+    const existingBook = {
+      id: "book-1",
+      entries: [
+        { id: "entry-keep", name: "Dragon", content: "old", keys: ["Dragon"], enabled: true },
+        { id: "entry-drop", name: "Ghost", content: "old", keys: ["Ghost"], enabled: true },
+      ],
+    };
+    install((url, method) => {
+      if (url.includes("/api/characters")) return jsonResponse({ id: "char-1", name: "Lore Test" });
+      if (url.includes("/entries"))
+        return jsonResponse({ id: "srv-entry" }, method === "POST" ? 201 : 200);
+      if (/\/api\/lorebooks\/[^/?]+$/.test(url)) return jsonResponse(existingBook);
+      return jsonResponse({
+        items: [{ id: "book-1", name: "Book" }],
+        meta: { limit: 20, has_more: false, cursor: null, total: 1, page: 1 },
+      });
+    });
+
+    const form = await getForm();
+    form.updateField("name", "Lore Test");
+    form.updateField("lorebook", [
+      { id: "entry-keep", keywords: ["Dragon"], content: "updated lore", enabled: true },
+      { id: "lore-new-1", keywords: ["Sword"], content: "new lore", enabled: false },
+    ]);
+
+    await form.saveCharacter();
+
+    // DELETE — the existing entry no longer present in the form is removed.
+    const deletes = calls.filter((c) => c.method === "DELETE");
+    expect(deletes).toHaveLength(1);
+    expect(deletes[0].url).toContain("/api/lorebooks/book-1/entries/entry-drop");
+
+    // UPDATE — the kept entry is PUT with the fresh content; no NEW_ENTRY_DEFAULTS.
+    const puts = calls.filter((c) => c.method === "PUT" && c.url.includes("/entries/"));
+    expect(puts).toHaveLength(1);
+    expect(puts[0].url).toContain("/entries/entry-keep");
+    expect(puts[0].body).toMatchObject({
+      name: "Dragon",
+      content: "updated lore",
+      keys: ["Dragon"],
+      enabled: true,
+    });
+    expect(puts[0].body.position).toBeUndefined();
+
+    // CREATE — the new (client-id'd) entry is POSTed with NEW_ENTRY_DEFAULTS merged.
+    const posts = calls.filter((c) => c.method === "POST" && c.url.includes("/entries"));
+    expect(posts).toHaveLength(1);
+    expect(posts[0].url).toMatch(/\/api\/lorebooks\/book-1\/entries$/);
+    expect(posts[0].body).toMatchObject({
+      name: "Sword",
+      content: "new lore",
+      keys: ["Sword"],
+      enabled: false,
+      position: "after_character",
+      role: "system",
+      secondary_logic: "and_any",
+    });
+  });
+
+  it("creates a fresh lorebook when none exists yet, then creates its entries", async () => {
+    install((url, method) => {
+      if (url.includes("/api/characters")) return jsonResponse({ id: "char-2", name: "New Lore" });
+      if (url.includes("/entries")) return jsonResponse({ id: "srv-entry" }, 201);
+      if (/\/api\/lorebooks\/[^/?]+$/.test(url) && method === "GET")
+        return jsonResponse({ id: "book-new", entries: [] });
+      if (url.includes("/api/lorebooks") && method === "POST")
+        return jsonResponse({ id: "book-new", name: "New Lore Lorebook" }, 201);
+      return jsonResponse({
+        items: [],
+        meta: { limit: 20, has_more: false, cursor: null, total: 0, page: 1 },
+      });
+    });
+
+    const form = await getForm();
+    form.updateField("name", "New Lore");
+    form.updateField("lorebook", [
+      { id: "lore-x", keywords: ["Relic"], content: "a relic", enabled: true },
+    ]);
+
+    await form.saveCharacter();
+
+    const createBook = calls.find((c) => c.method === "POST" && c.url.endsWith("/api/lorebooks"));
+    expect(createBook).toBeDefined();
+    expect(createBook!.body).toMatchObject({
+      name: "New Lore Lorebook",
+      character_id: "char-2",
+      is_global: false,
+    });
+
+    const entryPosts = calls.filter((c) => c.method === "POST" && c.url.includes("/entries"));
+    expect(entryPosts).toHaveLength(1);
+    expect(entryPosts[0].url).toMatch(/\/api\/lorebooks\/book-new\/entries$/);
+    expect(entryPosts[0].body).toMatchObject({
+      name: "Relic",
+      content: "a relic",
+      keys: ["Relic"],
+    });
   });
 });
