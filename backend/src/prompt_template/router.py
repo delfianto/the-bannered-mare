@@ -111,7 +111,7 @@ def preview_template(
 
     try:
         rendered = template_service.render(template.system_template, context)
-        variables_used = template_service._build_variables(context)  # pyright: ignore[reportPrivateUsage]
+        variables_used = template_service.build_variables(context)
     except ValueError as e:
         # render() wraps Jinja syntax/security errors as ValueError with a concise,
         # author-facing message; anything else is unexpected and propagates to the

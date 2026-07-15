@@ -72,28 +72,33 @@ async def send_message(
     - **stream=False** (default): Returns JSON MessageResponse.
     - **stream=True**: Returns Server-Sent Events (SSE) with typed events.
     """
-    if not regenerate and message_data is None:
+    # `content is None` signals a regenerate; otherwise it carries the validated
+    # user message, which is required when not regenerating.
+    if regenerate:
+        content = None
+    elif message_data is None:
         raise ValidationError("Message content is required when not regenerating.")
+    else:
+        content = message_data.content
 
     if stream:
-        return _handle_streaming(request, chat_id, service, message_data, regenerate)
+        return _handle_streaming(request, chat_id, service, content)
 
-    return await _handle_blocking(chat_id, service, message_data, regenerate)
+    return await _handle_blocking(chat_id, service, content)
 
 
 def _handle_streaming(
     request: Request,
     chat_id: str,
     service: ChatMessageService,
-    message_data: MessageCreate | None,
-    regenerate: bool,
+    content: str | None,
 ) -> StreamingResponse:
     async def event_generator():
         try:
             stream_iterator = (
                 service.regenerate_stream(chat_id)
-                if regenerate
-                else service.send_message_stream(chat_id, message_data.content)  # type: ignore (checked above)
+                if content is None
+                else service.send_message_stream(chat_id, content)
             )
 
             async for event in stream_iterator:
@@ -119,14 +124,13 @@ def _handle_streaming(
 async def _handle_blocking(
     chat_id: str,
     service: ChatMessageService,
-    message_data: MessageCreate | None,
-    regenerate: bool,
+    content: str | None,
 ) -> MessageResponse:
-    if regenerate:
+    if content is None:
         msg = await service.regenerate(chat_id)
         return MessageResponse.model_validate(msg)
 
-    msg = await service.send_message(chat_id, message_data.content)  # type: ignore
+    msg = await service.send_message(chat_id, content)
     return MessageResponse.model_validate(msg)
 
 
