@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { client, extractApiError } from "@/api/client";
 import { useEntityCrud } from "@/composables/useEntityCrud";
+import { usePromptTemplatesStore } from "@/composables/usePromptTemplates";
 import type { components } from "@/api/schema";
 
 type PromptTemplateResponse = components["schemas"]["PromptTemplateResponse"];
@@ -26,6 +27,27 @@ export function usePromptTemplate() {
         params: { path: { template_id: id } },
       }),
   });
+
+  // Invalidate the shared templates list after a create/save/delete (FE-M2), so
+  // the cached singleton every list consumer reads stays in sync.
+  const store = usePromptTemplatesStore();
+
+  async function createTemplate(body: PromptTemplateCreate) {
+    const created = await crud.createItem(body);
+    await store.refresh();
+    return created;
+  }
+
+  async function saveTemplate(id: string, body: PromptTemplateUpdate) {
+    const saved = await crud.updateItem(id, body);
+    await store.refresh();
+    return saved;
+  }
+
+  async function deleteTemplate(id: string) {
+    await crud.removeItem(id);
+    await store.refresh();
+  }
 
   const attachedFragments = ref<TemplateFragmentResponse[]>([]);
   const preview = ref<TemplatePreviewResponse | null>(null);
@@ -101,9 +123,9 @@ export function usePromptTemplate() {
     previewing,
     error: crud.error,
     fetchTemplate: crud.fetchItem,
-    createTemplate: crud.createItem,
-    saveTemplate: crud.updateItem,
-    deleteTemplate: crud.removeItem,
+    createTemplate,
+    saveTemplate,
+    deleteTemplate,
     previewTemplate,
     fetchAttachedFragments,
     attachFragment,

@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import type { components } from "@/api/schema";
 import { multipartFetch } from "@/api/client";
+import { usePresetsStore } from "@/composables/usePresets";
 
 export type STImportResult = components["schemas"]["STImportResult"];
 
@@ -8,6 +9,9 @@ export function usePresetImport() {
   const importing = ref(false);
   const result = ref<STImportResult | null>(null);
   const error = ref<Error | null>(null);
+
+  // A successful import creates a preset — invalidate the shared list (FE-M2).
+  const store = usePresetsStore();
 
   // Multipart upload — use raw fetch per the project's FormData exception
   // (openapi-fetch does not handle multipart well).
@@ -27,6 +31,7 @@ export function usePresetImport() {
       if (apiError || !data) throw apiError ?? new Error("Import failed");
 
       result.value = data;
+      await store.refresh();
       return data;
     } catch (err) {
       error.value = err instanceof Error ? err : new Error("Unknown error");
