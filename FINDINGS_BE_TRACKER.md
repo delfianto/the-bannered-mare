@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** — (Wave 1 landed)
-- **Next up:** PAUSE — Wave 2 is high-risk structural (BE-H1 Unit of Work → BE-H2 module boundaries → BE-H7 import cycle → BE-H6 RAG async). Per the autonomy setting, stop here for review before starting these.
-- **Progress:** 3 / 30 done (BE-H8, BE-H4, BE-M6 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
+- **Active:** clearing the low-risk 🤖 backlog (structural refactors BE-H1/H2/H7/H6/H5 deferred per the autonomy setting)
+- **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
+- **Progress:** 5 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8 ✓) + BE-H3 part 1 (CI gate); BE-H3 part 2 deferred (needs a VectorChord container)
 
 ---
 
@@ -170,7 +170,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Fix:** order "DB mutate → commit → then touch the filesystem" (stage to temp + move on commit for create/import).
 - **Accept:** a simulated commit failure leaves no orphaned files and no fileless entity; character tests green.
 
-### BE-M5 · Fail-fast on the placeholder `database_url` in production · [ ] · 🤖 sub
+### BE-M5 · Fail-fast on the placeholder `database_url` in production · [x] DONE (see §Completed) · 🤖 sub
 - **Ref:** FINDINGS_BE.md §4 BE-M5 · **Files:** `core/config.py:157,202-215`
 - **Fix:** extend the production validator to reject the known placeholder DSN / require an explicit `DATABASE_URL`.
 - **Accept:** booting with `environment=production` + the placeholder DSN raises; a test covers it. *(Config validation, not network hardening — auth/CORS/SSRF stay out of scope.)*
@@ -180,7 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Fix:** make `build_variables` public (drop `reportPrivateUsage`); thread validated `content: str` into `_handle_blocking`/`_handle_streaming` to drop the bare `# type: ignore`.
 - **Accept:** no `pyright: ignore`/bare `type: ignore` at those sites; `basedpyright` clean; gates green.
 
-### BE-M8 · Purge banned play-by-play comments · [ ] · 🤖 sub
+### BE-M8 · Purge banned play-by-play comments · [x] DONE (see §Completed) · 🤖 sub
 - **Ref:** FINDINGS_BE.md §4 BE-M8 · **Files:** `provider/service.py:86` (delete outright) + ~24 more listed in the finding
 - **Fix:** delete restatement comments; keep only WHY-comments.
 - **Accept:** the listed comments gone; `ruff` clean; no logic change.
@@ -212,6 +212,8 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] BE-M5** (commit tagged `BE-M5`) — extracted the placeholder DSN to a module constant (`_PLACEHOLDER_DATABASE_URL`) used as BOTH the `database_url` field default and the validator's compare target (can't drift), and extended `_forbid_insecure_production_defaults` to raise (after the existing CORS check) when `environment=production` + the placeholder DSN. Added 3 tests (prod-placeholder raises / prod-real boots / dev-placeholder fine) and made the pre-existing `test_production_with_explicit_origins_boots` pass an explicit DSN so it's env-independent. Verified: ruff/basedpyright clean, pytest **909** (906 + 3). **Env note:** `backend/.env` supplies a real remote DSN + `CORS_ORIGINS=["*"]` that pytest loads. Config-validation only (no auth/network/SSRF, per scope).
+- **[x] BE-M8** (commit tagged `BE-M8`) — removed **21** play-by-play/restatement comments across 8 files (`provider/service.py` ×4, `character/service.py` ×4, `persona/service.py` ×2, `model_family/service.py` ×2, `prompt_template/router.py` ×1, `audit/middleware.py` ×3, `fixtures/seed_*` ×5); `git numstat` confirms **deletion-only** (comment lines only), zero executable/test changes. Deliberately KEPT `prompt_template/router.py:97` (`# Mock chat object …` — a genuine WHY). Stayed within the curated list (no un-cited sweeps). Verified: ruff/basedpyright clean, pytest 909 unchanged.
 - **[~] BE-H3 — part 1 done, part 2 deferred** (commit tagged `BE-H3`) — **Part 1 (headline): added a `ci-gate` job** to `backend-ci.yml` that `needs: [lint, typecheck, test, integration]` with `if: always()` and fails unless every result is `success`, so a skipped/failed Postgres `integration` job turns the pipeline **red** instead of silently passing (point branch protection at `ci-gate`). Validated: workflow parses, all needed jobs exist. **Part 2 (expand PG tests — vchordrq tuning, message `chat_id` scoping, threshold-equality edge, empty results) DEFERRED**: authoring + verifying these needs a live VectorChord container, and **Docker is not available in this environment** — committing unverified integration tests would violate evidence-before-assertions. Follow-up: add them to `tests/integration/test_postgres_integration.py` (which already covers extension/index presence, cosine ranking + threshold, mocked-embedding retrieval, seed data) when a container is available, and confirm `uv run pytest -m postgres` green.
 - **[x] BE-M6** (commit tagged `BE-M6`) — added `tests/lore/test_router.py` (24 tests: all 8 lore endpoints, happy + 404 + validation) and `tests/rag/test_router.py` (27 tests: data-bank CRUD, `POST /rag/search`, `GET /rag/status`). Hermetic via an autouse override of `get_retrieval_service` → `MagicMock(spec=RetrievalService)` with `AsyncMock` methods — no embedding backend or pgvector SQL touched; covered the documented "indexing failure swallowed → CRUD still 2xx" behavior. **Env caveat surfaced:** this machine's `.env` has RAG enabled pointing at a live embedder (`10.0.10.2:4001`), so un-mocked search would hit it — hence the autouse override. No shared conftest touched. Verified independently: ruff/basedpyright clean, pytest **906 passed / 1 skipped**.
 - **[x] BE-H4** (commit tagged `BE-H4`) — added 13 HTTP-level tests to `tests/chat_message/test_router.py` via `AsyncClient(ASGITransport)`: blocking send (200 + both turns persisted / 422 / provider-fault 502), suggestions, title (+persisted), edit (200/404), alternatives list + activate (200/404/wrong-chat). Gateway mocked exactly like `test_service.py` (`patch ProviderGateway`→AsyncMock, `has_api_key` patched) — no real provider. Avoided the BE-H8 single-writer caveat by keeping the sync `get_db` override read-only. **Oddity reported (not fixed):** the blocking path collapses every upstream error to a flat 502 via `ProviderException`, losing the `classify_error` code the streaming path preserves (looks intentional — candidate for a future item). No shared conftest touched. Verified independently: ruff/basedpyright clean, pytest 906 passed.
