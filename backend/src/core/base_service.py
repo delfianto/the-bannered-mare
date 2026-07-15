@@ -13,6 +13,7 @@ from src.core.exceptions import NotFoundError
 from src.core.persistence.base_model import BaseModel
 from src.core.persistence.base_repository import BaseRepository, DefaultableRepository
 from src.core.persistence.base_repository_async import AsyncBaseRepository
+from src.core.persistence.unit_of_work import UnitOfWork
 
 
 def get_or_404[T: BaseModel](repo: BaseRepository[T], entity_id: str, resource_name: str) -> T:
@@ -47,13 +48,22 @@ async def async_get_or_404[T: BaseModel](
     return entity
 
 
-def set_as_default[T: BaseModel](repo: DefaultableRepository[T], entity: T) -> T:
+def set_as_default[T: BaseModel](
+    repo: DefaultableRepository[T], entity: T, uow: UnitOfWork | None = None
+) -> T:
     """Make ``entity`` the sole default row, commit, and return it reloaded.
 
     Collapses the identical ``set_default`` bodies across the persona / preset /
     profile / prompt-template services.
+
+    Pass ``uow`` to commit through the service's unit of work (BE-H1, the target
+    state). The ``None`` fallback commits via the repo and is transitional until
+    every defaultable service injects a UnitOfWork.
     """
     repo.set_default(entity.id)
-    repo.commit()
+    if uow is not None:
+        uow.commit()
+    else:
+        repo.commit()
     repo.refresh(entity)
     return entity

@@ -49,6 +49,7 @@ from src.core.persistence.models import (
     ProviderConfig,
     TemplateFragment,
 )
+from src.core.persistence.unit_of_work import UnitOfWork
 from src.core.persistence.utils import gen_id, gen_short_id
 
 __all__ = [
@@ -62,6 +63,7 @@ __all__ = [
     "AsyncDefaultableRepository",
     "DbSession",
     "AsyncDbSession",
+    "UnitOfWork",
     "get_db",
     "get_async_db",
     "SessionLocal",
