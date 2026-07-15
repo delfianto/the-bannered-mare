@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** —
-- **Next up:** Wave 1 COMPLETE. Wave 2 bugs next: FE-C3 (edit-just-sent 🧵), FE-H1 (toggles 🤖), FE-C2 (SSE tests 🤖), FE-M5 (stop button 🧵)
-- **Progress:** 3 / 29 done (FE-C1, FE-H6, FE-H7 ✓; FE-L8 folded in)
+- **Active:** — (Wave 2 in progress)
+- **Next up:** FE-H1 (toggles 🤖), then FE-C2 (SSE tests 🤖); pause before BE-H1 (structural) + the FE 🧵 migrations (FE-H4, FE-M1/M2/M3) and FE-M5
+- **Progress:** 4 / 29 done (FE-C1, FE-H6, FE-H7, FE-C3 ✓; FE-L8 folded in)
 
 ---
 
@@ -65,7 +65,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 2 — Fix the confirmed bugs, then lock them with tests
 
-### FE-C3 · Reconcile the optimistic user-message id · [ ] · 🧵 main · dep: none
+### FE-C3 · Reconcile the optimistic user-message id · [x] DONE (see §Completed) · 🧵 main · dep: none
 - **Ref:** FINDINGS_FE.md §2 FE-C3 (**verified live**)
 - **Files:** `useChatMessages.ts:262-270` (user msg), `:158-166` (`start` arm), `:303-321` (`editMessage`)
 - **Problem:** the user message keeps its `crypto.randomUUID()`; only the assistant placeholder id is reconciled → `editMessage` PUTs a non-existent id → 404 before the optimistic update.
@@ -180,6 +180,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 _(Move items here with `[x]`, the fixing commit hash, and a one-line note on what changed / what surprised you. Never delete.)_
 
+- **[x] FE-C3** (commit tagged `FE-C3`) — verified the backend persists the user message but streams only the *assistant* id in `start` (`chat_message/service.py:419-420,508-516`), so a FE-only fix must refetch. Added `reconcileSentUserMessage()`: after `readStream` completes in `sendMessage`, GET the 2 newest messages and swap the just-sent user bubble's client uuid for the persisted id **in place** (mutates `messages` directly — no cursor-list reset, so pagination/scroll are preserved); best-effort (a failed reconcile keeps the pre-fix behavior, never breaks a successful send). Regression test `useChatMessages.test.ts` drives send → reconcile → edit and asserts the edit PUTs `/messages/user-real` (would've been a phantom uuid pre-fix). Verified: 7 files / 22 tests, coverage up to **4.73%**, build/lint/fmt green.
 - **[x] FE-H7** (commit tagged `FE-H7`) — added `@vitest/coverage-v8@4.1.9`, a `coverage` block in `vite.config.ts` (v8, `all: true`, product-code include, `text-summary`+`json-summary` reporters), a `test:coverage` script, and switched the CI "Test" step to `bun run test:coverage`. Floor set just under the measured baseline — lines 2.5 / stmts 2.5 / fns 1.3 / branches 1.6 (actual 2.66/2.59/1.4/1.69) — so CI catches regressions and ratchets up as Wave 2/3 tests land. **Surprise + fix:** enabling `--coverage` made `localStorage` resolve to Node's experimental native binding (undefined) instead of happy-dom's on `globalThis`, so `i18n.ts`'s module-load `localStorage.getItem` threw and failed all suites (intermittently — it depends on which global wins). Added `src/test/setup-globals.ts` (a setupFile ordered BEFORE `setup.ts`, since ES imports hoist) that binds `localStorage` to happy-dom's `window.localStorage` or an in-memory stub. Confirmed happy-dom's `document` is otherwise intact under coverage (mount tests pass). Verified: coverage stable 3/3 (2.66% ≥ floor), plain `vp test run` + build + lint + fmt all green; `coverage/` already gitignored.
 - **[x] FE-H6** (commit tagged `FE-H6`) — added `src/mocks/server.ts` (`setupServer(...handlers)` reusing the exact handler array `browser.ts` feeds `setupWorker`) and wired `beforeAll(server.listen({onUnhandledRequest:"error"}))` / `afterEach(resetHandlers)` / `afterAll(close)` into `src/test/setup.ts`. Demonstration test `useProviders.test.ts` drives the real composable → store → **unpatched** typed client and asserts the `/api/providers` fixture loads through MSW (no `global.fetch`/`client` monkeypatch). **No extra deps or config needed** — msw 2.14.6 was already present; happy-dom resolves the relative `/api/...` path against its default origin and msw/node matches by pathname. Verified independently: `vp test run` = 6 files / 21 tests; build/lint/fmt green. Note: setup now imports the full handler+fixture graph on every test file's critical path (~0.45s) — fine, but known.
 - **[x] FE-C1** (commit tagged `FE-C1`) — switched `"test"` `bun test`→`vp test run`; **removed the `"vitest": "npm:@voidzero-dev/vite-plus-test"` override** — it exposes no `vitest` bin and broke `vp test`, while `vite-plus` already depends on real `vitest@4.1.9`, which now resolves. Added `@vue/test-utils` + `happy-dom`; added a `test` block to `vite.config.ts` (`happy-dom` env + `src/test/setup.ts` registering i18n + the 3 global primitives so `mount()` mirrors `main.ts`); migrated the 4 tests off `bun:test`→`vitest` (dropped the bun-only `process.env` hack → also closes FE-L8); deleted the obsolete `src/bun-test-env.d.ts`; added an `AppToggle` **smoke test that mounts a real SFC**. Verified: `vp test run` = **5 files / 20 tests pass**; `bun run build` + `vp lint` + `vp fmt --check` green; CI runs `bun run test`→`vp test run` (`vp` from `node_modules/.bin`) so it's unbroken. **Surprise:** the blocker was not missing deps — it was the pre-existing `vitest` override clobbering the real bin.

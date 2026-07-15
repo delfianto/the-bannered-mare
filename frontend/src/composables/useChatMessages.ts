@@ -254,6 +254,29 @@ export function useChatMessages(
     }
   };
 
+  // After a send, the optimistic user bubble still holds its client uuid — only the
+  // assistant placeholder adopted a real id (via the stream `start` event); the
+  // backend never streams the user message's id. Fetch the two newest persisted
+  // messages and swap the just-sent user message's id (matched by its temp id) in
+  // place, so editing/regenerating it targets the real row instead of 404ing
+  // (FE-C3). Surgical — it mutates `messages` directly rather than resetting the
+  // cursor list, so pagination and scroll are preserved. Best-effort: on failure
+  // the message still renders and editing it stays broken until the next reload
+  // (the pre-fix behavior), so this never breaks a successful send.
+  const reconcileSentUserMessage = async (chatId: string, tempId: string) => {
+    try {
+      const { data } = await client.GET("/api/chats/{chat_id}/messages", {
+        params: { path: { chat_id: chatId }, query: { limit: 2 } },
+      });
+      const serverUser = data?.items?.find((m) => m.role === "user");
+      if (!serverUser) return;
+      const idx = messages.value.findIndex((m) => m.id === tempId);
+      if (idx !== -1) messages.value[idx] = { ...messages.value[idx], ...serverUser };
+    } catch {
+      // Non-fatal: leave the optimistic id in place.
+    }
+  };
+
   const sendMessage = async (content: string) => {
     const chatId = getChatId();
     if (!chatId || isGenerating.value) return;
@@ -288,6 +311,8 @@ export function useChatMessages(
       }
 
       await readStream(response, placeholderId);
+      // Swap the optimistic user-message id for its persisted one (FE-C3).
+      await reconcileSentUserMessage(chatId, tempUserMsg.id);
     } catch (err) {
       if ((err as Error)?.name === "AbortError") return;
       error.value = err instanceof Error ? err : new Error("Failed to send message");
