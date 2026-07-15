@@ -4,7 +4,7 @@ from typing import Self
 
 from sqlalchemy.orm import Session
 
-from src.core.base_service import get_or_404
+from src.core.base_service import BaseCrudService, apply_update
 from src.core.exceptions import ConflictError, NotFoundError, ValidationError
 from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork, gen_id
@@ -12,9 +12,11 @@ from src.prompt_fragment.models import PromptFragment, TemplateFragment
 from src.prompt_fragment.repository import FragmentRepository, TemplateFragmentRepository
 from src.templating import TemplateService
 
+_EDITABLE = {"name", "content", "description", "fragment_type", "is_global"}
 
-class FragmentService:
-    """Service for prompt fragment CRUD and template attachment operations"""
+
+class FragmentService(BaseCrudService[PromptFragment, FragmentRepository]):
+    """Prompt fragment CRUD + template-attachment operations (inherits get_by_id/delete)."""
 
     def __init__(
         self,
@@ -23,13 +25,9 @@ class FragmentService:
         template_service: TemplateService | None = None,
         uow: UnitOfWork | None = None,
     ):
-        self.fragment_repo = fragment_repo
+        super().__init__(fragment_repo, uow or UnitOfWork(fragment_repo.db), "Prompt fragment")
         self.template_fragment_repo = template_fragment_repo
         self.template_service = template_service or TemplateService()
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `FragmentService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(fragment_repo.db)
 
     @classmethod
     def from_session(cls, db: Session, uow: UnitOfWork | None = None) -> Self:
@@ -57,10 +55,10 @@ class FragmentService:
     ) -> list[PromptFragment]:
         """List fragments with optional filtering"""
         if fragment_type is not None:
-            return self.fragment_repo.find_by_type(fragment_type)
+            return self.repo.find_by_type(fragment_type)
         if is_global is True:
-            return self.fragment_repo.find_global()
-        return self.fragment_repo.find_all_ordered()
+            return self.repo.find_global()
+        return self.repo.find_all_ordered()
 
     def list_paginated(
         self,
@@ -71,17 +69,13 @@ class FragmentService:
         unused_only: bool = False,
     ) -> tuple[list[PromptFragment], int]:
         """List fragments with pagination, filtering, and template-usage info"""
-        return self.fragment_repo.find_paginated_with_usage(
+        return self.repo.find_paginated_with_usage(
             limit=limit,
             offset=offset,
             fragment_type=fragment_type,
             is_global=is_global,
             unused_only=unused_only,
         )
-
-    def get_by_id(self, fragment_id: str) -> PromptFragment:
-        """Get fragment by ID, raise 404 if not found"""
-        return get_or_404(self.fragment_repo, fragment_id, "Prompt fragment")
 
     def create(
         self,
@@ -102,7 +96,7 @@ class FragmentService:
             fragment_type=fragment_type,
             is_global=is_global,
         )
-        created = self.fragment_repo.create(fragment)
+        created = self.repo.create(fragment)
         self.uow.commit()
         return created
 
@@ -115,30 +109,22 @@ class FragmentService:
         fragment_type: str | None = None,
         is_global: bool | None = None,
     ) -> PromptFragment:
-        """Update an existing prompt fragment"""
+        """Update a prompt fragment (skip-on-None: only provided fields change)."""
         fragment = self.get_by_id(fragment_id)
         self._validate_content(content)
 
-        if name is not None:
-            fragment.name = name
-        if content is not None:
-            fragment.content = content
-        if description is not None:
-            fragment.description = description
-        if fragment_type is not None:
-            fragment.fragment_type = fragment_type
-        if is_global is not None:
-            fragment.is_global = is_global
+        patch = {
+            "name": name,
+            "content": content,
+            "description": description,
+            "fragment_type": fragment_type,
+            "is_global": is_global,
+        }
+        apply_update(fragment, {k: v for k, v in patch.items() if v is not None}, _EDITABLE)
 
-        updated = self.fragment_repo.update(fragment)
+        updated = self.repo.update(fragment)
         self.uow.commit()
         return updated
-
-    def delete(self, fragment_id: str) -> None:
-        """Delete a prompt fragment"""
-        fragment = self.get_by_id(fragment_id)
-        self.fragment_repo.delete(fragment)
-        self.uow.commit()
 
     def delete_orphaned(self, fragment_ids: list[str]) -> int:
         """Delete any of the given fragments now orphaned (unattached and not global).
@@ -148,7 +134,7 @@ class FragmentService:
         behind. Flush-only — it runs inside the CALLER's unit of work so the whole
         deletion commits through one boundary; it never commits on its own.
         """
-        return self.fragment_repo.delete_orphaned(fragment_ids)
+        return self.repo.delete_orphaned(fragment_ids)
 
     # -- Template-Fragment attachment --
 
@@ -218,11 +204,11 @@ class FragmentService:
 
     def find_by_name(self, name: str) -> PromptFragment | None:
         """Look up a fragment by exact name (import unique-naming)."""
-        return self.fragment_repo.find_by_name(name)
+        return self.repo.find_by_name(name)
 
     def find_by_content(self, content: str) -> PromptFragment | None:
         """Look up a fragment by exact content (import de-dup)."""
-        return self.fragment_repo.find_by_content(content)
+        return self.repo.find_by_content(content)
 
     def create_imported(
         self,
@@ -245,7 +231,7 @@ class FragmentService:
             content=content,
             is_global=False,
         )
-        return self.fragment_repo.create(fragment)
+        return self.repo.create(fragment)
 
     def attach_imported(
         self,
