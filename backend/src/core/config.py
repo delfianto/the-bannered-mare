@@ -145,6 +145,12 @@ class DiscoveryCacheSettings(BaseModel):
     ttl_seconds: int = 300
 
 
+# The shipped placeholder database DSN. Convenient as a local/dev default, but its
+# password is public knowledge — a production deploy that boots against it is
+# effectively unauthenticated, so the production validator on Settings rejects it.
+_PLACEHOLDER_DATABASE_URL = "postgresql://user:password@localhost:5432/bannered_mare"
+
+
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
@@ -154,7 +160,7 @@ class Settings(BaseSettings):
     environment: Literal["development", "production"] = "development"
 
     # Database
-    database_url: str = "postgresql://user:password@localhost:5432/bannered_mare"
+    database_url: str = _PLACEHOLDER_DATABASE_URL
     database: DatabaseSettings = DatabaseSettings()
 
     # Storage — root directory for all binary/generated files (character & persona
@@ -204,13 +210,21 @@ class Settings(BaseSettings):
         """Refuse to boot in production with an insecure default.
 
         Only enforced when ENVIRONMENT=production, so it can never break local/test
-        runs — but it turns a silently-insecure prod deploy (wildcard CORS) into a
-        loud startup failure with an actionable message.
+        runs — but it turns a silently-insecure prod deploy (wildcard CORS, or the
+        shipped placeholder DATABASE_URL with its public password) into a loud startup
+        failure with an actionable message.
         """
-        if self.environment == "production" and "*" in self.cors_origins:
+        if self.environment != "production":
+            return self
+        if "*" in self.cors_origins:
             raise ValueError(
                 "Insecure configuration for ENVIRONMENT=production: "
                 "CORS_ORIGINS contains '*' — set explicit allowed origins."
+            )
+        if self.database_url == _PLACEHOLDER_DATABASE_URL:
+            raise ValueError(
+                "Insecure configuration for ENVIRONMENT=production: "
+                "DATABASE_URL is the shipped placeholder — set an explicit DATABASE_URL."
             )
         return self
 
