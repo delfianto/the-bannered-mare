@@ -364,7 +364,7 @@ function getParamRange(schema: unknown): string | null {
               <span
                 v-for="param in family.unsupported_parameters"
                 :key="param"
-                class="rounded-full bg-red-500/10 px-3 py-1 font-mono text-xs font-medium text-red-400"
+                class="rounded-full bg-error/10 px-3 py-1 font-mono text-xs font-medium text-error"
               >
                 {{ param }}
               </span>

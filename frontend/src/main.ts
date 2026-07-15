@@ -83,5 +83,3 @@ async function prepareApp() {
 prepareApp().then(() => {
   app.mount("#app");
 });
-
-console.log("The Bannered Mare initialized...");
