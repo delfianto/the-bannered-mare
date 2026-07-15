@@ -5,7 +5,7 @@ from typing import Literal
 
 import httpx
 
-from src.core.base_service import get_or_404
+from src.core.base_service import BaseCrudService, apply_update
 from src.core.config import settings
 from src.core.exceptions import ConflictError, ProviderException, ValidationError
 from src.core.logging import get_logger
@@ -61,8 +61,11 @@ def _dedupe_preserving_order(identifiers: list[str]) -> list[str]:
     return result
 
 
-class ProviderService:
-    """Service for provider-related business logic"""
+_EDITABLE = {"name", "base_url", "api_key_env_var", "enabled"}
+
+
+class ProviderService(BaseCrudService[Provider, ProviderRepository]):
+    """Service for provider-related business logic (inherits get_by_id)."""
 
     def __init__(
         self,
@@ -70,20 +73,14 @@ class ProviderService:
         model_cache: ModelListCache,
         uow: UnitOfWork | None = None,
     ):
-        self.provider_repo = provider_repo
+        # Fallback keeps direct `ProviderService(...)` construction (tests) valid —
+        # the DI factory injects the request-scoped UoW.
+        super().__init__(provider_repo, uow or UnitOfWork(provider_repo.db), "Provider")
         self.model_cache = model_cache
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `ProviderService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(provider_repo.db)
 
     def list_all(self) -> list[Provider]:
-        """List all providers"""
-        return self.provider_repo.find_all()
-
-    def get_by_id(self, provider_id: str) -> Provider:
-        """Get provider by ID, raise 404 if not found"""
-        return get_or_404(self.provider_repo, provider_id, "Provider")
+        """List all providers (insertion order)."""
+        return self.repo.find_all()
 
     def create(
         self,
@@ -112,7 +109,7 @@ class ProviderService:
                 f"This provider uses predefined environment variable"
             )
 
-        existing = self.provider_repo.find_by_name(name)
+        existing = self.repo.find_by_name(name)
         if existing:
             raise ConflictError(f"Provider with name '{name}' already exists")
 
@@ -123,7 +120,7 @@ class ProviderService:
             api_key_env_var=api_key_env_var,
         )
 
-        created = self.provider_repo.create(provider)
+        created = self.repo.create(provider)
         self.uow.commit()
 
         if not created.has_api_key():
@@ -159,16 +156,15 @@ class ProviderService:
                     "underscores (e.g., MY_CUSTOM_API_KEY)"
                 )
 
-        if name is not None:
-            provider.name = name
-        if base_url is not None:
-            provider.base_url = base_url
-        if api_key_env_var is not None:
-            provider.api_key_env_var = api_key_env_var
-        if enabled is not None:
-            provider.enabled = enabled
+        patch = {
+            "name": name,
+            "base_url": base_url,
+            "api_key_env_var": api_key_env_var,
+            "enabled": enabled,
+        }
+        apply_update(provider, {k: v for k, v in patch.items() if v is not None}, _EDITABLE)
 
-        updated = self.provider_repo.update(provider)
+        updated = self.repo.update(provider)
         self.uow.commit()
         return updated
 
@@ -176,7 +172,7 @@ class ProviderService:
         """Update provider enabled/disabled state"""
         provider = self.get_by_id(provider_id)
         provider.enabled = enabled
-        updated = self.provider_repo.update(provider)
+        updated = self.repo.update(provider)
         self.uow.commit()
 
         logger.info(
@@ -236,7 +232,7 @@ class ProviderService:
         """Persist the curated allow-list and return the newly-filtered list."""
         provider = self.get_by_id(provider_id)
         provider.allowed_models = _dedupe_preserving_order(allowed_models)
-        self.provider_repo.update(provider)
+        self.repo.update(provider)
         self.uow.commit()
 
         # Reuse the cache — changing the filter never needs a fresh provider call.
@@ -286,7 +282,7 @@ class ProviderService:
             raise self._unreachable(provider, e) from e
 
         provider.last_synced_at = utc_now()
-        self.provider_repo.update(provider)
+        self.repo.update(provider)
         self.uow.commit()
 
         # Cache the raw discovered list; the blacklist is applied on the way out
