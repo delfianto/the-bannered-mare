@@ -52,6 +52,29 @@ class PresetService:
         self.uow.commit()
         return created
 
+    # --- SillyTavern import seam (BE-H2) ---
+
+    def find_by_name(self, name: str) -> Preset | None:
+        """Look up a preset by exact name (import unique-naming)."""
+        return self.preset_repo.find_by_name(name)
+
+    def create_imported(
+        self,
+        name: str,
+        description: str | None = None,
+        parameters: dict[str, Any] | None = None,
+    ) -> Preset:
+        """Create a preset from a trusted import. Flush-only — participates in the
+        caller's unit of work so the whole ST import commits as one transaction."""
+        preset = Preset(
+            id=gen_id(),
+            name=name,
+            description=description,
+            parameters=parameters or {},
+            is_default=False,
+        )
+        return self.preset_repo.create(preset)
+
     def update(
         self,
         preset_id: str,

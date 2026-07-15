@@ -47,6 +47,37 @@ class PromptTemplateService:
         """Get prompt template by ID, raise 404 if not found"""
         return get_or_404(self.template_repo, template_id, "Prompt template")
 
+    # --- SillyTavern import seam (BE-H2) ---
+
+    def find_by_name(self, name: str) -> PromptTemplate | None:
+        """Look up a template by exact name (import unique-naming)."""
+        return self.template_repo.find_by_name(name)
+
+    def create_imported(
+        self,
+        name: str,
+        system_template: str,
+        description: str | None = None,
+        component_order: list[str] | None = None,
+        components_enabled: dict[str, Any] | None = None,
+    ) -> PromptTemplate:
+        """Create a template from a trusted import, skipping Jinja2 validation.
+
+        Flush-only — SillyTavern templates carry ST-specific macros the normal
+        ``create`` would reject, and the whole preset import must commit as one
+        transaction under the caller's unit of work.
+        """
+        template = PromptTemplate(
+            id=gen_id(),
+            name=name,
+            system_template=system_template,
+            description=description,
+            is_default=False,
+            component_order=component_order,
+            components_enabled=components_enabled,
+        )
+        return self.template_repo.create(template)
+
     def _validate_template_field(self, name: str, template_str: str | None) -> None:
         """Validate a Jinja2 template field, raising 400 if invalid."""
         if template_str is not None:

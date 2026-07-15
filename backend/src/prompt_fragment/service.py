@@ -212,3 +212,60 @@ class FragmentService:
 
         self.uow.commit()
         return self.template_fragment_repo.find_by_template_id(template_id)
+
+    # --- SillyTavern import seam (BE-H2) ---
+
+    def find_by_name(self, name: str) -> PromptFragment | None:
+        """Look up a fragment by exact name (import unique-naming)."""
+        return self.fragment_repo.find_by_name(name)
+
+    def find_by_content(self, content: str) -> PromptFragment | None:
+        """Look up a fragment by exact content (import de-dup)."""
+        return self.fragment_repo.find_by_content(content)
+
+    def create_imported(
+        self,
+        name: str,
+        content: str,
+        fragment_type: str,
+        description: str | None = None,
+    ) -> PromptFragment:
+        """Create a fragment from a trusted import, skipping Jinja2 validation.
+
+        Flush-only — SillyTavern content carries ST macros the normal ``create``
+        would reject, and the whole preset import must commit as one transaction
+        under the caller's unit of work.
+        """
+        fragment = PromptFragment(
+            id=gen_id(),
+            name=name,
+            description=description,
+            fragment_type=fragment_type,
+            content=content,
+            is_global=False,
+        )
+        return self.fragment_repo.create(fragment)
+
+    def attach_imported(
+        self,
+        template_id: str,
+        fragment_id: str,
+        position: str,
+        ordinal: int,
+        depth: int | None = None,
+    ) -> TemplateFragment:
+        """Attach a fragment to a template with an explicit ``depth`` (import join row).
+
+        Flush-only. Unlike ``attach_to_template`` it sets ``depth`` (ST ``at_depth``
+        insertion) and skips the already-attached check — the import builds fresh
+        join rows in one transaction.
+        """
+        tf = TemplateFragment(
+            id=gen_id(),
+            template_id=template_id,
+            fragment_id=fragment_id,
+            position=position,
+            ordinal=ordinal,
+            depth=depth,
+        )
+        return self.template_fragment_repo.create(tf)
