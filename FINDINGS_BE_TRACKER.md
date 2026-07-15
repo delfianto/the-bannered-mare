@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** ✅ **BE-M3 DONE** (⚠ contract) — pagination constants centralized in `core/pagination.py`, single default page size = 10; the 3 conversation endpoints moved 20→10 (3-line `openapi.json` diff, `schema.d.ts` unchanged, MSW mocks aligned). Backend 946 green + frontend build/60 tests green. **Next up:** BE-M10 (bookmarks stub ⚠ contract), then BE-H5 (BaseCrudService), BE-H6 (RAG router→service), and BE-L3/L5/L7/L9. Still deferred (need Docker/live PG): BE-H3 part 2, BE-M12(c).
-- **Next up:** BE-M10 (bookmarks stub ⚠ contract), then BE-H5/H6 and the remaining BE-L items.
-- **Progress:** 20 / 30 done (BE-H1, **BE-H2**, BE-H4, **BE-H7**, BE-H8, BE-H9, BE-M1, **BE-M2**, **BE-M3**, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓; **BE-M11 resolved by BE-H2**) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b; BE-M12 part c (audit-writer) + BE-H3 part 2 deferred. **Remaining: BE-H5, BE-H6, BE-M10, BE-L3, BE-L5, BE-L7, BE-L9.**
+- **Active:** ⏸️ **BE-M10 DEFERRED (user decision)** — the `bookmarks` stubs stay: the frontend consumes all three endpoints (built-out `BookmarksView`), so removal would tear out scaffolding for a soon-to-land favoriting/pinning feature; revisit by *implementing* (not removing) then. No code changed. Prior: BE-M3 done (946 backend + frontend green). **Next up:** BE-H5 (BaseCrudService — unify the 3 update idioms), BE-H6 (RAG router→service), then BE-L3/L5/L7/L9. Still deferred (need Docker/live PG): BE-H3 part 2, BE-M12(c).
+- **Next up:** BE-H5 (BaseCrudService), BE-H6 (RAG router→service), then the remaining BE-L items.
+- **Progress:** 20 / 30 done (BE-H1, **BE-H2**, BE-H4, **BE-H7**, BE-H8, BE-H9, BE-M1, **BE-M2**, **BE-M3**, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓; **BE-M11 resolved by BE-H2**) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b. **Deferred:** BE-M10 (user), BE-H3 part 2 + BE-M12(c) (need Docker/live PG). **Remaining active: BE-H5, BE-H6, BE-L3, BE-L5, BE-L7, BE-L9.**
 
 ---
 
@@ -216,10 +216,11 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Fix:** delete restatement comments; keep only WHY-comments.
 - **Accept:** the listed comments gone; `ruff` clean; no logic change.
 
-### BE-M10 · Implement or remove the `bookmarks` stub endpoints · [ ] · 🤖 sub · ⚠ contract
+### BE-M10 · Implement or remove the `bookmarks` stub endpoints · [!] DEFERRED (user decision) · 🤖 sub · ⚠ contract
 - **Ref:** FINDINGS_BE.md §4 BE-M10 (⊕ all 3 lenses) · **Files:** `bookmarks/router.py:20,26`
 - **Fix:** remove the two empty stub routes until the feature lands (keep `/sessions`); document the module-shape deviation; add a test for the working endpoint.
 - **Accept:** no endpoint returns a hardcoded `[]`; **regenerate contract + `bun run api:gen`** + update MSW; frontend builds; gates green.
+- **DEFERRED (user decision):** the plan assumed the two stubs were unused, but the **frontend actively consumes all three** — `useBookmarks.ts` fetches `/characters`, `/sessions`, `/messages` in parallel and `BookmarksView.vue` renders a section per type (characters/messages only `v-if length > 0`, so they never show while the stubs return `[]`; the `:190` comment already documents the stub nature). Removing the routes would break the typed-client build and require ripping out the built-out characters/messages UI scaffolding intended for a soon-to-land favoriting/pinning feature. User chose to **keep the stubs and defer** rather than remove that scaffolding. Revisit when favoriting/pinning actually lands (then implement, not remove). **No code changed.**
 
 ### BE-M12 · Strengthen weak/thin test assertions · [~] PARTIAL — (a)+(b) done; (c) audit-writer deferred (see §Completed) · 🤖 sub · dep: BE-H8 (for cross-path)
 - **Ref:** FINDINGS_BE.md §4 BE-M12 · **Files:** `tests/chat_message/test_concurrent_streaming.py:30-52`; repo-layer tests; `audit/writer.py` + `tests/conftest.py:9`
