@@ -148,12 +148,21 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 3 — Finish the DRY job + kill the hotspots
 
-### BE-H5 · Build `BaseCrudService` and unify the 3 `update()` idioms · [ ] · 🧵 main · dep: BE-H1
+### BE-H5 · Build `BaseCrudService` and unify the 3 `update()` idioms · [~] IN PROGRESS · 🧵 main · dep: BE-H1
 - **Ref:** FINDINGS_BE.md §3 BE-H5
 - **Files:** `core/base_service.py`; the ~11 domain services (`persona/preset/profile/model_family/character/prompt_fragment/prompt_template/model/provider/chat_session/rag`)
 - **Problem:** `list_all`/`get_by_id`/`delete` re-declared in 9–12 services; partial-update done 3 incompatible ways (kwargs+None, Pydantic+None, dict+setattr) with different null-clearing semantics.
 - **Fix:** `BaseCrudService[T]` exposing `list_all`/`list_paginated`/`get_by_id`/`delete` + one `apply_update(entity, patch, editable)` with a single agreed null-semantics (recommend the profile-style explicit-patch dict). Domain services keep only non-generic logic.
 - **Accept:** the 3 idioms collapse to one; a test proves null-clearing behaves consistently; no behavior change on existing CRUD tests; gates green.
+- **User decision:** full `BaseCrudService[T, R]` base class (not the helper-only alternative).
+- **Design notes:** base is `BaseCrudService[T: BaseModel, R: BaseRepository[Any]]` (two params so `self.repo` keeps the subclass's concrete repo type; the self-referential bound `R: BaseRepository[T]` tripped basedpyright, so R is bound to `BaseRepository[Any]` — callers still see precise `-> T`). Provides `list_all` (→ `find_all_ordered`), `get_by_id`, `delete` (plain); subclasses override where behavior differs. `apply_update(entity, patch, editable)` is a free helper (usable by non-inheriting services too); null policy stays per-endpoint via how the caller builds `patch` (skip-on-None services omit None keys → **no behavior change**; profile/chat pass explicit-present). Renames each service's `self.<x>_repo` → `self.repo`.
+- **Rollout (gates between each):**
+  - [x] **base + `apply_update` + `preset`** (commit `BE-H5`) — proof: generics validated by basedpyright, 950 green, zero behavior change. `preset` inherits list_all/get_by_id/delete; keeps list_paginated/create/update(apply_update, skip-on-None)/set_default/import-seam. (1 test ref `service.preset_service.preset_repo`→`.repo`.)
+  - [ ] **model_family, profile, persona**
+  - [ ] **prompt_template, prompt_fragment**
+  - [ ] **model, provider**
+  - [ ] **rag (DataBank), character, chat_session** (selective inherit for the async/cursor ones)
+  - [ ] **null-clearing test** proving `apply_update` semantics (profile clear vs skip-on-None)
 - **Commit:** —
 - **Notes:** completes audit BE-6's own recommendation (repo layer was done; service layer never was). Do after BE-H1 so the transaction boundary is settled.
 

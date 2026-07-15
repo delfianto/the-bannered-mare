@@ -2,36 +2,28 @@
 
 from typing import Any
 
-from src.core.base_service import get_or_404, set_as_default
+from src.core.base_service import BaseCrudService, apply_update, set_as_default
 from src.core.pagination import DEFAULT_PAGE_SIZE
 from src.core.persistence import UnitOfWork, gen_id
 from src.preset.models import Preset
 from src.preset.repository import PresetRepository
 
+_EDITABLE = {"name", "description", "parameters", "is_default"}
 
-class PresetService:
-    """Service for preset-related business logic"""
+
+class PresetService(BaseCrudService[Preset, PresetRepository]):
+    """Service for preset-related business logic (inherits list_all/get_by_id/delete)."""
 
     def __init__(self, preset_repo: PresetRepository, uow: UnitOfWork | None = None):
-        self.preset_repo = preset_repo
-        # The unit of work owns the transaction boundary; it wraps the same session
-        # the repos share. Fallback keeps direct `PresetService(...)` construction
-        # (tests) valid — the DI factory injects the request-scoped UoW.
-        self.uow = uow or UnitOfWork(preset_repo.db)
-
-    def list_all(self) -> list[Preset]:
-        """List all presets"""
-        return self.preset_repo.find_all_ordered()
+        # Fallback keeps direct `PresetService(...)` construction (tests) valid —
+        # the DI factory injects the request-scoped UoW.
+        super().__init__(preset_repo, uow or UnitOfWork(preset_repo.db), "Preset")
 
     def list_paginated(
         self, limit: int = DEFAULT_PAGE_SIZE, offset: int = 0
     ) -> tuple[list[Preset], int]:
         """List presets with pagination"""
-        return self.preset_repo.find_paginated_ordered(limit, offset)
-
-    def get_by_id(self, preset_id: str) -> Preset:
-        """Get preset by ID, raise 404 if not found"""
-        return get_or_404(self.preset_repo, preset_id, "Preset")
+        return self.repo.find_paginated_ordered(limit, offset)
 
     def create(
         self,
@@ -42,7 +34,7 @@ class PresetService:
     ) -> Preset:
         """Create new preset"""
         if is_default:
-            self.preset_repo.unset_all_defaults()
+            self.repo.unset_all_defaults()
 
         preset = Preset(
             id=gen_id(),
@@ -51,7 +43,7 @@ class PresetService:
             parameters=parameters or {},
             is_default=is_default,
         )
-        created = self.preset_repo.create(preset)
+        created = self.repo.create(preset)
         self.uow.commit()
         return created
 
@@ -59,7 +51,7 @@ class PresetService:
 
     def find_by_name(self, name: str) -> Preset | None:
         """Look up a preset by exact name (import unique-naming)."""
-        return self.preset_repo.find_by_name(name)
+        return self.repo.find_by_name(name)
 
     def create_imported(
         self,
@@ -76,7 +68,7 @@ class PresetService:
             parameters=parameters or {},
             is_default=False,
         )
-        return self.preset_repo.create(preset)
+        return self.repo.create(preset)
 
     def update(
         self,
@@ -86,31 +78,19 @@ class PresetService:
         parameters: dict[str, Any] | None = None,
         is_default: bool | None = None,
     ) -> Preset:
-        """Update preset"""
+        """Update preset (skip-on-None: only provided fields change)."""
         preset = self.get_by_id(preset_id)
 
         if is_default:
-            self.preset_repo.unset_all_defaults(exclude_id=preset_id)
+            self.repo.unset_all_defaults(exclude_id=preset_id)
 
-        if name is not None:
-            preset.name = name
-        if description is not None:
-            preset.description = description
-        if parameters is not None:
-            preset.parameters = parameters
-        if is_default is not None:
-            preset.is_default = is_default
+        patch = {"name": name, "description": description, "parameters": parameters, "is_default": is_default}
+        apply_update(preset, {k: v for k, v in patch.items() if v is not None}, _EDITABLE)
 
-        updated = self.preset_repo.update(preset)
+        updated = self.repo.update(preset)
         self.uow.commit()
         return updated
 
-    def delete(self, preset_id: str) -> None:
-        """Delete preset"""
-        preset = self.get_by_id(preset_id)
-        self.preset_repo.delete(preset)
-        self.uow.commit()
-
     def set_default(self, preset_id: str) -> Preset:
         """Set preset as default"""
-        return set_as_default(self.preset_repo, self.get_by_id(preset_id), self.uow)
+        return set_as_default(self.repo, self.get_by_id(preset_id), self.uow)
