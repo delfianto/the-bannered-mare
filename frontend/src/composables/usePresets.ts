@@ -11,7 +11,7 @@ export function usePresets() {
     error,
     refresh,
   } = useListCrud<Preset>({
-    label: "presets",
+    label: "preset",
     list: () => client.GET("/api/presets/", { params: { query: { limit: 50 } } }),
   });
 

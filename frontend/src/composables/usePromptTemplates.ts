@@ -11,7 +11,7 @@ export function usePromptTemplates() {
     error,
     refresh,
   } = useListCrud<PromptTemplate>({
-    label: "prompt templates",
+    label: "prompt template",
     list: () => client.GET("/api/prompt-templates/", { params: { query: { limit: 50 } } }),
   });
 
