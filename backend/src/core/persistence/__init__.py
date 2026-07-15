@@ -49,6 +49,7 @@ from src.core.persistence.models import (
     ProviderConfig,
     TemplateFragment,
 )
+from src.core.persistence.ports import ExistsPort, ReadPort
 from src.core.persistence.unit_of_work import AsyncUnitOfWork, UnitOfWork
 from src.core.persistence.utils import gen_id, gen_short_id
 
@@ -65,6 +66,8 @@ __all__ = [
     "AsyncDbSession",
     "UnitOfWork",
     "AsyncUnitOfWork",
+    "ExistsPort",
+    "ReadPort",
     "get_db",
     "get_async_db",
     "SessionLocal",
