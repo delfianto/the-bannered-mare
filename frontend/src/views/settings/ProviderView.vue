@@ -6,7 +6,6 @@ import { useRouter, useRoute } from "vue-router";
 import { useProvider } from "@/composables/useProvider";
 import { useModels } from "@/composables/useModels";
 import { useAppToast } from "@/composables/useToast";
-import { useSettingsStore } from "@/stores/settings";
 import { formatDate, timeAgo as timeAgoUtil } from "@/utils/date";
 import { routeParam } from "@/utils/route";
 import ModelCreateModal from "@/components/connections/ModelCreateModal.vue";
@@ -46,7 +45,6 @@ const {
   deleteModel,
 } = useProvider();
 const toast = useAppToast();
-const settingsStore = useSettingsStore();
 
 const isLocalProvider = computed(
   () => provider.value?.provider_type === "ollama" || provider.value?.provider_type === "lmstudio",
@@ -204,9 +202,6 @@ async function handleSave() {
 
   try {
     await saveProvider(provider.value.id, updates);
-    // Refresh the shared provider cache so the Providers/Models tabs reflect the
-    // edit instead of showing the stale pre-save name/URL/enabled state.
-    await settingsStore.fetchProviders(true);
     toast.success(t("connections.provider.toast.updated"));
   } catch (e) {
     toast.error(t("connections.provider.toast.saveFailed"));

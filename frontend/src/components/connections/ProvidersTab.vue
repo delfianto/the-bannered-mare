@@ -29,7 +29,6 @@ async function onCreate(payload: components["schemas"]["ProviderCreate"]) {
     await createProvider(payload);
     toast.success(t("connections.provider.toast.created"));
     showCreate.value = false;
-    await refresh();
   } catch {
     toast.error(t("connections.provider.toast.createFailed"));
   }
