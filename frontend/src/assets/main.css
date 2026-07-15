@@ -79,6 +79,13 @@
   @apply shadow-[0_0_0_3px_var(--color-primary)/0.08];
 }
 
+/* Input field — the app-wide single-line text-input styling, one definition
+   (FE-H4). Builds on `focus-ring`; add `font-mono` / `pr-10` at the call site
+   for the variants. */
+@utility input-field {
+  @apply h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring;
+}
+
 @layer base {
   *,
   ::after,
