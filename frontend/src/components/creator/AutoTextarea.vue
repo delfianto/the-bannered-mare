@@ -56,7 +56,7 @@ onMounted(() => nextTick(autosize));
       :value="modelValue"
       :placeholder="placeholder"
       :rows="minRows"
-      class="w-full resize-none overflow-y-auto rounded-lg border bg-base-300/40 px-4 py-3 pr-10 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+      class="w-full resize-none overflow-y-auto rounded-lg border bg-base-300/40 px-4 py-3 pr-10 text-sm leading-relaxed text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
       :style="{ maxHeight: `${maxVh}vh` }"
       @input="onInput"
     />
@@ -74,7 +74,7 @@ onMounted(() => nextTick(autosize));
       <textarea
         :value="modelValue"
         :placeholder="placeholder"
-        class="h-[70vh] w-full resize-none rounded-lg border bg-base-300/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-[70vh] w-full resize-none rounded-lg border bg-base-300/40 px-4 py-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
         @input="emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       ></textarea>
       <template #footer>

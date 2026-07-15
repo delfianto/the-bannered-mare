@@ -72,6 +72,13 @@
   --color-dialogue: color-mix(in oklab, var(--color-primary) 50%, var(--color-base-content));
 }
 
+/* Focus ring — the app-wide control focus shadow, one definition (FE-H4).
+   Variant-agnostic (Tailwind v4 utilities compose with variants at the call
+   site); used as `focus:focus-ring`, the only current usage. */
+@utility focus-ring {
+  @apply shadow-[0_0_0_3px_var(--color-primary)/0.08];
+}
+
 @layer base {
   *,
   ::after,

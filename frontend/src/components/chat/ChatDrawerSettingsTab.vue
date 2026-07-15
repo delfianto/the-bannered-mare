@@ -476,7 +476,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
       </label>
       <input
         v-model="editTitle"
-        class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+        class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
         @keydown="handleRenameKeydown"
         @blur="saveRename"
       />

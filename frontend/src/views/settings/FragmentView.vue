@@ -198,7 +198,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                   v-model="form.name"
                   type="text"
                   placeholder="Fragment name"
-                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
 
@@ -213,7 +213,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                   v-model="form.description"
                   rows="3"
                   placeholder="Fragment description"
-                  class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                  class="w-full rounded-lg border bg-base-300/40 px-4 py-3 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                 />
               </label>
 
@@ -269,7 +269,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
               v-model="form.content"
               rows="8"
               :placeholder="$t('connections.fragment.contentPlaceholder')"
-              class="min-h-50 w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+              class="min-h-50 w-full rounded-lg border bg-base-300/40 px-4 py-3 font-mono text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
             />
             <p class="mt-2 text-2xs text-muted-foreground/60">
               {{ $t("connections.fragment.contentHint") }}

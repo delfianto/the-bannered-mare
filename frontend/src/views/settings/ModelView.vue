@@ -338,7 +338,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                     v-model="form.display_name"
                     type="text"
                     :placeholder="$t('connections.model.namePlaceholder')"
-                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                    class="h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground transition-all outline-none placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                   />
                 </label>
 
@@ -500,7 +500,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                       v-model="newRouteIdentifier"
                       type="text"
                       placeholder="e.g. deepseek/deepseek-v4-pro"
-                      class="h-10 min-w-0 flex-1 rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:shadow-[0_0_0_3px_var(--color-primary)/0.08]"
+                      class="h-10 min-w-0 flex-1 rounded-lg border bg-base-300/40 px-3 font-mono text-sm text-foreground outline-none transition-all placeholder:font-sans placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring"
                       @keydown.enter="handleAddRoute"
                     />
                     <button
