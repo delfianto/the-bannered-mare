@@ -7,13 +7,11 @@ exception) so the service layer stays HTTP-agnostic — the global handler in
 usable by services that hold specialised or multiple repositories.
 """
 
-from collections.abc import Awaitable, Callable
 from typing import Any
 
 from src.core.exceptions import NotFoundError
 from src.core.persistence.base_model import BaseModel
 from src.core.persistence.base_repository import BaseRepository, DefaultableRepository
-from src.core.persistence.base_repository_async import AsyncBaseRepository
 from src.core.persistence.ports import ReadPort
 from src.core.persistence.unit_of_work import UnitOfWork
 
@@ -28,24 +26,6 @@ def get_or_404[T: BaseModel](repo: ReadPort[T], entity_id: str, resource_name: s
         resource_name: human label for the 404 message (e.g. "Persona").
     """
     entity = repo.find_by_id(entity_id)
-    if entity is None:
-        raise NotFoundError(f"{resource_name} not found")
-    return entity
-
-
-async def async_get_or_404[T: BaseModel](
-    repo: AsyncBaseRepository[T],
-    entity_id: str,
-    resource_name: str,
-    finder: Callable[[str], Awaitable[T | None]] | None = None,
-) -> T:
-    """Async counterpart to ``get_or_404``.
-
-    Pass ``finder`` to use a specialised lookup (e.g. a relations-eager variant);
-    defaults to ``repo.find_by_id``.
-    """
-    lookup = finder or repo.find_by_id
-    entity = await lookup(entity_id)
     if entity is None:
         raise NotFoundError(f"{resource_name} not found")
     return entity
@@ -98,12 +78,8 @@ class BaseCrudService[T: BaseModel, R: BaseRepository[Any]]:
         """List all rows, name-ordered. Override for a different order/query."""
         return self.repo.find_all_ordered()
 
-    def get_by_id(self, entity_id: str, /) -> T:
-        """Return the row by id, or raise NotFoundError (→ HTTP 404).
-
-        ``entity_id`` is positional-only so subclasses may override with a
-        domain-specific name (``persona_id``, …) and stay LSP-compatible.
-        """
+    def get_by_id(self, entity_id: str) -> T:
+        """Return the row by id, or raise NotFoundError (→ HTTP 404)."""
         return get_or_404(self.repo, entity_id, self._resource_name)
 
     def delete(self, entity_id: str, /) -> None:

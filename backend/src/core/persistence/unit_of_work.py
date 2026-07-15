@@ -31,10 +31,6 @@ class UnitOfWork:
         """Discard every pending change in this unit of work."""
         self._session.rollback()
 
-    def flush(self) -> None:
-        """Flush pending changes into the transaction without committing."""
-        self._session.flush()
-
 
 class AsyncUnitOfWork:
     """Async counterpart of ``UnitOfWork`` (the ``chat_message`` streaming path).
@@ -55,7 +51,3 @@ class AsyncUnitOfWork:
     async def rollback(self) -> None:
         """Discard every pending change in this unit of work."""
         await self._session.rollback()
-
-    async def flush(self) -> None:
-        """Flush pending changes into the transaction without committing."""
-        await self._session.flush()
