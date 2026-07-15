@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { client } from "@/api/client";
 import { useEntityCrud } from "@/composables/useEntityCrud";
+import { useSettingsStore } from "@/stores/settings";
 import type { components } from "@/api/schema";
 
 type ProviderResponse = components["schemas"]["ProviderResponse"];
@@ -21,6 +22,21 @@ export function useProvider() {
       client.PUT("/api/providers/{provider_id}", { params: { path: { provider_id: id } }, body }),
   });
   const provider = crud.item;
+
+  // The provider *list* is a shared store singleton (FE-M1); after a create/edit
+  // refresh it here so every consumer (Providers/Models/Family tabs) stays in
+  // sync — no call site has to remember to invalidate.
+  const store = useSettingsStore();
+  const createProvider = async (body: ProviderCreate) => {
+    const created = await crud.createItem(body);
+    await store.fetchProviders(true);
+    return created;
+  };
+  const saveProvider = async (id: string, body: ProviderUpdate) => {
+    const saved = await crud.updateItem(id, body);
+    await store.fetchProviders(true);
+    return saved;
+  };
 
   const availableModels = ref<DiscoveredModel[]>([]);
   const modelsLoading = ref(false);
@@ -178,8 +194,8 @@ export function useProvider() {
     saving: crud.saving,
     error: crud.error,
     fetchProvider: crud.fetchItem,
-    createProvider: crud.createItem,
-    saveProvider: crud.updateItem,
+    createProvider,
+    saveProvider,
     availableModels,
     modelsLoading,
     syncing,
