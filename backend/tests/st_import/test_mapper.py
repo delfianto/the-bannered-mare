@@ -54,6 +54,17 @@ class TestMarkers:
         plan = _plan([st_prompt("real", content="c")], ["real", "ghost"])
         assert any("unknown prompt 'ghost'" in w for w in plan.warnings)
 
+    def test_marker_in_order_without_prompt_definition_enables_component(self) -> None:
+        # ST presets may list a marker in prompt_order without a matching prompts[]
+        # entry; it must still enable the component, not warn as an unknown prompt.
+        plan = _plan(
+            [st_prompt("main", system_prompt=True, content="Be {{char}}.")],
+            ["main", "chatHistory"],
+        )
+        assert plan.template.components_enabled.get("chat_history") is True
+        assert "chat_history" in plan.template.component_order
+        assert not any("unknown prompt 'chatHistory'" in w for w in plan.warnings)
+
 
 class TestMainAndBuiltins:
     def test_main_becomes_system_template(self) -> None:
