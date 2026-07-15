@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from src.core.config import settings
-from src.core.persistence import AsyncDbSession, DbSession, UnitOfWork
+from src.core.persistence import AsyncDbSession, AsyncUnitOfWork, DbSession, UnitOfWork
 from src.rag.embedding_service import EmbeddingService
 from src.rag.repository import DataBankRepository
 from src.rag.repository_async import AsyncEmbeddingRepository
@@ -58,7 +58,13 @@ async def get_retrieval_service(
     """
     if not settings.rag.enabled:
         return None
-    return RetrievalService(embedding_service, embedding_repo, data_bank_repo, rerank_service)
+    return RetrievalService(
+        embedding_service,
+        embedding_repo,
+        data_bank_repo,
+        rerank_service,
+        uow=AsyncUnitOfWork(embedding_repo.db),
+    )
 
 
 DataBankServiceDep = Annotated[DataBankService, Depends(get_data_bank_service)]

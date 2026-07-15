@@ -10,6 +10,7 @@ from src.chat_message.repository_async import (
     AsyncMessageRepository,
 )
 from src.core.exceptions import NotFoundError, ValidationError
+from src.core.persistence import AsyncUnitOfWork
 from src.core.persistence.models import MessageAlternative
 
 
@@ -20,9 +21,12 @@ class AlternativesService:
         self,
         message_repo: AsyncMessageRepository,
         alt_repo: AsyncMessageAlternativeRepository | None,
+        uow: AsyncUnitOfWork | None = None,
     ) -> None:
         self.message_repo = message_repo
         self.alt_repo = alt_repo
+        # Shares the parent's UoW (same session); fallback keeps direct construction valid.
+        self.uow = uow or AsyncUnitOfWork(message_repo.db)
 
     async def store(self, message: Message, new_content: str, token_count: int) -> None:
         """Preserve old content as an alternative and update the message in place."""
@@ -55,7 +59,7 @@ class AlternativesService:
         message.token_count = token_count
         message.active_index = existing_count
         await self.message_repo.update(message)
-        await self.message_repo.commit()
+        await self.uow.commit()
 
     async def list(self, chat_id: str, message_id: str) -> list[MessageAlternative]:
         """List all alternatives for a message."""
@@ -82,5 +86,5 @@ class AlternativesService:
         message.token_count = alt.token_count
         message.active_index = alt.ordinal
         await self.message_repo.update(message)
-        await self.message_repo.commit()
+        await self.uow.commit()
         return message

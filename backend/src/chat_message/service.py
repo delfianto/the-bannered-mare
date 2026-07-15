@@ -25,7 +25,7 @@ from src.chat_session.repository_async import AsyncChatRepository
 from src.core.config import settings
 from src.core.exceptions import NotFoundError, ProviderException, ValidationError
 from src.core.logging.logger_config import get_logger
-from src.core.persistence import gen_id
+from src.core.persistence import AsyncUnitOfWork, gen_id
 from src.core.persistence.models import MessageAlternative
 from src.core.schemas import PaginatedResponse, PaginationMeta
 from src.core.tokenization import Tokenizer, get_tokenizer
@@ -81,15 +81,20 @@ class ChatMessageService:
         lore_service: LoreService | None = None,
         alt_repo: AsyncMessageAlternativeRepository | None = None,
         retrieval_service: RetrievalService | None = None,
+        uow: AsyncUnitOfWork | None = None,
     ):
         self.message_repo = message_repo
         self.chat_repo = chat_repo
         self.prompt_builder = prompt_builder  # retained for the scaffolding-only preview
         self.alt_repo = alt_repo
         self.retrieval_service = retrieval_service  # retained for _vectorize
+        # One unit of work per request, wrapping the async session every repo shares
+        # (FastAPI caches get_async_db). Fallback keeps direct construction (tests)
+        # valid; the sub-services share this same UoW so all turns commit as one.
+        self.uow = uow or AsyncUnitOfWork(message_repo.db)
         self.context = MessageContextBuilder(prompt_builder, lore_service, retrieval_service)
-        self.alternatives = AlternativesService(message_repo, alt_repo)
-        self.aux = AuxiliaryGenerationService(message_repo, chat_repo, self.context)
+        self.alternatives = AlternativesService(message_repo, alt_repo, self.uow)
+        self.aux = AuxiliaryGenerationService(message_repo, chat_repo, self.context, self.uow)
 
     async def _vectorize(self, message: Message) -> None:
         """Embed and store a message for RAG (best-effort — never blocks the reply).
@@ -226,7 +231,7 @@ class ChatMessageService:
         message.content = content
         message.token_count = self._tokenizer(chat).count(content)
         updated = await self.message_repo.update(message)
-        await self.message_repo.commit()
+        await self.uow.commit()
         # Replace the stale embedding so chat-scoped RAG retrieval reflects the edit.
         await self._vectorize(updated)
         return updated
@@ -280,7 +285,7 @@ class ChatMessageService:
             existing_message.token_count = token_count
             existing_message.reasoning_content = reasoning
             stored = await self.message_repo.update(existing_message)
-            await self.message_repo.commit()
+            await self.uow.commit()
         else:
             stored = await self.message_repo.create(
                 Message(
@@ -292,7 +297,7 @@ class ChatMessageService:
                     reasoning_content=reasoning,
                 )
             )
-            await self.message_repo.commit()
+            await self.uow.commit()
         # Re-vectorize on every path: the alternatives and overwrite branches mutate
         # the message content in place, so a prior embedding is now stale. Retrieval
         # is chat-scoped and would otherwise surface pre-regen text as history.
@@ -387,7 +392,7 @@ class ChatMessageService:
         # a chat whose generation later fails still surfaces its latest message.
         chat.preview = content[:50]
         _ = await self.message_repo.create(user_message)
-        await self.message_repo.commit()
+        await self.uow.commit()
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         api_messages = await self.context.assemble(chat, messages)
@@ -514,7 +519,7 @@ class ChatMessageService:
         # See send_message: fold the list-snippet bump into the user-turn commit.
         chat.preview = content[:50]
         _ = await self.message_repo.create(user_message)
-        await self.message_repo.commit()
+        await self.uow.commit()
 
         messages = await self.message_repo.find_by_chat_id(chat_id)
         api_messages = await self.context.assemble(chat, messages)

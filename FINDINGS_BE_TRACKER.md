@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-15
-- **Active:** 🧵 **BE-H1 — SYNC PATH COMPLETE (steps 1–4, 6).** UoW introduced; all 13 sync services migrated to `uow.commit()`; `commit`/`rollback` removed from `BaseRepository`; atomicity test green (939 passed). **PAUSED before step 5 (the async `chat_message` path)** per plan — awaiting go-ahead.
+- **Active:** — **BE-H1 COMPLETE (all 6 steps).** `UnitOfWork` + `AsyncUnitOfWork` across all 17 services (sync + async); `commit`/`rollback` removed from both base repositories; atomicity test green; concurrency 10/10 non-flaky (939 passed). Awaiting next direction.
 - **Next up:** BE-M2 (cursor tie-breaker), BE-M3 (pagination constants ⚠ contract), BE-M9 (router escapes), then BE-L items.
-- **Progress:** 15 / 30 done (BE-H8, BE-H4, BE-M6, BE-M5, BE-M8, BE-M9, BE-M1, BE-H9, BE-M7, BE-M4, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b; BE-M12 part c (audit-writer) + BE-H3 part 2 deferred. **Remaining: only the deferred structural/contract tier** (BE-H1/H2/H5/H6/H7, BE-M2/M3/M10/M11, BE-L3/L5/L7/L9).
+- **Progress:** 16 / 30 done (BE-H1, BE-H4, BE-H8, BE-H9, BE-M1, BE-M4, BE-M5, BE-M6, BE-M7, BE-M8, BE-M9, BE-L1, BE-L2, BE-L4, BE-L6, BE-L8 ✓) + BE-H3 part 1 (CI gate) + BE-M12 parts a/b; BE-M12 part c (audit-writer) + BE-H3 part 2 deferred. **Remaining: the deferred structural/contract tier** (BE-H2/H5/H6/H7, BE-M2/M3/M10/M11, BE-L3/L5/L7/L9).
 
 ---
 
@@ -80,7 +80,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 
 ## Wave 2 — De-risk the architecture before it grows (sequential; full gate run each)
 
-### BE-H1 · Introduce a Unit of Work; stop `repo.commit()` committing the shared session · [~] IN PROGRESS · 🧵 main · dep: none
+### BE-H1 · Introduce a Unit of Work; stop `repo.commit()` committing the shared session · [x] DONE (all 6 steps) · 🧵 main · dep: none
 
 **Design (chosen):** a thin service-owned `UnitOfWork` (`core/persistence/unit_of_work.py`) wrapping the request session; a service holds one and commits its work ONCE via `uow.commit()`; repos keep only `flush()`. Behavior-identical (`uow.commit()` ≡ the old `repo.commit()` on the same session), but the boundary is explicit and singular. Migrates incrementally — `repo.commit()` stays on `BaseRepository` until every service is moved, so nothing breaks mid-rollout. Services take `uow: UnitOfWork | None = None` with a `uow or UnitOfWork(<repo>.db)` fallback (the BE-L1 idiom) → zero test edits.
 
@@ -89,7 +89,7 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - [x] **Step 2 — 7 sync CRUD services** (persona, preset, model_family, prompt_fragment, prompt_template, model, provider): injected UoW, 30 `repo.commit()`→`uow.commit()` (1:1, no consolidation); `set_as_default` finalized to require `uow` (all 4 callers pass it). Verified: ruff/basedpyright clean, 937, zero test edits.
 - [x] **Step 3 — orchestrating sync services** (character, lore, st_import, chat_session, `rag/service.py`): injected UoW, 19 sites (17 commit + 2 rollback) → `uow.*`, 1:1. All sync service layer now migrated (only the async `chat_message` `await ...commit()` remain → Step 5). Verified: ruff/basedpyright clean, 937, zero test edits.
 - [x] **Step 4 — removed `commit`/`rollback` from `BaseRepository`** (kept `flush`/`refresh`). Grep-verified no sync caller remained; migrated the 5 fixture seeders + 2 repo tests (`test_base_repository`, `test_model_family/test_repository`) from `repo.commit()`→`repo.db.commit()` (behavior-identical). Verified: ruff/basedpyright clean, full suite 3/3 green.
-- [ ] **Step 5 — async path:** an `AsyncUnitOfWork` + migrate the `chat_message` async services (service/alternatives/auxiliary) + remove `commit`/`rollback` from `AsyncBaseRepository`. (Respect the documented deliberate two-commit send sequencing.)
+- [x] **Step 5 — async path:** added `AsyncUnitOfWork`; migrated `ChatMessageService` (5 sites) + its `AlternativesService`/`AuxiliaryGenerationService` sub-services (passed `self.uow`, all sharing the one request `AsyncSession`) + `RetrievalService` (3 sites); the deliberate two-commit send sequence preserved 1:1; migrated the 2 async repo tests (+ 3 RAG rerank mocks: `embedding_repo.commit`→`embedding_repo.db.commit` since the service now commits via the uow's session); removed `commit`/`rollback` from `AsyncBaseRepository`. `audit/writer.py` untouched. Verified: ruff/basedpyright clean, 939, **concurrency 10/10 non-flaky**.
 - [x] **Step 6 — atomicity test:** `tests/core/persistence/test_unit_of_work.py` — two repos share one UoW; `uow.rollback()` after both flush discards BOTH writes (and `uow.commit()` persists both). Directly asserts the finding's "mid-orchestration failure rolls back all writes in the unit."
 - **Out of scope (own sessions):** `audit/writer.py` (isolated best-effort session), `fixtures/seed_*` (startup seeding outside request scope).
 - **Ref:** FINDINGS_BE.md §3 BE-H1

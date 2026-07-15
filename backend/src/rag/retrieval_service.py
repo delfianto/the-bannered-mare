@@ -6,7 +6,7 @@ from anyio import to_thread
 
 from src.core.config import settings
 from src.core.logging.logger_config import get_logger
-from src.core.persistence import gen_id
+from src.core.persistence import AsyncUnitOfWork, gen_id
 from src.rag.chunker import chunk_text
 from src.rag.embedding_service import EmbeddingService
 from src.rag.models import DataBankEntry, Embedding
@@ -38,11 +38,15 @@ class RetrievalService:
         embedding_repo: AsyncEmbeddingRepository,
         data_bank_repo: DataBankRepository,
         rerank_service: RerankService | None = None,
+        uow: AsyncUnitOfWork | None = None,
     ):
         self.embedding_service = embedding_service
         self.embedding_repo = embedding_repo
         self.data_bank_repo = data_bank_repo
         self.rerank_service = rerank_service
+        # Owns the embedding-write transaction boundary; wraps the async session the
+        # embedding repo uses. Fallback keeps direct construction (tests) valid.
+        self.uow = uow or AsyncUnitOfWork(embedding_repo.db)
 
     async def retrieve(
         self,
@@ -182,7 +186,7 @@ class RetrievalService:
             )
             await self.embedding_repo.create(entity)
 
-        await self.embedding_repo.commit()
+        await self.uow.commit()
 
     async def vectorize_data_bank_entry(
         self,
@@ -217,9 +221,9 @@ class RetrievalService:
             )
             await self.embedding_repo.create(entity)
 
-        await self.embedding_repo.commit()
+        await self.uow.commit()
 
     async def remove_embeddings(self, source_type: str, source_id: str) -> None:
         """Delete all stored embeddings for a source (e.g. a removed data-bank entry)."""
         await self.embedding_repo.delete_by_source(source_type, source_id)
-        await self.embedding_repo.commit()
+        await self.uow.commit()

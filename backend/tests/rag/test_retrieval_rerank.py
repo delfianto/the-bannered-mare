@@ -72,7 +72,7 @@ async def test_vectorize_message_stores_chat_id_and_scopes_dedup():
     embedding_repo.delete_by_source = AsyncMock()
     embedding_repo.exists_by_hash = AsyncMock(return_value=False)
     embedding_repo.create = AsyncMock()
-    embedding_repo.commit = AsyncMock()
+    embedding_repo.db = AsyncMock()  # the session the fallback UoW commits
     embedding_service = MagicMock()
     embedding_service.embed_documents = AsyncMock(return_value=[[0.1] * 768])
 
@@ -103,7 +103,7 @@ async def test_vectorize_message_replaces_prior_embedding():
     # Dedup hit: identical content already embedded elsewhere in the chat.
     embedding_repo.exists_by_hash = AsyncMock(return_value=True)
     embedding_repo.create = AsyncMock()
-    embedding_repo.commit = AsyncMock()
+    embedding_repo.db = AsyncMock()  # the session the fallback UoW commits
     embedding_service = MagicMock()
     embedding_service.embed_documents = AsyncMock(return_value=[[0.1] * 768])
 
@@ -121,7 +121,7 @@ async def test_vectorize_message_replaces_prior_embedding():
     embedding_repo.delete_by_source.assert_awaited_once_with("message", "m1")
     # ...but no duplicate is inserted when the content already exists in the chat.
     embedding_repo.create.assert_not_awaited()
-    embedding_repo.commit.assert_awaited_once()
+    embedding_repo.db.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -131,7 +131,7 @@ async def test_vectorize_data_bank_entry_stamps_owning_entry_fk():
     embedding_repo = MagicMock()
     embedding_repo.delete_by_source = AsyncMock()
     embedding_repo.create = AsyncMock()
-    embedding_repo.commit = AsyncMock()
+    embedding_repo.db = AsyncMock()  # the session the fallback UoW commits
     embedding_service = MagicMock()
     embedding_service.embed_documents = AsyncMock(return_value=[[0.1] * 768])
 
