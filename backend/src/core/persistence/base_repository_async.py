@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.persistence.base_model import BaseModel
@@ -35,6 +35,12 @@ class AsyncBaseRepository[T: BaseModel]:
     def _apply_filters(self, stmt, filters: dict[str, Any] | None = None):
         """Apply ``{field__op: value}`` filters (see statements.apply_filters)."""
         return apply_filters(self.model, stmt, filters)
+
+    def _column(self, name: str) -> Any:
+        """Resolve a model column by name for generic queries on columns the
+        ``BaseModel`` bound doesn't declare (e.g. ``name``/``is_default`` used by
+        the mixins below). Mirrors the dynamic access ``apply_filters`` already does."""
+        return getattr(self.model, name)
 
     async def find_by_id(self, entity_id: str) -> T | None:
         """
@@ -74,6 +80,33 @@ class AsyncBaseRepository[T: BaseModel]:
         items = list(result.scalars().all())
 
         return items, total_count
+
+    async def find_all_ordered(self, order_by: Any | None = None) -> list[T]:
+        """All entities, newest-first by default (``created_at`` desc)."""
+        ordering = order_by if order_by is not None else self.model.created_at.desc()
+        stmt = select(self.model).order_by(ordering)
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def find_paginated_ordered(
+        self,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = 0,
+        filters: dict[str, Any] | None = None,
+        order_by: Any | None = None,
+    ) -> tuple[list[T], int]:
+        """Ordered, filtered pagination + total count. Defaults to ``created_at`` desc."""
+        if limit > self.MAX_LIMIT:
+            raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
+
+        stmt = self._apply_filters(select(self.model), filters)
+        count_result = await self.db.execute(select(func.count()).select_from(stmt.subquery()))
+        total = count_result.scalar_one()
+
+        ordering = order_by if order_by is not None else self.model.created_at.desc()
+        result = await self.db.execute(stmt.order_by(ordering).limit(limit).offset(offset))
+        items = list(result.scalars().all())
+        return items, total
 
     async def create(self, entity: T) -> T:
         """
@@ -168,3 +201,33 @@ class AsyncBaseRepository[T: BaseModel]:
         Useful for error handling in the service layer.
         """
         await self.db.rollback()
+
+
+class AsyncNamedRepository[T: BaseModel](AsyncBaseRepository[T]):
+    """Mixin for async repositories whose model has a unique ``name`` column."""
+
+    async def find_by_name(self, name: str) -> T | None:
+        """Find an entity by its unique ``name``."""
+        stmt = select(self.model).where(self._column("name") == name)
+        result = await self.db.execute(stmt)
+        return result.scalars().first()
+
+
+class AsyncDefaultableRepository[T: BaseModel](AsyncBaseRepository[T]):
+    """Mixin for async repositories whose model has a boolean ``is_default`` column."""
+
+    async def unset_all_defaults(self, exclude_id: str | None = None) -> None:
+        """Clear ``is_default`` on all rows, optionally excluding one by id."""
+        stmt = update(self.model).where(self._column("is_default")).values({"is_default": False})
+        if exclude_id:
+            stmt = stmt.where(self.model.id != exclude_id)
+        await self.db.execute(stmt)
+        await self.db.flush()
+
+    async def set_default(self, entity_id: str) -> None:
+        """Make ``entity_id`` the sole default row (clear the others, set this one)."""
+        await self.unset_all_defaults(exclude_id=entity_id)
+        await self.db.execute(
+            update(self.model).where(self.model.id == entity_id).values({"is_default": True})
+        )
+        await self.db.flush()

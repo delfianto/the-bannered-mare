@@ -62,15 +62,23 @@ class AsyncChatRepository(AsyncBaseRepository[Chat]):
         result = await self.db.execute(stmt)
         return result.scalars().first()
 
-    async def find_all_ordered(self) -> list[Chat]:
-        """Find all chats ordered by creation date"""
+    async def find_all_ordered(self, order_by: Any | None = None) -> list[Chat]:
+        """Find all chats newest-first (eager-loads character; fixed ordering, so
+        ``order_by`` is accepted for base-class compatibility but ignored)."""
         result = await self.db.execute(queries.all_ordered_stmt())
         return list(result.scalars().all())
 
     async def find_paginated_ordered(
-        self, limit: int = 10, offset: int = 0, filters: dict[str, Any] | None = None
+        self,
+        limit: int = 10,
+        offset: int = 0,
+        filters: dict[str, Any] | None = None,
+        order_by: Any | None = None,
     ) -> tuple[list[Chat], int]:
-        """Find chats ordered by creation date with pagination and filtering"""
+        """Find chats ordered by creation date with pagination and filtering.
+
+        Uses a fixed ordered query (eager loads), so ``order_by`` is accepted for
+        base-class compatibility but ignored."""
         if limit > self.MAX_LIMIT:
             raise ValueError(f"Limit cannot exceed {self.MAX_LIMIT}")
 
