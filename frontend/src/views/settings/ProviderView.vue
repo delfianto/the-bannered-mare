@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, computed } from "vue";
-import { useDebounceFn } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useProvider } from "@/composables/useProvider";
 import { useModels } from "@/composables/useModels";
+import { useProviderModelFilter } from "@/composables/useProviderModelFilter";
+import { useLocalModelManagement } from "@/composables/useLocalModelManagement";
 import { useAppToast } from "@/composables/useToast";
 import { formatDate, timeAgo as timeAgoUtil } from "@/utils/date";
 import { routeParam } from "@/utils/route";
@@ -107,63 +108,29 @@ function isPersisted(modelIdentifier: string): boolean {
   );
 }
 
-// --- Model filter (search + chips) ---
-const modelSearchQuery = ref("");
-const showSearchResults = ref(false);
+// Model filter (search + allow-list chips) — see useProviderModelFilter.
+const {
+  modelSearchQuery,
+  showSearchResults,
+  allowedModels,
+  isFiltered,
+  onSearchInput,
+  addToFilter,
+  removeFromFilter,
+  clearFilter,
+} = useProviderModelFilter(provider, { searchModels, clearSearch, setModelFilter });
 
-const allowedModels = computed(() => provider.value?.allowed_models ?? []);
-
-function isFiltered(identifier: string): boolean {
-  return allowedModels.value.includes(identifier);
-}
-
-const debouncedSearch = useDebounceFn(async (q: string) => {
-  if (!provider.value || !q.trim()) {
-    clearSearch();
-    return;
-  }
-  try {
-    await searchModels(provider.value.id, q.trim());
-    showSearchResults.value = true;
-  } catch {
-    // Search is advisory — a failure just leaves the dropdown empty.
-  }
-}, 250);
-
-function onSearchInput() {
-  if (modelSearchQuery.value.trim()) {
-    showSearchResults.value = true;
-    void debouncedSearch(modelSearchQuery.value);
-  } else {
-    showSearchResults.value = false;
-    clearSearch();
-  }
-}
-
-async function persistFilter(next: string[]) {
-  if (!provider.value) return;
-  try {
-    await setModelFilter(provider.value.id, next);
-  } catch {
-    toast.error(t("connections.provider.toast.filterFailed"));
-  }
-}
-
-async function addToFilter(identifier: string) {
-  if (isFiltered(identifier)) return;
-  await persistFilter([...allowedModels.value, identifier]);
-  modelSearchQuery.value = "";
-  showSearchResults.value = false;
-  clearSearch();
-}
-
-async function removeFromFilter(identifier: string) {
-  await persistFilter(allowedModels.value.filter((m) => m !== identifier));
-}
-
-async function clearFilter() {
-  await persistFilter([]);
-}
+// Local-model runtime actions (Ollama/LM Studio) — see useLocalModelManagement.
+const { handleSyncNow, handleLoadModel, handleUnloadModel, handleDeleteModel } =
+  useLocalModelManagement(provider, {
+    syncNow,
+    loadModel,
+    unloadModel,
+    deleteModel,
+    reloadPersisted: () => {
+      if (provider.value) loadPersistedModels(1, { provider_id: provider.value.id });
+    },
+  });
 
 onMounted(async () => {
   const id = routeParam(route.params.id);
@@ -216,60 +183,6 @@ function formatSize(bytes: number | null | undefined): string | null {
   if (!bytes) return null;
   const gb = bytes / 1024 ** 3;
   return `${gb.toFixed(1)} GB`;
-}
-
-async function handleSyncNow() {
-  if (!provider.value) return;
-  try {
-    await syncNow(provider.value.id);
-    toast.success(t("connections.provider.toast.synced"));
-  } catch (e) {
-    toast.error(t("connections.provider.toast.syncFailed"));
-  }
-}
-
-async function handleLoadModel(identifier: string) {
-  if (!provider.value) return;
-  if (!confirm(`Are you sure you want to load "${identifier}" into memory?`)) {
-    return;
-  }
-  try {
-    await loadModel(provider.value.id, identifier);
-    toast.success(t("connections.provider.toast.modelLoaded", { model: identifier }));
-  } catch (e) {
-    toast.error(t("connections.provider.toast.loadFailed"));
-  }
-}
-
-async function handleUnloadModel(identifier: string) {
-  if (!provider.value) return;
-  if (!confirm(`Are you sure you want to unload "${identifier}" from memory?`)) {
-    return;
-  }
-  try {
-    await unloadModel(provider.value.id, identifier);
-    toast.success(t("connections.provider.toast.modelUnloaded", { model: identifier }));
-  } catch (e) {
-    toast.error(t("connections.provider.toast.unloadFailed"));
-  }
-}
-
-async function handleDeleteModel(identifier: string) {
-  if (!provider.value) return;
-  if (
-    !confirm(
-      `Are you sure you want to delete model "${identifier}" from the provider server? This cannot be undone.`,
-    )
-  ) {
-    return;
-  }
-  try {
-    await deleteModel(provider.value.id, identifier);
-    toast.success(t("connections.provider.toast.modelDeleted", { model: identifier }));
-    await loadPersistedModels(1, { provider_id: provider.value.id });
-  } catch (e) {
-    toast.error(e instanceof Error ? e.message : t("connections.provider.toast.deleteFailed"));
-  }
 }
 
 // ── Add-as-Model modal (opens in place so cancelling leaves you here) ──
