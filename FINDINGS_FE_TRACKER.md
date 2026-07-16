@@ -7,9 +7,9 @@
 ## STATE
 
 - **Updated:** 2026-07-16
-- **Active:** the big tiers are all done (i18n, testing runner+coverage, state-cache FE-M1/M2, DRY factories, view-logic extraction). **Correction (2026-07-16):** two findings — **FE-M6** and **FE-M8** — were never carried into this tracker and so were wrongly excluded from earlier "complete" claims; both are now added below with honest status.
-- **Next up:** **FE-M6** is the one item of real substance still open — the lorebook-sync N+1 + non-atomicity in `useCharacterForm` (frontend `Promise.all` improvement possible now; a fully-atomic fix wants a backend bulk endpoint). **FE-M8** is mostly-moot (FE-C1 mooted the practical bleed; only a nice-to-have reset seam remains). ProviderModelRow (low-value presentational) also open-if-wanted.
-- **Progress:** 24 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3, FE-H5, FE-3a, FE-M1/M2 ✓; FE-L8 + FE-L-latent folded in). **Open:** FE-M6 (substantive), FE-M8 (mostly-moot), ProviderModelRow (low-value sub-item of FE-M7). **Closed by decision:** FE-L3 (`[-]` won't-do, stubs stay). useDataBank left per-instance on purpose (scope-parameterized — see FE-M2 note).
+- **Active:** the big tiers are all done (i18n, testing runner+coverage, state-cache FE-M1/M2, DRY factories, view-logic extraction). **No substantive work remains.** (2026-07-16: the two findings originally omitted from this tracker — FE-M6, FE-M8 — are now logged; both resolved without code, see below.)
+- **Next up:** nothing. Everything open is either won't-do (by decision) or a low-value sub-item nobody's asked for.
+- **Progress:** 24 done (FE-C1, FE-H6, FE-H7, FE-C3, FE-H1, FE-C2, FE-M9, FE-L1, FE-L4, FE-L5, FE-M10, FE-L6, FE-L7, FE-M3, FE-M4, FE-H4, FE-M7, FE-M5, FE-L2, FE-H2, FE-H3, FE-H5, FE-3a, FE-M1/M2 ✓; FE-L8 + FE-L-latent folded in). **Won't-do (by decision):** FE-L3 (console.log stubs stay), FE-M6 (lorebook-sync N+1/atomicity — pointless on a sub-10ms local app; real fix would need a backend txn endpoint, disproportionate). **Mostly-moot:** FE-M8 (FE-C1 mooted the practical test-bleed; only a nice-to-have reset seam remains). **Low-value, open-if-wanted:** ProviderModelRow (presentational sub-item of FE-M7). useDataBank left per-instance on purpose (scope-parameterized — see FE-M2 note).
 
 ---
 
@@ -162,10 +162,10 @@ Exec: **🧵 main** = interdependent/structural, do sequentially in the main thr
 - **Accept:** no repository-layer/business logic left in these views; gates green. (Do `ProviderView` and `ChatView` as separate commits.)
 - **Commit:** —
 
-### FE-M6 · `useCharacterForm` lorebook sync is sequential N+1 + non-atomic · [ ] NOT STARTED — was omitted from this tracker originally; surfaced 2026-07-16 · 🤖 sub · dep: none
+### FE-M6 · `useCharacterForm` lorebook sync is sequential N+1 + non-atomic · [-] WON'T-DO (by decision, 2026-07-16) · 🤖 sub · dep: none
 - **Ref:** FINDINGS_FE.md §4 FE-M6 · **Files:** `useCharacterForm.ts:246-273` (the delete / create / update loops)
-- **Fix:** `Promise.all` the independent per-entry ops (delete-missing / create-new / update-existing hit disjoint entries) to kill the N+1 latency and surface partial-failure; the fully-atomic fix wants a **backend** bulk-sync endpoint (cross-cutting — separate, larger decision).
-- **Accept:** the independent lorebook writes issue concurrently; a mid-sync failure is surfaced (not a silent half-sync); gates green.
+- **Fix (considered):** `Promise.all` the independent per-entry ops to remove the N+1 latency; a fully-atomic fix would need a backend transactional bulk-sync endpoint.
+- **Why WON'T-DO:** this is a **single-user local app with sub-10ms backend latency** — serial vs concurrent entry writes is negligible (even ~20 entries is well under ~100ms, on a save done occasionally), so parallelizing buys nothing real. And the frontend change does **not** address the actual concern (atomicity/rollback) — if anything it makes a partial write *more* likely on failure. The only real fix is a backend transactional bulk endpoint, which is disproportionate machinery for the risk (a rare mid-save network blip leaving a half-synced lorebook). **Accepted as a known limitation.**
 - **Commit:** —
 
 ### FE-M8 · Singleton composables share module state with no reset seam · [~] MOSTLY-MOOT — was omitted from this tracker originally; surfaced 2026-07-16 · 🤖 sub · dep: FE-C1
