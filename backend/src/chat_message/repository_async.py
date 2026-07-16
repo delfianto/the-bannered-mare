@@ -61,7 +61,7 @@ class AsyncMessageRepository(AsyncBaseRepository[Message]):
             select(Message)
             .where(Message.chat_id == chat_id)
             # id tie-breaker keeps the order total when messages share a created_at
-            # (BE-M2) — otherwise same-instant rows sort arbitrarily.
+            # — otherwise same-instant rows sort arbitrarily.
             .order_by(Message.created_at.desc(), Message.id.desc())
             .limit(limit)
         )
@@ -82,7 +82,7 @@ class AsyncMessageRepository(AsyncBaseRepository[Message]):
             chat_id: The chat ID.
             limit: Maximum number of messages to return.
             before: Cursor timestamp — only return messages created before it.
-            before_id: Cursor id tie-breaker (BE-M2). With ``before``, forms a stable
+            before_id: Cursor id tie-breaker. With ``before``, forms a stable
                 composite cursor ``(created_at, id)`` so rows sharing a ``created_at``
                 are never skipped or duplicated across page boundaries. Omit it (legacy
                 timestamp-only cursor) and same-instant boundary rows may be skipped.
@@ -102,7 +102,7 @@ class AsyncMessageRepository(AsyncBaseRepository[Message]):
         elif before is not None:
             stmt = stmt.where(Message.created_at < before)
 
-        # Newest -> oldest, with an id tie-breaker so the order is total (BE-M2).
+        # Newest -> oldest, with an id tie-breaker so the order is total.
         stmt = stmt.order_by(Message.created_at.desc(), Message.id.desc())
         stmt = stmt.limit(limit)
 

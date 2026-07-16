@@ -60,7 +60,7 @@ class LoreService:
         self.uow.commit()
         return created
 
-    # --- Character card import/export seam (BE-H2) ---
+    # --- Character card import/export seam ---
 
     def import_character_book(
         self, character_book: dict[str, Any], character_id: str, card_name: str

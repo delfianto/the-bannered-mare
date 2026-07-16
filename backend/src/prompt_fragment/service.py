@@ -34,7 +34,7 @@ class FragmentService(BaseCrudService[PromptFragment, FragmentRepository]):
         """Build the service (and its repositories) from a bare Session.
 
         Lets a caller that holds only a Session — e.g. another slice's default
-        construction fallback (BE-H2) — obtain the published service without
+        construction fallback — obtain the published service without
         reaching for the fragment repositories itself, keeping the module boundary.
         """
         return cls(FragmentRepository(db), TemplateFragmentRepository(db), uow=uow)
@@ -129,7 +129,7 @@ class FragmentService(BaseCrudService[PromptFragment, FragmentRepository]):
     def delete_orphaned(self, fragment_ids: list[str]) -> int:
         """Delete any of the given fragments now orphaned (unattached and not global).
 
-        A cross-module cleanup seam (BE-H2): when a template is deleted, the template
+        A cross-module cleanup seam: when a template is deleted, the template
         slice asks the fragment slice to remove the private fragments it leaves
         behind. Flush-only — it runs inside the CALLER's unit of work so the whole
         deletion commits through one boundary; it never commits on its own.
@@ -200,7 +200,7 @@ class FragmentService(BaseCrudService[PromptFragment, FragmentRepository]):
         self.uow.commit()
         return self.template_fragment_repo.find_by_template_id(template_id)
 
-    # --- SillyTavern import seam (BE-H2) ---
+    # --- SillyTavern import seam ---
 
     def find_by_name(self, name: str) -> PromptFragment | None:
         """Look up a fragment by exact name (import unique-naming)."""

@@ -47,7 +47,7 @@ class PresetService(BaseCrudService[Preset, PresetRepository]):
         self.uow.commit()
         return created
 
-    # --- SillyTavern import seam (BE-H2) ---
+    # --- SillyTavern import seam ---
 
     def find_by_name(self, name: str) -> Preset | None:
         """Look up a preset by exact name (import unique-naming)."""

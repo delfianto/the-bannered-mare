@@ -20,7 +20,7 @@ def get_or_404[T: BaseModel](repo: ReadPort[T], entity_id: str, resource_name: s
     """Return the entity by id, or raise NotFoundError (→ HTTP 404).
 
     Args:
-        repo: any read port / repository exposing ``find_by_id`` (BE-H2 — lets a
+        repo: any read port / repository exposing ``find_by_id`` (lets a
             cross-module caller pass a thin ``ReadPort`` instead of a foreign repo).
         entity_id: the id to look up.
         resource_name: human label for the 404 message (e.g. "Persona").
@@ -36,7 +36,7 @@ def set_as_default[T: BaseModel](repo: DefaultableRepository[T], entity: T, uow:
 
     Collapses the identical ``set_default`` bodies across the persona / preset /
     profile / prompt-template services. Commits through the service's unit of
-    work (BE-H1) — the single, explicit transaction boundary for the operation.
+    work — the single, explicit transaction boundary for the operation.
     """
     repo.set_default(entity.id)
     uow.commit()
@@ -45,7 +45,7 @@ def set_as_default[T: BaseModel](repo: DefaultableRepository[T], entity: T, uow:
 
 
 def apply_update(entity: BaseModel, patch: dict[str, Any], editable: set[str]) -> None:
-    """Apply a partial-update ``patch`` to ``entity`` — the one update mechanism (BE-H5).
+    """Apply a partial-update ``patch`` to ``entity`` — the one update mechanism.
 
     Sets each ``patch`` key that is in ``editable`` (an explicit ``None`` clears that
     field). Keys outside ``editable`` are ignored, so an over-posted payload can't
@@ -59,7 +59,7 @@ def apply_update(entity: BaseModel, patch: dict[str, Any], editable: set[str]) -
 
 
 class BaseCrudService[T: BaseModel, R: BaseRepository[Any]]:
-    """Generic CRUD over a single primary repository + unit of work (BE-H5).
+    """Generic CRUD over a single primary repository + unit of work.
 
     Subclasses pass their concrete repository, the request-scoped unit of work, and a
     human resource name, then inherit ``list_all`` / ``get_by_id`` / ``delete`` and use

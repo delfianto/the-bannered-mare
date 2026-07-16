@@ -34,7 +34,7 @@ class ProfileService(BaseCrudService[Profile, ProfileRepository]):
         uow: UnitOfWork | None = None,
     ):
         super().__init__(profile_repo, uow or UnitOfWork(profile_repo.db), "Profile")
-        # Foreign read ports for FK-existence validation (BE-H2) — not the primary repo.
+        # Foreign read ports for FK-existence validation — not the primary repo.
         self.template_repo = template_repo
         self.preset_repo = preset_repo
         self.persona_repo = persona_repo
@@ -107,7 +107,7 @@ class ProfileService(BaseCrudService[Profile, ProfileRepository]):
         self.uow.commit()
         return updated
 
-    # --- SillyTavern import seam (BE-H2) ---
+    # --- SillyTavern import seam ---
 
     def find_by_name(self, name: str) -> Profile | None:
         """Look up a profile by exact name (import unique-naming)."""

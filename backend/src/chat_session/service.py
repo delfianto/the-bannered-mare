@@ -18,7 +18,7 @@ from src.templating import TemplateContext, TemplateService
 
 if TYPE_CHECKING:
     # Cross-slice READS depend on a structural ReadPort; the greeting-seed WRITE
-    # goes through chat_message's published MessageSeedService seam (BE-H7) — not
+    # goes through chat_message's published MessageSeedService seam — not
     # its repository. All stay under TYPE_CHECKING: they're annotation-only, and a
     # runtime import of a chat_message module here would re-enter
     # chat_message.dependencies -> chat_session.dependencies at module load.
@@ -50,12 +50,12 @@ class ChatService(BaseCrudService[Chat, ChatRepository]):
     ):
         super().__init__(chat_repo, uow or UnitOfWork(chat_repo.db), "Chat")
         # character/model/profile/persona are cross-slice reads → structural
-        # ReadPorts (BE-H2); the concrete repos injected by DI satisfy them.
+        # ReadPorts; the concrete repos injected by DI satisfy them.
         self.character_repo = character_repo
         self.model_repo = model_repo
         self.profile_repo = profile_repo
-        # The opening-greeting write goes through chat_message's published seam
-        # (BE-H7), not its repository; it flushes into this service's transaction.
+        # The opening-greeting write goes through chat_message's published seam,
+        # not its repository; it flushes into this service's transaction.
         self.message_seeder = message_seeder
         self.persona_repo = persona_repo
         self.template_service = template_service or TemplateService()

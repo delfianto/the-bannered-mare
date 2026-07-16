@@ -71,7 +71,7 @@ def get_data_bank_write_service(
     data_bank: Annotated[DataBankService, Depends(get_data_bank_service)],
     retrieval: Annotated[RetrievalService | None, Depends(get_retrieval_service)],
 ) -> DataBankWriteService:
-    """Factory for the async persist+index write-path (BE-H6).
+    """Factory for the async persist+index write-path.
 
     Composes the sync DataBank CRUD service with the async retrieval service so the
     router calls one method per write; ``retrieval`` is None when RAG is disabled.
