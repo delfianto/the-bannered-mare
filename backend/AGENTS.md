@@ -185,3 +185,16 @@ If the user asks for a step-by-step plan, output specifically using this format:
 ## Verification
 - [ ] Run `basedpyright`
 - [ ] Run `pytest`
+
+---
+
+## 8. Design Tradeoffs & Quirks (read before "improving" anything)
+
+The Bannered Mare targets **one** runtime, and most non-obvious decisions follow from it: a **single-user, self-hosted, local** deployment — one person's machine or home server, **small-ish datasets** (tens to low-thousands of rows per table, not millions), and **sub-millisecond, same-host latency to Postgres**. The only slow, unreliable, high-latency dependency is the **external LLM providers**. So the rule of thumb is: spend the complexity and robustness budget on the provider path, and keep everything else simple and obviously-correct rather than scalable or micro-optimized. Several textbook "improvements" are deliberately **not** done here — evaluate a proposal against this context before acting, and don't undo a listed tradeoff without a reason that actually applies to this runtime.
+
+- **Unauthenticated by design.** No user auth / RBAC / multi-tenancy guards any endpoint — there is one user. The only production hardening is a `Settings` validator that refuses to boot against the placeholder DB DSN (`core/config.py`) so a public deploy can't run on a known-password database. Don't add per-request auth or user-scoping; it has no meaning here.
+- **Selective async (§6.1 is a tradeoff, not just a style rule).** `async` is concentrated where it earns its keep — `chat_message` (LLM streaming) and `rag` (embeddings/vector) — while the rest of the DB access stays synchronous SQLAlchemy. Async only buys concurrency for long-lived, provider-bound work; for fast local CRUD it just adds session-management complexity. Don't "make it all async for consistency."
+- **The provider/LLM slice gets the abstraction budget; CRUD slices stay thin.** `src/provider/` is intentionally deep — a transport `gateway`, per-vendor `adapters/` (Strategy), plus split-out `parameters` / `http_errors` / `discovery_filters` / `model_cache` — because it faces the unreliable external world (varying APIs, timeouts, partial streams, rate limits). A normal domain slice is just `router → service → repository`; do **not** mirror the provider layer's depth in a CRUD feature.
+- **The one cache is for the external path.** `discovery_cache` (TTL ~5 min, `core/config.py`) caches provider *model-discovery* results — the slow external call. There is deliberately **no** caching of local DB reads: local Postgres on small data answers in well under a millisecond, so a cache would add staleness bugs for no latency win. Tolerate a small, readable N+1 over a premature optimization.
+- **SQLite in-memory for unit tests; Postgres+VectorChord only for the vector path (§5.2).** The default suite runs container-free on SQLite; only the pgvector/VectorChord similarity path — which SQLite can't emulate — needs the container (`-m postgres`). Accepted tradeoff: unit tests don't exercise Postgres-specific SQL.
+- **Typed `.py` seed fixtures, not JSON/TOML (§2.2).** The only reason to externalize was non-dev editability; an agent maintains it, so keep the compile-time typing.
