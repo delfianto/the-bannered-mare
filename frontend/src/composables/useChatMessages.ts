@@ -265,7 +265,7 @@ export function useChatMessages(
   // backend never streams the user message's id. Fetch the two newest persisted
   // messages and swap the just-sent user message's id (matched by its temp id) in
   // place, so editing/regenerating it targets the real row instead of 404ing
-  // (FE-C3). Surgical — it mutates `messages` directly rather than resetting the
+  //. Surgical — it mutates `messages` directly rather than resetting the
   // cursor list, so pagination and scroll are preserved. Best-effort: on failure
   // the message still renders and editing it stays broken until the next reload
   // (the pre-fix behavior), so this never breaks a successful send.
@@ -317,7 +317,7 @@ export function useChatMessages(
       }
 
       await readStream(response, placeholderId);
-      // Swap the optimistic user-message id for its persisted one (FE-C3).
+      // Swap the optimistic user-message id for its persisted one.
       await reconcileSentUserMessage(chatId, tempUserMsg.id);
     } catch (err) {
       if ((err as Error)?.name === "AbortError") return;
@@ -390,7 +390,7 @@ export function useChatMessages(
   };
 
   // Swipe between an assistant message's alternatives — lazy-loads + caches the
-  // list, then activates the neighbour. Moved out of ChatView (FE-M7); operates
+  // list, then activates the neighbour. Moved out of ChatView; operates
   // purely on `messages` + fetchAlternatives/activateAlternative above.
   type Alternative = Awaited<ReturnType<typeof fetchAlternatives>>[number];
   const alternativesCache = ref(new Map<string, Alternative[]>());

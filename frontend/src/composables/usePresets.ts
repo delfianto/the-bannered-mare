@@ -7,7 +7,7 @@ import { defineListStore } from "@/stores/listStore";
 export type Preset = components["schemas"]["PresetResponse"];
 
 /**
- * Presets list, backed by a shared cached store singleton (FE-M2) so every
+ * Presets list, backed by a shared cached store singleton so every
  * consumer (PresetsTab, ProfilesTab, ProfileForm, setup wizard) shares one fetch
  * and one copy. The single-item `usePreset` / `usePresetImport` mutators call
  * `refresh()` to invalidate this cache after they write.

@@ -19,7 +19,7 @@ interface LocalModelApi {
 /**
  * Local-model load/unload/delete/sync handlers — the confirm + toast + refresh
  * wrappers around `useProvider`'s runtime actions — extracted out of ProviderView
- * (FE-M7) so the view stops doing this orchestration inline.
+ * so the view stops doing this orchestration inline.
  */
 export function useLocalModelManagement(
   provider: Ref<ProviderResponse | null>,

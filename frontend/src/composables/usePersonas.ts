@@ -7,7 +7,7 @@ import { defineListStore } from "@/stores/listStore";
 export type Persona = components["schemas"]["PersonaResponse"];
 
 /**
- * Personas list + CRUD, backed by a shared cached store singleton (FE-M2).
+ * Personas list + CRUD, backed by a shared cached store singleton.
  * List/delete/set-default ride the store; create/update is multipart (avatar
  * upload) so it's hand-rolled below and reconciles the shared list via the
  * store's `upsert` — keeping every consumer coherent without a refetch.

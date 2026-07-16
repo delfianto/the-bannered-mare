@@ -25,7 +25,7 @@ interface ListStoreOps<TItem, TCreate, TUpdate> {
 
 /**
  * A Pinia store factory for a shared, cached list resource — the singleton
- * counterpart to the per-instance `useListCrud` (FE-M2). Every consumer of a
+ * counterpart to the per-instance `useListCrud`. Every consumer of a
  * given resource shares one `items` array and one fetch: `ensureLoaded()`
  * (called on mount) fetches once and caches, like the providers store; mutations
  * keep the cached list coherent in place; `refresh()` force-refetches (for the

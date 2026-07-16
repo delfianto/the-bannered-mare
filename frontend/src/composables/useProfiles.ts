@@ -9,7 +9,7 @@ export type ProfileCreate = components["schemas"]["ProfileCreate"];
 export type ProfileUpdate = components["schemas"]["ProfileUpdate"];
 
 /**
- * Profiles list + CRUD, backed by a shared cached store singleton (FE-M2). Every
+ * Profiles list + CRUD, backed by a shared cached store singleton. Every
  * mutation flows through this store, so the cached list stays coherent in place
  * for all consumers (ProfilesTab, ProfileForm/Card, chat drawer, setup wizard)
  * with no per-consumer refetch.

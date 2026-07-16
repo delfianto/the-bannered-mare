@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import AppToggle from "../AppToggle.vue";
 
-// Harness smoke test (FE-C1): proves SFCs compile, happy-dom provides a DOM,
+// Harness smoke test: proves SFCs compile, happy-dom provides a DOM,
 // and @vue/test-utils can mount a component and observe rendering + events.
 describe("AppToggle (harness smoke test)", () => {
   it("renders a switch input reflecting modelValue + aria-label", () => {

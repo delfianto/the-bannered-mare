@@ -7,7 +7,7 @@ import { defineListStore } from "@/stores/listStore";
 export type PromptTemplate = components["schemas"]["PromptTemplateResponse"];
 
 /**
- * Prompt-templates list, backed by a shared cached store singleton (FE-M2). The
+ * Prompt-templates list, backed by a shared cached store singleton. The
  * single-item `usePromptTemplate` mutators call `refresh()` to invalidate this
  * cache after they create/save/delete.
  */

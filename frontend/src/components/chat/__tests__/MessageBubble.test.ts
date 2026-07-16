@@ -20,7 +20,7 @@ function makeMessage(overrides: Partial<Message> = {}): Message {
   };
 }
 
-// FE-3a: smoke tests on a real risk-surface component. Proves the mount harness
+// Smoke tests on a real risk-surface component. Proves the mount harness
 // carries i18n + the global primitives (AppIcon), and pins the emit contract
 // ChatView depends on (edit / action / swipe).
 describe("MessageBubble", () => {

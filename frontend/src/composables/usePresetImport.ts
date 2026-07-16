@@ -10,7 +10,7 @@ export function usePresetImport() {
   const result = ref<STImportResult | null>(null);
   const error = ref<Error | null>(null);
 
-  // A successful import creates a preset — invalidate the shared list (FE-M2).
+  // A successful import creates a preset — invalidate the shared list.
   const store = usePresetsStore();
 
   // Multipart upload — use raw fetch per the project's FormData exception

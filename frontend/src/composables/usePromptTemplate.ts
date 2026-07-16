@@ -28,7 +28,7 @@ export function usePromptTemplate() {
       }),
   });
 
-  // Invalidate the shared templates list after a create/save/delete (FE-M2), so
+  // Invalidate the shared templates list after a create/save/delete, so
   // the cached singleton every list consumer reads stays in sync.
   const store = usePromptTemplatesStore();
 
