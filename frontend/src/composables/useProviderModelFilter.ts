@@ -15,7 +15,7 @@ interface ModelFilterApi {
 
 /**
  * The provider "curated model allow-list" UI logic — debounced search + add/remove
- * chips — extracted out of ProviderView (FE-M7). Operates on the view's single
+ * chips — extracted out of ProviderView. Operates on the view's single
  * `useProvider` instance (passed in, since `useProvider` isn't a singleton).
  */
 export function useProviderModelFilter(

@@ -23,7 +23,7 @@ export function useProvider() {
   });
   const provider = crud.item;
 
-  // The provider *list* is a shared store singleton (FE-M1); after a create/edit
+  // The provider *list* is a shared store singleton; after a create/edit
   // refresh it here so every consumer (Providers/Models/Family tabs) stays in
   // sync — no call site has to remember to invalidate.
   const store = useSettingsStore();

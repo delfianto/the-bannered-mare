@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import ParamInput from "../ParamInput.vue";
 import type { ParamSchema } from "@/types/params";
 
-// FE-3a: exercises ParamInput's schema-type → widget mapping and, crucially, its
+// Exercises ParamInput's schema-type → widget mapping and, crucially, its
 // recursive rendering of object schemas (the recursive param types).
 describe("ParamInput", () => {
   it("renders a text input for a string schema and emits update:modelValue", async () => {

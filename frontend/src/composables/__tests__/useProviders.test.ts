@@ -4,7 +4,7 @@ import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { useProviders, type Provider } from "@/composables/useProviders";
 
-// FE-H6 — proves the msw/node seam. Drives the real `useProviders` composable
+// Proves the msw/node seam. Drives the real `useProviders` composable
 // (→ settings store → typed openapi-fetch client → UNPATCHED fetch) and asserts
 // it loads the `/api/providers` fixture through the shared MSW handler set, with
 // no `global.fetch`/`client` monkeypatch. `VITE_API_URL` is "" in tests, so the

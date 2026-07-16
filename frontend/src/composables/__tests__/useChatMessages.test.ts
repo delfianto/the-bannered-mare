@@ -70,7 +70,7 @@ function abortableSse(events: object[], signal?: AbortSignal): Response {
 }
 
 // The cursor-list GET that reconcile / (auto)load fire around a send. These
-// suites don't exercise reconciliation (that's FE-C3), so an empty page keeps
+// suites don't exercise reconciliation, so an empty page keeps
 // them no-ops.
 function emptyMessagesResponse(): Response {
   return new Response(
@@ -122,7 +122,7 @@ function mountComposable(getChatId: () => string | null = () => CHAT_ID, autoLoa
   return api;
 }
 
-describe("useChatMessages — FE-C3: reconcile the optimistic user-message id", () => {
+describe("useChatMessages — reconcile the optimistic user-message id", () => {
   // The setup file's MSW server patched global.fetch; save it and restore after
   // each test so this suite's per-request mock doesn't leak.
   let realFetch: typeof globalThis.fetch;
@@ -206,8 +206,8 @@ describe("useChatMessages — FE-C3: reconcile the optimistic user-message id", 
   });
 });
 
-describe("useChatMessages — FE-C2: SSE state machine (readStream + send/regenerate)", () => {
-  // Same fetch save/restore discipline as the FE-C3 suite: MSW patched
+describe("useChatMessages — SSE state machine (readStream + send/regenerate)", () => {
+  // Same fetch save/restore discipline as the reconcile suite: MSW patched
   // global.fetch, so stash it and restore after each test so these per-request
   // mocks (and any console spies) don't leak into other files.
   let realFetch: typeof globalThis.fetch;
@@ -459,7 +459,7 @@ describe("useChatMessages — FE-C2: SSE state machine (readStream + send/regene
   });
 });
 
-describe("useChatMessages — FE-M5: stopping a regenerate restores the prior reply", () => {
+describe("useChatMessages — stopping a regenerate restores the prior reply", () => {
   let realFetch: typeof globalThis.fetch;
   beforeEach(() => {
     realFetch = globalThis.fetch;

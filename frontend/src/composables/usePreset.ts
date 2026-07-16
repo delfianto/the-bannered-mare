@@ -17,7 +17,7 @@ export function usePreset() {
       client.DELETE("/api/presets/{preset_id}", { params: { path: { preset_id: id } } }),
   });
 
-  // Invalidate the shared presets list after a mutation (FE-M2), so the cached
+  // Invalidate the shared presets list after a mutation, so the cached
   // singleton every list consumer reads stays in sync — mirrors useProvider.
   const store = usePresetsStore();
 

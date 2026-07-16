@@ -10,7 +10,7 @@ async function getForm(initial?: any) {
 }
 
 describe("useCharacterForm - species and age fields", () => {
-  // FE-H5: this suite swaps `global.fetch` / `client.GET` for a couple of cases;
+  // This suite swaps `global.fetch` / `client.GET` for a couple of cases;
   // capture the pristine references at collection time and restore after each
   // test so nothing leaks into later suites (no unrestored global patching).
   const realFetch = globalThis.fetch;
@@ -119,7 +119,7 @@ describe("useCharacterForm - species and age fields", () => {
 });
 
 // ---------------------------------------------------------------------------
-// FE-M9 — the gnarly paths the original suite skipped: gender→custom_gender
+// The gnarly paths the original suite skipped: gender→custom_gender
 // normalization, the example_dialogues regex round-trip, and the lorebook
 // entry-diff in saveCharacter. buildFormData/mapResponseToForm aren't exported,
 // so each case drives the public saveCharacter/loadFromApi and mocks the
@@ -127,7 +127,7 @@ describe("useCharacterForm - species and age fields", () => {
 //
 // `client` (the openapi-fetch singleton) is captured pristine at module-load
 // time and reinstated in beforeEach here as defense-in-depth. The "species and
-// age" suite above now restores its own `client.GET`/`fetch` swaps (FE-H5), so
+// age" suite above now restores its own `client.GET`/`fetch` swaps, so
 // this is belt-and-suspenders — it keeps these suites order-independent even if
 // a future test forgets to clean up.
 // ---------------------------------------------------------------------------

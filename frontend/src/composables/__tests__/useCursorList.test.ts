@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { useCursorList } from "@/composables/useCursorList";
 
-// FE-M9 — the cursor/infinite-scroll machinery's concurrency guards: the
+// The cursor/infinite-scroll machinery's concurrency guards: the
 // monotonic `requestSeq` last-request-wins discard, `reset()` invalidating an
 // in-flight load, and `loadMore` gating on hasMore/cursor. `fetchPage` is a
 // caller-supplied closure, so these drive the composable directly with mock

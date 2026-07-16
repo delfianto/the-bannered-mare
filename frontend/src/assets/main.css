@@ -72,7 +72,7 @@
   --color-dialogue: color-mix(in oklab, var(--color-primary) 50%, var(--color-base-content));
 }
 
-/* Focus ring — the app-wide control focus shadow, one definition (FE-H4).
+/* Focus ring — the app-wide control focus shadow, one definition.
    Variant-agnostic (Tailwind v4 utilities compose with variants at the call
    site); used as `focus:focus-ring`, the only current usage. */
 @utility focus-ring {
@@ -80,13 +80,13 @@
 }
 
 /* Input field — the app-wide single-line text-input styling, one definition
-   (FE-H4). Builds on `focus-ring`; add `font-mono` / `pr-10` at the call site
+  . Builds on `focus-ring`; add `font-mono` / `pr-10` at the call site
    for the variants. */
 @utility input-field {
   @apply h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring;
 }
 
-/* Card — the app-wide raised-surface panel, one definition (FE-H4). Named
+/* Card — the app-wide raised-surface panel, one definition. Named
    `app-card` (not `card`) to avoid colliding with DaisyUI's `.card` component.
    Add hover states / extra padding at the call site. */
 @utility app-card {
