@@ -1,7 +1,7 @@
 """Application service: import a SillyTavern preset into The Bannered Mare entities.
 
 Persists through each target slice's published *import seam* (``create_imported`` /
-``attach_imported``) rather than its repositories (BE-H2). Those seams are
+``attach_imported``) rather than its repositories. Those seams are
 flush-only — they participate in this service's single unit of work, so the whole
 import commits (or rolls back) atomically — and they skip the domain services'
 Jinja2 validation, which would otherwise reject ST-specific macros. The join-row

@@ -1,4 +1,4 @@
-"""Explicit transaction boundary for the service layer (BE-H1).
+"""Explicit transaction boundary for the service layer.
 
 A service holds one ``UnitOfWork`` — a thin wrapper over the request-scoped
 session its repositories share — and commits its work ONCE per operation.

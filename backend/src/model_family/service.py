@@ -43,7 +43,7 @@ class ModelFamilyService(BaseCrudService[ModelFamily, ModelFamilyRepository]):
     def get_first(self) -> ModelFamily | None:
         """Return any one family (name-ordered), or None if none exist.
 
-        A discovery fallback (BE-H2): when an auto-created model matches no family
+        A discovery fallback: when an auto-created model matches no family
         by identifier, the caller falls back to any configured one and lets the user
         correct it afterward.
         """

@@ -1,4 +1,4 @@
-"""Sync seam for seeding canned (non-generated) messages into a chat (BE-H7).
+"""Sync seam for seeding canned (non-generated) messages into a chat.
 
 The chat_session service seeds a character's greeting as a chat's opening message
 on create — a sync, non-LLM write into the chat_message domain. It lives here

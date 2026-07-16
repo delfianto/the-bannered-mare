@@ -37,7 +37,7 @@ class PromptTemplateService(BaseCrudService[PromptTemplate, PromptTemplateReposi
     ):
         super().__init__(template_repo, uow or UnitOfWork(template_repo.db), "Prompt template")
         # Orphan cleanup on delete goes through the fragment slice's published
-        # service, not its repository (BE-H2). Fallback keeps direct construction
+        # service, not its repository. Fallback keeps direct construction
         # (tests) valid — the DI factory injects the request-scoped service.
         self.fragment_service = fragment_service or FragmentService.from_session(template_repo.db)
         self.template_service = template_service or TemplateService()
@@ -48,7 +48,7 @@ class PromptTemplateService(BaseCrudService[PromptTemplate, PromptTemplateReposi
         """List templates with pagination"""
         return self.repo.find_paginated_ordered(limit, offset)
 
-    # --- SillyTavern import seam (BE-H2) ---
+    # --- SillyTavern import seam ---
 
     def find_by_name(self, name: str) -> PromptTemplate | None:
         """Look up a template by exact name (import unique-naming)."""

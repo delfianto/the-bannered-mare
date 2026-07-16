@@ -106,7 +106,7 @@ class CharacterService(BaseCrudService[Character, CharacterRepository]):
     ):
         super().__init__(character_repo, uow or UnitOfWork(character_repo.db), "Character")
         # Character import/export writes & reads the character's lorebook through the
-        # lore slice's published service (BE-H2), not its repositories. The service
+        # lore slice's published service, not its repositories. The service
         # shares this session, so the whole import stays one transaction.
         self.lore_service = lore_service
 
@@ -340,7 +340,7 @@ class CharacterService(BaseCrudService[Character, CharacterRepository]):
         if character.example_dialogues:
             example_str = "\n".join(character.example_dialogues)
 
-        # Fetch character-specific lorebooks through the lore service (BE-H2).
+        # Fetch character-specific lorebooks through the lore service.
         lorebooks = self.lore_service.list_for_character_with_entries(character.id)
 
         character_book = {}

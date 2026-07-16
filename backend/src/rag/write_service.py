@@ -4,7 +4,7 @@ Data-bank rows persist through the sync ``DataBankService``; their embeddings ar
 built by the async ``RetrievalService``. This service owns that two-phase workflow
 — including the best-effort indexing (a failed embed never fails the CRUD; the row
 persists and re-indexes on the next update) — so the router calls one method per
-operation instead of orchestrating persist-then-index itself (BE-H6).
+operation instead of orchestrating persist-then-index itself.
 """
 
 from src.core.config import settings

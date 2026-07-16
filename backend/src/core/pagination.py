@@ -1,4 +1,4 @@
-"""Shared pagination bounds (BE-M3).
+"""Shared pagination bounds.
 
 One home for page-size defaults and caps so service signatures, repository
 defaults, and router ``Query(...)`` params can't drift apart. Changing a value

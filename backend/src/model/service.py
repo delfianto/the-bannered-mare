@@ -30,7 +30,7 @@ class ModelService(BaseCrudService[ModelRegistry, ModelRepository]):
         uow: UnitOfWork | None = None,
     ):
         super().__init__(model_repo, uow or UnitOfWork(model_repo.db), "Model")
-        # Cross-module deps go through published seams (BE-H2): a thin read Port for
+        # Cross-module deps go through published seams: a thin read Port for
         # provider lookups, and the model_family Service for family reads — never the
         # foreign repositories.
         self.provider_reader = provider_reader

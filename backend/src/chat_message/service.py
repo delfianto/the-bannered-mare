@@ -43,7 +43,7 @@ _CURSOR_SEP = "|"
 
 
 def _encode_message_cursor(created_at: datetime, message_id: str) -> str:
-    """Composite pagination cursor ``"<iso8601>|<id>"`` (BE-M2 stable tie-breaker)."""
+    """Composite pagination cursor ``"<iso8601>|<id>"`` (stable tie-breaker)."""
     return f"{created_at.isoformat()}{_CURSOR_SEP}{message_id}"
 
 

@@ -1,4 +1,4 @@
-"""Cross-module read ports (BE-H2).
+"""Cross-module read ports.
 
 A service that needs to READ another slice's data (existence checks, lookups)
 depends on one of these structural ``Protocol`` ports — NOT the foreign
