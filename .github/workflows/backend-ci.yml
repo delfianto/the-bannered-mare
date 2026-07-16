@@ -29,7 +29,7 @@ jobs:
     name: Lint (ruff)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
@@ -45,7 +45,7 @@ jobs:
     name: Type check (basedpyright)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
@@ -59,7 +59,7 @@ jobs:
     name: Tests (pytest)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
@@ -78,7 +78,7 @@ jobs:
       # VectorChord container = Postgres 18 + vchord (on pgvector), matching production parity.
       DATABASE_URL: postgresql://banneredmare:banneredmare@localhost:5432/banneredmare
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
