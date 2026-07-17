@@ -31,10 +31,11 @@
       "enabled": false
     },
     {
-      "description": "vitest and its @vitest/* packages are tightly-coupled peer dependencies and must move together, or coverage-v8 vs vitest version mismatches break CI",
+      "description": "vitest, its @vitest/* packages, and vite-plus (which vendors its own internal vitest) are tightly-coupled peer dependencies and must move together, or coverage-v8 vs vitest version mismatches break CI",
       "matchPackageNames": [
         "vitest",
-        "@vitest/**"
+        "@vitest/**",
+        "vite-plus"
       ],
       "groupName": "vitest"
     }
