@@ -29,6 +29,14 @@
         "major"
       ],
       "enabled": false
+    },
+    {
+      "description": "vitest and its @vitest/* packages are tightly-coupled peer dependencies and must move together, or coverage-v8 vs vitest version mismatches break CI",
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/**"
+      ],
+      "groupName": "vitest"
     }
   ]
 }
