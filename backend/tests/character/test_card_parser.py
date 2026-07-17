@@ -16,6 +16,14 @@ from src.character.card_parser import (
 
 HOMEROOM_PNG = Path(__file__).parent.parent / "data" / "homeroom.png"
 
+# The real, creator-authored sample cards checked into ./characters at the repo
+# root -- the same ones that surfaced the smart-quote and <START>-loss bugs.
+# Exercised here as pure parser input (no DB); test_card_roundtrip.py covers the
+# full import/export pipeline against the same files.
+CARDS_DIR = Path(__file__).parents[3] / "characters"
+CARD_FILES = sorted(CARDS_DIR.glob("*.png")) if CARDS_DIR.exists() else []
+_SMART_QUOTES = set("‘’“”")
+
 
 class TestSplitExampleDialogues:
     def test_empty(self):
@@ -102,6 +110,21 @@ class TestParseCardJson:
         card = parse_card_json('{"name": "Direct", "description": "From string"}')
         assert card.name == "Direct"
 
+    def test_smart_quotes_normalized_to_ascii(self):
+        v2 = {
+            "data": {
+                "name": "Quoted",
+                "description": "She said “hello” and it’s ‘fine’.",
+                "mes_example": "“Hi”",
+                "tags": ["can’t stop", "plain"],
+            },
+        }
+        card = parse_card_json(v2)
+
+        assert card.description == "She said \"hello\" and it's 'fine'."
+        assert card.example_dialogues == '"Hi"'
+        assert card.tags == ["can't stop", "plain"]
+
 
 class TestParseCardPng:
     @pytest.mark.skipif(not HOMEROOM_PNG.exists(), reason="Test PNG not available")
@@ -129,6 +152,48 @@ class TestParseCardPng:
 
         with pytest.raises(ValueError, match="no 'chara' tEXt chunk"):
             parse_card_png(buf.getvalue())
+
+
+@pytest.mark.skipif(not CARD_FILES, reason="characters/ sample cards not available")
+@pytest.mark.parametrize("card_path", CARD_FILES, ids=lambda p: p.stem)
+class TestAllSampleCards:
+    """Parser-only smoke + normalization coverage across every card in characters/."""
+
+    def test_parses_without_error(self, card_path: Path):
+        card = parse_card_png(card_path.read_bytes())
+        assert card.name.strip()
+        assert card.spec == "chara_card_v2"
+
+    def test_no_smart_quotes_survive_parsing(self, card_path: Path):
+        card = parse_card_png(card_path.read_bytes())
+
+        text_fields = [
+            card.name,
+            card.description,
+            card.personality,
+            card.first_message,
+            card.example_dialogues,
+            card.scenario,
+            card.system_prompt,
+            card.post_history_instructions,
+            card.creator_notes,
+            card.creator,
+            card.character_version,
+        ]
+        list_fields = [card.alternate_greetings, card.tags]
+
+        assert not any(set(f) & _SMART_QUOTES for f in text_fields if f)
+        assert not any(set(v) & _SMART_QUOTES for values in list_fields for v in values)
+
+    def test_mes_example_split_round_trips_through_export(self, card_path: Path):
+        """card_parser-level guarantee: whatever split_example_dialogues() would
+        produce from the parsed mes_example survives export_card_json + re-parse,
+        independent of the DB layer's list<->string conversion."""
+        card = parse_card_png(card_path.read_bytes())
+        original_blocks = split_example_dialogues(card.example_dialogues)
+
+        reparsed = parse_card_json(export_card_json(card))
+        assert split_example_dialogues(reparsed.example_dialogues) == original_blocks
 
 
 class TestExport:

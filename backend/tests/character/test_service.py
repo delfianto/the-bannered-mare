@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from sqlalchemy.orm import Session
 from src.character import Character, CharacterRepository, CharacterService
+from src.character.card_parser import parse_card_json, split_example_dialogues
 from src.character.schemas import CharacterFormBase
 from src.character.service import _map_card_gender
 from src.core.exceptions import BanneredMareException
@@ -341,8 +342,46 @@ class TestCharacterService:
         # Import splits mes_example on <START> and strips the marker per block.
         assert character.example_dialogues == ["User: Hello\nHero: Well met!"]
 
+    @pytest.mark.asyncio
+    async def test_import_export_reimport_preserves_example_dialogue_count(
+        self, db: Session
+    ) -> None:
+        """A card with multiple <START> blocks must survive import -> export ->
+        re-import with the same block count -- the export path used to join blocks
+        with a bare "\\n" and drop the <START> markers, silently merging every
+        example back into one on re-import."""
+        repo = CharacterRepository(db)
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
+
+        v2_card = json.dumps(
+            {
+                "data": {
+                    "name": "Roundtrip Hero",
+                    "mes_example": (
+                        "<START>\nUser: Hi\nHero: Hello!"
+                        "<START>\nUser: Bye\nHero: Farewell!"
+                        "<START>\nUser: Help!\nHero: On my way!"
+                    ),
+                }
+            }
+        )
+        character = await service.import_card(UploadedFile(v2_card.encode("utf-8"), "hero.json"))
+        assert character.example_dialogues is not None
+        assert len(character.example_dialogues) == 3
+
+        exported = json.loads(service.export_as_json(character.id))
+        reparsed = parse_card_json(exported)
+        resplit = split_example_dialogues(reparsed.example_dialogues)
+
+        assert resplit == character.example_dialogues
+
     def test_export_as_json(self, db: Session) -> None:
         """Test exporting a character as TavernCard V2 JSON"""
+        # example_dialogues holds post-import blocks (marker already stripped, per
+        # split_example_dialogues) — mirrors what import_card actually stores, not
+        # a hand-crafted string with <START> baked in.
         char = Character(
             name="Export Test",
             description="A test character for export",
@@ -352,7 +391,7 @@ class TestCharacterService:
             creator="Tester",
             alternate_greetings=["Hey!", "Hi!"],
             tags=["test"],
-            example_dialogues=["<START>\nUser: Hi\nChar: Hello!"],
+            example_dialogues=["User: Hi\nChar: Hello!", "User: Bye\nChar: Cya!"],
         )
         db.add(char)
         db.commit()
@@ -376,7 +415,12 @@ class TestCharacterService:
         assert data["creator"] == "Tester"
         assert data["alternate_greetings"] == ["Hey!", "Hi!"]
         assert data["tags"] == ["test"]
-        assert "<START>" in data["mes_example"]
+        # Each stored block gets its own <START> back, so re-splitting the exported
+        # mes_example reconstructs the exact same two blocks (the round-trip bug:
+        # a bare "\n".join would merge them into one on re-import).
+        assert (
+            data["mes_example"] == "<START>\nUser: Hi\nChar: Hello!\n<START>\nUser: Bye\nChar: Cya!"
+        )
 
     @pytest.mark.asyncio
     async def test_import_and_export_character_book(self, db: Session) -> None:

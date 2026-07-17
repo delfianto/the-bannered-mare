@@ -338,7 +338,10 @@ class CharacterService(BaseCrudService[Character, CharacterRepository]):
         """Map a Character ORM instance to a ParsedCard for export."""
         example_str = ""
         if character.example_dialogues:
-            example_str = "\n".join(character.example_dialogues)
+            # Re-insert the <START> marker split_example_dialogues() stripped on
+            # import, or a re-import of this export would merge every example back
+            # into a single block.
+            example_str = "\n".join(f"<START>\n{block}" for block in character.example_dialogues)
 
         # Fetch character-specific lorebooks through the lore service.
         lorebooks = self.lore_service.list_for_character_with_entries(character.id)
