@@ -319,6 +319,49 @@ describe("useCharacterForm - example_dialogues regex round-trip", () => {
     expect(form.data.exampleDialogues[0].characterReply).toBe("");
   });
 
+  // Real mes_example text from the sample cards in ./characters (mina.png / kalina.png)
+  // — every real-world card uses {{user}}:/{{char}}: macros, not this form's own
+  // "User:"/"Character:" convention. Before the parser recognized the macro form,
+  // this whole exchange collapsed into an empty userMessage + a characterReply
+  // holding both turns verbatim — silent corruption on the next save.
+  it("parses a real {{user}}:/{{char}}: exchange (mina.png) into the two fields", async () => {
+    loadResponse = charWithDialogues([
+      '{{user}}: "Why are you looking at me like that?"\n{{char}}: Mina tilts her head, lips curling into a slow smirk. "Oh, no reason. Just thinking about how nice you\'d look on... my couch tonight." She pauses, watching {{user}}\'s reaction before laughing. "Relax, I meant for movie night. What kind of girl do you take me for?" Mina says, blinking playfully.',
+    ]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+
+    expect(form.data.exampleDialogues[0].userMessage).toBe(
+      '"Why are you looking at me like that?"',
+    );
+    expect(form.data.exampleDialogues[0].characterReply).toBe(
+      'Mina tilts her head, lips curling into a slow smirk. "Oh, no reason. Just thinking about how nice you\'d look on... my couch tonight." She pauses, watching {{user}}\'s reaction before laughing. "Relax, I meant for movie night. What kind of girl do you take me for?" Mina says, blinking playfully.',
+    );
+  });
+
+  it("parses each block of a real multi-example card (kalina.png) independently", async () => {
+    loadResponse = charWithDialogues([
+      '{{user}}: I put a full shopping bag on Kalina\'s bed. "I brought you some snacks. You\'d probably starve without me, huh?"\n{{char}}: *{{char}} gasps dramatically, clutching her chest.* "Oh, my hero!"',
+      '{{user}}: "You ever think about what you\'ll do after you leave this place?"\n{{char}}: *{{char}} leans her head back against the pillow.* "You mean if I leave."',
+    ]);
+    const form = await getForm();
+    await form.loadFromApi("dlg-1");
+
+    expect(form.data.exampleDialogues).toHaveLength(2);
+    expect(form.data.exampleDialogues[0].userMessage).toBe(
+      "I put a full shopping bag on Kalina's bed. \"I brought you some snacks. You'd probably starve without me, huh?\"",
+    );
+    expect(form.data.exampleDialogues[0].characterReply).toBe(
+      '*{{char}} gasps dramatically, clutching her chest.* "Oh, my hero!"',
+    );
+    expect(form.data.exampleDialogues[1].userMessage).toBe(
+      '"You ever think about what you\'ll do after you leave this place?"',
+    );
+    expect(form.data.exampleDialogues[1].characterReply).toBe(
+      '*{{char}} leans her head back against the pillow.* "You mean if I leave."',
+    );
+  });
+
   it("serializes each dialogue pair as a <START>/User/Character block", async () => {
     const form = await getForm();
     form.updateField("name", "Dialogue Test");

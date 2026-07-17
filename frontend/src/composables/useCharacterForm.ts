@@ -158,16 +158,20 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
     }
 
     // Map example_dialogues back to DialoguePair[]. A well-formed exchange has
-    // explicit User:/Character: markers; anything else (freeform mes_example
-    // imported from a card) is preserved verbatim in the reply field so an
-    // edit + save round-trip never silently destroys it.
+    // explicit user/character markers -- either this form's own "User:"/"Character:"
+    // (round-tripped from a prior save) or the {{user}}:/{{char}}: macro convention
+    // every real card and the backend's own import path actually use. Anything else
+    // (freeform mes_example with no markers at all) is preserved verbatim in the
+    // reply field so an edit + save round-trip never silently destroys it.
     if (res.example_dialogues && res.example_dialogues.length > 0) {
       data.exampleDialogues = res.example_dialogues.map((text, idx) => {
         const id = `dlg-${Date.now()}-${idx}`;
-        const hasMarkers = /(^|\n)\s*(user|char(acter)?)\s*:/i.test(text);
+        const hasMarkers = /(^|\n)\s*\{{0,2}\s*(user|char(?:acter)?)\s*\}{0,2}\s*:/i.test(text);
         if (hasMarkers) {
-          const userMatch = text.match(/User:\s*([\s\S]*?)(?:\nCharacter:|$)/i);
-          const charMatch = text.match(/Character:\s*([\s\S]*?)$/i);
+          const userMatch = text.match(
+            /\{{0,2}\s*user\s*\}{0,2}\s*:\s*([\s\S]*?)(?:\n\s*\{{0,2}\s*char(?:acter)?\s*\}{0,2}\s*:|$)/i,
+          );
+          const charMatch = text.match(/\{{0,2}\s*char(?:acter)?\s*\}{0,2}\s*:\s*([\s\S]*?)$/i);
           return {
             id,
             userMessage: userMatch ? userMatch[1].trim() : "",
