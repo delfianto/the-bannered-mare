@@ -1,6 +1,7 @@
 """Character business logic service"""
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +30,47 @@ from src.core.utils.upload import UploadedFile
 from src.lore.service import LoreService
 
 logger = get_logger(__name__)
+
+_TAG_WORD_RE = re.compile(r"[A-Za-z]+(?:'[A-Za-z]+)?")
+# Acronyms this card ecosystem actually uses in tags, canonicalized regardless
+# of how a given card cased them -- otherwise "OC" (already caps, preserved
+# verbatim by the fallback below) and "oc" (title-cased to "Oc") land as two
+# different strings for the same tag, which defeats "uniform format".
+_KNOWN_TAG_ACRONYMS = {"OC", "NSFW", "SFW", "POV"}
+# Acronyms in this domain top out around 4-5 letters; a longer all-caps run not
+# in the known set reads as emphatic typing of an ordinary word ("ENGLISH"),
+# not an acronym, so it's still title-cased.
+_MAX_ACRONYM_LEN = 5
+
+
+def _title_case_word(word: str) -> str:
+    """Capitalize a single word, preserving a domain acronym (NSFW, SFW, OC,
+    POV...) verbatim rather than mangling it to "Nsfw"."""
+    upper = word.upper()
+    if upper in _KNOWN_TAG_ACRONYMS:
+        return upper
+    if 2 <= len(word) <= _MAX_ACRONYM_LEN and word.isupper():
+        return word
+    return word[:1].upper() + word[1:].lower()
+
+
+def _title_case_tag(tag: str) -> str:
+    """Title-case a tag's word runs, leaving every other character (spaces,
+    hyphens, commas, punctuation) untouched.
+
+    Card tags come in wildly inconsistent casing -- lowercase, Title Case,
+    ALL-CAPS acronyms, sometimes mixed within the same card's tag list -- since
+    the TavernCard spec doesn't constrain tag formatting at all. Doesn't merge
+    near-duplicate variants (e.g. "anypov" vs "Any POV" stay two distinct tags,
+    just each internally consistent) -- that's a fuzzy-matching problem, not a
+    casing one, and guessing wrong there would silently drop a real tag.
+    """
+    return _TAG_WORD_RE.sub(lambda m: _title_case_word(m.group()), tag)
+
+
+def _normalize_tags(tags: list[str] | None) -> list[str] | None:
+    """Title-case every tag; ``None``/empty passes through unchanged."""
+    return [_title_case_tag(t) for t in tags] if tags else tags
 
 
 def _parse_gender(value: str) -> Gender:
@@ -86,7 +128,7 @@ def _build_character_from_card(card: ParsedCard) -> Character:
         creator=card.creator or None,
         character_version=card.character_version or None,
         alternate_greetings=card.alternate_greetings or None,
-        tags=card.tags or None,
+        tags=_normalize_tags(card.tags) or None,
         species=card.species or None,
         age=card.age or None,
         gender=gender_enum,
@@ -125,7 +167,7 @@ class CharacterService(BaseCrudService[Character, CharacterRepository]):
 
         parsed_dialogues = self._parse_json_field(data.example_dialogues, "example_dialogues")
         parsed_greetings = self._parse_json_field(data.alternate_greetings, "alternate_greetings")
-        parsed_tags = self._parse_json_field(data.tags, "tags")
+        parsed_tags = _normalize_tags(self._parse_json_field(data.tags, "tags"))
 
         parsed_gender = _parse_gender(data.gender) if data.gender else None
 
@@ -214,7 +256,7 @@ class CharacterService(BaseCrudService[Character, CharacterRepository]):
                 data.alternate_greetings, "alternate_greetings"
             )
         if data.tags is not None:
-            character.tags = self._parse_json_field(data.tags, "tags")
+            character.tags = _normalize_tags(self._parse_json_field(data.tags, "tags"))
 
         if avatar:
             original_path, large_path, thumbnail_path = await save_character_avatar(
