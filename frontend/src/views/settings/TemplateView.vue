@@ -507,8 +507,7 @@ function handleAttachFragment() {
               >
                 <pre
                   class="font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground"
-                  >{{ preview.rendered }}</pre
-                >
+                  >{{ preview.rendered }}</pre>
               </div>
             </div>
           </div>
