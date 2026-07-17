@@ -1,11 +1,13 @@
 "Service for building LLM prompts using templates and context"
 
 import math
+import re
 from dataclasses import dataclass
 from typing import Any
 
 from src.character.models import Character
 from src.chat_session.models import Chat
+from src.core.logging import get_logger
 from src.core.persistence.enums import InsertionPosition
 from src.core.persistence.models import Message, ModelFamily
 from src.core.tokenization import Tokenizer, get_tokenizer
@@ -15,8 +17,19 @@ from src.prompt_template.models import PromptTemplate
 from src.prompt_template.repository import PromptTemplateRepository
 from src.templating import TemplateContext, TemplateService
 
+logger = get_logger(__name__)
+
 # Default depth (messages from the end) for at_depth fragments without an explicit depth.
 DEFAULT_DEPTH = 4
+
+# A card's example turn is labelled with the {{user}}:/{{char}}: macro convention
+# (or this app's own "User:"/"Character:", round-tripped from the creator form) --
+# never a colon-preceded literal name, so this stays a fixed pattern with no
+# per-character interpolation.
+_TURN_LABEL_RE = re.compile(
+    r"(?:^|\n)\s*\{{0,2}\s*(user|char(?:acter)?)\s*\}{0,2}\s*:\s*",
+    re.IGNORECASE,
+)
 
 # History eviction rounds the dropped-count up to a multiple of this block so the
 # kept prefix is byte-stable for ~EVICTION_BLOCK turns between evictions — prefix
@@ -108,16 +121,16 @@ class PromptBuilder:
             "world_lore_before_character": self._lore_to_messages(
                 lore_by_position.get(InsertionPosition.BEFORE_CHARACTER, [])
             ),
-            "character_context": self._build_character_context(chat.character),
+            "character_context": self._build_character_context(chat.character, context),
             "world_lore_after_character": self._lore_to_messages(
                 lore_by_position.get(InsertionPosition.AFTER_CHARACTER, [])
             ),
-            "scenario": self._build_scenario(chat.character),
+            "scenario": self._build_scenario(chat.character, context),
             "persona": self._build_persona_context(persona or chat.persona),
             "world_lore_before_examples": self._lore_to_messages(
                 lore_by_position.get(InsertionPosition.BEFORE_EXAMPLES, [])
             ),
-            "example_dialogues": self._build_example_dialogues(chat.character),
+            "example_dialogues": self._build_example_dialogues(chat.character, context),
             "post_history_instructions": self._build_post_history_instructions(chat.character),
         }
 
@@ -247,24 +260,51 @@ class PromptBuilder:
         """Convert lore entries to API message dicts."""
         return [{"role": entry.role, "content": entry.content} for entry in entries]
 
-    def _build_character_context(self, character: Character) -> list[dict[str, Any]]:
+    def _render_safe(self, text: str, context: TemplateContext, *, field_name: str) -> str:
+        """Render a card-authored free-text field, falling back to the raw text on
+        a render failure. Unlike a curated prompt template, this text comes from
+        arbitrary imported cards -- it can contain brace sequences that look like
+        but aren't valid Jinja -- and one malformed field must not break every
+        message in the chat."""
+        try:
+            return self.template_service.render(text, context)
+        except Exception:  # noqa: BLE001 — mirrors _seed_greeting: a malformed
+            # card field must degrade to raw text, not break every message.
+            logger.warning(
+                "character_field_render_failed",
+                field_name=field_name,
+                character_id=context.character.id,
+                exc_info=True,
+            )
+            return text
+
+    def _build_character_context(
+        self, character: Character, context: TemplateContext
+    ) -> list[dict[str, Any]]:
         """Build character context (description, personality)"""
         content = []
         if character.description:
-            content.append(f"Description: {character.description}")
+            content.append(
+                f"Description: {self._render_safe(character.description, context, field_name='description')}"
+            )
         if character.personality:
-            content.append(f"Personality: {character.personality}")
+            content.append(
+                f"Personality: {self._render_safe(character.personality, context, field_name='personality')}"
+            )
 
         if not content:
             return []
 
         return [{"role": "system", "content": "\n".join(content)}]
 
-    def _build_scenario(self, character: Character) -> list[dict[str, Any]]:
+    def _build_scenario(
+        self, character: Character, context: TemplateContext
+    ) -> list[dict[str, Any]]:
         """Build scenario context"""
         if not character.scenario:
             return []
-        return [{"role": "system", "content": f"Scenario: {character.scenario}"}]
+        rendered = self._render_safe(character.scenario, context, field_name="scenario")
+        return [{"role": "system", "content": f"Scenario: {rendered}"}]
 
     def _build_persona_context(self, persona: Persona | None) -> list[dict[str, Any]]:
         """Build user persona context"""
@@ -272,20 +312,46 @@ class PromptBuilder:
             return []
         return [{"role": "system", "content": f"User Persona: {persona.description}"}]
 
-    def _build_example_dialogues(self, character: Character) -> list[dict[str, Any]]:
-        """Build example dialogues from character data"""
+    def _split_dialogue_turns(self, text: str, character_name: str) -> list[dict[str, str]]:
+        """Split one example-dialogue block into alternating user/assistant turns.
+
+        Cards label each turn with {{user}}:/{{char}}: macros (or this app's own
+        "User:"/"Character:", round-tripped from the creator form). A block with
+        none of those has no reliable turn boundary, so it stays one message,
+        attributed to the character only if it literally opens with their name --
+        matching the pre-fix heuristic so genuinely unlabeled/freeform examples
+        don't change behavior.
+        """
+        matches = list(_TURN_LABEL_RE.finditer(text))
+        if not matches:
+            role = "assistant" if text.startswith(f"{character_name}:") else "user"
+            content = text.strip()
+            return [{"role": role, "content": content}] if content else []
+
+        turns: list[dict[str, str]] = []
+        for i, m in enumerate(matches):
+            role = "assistant" if m.group(1).lower().startswith("char") else "user"
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            content = text[m.end() : end].strip()
+            if content:
+                turns.append({"role": role, "content": content})
+        return turns
+
+    def _build_example_dialogues(
+        self, character: Character, context: TemplateContext
+    ) -> list[dict[str, Any]]:
+        """Build example dialogues from character data, split into per-speaker
+        turns and macro-rendered like every other character-authored field."""
         if not character.example_dialogues:
             return []
 
-        messages = []
+        messages: list[dict[str, Any]] = []
         for dialogue in character.example_dialogues:
-            if isinstance(dialogue, dict) and "role" in dialogue and "content" in dialogue:
-                messages.append(dialogue)
-            elif isinstance(dialogue, str):
-                if dialogue.startswith(f"{character.name}:"):
-                    messages.append({"role": "assistant", "content": dialogue})
-                else:
-                    messages.append({"role": "user", "content": dialogue})
+            for turn in self._split_dialogue_turns(dialogue, character.name):
+                rendered = self._render_safe(
+                    turn["content"], context, field_name="example_dialogues"
+                )
+                messages.append({"role": turn["role"], "content": rendered})
         return messages
 
     @staticmethod
