@@ -29,6 +29,8 @@ jobs:
       - name: lint (ruff)
         run: ruff check .
       - name: type-check (basedpyright)
-        run: basedpyright --level error
+        run: |
+          basedpyright --outputjson > /tmp/basedpyright.json || true
+          python -c "import json,sys; d = json.load(open('/tmp/basedpyright.json')); s = d['summary']; print(f\"{s['errorCount']} error(s), {s['warningCount']} warning(s)\"); sys.exit(1 if s['errorCount'] else 0)"
       - name: build
         run: python -m compileall -q .
