@@ -122,8 +122,7 @@ function formatFullTimestamp(iso: string): string {
         <pre
           v-if="httpLog.request_body"
           class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-          >{{ prettyJson(httpLog.request_body) }}</pre
-        >
+          >{{ prettyJson(httpLog.request_body) }}</pre>
         <div v-else class="rounded-lg border border-dashed border-border/30 p-3 text-xs">
           <p class="text-muted-foreground">{{ $t("settings.logs.notCaptured") }}</p>
           <p class="mt-1 text-muted-foreground/60">{{ $t("settings.logs.notCapturedHint") }}</p>
@@ -147,8 +146,7 @@ function formatFullTimestamp(iso: string): string {
         <pre
           v-if="httpLog.response_body"
           class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-          >{{ prettyJson(httpLog.response_body) }}</pre
-        >
+          >{{ prettyJson(httpLog.response_body) }}</pre>
         <div v-else class="rounded-lg border border-dashed border-border/30 p-3 text-xs">
           <p class="text-muted-foreground">{{ $t("settings.logs.notCaptured") }}</p>
           <p class="mt-1 text-muted-foreground/60">{{ $t("settings.logs.notCapturedHint") }}</p>
@@ -201,8 +199,7 @@ function formatFullTimestamp(iso: string): string {
             </span>
             <pre
               class="overflow-x-auto font-mono text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground"
-              >{{ msg.content }}</pre
-            >
+              >{{ msg.content }}</pre>
           </div>
         </div>
       </div>
@@ -225,8 +222,7 @@ function formatFullTimestamp(iso: string): string {
           <pre
             v-if="responseContent"
             class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground"
-            >{{ responseContent }}</pre
-          >
+            >{{ responseContent }}</pre>
           <details v-if="responseReasoning" class="rounded-lg border border-border/20">
             <summary
               class="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground select-none"
@@ -235,14 +231,12 @@ function formatFullTimestamp(iso: string): string {
             </summary>
             <pre
               class="max-h-64 overflow-auto border-t border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground"
-              >{{ responseReasoning }}</pre
-            >
+              >{{ responseReasoning }}</pre>
           </details>
           <pre
             v-if="responseMeta && Object.keys(responseMeta).length"
             class="overflow-x-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-            >{{ prettyJson(responseMeta) }}</pre
-          >
+            >{{ prettyJson(responseMeta) }}</pre>
         </div>
         <div v-else class="rounded-lg border border-dashed border-border/30 p-3 text-xs">
           <p class="text-muted-foreground">{{ $t("settings.logs.notCaptured") }}</p>
@@ -270,8 +264,7 @@ function formatFullTimestamp(iso: string): string {
         </h3>
         <pre
           class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-          >{{ errLog.stack_trace }}</pre
-        >
+          >{{ errLog.stack_trace }}</pre>
       </div>
 
       <div v-if="Object.keys(errLog.context).length">
@@ -280,8 +273,7 @@ function formatFullTimestamp(iso: string): string {
         </h3>
         <pre
           class="max-h-64 overflow-auto rounded-lg border border-border/20 bg-base-100/60 p-3 font-mono text-xs leading-relaxed text-muted-foreground"
-          >{{ prettyJson(errLog.context) }}</pre
-        >
+          >{{ prettyJson(errLog.context) }}</pre>
       </div>
     </div>
   </Modal>
