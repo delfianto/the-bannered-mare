@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
+import { previewText } from "@/utils/characterPreview";
 import { useRouter } from "vue-router";
 import type { Character } from "@/types/discover";
 import CharacterContextMenu from "./CharacterContextMenu.vue";
@@ -76,10 +77,10 @@ function timeAgo(dateStr: string): string {
         {{ character.name }}
       </h3>
       <p
-        v-if="character.creator_notes || character.description"
+        v-if="character.description || character.creator_notes"
         class="mt-1 line-clamp-3 text-xs leading-relaxed text-muted-foreground/70"
       >
-        {{ character.creator_notes || character.description }}
+        {{ previewText(character) }}
       </p>
       <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
         <span

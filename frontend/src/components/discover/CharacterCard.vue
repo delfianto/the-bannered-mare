@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fallbackAvatarUrl } from "@/utils/avatar";
+import { previewText } from "@/utils/characterPreview";
 import { useRouter } from "vue-router";
 import type { Character } from "@/types/discover";
 import CharacterContextMenu from "./CharacterContextMenu.vue";
@@ -81,10 +82,10 @@ function avatarSrc(): string {
         {{ character.name }}
       </h3>
       <p
-        v-if="character.creator_notes || character.description"
+        v-if="character.description || character.creator_notes"
         class="mb-2 line-clamp-3 text-2xs leading-relaxed text-white/60"
       >
-        {{ character.creator_notes || character.description }}
+        {{ previewText(character) }}
       </p>
       <div v-if="character.tags?.length" class="flex flex-wrap gap-1.5">
         <span
