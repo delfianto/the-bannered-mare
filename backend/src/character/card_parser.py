@@ -12,10 +12,44 @@ import json
 import re
 import struct
 import zlib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Any
 
 from PIL import Image
+
+# Card creators mix typewriter tools (straight quotes) and rich editors like Word/
+# Google Docs (auto-curled quotes) -- often within the same field of the same card
+# -- so imported text ends up with both conventions for what should read as one
+# character. Folding to ASCII keeps exact-match consumers (lore keyword triggers,
+# search) from missing a hit because of a typographic quote mismatch.
+_SMART_QUOTE_TRANSLATION = str.maketrans(
+    {
+        "‘": "'",  # left single quotation mark
+        "’": "'",  # right single quotation mark
+        "“": '"',  # left double quotation mark
+        "”": '"',  # right double quotation mark
+    }
+)
+
+
+def normalize_smart_quotes(text: str) -> str:
+    """Fold Unicode "smart" quotes to their ASCII equivalents."""
+    return text.translate(_SMART_QUOTE_TRANSLATION)
+
+
+def normalize_card_quotes(card: ParsedCard) -> ParsedCard:
+    """Apply ``normalize_smart_quotes`` to every string/string-list field on a card.
+
+    ``extensions`` and ``character_book`` are left untouched -- they're structured
+    data (and the lore domain owns normalizing ``character_book`` prose if needed).
+    """
+    for f in fields(card):
+        value = getattr(card, f.name)
+        if isinstance(value, str):
+            setattr(card, f.name, normalize_smart_quotes(value))
+        elif isinstance(value, list) and value and isinstance(value[0], str):
+            setattr(card, f.name, [normalize_smart_quotes(v) for v in value])
+    return card
 
 
 def split_example_dialogues(mes_example: str) -> list[str]:
@@ -148,10 +182,12 @@ def parse_card_json(raw_json: str | dict[str, Any]) -> ParsedCard:
     """
     data = json.loads(raw_json) if isinstance(raw_json, str) else raw_json
 
-    if "data" in data and isinstance(data["data"], dict):
-        return _parse_v2_data(data["data"])
-
-    return _parse_v1_data(data)
+    card = (
+        _parse_v2_data(data["data"])
+        if "data" in data and isinstance(data["data"], dict)
+        else _parse_v1_data(data)
+    )
+    return normalize_card_quotes(card)
 
 
 def parse_card_png(png_data: bytes) -> ParsedCard:
