@@ -29,6 +29,6 @@ jobs:
       - name: lint (ruff)
         run: ruff check .
       - name: type-check (basedpyright)
-        run: basedpyright
+        run: basedpyright --level error
       - name: build
         run: python -m compileall -q .
