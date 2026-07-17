@@ -12,7 +12,7 @@ import pytest
 from sqlalchemy.orm import Session
 from src.character.card_parser import parse_card_json, split_example_dialogues
 from src.character.repository import CharacterRepository
-from src.character.service import CharacterService
+from src.character.service import CharacterService, _title_case_tag
 from src.core.utils.upload import UploadedFile
 from src.lore.repository import LoreEntryRepository, LoreRepository
 from src.lore.service import LoreService
@@ -72,6 +72,19 @@ class TestRealCardImportExportRoundtrip:
             f for values in list_fields for f in values if set(f) & _SMART_QUOTES
         ]
         assert offenders == []
+
+    @pytest.mark.asyncio
+    async def test_tags_are_title_cased(self, db: Session, card_path: Path) -> None:
+        """Every stored tag must already equal its own title-cased form -- a
+        property check rather than hardcoded expected lists, since each card's
+        tags differ. Also guards idempotency: re-running the normalizer on
+        already-imported data must be a no-op."""
+        service = _service(db)
+        upload = UploadedFile(card_path.read_bytes(), card_path.name)
+        character = await service.import_card(upload)
+
+        for tag in character.tags or []:
+            assert tag == _title_case_tag(tag), f"tag not normalized: {tag!r}"
 
     @pytest.mark.asyncio
     async def test_example_dialogues_survive_export_reimport(

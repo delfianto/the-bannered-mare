@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.character import Character, CharacterRepository, CharacterService
 from src.character.card_parser import parse_card_json, split_example_dialogues
 from src.character.schemas import CharacterFormBase
-from src.character.service import _map_card_gender
+from src.character.service import _map_card_gender, _normalize_tags, _title_case_tag
 from src.core.exceptions import BanneredMareException
 from src.core.persistence.enums import Gender
 from src.core.utils.upload import UploadedFile
@@ -337,7 +337,8 @@ class TestCharacterService:
         assert character.system_prompt == "You are a brave hero."
         assert character.creator == "Tester"
         assert character.alternate_greetings == ["Hail!", "Welcome!"]
-        assert character.tags == ["fantasy", "hero"]
+        # Tags are title-cased on import so casing stays consistent across cards.
+        assert character.tags == ["Fantasy", "Hero"]
         assert character.version == 2
         # Import splits mes_example on <START> and strips the marker per block.
         assert character.example_dialogues == ["User: Hello\nHero: Well met!"]
@@ -568,3 +569,48 @@ class TestMapCardGender:
     def test_card_gender_takes_precedence_over_custom(self) -> None:
         """A recognized card gender wins; custom_gender is ignored when gender is set."""
         assert _map_card_gender("male", "ignored") == (Gender.MALE, None)
+
+
+class TestNormalizeTags:
+    """Unit tests for tag Title-Casing (import + create/update paths)."""
+
+    @pytest.mark.parametrize(
+        ("raw", "expected"),
+        [
+            # Plain casing variants.
+            ("cute", "Cute"),
+            ("ENGLISH", "English"),
+            ("Already Title Case", "Already Title Case"),
+            # Known domain acronyms canonicalize to uppercase regardless of how a
+            # given card cased them -- so "OC" (homeroom_teacher.png) and "oc"
+            # (emily.png) land as the same tag, not two different strings.
+            ("NSFW", "NSFW"),
+            ("nsfw", "NSFW"),
+            ("OC", "OC"),
+            ("oc", "OC"),
+            ("Any POV", "Any POV"),
+            ("anypov", "Anypov"),  # doesn't merge with "Any POV" -- different word
+            ("SFW <-> NSFW", "SFW <-> NSFW"),
+            # An all-caps word outside the known set is still preserved if it's
+            # acronym-length -- a plausible acronym we just don't have on file.
+            ("AU", "AU"),
+            # Hyphens split into separately-capitalized words; other punctuation
+            # (commas, parens) is left in place, only letter-runs are touched.
+            ("elder-scrolls", "Elder-Scrolls"),
+            ("can be wholesome, can be sexy", "Can Be Wholesome, Can Be Sexy"),
+            # Idempotent on data from the real sample cards (already-correct tags
+            # from homeroom_teacher.png / kalina.png / mina_stepsister.png).
+            ("Gentle Femdom", "Gentle Femdom"),
+            ("Possible Saviorfagging", "Possible Saviorfagging"),
+            ("stepcest", "Stepcest"),
+        ],
+    )
+    def test_title_case_tag(self, raw: str, expected: str) -> None:
+        assert _title_case_tag(raw) == expected
+
+    def test_normalize_tags_maps_every_tag(self) -> None:
+        assert _normalize_tags(["cute", "NSFW", "black hair"]) == ["Cute", "NSFW", "Black Hair"]
+
+    def test_normalize_tags_passes_none_and_empty_through(self) -> None:
+        assert _normalize_tags(None) is None
+        assert _normalize_tags([]) == []
