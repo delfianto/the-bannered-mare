@@ -96,6 +96,98 @@ def normalize_card_bullets(card: ParsedCard) -> ParsedCard:
     return card
 
 
+# --- Canonical name recovery --------------------------------------------------
+# The card `name` field does double duty: it's both the storefront listing title AND
+# the {{char}} prompt token. So creators routinely stuff it with SEO junk ("Mina — Your
+# Mean and Bratty Stepsister Catches you Sleeping in her Bed") or a bare role ("Shy
+# Cousin") while the character's actual name hides in a "Name:" line in the description.
+# We only touch a `name` that isn't already a usable personal name, and only replace it
+# with a validated, name-shaped candidate -- otherwise the original is kept (a genuinely
+# anonymous role like "Your Young Homeroom Teacher" has no name to recover, and leaving
+# it is correct). `name` is never blanked.
+
+# Role / relationship / descriptor tokens that disqualify a string from reading as a
+# clean personal name. Lowercase connectors ("the", "and") already fail the capitalized-
+# word test below; this set is what catches the Capitalized title words a name never has
+# ("Cousin", "Teacher", "Young", "Stepsister").
+_NON_NAME_TOKENS = frozenset(
+    {
+        "your", "my", "the", "a", "an", "this", "that",
+        # relationships / roles
+        "teacher", "professor", "cousin", "sister", "stepsister", "brother", "stepbrother",
+        "mother", "mom", "mommy", "father", "dad", "daddy", "stepmom", "stepmother",
+        "stepdad", "stepfather", "roommate", "bestfriend", "friend", "boss", "stranger",
+        "neighbor", "girlfriend", "boyfriend", "wife", "husband", "aunt", "auntie", "uncle",
+        "niece", "nephew", "maid", "nurse", "senpai", "master", "mistress", "landlord",
+        "landlady", "babysitter", "king", "queen", "prince", "princess", "doctor",
+        "secretary", "assistant", "waifu",
+        # generic person nouns
+        "girl", "boy", "guy", "man", "woman", "lady", "gal", "guys", "girls",
+        # common title adjectives / hooks
+        "mean", "bratty", "shy", "young", "old", "cute", "hot", "sexy", "horny", "naughty",
+        "new", "best", "homeroom", "dominant", "submissive", "innocent", "lonely",
+        # scenario verbs that leak into marketplace titles
+        "catches", "catch", "sleeping", "sleeps", "meets", "wants", "needs",
+    }
+)  # fmt: skip
+
+# Separators a creator uses to bolt a title onto a real name: em/en dash, spaced hyphen,
+# colon, pipe, slash, comma. A bare hyphen with NO surrounding spaces is preserved so
+# compound names ("Daro-Soraya") survive intact.
+_NAME_TITLE_SEPARATOR = re.compile(r"\s*(?:[—–|/:,]|(?<=\s)-(?=\s))\s*")
+
+_NAME_LABEL_PATTERN = re.compile(
+    r"\b(?:real |full |char(?:acter)? )?name\b\s*[:(]\s*\**\s*([^\n;)*.]{2,40})",
+    re.IGNORECASE,
+)
+
+
+def _clean_person_name(text: str) -> str:
+    """Return ``text`` if it reads as a personal name -- 1-4 capitalized, name-shaped
+    words with no role/title token -- else "". This is both the gate that protects an
+    already-clean ``name`` and the validator every recovered candidate must pass.
+    """
+    candidate = text.strip(" \t.,;:!?-—–/|\"'")
+    words = candidate.split()
+    if not (1 <= len(words) <= 4) or len(candidate) > 40:
+        return ""
+    if any(w.lower() in _NON_NAME_TOKENS for w in words):
+        return ""
+    if not all(re.fullmatch(r"[A-Z][A-Za-z'’.-]*", w) for w in words):
+        return ""
+    return candidate
+
+
+def _name_from_title(name: str) -> str:
+    """Take the segment before the first title separator, if that segment is a clean
+    name ("Mina — Your Mean...Stepsister" -> "Mina"). Returns "" when there's no
+    separator or the leading segment is itself a role ("Bestfriend / roommate").
+    """
+    first = _NAME_TITLE_SEPARATOR.split(name, maxsplit=1)[0]
+    return _clean_person_name(first) if first != name else ""
+
+
+def _name_from_label(text: str) -> str:
+    """Recover a name from an explicit 'Name:'/'Character Name:' line in card prose."""
+    match = _NAME_LABEL_PATTERN.search(text)
+    return _clean_person_name(match.group(1)) if match else ""
+
+
+def fill_canonical_name(card: ParsedCard) -> ParsedCard:
+    """Replace a role/title ``name`` with the character's actual name when one can be
+    recovered confidently. A ``name`` that already reads as a personal name is left
+    untouched; a labeled 'Name:' in the prose (highest confidence) wins over splitting a
+    title off the ``name`` field; if nothing name-shaped is found, the original stays.
+    """
+    if _clean_person_name(card.name):
+        return card  # already a usable name -- never touch a good one
+    haystack = "\n".join(filter(None, [card.description, card.personality]))
+    recovered = _name_from_label(haystack) or _name_from_title(card.name)
+    if recovered:
+        card.name = recovered
+    return card
+
+
 # Most cards leave species/gender/age unset (the bannered_mare extension is our
 # own invention -- essentially nobody in the wider card ecosystem uses it) but
 # often bake them into description/personality as an informal "character sheet":
@@ -408,7 +500,7 @@ def parse_card_json(raw_json: str | dict[str, Any]) -> ParsedCard:
         if "data" in data and isinstance(data["data"], dict)
         else _parse_v1_data(data)
     )
-    normalized = normalize_card_bullets(normalize_card_quotes(card))
+    normalized = fill_canonical_name(normalize_card_bullets(normalize_card_quotes(card)))
     return fill_prose_inferred_attributes(fill_baked_in_attributes(normalized))
 
 

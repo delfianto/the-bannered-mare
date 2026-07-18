@@ -10,6 +10,7 @@ from src.character.card_parser import (
     export_card_json,
     export_card_png,
     fill_baked_in_attributes,
+    fill_canonical_name,
     fill_prose_inferred_attributes,
     normalize_bullet_list,
     parse_card_json,
@@ -391,6 +392,44 @@ class TestNormalizeBulletList:
         assert card.description == "Tall.\n\nFreckled."
         # Only the character-sheet fields are normalized; scenario is left as-is.
         assert card.scenario == "- left alone on purpose -"
+
+
+class TestFillCanonicalName:
+    """Recover the character's real name from a role/title `name` field. `name` doubles
+    as the {{char}} token and the storefront listing, so it's often SEO junk or a bare
+    role while the real name hides in the prose."""
+
+    def test_clean_name_is_left_untouched(self):
+        for good in ("Emily", "Kalina", "Daro-Soraya", "Mina"):
+            card = ParsedCard(name=good, description="Name: Somebody Else")
+            assert fill_canonical_name(card).name == good
+
+    def test_title_is_stripped_off_the_name(self):
+        card = ParsedCard(name="Mina — Your Mean and Bratty Stepsister Catches you Sleeping")
+        assert fill_canonical_name(card).name == "Mina"
+
+    def test_name_recovered_from_label_in_description(self):
+        card = ParsedCard(name="Shy Cousin", description="✨ Character Name: Elara Voss\nAge: 19")
+        assert fill_canonical_name(card).name == "Elara Voss"
+
+    def test_label_beats_a_role_leading_segment(self):
+        # "Bestfriend / roommate" splits to a role, so the labeled name must win.
+        card = ParsedCard(name="Bestfriend / roommate", description="**Name:** Hazel Smith")
+        assert fill_canonical_name(card).name == "Hazel Smith"
+
+    def test_anonymous_role_with_no_recoverable_name_is_kept(self):
+        card = ParsedCard(
+            name="Your Young Homeroom Teacher", description="A teacher. No name given."
+        )
+        assert fill_canonical_name(card).name == "Your Young Homeroom Teacher"
+
+    def test_label_never_matches_nickname_or_username(self):
+        card = ParsedCard(name="Shy Cousin", description="Nickname: Bug\nUsername: cuzz")
+        assert fill_canonical_name(card).name == "Shy Cousin"
+
+    def test_full_pipeline_applies_name_recovery(self):
+        v2 = {"data": {"name": "Mina — Your Bratty Stepsister", "description": "hi"}}
+        assert parse_card_json(v2).name == "Mina"
 
 
 class TestParseCardPng:
