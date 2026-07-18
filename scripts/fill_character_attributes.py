@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Backfill: fill species/gender/age from labels baked into description/personality.
+"""Backfill: fill species/gender/age from description/personality.
 
-New imports do this automatically (see
-``src.character.card_parser.fill_baked_in_attributes``); this is a one-off
-fixup for rows that were imported before that existed. Only fills a field that
-is currently blank -- never overwrites an existing value. Prints a per-field
-diff and, by default, only previews -- pass --apply to write the changes.
+Applies the same two-pass extraction new imports run -- labeled fields
+(``fill_baked_in_attributes``) then a prose fallback (``fill_prose_inferred_attributes``)
+for cards that state species/age/gender in sentences rather than a `label:` field.
+This is a one-off fixup for rows imported before that logic existed. Only fills a
+field that is currently blank -- never overwrites an existing value. Prints a
+per-field diff and, by default, only previews -- pass --apply to write the changes.
 
 Run with the backend virtualenv; needs the backend env (.env / DATABASE_URL):
 
@@ -21,7 +22,11 @@ import sys
 _BACKEND = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend")
 sys.path.insert(0, _BACKEND)
 
-from src.character.card_parser import ParsedCard, fill_baked_in_attributes
+from src.character.card_parser import (
+    ParsedCard,
+    fill_baked_in_attributes,
+    fill_prose_inferred_attributes,
+)
 from src.character.repository import CharacterRepository
 from src.character.service import _map_card_gender
 from src.core.persistence.database import get_db
@@ -51,7 +56,7 @@ def main() -> int:
             custom_gender=character.custom_gender or "",
             species=character.species or "",
         )
-        filled = fill_baked_in_attributes(pseudo_card)
+        filled = fill_prose_inferred_attributes(fill_baked_in_attributes(pseudo_card))
 
         row_changed = False
         if not character.age and filled.age:
