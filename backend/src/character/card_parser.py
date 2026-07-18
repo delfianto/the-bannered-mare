@@ -136,10 +136,23 @@ _NON_NAME_TOKENS = frozenset(
 # compound names ("Daro-Soraya") survive intact.
 _NAME_TITLE_SEPARATOR = re.compile(r"\s*(?:[—–|/:,]|(?<=\s)-(?=\s))\s*")
 
+# A "<qualifier> name:" / "name(...)" label. The qualifier is captured so we can tell the
+# character's own name from {{user}}'s or a mere handle, and stitch a split first + last
+# label back together. Matches the PList/W++ ``name(...)`` form too, e.g.
+# ``[{{char}} name(Mina Eun-Hee);``.
 _NAME_LABEL_PATTERN = re.compile(
-    r"\b(?:real |full |char(?:acter)? )?name\b\s*[:(]\s*\**\s*([^\n;)*.]{2,40})",
+    r"\b(?P<qual>first|given|last|family|sur|real|full|char(?:acter)?"
+    r"|nick|user|player|your|my|pen|code|screen|display)?"
+    r"\s*name\b\s*[:(]\s*\**\s*(?P<val>[^\n;)*.]{2,40})",
     re.IGNORECASE,
 )
+# Qualifiers that scope the label to someone/something other than the character's real
+# name -- {{user}}, or a handle rather than a birth name -- so the match is ignored.
+_NAME_LABEL_SKIP = frozenset(
+    {"your", "my", "user", "player", "nick", "pen", "code", "screen", "display"}
+)
+_NAME_LABEL_GIVEN = frozenset({"first", "given"})
+_NAME_LABEL_FAMILY = frozenset({"last", "family", "sur"})
 
 
 def _clean_person_name(text: str) -> str:
@@ -167,13 +180,38 @@ def _name_from_title(name: str) -> str:
     return _clean_person_name(first) if first != name else ""
 
 
-def _name_from_label(text: str) -> str:
-    """Recover a name from an explicit 'Name:'/'Character Name:' line in card prose.
+def _labeled_name_candidates(text: str) -> list[str]:
+    """Every name-shaped candidate from explicit labels in the prose, fullest first.
 
-    Also matches the PList/W++ ``name(...)`` form, e.g. ``[{{char}} name(Mina Eun-Hee);``.
+    We want the *fullest* name a card offers, so we don't stop at the first ``Name:`` --
+    we gather them all. A separate given + family label ("First Name: Kalina" / "Last
+    Name: Potocka") is stitched into one full name; labels scoped to {{user}} or to a
+    handle ("Your name:", "Nickname:") are dropped; results are ordered by word count so
+    the most complete spelling wins, ties broken by order of appearance.
     """
-    match = _NAME_LABEL_PATTERN.search(text)
-    return _clean_person_name(match.group(1)) if match else ""
+    given = family = ""
+    scored: list[tuple[int, int, str]] = []  # (word_count, -position, name); higher wins
+    for order, m in enumerate(_NAME_LABEL_PATTERN.finditer(text)):
+        qual = (m.group("qual") or "").lower()
+        if qual in _NAME_LABEL_SKIP:
+            continue
+        value = _clean_person_name(m.group("val"))
+        if not value:
+            continue
+        if qual in _NAME_LABEL_GIVEN:
+            given = given or value
+        elif qual in _NAME_LABEL_FAMILY:
+            family = family or value
+        else:
+            scored.append((len(value.split()), -order, value))
+    if given and family and (combined := _clean_person_name(f"{given} {family}")):
+        scored.append((len(combined.split()), 0, combined))
+    for part in (given, family):  # a lone half still beats nothing
+        if part:
+            scored.append((len(part.split()), 0, part))
+    scored.sort(reverse=True)
+    # De-dup preserving the fullest-first order.
+    return list(dict.fromkeys(name for _, _, name in scored))
 
 
 def _name_extends(current: str, fuller: str) -> bool:
@@ -188,24 +226,28 @@ def _name_extends(current: str, fuller: str) -> bool:
 
 
 def fill_canonical_name(card: ParsedCard) -> ParsedCard:
-    """Set ``name`` to the character's actual name when we can recover one confidently.
+    """Set ``name`` to the character's actual, fullest name when we can recover one.
 
-    - A ``name`` that already reads as a personal name is upgraded only to a labeled name
-      that clearly extends it ("Mina" -> "Mina Eun-Hee"), and otherwise left untouched.
-    - A role/title ``name`` is replaced by an explicit 'Name:' label in the prose (highest
+    - A ``name`` that already reads as a personal name is upgraded to the fullest labeled
+      name that clearly extends it ("Mina" -> "Mina Eun-Hee"), and otherwise left untouched.
+    - A role/title ``name`` is replaced by the fullest 'Name:' label in the prose (highest
       confidence), else by splitting a title off the ``name`` field.
     - If nothing name-shaped is found, the original stays -- ``name`` is never blanked.
     """
     haystack = "\n".join(filter(None, [card.description, card.personality]))
+    candidates = _labeled_name_candidates(haystack)
     current = _clean_person_name(card.name)
     if current:
-        labeled = _name_from_label(haystack)
-        if labeled and _name_extends(current, labeled):
-            card.name = labeled
+        # Only grow into our own fuller form; among those, take the fullest.
+        for candidate in candidates:
+            if _name_extends(current, candidate):
+                card.name = candidate
+                break
         return card
-    recovered = _name_from_label(haystack) or _name_from_title(card.name)
-    if recovered:
-        card.name = recovered
+    if candidates:
+        card.name = candidates[0]
+    elif title := _name_from_title(card.name):
+        card.name = title
     return card
 
 
