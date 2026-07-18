@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from src.character.card_parser import parse_card_json, split_example_dialogues
 from src.character.repository import CharacterRepository
 from src.character.service import CharacterService, _title_case_tag
+from src.core.persistence.enums import Gender
 from src.core.utils.upload import UploadedFile
 from src.lore.repository import LoreEntryRepository, LoreRepository
 from src.lore.service import LoreService
@@ -123,6 +124,38 @@ class TestRealCardImportExportRoundtrip:
         assert split_example_dialogues(reimported.example_dialogues) == (
             character.example_dialogues or []
         )
+
+
+# Expected (age, gender enum, species) once card_parser's text-extracted strings
+# have gone through _build_character_from_card -> _map_card_gender. None means
+# "unset" -- three cards have no explicit label anywhere in their text.
+_EXPECTED_ATTRIBUTES = {
+    "bestfriend_roommate": ("19", Gender.FEMALE, "American"),
+    "daro_soraya": (None, None, None),
+    "emily": ("20", Gender.FEMALE, None),
+    "homeroom_teacher": (None, None, None),
+    "kalina": ("19", Gender.FEMALE, None),
+    "mina": ("25", Gender.FEMALE, "Human"),
+    "mina_stepsister": (None, None, None),
+    "shy_cousin": ("19", Gender.FEMALE, None),
+}
+
+
+@pytest.mark.skipif(not CARD_FILES, reason="characters/ sample cards not available")
+@pytest.mark.parametrize("card_path", CARD_FILES, ids=lambda p: p.stem)
+@pytest.mark.asyncio
+async def test_baked_in_attributes_land_on_the_character_row(db: Session, card_path: Path) -> None:
+    """DB-level counterpart of test_card_parser's parser-only check: confirms
+    the extracted strings survive _build_character_from_card's Gender-enum
+    mapping, not just card_parser's own ParsedCard fields."""
+    service = _service(db)
+    upload = UploadedFile(card_path.read_bytes(), card_path.name)
+    character = await service.import_card(upload)
+
+    expected_age, expected_gender, expected_species = _EXPECTED_ATTRIBUTES[card_path.stem]
+    assert character.age == expected_age
+    assert character.gender == expected_gender
+    assert character.species == expected_species
 
 
 @pytest.mark.skipif(not CARD_FILES, reason="characters/ sample cards not available")

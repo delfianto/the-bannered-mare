@@ -344,6 +344,35 @@ class TestCharacterService:
         assert character.example_dialogues == ["User: Hello\nHero: Well met!"]
 
     @pytest.mark.asyncio
+    async def test_import_card_fills_gender_from_baked_in_description_label(
+        self, db: Session
+    ) -> None:
+        """End-to-end: a card with no bannered_mare extension but a "**Sex:**"
+        label in description must still land on the Gender enum, not just a raw
+        string -- the full import_card -> _build_character_from_card ->
+        _map_card_gender chain, not just the card_parser extraction step."""
+        repo = CharacterRepository(db)
+        service = CharacterService(
+            repo, LoreService(LoreRepository(repo.db), LoreEntryRepository(repo.db))
+        )
+
+        v2_card = json.dumps(
+            {
+                "data": {
+                    "name": "Sheet Hero",
+                    "description": "**Age:** 34\n**Sex:** Female\n**Ethnicity:** Elvish",
+                }
+            }
+        )
+        character = await service.import_card(
+            UploadedFile(v2_card.encode("utf-8"), "sheet_hero.json")
+        )
+
+        assert character.age == "34"
+        assert character.gender == Gender.FEMALE
+        assert character.species == "Elvish"
+
+    @pytest.mark.asyncio
     async def test_import_export_reimport_preserves_example_dialogue_count(
         self, db: Session
     ) -> None:

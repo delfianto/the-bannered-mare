@@ -52,6 +52,44 @@ def normalize_card_quotes(card: ParsedCard) -> ParsedCard:
     return card
 
 
+# Most cards leave species/gender/age unset (the bannered_mare extension is our
+# own invention -- essentially nobody in the wider card ecosystem uses it) but
+# often bake them into description/personality as an informal "character sheet":
+# "**Age:** 19", "🎂 Age: 20", "{{char}} sex(Female)". Anchored to an explicit
+# label immediately followed by `:` or `(` -- deliberately does NOT try to infer
+# from unlabeled prose ("a mesmerizing Khajiit dancer"), since a wrong guess
+# writes bad data into a filterable field, which is worse than leaving it blank.
+_ATTR_LABEL_PATTERNS = {
+    "age": re.compile(r"\bage\b\s*[:(]\s*\**\s*([^\n;)*]{1,20})", re.IGNORECASE),
+    "gender": re.compile(r"\b(?:sex|gender)\b\s*[:(]\s*\**\s*([^\n;)*]{1,20})", re.IGNORECASE),
+    "species": re.compile(
+        r"\b(?:race|species|ethnicity)\b\s*[:(]\s*\**\s*([^\n;)*]{1,30})", re.IGNORECASE
+    ),
+}
+
+
+def _extract_labeled_attribute(text: str, pattern: re.Pattern[str]) -> str:
+    match = pattern.search(text)
+    return match.group(1).strip(" .,;*") if match else ""
+
+
+def fill_baked_in_attributes(card: ParsedCard) -> ParsedCard:
+    """Fill species/gender/age from an explicit label in description/personality,
+    but only where the card's own (higher-confidence) extension fields left them
+    blank -- extension data always wins over text extraction.
+    """
+    haystack = "\n".join(filter(None, [card.description, card.personality]))
+    if not haystack:
+        return card
+    if not card.age:
+        card.age = _extract_labeled_attribute(haystack, _ATTR_LABEL_PATTERNS["age"])
+    if not card.gender and not card.custom_gender:
+        card.gender = _extract_labeled_attribute(haystack, _ATTR_LABEL_PATTERNS["gender"])
+    if not card.species:
+        card.species = _extract_labeled_attribute(haystack, _ATTR_LABEL_PATTERNS["species"])
+    return card
+
+
 def split_example_dialogues(mes_example: str) -> list[str]:
     """Split a TavernCard ``mes_example`` string into individual example blocks.
 
@@ -187,7 +225,7 @@ def parse_card_json(raw_json: str | dict[str, Any]) -> ParsedCard:
         if "data" in data and isinstance(data["data"], dict)
         else _parse_v1_data(data)
     )
-    return normalize_card_quotes(card)
+    return fill_baked_in_attributes(normalize_card_quotes(card))
 
 
 def parse_card_png(png_data: bytes) -> ParsedCard:
