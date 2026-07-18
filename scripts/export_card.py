@@ -23,6 +23,8 @@ sys.path.insert(0, _BACKEND)
 from src.character.repository import CharacterRepository
 from src.character.service import CharacterService
 from src.core.persistence.database import get_db
+from src.lore.repository import LoreEntryRepository, LoreRepository
+from src.lore.service import LoreService
 
 
 def slugify(name: str) -> str:
@@ -42,7 +44,7 @@ def main() -> int:
 
     db = next(get_db())
     repo = CharacterRepository(db)
-    service = CharacterService(repo)
+    service = CharacterService(repo, LoreService(LoreRepository(db), LoreEntryRepository(db)))
 
     character = repo.find_by_id(args.char_id) if args.char_id else repo.find_by_name(args.name)
     if not character:
