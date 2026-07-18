@@ -63,7 +63,9 @@ class TestFillBakedInAttributes:
         assert filled.species == "Human"
 
     def test_markdown_bold_format(self):
-        # bestfriend_roommate.png
+        # bestfriend_roommate.png -- "Ethnicity: American" is a nationality, not a
+        # species, and there is no ethnicity column to hold it, so species stays
+        # blank rather than being polluted (see test_ethnicity_label_is_not_species).
         card = ParsedCard(
             name="Hazel",
             description="**Name:** Hazel Smith\n**Age:** 19\n**Sex:** Female"
@@ -72,7 +74,7 @@ class TestFillBakedInAttributes:
         filled = fill_baked_in_attributes(card)
         assert filled.age == "19"
         assert filled.gender == "Female"
-        assert filled.species == "American"
+        assert filled.species == ""
 
     def test_emoji_label_format(self):
         # emily.png / shy_cousin.png
@@ -83,7 +85,16 @@ class TestFillBakedInAttributes:
         filled = fill_baked_in_attributes(card)
         assert filled.age == "20"
         assert filled.gender == "Female"
-        assert filled.species == ""  # no race/species/ethnicity label present
+        assert filled.species == ""  # no race/species label present
+
+    def test_ethnicity_label_is_not_species(self):
+        """An "Ethnicity"/"Nationality" label must NOT populate species -- those
+        carry real-world nationalities ("American", "Korean") on the human cards
+        that dominate the corpus, and there is no ethnicity column to route them
+        to. Only "race"/"species" feed the species field."""
+        for label in ("Ethnicity", "Nationality"):
+            card = ParsedCard(name="X", description=f"**{label}:** American")
+            assert fill_baked_in_attributes(card).species == ""
 
     def test_no_label_stays_blank(self):
         # daro_soraya.png: race is only mentioned in prose ("Khajiit dancer"),
@@ -290,7 +301,7 @@ class TestAllSampleCards:
 # filename stem -- three cards have no explicit label anywhere and must stay
 # blank (daro_soraya's "Khajiit" is prose-only, never labeled).
 _EXPECTED_BAKED_IN_ATTRIBUTES = {
-    "bestfriend_roommate": ("19", "Female", "American"),
+    "bestfriend_roommate": ("19", "Female", ""),  # "Ethnicity: American" is not a species
     "daro_soraya": ("", "", ""),
     "emily": ("20", "Female", ""),
     "homeroom_teacher": ("", "", ""),

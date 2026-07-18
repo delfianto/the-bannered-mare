@@ -62,9 +62,14 @@ def normalize_card_quotes(card: ParsedCard) -> ParsedCard:
 _ATTR_LABEL_PATTERNS = {
     "age": re.compile(r"\bage\b\s*[:(]\s*\**\s*([^\n;)*]{1,20})", re.IGNORECASE),
     "gender": re.compile(r"\b(?:sex|gender)\b\s*[:(]\s*\**\s*([^\n;)*]{1,20})", re.IGNORECASE),
-    "species": re.compile(
-        r"\b(?:race|species|ethnicity)\b\s*[:(]\s*\**\s*([^\n;)*]{1,30})", re.IGNORECASE
-    ),
+    # "ethnicity"/"nationality" are deliberately NOT species synonyms. There is no
+    # ethnicity column on Character (core/persistence/models/character.py), and
+    # real-world human cards routinely carry "Ethnicity: American" / "Nationality:
+    # Korean" -- feeding those in only lands a nationality in `species`, which is
+    # worse than leaving it blank. Only "race"/"species" (the fantasy/TTRPG sense)
+    # map here; an occasional "Ethnicity: Elvish" is the rare miss we accept to
+    # avoid corrupting the common human case.
+    "species": re.compile(r"\b(?:race|species)\b\s*[:(]\s*\**\s*([^\n;)*]{1,30})", re.IGNORECASE),
 }
 
 

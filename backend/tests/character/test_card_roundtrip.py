@@ -130,7 +130,7 @@ class TestRealCardImportExportRoundtrip:
 # have gone through _build_character_from_card -> _map_card_gender. None means
 # "unset" -- three cards have no explicit label anywhere in their text.
 _EXPECTED_ATTRIBUTES = {
-    "bestfriend_roommate": ("19", Gender.FEMALE, "American"),
+    "bestfriend_roommate": ("19", Gender.FEMALE, None),  # "Ethnicity: American" is not a species
     "daro_soraya": (None, None, None),
     "emily": ("20", Gender.FEMALE, None),
     "homeroom_teacher": (None, None, None),

@@ -360,7 +360,7 @@ class TestCharacterService:
             {
                 "data": {
                     "name": "Sheet Hero",
-                    "description": "**Age:** 34\n**Sex:** Female\n**Ethnicity:** Elvish",
+                    "description": "**Age:** 34\n**Sex:** Female\n**Race:** Elvish",
                 }
             }
         )
