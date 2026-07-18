@@ -52,6 +52,50 @@ def normalize_card_quotes(card: ParsedCard) -> ParsedCard:
     return card
 
 
+# The "character sheet" fields (personality/description) are frequently authored as
+# bullet lists -- "- Trait: ...". Two problems recur: some editors/exports flatten the
+# line breaks into runs of spaces ("...her.       - Daydreamer: ..."), collapsing the
+# list into one unreadable blob; and once the text is stored as prose the leading "- "
+# marker earns nothing. We rewrite such a list into blank-line-separated paragraphs (one
+# per item, marker dropped), which reads cleanly no matter how the source mangled its
+# whitespace. Only a field that *starts* with a marker is touched, so ordinary prose --
+# and stray mid-sentence dashes -- is left alone.
+_BULLET_MARKERS = "-*•"
+# An item boundary is a marker sitting at a real break: after a newline (ordinary markdown
+# list, indent tolerated) or after a run of 2+ spaces/tabs (the flattened case). A single
+# space before the marker is deliberately NOT a boundary -- it's indistinguishable from a
+# prose dash ("she paused - then left").
+_BULLET_ITEM_BOUNDARY = re.compile(rf"(?:\n[^\S\n]*|[^\S\n]{{2,}})[{_BULLET_MARKERS}][^\S\n]+")
+_LEADING_BULLET = re.compile(rf"^\s*[{_BULLET_MARKERS}][^\S\n]+")
+
+
+def normalize_bullet_list(text: str) -> str:
+    """Rewrite a bullet-listed field into blank-line-separated paragraphs.
+
+    A field that *starts* with a bullet marker (``-``/``*``/``•``) is split into items on
+    marker boundaries; each item's marker is dropped, its internal whitespace runs are
+    collapsed to single spaces, and the items are rejoined with a blank line between them.
+    Text that doesn't start with a marker is returned unchanged.
+    """
+    if not _LEADING_BULLET.match(text):
+        return text
+    body = _LEADING_BULLET.sub("", text, count=1)
+    items = (" ".join(item.split()) for item in _BULLET_ITEM_BOUNDARY.split(body))
+    return "\n\n".join(item for item in items if item)
+
+
+# Only the character-sheet fields carry these bullet lists; narrative fields (first_message,
+# example_dialogues) can legitimately open with an emphasis "*" and are left alone.
+_BULLET_LIST_FIELDS = ("description", "personality")
+
+
+def normalize_card_bullets(card: ParsedCard) -> ParsedCard:
+    """Apply ``normalize_bullet_list`` to a card's character-sheet text fields."""
+    for name in _BULLET_LIST_FIELDS:
+        setattr(card, name, normalize_bullet_list(getattr(card, name)))
+    return card
+
+
 # Most cards leave species/gender/age unset (the bannered_mare extension is our
 # own invention -- essentially nobody in the wider card ecosystem uses it) but
 # often bake them into description/personality as an informal "character sheet":
@@ -364,7 +408,8 @@ def parse_card_json(raw_json: str | dict[str, Any]) -> ParsedCard:
         if "data" in data and isinstance(data["data"], dict)
         else _parse_v1_data(data)
     )
-    return fill_prose_inferred_attributes(fill_baked_in_attributes(normalize_card_quotes(card)))
+    normalized = normalize_card_bullets(normalize_card_quotes(card))
+    return fill_prose_inferred_attributes(fill_baked_in_attributes(normalized))
 
 
 def parse_card_png(png_data: bytes) -> ParsedCard:

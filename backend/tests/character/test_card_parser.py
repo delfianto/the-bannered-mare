@@ -11,6 +11,7 @@ from src.character.card_parser import (
     export_card_png,
     fill_baked_in_attributes,
     fill_prose_inferred_attributes,
+    normalize_bullet_list,
     parse_card_json,
     parse_card_png,
     split_example_dialogues,
@@ -342,6 +343,54 @@ class TestParseCardJson:
         assert card.description == "She said \"hello\" and it's 'fine'."
         assert card.example_dialogues == '"Hi"'
         assert card.tags == ["can't stop", "plain"]
+
+
+class TestNormalizeBulletList:
+    """Bullet-listed character-sheet fields -> blank-line-separated paragraphs."""
+
+    def test_flattened_spaces_become_blank_line_paragraphs(self):
+        # The shy_cousin failure mode: newlines collapsed into runs of spaces.
+        raw = "- One trait here.       - Two trait here.       - Three trait here.  "
+        assert normalize_bullet_list(raw) == (
+            "One trait here.\n\nTwo trait here.\n\nThree trait here."
+        )
+
+    def test_markdown_newline_bullets_are_reflowed(self):
+        assert normalize_bullet_list("- Alpha.\n- Beta.\n- Gamma.") == "Alpha.\n\nBeta.\n\nGamma."
+
+    def test_indented_and_star_markers_are_handled(self):
+        assert normalize_bullet_list("* A\n  * B\n  * C") == "A\n\nB\n\nC"
+
+    def test_plain_prose_is_untouched(self):
+        prose = "She is shy and quiet. She paused - then left the room."
+        assert normalize_bullet_list(prose) == prose
+
+    def test_emphasis_opener_is_not_a_bullet(self):
+        # A narrative "*action*" opener must not be mistaken for a "*" bullet: the
+        # marker only counts when whitespace follows it.
+        text = "*She looks up nervously* and says hi."
+        assert normalize_bullet_list(text) == text
+
+    def test_single_bullet_just_loses_its_marker(self):
+        assert normalize_bullet_list("- Just one trait.") == "Just one trait."
+
+    def test_empty_string_is_returned_as_is(self):
+        assert normalize_bullet_list("") == ""
+
+    def test_applied_to_personality_and_description_on_import(self):
+        v2 = {
+            "data": {
+                "name": "Bulleted",
+                "personality": "- Kind.       - Brave.",
+                "description": "- Tall.       - Freckled.",
+                "scenario": "- left alone on purpose -",
+            },
+        }
+        card = parse_card_json(v2)
+        assert card.personality == "Kind.\n\nBrave."
+        assert card.description == "Tall.\n\nFreckled."
+        # Only the character-sheet fields are normalized; scenario is left as-is.
+        assert card.scenario == "- left alone on purpose -"
 
 
 class TestParseCardPng:
