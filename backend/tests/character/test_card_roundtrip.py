@@ -127,16 +127,18 @@ class TestRealCardImportExportRoundtrip:
 
 
 # Expected (age, gender enum, species) once card_parser's text-extracted strings
-# have gone through _build_character_from_card -> _map_card_gender. None means
-# "unset" -- three cards have no explicit label anywhere in their text.
+# (labeled + prose-inferred) have gone through _build_character_from_card ->
+# _map_card_gender. None means "unset". Prose inference now recovers the gender of
+# the three cards that only implied it (she/her), daro_soraya's prose "Khajiit",
+# and homeroom's "24 year old woman"; daro/stepsister genuinely state no age.
 _EXPECTED_ATTRIBUTES = {
     "bestfriend_roommate": ("19", Gender.FEMALE, None),  # "Ethnicity: American" is not a species
-    "daro_soraya": (None, None, None),
+    "daro_soraya": (None, Gender.FEMALE, "Khajiit"),
     "emily": ("20", Gender.FEMALE, None),
-    "homeroom_teacher": (None, None, None),
+    "homeroom_teacher": ("24", Gender.FEMALE, None),
     "kalina": ("19", Gender.FEMALE, None),
     "mina": ("25", Gender.FEMALE, "Human"),
-    "mina_stepsister": (None, None, None),
+    "mina_stepsister": (None, Gender.FEMALE, None),
     "shy_cousin": ("19", Gender.FEMALE, None),
 }
 

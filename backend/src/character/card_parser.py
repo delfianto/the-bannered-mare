@@ -95,6 +95,140 @@ def fill_baked_in_attributes(card: ParsedCard) -> ParsedCard:
     return card
 
 
+# ---------------------------------------------------------------------------
+# Prose-inferred fallback (lower confidence than a labeled field)
+#
+# Many cards never put species/age/gender in a `label:` field -- they state them
+# in ordinary prose ("a mesmerizing Khajiit dancer", "a 24 year old woman", or
+# just consistent she/her). These heuristics recover that, but ONLY for fields
+# still blank after the extension + labeled-field passes, so a labeled value can
+# never be overridden by a weaker prose guess. Kept deliberately conservative:
+# leaving a field blank beats writing a wrong value into a filterable column.
+# ---------------------------------------------------------------------------
+
+# "24 year old", "24-year-old", "24yo", "aged 24". The number is captured from
+# whichever alternative matched.
+_AGE_PROSE_PATTERN = re.compile(
+    r"\b(\d{1,3})[\s-]*(?:years?|yrs?)[\s-]*old\b"
+    r"|\b(\d{1,3})\s*y[/.]?\s*o\b"
+    r"|\baged\s+(\d{1,3})\b",
+    re.IGNORECASE,
+)
+
+# Gendered pronouns/nouns that describe the character. Third-person cards state
+# gender through these far more often than through a label. Pronouns dominate the
+# signal; nouns disambiguate. {{user}} pronouns leak in (a female char with a
+# male {{user}} still reads majority-female), so the tally requires a clear
+# majority rather than a bare lead -- see _infer_gender_from_prose.
+_FEMALE_TOKENS = re.compile(
+    r"\b(?:she|her|hers|herself|woman|women|girl|girls|lady|ladies|gal|female|"
+    r"mom|mother|sister|stepsister|daughter|aunt|niece|girlfriend|wife|widow|"
+    r"queen|princess|goddess|actress|waitress)\b",
+    re.IGNORECASE,
+)
+_MALE_TOKENS = re.compile(
+    r"\b(?:he|him|his|himself|man|men|boy|boys|guy|guys|gentleman|male|"
+    r"dad|father|brother|stepbrother|son|uncle|nephew|boyfriend|husband|widower|"
+    r"king|prince|actor|waiter)\b",
+    re.IGNORECASE,
+)
+
+# Curated race/species vocabulary for the prose fallback. Distinctive fantasy /
+# supernatural / sci-fi races that are rarely metaphors; each maps its spelling
+# variants to a canonical form. Figurative/complimentary words common in RP prose
+# -- "angel", "demon", "goddess", "devil", "monster", "beast", "siren" -- are
+# intentionally EXCLUDED so a human character described as "an angel" isn't stamped
+# with a species. Extend as real cards require.
+_SPECIES_VOCAB: dict[str, list[str]] = {
+    "Human": ["humans?"],
+    "Elf": ["elf", "elves", "elven", "elvish"],
+    "Dwarf": ["dwarf", "dwarves", "dwarven"],
+    "Orc": ["orc", "orcs", "orcish", "orsimer"],
+    "Halfling": ["halfling", "halflings"],
+    "Gnome": ["gnome", "gnomes"],
+    "Tiefling": ["tiefling", "tieflings"],
+    "Dragonborn": ["dragonborn"],
+    "Drow": ["drow"],
+    "Khajiit": ["khajiit"],
+    "Argonian": ["argonian", "argonians"],
+    "Nord": ["nord", "nords"],
+    "Breton": ["breton", "bretons"],
+    "Redguard": ["redguard", "redguards"],
+    "Altmer": ["altmer", "high elf"],
+    "Dunmer": ["dunmer", "dark elf"],
+    "Bosmer": ["bosmer", "wood elf"],
+    "Vampire": ["vampire", "vampires", "vampiric"],
+    "Werewolf": ["werewolf", "werewolves", "lycan", "lycanthrope"],
+    "Succubus": ["succubus", "succubi"],
+    "Incubus": ["incubus", "incubi"],
+    "Kitsune": ["kitsune"],
+    "Neko": ["neko", "catgirl", "cat-girl", "nekomimi"],
+    "Naga": ["naga"],
+    "Lamia": ["lamia"],
+    "Harpy": ["harpy", "harpies"],
+    "Centaur": ["centaur", "centaurs"],
+    "Mermaid": ["mermaid", "merfolk", "merman", "mermaid"],
+    "Android": ["android", "androids"],
+    "Cyborg": ["cyborg", "cyborgs"],
+    "Robot": ["robot", "robots", "robotic"],
+    "Elemental": ["elemental"],
+}
+_SPECIES_PROSE_PATTERNS = [
+    (canonical, re.compile(r"\b(?:" + "|".join(variants) + r")\b", re.IGNORECASE))
+    for canonical, variants in _SPECIES_VOCAB.items()
+]
+
+
+def _infer_age_from_prose(text: str) -> str:
+    match = _AGE_PROSE_PATTERN.search(text)
+    if not match:
+        return ""
+    return next(g for g in match.groups() if g)
+
+
+def _infer_gender_from_prose(text: str) -> str:
+    female = len(_FEMALE_TOKENS.findall(text))
+    male = len(_MALE_TOKENS.findall(text))
+    total = female + male
+    if total < 2:  # too little signal to call
+        return ""
+    if female > male and female / total >= 0.6:
+        return "Female"
+    if male > female and male / total >= 0.6:
+        return "Male"
+    return ""
+
+
+def _infer_species_from_prose(text: str) -> str:
+    """Return the canonical species whose vocabulary term appears earliest in the
+    text (a card names one species; earliest-wins keeps it deterministic)."""
+    best_pos: int | None = None
+    best_canonical = ""
+    for canonical, pattern in _SPECIES_PROSE_PATTERNS:
+        match = pattern.search(text)
+        if match and (best_pos is None or match.start() < best_pos):
+            best_pos = match.start()
+            best_canonical = canonical
+    return best_canonical
+
+
+def fill_prose_inferred_attributes(card: ParsedCard) -> ParsedCard:
+    """Second pass: infer species/age/gender from unlabeled prose, filling only
+    fields still blank after ``fill_baked_in_attributes``. Never overrides a
+    labeled or extension value -- prose is the lowest-confidence source.
+    """
+    haystack = "\n".join(filter(None, [card.description, card.personality]))
+    if not haystack:
+        return card
+    if not card.age:
+        card.age = _infer_age_from_prose(haystack)
+    if not card.gender and not card.custom_gender:
+        card.gender = _infer_gender_from_prose(haystack)
+    if not card.species:
+        card.species = _infer_species_from_prose(haystack)
+    return card
+
+
 def split_example_dialogues(mes_example: str) -> list[str]:
     """Split a TavernCard ``mes_example`` string into individual example blocks.
 
@@ -230,7 +364,7 @@ def parse_card_json(raw_json: str | dict[str, Any]) -> ParsedCard:
         if "data" in data and isinstance(data["data"], dict)
         else _parse_v1_data(data)
     )
-    return fill_baked_in_attributes(normalize_card_quotes(card))
+    return fill_prose_inferred_attributes(fill_baked_in_attributes(normalize_card_quotes(card)))
 
 
 def parse_card_png(png_data: bytes) -> ParsedCard:

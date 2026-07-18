@@ -10,6 +10,7 @@ from src.character.card_parser import (
     export_card_json,
     export_card_png,
     fill_baked_in_attributes,
+    fill_prose_inferred_attributes,
     parse_card_json,
     parse_card_png,
     split_example_dialogues,
@@ -97,8 +98,9 @@ class TestFillBakedInAttributes:
             assert fill_baked_in_attributes(card).species == ""
 
     def test_no_label_stays_blank(self):
-        # daro_soraya.png: race is only mentioned in prose ("Khajiit dancer"),
-        # never as an explicit label -- must not be guessed at.
+        # The labeled pass reads ONLY explicit `label:` fields -- daro_soraya's
+        # "Khajiit dancer" is prose, so fill_baked_in_attributes leaves it blank.
+        # (The separate prose pass DOES recover it -- see TestProseInferredAttributes.)
         card = ParsedCard(
             name="Daro-Soraya",
             description="A mesmerizing Khajiit dancer from a nomadic caravan.",
@@ -143,6 +145,121 @@ class TestFillBakedInAttributes:
         card = ParsedCard(name="X", description="Just a story.", personality="**Age:** 42")
         filled = fill_baked_in_attributes(card)
         assert filled.age == "42"
+
+
+class TestProseInferredAttributes:
+    """The lower-confidence second pass: infer species/age/gender from unlabeled
+    prose, filling only fields the labeled pass left blank."""
+
+    def test_species_from_prose_vocabulary(self):
+        # daro_soraya.png: "Khajiit" is stated in prose, never as a label.
+        card = ParsedCard(name="Daro-Soraya", description="A mesmerizing Khajiit dancer.")
+        assert fill_prose_inferred_attributes(card).species == "Khajiit"
+
+    @pytest.mark.parametrize(
+        ("prose", "expected"),
+        [
+            ("She is a graceful elven ranger.", "Elf"),
+            ("A hulking orc warrior blocks the road.", "Orc"),
+            ("He was turned into a vampire centuries ago.", "Vampire"),
+            ("A curious android with synthetic skin.", "Android"),
+            ("Just a normal human woman.", "Human"),
+        ],
+    )
+    def test_species_vocabulary_variants_normalize_to_canonical(self, prose: str, expected: str):
+        assert (
+            fill_prose_inferred_attributes(ParsedCard(name="X", description=prose)).species
+            == expected
+        )
+
+    def test_species_earliest_match_wins(self):
+        card = ParsedCard(name="X", description="A human raised among elves in the forest.")
+        assert fill_prose_inferred_attributes(card).species == "Human"
+
+    @pytest.mark.parametrize(
+        "metaphor",
+        [
+            "She's an absolute angel.",
+            "A total sex demon in bed.",
+            "She is a goddess.",
+            "A monster of a man.",
+        ],
+    )
+    def test_metaphor_words_are_not_treated_as_species(self, metaphor: str):
+        """angel/demon/goddess/monster are figurative here -- excluded from the vocab."""
+        assert (
+            fill_prose_inferred_attributes(ParsedCard(name="X", description=metaphor)).species == ""
+        )
+
+    def test_species_substring_false_positives_are_guarded(self):
+        # "self"/"force" contain "elf"/"orc"; word boundaries must prevent a match.
+        card = ParsedCard(name="X", description="She forced herself to enforce the law.")
+        assert fill_prose_inferred_attributes(card).species == ""
+
+    @pytest.mark.parametrize(
+        ("prose", "expected"),
+        [
+            ("She is a 24 year old woman.", "24"),  # homeroom_teacher.png
+            ("A 30-year-old teacher.", "30"),
+            ("He's 19yo and reckless.", "19"),
+            ("A traveler, aged 42, arrives.", "42"),
+        ],
+    )
+    def test_age_from_prose(self, prose: str, expected: str):
+        assert (
+            fill_prose_inferred_attributes(ParsedCard(name="X", description=prose)).age == expected
+        )
+
+    def test_age_prose_requires_the_old_suffix(self):
+        # A bare number is not an age -- "5 years" of experience is not age 5.
+        card = ParsedCard(name="X", description="She has 5 years of experience and 3 cats.")
+        assert fill_prose_inferred_attributes(card).age == ""
+
+    def test_gender_from_female_pronouns(self):
+        card = ParsedCard(name="X", description="She smiled. Her eyes gleamed as she turned.")
+        assert fill_prose_inferred_attributes(card).gender == "Female"
+
+    def test_gender_from_male_pronouns(self):
+        card = ParsedCard(name="X", description="He nodded. His jaw tightened as he spoke.")
+        assert fill_prose_inferred_attributes(card).gender == "Male"
+
+    def test_gender_female_char_survives_male_user_pronouns(self):
+        """mina_stepsister.png: a female char whose {{user}} is male. Her she/her
+        must still dominate the {{user}}'s scattered he/him."""
+        prose = (
+            "She mocks him constantly, rolling her eyes at him. "
+            "She bites his shoulder, digs her nails into his back, but she loves it. "
+            "Her whole vibe says she runs the show."
+        )
+        assert (
+            fill_prose_inferred_attributes(ParsedCard(name="X", description=prose)).gender
+            == "Female"
+        )
+
+    def test_gender_ambiguous_stays_blank(self):
+        # No clear majority -> no call.
+        card = ParsedCard(name="X", description="He and she walked. His and her coats matched.")
+        assert fill_prose_inferred_attributes(card).gender == ""
+
+    def test_gender_too_little_signal_stays_blank(self):
+        card = ParsedCard(name="X", description="A quiet figure by the window.")
+        assert fill_prose_inferred_attributes(card).gender == ""
+
+    def test_prose_never_overrides_a_labeled_value(self):
+        # Card labels sex Female but prose is full of male pronouns (a male {{user}}).
+        card = ParsedCard(
+            name="X",
+            description="Sex: Female. He grabbed him and told him his fate.",
+            gender="Female",  # already set by the labeled pass
+            age="25",
+            species="Human",
+        )
+        filled = fill_prose_inferred_attributes(card)
+        assert (filled.gender, filled.age, filled.species) == ("Female", "25", "Human")
+
+    def test_custom_gender_blocks_prose_inference(self):
+        card = ParsedCard(name="X", description="She is here.", custom_gender="Femboy")
+        assert fill_prose_inferred_attributes(card).gender == ""
 
 
 class TestParseCardJson:
@@ -297,26 +414,28 @@ class TestAllSampleCards:
         assert split_example_dialogues(reparsed.example_dialogues) == original_blocks
 
 
-# Expected (age, gender, species) after fill_baked_in_attributes, keyed by
-# filename stem -- three cards have no explicit label anywhere and must stay
-# blank (daro_soraya's "Khajiit" is prose-only, never labeled).
-_EXPECTED_BAKED_IN_ATTRIBUTES = {
+# Expected (age, gender, species) after the FULL parse (labeled + prose fallback),
+# keyed by filename stem. Prose inference now recovers what these creators wrote in
+# sentences instead of fields: daro_soraya's "Khajiit" + she/her, homeroom's "24
+# year old woman", the stepsister's she/her. Cards that state neither a label nor
+# prose for a field stay correctly blank (daro/stepsister have no age at all).
+_EXPECTED_CARD_ATTRIBUTES = {
     "bestfriend_roommate": ("19", "Female", ""),  # "Ethnicity: American" is not a species
-    "daro_soraya": ("", "", ""),
+    "daro_soraya": ("", "Female", "Khajiit"),  # both inferred from prose
     "emily": ("20", "Female", ""),
-    "homeroom_teacher": ("", "", ""),
+    "homeroom_teacher": ("24", "Female", ""),  # "a 24 year old woman" (prose)
     "kalina": ("19", "Female", ""),
     "mina": ("25", "Female", "Human"),
-    "mina_stepsister": ("", "", ""),
+    "mina_stepsister": ("", "Female", ""),  # she/her despite a male {{user}}
     "shy_cousin": ("19", "Female", ""),
 }
 
 
 @pytest.mark.skipif(not CARD_FILES, reason="characters/ sample cards not available")
 @pytest.mark.parametrize("card_path", CARD_FILES, ids=lambda p: p.stem)
-def test_baked_in_attributes_extracted_from_real_cards(card_path: Path):
+def test_card_attributes_extracted_from_real_cards(card_path: Path):
     card = parse_card_png(card_path.read_bytes())
-    assert (card.age, card.gender, card.species) == _EXPECTED_BAKED_IN_ATTRIBUTES[card_path.stem]
+    assert (card.age, card.gender, card.species) == _EXPECTED_CARD_ATTRIBUTES[card_path.stem]
 
 
 class TestExport:
