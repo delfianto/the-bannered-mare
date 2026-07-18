@@ -16,7 +16,6 @@ migrated database:
 
 import argparse
 import asyncio
-import io
 import os
 import sys
 
@@ -24,12 +23,12 @@ import sys
 _BACKEND = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend")
 sys.path.insert(0, _BACKEND)
 
-from fastapi import UploadFile
-from starlette.datastructures import Headers
-
 from src.character.repository import CharacterRepository
 from src.character.service import CharacterService
 from src.core.persistence.database import get_db
+from src.core.utils.upload import UploadedFile
+from src.lore.repository import LoreEntryRepository, LoreRepository
+from src.lore.service import LoreService
 
 _CONTENT_TYPE = {".png": "image/png", ".json": "application/json"}
 
@@ -60,7 +59,8 @@ async def main() -> int:
         return 1
 
     db = next(get_db())
-    service = CharacterService(CharacterRepository(db))
+    repo = CharacterRepository(db)
+    service = CharacterService(repo, LoreService(LoreRepository(db), LoreEntryRepository(db)))
 
     imported = failed = 0
     for path in files:
@@ -70,11 +70,7 @@ async def main() -> int:
             continue
         try:
             with open(path, "rb") as fh:
-                upload = UploadFile(
-                    filename=os.path.basename(path),
-                    file=io.BytesIO(fh.read()),
-                    headers=Headers({"content-type": _CONTENT_TYPE[ext]}),
-                )
+                upload = UploadedFile(data=fh.read(), filename=os.path.basename(path))
             character = await service.import_card(upload)
             print(f"ok    {os.path.basename(path)}  ->  {character.name} ({character.id})")
             imported += 1
