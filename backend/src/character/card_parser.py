@@ -154,6 +154,16 @@ _NAME_LABEL_SKIP = frozenset(
 _NAME_LABEL_GIVEN = frozenset({"first", "given"})
 _NAME_LABEL_FAMILY = frozenset({"last", "family", "sur"})
 
+# A descriptive clause trailing a name in a label value: a connector word ("Elara the
+# Shy Cousin", "Dan aka the Boss") or a separator ("Elara, the cousin" / "Elara — Shy
+# Cousin"). Trimming it salvages the leading name. Deliberately narrow: it only fires on
+# an explicit connector/separator, so a bare "Big Sister Yuki" (name last, no connector)
+# is left alone rather than yielding a wrong "Big".
+_NAME_TRAILING_CLAUSE = re.compile(
+    r"(?:\s+(?:the|an?|of|aka|a\.k\.a\.?|from|who|that)\b|\s*[—–,:/|]).*$",
+    re.IGNORECASE,
+)
+
 
 def _clean_person_name(text: str) -> str:
     """Return ``text`` if it reads as a personal name -- 1-4 capitalized, name-shaped
@@ -169,6 +179,15 @@ def _clean_person_name(text: str) -> str:
     if not all(re.fullmatch(r"[A-Z][A-Za-z'’.-]*", w) for w in words):
         return ""
     return candidate
+
+
+def _salvage_leading_name(raw: str) -> str:
+    """Recover the leading name from a label value carrying a trailing descriptive clause
+    ("Elara the Shy Cousin" -> "Elara"). Returns "" when there's no such clause to trim,
+    so it only ever kicks in after ``_clean_person_name`` has already rejected the value.
+    """
+    trimmed = _NAME_TRAILING_CLAUSE.sub("", raw).strip()
+    return _clean_person_name(trimmed) if trimmed != raw.strip() else ""
 
 
 def _name_from_title(name: str) -> str:
@@ -195,7 +214,7 @@ def _labeled_name_candidates(text: str) -> list[str]:
         qual = (m.group("qual") or "").lower()
         if qual in _NAME_LABEL_SKIP:
             continue
-        value = _clean_person_name(m.group("val"))
+        value = _clean_person_name(m.group("val")) or _salvage_leading_name(m.group("val"))
         if not value:
             continue
         if qual in _NAME_LABEL_GIVEN:
