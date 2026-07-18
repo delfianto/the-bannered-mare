@@ -168,20 +168,41 @@ def _name_from_title(name: str) -> str:
 
 
 def _name_from_label(text: str) -> str:
-    """Recover a name from an explicit 'Name:'/'Character Name:' line in card prose."""
+    """Recover a name from an explicit 'Name:'/'Character Name:' line in card prose.
+
+    Also matches the PList/W++ ``name(...)`` form, e.g. ``[{{char}} name(Mina Eun-Hee);``.
+    """
     match = _NAME_LABEL_PATTERN.search(text)
     return _clean_person_name(match.group(1)) if match else ""
 
 
-def fill_canonical_name(card: ParsedCard) -> ParsedCard:
-    """Replace a role/title ``name`` with the character's actual name when one can be
-    recovered confidently. A ``name`` that already reads as a personal name is left
-    untouched; a labeled 'Name:' in the prose (highest confidence) wins over splitting a
-    title off the ``name`` field; if nothing name-shaped is found, the original stays.
+def _name_extends(current: str, fuller: str) -> bool:
+    """True if ``fuller`` is the same name spelled out longer -- every word of the current
+    name reappears in it and it adds at least one more ("Mina" -> "Mina Eun-Hee"). Guards
+    the upgrade of an already-clean name so it can only ever grow into its own fuller form,
+    never flip to an unrelated name that merely appears elsewhere in the prose.
     """
-    if _clean_person_name(card.name):
-        return card  # already a usable name -- never touch a good one
+    cur = current.lower().split()
+    ful = fuller.lower().split()
+    return len(ful) > len(cur) and set(cur).issubset(set(ful))
+
+
+def fill_canonical_name(card: ParsedCard) -> ParsedCard:
+    """Set ``name`` to the character's actual name when we can recover one confidently.
+
+    - A ``name`` that already reads as a personal name is upgraded only to a labeled name
+      that clearly extends it ("Mina" -> "Mina Eun-Hee"), and otherwise left untouched.
+    - A role/title ``name`` is replaced by an explicit 'Name:' label in the prose (highest
+      confidence), else by splitting a title off the ``name`` field.
+    - If nothing name-shaped is found, the original stays -- ``name`` is never blanked.
+    """
     haystack = "\n".join(filter(None, [card.description, card.personality]))
+    current = _clean_person_name(card.name)
+    if current:
+        labeled = _name_from_label(haystack)
+        if labeled and _name_extends(current, labeled):
+            card.name = labeled
+        return card
     recovered = _name_from_label(haystack) or _name_from_title(card.name)
     if recovered:
         card.name = recovered

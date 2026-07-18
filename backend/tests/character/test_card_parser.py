@@ -400,9 +400,15 @@ class TestFillCanonicalName:
     role while the real name hides in the prose."""
 
     def test_clean_name_is_left_untouched(self):
+        # An unrelated name mentioned in the prose must NOT flip a good name.
         for good in ("Emily", "Kalina", "Daro-Soraya", "Mina"):
             card = ParsedCard(name=good, description="Name: Somebody Else")
             assert fill_canonical_name(card).name == good
+
+    def test_clean_name_upgraded_to_its_fuller_labeled_form(self):
+        # The PList/W++ "name(...)" form, spelling a first name out longer.
+        card = ParsedCard(name="Mina", description="[{{char}} name(Mina Eun-Hee); age(23)]")
+        assert fill_canonical_name(card).name == "Mina Eun-Hee"
 
     def test_title_is_stripped_off_the_name(self):
         card = ParsedCard(name="Mina — Your Mean and Bratty Stepsister Catches you Sleeping")
