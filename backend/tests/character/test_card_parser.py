@@ -457,6 +457,20 @@ class TestFillCanonicalName:
         card = ParsedCard(name="Shy Cousin", description="Username: cuzz99\nNickname: Ellie")
         assert fill_canonical_name(card).name == "Shy Cousin"
 
+    @pytest.mark.parametrize(
+        "value",
+        ["Elara the Shy Cousin", "Elara, the shy cousin", "Elara — Shy Cousin", "Elara aka Ellie"],
+    )
+    def test_salvages_leading_name_from_a_trailing_clause(self, value: str):
+        card = ParsedCard(name="Shy Cousin", description=f"Name: {value}")
+        assert fill_canonical_name(card).name == "Elara"
+
+    def test_salvage_does_not_fire_when_the_name_is_last(self):
+        # "Big Sister Yuki" has no connector/separator, so salvaging a leading "Big"
+        # would be wrong -- leave the original name instead.
+        card = ParsedCard(name="Shy Cousin", description="Name: Big Sister Yuki")
+        assert fill_canonical_name(card).name == "Shy Cousin"
+
 
 class TestParseCardPng:
     @pytest.mark.skipif(not HOMEROOM_PNG.exists(), reason="Test PNG not available")
