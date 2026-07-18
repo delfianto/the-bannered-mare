@@ -437,6 +437,26 @@ class TestFillCanonicalName:
         v2 = {"data": {"name": "Mina — Your Bratty Stepsister", "description": "hi"}}
         assert parse_card_json(v2).name == "Mina"
 
+    # --- "get the fullest name" regressions: each of these returned the WRONG value
+    # before _labeled_name_candidates replaced the first-match-only lookup. ---
+
+    def test_picks_fullest_when_a_partial_label_appears_first(self):
+        card = ParsedCard(name="Shy Cousin", description="Name: Elara\nName: Elara Voss")
+        assert fill_canonical_name(card).name == "Elara Voss"
+
+    def test_combines_split_first_and_last_labels(self):
+        card = ParsedCard(name="Shy Cousin", description="First Name: Elara\nLast Name: Voss")
+        assert fill_canonical_name(card).name == "Elara Voss"
+
+    def test_user_scoped_label_is_not_stolen_for_the_character(self):
+        # "Your name: Jason" is {{user}}, not the character -- must be skipped.
+        card = ParsedCard(name="Shy Cousin", description="Your name: Jason\nHer name: Elara Voss")
+        assert fill_canonical_name(card).name == "Elara Voss"
+
+    def test_handle_only_labels_recover_nothing(self):
+        card = ParsedCard(name="Shy Cousin", description="Username: cuzz99\nNickname: Ellie")
+        assert fill_canonical_name(card).name == "Shy Cousin"
+
 
 class TestParseCardPng:
     @pytest.mark.skipif(not HOMEROOM_PNG.exists(), reason="Test PNG not available")
