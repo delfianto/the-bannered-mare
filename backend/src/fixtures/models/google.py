@@ -89,4 +89,22 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "parameters": {**_GEMINI_3_PARAMS},
         "enabled": False,
     },
+    # --- Gemini 3.6 ---
+    {
+        "name": "Gemini 3.6 Flash",
+        "model_identifier": "gemini-3.6-flash",
+        "family_identifier": "google/gemini-3.6",
+        "provider_type": "google",
+        # 3.6 keeps the 3.5 no-sampling shape; thinking_level "low" is valid.
+        "parameters": {**_GEMINI_3_PARAMS},
+        "enabled": False,
+    },
+    {
+        "name": "Gemini 3.6 Flash-Lite",
+        "model_identifier": "gemini-3.6-flash-lite",
+        "family_identifier": "google/gemini-3.6",
+        "provider_type": "google",
+        "parameters": {**_GEMINI_3_PARAMS},
+        "enabled": False,
+    },
 ]

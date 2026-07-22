@@ -5,6 +5,9 @@ full sampling surface + reasoning_effort), so they live in a single kimi-k2
 family. Thinking mode runs ~temperature 1.0 and instant mode ~0.6; set
 max_tokens >= 16000 to leave room for reasoning_content. Routed via OpenRouter.
 
+Kimi K3 is the next generation; it keeps the same OpenAI/Anthropic-compatible
+sampler contract but gets its own kimi-k3 family (generation boundary).
+
 Parameters per the Moonshot/Kimi platform docs (platform.moonshot.ai).
 """
 
@@ -51,6 +54,43 @@ KIMI_FAMILIES: list[ModelFamilySeedData] = [
             "supports_prompt_caching": True,
             "note": "thinking ~temp 1.0, instant ~temp 0.6; max_tokens >= 16000 for full reasoning",
             "models": ["moonshotai/kimi-k2.5", "moonshotai/kimi-k2.6"],
+        },
+    },
+    {
+        "name": "Kimi K3",
+        "family_identifier": "moonshot/kimi-k3",
+        "description": (
+            "Moonshot Kimi K3 (OpenAI/Anthropic-compatible). 256K context, full sampling "
+            "surface plus reasoning_effort. Routed via OpenRouter."
+        ),
+        "provider_types": ["openrouter", "opencode", "opencode_go"],
+        "parameters": {
+            "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 65536},
+            # Moonshot caps temperature at 1.0 (not 2.0). Thinking mode wants ~1.0,
+            # instant mode ~0.6 (the RP-fast default).
+            "temperature": {"type": "float", "default": 0.6, "min_value": 0.0, "max_value": 1.0},
+            "top_p": TOP_P_95,
+            "frequency_penalty": FREQUENCY_PENALTY,
+            "presence_penalty": PRESENCE_PENALTY,
+            "reasoning_effort": {
+                "type": "enum",
+                "default": "medium",
+                "str_values": ["low", "medium", "high"],
+            },
+        },
+        # Moonshot's contract has no top_k/min_p/repetition_penalty (even its
+        # first-party OpenRouter endpoint omits them).
+        "unsupported_parameters": ["top_k"],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "kimi",
+            "developer": "moonshot",
+            "context_window": 262144,
+            "supports_vision": False,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "note": "thinking ~temp 1.0, instant ~temp 0.6; max_tokens >= 16000 for full reasoning",
+            "models": ["moonshotai/kimi-k3"],
         },
     },
 ]

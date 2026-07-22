@@ -5,8 +5,9 @@ Grouped at the parameter-contract boundary on the 2.5 -> 3 line. Gemini 2.5
 presence penalties — and a numeric thinking budget. Gemini 3.x (3.0 / 3.1
 Pro / Flash / Lite) dropped top_k and the penalties, defaults temperature to 1.0,
 and replaced the budget with thinking_level plus a media_resolution control.
-3.0 and 3.1 share one family (identical contract). Served via the Google API or
-OpenRouter.
+3.0 and 3.1 share one family (identical contract). Gemini 3.5 and 3.6 each strip
+sampling further (no temperature/top_p/top_k) and get their own families. Served
+via the Google API or OpenRouter.
 
 Parameter surface per the Gemini API docs (ai.google.dev/gemini-api/docs/gemini-3,
 .../docs/thinking).
@@ -154,6 +155,57 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "supports_function_calling": True,
             "supports_prompt_caching": True,
             "models": ["gemini-3.5-flash"],
+        },
+    },
+    {
+        "name": "Gemini 3.6",
+        "family_identifier": "google/gemini-3.6",
+        "description": (
+            "Google Gemini 3.6 Flash / Flash-Lite. 1M context. Removes temperature/top_p/top_k "
+            "entirely; thinking_level (minimal/low/medium/high, default medium) + media_resolution."
+        ),
+        "provider_types": ["google", "openrouter"],
+        "parameters": {
+            "max_output_tokens": {
+                "type": "int",
+                "default": 8192,
+                "min_value": 1,
+                "max_value": 65536,
+            },
+            **GEMINI_35_SAMPLING,
+            "thinking_level": {
+                "type": "enum",
+                "default": "medium",
+                "str_values": ["minimal", "low", "medium", "high"],
+            },
+            "media_resolution": {
+                "type": "enum",
+                "default": "MEDIA_RESOLUTION_MEDIUM",
+                "str_values": [
+                    "MEDIA_RESOLUTION_LOW",
+                    "MEDIA_RESOLUTION_MEDIUM",
+                    "MEDIA_RESOLUTION_HIGH",
+                    "MEDIA_RESOLUTION_ULTRA_HIGH",
+                ],
+            },
+        },
+        "unsupported_parameters": [
+            "temperature",
+            "top_p",
+            "top_k",
+            "frequency_penalty",
+            "presence_penalty",
+            "thinking_budget",
+        ],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "gemini",
+            "developer": "google",
+            "context_window": 1000000,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["gemini-3.6-flash", "gemini-3.6-flash-lite"],
         },
     },
 ]

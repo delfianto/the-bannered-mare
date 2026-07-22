@@ -1,9 +1,9 @@
 """Poolside model family seed data.
 
-Poolside's Laguna coding-agent models (M.1 flagship, XS.2 compact) — fp8-quantized,
+Poolside's Laguna coding-agent models (M.1 flagship; S / XS 2.1 tiers) — fp8-quantized,
 tool calling + reasoning, 262K context / 32K max output. Narrow parameter surface:
 only temperature + max_tokens are tuneable (no top_p / top_k / penalties / stop).
-Free on OpenRouter for now; "good enough" and fun for experimentation.
+On OpenRouter (free and paid tiers); "good enough" and fun for experimentation.
 """
 
 from src.fixtures.model_families import ModelFamilySeedData
@@ -14,9 +14,9 @@ POOLSIDE_FAMILIES: list[ModelFamilySeedData] = [
         "name": "Poolside Laguna",
         "family_identifier": "poolside/laguna",
         "description": (
-            "Poolside Laguna coding-agent models (M.1 flagship, XS.2 compact). fp8-quantized, "
+            "Poolside Laguna coding-agent models (M.1 flagship; S / XS 2.1 tiers). fp8-quantized, "
             "tool calling + reasoning, 262K context, 32K max output. Narrow sampler "
-            "(temperature only). Free on OpenRouter for now."
+            "(temperature only). On OpenRouter (free and paid tiers)."
         ),
         "provider_types": ["openrouter"],
         "parameters": {
@@ -39,8 +39,8 @@ POOLSIDE_FAMILIES: list[ModelFamilySeedData] = [
             "supports_function_calling": True,
             "supports_prompt_caching": True,
             "supports_reasoning": True,
-            "note": "coding-agent models (fp8); free on OpenRouter for now",
-            "models": ["poolside/laguna-m.1", "poolside/laguna-xs-2.1"],
+            "note": "coding-agent models (fp8); free and paid tiers on OpenRouter",
+            "models": ["poolside/laguna-m.1", "poolside/laguna-s-2.1", "poolside/laguna-xs-2.1"],
         },
     },
 ]
