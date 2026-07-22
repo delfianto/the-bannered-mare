@@ -223,6 +223,14 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
     },
     # Kimi (Moonshot) — K-series enabled by default.
     {
+        "name": "Moonshot Kimi K3",
+        "model_identifier": "moonshotai/kimi-k3",
+        "family_identifier": "moonshot/kimi-k3",
+        "provider_type": "openrouter",
+        "parameters": {"temperature": 0.6, "top_p": 1.0, "max_tokens": 8192},
+        "enabled": True,
+    },
+    {
         "name": "Moonshot Kimi K2.6",
         "model_identifier": "moonshotai/kimi-k2.6",
         "family_identifier": "moonshot/kimi-k2",
@@ -289,7 +297,26 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         },
         "enabled": True,
     },
-    # Poolside Laguna (Free) — enabled by default.
+    # Poolside Laguna — paid 2.1 tiers (S / XS) ship enabled. The XS free variant
+    # collapses to the same canonical slug as paid XS, so it's demoted to a disabled
+    # dup (paid wins the canonical — mirrors the kimi-k2.6 / :free pairing). M.1 has
+    # no paid entry, so its free SKU stays the enabled canonical.
+    {
+        "name": "Poolside Laguna S 2.1",
+        "model_identifier": "poolside/laguna-s-2.1",
+        "family_identifier": "poolside/laguna",
+        "provider_type": "openrouter",
+        "parameters": {"temperature": 0.8, "max_tokens": 4096},
+        "enabled": True,
+    },
+    {
+        "name": "Poolside Laguna XS 2.1",
+        "model_identifier": "poolside/laguna-xs-2.1",
+        "family_identifier": "poolside/laguna",
+        "provider_type": "openrouter",
+        "parameters": {"temperature": 0.8, "max_tokens": 4096},
+        "enabled": True,
+    },
     {
         "name": "Poolside Laguna M.1 (Free)",
         "model_identifier": "poolside/laguna-m.1:free",
@@ -304,7 +331,7 @@ OPENROUTER_MODELS: list[ModelSeedData] = [
         "family_identifier": "poolside/laguna",
         "provider_type": "openrouter",
         "parameters": {"temperature": 0.8, "max_tokens": 4096},
-        "enabled": True,
+        "enabled": False,
     },
     # Google Gemma (Free) — enabled by default.
     {
