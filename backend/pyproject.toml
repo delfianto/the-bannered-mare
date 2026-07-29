@@ -6,7 +6,7 @@ license = "AGPL-3.0-or-later"
 
 dependencies = [
     # Web framework
-    "fastapi==0.140.13",
+    "fastapi==0.141.0",
     "uvicorn[standard]==0.52.0",
     # Database
     "sqlalchemy==2.0.51",
