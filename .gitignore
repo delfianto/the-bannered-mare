@@ -5,3 +5,7 @@
 # db backups (`just db-backup`). Root is configurable via STORAGE_PATH (backend/.env);
 # this covers the default ./storage at the repo root.
 /storage/
+
+# Direnv (machine specific)
+.envrc
+.direnv
