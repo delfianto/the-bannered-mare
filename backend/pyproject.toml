@@ -7,7 +7,7 @@ license = "AGPL-3.0-or-later"
 dependencies = [
     # Web framework
     "fastapi==0.141.1",
-    "uvicorn[standard]==0.52.0",
+    "uvicorn[standard]==0.52.1",
     # Database
     "sqlalchemy==2.0.51",
     # SQLAlchemy's async engine requires greenlet at runtime (not just for tests).
