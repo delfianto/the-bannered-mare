@@ -13,7 +13,7 @@ dependencies = [
     # SQLAlchemy's async engine requires greenlet at runtime (not just for tests).
     "greenlet>=3.0.0",
     "psycopg2-binary==2.9.12",
-    "alembic==1.18.5",
+    "alembic==1.19.0",
     "alembic-postgresql-enum==1.10.0",
     "asyncpg==0.31.0",
     "pgvector==0.5.0",
