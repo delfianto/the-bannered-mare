@@ -9,7 +9,7 @@ dependencies = [
     "fastapi==0.141.1",
     "uvicorn[standard]==0.52.1",
     # Database
-    "sqlalchemy==2.0.51",
+    "sqlalchemy==2.0.52",
     # SQLAlchemy's async engine requires greenlet at runtime (not just for tests).
     "greenlet>=3.0.0",
     "psycopg2-binary==2.9.12",
