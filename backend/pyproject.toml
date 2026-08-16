@@ -28,7 +28,7 @@ dependencies = [
     # ID generation
     "nanoid==2.0.0",
     # Utilities
-    "python-dotenv==1.2.2",
+    "python-dotenv==1.2.3",
     # Logging
     "structlog==26.1.0",
     # Prompt templating
