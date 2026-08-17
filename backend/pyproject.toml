@@ -34,7 +34,7 @@ dependencies = [
     # Prompt templating
     "Jinja2==3.1.6",
     # Token counting
-    "tiktoken==0.13.0",
+    "tiktoken==0.14.0",
     # Image processing
     "Pillow==12.3.0",
     # HTML sanitization (model-emitted GFX blocks)
