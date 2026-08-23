@@ -38,7 +38,7 @@ dependencies = [
     # Image processing
     "Pillow==12.3.0",
     # HTML sanitization (model-emitted GFX blocks)
-    "nh3==0.3.6",
+    "nh3==0.3.7",
     "tokenizers>=0.23.1",
 ]
 
