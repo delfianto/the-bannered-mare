@@ -40,7 +40,7 @@ const actions = [
         tabindex="-1"
         @blur.capture="open = false"
       >
-        <div class="fixed inset-0 z-[-1]" @click.stop="open = false" />
+        <div class="fixed inset-0 -z-1" @click.stop="open = false" />
         <button
           v-for="item in actions"
           :key="item.name"
