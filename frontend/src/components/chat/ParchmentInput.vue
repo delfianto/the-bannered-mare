@@ -93,7 +93,7 @@ function handleKeyDown(e: KeyboardEvent) {
       <button
         v-if="generating"
         :aria-label="$t('chat.stopGeneration')"
-        class="flex size-8 shrink-0 items-center justify-center rounded-full bg-base-300 text-foreground shadow-sm transition-all duration-200 hover:bg-base-300/70 active:scale-[0.92]"
+        class="flex size-8 shrink-0 items-center justify-center rounded-full bg-base-300 text-foreground shadow-sm transition-all duration-200 hover:bg-base-300/70 active:scale-0.92"
         @click="$emit('stop')"
       >
         <AppIcon name="i-lucide-square" class="size-3.5" />
@@ -104,7 +104,7 @@ function handleKeyDown(e: KeyboardEvent) {
         v-else
         :aria-label="$t('chat.sendMessage')"
         :disabled="!canSend || disabled"
-        class="flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.92]"
+        class="flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-0.92"
         :class="
           canSend && !disabled
             ? 'bg-primary text-primary-content shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]'

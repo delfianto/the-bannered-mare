@@ -268,7 +268,7 @@ function toggleMenu(identifier: string) {
         </div>
 
         <button
-          class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
+          class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-0.96"
           :disabled="saving"
           @click="handleSave"
         >
@@ -444,7 +444,7 @@ function toggleMenu(identifier: string) {
                   v-if="showSearchResults && modelSearchQuery"
                   class="absolute z-40 mt-1 w-full overflow-hidden rounded-lg border bg-base-200 shadow-lg"
                 >
-                  <div class="fixed inset-0 z-[-1]" @click="showSearchResults = false" />
+                  <div class="fixed inset-0 -z-1" @click="showSearchResults = false" />
                   <div
                     v-if="searchingModels && searchResults.length === 0"
                     class="px-3 py-2 text-xs text-muted-foreground"
@@ -595,7 +595,7 @@ function toggleMenu(identifier: string) {
                         class="absolute top-full right-0 z-50 mt-1 w-44 origin-top-right rounded-lg border bg-base-200 py-1 shadow-lg"
                       >
                         <!-- Click outside handler overlay -->
-                        <div class="fixed inset-0 z-[-1]" @click.stop="openMenuModel = null" />
+                        <div class="fixed inset-0 -z-1" @click.stop="openMenuModel = null" />
 
                         <!-- Load / Unload option -->
                         <button
