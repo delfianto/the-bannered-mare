@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
       <div
         v-if="open"
         ref="menu"
-        class="fixed z-[80] overflow-hidden rounded-lg border bg-base-200 shadow-lg"
+        class="fixed z-80 overflow-hidden rounded-lg border bg-base-200 shadow-lg"
         :style="menuStyle"
       >
         <div v-if="searchInput" class="border-b p-1.5">

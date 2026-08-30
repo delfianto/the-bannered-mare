@@ -11,7 +11,7 @@ import { RouterLink } from "vue-router";
     <p class="max-w-md text-sm text-muted-foreground">{{ $t("notFound.message") }}</p>
     <RouterLink
       to="/"
-      class="mt-2 flex h-10 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-medium text-primary-content transition-all hover:bg-primary/95 active:scale-[0.96]"
+      class="mt-2 flex h-10 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-medium text-primary-content transition-all hover:bg-primary/95 active:scale-0.96"
     >
       <AppIcon name="i-lucide-home" />
       {{ $t("notFound.home") }}

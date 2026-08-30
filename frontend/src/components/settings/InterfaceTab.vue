@@ -297,7 +297,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           >
             <!-- Mini UI mockup -->
             <div
-              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
+              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-1.02"
             >
               <div class="flex h-full">
                 <!-- Sidebar strip -->
@@ -365,7 +365,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             @click="setColorScheme('custom')"
           >
             <div
-              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
+              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-1.02"
             >
               <div class="flex h-full" :style="{ backgroundColor: custom.base100 }">
                 <div class="w-2.5 shrink-0" :style="{ backgroundColor: custom.base200 }">
