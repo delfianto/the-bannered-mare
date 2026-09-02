@@ -58,7 +58,7 @@
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@latest"
   },
-  "packageManager": "bun@1.3.14",
+  "packageManager": "bun@1.4.0",
   "msw": {
     "workerDirectory": [
       "public"
