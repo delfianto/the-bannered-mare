@@ -6,18 +6,14 @@ const query = ref("");
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative border-b">
     <div
-      class="flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-300"
-      :class="
-        focused
-          ? 'border-primary bg-base-100 shadow-[0_0_0_3px_var(--color-primary)/0.12]'
-          : 'border-border bg-base-300/40 hover:border-muted-foreground/30'
-      "
+      class="flex h-10 items-center gap-2 transition-all duration-300"
+      :class="focused ? 'border-primary' : 'border-border hover:border-muted-foreground/50'"
     >
       <AppIcon
         name="i-lucide-search"
-        class="size-5 shrink-0 transition-colors duration-300"
+        class="size-4 shrink-0 transition-colors duration-300"
         :class="focused ? 'text-primary' : 'text-muted-foreground'"
       />
       <input
@@ -26,7 +22,7 @@ const query = ref("");
         :placeholder="$t('home.searchPlaceholder')"
         :aria-label="$t('common.search')"
         autocomplete="off"
-        class="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+        class="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
         @focus="focused = true"
         @blur="focused = false"
       />

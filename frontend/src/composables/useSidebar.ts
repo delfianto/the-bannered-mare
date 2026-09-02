@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
 
-const collapsed = ref(true);
+const collapsed = ref(false);
 
 // Persist to localStorage
 const stored = localStorage.getItem("sidebar-collapsed");

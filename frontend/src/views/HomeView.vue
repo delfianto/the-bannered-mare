@@ -17,19 +17,29 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 12 });
 </script>
 
 <template>
-  <PageContainer>
+  <PageContainer spacing-class="space-y-10">
     <template #header>
-      <div>
-        <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
-          {{ $t("home.greeting") }}
-        </h1>
-        <p class="text-sm text-muted-foreground">
-          {{ $t("home.tagline") }}
-        </p>
+      <div
+        class="mx-auto flex w-full max-w-7xl flex-col gap-6 md:flex-row md:items-end md:justify-between"
+      >
+        <div>
+          <p class="mb-3 text-2xs font-semibold tracking-[0.22em] text-primary uppercase">
+            The Bannered Mare
+          </p>
+          <h1
+            class="mb-2 font-cinzel text-3xl font-semibold tracking-wide text-foreground lg:text-4xl"
+          >
+            {{ $t("home.greeting") }}
+          </h1>
+          <p class="text-sm text-muted-foreground italic">
+            {{ $t("home.tagline") }}
+          </p>
+        </div>
+        <SearchBar v-if="characters.length > 0" class="w-full md:w-100" />
       </div>
     </template>
 
-    <div class="flex w-full flex-1 flex-col space-y-8">
+    <div class="mx-auto flex w-full max-w-7xl flex-1 flex-col space-y-12">
       <!-- Setup prompt (renders nothing once a ready profile exists — no gap) -->
       <SetupPromptBanner />
 
@@ -53,22 +63,17 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 12 });
         </div>
       </template>
       <template v-else>
-        <!-- Search -->
-        <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 80ms">
-          <SearchBar />
-        </div>
-
         <!-- Continue Your Tale (from API chats) -->
         <div
           v-if="chatSessions.length > 0"
           class="animate-fade-in-up"
-          style="animation-delay: 160ms"
+          style="animation-delay: 80ms"
         >
           <ContinueTaleSection :sessions="chatSessions" :loading="chatsLoading" />
         </div>
 
         <!-- Discover Characters (from API characters) -->
-        <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 240ms">
+        <div v-if="characters.length > 0" class="animate-fade-in-up" style="animation-delay: 160ms">
           <DiscoverSection
             :characters="characters"
             :categories="CATEGORIES"
