@@ -1,18 +1,19 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { nextTick } from "vue";
-import { DEFAULT_CHAT_FONT, DEFAULT_TYPOGRAPHY_PRESET, useTypography } from "../useTypography";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { effectScope, nextTick } from "vue";
 
-const typography = useTypography();
-
-afterEach(async () => {
-  typography.setTypographyPreset(DEFAULT_TYPOGRAPHY_PRESET);
-  typography.setChatFont(DEFAULT_CHAT_FONT);
-  typography.setNarrativeItalics(false);
-  await nextTick();
+beforeEach(() => {
+  localStorage.clear();
+  delete document.documentElement.dataset.typography;
+  delete document.documentElement.dataset.chatFont;
+  delete document.documentElement.dataset.narrativeItalics;
+  vi.resetModules();
 });
 
 describe("useTypography", () => {
   it("applies and persists the selected typography preferences", async () => {
+    const { useTypography } = await import("../useTypography");
+    const typography = useTypography();
+
     typography.setTypographyPreset("literary");
     typography.setChatFont("inter");
     typography.setNarrativeItalics(true);
@@ -24,5 +25,18 @@ describe("useTypography", () => {
     expect(localStorage.getItem("typography-preset")).toBe("literary");
     expect(localStorage.getItem("chat-font")).toBe("inter");
     expect(localStorage.getItem("narrative-italics")).toBe("true");
+  });
+
+  it("keeps applying changes after its initializing component scope is destroyed", async () => {
+    const { useTypography } = await import("../useTypography");
+    const ownerScope = effectScope();
+    const typography = ownerScope.run(() => useTypography());
+    ownerScope.stop();
+
+    typography?.setTypographyPreset("modern");
+    await nextTick();
+
+    expect(document.documentElement.dataset.typography).toBe("modern");
+    expect(localStorage.getItem("typography-preset")).toBe("modern");
   });
 });
