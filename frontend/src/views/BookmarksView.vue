@@ -28,7 +28,7 @@ function timeAgo(dateStr: string): string {
   <PageContainer spacing-class="space-y-10">
     <template #header>
       <div>
-        <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+        <h1 class="font-story text-2xl font-bold tracking-wide text-foreground">
           {{ $t("bookmarks.title") }}
         </h1>
         <p class="mt-1 text-sm text-muted-foreground">
@@ -59,7 +59,7 @@ function timeAgo(dateStr: string): string {
       >
         <div class="mb-5 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
+            <h2 class="font-story text-lg font-semibold tracking-wide text-foreground">
               {{ $t("bookmarks.favoriteCharacters") }}
             </h2>
             <span
@@ -103,7 +103,7 @@ function timeAgo(dateStr: string): string {
               class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent"
             />
             <div class="absolute inset-x-0 bottom-0 p-4">
-              <h3 class="font-cinzel text-sm font-semibold tracking-wide text-white">
+              <h3 class="font-story text-sm font-semibold tracking-wide text-white">
                 {{ char.name }}
               </h3>
               <div v-if="char.tags?.length" class="mt-1.5 flex flex-wrap gap-1">
@@ -124,7 +124,7 @@ function timeAgo(dateStr: string): string {
       <section v-if="sessions.length > 0" class="animate-fade-in-up" style="animation-delay: 200ms">
         <div class="mb-5 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
+            <h2 class="font-story text-lg font-semibold tracking-wide text-foreground">
               {{ $t("bookmarks.savedSessions") }}
             </h2>
             <span
@@ -149,7 +149,7 @@ function timeAgo(dateStr: string): string {
               class="size-12 shrink-0 rounded-full object-cover ring-1 ring-border"
             />
             <div class="min-w-0 flex-1">
-              <h3 class="truncate font-cinzel text-sm font-semibold text-foreground">
+              <h3 class="truncate font-story text-sm font-semibold text-foreground">
                 {{ session.title }}
               </h3>
               <p class="mt-0.5 text-3xs font-medium tracking-wide text-primary uppercase">
@@ -170,7 +170,7 @@ function timeAgo(dateStr: string): string {
         style="animation-delay: 300ms"
       >
         <div class="mb-5 flex items-center gap-3">
-          <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
+          <h2 class="font-story text-lg font-semibold tracking-wide text-foreground">
             {{ $t("bookmarks.pinnedFragments") }}
           </h2>
           <span

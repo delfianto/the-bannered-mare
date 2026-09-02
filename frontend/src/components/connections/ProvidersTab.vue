@@ -114,7 +114,7 @@ function formatUrl(url: string | null): string {
               />
             </div>
             <div class="min-w-0">
-              <h3 class="truncate font-cinzel text-sm font-semibold tracking-wide text-foreground">
+              <h3 class="truncate font-story text-sm font-semibold tracking-wide text-foreground">
                 {{ provider.name }}
               </h3>
               <span class="text-3xs tracking-wide text-muted-foreground uppercase">

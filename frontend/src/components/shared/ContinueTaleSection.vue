@@ -36,7 +36,7 @@ function avatarSrc(chat: Chat): string {
   <section>
     <div class="mb-6 flex items-center gap-4">
       <h2
-        class="shrink-0 font-cinzel text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase"
+        class="shrink-0 font-story text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase"
       >
         {{ $t("home.continueTale") }}
       </h2>
@@ -68,7 +68,7 @@ function avatarSrc(chat: Chat): string {
             </span>
             <span class="h-px flex-1 bg-border" />
           </div>
-          <h3 class="mb-2 font-cinzel text-2xl font-semibold leading-snug text-foreground">
+          <h3 class="mb-2 font-story text-2xl font-semibold leading-snug text-foreground">
             {{ featured.title || $t("chat.untitled") }}
           </h3>
           <p
@@ -100,11 +100,11 @@ function avatarSrc(chat: Chat): string {
       <aside v-if="recent.length" class="flex flex-col lg:col-span-4">
         <div class="mb-5 flex items-center gap-3 border-b pb-3">
           <span
-            class="font-cinzel text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase"
+            class="font-story text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase"
           >
             {{ $t("nav.sessions") }}
           </span>
-          <span class="font-cinzel text-2xs text-primary">II–V</span>
+          <span class="font-story text-2xs text-primary">II–V</span>
         </div>
         <div class="divide-y">
           <RouterLink
@@ -120,7 +120,7 @@ function avatarSrc(chat: Chat): string {
             />
             <div class="min-w-0 flex-1">
               <p
-                class="truncate font-cinzel text-sm font-medium text-foreground transition-colors group-hover:text-primary"
+                class="truncate font-story text-sm font-medium text-foreground transition-colors group-hover:text-primary"
               >
                 {{ session.title || $t("chat.untitled") }}
               </p>
@@ -131,7 +131,7 @@ function avatarSrc(chat: Chat): string {
                 {{ timeAgo(session.updated_at) }}
               </p>
             </div>
-            <span class="font-cinzel text-2xs text-muted-foreground">{{ i + 2 }}</span>
+            <span class="font-story text-2xs text-muted-foreground">{{ i + 2 }}</span>
           </RouterLink>
         </div>
         <RouterLink

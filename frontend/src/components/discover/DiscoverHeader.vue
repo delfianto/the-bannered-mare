@@ -18,7 +18,7 @@ defineEmits<{
 <template>
   <div class="flex items-start justify-between gap-4">
     <div>
-      <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+      <h1 class="font-story text-2xl font-bold tracking-wide text-foreground">
         {{ $t("characters.library") }}
       </h1>
       <p class="mt-1 text-sm text-muted-foreground">

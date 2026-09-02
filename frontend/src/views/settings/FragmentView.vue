@@ -128,7 +128,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
               <AppIcon name="i-lucide-puzzle" class="size-3.5 text-primary-content" />
             </div>
-            <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+            <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
               {{ $t("connections.fragment.editTitle") }}
             </h1>
           </div>
@@ -182,7 +182,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
           <!-- Basic Info card -->
           <div class="rounded-xl border bg-base-200/50 p-5">
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("common.basicInfo") }}
             </h2>
@@ -190,7 +190,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
               <!-- Name -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.fragment.name") }}
                 </span>
@@ -205,7 +205,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
               <!-- Description -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.fragment.description") }}
                 </span>
@@ -220,7 +220,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
               <!-- Fragment Type -->
               <div>
                 <label
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.fragment.type") }}
                 </label>
@@ -245,7 +245,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
               <!-- Is Global toggle -->
               <div class="flex items-center justify-between">
                 <label
-                  class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.fragment.isGlobal") }}
                 </label>
@@ -261,7 +261,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
           <!-- Content card -->
           <div class="rounded-xl border bg-base-200/50 p-5">
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.fragment.content") }}
             </h2>

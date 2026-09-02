@@ -39,7 +39,7 @@ function reload() {
         class="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center"
       >
         <AppIcon name="i-lucide-triangle-alert" class="size-10 text-error" />
-        <p class="font-cinzel text-lg text-foreground">{{ t("common.errorBoundary.title") }}</p>
+        <p class="font-story text-lg text-foreground">{{ t("common.errorBoundary.title") }}</p>
         <p class="max-w-md text-sm text-muted-foreground">
           {{ t("common.errorBoundary.description") }}
         </p>

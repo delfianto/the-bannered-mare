@@ -135,7 +135,7 @@ const userActions = [
       <!-- Sender name — assistant only -->
       <p
         v-if="!isUser && characterName"
-        class="mb-1 ml-1 font-cinzel text-xs font-medium text-muted-foreground"
+        class="mb-1 ml-1 font-story text-xs font-medium text-muted-foreground"
         style="letter-spacing: 0.02em"
       >
         {{ characterName }}

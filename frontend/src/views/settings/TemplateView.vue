@@ -204,7 +204,7 @@ function handleAttachFragment() {
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
               <AppIcon name="i-lucide-file-text" class="size-3.5 text-primary-content" />
             </div>
-            <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+            <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
               Edit Template
             </h1>
           </div>
@@ -260,7 +260,7 @@ function handleAttachFragment() {
             <!-- Basic Info card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 Basic Info
               </h2>
@@ -268,7 +268,7 @@ function handleAttachFragment() {
                 <!-- Name -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.template.name") }}
                   </span>
@@ -283,7 +283,7 @@ function handleAttachFragment() {
                 <!-- Description -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.template.description") }}
                   </span>
@@ -298,7 +298,7 @@ function handleAttachFragment() {
                 <!-- Is Default toggle -->
                 <div class="flex items-center justify-between">
                   <label
-                    class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.template.isDefault") }}
                   </label>
@@ -314,7 +314,7 @@ function handleAttachFragment() {
             <!-- System Template card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.systemTemplate") }}
               </h2>
@@ -332,7 +332,7 @@ function handleAttachFragment() {
             <!-- Component Ordering card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.components") }}
               </h2>
@@ -364,7 +364,7 @@ function handleAttachFragment() {
             <!-- Attached Fragments card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.fragments") }}
               </h2>
@@ -421,7 +421,7 @@ function handleAttachFragment() {
             <!-- Metadata card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 Metadata
               </h2>
@@ -485,7 +485,7 @@ function handleAttachFragment() {
             <!-- Preview card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.template.preview") }}
               </h2>

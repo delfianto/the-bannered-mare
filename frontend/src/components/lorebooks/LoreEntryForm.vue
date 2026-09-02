@@ -95,7 +95,7 @@ function onSubmit() {
 
 <template>
   <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
-    <h3 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
+    <h3 class="mb-4 font-story text-sm font-semibold tracking-wide text-foreground">
       {{ initial ? $t("lorebooks.entryForm.editTitle") : $t("lorebooks.entryForm.newTitle") }}
     </h3>
 

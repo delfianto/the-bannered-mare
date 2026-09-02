@@ -46,7 +46,7 @@ const { templates, loading, error, refresh } = usePromptTemplates();
         <!-- Header -->
         <div class="mb-2 flex items-start justify-between gap-2">
           <div class="min-w-0">
-            <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+            <h3 class="font-story text-sm font-semibold tracking-wide text-foreground">
               {{ template.name }}
             </h3>
           </div>

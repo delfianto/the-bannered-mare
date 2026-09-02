@@ -26,7 +26,7 @@ Core principles:
 
 - Brand name: The Bannered Mare.
 - Body/UI typeface: Inter.
-- Display/headline typeface: Cinzel.
+- Display and story typeface: Newsreader.
 - BlackChancery is reserved for the brand wordmark only.
 - Icons: Lucide through the existing AppIcon system.
 - Colors must use DaisyUI semantic tokens so all built-in and custom themes continue to work.
@@ -51,8 +51,8 @@ Atmospheric additions must be derived from these tokens using opacity, color-mix
 
 ## Typography
 
-- Cinzel: page titles, chapter markers, story titles, character names, section headings.
-- Inter: navigation, controls, metadata, summaries, form labels.
+- Newsreader: page titles, chapter markers, story titles, character names, section headings, and long-form chat prose.
+- Inter: navigation, controls, metadata, summaries, form labels, and compact utility copy.
 - BlackChancery: brand wordmark only.
 - Editorial contrast is encouraged: large display titles paired with tiny uppercase catalog labels.
 - Long prose must use comfortable measure (roughly 60–78 characters), generous line-height, and stable rhythm.
@@ -112,4 +112,3 @@ All current routes and primary capabilities remain recognizable.
 - Preserve Vue 3.5, Tailwind CSS v4, DaisyUI 5, existing semantic tokens, localization, and root-font-size scaling.
 - Prefer canonical Tailwind utilities and rem-based sizing.
 - The visual refresh must be implementable without backend/API contract changes.
-

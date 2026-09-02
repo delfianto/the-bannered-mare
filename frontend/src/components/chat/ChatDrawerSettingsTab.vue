@@ -470,7 +470,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
     <!-- Rename -->
     <div>
       <label
-        class="mb-1.5 block font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+        class="mb-1.5 block font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
       >
         {{ $t("chat.rename") }}
       </label>

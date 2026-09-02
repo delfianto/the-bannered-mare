@@ -48,7 +48,7 @@ function avatarSrc(): string {
       </div>
       <div class="min-w-0 text-center">
         <h2
-          class="truncate font-cinzel text-sm leading-tight font-semibold text-foreground"
+          class="truncate font-story text-sm leading-tight font-semibold text-foreground"
           style="letter-spacing: 0.03em"
         >
           {{ character.name }}

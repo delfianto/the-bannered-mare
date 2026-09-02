@@ -48,7 +48,7 @@ function importAnother() {
       class="relative z-10 w-full max-w-lg animate-fade-in-up rounded-xl border bg-base-200 p-6 shadow-xl"
     >
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="font-cinzel text-lg font-bold tracking-wide text-foreground">
+        <h2 class="font-story text-lg font-bold tracking-wide text-foreground">
           {{ $t("presetImport.title") }}
         </h2>
         <button

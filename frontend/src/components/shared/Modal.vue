@@ -178,7 +178,7 @@ const maxWidthClass = {
             <h2
               v-if="title"
               :id="titleId"
-              class="font-cinzel text-lg font-bold tracking-wide text-foreground"
+              class="font-story text-lg font-bold tracking-wide text-foreground"
             >
               {{ title }}
             </h2>

@@ -27,7 +27,7 @@ const positionLabels: Record<string, string> = {
   >
     <!-- Header: name + enabled toggle -->
     <div class="mb-2 flex items-start justify-between gap-2">
-      <h4 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+      <h4 class="font-story text-sm font-semibold tracking-wide text-foreground">
         {{ entry.name }}
       </h4>
       <AppToggle

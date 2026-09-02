@@ -24,7 +24,7 @@ function onHex(key: keyof CustomTheme, e: Event) {
 <template>
   <div class="animate-fade-in-up space-y-3 rounded-xl border bg-base-200/50 p-5">
     <div class="flex items-center justify-between">
-      <h4 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">Custom theme</h4>
+      <h4 class="font-story text-sm font-semibold tracking-wide text-foreground">Custom theme</h4>
       <button
         class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-base-300 hover:text-foreground"
         @click="reset"

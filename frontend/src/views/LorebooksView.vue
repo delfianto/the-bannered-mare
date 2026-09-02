@@ -187,7 +187,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
     <template #header>
       <div class="flex items-start justify-between">
         <div>
-          <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
+          <h1 class="mb-1 font-story text-2xl font-bold tracking-wide text-foreground">
             {{ $t("lorebooks.title") }}
           </h1>
           <p class="text-sm text-muted-foreground">
@@ -200,7 +200,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
     <!-- Inline Lorebook form for first lorebook creation -->
     <div v-if="showLorebookForm" class="mx-auto w-full max-w-2xl">
       <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
-        <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
+        <h2 class="mb-4 font-story text-sm font-semibold tracking-wide text-foreground">
           {{ editingLorebook ? $t("lorebooks.form.editTitle") : $t("lorebooks.form.newTitle") }}
         </h2>
         <div class="space-y-4">
@@ -267,7 +267,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
     <!-- Left: lorebook list -->
     <div class="flex w-75 shrink-0 flex-col border-r">
       <div class="flex items-center justify-between px-5 pt-6 pb-3">
-        <h1 class="font-cinzel text-lg font-bold tracking-wide text-foreground">
+        <h1 class="font-story text-lg font-bold tracking-wide text-foreground">
           {{ $t("lorebooks.title") }}
         </h1>
         <button
@@ -287,7 +287,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
           @click="selectLorebook(lb.id)"
         >
           <div class="flex items-center justify-between gap-2">
-            <span class="truncate font-cinzel text-sm font-medium text-foreground">{{
+            <span class="truncate font-story text-sm font-medium text-foreground">{{
               lb.name
             }}</span>
             <span
@@ -319,7 +319,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
       <!-- Lorebook create/edit form -->
       <div v-if="showLorebookForm" class="px-8 py-6">
         <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
-          <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
+          <h2 class="mb-4 font-story text-sm font-semibold tracking-wide text-foreground">
             {{ editingLorebook ? $t("lorebooks.form.editTitle") : $t("lorebooks.form.newTitle") }}
           </h2>
           <div class="space-y-4">
@@ -376,7 +376,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <div class="flex items-center gap-2">
-                <h2 class="font-cinzel text-xl font-bold text-foreground">
+                <h2 class="font-story text-xl font-bold text-foreground">
                   {{ currentLorebook.name }}
                 </h2>
                 <span

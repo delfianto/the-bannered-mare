@@ -76,7 +76,7 @@ const getTypeClasses = (type: string) => {
               :class="getTypeClasses(toast.type).icon"
             />
             <div class="min-w-0 flex-1">
-              <h4 class="font-cinzel text-xs font-semibold tracking-wider text-current uppercase">
+              <h4 class="font-story text-xs font-semibold tracking-wider text-current uppercase">
                 {{ toast.title }}
               </h4>
               <p

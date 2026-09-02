@@ -35,7 +35,7 @@ function avatarSrc(): string {
     <!-- Bottom info overlay -->
     <div class="absolute inset-x-0 bottom-0 p-5" :class="featured ? 'sm:p-8' : ''">
       <h3
-        class="mb-1.5 font-cinzel font-semibold text-white drop-shadow-lg"
+        class="mb-1.5 font-story font-semibold text-white drop-shadow-lg"
         :class="featured ? 'text-2xl sm:text-3xl' : 'text-base'"
         style="letter-spacing: 0.02em"
       >

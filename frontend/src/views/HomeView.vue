@@ -27,7 +27,7 @@ const { characters, loading: charsLoading } = useCharacters({ pageSize: 12 });
             The Bannered Mare
           </p>
           <h1
-            class="mb-2 font-cinzel text-3xl font-semibold tracking-wide text-foreground lg:text-4xl"
+            class="mb-2 font-story text-3xl font-semibold tracking-wide text-foreground lg:text-4xl"
           >
             {{ $t("home.greeting") }}
           </h1>

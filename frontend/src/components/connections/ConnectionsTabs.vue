@@ -32,7 +32,7 @@ const tabs = [
           @click="emit('change', tab.id)"
         >
           <AppIcon :name="tab.icon" class="size-4" />
-          <span class="font-cinzel tracking-wide">{{ tab.label }}</span>
+          <span class="font-story tracking-wide">{{ tab.label }}</span>
           <span
             v-if="activeTab === tab.id"
             class="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary transition-all"

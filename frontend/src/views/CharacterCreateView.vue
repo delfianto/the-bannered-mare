@@ -111,7 +111,7 @@ function handleAvatarChange(file: File) {
           <div class="flex size-6 items-center justify-center rounded-md bg-primary">
             <AppIcon name="i-lucide-flame" class="size-3.5 text-primary-content" />
           </div>
-          <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+          <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
             {{ pageTitle }}
           </h1>
         </div>
@@ -231,7 +231,7 @@ function handleAvatarChange(file: File) {
       >
         <div class="sticky top-0">
           <p
-            class="mb-4 font-cinzel text-3xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+            class="mb-4 font-story text-3xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
           >
             {{ $t("characters.form.livePreview") }}
           </p>

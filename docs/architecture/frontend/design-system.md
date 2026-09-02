@@ -57,10 +57,10 @@ re-pointed to match any active theme whose name ends in `-dark`, so `dark:` util
 
 Three core font families are integrated:
 
-1. **Cinzel** (`font-cinzel`):
-   - **Role**: Classic serif display typeface, loaded from Google Fonts.
-   - **Usage**: Main page headers, character card titles, section labels, and dialogue names.
-2. **Inter** (Default):
+1. **Newsreader** (`font-story`):
+   - **Role**: Optical-size-aware editorial serif, loaded from Google Fonts.
+   - **Usage**: Main page headers, character card titles, dialogue names, and narrative prose.
+2. **Inter** (`font-sans`, default):
    - **Role**: Highly legible clean sans-serif typeface.
    - **Usage**: Standard interface text, settings toggles, and code parameters.
 3. **BlackChancery** (`font-medieval`):

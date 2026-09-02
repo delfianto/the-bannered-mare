@@ -65,7 +65,7 @@ const activeTab = ref("character");
         <!-- Header -->
         <div class="flex h-15.5 shrink-0 items-center justify-between border-b px-4">
           <h2
-            class="min-w-0 truncate font-cinzel text-sm font-semibold tracking-wide text-foreground"
+            class="min-w-0 truncate font-story text-sm font-semibold tracking-wide text-foreground"
           >
             {{ character.name }}
           </h2>
