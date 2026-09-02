@@ -1,6 +1,9 @@
 # Superpowers SDD session scratch (ledger, task briefs, reports, review diffs)
 .superpowers/
 
+# Superdesign temporary component-conversion files
+.superdesign/tmp/
+
 # Runtime binary/generated files — character & persona avatars, temp uploads, and
 # db backups (`just db-backup`). Root is configurable via STORAGE_PATH (backend/.env);
 # this covers the default ./storage at the repo root.
