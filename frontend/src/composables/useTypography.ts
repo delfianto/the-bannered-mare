@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { effectScope, ref, watch } from "vue";
 
 export const TYPOGRAPHY_PRESETS = ["storybook", "literary", "modern", "system"] as const;
 export type TypographyPreset = (typeof TYPOGRAPHY_PRESETS)[number];
@@ -16,6 +16,10 @@ const NARRATIVE_ITALICS_KEY = "narrative-italics";
 const typographyPreset = ref<TypographyPreset>(DEFAULT_TYPOGRAPHY_PRESET);
 const chatFont = ref<ChatFont>(DEFAULT_CHAT_FONT);
 const narrativeItalics = ref(false);
+// This state can first initialize inside a routed component (often a chat
+// message). A detached scope keeps its watcher alive when that component is
+// unmounted, so later Settings changes continue to reach the DOM.
+const watcherScope = effectScope(true);
 let initialized = false;
 
 function isTypographyPreset(value: string | null): value is TypographyPreset {
@@ -50,9 +54,11 @@ function init() {
   narrativeItalics.value = localStorage.getItem(NARRATIVE_ITALICS_KEY) === "true";
 
   applyToDom();
-  watch([typographyPreset, chatFont, narrativeItalics], () => {
-    applyToDom();
-    persist();
+  watcherScope.run(() => {
+    watch([typographyPreset, chatFont, narrativeItalics], () => {
+      applyToDom();
+      persist();
+    });
   });
 }
 
