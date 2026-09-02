@@ -135,16 +135,16 @@ const nodes = computed<TextNode[]>(() => {
         class="my-2 whitespace-normal not-italic"
         v-html="node.text"
       />
-      <!-- Narration / *actions*: the descriptive prose — italic, dimmed, so it
-           reads as stage direction. Spoken "dialogue" stays upright, full
-           strength, and a touch heavier so it stands out (RP convention). -->
+      <!-- Explicit *actions* keep the stage-direction treatment. Ordinary
+           narration stays upright for comfortable long-form reading, while
+           spoken "dialogue" remains full-strength and a touch heavier. -->
       <em v-else-if="node.type === 'action'" class="text-muted-foreground italic">{{
         node.text
       }}</em>
       <span v-else-if="node.type === 'dialogue'" class="font-medium text-dialogue">{{
         node.text
       }}</span>
-      <span v-else class="text-muted-foreground italic">{{ node.text }}</span>
+      <span v-else class="text-muted-foreground">{{ node.text }}</span>
     </template>
   </div>
 </template>
