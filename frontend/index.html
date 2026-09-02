@@ -23,6 +23,20 @@
             cwMap[localStorage.getItem("chat-width")] || "72rem",
           );
 
+          // Typography preferences — attributes select CSS font stacks before paint.
+          var typography = localStorage.getItem("typography-preset");
+          var chatFont = localStorage.getItem("chat-font");
+          document.documentElement.dataset.typography =
+            ["storybook", "literary", "modern", "system"].indexOf(typography) >= 0
+              ? typography
+              : "storybook";
+          document.documentElement.dataset.chatFont =
+            ["match", "newsreader", "literata", "inter", "georgia"].indexOf(chatFont) >= 0
+              ? chatFont
+              : "match";
+          document.documentElement.dataset.narrativeItalics =
+            localStorage.getItem("narrative-italics") === "true" ? "true" : "false";
+
           var mode = localStorage.getItem("theme-mode");
           var scheme = localStorage.getItem("color-scheme") || "amber";
           var dark =

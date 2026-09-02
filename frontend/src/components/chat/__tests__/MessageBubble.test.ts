@@ -1,12 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect } from "vitest";
+import { nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import MessageBubble from "../MessageBubble.vue";
 import i18n from "@/i18n";
+import { useTypography } from "@/composables/useTypography";
 import type { Message } from "@/types/chat";
 
 // Resolve labels through the same i18n instance the component uses, so selectors
 // stay correct regardless of the active locale / exact wording.
 const t = (key: string) => i18n.global.t(key);
+
+afterEach(() => {
+  useTypography().setNarrativeItalics(false);
+});
 
 function makeMessage(overrides: Partial<Message> = {}): Message {
   return {
@@ -62,6 +68,21 @@ describe("MessageBubble", () => {
 
     expect(wrapper.text()).toContain("She opens the old journal.");
     expect(wrapper.find(".italic").exists()).toBe(false);
+  });
+
+  it("can render model narration in italics when the preference is enabled", async () => {
+    const typography = useTypography();
+    typography.setNarrativeItalics(true);
+    await nextTick();
+
+    const wrapper = mount(MessageBubble, {
+      props: {
+        message: makeMessage({ content: "*She opens the old journal.*" }),
+        index: 1,
+      },
+    });
+
+    expect(wrapper.get(".italic").text()).toBe("She opens the old journal.");
   });
 
   it("shows swipe arrows and emits `swipe` when alternatives exist", async () => {

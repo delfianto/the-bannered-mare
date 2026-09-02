@@ -55,17 +55,22 @@ re-pointed to match any active theme whose name ends in `-dark`, so `dark:` util
 
 ## 3. Typography
 
-Three core font families are integrated:
+Four font families are integrated, with user-selectable pairings in **Settings → Interface → Typography**:
 
 1. **Newsreader** (`font-story`):
    - **Role**: Optical-size-aware editorial serif, loaded from Google Fonts.
-   - **Usage**: Main page headers, character card titles, dialogue names, and narrative prose.
+   - **Usage**: Default main page headers, character card titles, dialogue names, and narrative prose.
 2. **Inter** (`font-sans`, default):
    - **Role**: Highly legible clean sans-serif typeface.
    - **Usage**: Standard interface text, settings toggles, and code parameters.
-3. **BlackChancery** (`font-medieval`):
+3. **Literata**:
+   - **Role**: Alternative literary serif with optical sizing.
+   - **Usage**: Optional global display or chat face.
+4. **BlackChancery** (`font-medieval`):
    - **Role**: Script calligraphy medieval typeface, bundled locally via `@font-face` (`blackchancery.ttf`).
    - **Usage**: Reserved exclusively for the main brand wordmark "The Bannered Mare".
+
+`useTypography.ts` persists a global type-pair preset, an independent chat-font override, and whether model narration marked as actions is italicized. `index.html` restores the matching data attributes before paint; `main.css` maps those attributes to `--app-ui-font`, `--app-display-font`, and `--app-chat-font`.
 
 
 ## 4. Theme State (`useTheme`)
