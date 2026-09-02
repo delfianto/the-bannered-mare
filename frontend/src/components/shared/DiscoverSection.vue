@@ -25,35 +25,38 @@ const filtered = computed(() => {
 
 <template>
   <section>
-    <div class="mb-4 flex items-center justify-between">
-      <h2 class="font-cinzel text-lg font-semibold tracking-wide text-foreground">
-        {{ $t("home.discoverCharacters") }}
-      </h2>
-      <RouterLink
-        v-if="browseAllTo"
-        :to="browseAllTo"
-        class="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-      >
-        {{ $t("home.browseAll") }}
-        <AppIcon name="i-lucide-arrow-right" class="size-3.5" />
-      </RouterLink>
-    </div>
-
-    <!-- Category pills -->
-    <div class="scrollbar-hide mb-5 flex items-center gap-2 overflow-x-auto pb-1">
-      <button
-        v-for="cat in categories"
-        :key="cat"
-        class="relative rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200"
-        :class="
-          activeCategory === cat
-            ? 'bg-primary text-primary-content'
-            : 'border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground'
-        "
-        @click="activeCategory = cat"
-      >
-        {{ cat }}
-      </button>
+    <div class="mb-6 flex flex-col gap-4 border-b pb-4 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="mb-2 text-2xs font-semibold tracking-[0.2em] text-primary uppercase">The cast</p>
+        <h2 class="font-cinzel text-2xl font-semibold tracking-wide text-foreground">
+          {{ $t("home.discoverCharacters") }}
+        </h2>
+      </div>
+      <div class="flex min-w-0 items-center gap-5">
+        <div class="scrollbar-hide flex min-w-0 items-center gap-5 overflow-x-auto">
+          <button
+            v-for="cat in categories.slice(0, 5)"
+            :key="cat"
+            class="shrink-0 text-2xs font-semibold tracking-wider uppercase transition-colors"
+            :class="
+              activeCategory === cat
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            "
+            @click="activeCategory = cat"
+          >
+            {{ cat }}
+          </button>
+        </div>
+        <RouterLink
+          v-if="browseAllTo"
+          :to="browseAllTo"
+          class="inline-flex shrink-0 items-center gap-1 text-2xs font-semibold tracking-wider text-muted-foreground uppercase transition-colors hover:text-primary"
+        >
+          {{ $t("home.browseAll") }}
+          <AppIcon name="i-lucide-arrow-right" class="size-3.5" />
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Loading -->
@@ -62,12 +65,14 @@ const filtered = computed(() => {
     </div>
 
     <!-- Character Grid -->
-    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2">
       <CharacterCard
         v-for="(character, i) in filtered"
         :key="character.id"
         :character="character"
         :index="i"
+        :featured="i === 0"
+        :class="i > 4 ? 'lg:hidden' : ''"
       />
     </div>
   </section>

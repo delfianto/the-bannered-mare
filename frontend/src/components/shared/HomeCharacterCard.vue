@@ -7,6 +7,7 @@ type Character = components["schemas"]["CharacterResponse"];
 const props = defineProps<{
   character: Character;
   index: number;
+  featured?: boolean;
 }>();
 
 function avatarSrc(): string {
@@ -17,23 +18,25 @@ function avatarSrc(): string {
 <template>
   <RouterLink
     :to="{ name: 'character-detail', params: { id: character.id } }"
-    class="group relative aspect-3/4 animate-fade-in-up cursor-pointer overflow-hidden rounded-xl shadow-[0_2px_12px_var(--color-foreground)/0.06] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.18]"
+    class="group relative min-h-72 animate-fade-in-up cursor-pointer overflow-hidden rounded-sm bg-base-300 shadow-[0_2px_12px_var(--color-foreground)/0.06] transition-all duration-300 hover:shadow-[0_8px_32px_var(--color-primary)/0.18]"
+    :class="featured ? 'sm:col-span-2 lg:row-span-2 lg:min-h-145' : 'aspect-3/4 lg:min-h-0'"
     :style="{ animationDelay: `${index * 60}ms` }"
   >
     <!-- Character portrait -->
     <img
       :src="avatarSrc()"
       :alt="character.name"
-      class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+      class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
     />
 
     <!-- Gradient overlay -->
     <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
 
     <!-- Bottom info overlay -->
-    <div class="absolute inset-x-0 bottom-0 p-4">
+    <div class="absolute inset-x-0 bottom-0 p-5" :class="featured ? 'sm:p-8' : ''">
       <h3
-        class="mb-1.5 font-cinzel text-base font-semibold text-white drop-shadow-lg"
+        class="mb-1.5 font-cinzel font-semibold text-white drop-shadow-lg"
+        :class="featured ? 'text-2xl sm:text-3xl' : 'text-base'"
         style="letter-spacing: 0.02em"
       >
         {{ character.name }}

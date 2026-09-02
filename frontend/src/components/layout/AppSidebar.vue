@@ -15,14 +15,56 @@ const { collapsed, toggle: toggleSidebar } = useSidebar();
 const { sessions } = useBookmarks();
 
 const navItems = [
-  { id: "home", to: "/", label: t("nav.home"), icon: "i-lucide-home" },
-  { id: "chats", to: "/chats", label: t("nav.sessions"), icon: "i-lucide-scroll-text" },
-  { id: "characters", to: "/characters", label: t("nav.discover"), icon: "i-lucide-compass" },
-  { id: "lorebooks", to: "/lorebooks", label: t("nav.lorebooks"), icon: "i-lucide-book-open" },
-  { id: "memory", to: "/memory", label: t("nav.dataBank"), icon: "i-lucide-database" },
-  { id: "bookmarks", to: "/bookmarks", label: t("nav.bookmarks"), icon: "i-lucide-bookmark" },
-  { id: "connections", to: "/connections", label: t("nav.connections"), icon: "i-lucide-cable" },
-  { id: "profiles", to: "/loadouts", label: t("nav.profiles"), icon: "i-lucide-layers" },
+  { id: "home", to: "/", label: t("nav.home"), icon: "i-lucide-home", chapter: "I" },
+  {
+    id: "chats",
+    to: "/chats",
+    label: t("nav.sessions"),
+    icon: "i-lucide-scroll-text",
+    chapter: "II",
+  },
+  {
+    id: "characters",
+    to: "/characters",
+    label: t("nav.discover"),
+    icon: "i-lucide-compass",
+    chapter: "III",
+  },
+  {
+    id: "lorebooks",
+    to: "/lorebooks",
+    label: t("nav.lorebooks"),
+    icon: "i-lucide-book-open",
+    chapter: "IV",
+  },
+  {
+    id: "memory",
+    to: "/memory",
+    label: t("nav.dataBank"),
+    icon: "i-lucide-database",
+    chapter: "V",
+  },
+  {
+    id: "bookmarks",
+    to: "/bookmarks",
+    label: t("nav.bookmarks"),
+    icon: "i-lucide-bookmark",
+    chapter: "VI",
+  },
+  {
+    id: "connections",
+    to: "/connections",
+    label: t("nav.connections"),
+    icon: "i-lucide-cable",
+    chapter: "VII",
+  },
+  {
+    id: "profiles",
+    to: "/loadouts",
+    label: t("nav.profiles"),
+    icon: "i-lucide-layers",
+    chapter: "VIII",
+  },
 ];
 
 function isActive(to: string) {
@@ -42,14 +84,17 @@ const favorites = computed(() => {
 
 <template>
   <aside
-    class="hidden h-screen flex-col overflow-hidden border-r bg-base-200 transition-[width,min-width] duration-300 ease-in-out lg:flex"
-    :class="collapsed ? 'w-17 min-w-17' : 'w-65 min-w-65'"
+    class="hidden h-screen flex-col overflow-hidden border-r bg-base-100 transition-[width,min-width] duration-300 ease-in-out lg:flex"
+    :class="collapsed ? 'w-18 min-w-18' : 'w-72 min-w-72'"
   >
     <!-- Brand Mark -->
-    <div class="pt-6 pb-4" :class="collapsed ? 'px-3' : 'px-6'">
-      <div class="flex items-center justify-center gap-2.5">
+    <div class="pt-7 pb-5" :class="collapsed ? 'px-3' : 'px-8'">
+      <div
+        class="flex items-center"
+        :class="collapsed ? 'justify-center' : 'justify-between gap-3'"
+      >
         <button
-          class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary transition-opacity hover:opacity-80"
+          class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary transition-all hover:scale-105 hover:opacity-90"
           :title="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           :aria-label="$t(collapsed ? 'nav.expandSidebar' : 'nav.collapseSidebar')"
           @click="toggleSidebar"
@@ -58,36 +103,42 @@ const favorites = computed(() => {
         </button>
         <h1
           v-if="!collapsed"
-          class="overflow-hidden font-cinzel text-xl font-semibold tracking-wider whitespace-nowrap text-foreground"
+          class="overflow-hidden font-medieval text-xl whitespace-nowrap text-foreground"
         >
           {{ APP_INFO.name }}
         </h1>
       </div>
     </div>
 
-    <!-- Navigation: Grid (expanded) / Vertical icons (collapsed) -->
-    <nav class="px-3" :class="collapsed ? 'mt-2' : 'mt-1'">
-      <div v-if="!collapsed" class="grid grid-cols-2 gap-1.5">
-        <RouterLink
-          v-for="(item, i) in navItems"
-          :key="item.id"
-          :to="item.to"
-          class="relative flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-center transition-all duration-200"
-          :class="[
-            navItems.length % 2 !== 0 && i === navItems.length - 1 ? 'col-span-2' : '',
-            isActive(item.to)
-              ? 'bg-base-300 text-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-base-300/50 hover:text-foreground',
-          ]"
-        >
-          <span
-            v-if="isActive(item.to)"
-            class="absolute top-1/2 left-1.5 h-4 w-0.75 -translate-y-1/2 rounded-full bg-primary"
-          />
-          <AppIcon :name="item.icon" class="size-5" />
-          <span class="text-2xs font-medium tracking-wide">{{ item.label }}</span>
-        </RouterLink>
-      </div>
+    <!-- Navigation: editorial contents (expanded) / icon rail (collapsed) -->
+    <nav :class="collapsed ? 'mt-2 px-3' : 'mt-2 px-8'">
+      <template v-if="!collapsed">
+        <div class="mb-5 flex items-center gap-3 border-b pb-3">
+          <span class="font-cinzel text-2xs font-semibold tracking-[0.2em] text-primary uppercase"
+            >Contents</span
+          >
+          <span class="h-px flex-1 bg-border" />
+        </div>
+        <div class="space-y-1">
+          <RouterLink
+            v-for="item in navItems"
+            :key="item.id"
+            :to="item.to"
+            class="group relative flex items-center gap-3 py-2.5 text-sm transition-colors duration-200"
+            :class="
+              isActive(item.to) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+            "
+          >
+            <span
+              v-if="isActive(item.to)"
+              class="absolute top-1/2 -left-4 size-1.5 -translate-y-1/2 rounded-full bg-primary"
+            />
+            <AppIcon :name="item.icon" class="size-4 shrink-0" />
+            <span class="flex-1 font-medium tracking-wide">{{ item.label }}</span>
+            <span class="font-cinzel text-3xs text-muted-foreground">{{ item.chapter }}</span>
+          </RouterLink>
+        </div>
+      </template>
 
       <div v-else class="space-y-0.5">
         <AppTooltip
@@ -99,16 +150,14 @@ const favorites = computed(() => {
         >
           <RouterLink
             :to="item.to"
-            class="relative flex w-full items-center justify-center rounded-lg py-2.5 transition-colors duration-200"
+            class="relative flex w-full items-center justify-center py-2.5 transition-colors duration-200"
             :class="
-              isActive(item.to)
-                ? 'text-foreground bg-base-300'
-                : 'text-muted-foreground hover:text-foreground hover:bg-base-300/50'
+              isActive(item.to) ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
             "
           >
             <span
               v-if="isActive(item.to)"
-              class="absolute top-1/2 left-0 h-5 w-0.75 -translate-y-1/2 rounded-full bg-primary"
+              class="absolute top-1/2 -left-3 h-5 w-0.75 -translate-y-1/2 rounded-full bg-primary"
             />
             <AppIcon :name="item.icon" class="size-5" />
           </RouterLink>
@@ -117,7 +166,7 @@ const favorites = computed(() => {
     </nav>
 
     <!-- Divider -->
-    <div v-if="favorites.length > 0" class="m-3 h-px bg-border" />
+    <div v-if="favorites.length > 0 && collapsed" class="m-3 h-px bg-border" />
 
     <!-- Favorites -->
     <div
@@ -125,37 +174,37 @@ const favorites = computed(() => {
       class="flex-1 overflow-y-auto"
       :class="collapsed ? 'px-2' : 'px-3'"
     >
-      <p
-        v-if="!collapsed"
-        class="mb-2.5 px-3 text-2xs font-semibold tracking-widest text-muted-foreground uppercase"
-      >
-        {{ $t("nav.favorites") }}
-      </p>
+      <div v-if="!collapsed" class="mb-4 flex items-center gap-3 border-b pb-3">
+        <p
+          class="font-cinzel text-2xs font-semibold tracking-[0.2em] text-muted-foreground uppercase"
+        >
+          {{ $t("nav.favorites") }}
+        </p>
+        <span class="h-px flex-1 bg-border" />
+      </div>
 
       <div class="space-y-0.5">
         <!-- Expanded: list style with avatar + name -->
         <template v-if="!collapsed">
-          <RouterLink
-            v-for="char in favorites"
-            :key="char.id"
-            :to="char.chatPath"
-            class="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-base-300/50"
-            :class="route.path === char.chatPath ? 'bg-base-300' : ''"
-          >
-            <div class="relative shrink-0">
-              <img
-                :src="char.avatar"
-                :alt="char.name"
-                class="size-10 rounded-full object-cover ring-1 ring-border"
-              />
-              <span
-                class="absolute right-0 bottom-0 size-2.5 rounded-full border-2 border-base-200 bg-success"
-              />
-            </div>
-            <p class="truncate text-sm font-medium text-foreground">
-              {{ char.name }}
-            </p>
-          </RouterLink>
+          <div class="flex flex-wrap gap-3 px-1">
+            <AppTooltip v-for="char in favorites" :key="char.id" :text="char.name" side="top">
+              <RouterLink :to="char.chatPath" class="group relative block">
+                <img
+                  :src="char.avatar"
+                  :alt="char.name"
+                  class="size-9 rounded-full object-cover ring-1 transition-all"
+                  :class="
+                    route.path === char.chatPath
+                      ? 'ring-primary'
+                      : 'ring-border group-hover:ring-primary/50'
+                  "
+                />
+                <span
+                  class="absolute right-0 bottom-0 size-2 rounded-full border border-base-100 bg-success"
+                />
+              </RouterLink>
+            </AppTooltip>
+          </div>
         </template>
 
         <!-- Collapsed: stacked avatars -->
@@ -191,7 +240,7 @@ const favorites = computed(() => {
     </div>
 
     <!-- Footer: Settings + Theme Toggle -->
-    <div class="space-y-0.5 border-t px-2 py-3">
+    <div class="space-y-0.5 border-t px-2 py-4">
       <AppTooltip :text="$t('nav.settings')" side="right" :disabled="!collapsed" class="block">
         <RouterLink
           to="/settings"
