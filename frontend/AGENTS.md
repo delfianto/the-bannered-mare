@@ -276,9 +276,13 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 
 **Fonts**
 
-- **Newsreader** (`font-story`): display headings, section titles, character names, narrative prose
+- **Newsreader** (`font-story`, default): display headings, section titles, and character names
+- **Newsreader** (`font-chat`, default): chat prose; independently configurable in Interface settings
 - **Inter** (`font-sans`, default): body text, UI labels, controls
+- **Literata**: optional literary display/chat face selected through Interface settings
 - **BlackChancery** (`font-medieval`): brand wordmark "The Bannered Mare" only
+
+The `useTypography()` composable persists the global type pairing, chat-font override, and narrative-italics preference. These are applied through `data-typography` / `data-chat-font` attributes and CSS variables before paint in `index.html`; do not hard-code a font family in components.
 
 **Colors** — DaisyUI themes `tbm-<palette>` / `tbm-<palette>-dark` (`src/assets/themes.css`), switched by `useTheme()` via the `data-theme` attribute on `<html>` (6 palettes × light/dark). Use DaisyUI token utilities: `bg-base-100/200/300` (page → raised → recessed surfaces), `text-base-content`, `bg-primary` / `text-primary-content`, `text-error`; plus the retained `text-muted-foreground`, `text-foreground` (aliased to base-content), and bare `border`. Don't reintroduce the old shadcn names (`bg-card`, `bg-muted`, `bg-accent`, `text-destructive`).
 

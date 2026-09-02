@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import DOMPurify from "dompurify";
 import { computed } from "vue";
+import { useTypography } from "@/composables/useTypography";
 
 const props = defineProps<{ content: string }>();
+const { narrativeItalics } = useTypography();
 
 interface TextNode {
   type: "action" | "dialogue" | "text" | "break" | "gfx";
@@ -123,7 +125,7 @@ const nodes = computed<TextNode[]>(() => {
 </script>
 
 <template>
-  <div class="font-story text-story leading-[1.75] whitespace-pre-wrap">
+  <div class="font-chat text-story leading-[1.75] whitespace-pre-wrap">
     <template v-for="node in nodes" :key="node.key">
       <div v-if="node.type === 'break'" class="h-3" />
       <!-- GFX blocks: model-drawn HTML cards, sanitized (nh3 server-side +
@@ -138,7 +140,12 @@ const nodes = computed<TextNode[]>(() => {
       <!-- Narration and explicit *actions* stay upright for comfortable
            long-form reading. Spoken "dialogue" remains full-strength and a
            touch heavier, preserving the distinction without italic paragraphs. -->
-      <span v-else-if="node.type === 'action'" class="text-muted-foreground">{{ node.text }}</span>
+      <span
+        v-else-if="node.type === 'action'"
+        class="text-muted-foreground"
+        :class="{ italic: narrativeItalics }"
+        >{{ node.text }}</span
+      >
       <span v-else-if="node.type === 'dialogue'" class="font-medium text-dialogue">{{
         node.text
       }}</span>

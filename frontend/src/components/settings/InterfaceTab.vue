@@ -6,6 +6,13 @@ import { useCustomTheme } from "@/composables/useCustomTheme";
 import { useFontSize, MIN_FONT_SIZE, MAX_FONT_SIZE } from "@/composables/useFontSize";
 import { useChatWidth, CHAT_WIDTH_ORDER, type ChatWidth } from "@/composables/useChatWidth";
 import { useSuggestionSettings } from "@/composables/useSuggestionSettings";
+import {
+  useTypography,
+  TYPOGRAPHY_PRESETS,
+  CHAT_FONTS,
+  type TypographyPreset,
+  type ChatFont,
+} from "@/composables/useTypography";
 import { COLOR_PRESETS } from "@/constants/colorPresets";
 import { SUPPORTED_LOCALES, setLocale } from "@/i18n";
 import ThemeEditor from "./ThemeEditor.vue";
@@ -53,7 +60,8 @@ function onSliderUp() {
 }
 const { chatWidth, setChatWidth } = useChatWidth();
 const { replySuggestionsEnabled, autoGenerateTones } = useSuggestionSettings();
-const { locale } = useI18n();
+const { typographyPreset, chatFont, narrativeItalics, setNarrativeItalics } = useTypography();
+const { locale, t } = useI18n();
 
 const chatWidthLabels: Record<ChatWidth, string> = {
   narrow: "chatWidthNarrow",
@@ -61,6 +69,35 @@ const chatWidthLabels: Record<ChatWidth, string> = {
   wide: "chatWidthWide",
   full: "chatWidthFull",
 };
+
+const typographyPresetLabels: Record<TypographyPreset, string> = {
+  storybook: "typographyStorybook",
+  literary: "typographyLiterary",
+  modern: "typographyModern",
+  system: "typographySystem",
+};
+
+const chatFontLabels: Record<ChatFont, string> = {
+  match: "chatFontMatch",
+  newsreader: "chatFontNewsreader",
+  literata: "chatFontLiterata",
+  inter: "chatFontInter",
+  georgia: "chatFontGeorgia",
+};
+
+const typographyOptions = computed(() =>
+  TYPOGRAPHY_PRESETS.map((value) => ({
+    value,
+    label: t(`settings.interface.${typographyPresetLabels[value]}`),
+  })),
+);
+
+const chatFontOptions = computed(() =>
+  CHAT_FONTS.map((value) => ({
+    value,
+    label: t(`settings.interface.${chatFontLabels[value]}`),
+  })),
+);
 
 const currentLocale = computed({
   get: () => locale.value,
@@ -250,6 +287,111 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
         </div>
       </section>
     </div>
+
+    <!-- Typography — global pairing, chat override, and narrative treatment -->
+    <section>
+      <h3
+        class="mb-3 font-story text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+      >
+        {{ $t("settings.interface.typography") }}
+      </h3>
+      <div class="rounded-xl border bg-base-200/50 p-5">
+        <div class="grid gap-5 lg:grid-cols-3">
+          <div class="flex items-center justify-between gap-4 lg:block">
+            <div class="mb-0 flex items-center gap-3 lg:mb-3">
+              <AppIcon name="i-lucide-type" class="size-5 shrink-0 text-primary" />
+              <div>
+                <p class="text-sm font-medium text-foreground">
+                  {{ $t("settings.interface.globalTypography") }}
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {{ $t("settings.interface.globalTypographyDescription") }}
+                </p>
+              </div>
+            </div>
+            <SelectMenu
+              v-model="typographyPreset"
+              :items="typographyOptions"
+              value-key="value"
+              :search-input="false"
+            >
+              <button
+                class="flex h-10 min-w-44 items-center justify-between gap-2 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 lg:w-full"
+              >
+                {{ typographyOptions.find((option) => option.value === typographyPreset)?.label }}
+                <AppIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
+              </button>
+            </SelectMenu>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 lg:block">
+            <div class="mb-0 flex items-center gap-3 lg:mb-3">
+              <AppIcon name="i-lucide-book-open" class="size-5 shrink-0 text-primary" />
+              <div>
+                <p class="text-sm font-medium text-foreground">
+                  {{ $t("settings.interface.chatTypeface") }}
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {{ $t("settings.interface.chatTypefaceDescription") }}
+                </p>
+              </div>
+            </div>
+            <SelectMenu
+              v-model="chatFont"
+              :items="chatFontOptions"
+              value-key="value"
+              :search-input="false"
+            >
+              <button
+                class="flex h-10 min-w-44 items-center justify-between gap-2 rounded-lg border bg-base-300/40 px-3 text-sm text-foreground transition-all outline-none hover:border-muted-foreground/30 lg:w-full"
+              >
+                {{ chatFontOptions.find((option) => option.value === chatFont)?.label }}
+                <AppIcon name="i-lucide-chevron-down" class="size-3.5 text-muted-foreground" />
+              </button>
+            </SelectMenu>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 lg:block">
+            <div class="mb-0 flex items-center gap-3 lg:mb-3">
+              <AppIcon name="i-lucide-drama" class="size-5 shrink-0 text-primary" />
+              <div>
+                <p class="text-sm font-medium text-foreground">
+                  {{ $t("settings.interface.narrativeItalics") }}
+                </p>
+                <p class="text-xs text-muted-foreground">
+                  {{ $t("settings.interface.narrativeItalicsDescription") }}
+                </p>
+              </div>
+            </div>
+            <AppToggle
+              :model-value="narrativeItalics"
+              :aria-label="$t('settings.interface.narrativeItalics')"
+              @change="setNarrativeItalics"
+            />
+          </div>
+        </div>
+
+        <div class="mt-5 border-t pt-5">
+          <div class="rounded-lg border bg-base-100/60 px-5 py-4">
+            <p class="font-sans text-3xs font-semibold tracking-[0.16em] text-primary uppercase">
+              {{ $t("settings.interface.typographyPreview") }}
+            </p>
+            <p class="mt-1 font-story text-xl font-semibold text-foreground">
+              {{ $t("settings.interface.typographyPreviewTitle") }}
+            </p>
+            <p
+              class="mt-2 font-chat text-story leading-[1.75] text-muted-foreground"
+              :class="{ italic: narrativeItalics }"
+            >
+              {{ $t("settings.interface.typographyPreviewNarration") }}
+            </p>
+            <p class="font-chat text-story leading-[1.75] font-medium text-dialogue">
+              {{ $t("settings.interface.typographyPreviewDialogue") }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Color Scheme — full width below, room for many themes -->
     <section>

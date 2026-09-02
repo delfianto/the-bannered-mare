@@ -51,9 +51,11 @@ Atmospheric additions must be derived from these tokens using opacity, color-mix
 
 ## Typography
 
-- Newsreader: page titles, chapter markers, story titles, character names, section headings, and long-form chat prose.
+- Newsreader: the default for page titles, chapter markers, story titles, character names, section headings, and long-form chat prose.
+- Literata: an optional literary alternative for display and chat prose.
 - Inter: navigation, controls, metadata, summaries, form labels, and compact utility copy.
 - BlackChancery: brand wordmark only.
+- Typography is user-configurable: global type-pair presets and a separate chat override must preserve this hierarchy, while narrative italics default to off for readability.
 - Editorial contrast is encouraged: large display titles paired with tiny uppercase catalog labels.
 - Long prose must use comfortable measure (roughly 60–78 characters), generous line-height, and stable rhythm.
 - Never use all caps for paragraph-length text.
