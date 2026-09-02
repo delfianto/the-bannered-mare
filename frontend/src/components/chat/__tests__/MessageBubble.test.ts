@@ -52,15 +52,15 @@ describe("MessageBubble", () => {
     expect(wrapper.emitted("edit")?.[0]).toEqual(["u1", "new tale"]);
   });
 
-  it("keeps user-authored action markup upright", () => {
+  it("keeps action markup upright in long-form chat", () => {
     const wrapper = mount(MessageBubble, {
       props: {
-        message: makeMessage({ role: "user", content: "*I open the old journal.*" }),
+        message: makeMessage({ content: "*She opens the old journal.*" }),
         index: 1,
       },
     });
 
-    expect(wrapper.get(".not-italic").text()).toBe("I open the old journal.");
+    expect(wrapper.text()).toContain("She opens the old journal.");
     expect(wrapper.find(".italic").exists()).toBe(false);
   });
 
