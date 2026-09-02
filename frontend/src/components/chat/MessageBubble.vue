@@ -184,7 +184,7 @@ const userActions = [
         <QuillTypingIndicator v-else-if="isPending" :character-name="characterName" />
 
         <!-- Normal display -->
-        <NarrativeText v-else :content="message.content" />
+        <NarrativeText v-else :content="message.content" :italicize-actions="!isUser" />
       </div>
 
       <!-- Bottom row: actions + alt counter + timestamp -->

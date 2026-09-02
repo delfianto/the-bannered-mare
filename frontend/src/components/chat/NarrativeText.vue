@@ -2,7 +2,13 @@
 import DOMPurify from "dompurify";
 import { computed } from "vue";
 
-const props = defineProps<{ content: string }>();
+const props = withDefaults(
+  defineProps<{
+    content: string;
+    italicizeActions?: boolean;
+  }>(),
+  { italicizeActions: true },
+);
 
 interface TextNode {
   type: "action" | "dialogue" | "text" | "break" | "gfx";
@@ -138,9 +144,12 @@ const nodes = computed<TextNode[]>(() => {
       <!-- Explicit *actions* keep the stage-direction treatment. Ordinary
            narration stays upright for comfortable long-form reading, while
            spoken "dialogue" remains full-strength and a touch heavier. -->
-      <em v-else-if="node.type === 'action'" class="text-muted-foreground italic">{{
-        node.text
-      }}</em>
+      <span
+        v-else-if="node.type === 'action'"
+        class="text-muted-foreground"
+        :class="italicizeActions ? 'italic' : 'not-italic'"
+        >{{ node.text }}</span
+      >
       <span v-else-if="node.type === 'dialogue'" class="font-medium text-dialogue">{{
         node.text
       }}</span>
