@@ -52,6 +52,18 @@ describe("MessageBubble", () => {
     expect(wrapper.emitted("edit")?.[0]).toEqual(["u1", "new tale"]);
   });
 
+  it("keeps user-authored action markup upright", () => {
+    const wrapper = mount(MessageBubble, {
+      props: {
+        message: makeMessage({ role: "user", content: "*I open the old journal.*" }),
+        index: 1,
+      },
+    });
+
+    expect(wrapper.get(".not-italic").text()).toBe("I open the old journal.");
+    expect(wrapper.find(".italic").exists()).toBe(false);
+  });
+
   it("shows swipe arrows and emits `swipe` when alternatives exist", async () => {
     const wrapper = mount(MessageBubble, {
       props: {
