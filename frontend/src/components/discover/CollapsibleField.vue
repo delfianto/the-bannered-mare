@@ -33,7 +33,7 @@ const teaser = computed(() => props.content.replace(/\s+/g, " ").trim().slice(0,
     >
       <div class="flex min-w-0 items-center gap-2.5">
         <h3
-          class="shrink-0 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+          class="shrink-0 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ label }}
         </h3>

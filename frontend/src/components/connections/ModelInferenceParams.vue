@@ -146,7 +146,7 @@ const sections = computed(() => {
       <div class="flex items-center gap-2">
         <AppIcon :name="section.icon" class="size-4 text-muted-foreground" />
         <h3
-          class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+          class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
           {{ section.label }}
         </h3>

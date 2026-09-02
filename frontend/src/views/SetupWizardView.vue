@@ -208,7 +208,7 @@ function finish() {
   <div class="mx-auto max-w-2xl space-y-6 px-6 py-10">
     <!-- Header -->
     <div class="text-center">
-      <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
+      <h1 class="mb-1 font-story text-2xl font-bold tracking-wide text-foreground">
         {{ $t("setup.title") }}
       </h1>
       <p class="text-sm text-muted-foreground">
@@ -229,7 +229,7 @@ function finish() {
     <div v-if="step === 1" class="space-y-4">
       <div class="rounded-xl border bg-base-200/50 p-5">
         <h2
-          class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+          class="mb-3 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
           {{ $t("setup.localProviders") }}
         </h2>
@@ -281,7 +281,7 @@ function finish() {
 
       <div class="rounded-xl border bg-base-200/50 p-5">
         <h2
-          class="mb-3 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+          class="mb-3 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
         >
           {{ $t("setup.cloudProviders") }}
         </h2>
@@ -376,7 +376,7 @@ function finish() {
             @click="createPath = 'manual'"
           >
             <AppIcon name="i-lucide-sliders-horizontal" class="size-8 text-primary" />
-            <span class="font-cinzel text-sm font-semibold text-foreground">{{
+            <span class="font-story text-sm font-semibold text-foreground">{{
               $t("setup.createManually")
             }}</span>
             <span class="text-xs text-muted-foreground">{{ $t("setup.createManuallyHint") }}</span>
@@ -386,7 +386,7 @@ function finish() {
             @click="showImportModal = true"
           >
             <AppIcon name="i-lucide-upload" class="size-8 text-primary" />
-            <span class="font-cinzel text-sm font-semibold text-foreground">{{
+            <span class="font-story text-sm font-semibold text-foreground">{{
               $t("setup.importPreset")
             }}</span>
             <span class="text-xs text-muted-foreground">{{ $t("setup.importPresetHint") }}</span>
@@ -436,7 +436,7 @@ function finish() {
 
       <!-- Attach a model to finish a just-imported or previously-abandoned profile -->
       <div v-if="profileToFinish" class="rounded-xl border bg-base-200/50 p-6">
-        <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
+        <h2 class="mb-4 font-story text-sm font-semibold tracking-wide text-foreground">
           {{ $t("setup.attachModel") }}
         </h2>
         <p class="mb-4 text-xs text-muted-foreground">
@@ -562,7 +562,7 @@ function finish() {
       class="flex flex-col items-center gap-4 rounded-xl border bg-base-200/50 p-10 text-center"
     >
       <AppIcon name="i-lucide-circle-check" class="size-10 text-success" />
-      <h2 class="font-cinzel text-lg font-semibold text-foreground">{{ $t("setup.allSet") }}</h2>
+      <h2 class="font-story text-lg font-semibold text-foreground">{{ $t("setup.allSet") }}</h2>
       <p class="text-sm text-muted-foreground">
         {{ $t("setup.allSetHint") }}
       </p>

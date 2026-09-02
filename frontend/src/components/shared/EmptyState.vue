@@ -32,7 +32,7 @@ defineEmits<{
       </div>
     </div>
 
-    <h3 class="mb-2 font-cinzel text-lg font-semibold text-foreground">
+    <h3 class="mb-2 font-story text-lg font-semibold text-foreground">
       <slot name="title">
         {{ title || (hasFilters ? $t("characters.noFound") : $t("characters.libraryAwaits")) }}
       </slot>

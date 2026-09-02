@@ -261,7 +261,7 @@ function toggleMenu(identifier: string) {
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
               <AppIcon name="i-lucide-plug" class="size-3.5 text-primary-content" />
             </div>
-            <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+            <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
               {{ $t("connections.provider.editTitle") }}
             </h1>
           </div>
@@ -311,7 +311,7 @@ function toggleMenu(identifier: string) {
               <!-- Name -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.provider.name") }}
                 </span>
@@ -326,7 +326,7 @@ function toggleMenu(identifier: string) {
               <!-- Base URL -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.provider.baseUrl") }}
                 </span>
@@ -341,7 +341,7 @@ function toggleMenu(identifier: string) {
               <!-- Enabled toggle -->
               <div class="flex items-center justify-between">
                 <label
-                  class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.provider.enabled") }}
                 </label>
@@ -357,7 +357,7 @@ function toggleMenu(identifier: string) {
           <!-- API Key section -->
           <div class="rounded-xl border bg-base-200/50 p-5">
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.provider.apiKey") }}
             </h2>
@@ -388,7 +388,7 @@ function toggleMenu(identifier: string) {
             <div class="mb-4 flex items-center justify-between">
               <div>
                 <h2
-                  class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.provider.availableModels") }}
                 </h2>

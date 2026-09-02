@@ -28,7 +28,7 @@ const filtered = computed(() => {
     <div class="mb-6 flex flex-col gap-4 border-b pb-4 md:flex-row md:items-end md:justify-between">
       <div>
         <p class="mb-2 text-2xs font-semibold tracking-[0.2em] text-primary uppercase">The cast</p>
-        <h2 class="font-cinzel text-2xl font-semibold tracking-wide text-foreground">
+        <h2 class="font-story text-2xl font-semibold tracking-wide text-foreground">
           {{ $t("home.discoverCharacters") }}
         </h2>
       </div>

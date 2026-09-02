@@ -64,7 +64,7 @@ function formatLogTime(iso: string): string {
   <div class="p-4">
     <div class="mb-3 flex items-center justify-between">
       <span
-        class="font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+        class="font-story text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground"
       >
         {{ $t("chat.drawer.tabs.logs") }}
       </span>

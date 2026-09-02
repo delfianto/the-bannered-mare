@@ -176,7 +176,7 @@ onMounted(fetchAll);
       <!-- LLM Usage Stats -->
       <section>
         <h3
-          class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+          class="mb-3 font-story text-sm font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("settings.logs.llmUsage") }}
         </h3>

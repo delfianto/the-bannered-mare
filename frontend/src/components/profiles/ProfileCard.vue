@@ -23,7 +23,7 @@ defineEmits<{
   >
     <!-- Header -->
     <div class="mb-2 flex items-start justify-between gap-2">
-      <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+      <h3 class="font-story text-sm font-semibold tracking-wide text-foreground">
         {{ profile.name }}
       </h3>
       <div class="flex shrink-0 items-center gap-1.5">

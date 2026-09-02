@@ -43,7 +43,7 @@ const emit = defineEmits<{
             <th
               v-for="col in columns"
               :key="col.key"
-              class="px-4 py-2.5 font-cinzel text-3xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="px-4 py-2.5 font-story text-3xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               :class="col.thClass"
             >
               {{ col.label }}

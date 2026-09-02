@@ -94,7 +94,7 @@ onBeforeRouteLeave(async () => {
           <div class="flex size-6 items-center justify-center rounded-md bg-primary">
             <AppIcon name="i-lucide-puzzle" class="size-3.5 text-primary-content" />
           </div>
-          <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+          <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
             New Fragment
           </h1>
         </div>
@@ -123,7 +123,7 @@ onBeforeRouteLeave(async () => {
               <!-- Name -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   Name
                 </span>
@@ -138,7 +138,7 @@ onBeforeRouteLeave(async () => {
               <!-- Type -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   Type
                 </span>
@@ -154,7 +154,7 @@ onBeforeRouteLeave(async () => {
             <!-- Description -->
             <label class="block">
               <span
-                class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 Description
                 <span class="normal-case text-muted-foreground/60">(optional)</span>
@@ -170,7 +170,7 @@ onBeforeRouteLeave(async () => {
             <!-- Content -->
             <label class="block">
               <span
-                class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 Content
               </span>
@@ -187,7 +187,7 @@ onBeforeRouteLeave(async () => {
             <div class="flex items-center justify-between">
               <div class="min-w-0">
                 <span
-                  class="block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   Global
                 </span>

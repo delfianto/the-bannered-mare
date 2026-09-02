@@ -71,7 +71,7 @@ function timeAgo(dateStr: string): string {
     <!-- Info -->
     <div class="min-w-0 flex-1">
       <h3
-        class="truncate font-cinzel text-sm font-semibold text-foreground"
+        class="truncate font-story text-sm font-semibold text-foreground"
         style="letter-spacing: 0.02em"
       >
         {{ character.name }}

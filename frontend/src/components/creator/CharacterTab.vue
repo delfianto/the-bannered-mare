@@ -26,7 +26,7 @@ const emit = defineEmits<{
   <div class="animate-fade-in-up space-y-6">
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+        class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.identity") }}
       </h2>

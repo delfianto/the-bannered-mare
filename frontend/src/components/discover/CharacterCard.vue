@@ -76,7 +76,7 @@ function avatarSrc(): string {
     <!-- Bottom info overlay -->
     <div class="absolute inset-x-0 bottom-0 p-4">
       <h3
-        class="mb-0.5 font-cinzel text-base font-semibold text-white drop-shadow-lg"
+        class="mb-0.5 font-story text-base font-semibold text-white drop-shadow-lg"
         style="letter-spacing: 0.02em"
       >
         {{ character.name }}

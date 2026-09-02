@@ -11,7 +11,7 @@ import { APP_INFO } from "@/constants/appInfo";
       </div>
 
       <!-- App Name -->
-      <h2 class="font-cinzel text-2xl font-bold tracking-wider text-foreground">
+      <h2 class="font-story text-2xl font-bold tracking-wider text-foreground">
         {{ APP_INFO.name }}
       </h2>
 

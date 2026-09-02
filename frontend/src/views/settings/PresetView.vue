@@ -163,7 +163,7 @@ function isNumericValue(value: string): boolean {
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
               <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5 text-primary-content" />
             </div>
-            <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+            <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
               {{ $t("connections.preset.editTitle") }}
             </h1>
           </div>
@@ -219,7 +219,7 @@ function isNumericValue(value: string): boolean {
             <!-- Basic Info card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("common.basicInfo") }}
               </h2>
@@ -227,7 +227,7 @@ function isNumericValue(value: string): boolean {
                 <!-- Name -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.preset.name") }}
                   </span>
@@ -242,7 +242,7 @@ function isNumericValue(value: string): boolean {
                 <!-- Description -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.preset.description") }}
                   </span>
@@ -257,7 +257,7 @@ function isNumericValue(value: string): boolean {
                 <!-- Is Default toggle -->
                 <div class="flex items-center justify-between">
                   <label
-                    class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.preset.isDefault") }}
                   </label>
@@ -273,7 +273,7 @@ function isNumericValue(value: string): boolean {
             <!-- Parameters card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.preset.params") }}
               </h2>
@@ -323,7 +323,7 @@ function isNumericValue(value: string): boolean {
             <!-- Metadata card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.preset.metadata") }}
               </h2>

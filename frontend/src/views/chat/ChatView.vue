@@ -284,7 +284,7 @@ async function handleEditMessage(messageId: string, content: string) {
     <!-- Header -->
     <header class="shrink-0 animate-fade-in-up pb-4">
       <div>
-        <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+        <h1 class="font-story text-2xl font-bold tracking-wide text-foreground">
           {{ $t("chat.activeTales") || "Active Tales" }}
         </h1>
         <p class="mt-1 text-sm text-muted-foreground">Your active roleplay chat sessions.</p>
@@ -362,7 +362,7 @@ async function handleEditMessage(messageId: string, content: string) {
               <div class="h-px w-12 bg-border" />
               <div class="text-center">
                 <p
-                  class="font-cinzel text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+                  class="font-story text-xs font-semibold tracking-wider text-muted-foreground uppercase"
                 >
                   {{ activeSession.title || $t("chat.untitled") }}
                 </p>

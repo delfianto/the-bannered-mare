@@ -114,7 +114,7 @@ const favorites = computed(() => {
     <nav :class="collapsed ? 'mt-2 px-3' : 'mt-2 px-8'">
       <template v-if="!collapsed">
         <div class="mb-5 flex items-center gap-3 border-b pb-3">
-          <span class="font-cinzel text-2xs font-semibold tracking-[0.2em] text-primary uppercase"
+          <span class="font-story text-2xs font-semibold tracking-[0.2em] text-primary uppercase"
             >Contents</span
           >
           <span class="h-px flex-1 bg-border" />
@@ -135,7 +135,7 @@ const favorites = computed(() => {
             />
             <AppIcon :name="item.icon" class="size-4 shrink-0" />
             <span class="flex-1 font-medium tracking-wide">{{ item.label }}</span>
-            <span class="font-cinzel text-3xs text-muted-foreground">{{ item.chapter }}</span>
+            <span class="font-story text-3xs text-muted-foreground">{{ item.chapter }}</span>
           </RouterLink>
         </div>
       </template>
@@ -176,7 +176,7 @@ const favorites = computed(() => {
     >
       <div v-if="!collapsed" class="mb-4 flex items-center gap-3 border-b pb-3">
         <p
-          class="font-cinzel text-2xs font-semibold tracking-[0.2em] text-muted-foreground uppercase"
+          class="font-story text-2xs font-semibold tracking-[0.2em] text-muted-foreground uppercase"
         >
           {{ $t("nav.favorites") }}
         </p>

@@ -219,7 +219,7 @@ async function setDefault(personaId: string) {
         <!-- Info -->
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">
-            <p class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+            <p class="font-story text-sm font-semibold tracking-wide text-foreground">
               {{ persona.name }}
             </p>
             <button v-if="persona.is_default" class="cursor-default">

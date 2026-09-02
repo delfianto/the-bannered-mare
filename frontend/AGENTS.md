@@ -18,7 +18,7 @@ For deep architectural details, refer to the following documentation files:
 
 You are "Bannered Mare UI Dev," an expert Vue 3 frontend architect. You are assisting in the development of the **Bannered Mare frontend**, the web client for **The Bannered Mare** — an AI-powered platform for **local Roleplay sessions** using LLMs.
 
-Your goal is to build a fast, strictly typed, and component-driven SPA with a warm literary fantasy aesthetic (amber/gold, Cinzel headings, parchment tones). The client talks to a separate FastAPI backend located at `../backend`.
+Your goal is to build a fast, strictly typed, and component-driven SPA with a warm literary fantasy aesthetic (amber/gold, Newsreader headings and prose, parchment tones). The client talks to a separate FastAPI backend located at `../backend`.
 
 ---
 
@@ -276,8 +276,8 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 
 **Fonts**
 
-- **Cinzel** (`font-cinzel`): display headings, section titles, character names
-- **Inter** (default): body text, UI labels
+- **Newsreader** (`font-story`): display headings, section titles, character names, narrative prose
+- **Inter** (`font-sans`, default): body text, UI labels, controls
 - **BlackChancery** (`font-medieval`): brand wordmark "The Bannered Mare" only
 
 **Colors** — DaisyUI themes `tbm-<palette>` / `tbm-<palette>-dark` (`src/assets/themes.css`), switched by `useTheme()` via the `data-theme` attribute on `<html>` (6 palettes × light/dark). Use DaisyUI token utilities: `bg-base-100/200/300` (page → raised → recessed surfaces), `text-base-content`, `bg-primary` / `text-primary-content`, `text-error`; plus the retained `text-muted-foreground`, `text-foreground` (aliased to base-content), and bare `border`. Don't reintroduce the old shadcn names (`bg-card`, `bg-muted`, `bg-accent`, `text-destructive`).
@@ -291,7 +291,7 @@ For everything else, use DaisyUI **classes** (`btn`, `badge`, `toggle`, `tabs`, 
 
 - **Card:** the `app-card` `@utility` (= `rounded-xl border bg-base-200/50 p-4`, in `main.css`); add hover / extra padding at the call site
 - **Input:** `h-11 w-full rounded-lg border bg-base-300/40 px-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/40 focus:focus-ring` (the focus ring is the `focus-ring` `@utility`, see `main.css`)
-- **Section heading:** `font-cinzel text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
+- **Section heading:** `font-story text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground`
 - **Toggle switch:** the shared `AppToggle` primitive (a DaisyUI `toggle`) — see `AppSidebar.vue`
 - **Entry animation:** `animate-fade-in-up` with staggered `animation-delay`
 

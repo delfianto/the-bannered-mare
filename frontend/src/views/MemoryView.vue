@@ -169,7 +169,7 @@ function scopeBadgeClass(scope: string): string {
       <div class="flex items-start justify-between">
         <div>
           <div class="flex items-center gap-3">
-            <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
+            <h1 class="mb-1 font-story text-2xl font-bold tracking-wide text-foreground">
               {{ $t("memory.title") }}
             </h1>
           </div>
@@ -191,7 +191,7 @@ function scopeBadgeClass(scope: string): string {
     <div class="flex w-full flex-1 flex-col space-y-8">
       <!-- Inline Create/Edit Form -->
       <div v-if="showForm" class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
-        <h2 class="mb-4 font-cinzel text-sm font-semibold tracking-wide text-foreground">
+        <h2 class="mb-4 font-story text-sm font-semibold tracking-wide text-foreground">
           {{ editingId ? $t("memory.form.editEntry") : $t("memory.form.newEntry") }}
         </h2>
         <div class="space-y-4">
@@ -285,7 +285,7 @@ function scopeBadgeClass(scope: string): string {
             style="animation-delay: 30ms"
           >
             <h2
-              class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+              class="mb-3 font-story text-sm font-semibold tracking-widest text-muted-foreground uppercase"
             >
               {{ $t("memory.semanticSearch") }}
             </h2>
@@ -402,7 +402,7 @@ function scopeBadgeClass(scope: string): string {
             >
               <!-- Header -->
               <div class="mb-2 flex items-start justify-between gap-2">
-                <h3 class="font-cinzel text-sm font-semibold tracking-wide text-foreground">
+                <h3 class="font-story text-sm font-semibold tracking-wide text-foreground">
                   {{ entry.name }}
                 </h3>
                 <span

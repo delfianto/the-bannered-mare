@@ -79,7 +79,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
       <!-- Reading Section (text size + chat width) -->
       <section class="flex flex-col">
         <h3
-          class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+          class="mb-3 font-story text-sm font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("settings.interface.reading") }}
         </h3>
@@ -165,7 +165,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
       <!-- Behavior Section -->
       <section class="flex flex-col">
         <h3
-          class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+          class="mb-3 font-story text-sm font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("settings.interface.behavior") }}
         </h3>
@@ -254,7 +254,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
     <!-- Color Scheme — full width below, room for many themes -->
     <section>
       <h3
-        class="mb-3 font-cinzel text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+        class="mb-3 font-story text-sm font-semibold tracking-widest text-muted-foreground uppercase"
       >
         {{ $t("settings.interface.colorScheme") }}
       </h3>
@@ -346,7 +346,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
             <!-- Label -->
             <div class="text-center">
-              <p class="font-cinzel text-2xs font-semibold tracking-wide text-foreground">
+              <p class="font-story text-2xs font-semibold tracking-wide text-foreground">
                 {{ preset.name }}
               </p>
               <p class="text-4xs text-muted-foreground">{{ preset.description }}</p>
@@ -397,7 +397,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
 
             <!-- Label -->
             <div class="text-center">
-              <p class="font-cinzel text-2xs font-semibold tracking-wide text-foreground">Custom</p>
+              <p class="font-story text-2xs font-semibold tracking-wide text-foreground">Custom</p>
               <p class="text-4xs text-muted-foreground">Your own palette</p>
             </div>
           </button>

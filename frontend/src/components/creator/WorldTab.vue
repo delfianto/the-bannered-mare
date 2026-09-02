@@ -46,7 +46,7 @@ function handleImport(e: Event) {
   <div class="animate-fade-in-up space-y-6">
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+        class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.worldSetting") }}
       </h2>
@@ -81,7 +81,7 @@ function handleImport(e: Event) {
           :class="lorebookOpen ? 'rotate-90' : ''"
         />
         <AppIcon name="i-lucide-book-open" class="size-3.5" />
-        <span class="font-cinzel text-2xs tracking-[0.08em] uppercase">{{
+        <span class="font-story text-2xs tracking-[0.08em] uppercase">{{
           $t("characters.form.lorebook")
         }}</span>
         <span class="ml-auto text-xs text-muted-foreground">
@@ -131,7 +131,7 @@ function handleImport(e: Event) {
           :class="advancedOpen ? 'rotate-90' : ''"
         />
         <AppIcon name="i-lucide-sliders-horizontal" class="size-3.5" />
-        <span class="font-cinzel text-2xs tracking-[0.08em] uppercase">{{
+        <span class="font-story text-2xs tracking-[0.08em] uppercase">{{
           $t("characters.form.advanced")
         }}</span>
       </button>
@@ -157,7 +157,7 @@ function handleImport(e: Event) {
     <!-- Import / Export -->
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+        class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.importExport") }}
       </h2>

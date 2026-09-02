@@ -101,7 +101,7 @@ function avatarSrc(chat: Chat): string {
               {{ timeAgo(session.updated_at) }}
             </span>
           </div>
-          <p class="mt-0.5 truncate font-cinzel text-2xs text-primary/80">
+          <p class="mt-0.5 truncate font-story text-2xs text-primary/80">
             {{ session.title || $t("chat.untitled") }}
           </p>
           <p

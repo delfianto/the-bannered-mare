@@ -51,7 +51,7 @@ function genderLabel(): string {
       </div>
 
       <div class="text-center">
-        <h3 class="font-cinzel text-base font-semibold tracking-wide text-foreground">
+        <h3 class="font-story text-base font-semibold tracking-wide text-foreground">
           {{ fullCharacter.name }}
         </h3>
       </div>

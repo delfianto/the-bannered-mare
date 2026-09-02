@@ -28,7 +28,7 @@ const dialoguesOpen = ref(true);
   <div class="animate-fade-in-up space-y-6">
     <div>
       <h2
-        class="font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+        class="font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
       >
         {{ $t("characters.form.persona") }}
       </h2>
@@ -85,7 +85,7 @@ const dialoguesOpen = ref(true);
           class="size-4 transition-transform"
           :class="dialoguesOpen ? 'rotate-90' : ''"
         />
-        <span class="font-cinzel text-2xs tracking-[0.08em] uppercase">{{
+        <span class="font-story text-2xs tracking-[0.08em] uppercase">{{
           $t("characters.form.exampleDialogues")
         }}</span>
         <span class="ml-auto text-xs text-muted-foreground">

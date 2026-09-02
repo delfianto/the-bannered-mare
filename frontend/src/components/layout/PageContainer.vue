@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
       <slot name="header">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h1 class="mb-1 font-cinzel text-2xl font-bold tracking-wide text-foreground">
+            <h1 class="mb-1 font-story text-2xl font-bold tracking-wide text-foreground">
               {{ title }}
             </h1>
             <p v-if="subtitle" class="text-sm text-muted-foreground">

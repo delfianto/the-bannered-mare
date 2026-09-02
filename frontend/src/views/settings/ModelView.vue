@@ -266,7 +266,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
               <AppIcon name="i-lucide-cpu" class="size-3.5 text-primary-content" />
             </div>
-            <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+            <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
               {{ $t("connections.model.editTitle") }}
             </h1>
           </div>
@@ -322,7 +322,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
             <!-- Identity card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.model.identity") }}
               </h2>
@@ -330,7 +330,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                 <!-- Display name -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.model.name") }}
                   </span>
@@ -345,7 +345,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                 <!-- Original identifier (provider-independent identity, derived) -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.model.originalIdentifier") }}
                   </span>
@@ -363,7 +363,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
                 <!-- Model Family -->
                 <label class="block">
                   <span
-                    class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                    class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                   >
                     {{ $t("connections.model.family") }}
                   </span>
@@ -386,7 +386,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
             <!-- Routes card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-1 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-1 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.model.routes") }}
               </h2>
@@ -464,7 +464,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
               <!-- Add route -->
               <div class="mt-4 border-t border-border/50 pt-4">
                 <span
-                  class="mb-2 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-2 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.model.addRoute") }}
                 </span>
@@ -522,7 +522,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
             <!-- Inference Parameters card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.model.inferenceParams") }}
               </h2>
@@ -540,7 +540,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
             <!-- Metadata card -->
             <div class="rounded-xl border bg-base-200/50 p-5">
               <h2
-                class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
               >
                 {{ $t("connections.model.metadata") }}
               </h2>

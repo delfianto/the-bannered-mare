@@ -77,7 +77,7 @@ function roleLabel(role: string): string {
       <!-- Effective parameters -->
       <div>
         <h4
-          class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+          class="mb-2 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("chat.drawer.sessionParameters") }}
         </h4>
@@ -105,7 +105,7 @@ function roleLabel(role: string): string {
       <!-- Assembled prompt scaffolding -->
       <div>
         <h4
-          class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+          class="mb-2 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ $t("chat.drawer.sessionPrompt") }}
         </h4>

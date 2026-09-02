@@ -128,7 +128,7 @@ async function startTale() {
           <AppIcon name="i-lucide-arrow-left" class="size-4" />
           {{ $t("common.back") }}
         </button>
-        <h1 class="font-cinzel text-2xl font-bold tracking-wide text-foreground">
+        <h1 class="font-story text-2xl font-bold tracking-wide text-foreground">
           {{ character.name }}
         </h1>
       </div>
@@ -184,7 +184,7 @@ async function startTale() {
             <!-- Creator Notes / Tagline -->
             <div v-if="character.creator_notes">
               <h3
-                class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+                class="mb-2 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
               >
                 Tagline / Creator Notes
               </h3>
@@ -218,7 +218,7 @@ async function startTale() {
             <!-- First Message -->
             <div v-if="character.first_message">
               <h3
-                class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+                class="mb-2 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
               >
                 {{ $t("characters.detail.firstMessage") }}
               </h3>
@@ -230,7 +230,7 @@ async function startTale() {
             <!-- Example Dialogues -->
             <div v-if="character.example_dialogues?.length">
               <h3
-                class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+                class="mb-2 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
               >
                 {{ $t("characters.detail.exampleDialogues") }}
               </h3>
@@ -275,7 +275,7 @@ async function startTale() {
         <!-- Metadata Card -->
         <div class="animate-fade-in-up app-card" style="animation-delay: 120ms">
           <h3
-            class="mb-4 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+            class="mb-4 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
           >
             {{ $t("characters.detail.details") }}
           </h3>
@@ -312,7 +312,7 @@ async function startTale() {
         <!-- Start Tale Button -->
         <div class="animate-fade-in-up" style="animation-delay: 180ms">
           <button
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-cinzel text-sm font-semibold tracking-wide text-primary-content transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-60"
+            class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-story text-sm font-semibold tracking-wide text-primary-content transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-60"
             :disabled="creating"
             @click="startTale"
           >
@@ -332,7 +332,7 @@ async function startTale() {
           style="animation-delay: 240ms"
         >
           <h3
-            class="mb-2 font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+            class="mb-2 font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
           >
             {{ $t("characters.detail.postHistory") }}
           </h3>

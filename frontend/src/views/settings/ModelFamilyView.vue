@@ -133,7 +133,7 @@ function getParamRange(schema: unknown): string | null {
             <div class="flex size-6 items-center justify-center rounded-md bg-primary">
               <AppIcon name="i-lucide-layers" class="size-3.5 text-primary-content" />
             </div>
-            <h1 class="font-cinzel text-base font-semibold tracking-wider text-foreground">
+            <h1 class="font-story text-base font-semibold tracking-wider text-foreground">
               {{ $t("connections.family.editTitle") }}
             </h1>
           </div>
@@ -190,7 +190,7 @@ function getParamRange(schema: unknown): string | null {
               <!-- Name -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.family.name") }}
                 </span>
@@ -205,7 +205,7 @@ function getParamRange(schema: unknown): string | null {
               <!-- Family Identifier -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.family.identifier") }}
                 </span>
@@ -220,7 +220,7 @@ function getParamRange(schema: unknown): string | null {
               <!-- Description -->
               <label class="block">
                 <span
-                  class="mb-1.5 block font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+                  class="mb-1.5 block font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
                 >
                   {{ $t("connections.family.description") }}
                 </span>
@@ -237,7 +237,7 @@ function getParamRange(schema: unknown): string | null {
           <!-- Provider Types card -->
           <div class="rounded-xl border bg-base-200/50 p-5">
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.family.providerTypes") }}
             </h2>
@@ -261,7 +261,7 @@ function getParamRange(schema: unknown): string | null {
             class="rounded-xl border bg-base-200/50 p-5"
           >
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.family.capabilities") }}
             </h2>
@@ -310,7 +310,7 @@ function getParamRange(schema: unknown): string | null {
             class="rounded-xl border bg-base-200/50 p-5"
           >
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.family.parameterSchema") }}
             </h2>
@@ -354,7 +354,7 @@ function getParamRange(schema: unknown): string | null {
             class="rounded-xl border bg-base-200/50 p-5"
           >
             <h2
-              class="mb-4 font-cinzel text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
+              class="mb-4 font-story text-xs font-semibold tracking-[0.15em] text-muted-foreground uppercase"
             >
               {{ $t("connections.family.unsupportedParams") }}
             </h2>

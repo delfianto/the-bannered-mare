@@ -31,7 +31,7 @@ function toggle() {
       <div class="flex min-w-0 items-center gap-2.5">
         <AppIcon v-if="icon" :name="icon" class="size-4 shrink-0 text-muted-foreground" />
         <h3
-          class="truncate font-cinzel text-xs font-semibold tracking-widest text-muted-foreground uppercase"
+          class="truncate font-story text-xs font-semibold tracking-widest text-muted-foreground uppercase"
         >
           {{ title }}
         </h3>
