@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/": {
+      "targetKind": "existing-ui",
+      "projectId": "82dab29b-c502-4822-8347-a229c37cb4e3",
+      "designSystemPath": ".superdesign/design-system.md",
+      "baselineDraftId": "43689e5b-dda6-44b2-8013-944ce0b25dcb",
+      "activeDraftId": "43689e5b-dda6-44b2-8013-944ce0b25dcb",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "frontend/src/views/HomeView.vue",
+        "frontend/src/components/layout/AppShell.vue",
+        "frontend/src/components/layout/AppSidebar.vue",
+        "frontend/src/components/layout/PageContainer.vue",
+        "frontend/src/components/shared/SearchBar.vue",
+        "frontend/src/components/shared/ContinueTaleSection.vue",
+        "frontend/src/components/shared/DiscoverSection.vue",
+        "frontend/src/components/shared/HomeCharacterCard.vue",
+        "frontend/src/components/shared/SetupPromptBanner.vue",
+        "frontend/src/components/shared/EmptyState.vue",
+        "frontend/src/components/shared/AppIcon.vue",
+        "frontend/src/components/shared/icons.ts",
+        "frontend/src/assets/main.css",
+        "frontend/src/assets/themes.css"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "9d9d7269a8e9ee73146793d3cd538d2ddad25b97a0387e94441c412188b18aab",
+        "frontend/src/views/HomeView.vue": "f0f2dd3e35ead8c0d6fc2176a1d65a042e1bcbc88728e0c3a3e0ffb0ef130929",
+        "frontend/src/components/layout/AppShell.vue": "5b3a1ab89ab70775ce36b2da8bb8cbad593433c881021cdffaa75109f542eece",
+        "frontend/src/components/layout/AppSidebar.vue": "3b9a8e586ff2589ca15af8285c4f4d61c2d3ea34024c8440e46ad410db58782e",
+        "frontend/src/components/layout/PageContainer.vue": "220f529ee98b1cae0c5fb3cc574d11992e4e11a6da02ee04364766a1a697412a",
+        "frontend/src/components/shared/SearchBar.vue": "094d11b4dd64e326db304006b5be2be57ba9678b3a1c08e436fa33ca3a579857",
+        "frontend/src/components/shared/ContinueTaleSection.vue": "a83002017f93ece4a5257cae61714e770abdeab3126d239832feda2948e3bf07",
+        "frontend/src/components/shared/DiscoverSection.vue": "44b8299dfb7195d02f1ad450b94a2d518d621d2553b68bc4ad54b96d2e6c657e",
+        "frontend/src/components/shared/HomeCharacterCard.vue": "2e8c8e9f4cb4b0b3a8e30da5fcb57be502f97e2090aa094adfcf5cda064665b8",
+        "frontend/src/components/shared/SetupPromptBanner.vue": "3229f057ce7be5a4cbe4c53da6ee75d8910bc5afecca30e15c50634330e293da",
+        "frontend/src/components/shared/EmptyState.vue": "d0cb4af37abb02109896edcb05a80e54c64249a83c32790395ca48e0ee85d559",
+        "frontend/src/components/shared/AppIcon.vue": "bcf1d45fc6ba1869d720e420d94ba54f951111cada56677c2afcfa40c86a6120",
+        "frontend/src/components/shared/icons.ts": "24c7f3a59ea039cdc670916b97bc349e99d3e825b0c24239a3ce1a2fd40587e6",
+        "frontend/src/assets/main.css": "9052cc4e33beb8d7656d2defc9716314246bed8408448d5a1729d02bcbe6a728",
+        "frontend/src/assets/themes.css": "09058b7fcdcd3c5a348c71e6f6b920bde08819eaf68f9339b90d7c2c974605ec"
+      },
+      "referenceIds": [
+        "31cb6a51-d2be-42b6-acc7-2c8d178e7003",
+        "edb472fc-868c-4f3e-8754-da0333bce492"
+      ],
+      "components": [
+        {
+          "name": "AppSidebar",
+          "id": "6d97cbb1-1b2c-4edd-ad45-6d880cef78c8",
+          "sourcePath": "frontend/src/components/layout/AppSidebar.vue"
+        }
+      ],
+      "drafts": {
+        "43689e5b-dda6-44b2-8013-944ce0b25dcb": {
+          "title": "Current Home — Baseline",
+          "visualDirection": "faithful current home reproduction",
+          "currentVersion": 1
+        },
+        "c22f3194-b854-4e17-8b8e-3960c657aebf": {
+          "title": "Cinematic Tavern Archive",
+          "visualDirection": "image-led editorial archive with layered featured tale",
+          "parentDraftId": "43689e5b-dda6-44b2-8013-944ce0b25dcb",
+          "currentVersion": 1
+        },
+        "101ca5bb-5666-4a86-9f85-ef9d82be7c82": {
+          "title": "Living Storybook",
+          "visualDirection": "storybook contents rail and asymmetric literary composition",
+          "parentDraftId": "43689e5b-dda6-44b2-8013-944ce0b25dcb",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-09-02T17:17:03.000Z"
+    }
+  }
+}
