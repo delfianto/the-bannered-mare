@@ -54,7 +54,7 @@ dev = [
     "aiosqlite==0.22.1",
 
     # Code quality
-    "ruff==0.16.5",
+    "ruff==0.16.6",
     "basedpyright==1.39.10",
 
     # Type stubs
