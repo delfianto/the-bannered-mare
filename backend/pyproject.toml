@@ -54,8 +54,8 @@ dev = [
     "aiosqlite==0.22.1",
 
     # Code quality
-    "ruff==0.16.6",
-    "basedpyright==1.40.0",
+    "ruff==0.16.7",
+    "basedpyright==1.40.1",
 
     # Type stubs
     "types-aiofiles==25.1.0.20260518",
