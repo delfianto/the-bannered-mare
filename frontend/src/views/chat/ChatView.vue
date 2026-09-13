@@ -312,7 +312,7 @@ async function handleEditMessage(messageId: string, content: string) {
     />
 
     <!-- Main Chat Area -->
-    <div v-if="activeSession" class="flex flex-1 flex-col overflow-hidden">
+    <div v-if="activeSession" class="flex flex-1 flex-col overflow-hidden bg-base-100/25">
       <ChatHeader
         :character="activeSession.character"
         :session-title="activeSession.title || $t('chat.untitled')"

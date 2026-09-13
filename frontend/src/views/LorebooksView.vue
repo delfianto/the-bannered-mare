@@ -265,7 +265,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
   <!-- Split Sidebar/Detail layout when there are lorebooks -->
   <div v-else class="flex h-full overflow-hidden">
     <!-- Left: lorebook list -->
-    <div class="flex w-75 shrink-0 flex-col border-r">
+    <div class="flex w-75 shrink-0 flex-col border-r border-base-content/10 bg-base-100/30">
       <div class="flex items-center justify-between px-5 pt-6 pb-3">
         <h1 class="font-story text-lg font-bold tracking-wide text-foreground">
           {{ $t("lorebooks.title") }}
@@ -315,7 +315,7 @@ async function toggleEntry(entry: LoreEntryResponse) {
     </div>
 
     <!-- Right: detail -->
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto bg-base-100/25">
       <!-- Lorebook create/edit form -->
       <div v-if="showLorebookForm" class="px-8 py-6">
         <div class="animate-fade-in-up rounded-xl border bg-base-200/50 p-6">
