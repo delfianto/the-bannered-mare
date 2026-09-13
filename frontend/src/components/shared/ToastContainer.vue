@@ -53,7 +53,7 @@ const getTypeClasses = (type: string) => {
 <template>
   <Teleport to="body">
     <div
-      class="pointer-events-none fixed top-0 right-0 z-[100] flex w-full max-w-sm flex-col gap-3 p-4 sm:p-6"
+      class="pointer-events-none fixed top-0 right-0 z-100 flex w-full max-w-sm flex-col gap-3 p-4 sm:p-6"
     >
       <TransitionGroup
         enter-active-class="transform ease-out duration-300 transition"

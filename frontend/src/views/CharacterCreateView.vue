@@ -144,7 +144,7 @@ function handleAvatarChange(file: File) {
           {{ $t("common.export") }}
         </button>
         <button
-          class="flex h-9 items-center gap-2 rounded-lg px-5 text-sm font-medium transition-all active:scale-[0.96]"
+          class="flex h-9 items-center gap-2 rounded-lg px-5 text-sm font-medium transition-all active:scale-0.96"
           :class="
             !saved
               ? 'bg-primary text-primary-content shadow-sm hover:shadow-[0_2px_12px_var(--color-primary)/0.3]'

@@ -13,10 +13,9 @@ describe("useCharacterForm - species and age fields", () => {
   // This suite swaps `global.fetch` / `client.GET` for a couple of cases;
   // capture the pristine references at collection time and restore after each
   // test so nothing leaks into later suites (no unrestored global patching).
-  const realFetch = globalThis.fetch;
   const realGet = client.GET;
   afterEach(() => {
-    globalThis.fetch = realFetch;
+    vi.unstubAllGlobals();
     client.GET = realGet;
   });
 
@@ -63,8 +62,7 @@ describe("useCharacterForm - species and age fields", () => {
       );
     };
 
-    // @ts-ignore
-    global.fetch = mockFetch;
+    vi.stubGlobal("fetch", mockFetch);
 
     await form.saveCharacter();
   });
@@ -185,25 +183,26 @@ async function readJsonBody(input: unknown, init: RequestInit | undefined): Prom
 }
 
 describe("useCharacterForm - gender → custom_gender normalization (buildFormData)", () => {
-  let realFetch: typeof globalThis.fetch;
   let captured: FormData | undefined;
 
   beforeEach(() => {
-    realFetch = globalThis.fetch;
     restoreClient();
     captured = undefined;
     // Capture the multipart character save's FormData; stub the lorebook-sync GET
     // empty so saveCharacter's diff loop stays a no-op for these cases.
-    globalThis.fetch = vi.fn(async (input: unknown, init?: RequestInit) => {
-      const { url } = reqInfo(input, init);
-      if (url.includes("/api/lorebooks")) return jsonResponse(EMPTY_LOREBOOK_PAGE);
-      captured = init!.body as FormData;
-      return jsonResponse({ id: "char-gender", name: "Gender Test" });
-    }) as typeof globalThis.fetch;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: unknown, init?: RequestInit) => {
+        const { url } = reqInfo(input, init);
+        if (url.includes("/api/lorebooks")) return jsonResponse(EMPTY_LOREBOOK_PAGE);
+        captured = init!.body as FormData;
+        return jsonResponse({ id: "char-gender", name: "Gender Test" });
+      }),
+    );
   });
 
   afterEach(() => {
-    globalThis.fetch = realFetch;
+    vi.unstubAllGlobals();
     restoreClient();
     vi.restoreAllMocks();
   });
@@ -242,28 +241,29 @@ describe("useCharacterForm - gender → custom_gender normalization (buildFormDa
 });
 
 describe("useCharacterForm - example_dialogues regex round-trip", () => {
-  let realFetch: typeof globalThis.fetch;
   let captured: FormData | undefined;
   let loadResponse: Partial<CharacterResponse>;
 
   beforeEach(() => {
-    realFetch = globalThis.fetch;
     restoreClient();
     captured = undefined;
     loadResponse = {};
-    globalThis.fetch = vi.fn(async (input: unknown, init?: RequestInit) => {
-      const { url, method } = reqInfo(input, init);
-      if (url.includes("/api/lorebooks")) return jsonResponse(EMPTY_LOREBOOK_PAGE);
-      // loadFromApi's character GET → the fixture under test; any other verb is
-      // the multipart save, whose serialized FormData we capture.
-      if (method === "GET" && url.includes("/api/characters")) return jsonResponse(loadResponse);
-      captured = init!.body as FormData;
-      return jsonResponse({ id: "dlg-1", name: "Dialogue Test" });
-    }) as typeof globalThis.fetch;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: unknown, init?: RequestInit) => {
+        const { url, method } = reqInfo(input, init);
+        if (url.includes("/api/lorebooks")) return jsonResponse(EMPTY_LOREBOOK_PAGE);
+        // loadFromApi's character GET → the fixture under test; any other verb is
+        // the multipart save, whose serialized FormData we capture.
+        if (method === "GET" && url.includes("/api/characters")) return jsonResponse(loadResponse);
+        captured = init!.body as FormData;
+        return jsonResponse({ id: "dlg-1", name: "Dialogue Test" });
+      }),
+    );
   });
 
   afterEach(() => {
-    globalThis.fetch = realFetch;
+    vi.unstubAllGlobals();
     restoreClient();
     vi.restoreAllMocks();
   });
@@ -401,17 +401,15 @@ describe("useCharacterForm - example_dialogues regex round-trip", () => {
 });
 
 describe("useCharacterForm - lorebook entry diff (saveCharacter)", () => {
-  let realFetch: typeof globalThis.fetch;
   let calls: { method: string; url: string; body: any }[];
 
   beforeEach(() => {
-    realFetch = globalThis.fetch;
     restoreClient();
     calls = [];
   });
 
   afterEach(() => {
-    globalThis.fetch = realFetch;
+    vi.unstubAllGlobals();
     restoreClient();
     vi.restoreAllMocks();
   });
@@ -420,12 +418,15 @@ describe("useCharacterForm - lorebook entry diff (saveCharacter)", () => {
   // `route`. The lorebook-sync calls all flow through the typed client, so
   // routing on url + verb exercises the real delete/update/create branches.
   function install(route: (url: string, method: string) => Response) {
-    globalThis.fetch = vi.fn(async (input: unknown, init?: RequestInit) => {
-      const { url, method } = reqInfo(input, init);
-      const body = await readJsonBody(input, init);
-      calls.push({ method, url, body });
-      return route(url, method);
-    }) as typeof globalThis.fetch;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: unknown, init?: RequestInit) => {
+        const { url, method } = reqInfo(input, init);
+        const body = await readJsonBody(input, init);
+        calls.push({ method, url, body });
+        return route(url, method);
+      }),
+    );
   }
 
   it("deletes removed entries, updates kept ones, and creates new ones against the existing book", async () => {

@@ -40,7 +40,7 @@ const emit = defineEmits<{
       </button>
       <button
         type="button"
-        class="flex h-9 items-center gap-2 rounded-xl px-5 text-sm font-medium transition-all active:scale-[0.96] disabled:opacity-50"
+        class="flex h-9 items-center gap-2 rounded-xl px-5 text-sm font-medium transition-all active:scale-0.96 disabled:opacity-50"
         :class="
           destructive
             ? 'bg-error text-error-content hover:bg-error/95 shadow-sm'
