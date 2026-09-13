@@ -125,7 +125,7 @@ const nodes = computed<TextNode[]>(() => {
 </script>
 
 <template>
-  <div class="font-chat text-story leading-[1.75] whitespace-pre-wrap">
+  <div class="font-chat text-story leading-[1.75em] whitespace-pre-wrap">
     <template v-for="node in nodes" :key="node.key">
       <div v-if="node.type === 'break'" class="h-3" />
       <!-- GFX blocks: model-drawn HTML cards, sanitized (nh3 server-side +

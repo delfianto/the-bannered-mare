@@ -26,7 +26,7 @@ function avatarSrc(): string {
     <img
       :src="avatarSrc()"
       :alt="character.name"
-      class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
+      class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-1.035"
     />
 
     <!-- Gradient overlay -->

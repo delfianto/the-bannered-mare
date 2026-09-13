@@ -380,12 +380,12 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
               {{ $t("settings.interface.typographyPreviewTitle") }}
             </p>
             <p
-              class="mt-2 font-chat text-story leading-[1.75] text-muted-foreground"
+              class="mt-2 font-chat text-story leading-[1.75em] text-muted-foreground"
               :class="{ italic: narrativeItalics }"
             >
               {{ $t("settings.interface.typographyPreviewNarration") }}
             </p>
-            <p class="font-chat text-story leading-[1.75] font-medium text-dialogue">
+            <p class="font-chat text-story leading-[1.75em] font-medium text-dialogue">
               {{ $t("settings.interface.typographyPreviewDialogue") }}
             </p>
           </div>
@@ -439,7 +439,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
           >
             <!-- Mini UI mockup -->
             <div
-              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
+              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-1.02"
             >
               <div class="flex h-full">
                 <!-- Sidebar strip -->
@@ -507,7 +507,7 @@ function previewBg(preset: (typeof COLOR_PRESETS)[number]) {
             @click="setColorScheme('custom')"
           >
             <div
-              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-[1.02]"
+              class="aspect-4/3 w-full overflow-hidden rounded-lg border transition-transform group-hover:scale-1.02"
             >
               <div class="flex h-full" :style="{ backgroundColor: custom.base100 }">
                 <div class="w-2.5 shrink-0" :style="{ backgroundColor: custom.base200 }">

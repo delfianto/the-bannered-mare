@@ -1,5 +1,5 @@
 import { defineComponent, h, ref } from "vue";
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { useChatMessages } from "@/composables/useChatMessages";
 
@@ -90,19 +90,22 @@ function installFetch(routes: {
   messages?: () => Response;
 }): { calls: { method: string; url: string }[] } {
   const calls: { method: string; url: string }[] = [];
-  globalThis.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
-    const req = input instanceof Request ? input : null;
-    const url = req ? req.url : String(input);
-    const method = (init?.method ?? req?.method ?? "GET").toUpperCase();
-    calls.push({ method, url });
-    if (method === "POST" && url.includes("/messages?stream=true")) {
-      return routes.stream(init ?? {});
-    }
-    if (method === "GET" && url.includes("/messages")) {
-      return (routes.messages ?? emptyMessagesResponse)();
-    }
-    throw new Error(`unexpected request: ${method} ${url}`);
-  }) as typeof globalThis.fetch;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const req = input instanceof Request ? input : null;
+      const url = req ? req.url : String(input);
+      const method = (init?.method ?? req?.method ?? "GET").toUpperCase();
+      calls.push({ method, url });
+      if (method === "POST" && url.includes("/messages?stream=true")) {
+        return routes.stream(init ?? {});
+      }
+      if (method === "GET" && url.includes("/messages")) {
+        return (routes.messages ?? emptyMessagesResponse)();
+      }
+      throw new Error(`unexpected request: ${method} ${url}`);
+    }),
+  );
   return { calls };
 }
 
@@ -125,73 +128,72 @@ function mountComposable(getChatId: () => string | null = () => CHAT_ID, autoLoa
 describe("useChatMessages — reconcile the optimistic user-message id", () => {
   // The setup file's MSW server patched global.fetch; save it and restore after
   // each test so this suite's per-request mock doesn't leak.
-  let realFetch: typeof globalThis.fetch;
-  beforeEach(() => {
-    realFetch = globalThis.fetch;
-  });
   afterEach(() => {
-    globalThis.fetch = realFetch;
+    vi.unstubAllGlobals();
   });
 
   it("swaps the client uuid for the persisted id after send, so editing it targets the real row (not a 404)", async () => {
     let editPutUrl = "";
-    globalThis.fetch = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
-      const req = input instanceof Request ? input : null;
-      const url = req ? req.url : String(input);
-      const method = (init?.method ?? req?.method ?? "GET").toUpperCase();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+        const req = input instanceof Request ? input : null;
+        const url = req ? req.url : String(input);
+        const method = (init?.method ?? req?.method ?? "GET").toUpperCase();
 
-      // 1) The streaming send: assistant adopts a real id via `start`; the user id is never streamed.
-      if (method === "POST" && url.includes("/messages?stream=true")) {
-        return sseResponse([
-          { type: "start", message_id: "asst-real" },
-          { type: "text", content: "Greetings." },
-          { type: "done", finish_reason: "stop" },
-        ]);
-      }
-      // 2) The reconciliation fetch (2 newest, newest->oldest = assistant, then the user turn).
-      if (method === "GET" && url.includes("/messages")) {
-        return new Response(
-          JSON.stringify({
-            items: [
-              {
-                id: "asst-real",
-                role: "assistant",
-                content: "Greetings.",
-                active_index: 0,
-                created_at: "2026-07-15T00:00:01Z",
-                chat_id: CHAT_ID,
-              },
-              {
-                id: "user-real",
-                role: "user",
-                content: "Hail",
-                active_index: 0,
-                created_at: "2026-07-15T00:00:00Z",
-                chat_id: CHAT_ID,
-              },
-            ],
-            meta: { limit: 2, has_more: false, cursor: null, total: 2, page: 1 },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }
-      // 3) The edit PUT — capture the id it targets.
-      if (method === "PUT" && url.includes("/messages/")) {
-        editPutUrl = url;
-        return new Response(
-          JSON.stringify({
-            id: "user-real",
-            role: "user",
-            content: "Hail, friend",
-            active_index: 0,
-            created_at: "2026-07-15T00:00:00Z",
-            chat_id: CHAT_ID,
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }
-      throw new Error(`unexpected request: ${method} ${url}`);
-    }) as typeof globalThis.fetch;
+        // 1) The streaming send: assistant adopts a real id via `start`; the user id is never streamed.
+        if (method === "POST" && url.includes("/messages?stream=true")) {
+          return sseResponse([
+            { type: "start", message_id: "asst-real" },
+            { type: "text", content: "Greetings." },
+            { type: "done", finish_reason: "stop" },
+          ]);
+        }
+        // 2) The reconciliation fetch (2 newest, newest->oldest = assistant, then the user turn).
+        if (method === "GET" && url.includes("/messages")) {
+          return new Response(
+            JSON.stringify({
+              items: [
+                {
+                  id: "asst-real",
+                  role: "assistant",
+                  content: "Greetings.",
+                  active_index: 0,
+                  created_at: "2026-07-15T00:00:01Z",
+                  chat_id: CHAT_ID,
+                },
+                {
+                  id: "user-real",
+                  role: "user",
+                  content: "Hail",
+                  active_index: 0,
+                  created_at: "2026-07-15T00:00:00Z",
+                  chat_id: CHAT_ID,
+                },
+              ],
+              meta: { limit: 2, has_more: false, cursor: null, total: 2, page: 1 },
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+        // 3) The edit PUT — capture the id it targets.
+        if (method === "PUT" && url.includes("/messages/")) {
+          editPutUrl = url;
+          return new Response(
+            JSON.stringify({
+              id: "user-real",
+              role: "user",
+              content: "Hail, friend",
+              active_index: 0,
+              created_at: "2026-07-15T00:00:00Z",
+              chat_id: CHAT_ID,
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        }
+        throw new Error(`unexpected request: ${method} ${url}`);
+      }),
+    );
 
     const chat = mountComposable();
     await chat.sendMessage("Hail");
@@ -210,12 +212,8 @@ describe("useChatMessages — SSE state machine (readStream + send/regenerate)",
   // Same fetch save/restore discipline as the reconcile suite: MSW patched
   // global.fetch, so stash it and restore after each test so these per-request
   // mocks (and any console spies) don't leak into other files.
-  let realFetch: typeof globalThis.fetch;
-  beforeEach(() => {
-    realFetch = globalThis.fetch;
-  });
   afterEach(() => {
-    globalThis.fetch = realFetch;
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -460,12 +458,8 @@ describe("useChatMessages — SSE state machine (readStream + send/regenerate)",
 });
 
 describe("useChatMessages — stopping a regenerate restores the prior reply", () => {
-  let realFetch: typeof globalThis.fetch;
-  beforeEach(() => {
-    realFetch = globalThis.fetch;
-  });
   afterEach(() => {
-    globalThis.fetch = realFetch;
+    vi.unstubAllGlobals();
   });
 
   it("restores the optimistically-removed reply when a regen is aborted mid-stream", async () => {

@@ -55,7 +55,7 @@ function avatarSrc(chat: Chat): string {
         <img
           :src="avatarSrc(featured)"
           :alt="featured.title ?? $t('chat.untitled')"
-          class="absolute inset-0 size-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+          class="absolute inset-0 size-full object-cover object-top transition-transform duration-700 group-hover:scale-1.03"
         />
         <div class="absolute inset-0 bg-linear-to-r from-black/65 via-black/15 to-transparent" />
 

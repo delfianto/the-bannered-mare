@@ -40,7 +40,7 @@ function avatarSrc(): string {
 
 <template>
   <div
-    class="group relative aspect-3/4 animate-fade-in-up cursor-pointer overflow-hidden rounded-xl shadow-[0_2px_12px_var(--color-foreground)/0.06] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_32px_var(--color-primary)/0.18]"
+    class="group relative aspect-3/4 animate-fade-in-up cursor-pointer overflow-hidden rounded-xl shadow-[0_2px_12px_var(--color-foreground)/0.06] transition-all duration-300 hover:scale-1.02 hover:shadow-[0_8px_32px_var(--color-primary)/0.18]"
     :style="{ animationDelay: `${index * 40}ms` }"
     @click="handleClick"
   >
@@ -48,7 +48,7 @@ function avatarSrc(): string {
     <img
       :src="avatarSrc()"
       :alt="character.name"
-      class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+      class="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-1.04"
     />
 
     <!-- Gradient overlay -->

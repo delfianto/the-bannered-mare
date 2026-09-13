@@ -300,7 +300,7 @@ const { armed: confirmDelete, trigger: handleDelete } = useConfirmAction(async (
 
           <!-- Save button -->
           <button
-            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-[0.96]"
+            class="flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-medium text-primary-content shadow-sm transition-all hover:shadow-[0_2px_12px_var(--color-primary)/0.3] active:scale-0.96"
             :disabled="saving"
             @click="handleSave"
           >
