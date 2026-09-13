@@ -41,7 +41,7 @@ function avatarSrc(chat: Chat): string {
 </script>
 
 <template>
-  <div class="flex h-full w-75 min-w-75 flex-col border-r bg-base-200">
+  <div class="flex h-full w-75 min-w-75 flex-col border-r border-base-content/10 bg-base-100/30">
     <!-- Search -->
     <div class="px-3 pt-4 pb-3">
       <div class="flex items-center gap-2 rounded-lg border bg-base-100/60 px-3 py-2">

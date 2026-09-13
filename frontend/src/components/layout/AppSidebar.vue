@@ -84,7 +84,7 @@ const favorites = computed(() => {
 
 <template>
   <aside
-    class="hidden h-screen flex-col overflow-hidden border-r bg-base-100 transition-[width,min-width] duration-300 ease-in-out lg:flex"
+    class="relative z-20 my-3 ml-3 hidden h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-2xl border border-base-content/10 bg-base-100/65 shadow-[0_20px_60px_-24px_var(--color-base-content)/0.35] ring-1 ring-inset ring-base-content/5 backdrop-blur-2xl transition-[width,min-width] duration-300 ease-in-out lg:flex"
     :class="collapsed ? 'w-18 min-w-18' : 'w-72 min-w-72'"
   >
     <!-- Brand Mark -->
@@ -124,14 +124,16 @@ const favorites = computed(() => {
             v-for="item in navItems"
             :key="item.id"
             :to="item.to"
-            class="group relative flex items-center gap-3 py-2.5 text-sm transition-colors duration-200"
+            class="group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200"
             :class="
-              isActive(item.to) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+              isActive(item.to)
+                ? 'bg-primary/10 text-foreground shadow-sm ring-1 ring-inset ring-primary/10'
+                : 'text-muted-foreground hover:bg-base-content/5 hover:text-foreground'
             "
           >
             <span
               v-if="isActive(item.to)"
-              class="absolute top-1/2 -left-4 size-1.5 -translate-y-1/2 rounded-full bg-primary"
+              class="absolute top-1/2 left-1 size-1.5 -translate-y-1/2 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)/0.55]"
             />
             <AppIcon :name="item.icon" class="size-4 shrink-0" />
             <span class="flex-1 font-medium tracking-wide">{{ item.label }}</span>
