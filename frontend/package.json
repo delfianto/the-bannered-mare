@@ -47,7 +47,7 @@
     "msw": "^2.14.6",
     "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
-    "typescript": "^6.0.3",
+    "typescript": "npm:typescript-native-bridge@6.0.3-bridge.17.tsgo.7.0.2",
     "typescript-eslint": "^8.62.1",
     "vite": "npm:@voidzero-dev/vite-plus-core@^0.3.0",
     "vite-plugin-terminal": "^1.4.0",
