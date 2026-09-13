@@ -101,7 +101,7 @@ src/
 - **Package Manager:** Bun (managed by `vp`; `vp install`, or `bun install` directly)
 - **Framework:** Vue 3.5 — always `<script setup lang="ts">` Composition API
 - **Build Bundler:** Vite 8 powered by Rolldown (Rust); Oxc transforms + Lightning CSS minify
-- **Language:** TypeScript 6 (strict mode)
+- **Language:** TypeScript 7.0.2's native Go checker via the pinned `typescript-native-bridge` compatibility package (strict mode). The package reports a TypeScript 6.0.3 API version so `vue-tsc`, Volar, and compiler-API consumers continue to work.
 - **UI Library:** DaisyUI 5 — a CSS-only Tailwind plugin (component _classes_, no JS runtime). Interactive behavior lives in shared Vue primitives under `src/components/shared/`; three are registered globally in `main.ts` (`AppIcon`, `SelectMenu`, `AppToggle`) and the rest (e.g. `AppTooltip`) are imported per-component.
 - **Styling:** Tailwind CSS v4 via `@tailwindcss/vite`; DaisyUI themes (`tbm-*`) + retained CSS variables
 - **State:** Pinia for global state, composables for feature-scoped state
@@ -158,7 +158,7 @@ For a complete breakdown of LLM interactions, see the [LLM Harness Agent & Conne
 ### 4.3 Key Architecture Decisions
 
 - **DaisyUI, not a component runtime:** Migrated off Nuxt UI v4 to DaisyUI 5 (a CSS-only Tailwind plugin). Behavior lives in shared Vue primitives — three globally-registered (`AppIcon`, `SelectMenu`, `AppToggle`), the rest (e.g. `AppTooltip`) imported per-component; everything else is hand-rolled Tailwind using DaisyUI's token vocabulary.
-- **TypeScript 7 deferred:** the code is TS7-clean (passes native `tsgo`), and `typescript-native-bridge` can even run `vue-tsc` on TS7 incl `.vue` — but TNB is macOS-only at v0.0.0 (no Linux binary; breaks `ubuntu-latest` CI), so we stay on `typescript@6` + `vue-tsc`. Revisit when TNB ships prebuilt binaries or `vue-tsc` supports native TS7.
+- **TypeScript 7 through the native bridge:** `typescript` is aliased to an exact `typescript-native-bridge` release. It runs the TypeScript 7.0.2 Go checker while preserving the TypeScript 6.0.3 programmatic API required by `vue-tsc`, Volar, and `@typescript-eslint/parser`. Keep the alias pinned exactly: bridge releases are prerelease versions, so semver ranges do not update them reliably. The bridge ships platform binaries for glibc Linux, macOS, and Windows; Alpine/musl is unsupported. Stock `typescript@7` cannot replace it until Vue's SFC tooling supports TypeScript 7's new compiler API. On 2026-09-14, the full frontend CI suite, API schema generation, production build, and deliberate TypeScript + Vue-template error probes passed on Linux x64; repeated `vue-tsc --noEmit` runs improved from ~3.7s to ~1.6s locally.
 - **API types directly:** Components use `components["schemas"]["CharacterResponse"]` etc. from the generated schema. No parallel/duplicate type systems.
 - **Avatar URLs from API:** Use the `avatar` / `avatar_thumbnail` fields directly. Don't route through `getAvatarUrl()` (it generates endpoints not mocked in MSW).
 - **Singleton theme:** `useTheme()` shares one `isDark` ref across all components.
@@ -199,6 +199,8 @@ bun run api:gen              # Regenerate schema.d.ts from the root openapi.json
 ```
 
 `bun run build` (`vue-tsc -b && vp build`) is the authoritative check — strict Vue type-check followed by the production Rolldown build. A task is not done until it passes.
+
+`vue-tsc` prints `TNB ACTIVE` when the TypeScript 7 checker is loaded. If that banner is absent, verify that `node_modules/typescript` resolves to `typescript-native-bridge` and that the matching `@typescript-native-bridge/<platform>-<arch>` optional package was installed. The bridge requires Node 20.19 or newer; Bun may remain the package manager because package scripts launch `vue-tsc` under Node.
 
 > **vp on PATH:** the installer added `vp` to your shell profile (restart your terminal). It lives in `~/.vite-plus/bin`; if a script or hook can't find `vp`, prepend that directory to `PATH`. The Claude Code hooks do this themselves.
 
