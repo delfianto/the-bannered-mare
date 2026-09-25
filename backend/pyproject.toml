@@ -7,9 +7,9 @@ license = "AGPL-3.0-or-later"
 dependencies = [
     # Web framework
     "fastapi==0.141.1",
-    "uvicorn[standard]==0.53.0",
+    "uvicorn[standard]==0.54.0",
     # Database
-    "sqlalchemy==2.0.54",
+    "sqlalchemy==2.1.1",
     # SQLAlchemy's async engine requires greenlet at runtime (not just for tests).
     "greenlet>=3.0.0",
     "psycopg2-binary==2.9.13",
@@ -54,7 +54,7 @@ dev = [
     "aiosqlite==0.22.1",
 
     # Code quality
-    "ruff==0.16.8",
+    "ruff==0.16.9",
     "basedpyright==1.40.1",
 
     # Type stubs
