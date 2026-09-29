@@ -2,7 +2,7 @@
 // `mount()` gets i18n + the three globally-registered primitives without each
 // test repeating the setup.
 import { config } from "@vue/test-utils";
-import { afterAll, afterEach, beforeAll } from "vitest";
+import { afterAll, afterEach, beforeAll } from "vite-plus/test";
 import i18n from "@/i18n";
 import AppIcon from "@/components/shared/AppIcon.vue";
 import SelectMenu from "@/components/shared/SelectMenu.vue";

@@ -1,5 +1,5 @@
 import { defineComponent, h } from "vue";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vite-plus/test";
 import { mount, flushPromises } from "@vue/test-utils";
 import { useCursorList } from "@/composables/useCursorList";
 

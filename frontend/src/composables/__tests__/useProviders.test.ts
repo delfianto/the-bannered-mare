@@ -1,5 +1,5 @@
 import { defineComponent, h } from "vue";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vite-plus/test";
 import { mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { useProviders, type Provider } from "@/composables/useProviders";
