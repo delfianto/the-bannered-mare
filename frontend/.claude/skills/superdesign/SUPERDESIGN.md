@@ -456,42 +456,43 @@ function NavBar({ activeItem = "home" }) {
 ---
 
 <marketing_assets_dimension_guidelines>
-| Category | Platform | Asset Type | Aspect Ratio | Recommended Size (px) |
+
+| Category  | Platform               | Asset Type            | Aspect Ratio | Recommended Size (px) |
 | --------- | ---------------------- | --------------------- | ------------ | --------------------- |
-| Feed | Instagram | Feed Post (Square) | 1:1 | 1080 × 1080 (default) |
-| Feed | Instagram | Feed Post (Portrait) | 4:5 | 1080 × 1350 |
-| Feed | Instagram | Feed Post (Landscape) | 1.91:1 | 1080 × 566 |
-| Feed | Facebook | Feed Post | 1.91:1 | 1200 × 630 |
-| Feed | LinkedIn | Feed Post | 1:1 | 1200 × 1200 (default) |
-| Feed | LinkedIn | Feed Post (Landscape) | 1.91:1 | 1200 × 627 |
-| Feed | X / Twitter | Post Image | 16:9 | 1200 × 675 |
-| Feed | Threads | Post Image | 1:1 | 1080 × 1080 |
-| Vertical | Instagram | Story | 9:16 | 1080 × 1920 |
-| Vertical | Instagram | Reel Cover | 9:16 | 1080 × 1920 |
-| Vertical | TikTok | Video / Cover | 9:16 | 1080 × 1920 |
-| Vertical | YouTube | Shorts | 9:16 | 1080 × 1920 |
-| Carousel | Instagram | Carousel Slide | 4:5 | 1080 × 1350 |
-| Carousel | LinkedIn | Carousel (PDF slides) | 1:1 | 1080 × 1080 |
-| Cover | LinkedIn | Profile Cover | 4:1 | 1584 × 396 |
-| Cover | Facebook | Page Cover | ~1.9:1 | 1640 × 856 |
-| Cover | X / Twitter | Header | 3:1 | 1500 × 500 |
-| Cover | YouTube | Channel Art | 16:9 | 2560 × 1440 |
-| Thumbnail | YouTube | Video Thumbnail | 16:9 | 1280 × 720 |
-| Ads | Google Display Ads | Medium Rectangle | 4:3 | 300 × 250 |
-| Ads | Google Display Ads | Large Rectangle | 336 × 280 | |
-| Ads | Google Display Ads | Leaderboard | 728 × 90 | |
-| Ads | Google Display Ads | Large Leaderboard | 970 × 90 | |
-| Ads | Google Display Ads | Billboard | 970 × 250 | |
-| Ads | Google Display Ads | Half Page | 300 × 600 | |
-| Ads | Google Display Ads | Large Mobile Banner | 320 × 100 | |
-| Ads | Google Display Ads | Mobile Banner | 320 × 50 | |
-| Ads | Google Display Ads | Square | 250 × 250 | |
-| Ads | Google Display Ads | Small Square | 200 × 200 | |
-| Ads | Google Performance Max | Landscape Image | 1.91:1 | 1200 × 628 |
-| Ads | Google Performance Max | Square Image | 1:1 | 1200 × 1200 |
-| Ads | Google Performance Max | Portrait Image | 4:5 | 960 × 1200 |
-| Ads | Google App Ads | App Landscape | 1.91:1 | 1200 × 628 |
-| Ads | Google App Ads | App Square | 1:1 | 1200 × 1200 |
+| Feed      | Instagram              | Feed Post (Square)    | 1:1          | 1080 × 1080 (default) |
+| Feed      | Instagram              | Feed Post (Portrait)  | 4:5          | 1080 × 1350           |
+| Feed      | Instagram              | Feed Post (Landscape) | 1.91:1       | 1080 × 566            |
+| Feed      | Facebook               | Feed Post             | 1.91:1       | 1200 × 630            |
+| Feed      | LinkedIn               | Feed Post             | 1:1          | 1200 × 1200 (default) |
+| Feed      | LinkedIn               | Feed Post (Landscape) | 1.91:1       | 1200 × 627            |
+| Feed      | X / Twitter            | Post Image            | 16:9         | 1200 × 675            |
+| Feed      | Threads                | Post Image            | 1:1          | 1080 × 1080           |
+| Vertical  | Instagram              | Story                 | 9:16         | 1080 × 1920           |
+| Vertical  | Instagram              | Reel Cover            | 9:16         | 1080 × 1920           |
+| Vertical  | TikTok                 | Video / Cover         | 9:16         | 1080 × 1920           |
+| Vertical  | YouTube                | Shorts                | 9:16         | 1080 × 1920           |
+| Carousel  | Instagram              | Carousel Slide        | 4:5          | 1080 × 1350           |
+| Carousel  | LinkedIn               | Carousel (PDF slides) | 1:1          | 1080 × 1080           |
+| Cover     | LinkedIn               | Profile Cover         | 4:1          | 1584 × 396            |
+| Cover     | Facebook               | Page Cover            | ~1.9:1       | 1640 × 856            |
+| Cover     | X / Twitter            | Header                | 3:1          | 1500 × 500            |
+| Cover     | YouTube                | Channel Art           | 16:9         | 2560 × 1440           |
+| Thumbnail | YouTube                | Video Thumbnail       | 16:9         | 1280 × 720            |
+| Ads       | Google Display Ads     | Medium Rectangle      | 4:3          | 300 × 250             |
+| Ads       | Google Display Ads     | Large Rectangle       | 336 × 280    |                       |
+| Ads       | Google Display Ads     | Leaderboard           | 728 × 90     |                       |
+| Ads       | Google Display Ads     | Large Leaderboard     | 970 × 90     |                       |
+| Ads       | Google Display Ads     | Billboard             | 970 × 250    |                       |
+| Ads       | Google Display Ads     | Half Page             | 300 × 600    |                       |
+| Ads       | Google Display Ads     | Large Mobile Banner   | 320 × 100    |                       |
+| Ads       | Google Display Ads     | Mobile Banner         | 320 × 50     |                       |
+| Ads       | Google Display Ads     | Square                | 250 × 250    |                       |
+| Ads       | Google Display Ads     | Small Square          | 200 × 200    |                       |
+| Ads       | Google Performance Max | Landscape Image       | 1.91:1       | 1200 × 628            |
+| Ads       | Google Performance Max | Square Image          | 1:1          | 1200 × 1200           |
+| Ads       | Google Performance Max | Portrait Image        | 4:5          | 960 × 1200            |
+| Ads       | Google App Ads         | App Landscape         | 1.91:1       | 1200 × 628            |
+| Ads       | Google App Ads         | App Square            | 1:1          | 1200 × 1200           |
 
 For marketing assets, MUST confirm with the user the dimension before creating, do NOT assume the dimension
 </marketing_assets_dimension_guidelines>

@@ -38,7 +38,7 @@
     "@types/markdown-it": "^14.1.2",
     "@typescript-eslint/parser": "^8.62.1",
     "@vitejs/plugin-vue": "^6.0.7",
-    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/coverage-v8": "5.0.1",
     "@vue/test-utils": "^2.4.11",
     "daisyui": "^5.6.16",
     "eslint": "^10.6.0",
@@ -49,14 +49,16 @@
     "tailwindcss": "^4",
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.18.tsgo.7.0.2",
     "typescript-eslint": "^8.62.1",
-    "vite": "npm:@voidzero-dev/vite-plus-core@^0.3.0",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
     "vite-plugin-terminal": "^1.4.0",
-    "vite-plus": "^0.3.0",
+    "vite-plus": "1.0.0",
+    "vitest": "5.0.1",
     "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^3.3.4"
   },
   "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@latest"
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
+    "vitest": "5.0.1"
   },
   "packageManager": "bun@1.4.2",
   "msw": {

@@ -46,3 +46,4 @@ vite.config.js
 # Claude Code — track settings.json, hooks/, and skills/ (so other
 # environments pick them up); ignore only the per-machine local file
 .claude/settings.local.json
+.vitest/
