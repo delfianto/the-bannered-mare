@@ -41,10 +41,19 @@ async function prepareApp() {
     }
 
     await worker.start({
-      onUnhandledRequest(request, print) {
-        const url = new URL(request.url);
+      onUnhandledFrame({ frame, defaults }) {
+        if (
+          frame.protocol !== "http" ||
+          typeof frame.data !== "object" ||
+          frame.data === null ||
+          !("request" in frame.data) ||
+          !(frame.data.request instanceof Request)
+        ) {
+          return;
+        }
+        const url = new URL(frame.data.request.url);
         if (url.pathname.startsWith("/api")) {
-          print.warning();
+          defaults.warn();
         }
       },
       quiet: true,

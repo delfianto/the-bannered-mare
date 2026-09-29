@@ -14,8 +14,8 @@ config.global.components = { AppIcon, SelectMenu, AppToggle };
 
 // Reuse the MSW handler set over msw/node so API-coupled composable tests hit
 // real handlers through the unpatched typed client — no fetch monkeypatching.
-// `onUnhandledRequest: "error"` turns any endpoint the fixtures don't cover into
+// `onUnhandledFrame: "error"` turns any endpoint the fixtures don't cover into
 // a loud failure instead of a silent network passthrough.
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
