@@ -1,4 +1,3 @@
-/// <reference types="vitest/config" />
 import Terminal from "vite-plugin-terminal";
 import ViteYaml from "@modyfi/vite-plugin-yaml";
 import tailwindcss from "@tailwindcss/vite";
@@ -49,15 +48,15 @@ export default defineConfig(({ command }) => {
     // `vp test` (Vitest) reuses this config's vue plugin + `@` alias, so SFCs
     // compile and mount. happy-dom supplies the DOM the UI layer needs.
     test: {
+      // Preserve mock call history across the Vitest 5 migration.
+      clearMocks: false,
       environment: "happy-dom",
       globals: false,
       setupFiles: ["./src/test/setup-globals.ts", "./src/test/setup.ts"],
       include: ["src/**/*.{test,spec}.ts"],
       coverage: {
         provider: "v8",
-        // `all` counts un-imported product files as 0%, so the number reflects
-        // real coverage of the app — not just the handful of exercised modules.
-        all: true,
+        // Include un-imported product files so coverage reflects the whole app.
         include: ["src/**/*.{ts,vue}"],
         exclude: [
           "src/**/*.{test,spec}.ts",

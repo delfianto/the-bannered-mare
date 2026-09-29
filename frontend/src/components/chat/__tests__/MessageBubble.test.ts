@@ -1,4 +1,4 @@
-import { afterEach, describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect } from "vite-plus/test";
 import { nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import MessageBubble from "../MessageBubble.vue";

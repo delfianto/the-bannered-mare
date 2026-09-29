@@ -15,31 +15,31 @@ from src.chat_session.models import Chat
 from src.core.persistence.statements import apply_filters
 
 
-def _with_character() -> Select[tuple[Chat]]:
+def _with_character() -> Select[Chat]:
     return select(Chat).options(joinedload(Chat.character))
 
 
-def all_ordered_stmt() -> Select[tuple[Chat]]:
+def all_ordered_stmt() -> Select[Chat]:
     """All chats, newest first, with the character eager-loaded."""
     return _with_character().order_by(Chat.created_at.desc())
 
 
-def by_id_with_character_stmt(chat_id: str) -> Select[tuple[Chat]]:
+def by_id_with_character_stmt(chat_id: str) -> Select[Chat]:
     return _with_character().where(Chat.id == chat_id)
 
 
-def by_character_stmt(character_id: str) -> Select[tuple[Chat]]:
+def by_character_stmt(character_id: str) -> Select[Chat]:
     return select(Chat).where(Chat.character_id == character_id)
 
 
-def bookmarked_stmt() -> Select[tuple[Chat]]:
+def bookmarked_stmt() -> Select[Chat]:
     """Bookmarked chats, newest first, with the character eager-loaded."""
     return _with_character().where(Chat.is_bookmarked.is_(True)).order_by(Chat.created_at.desc())
 
 
 def ordered_page_stmts(
     limit: int, offset: int, filters: dict[str, Any] | None
-) -> tuple[Select[Any], Select[tuple[Chat]]]:
+) -> tuple[Select[Any], Select[Chat]]:
     """(count_stmt, page_stmt) for offset pagination ordered by created_at desc."""
     base = apply_filters(Chat, _with_character(), filters)
     count_stmt = select(func.count()).select_from(base.subquery())
@@ -49,7 +49,7 @@ def ordered_page_stmts(
 
 def cursor_page_stmt(
     limit: int, cursor: datetime | None, filters: dict[str, Any] | None
-) -> Select[tuple[Chat]]:
+) -> Select[Chat]:
     """updated_at-desc cursor page; fetches limit+1 so callers can detect more."""
     stmt = apply_filters(Chat, _with_character(), filters)
     if cursor:
