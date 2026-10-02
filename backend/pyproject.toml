@@ -6,7 +6,7 @@ license = "AGPL-3.0-or-later"
 
 dependencies = [
     # Web framework
-    "fastapi==0.142.0",
+    "fastapi==0.142.2",
     "uvicorn[standard]==0.54.0",
     # Database
     "sqlalchemy==2.1.1",
@@ -28,7 +28,7 @@ dependencies = [
     # ID generation
     "nanoid==2.0.0",
     # Utilities
-    "python-dotenv==1.2.3",
+    "python-dotenv==1.2.4",
     # Logging
     "structlog==26.1.0",
     # Prompt templating
@@ -54,7 +54,7 @@ dev = [
     "aiosqlite==0.22.1",
 
     # Code quality
-    "ruff==0.16.9",
+    "ruff==0.16.10",
     "basedpyright==1.40.1",
 
     # Type stubs
