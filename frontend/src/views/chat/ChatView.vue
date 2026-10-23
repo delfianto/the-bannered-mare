@@ -417,6 +417,11 @@ async function handleEditMessage(messageId: string, content: string) {
             :streaming="isGenerating && i === messages.length - 1 && msg.role === 'assistant'"
             @edit="handleEditMessage"
             @swipe="handleSwipe"
+            @action="
+              (_id, action) => {
+                if (action === 'regen' && i === messages.length - 1) regenerate();
+              }
+            "
           />
 
           <!-- Generation failure (rejection / empty / content-filtered): surface

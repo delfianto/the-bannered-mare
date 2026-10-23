@@ -51,15 +51,29 @@ Current workflows cover:
 - Profile dialog focus trapping, Escape/focus restoration and failed-save recovery.
 - Selecting a profile to start a tale, SSE-framed replies and reload.
 - Generation failure/retry and conversation isolation when switching sessions.
+- Real HTTP streaming: incremental text, Stop before/after a token, connection loss,
+  provider errors, fragmented Unicode frames and session changes during generation.
+- Cancelled regeneration restores the last completed reply.
+- Provider/model creation and the first-run wizard through starting a tale.
 - Keyboard menu navigation and persisted text size, plus narrow-screen settings.
+
+## Controlled streaming
+
+`api.holdNextStream()` reserves the next generation for `streamServer.ts`, a real
+HTTP server bound to an OS-assigned loopback port per test. Playwright forwards
+only that reserved request to it. Await `stream.connected`, send typed SSE events
+with `stream.send(...)`, then call `stream.finish()` or `stream.disconnect()`.
+`stream.write(...)` accepts raw bytes for fragmented-frame cases. Await `stream.closed`
+to verify browser cancellation reached the socket. Fixture teardown destroys sockets
+and closes the server even when a test fails. No arbitrary timing delays are needed.
+
+Normal workflows still use a compact, complete SSE fixture response. The controlled
+server is for transport behavior; neither path exercises a real LLM provider.
 
 ## Continue here
 
-1. Add provider/model creation and the complete setup wizard journey.
-2. Add a controllable streaming HTTP fixture server for delayed chunks, Stop,
-   mid-stream disconnects and switching sessions during an active generation. The
-   current `route.fulfill` response contains SSE frames delivered in one body;
-   it does not prove incremental rendering or cancellation over a live socket.
+1. Expand setup coverage to preset imports and resuming unfinished profiles.
+2. Add longer-stream scrolling and error/retry assertions for partial generations.
 3. Add drag/drop imports, lorebook/memory CRUD and more responsive/layout assertions.
 4. Add Firefox/WebKit projects and a scheduled CI matrix, then accessibility checks
    and a small set of stable visual baselines using local fonts.
