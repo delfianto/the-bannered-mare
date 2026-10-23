@@ -80,7 +80,7 @@ backend/
 ### 4.1 Core Stack
 - **Runtime:** Python 3.14+
 - **Framework:** FastAPI
-- **ORM:** SQLAlchemy 2.0 (For details, see [Persistence Layer & Databases](../docs/architecture/backend/persistence.md))
+- **ORM:** SQLAlchemy 2.1 (For details, see [Persistence Layer & Databases](../docs/architecture/backend/persistence.md))
 - **Migrations:** Alembic
 - **Validation:** Pydantic V2
 - **Testing:** Pytest (`pytest-asyncio`)
@@ -117,11 +117,11 @@ uv run ruff format .           # apply formatting (CI runs `ruff format --check 
 # 2. Type checking (strict)
 uv run basedpyright
 
-# 3. Unit tests (SQLite in-memory; no container)
-uv run pytest -m "not integration"
+# 3. Unit tests (SQLite temporary database; no container)
+uv run pytest -m "not integration and not postgres"
 ```
 
-**Postgres/pgvector integration tests** (`-m postgres`, under `tests/integration/`) exercise the VectorChord vector path that SQLite can't. They need a real **Postgres + VectorChord** container — start it from the recipe in [.github/workflows/backend-ci.yml](../.github/workflows/backend-ci.yml) using **Docker or Podman** (`… run … tensorchord/vchord-postgres:pgNN-*`), point `DATABASE_URL` at it (this overrides the `.env` DSN), migrate, then run:
+**Postgres/pgvector integration tests** (`-m postgres`, under `tests/integration/`) exercise the VectorChord vector path that SQLite can't. They need a real **Postgres + VectorChord** container — start it from the recipe in [.github/workflows/ci.yml](../.github/workflows/ci.yml) using **Docker or Podman** (`… run … tensorchord/vchord-postgres:pgNN-*`), point `DATABASE_URL` at it (this overrides the `.env` DSN), migrate, then run:
 
 ```bash
 export DATABASE_URL=postgresql://banneredmare:banneredmare@localhost:5432/banneredmare
@@ -196,5 +196,5 @@ The Bannered Mare targets **one** runtime, and most non-obvious decisions follow
 - **Selective async (§6.1 is a tradeoff, not just a style rule).** `async` is concentrated where it earns its keep — `chat_message` (LLM streaming) and `rag` (embeddings/vector) — while the rest of the DB access stays synchronous SQLAlchemy. Async only buys concurrency for long-lived, provider-bound work; for fast local CRUD it just adds session-management complexity. Don't "make it all async for consistency."
 - **The provider/LLM slice gets the abstraction budget; CRUD slices stay thin.** `src/provider/` is intentionally deep — a transport `gateway`, per-vendor `adapters/` (Strategy), plus split-out `parameters` / `http_errors` / `discovery_filters` / `model_cache` — because it faces the unreliable external world (varying APIs, timeouts, partial streams, rate limits). A normal domain slice is just `router → service → repository`; do **not** mirror the provider layer's depth in a CRUD feature.
 - **The one cache is for the external path.** `discovery_cache` (TTL ~5 min, `core/config.py`) caches provider *model-discovery* results — the slow external call. There is deliberately **no** caching of local DB reads: local Postgres on small data answers in well under a millisecond, so a cache would add staleness bugs for no latency win. Tolerate a small, readable N+1 over a premature optimization.
-- **SQLite in-memory for unit tests; Postgres+VectorChord only for the vector path (§5.2).** The default suite runs container-free on SQLite; only the pgvector/VectorChord similarity path — which SQLite can't emulate — needs the container (`-m postgres`). Accepted tradeoff: unit tests don't exercise Postgres-specific SQL.
+- **SQLite temporary database for unit tests; Postgres+VectorChord only for the vector path (§5.2).** The default suite runs container-free on SQLite; only the pgvector/VectorChord similarity path — which SQLite can't emulate — needs the container (`-m postgres`). Accepted tradeoff: unit tests don't exercise Postgres-specific SQL.
 - **Typed `.py` seed fixtures, not JSON/TOML (§2.2).** The only reason to externalize was non-dev editability; an agent maintains it, so keep the compile-time typing.

@@ -1,29 +1,10 @@
 """API tests for the canonical-model (registry) + route endpoints."""
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.core.persistence import get_db
-from src.main import app
 from src.model import ModelRegistry, ModelRoute
 from src.model_family import ModelFamily
 from src.provider import Provider, ProviderType
-
-
-@pytest.fixture
-def client(db_session: Session):  # type: ignore[no-untyped-def]
-    """Create a TestClient with the sync database dependency overridden."""
-
-    def override_get_db():  # type: ignore[no-untyped-def]
-        try:
-            yield db_session
-        finally:
-            pass
-
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
-    app.dependency_overrides.clear()
 
 
 def _lmstudio_family(db: Session) -> ModelFamily:

@@ -10,12 +10,11 @@ from src.provider import DiscoveredModel, Provider, ProviderType
 
 def test_list_providers_empty(client: TestClient) -> None:
     """Test listing providers"""
-    # Note: seed_default_providers runs during lifespan, so it's not actually empty
     response = client.get("/api/providers")
     assert response.status_code == 200
     data = response.json()
     # Unified list envelope: { items, meta } (PaginatedResponse), not a bare list.
-    assert isinstance(data["items"], list)
+    assert data["items"] == []
     assert "meta" in data
 
 
