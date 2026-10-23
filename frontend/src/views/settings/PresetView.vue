@@ -27,7 +27,7 @@ const form = reactive({
   name: "",
   description: "",
   is_default: false,
-  parameters: [] as { key: string; value: string }[],
+  parameters: [] as { key: string; value: string | number }[],
 });
 
 onMounted(async () => {
@@ -43,7 +43,7 @@ watch(preset, (p) => {
     form.parameters = p.parameters
       ? Object.entries(p.parameters).map(([key, value]) => ({
           key,
-          value: String(value),
+          value: formatParameter(value),
         }))
       : [];
   }
@@ -63,12 +63,27 @@ function removeParameter(index: number) {
   form.parameters.splice(index, 1);
 }
 
+function formatParameter(value: unknown): string {
+  return typeof value === "string" ? value : (JSON.stringify(value) ?? "");
+}
+
 function parametersToObject(): Record<string, unknown> {
   const obj: Record<string, unknown> = {};
+  const original = preset.value?.parameters ?? {};
   for (const param of form.parameters) {
-    if (!param.key.trim()) continue;
-    const num = Number(param.value);
-    obj[param.key.trim()] = isNaN(num) || param.value.trim() === "" ? param.value : num;
+    const key = param.key.trim();
+    if (!key) continue;
+    const text = String(param.value);
+    // Keep untouched values typed, including numeric-looking strings.
+    if (Object.hasOwn(original, key) && formatParameter(original[key]) === text) {
+      obj[key] = original[key];
+      continue;
+    }
+    try {
+      obj[key] = JSON.parse(text);
+    } catch {
+      obj[key] = text;
+    }
   }
   return obj;
 }
@@ -116,8 +131,8 @@ async function handleSetDefault() {
   }
 }
 
-function isNumericValue(value: string): boolean {
-  return value.trim() !== "" && !isNaN(Number(value));
+function isNumericValue(value: string | number): boolean {
+  return String(value).trim() !== "" && !isNaN(Number(value));
 }
 </script>
 

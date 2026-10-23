@@ -26,7 +26,7 @@ const order = ref(0);
 
 // Advanced matching fields aren't surfaced in this form but are preserved
 // across edits (and sensibly defaulted on create).
-const carried = ref({
+const defaultMatching = () => ({
   secondary_keys: [] as string[],
   secondary_logic: "and_any" as components["schemas"]["SecondaryLogic"],
   case_sensitive: false,
@@ -37,6 +37,7 @@ const carried = ref({
   scan_depth: null as number | null,
   ignore_budget: false,
 });
+const carried = ref(defaultMatching());
 
 watch(
   () => props.initial,
@@ -61,6 +62,8 @@ watch(
         scan_depth: e.scan_depth ?? null,
         ignore_budget: e.ignore_budget,
       };
+    } else {
+      carried.value = defaultMatching();
     }
   },
   { immediate: true },
