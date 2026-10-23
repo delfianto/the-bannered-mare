@@ -33,11 +33,13 @@
       "enabled": false
     },
     {
-      "description": "vitest, its @vitest/* packages, and vite-plus (which vendors its own internal vitest) are tightly-coupled peer dependencies and must move together, or coverage-v8 vs vitest version mismatches break CI",
+      "description": "Keep Vite+, its Vite core alias, Vitest, and coverage packages in the same update group",
       "matchPackageNames": [
         "vitest",
         "@vitest/**",
-        "vite-plus"
+        "vite-plus",
+        "vite",
+        "@voidzero-dev/vite-plus-core"
       ],
       "groupName": "vitest"
     }
