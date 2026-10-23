@@ -26,20 +26,22 @@
       "automerge": true
     },
     {
-      "description": "Never propose major updates (avoid breaking changes)",
+      "description": "Propose major updates for review without automerging",
       "matchUpdateTypes": [
         "major"
       ],
-      "enabled": false
+      "automerge": false
     },
     {
       "description": "vitest, its @vitest/* packages, and vite-plus (which vendors its own internal vitest) are tightly-coupled peer dependencies and must move together, or coverage-v8 vs vitest version mismatches break CI",
       "matchPackageNames": [
         "vitest",
         "@vitest/**",
-        "vite-plus"
+        "vite-plus",
+        "vite",
+        "@voidzero-dev/vite-plus-core"
       ],
-      "groupName": "vitest"
+      "groupName": "vite-plus toolchain"
     }
   ]
 }
