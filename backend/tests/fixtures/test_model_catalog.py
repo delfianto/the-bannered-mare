@@ -16,7 +16,7 @@ from src.model_family.repository import ModelFamilyRepository
 from src.provider.adapters.anthropic import AnthropicAdapter
 from src.provider.adapters.gemini import GeminiAdapter
 from src.provider.adapters.openrouter import OpenRouterAdapter
-from src.provider.parameters import should_minimize_reasoning
+from src.provider.parameters import resolve_effective_parameters, should_minimize_reasoning
 from src.provider.repository import ProviderRepository
 
 
@@ -122,6 +122,12 @@ def test_incremental_seed_preserves_user_choices(db: Session, monkeypatch: pytes
         ("qwen3.8-max", "qwen/qwen3.8"),
         ("minimax-m3.1-flash", "minimax/minimax-m3.1"),
         ("mimo-v2.6-pro", "xiaomi/mimo-v2.6"),
+        ("meta/muse-spark-open", "meta/muse-spark-open"),
+        ("meta/muse-spark-1.3-contributor", "meta/muse-spark-1.3-contributor"),
+        ("meta/muse-glimmer-30b", "meta/muse-glimmer"),
+        ("meta-llama/llama-4-scout", "meta/llama-4-scout"),
+        ("meta-llama/llama-4-maverick", "meta/llama-4-maverick"),
+        ("meta-llama/llama-3.3-70b-instruct", "meta/llama-3.3-instruct"),
     ],
 )
 def test_discovery_uses_exact_catalog_family(db: Session, identifier: str, family_identifier: str):
@@ -133,7 +139,16 @@ def test_discovery_uses_exact_catalog_family(db: Session, identifier: str, famil
 
 @pytest.mark.parametrize(
     "family_identifier",
-    ["openai/gpt-6-reasoning", "anthropic/claude-opus-5.5", "anthropic/claude-fable-5.1"],
+    [
+        "openai/gpt-6-reasoning",
+        "anthropic/claude-opus-5.5",
+        "anthropic/claude-fable-5.1",
+        "meta/muse-wonder",
+        "meta/muse-spark-1.3",
+        "meta/muse-spark-1.3-contributor",
+        "meta/muse-spark-open",
+        "meta/muse-glimmer",
+    ],
 )
 def test_required_thinking_is_not_disabled_for_auxiliary_calls(family_identifier: str):
     data = next(f for f in MODEL_FAMILIES_SEED_DATA if f["family_identifier"] == family_identifier)
@@ -222,3 +237,46 @@ def test_openrouter_only_seed_retains_native_defaults(db: Session, monkeypatch: 
     registry = models.find_by_slug("gemini-4-argon")
     assert registry is not None
     assert registry.parameters == native["parameters"]
+
+
+def test_hosted_muse_drops_incompatible_rp_presets():
+    family = ModelFamily(
+        **next(f for f in MODEL_FAMILIES_SEED_DATA if f["family_identifier"] == "meta/muse-wonder")
+    )
+    registry = ModelRegistry(model_family=family)
+    parameters = resolve_effective_parameters(
+        registry,
+        {
+            "thinking": {"type": "disabled"},
+            "min_p": 0.05,
+            "stop": ["User:"],
+            "frequency_penalty": 0.5,
+            "reasoning_effort": "low",
+        },
+    )
+    payload = OpenRouterAdapter().build_payload(
+        [{"role": "user", "content": "Continue"}],
+        "meta/muse-wonder",
+        True,
+        parameters,
+        minimize_reasoning=should_minimize_reasoning(registry, True),
+    )
+    assert payload["reasoning_effort"] == "low"
+    assert not {"reasoning", "min_p", "stop", "frequency_penalty"} & payload.keys()
+
+
+def test_muse_effort_ranges_respect_contributor_and_open_contracts():
+    families = {f["family_identifier"]: f for f in MODEL_FAMILIES_SEED_DATA}
+    for identifier in ("meta/muse-wonder", "meta/muse-spark-1.3"):
+        schema = families[identifier]["parameters"]["reasoning_effort"]
+        assert schema["type"] == "enum"
+        assert "max" in schema["str_values"]
+    for identifier in (
+        "meta/muse-spark-1.3-contributor",
+        "meta/muse-spark-open",
+        "meta/muse-glimmer",
+    ):
+        schema = families[identifier]["parameters"]["reasoning_effort"]
+        assert schema["type"] == "enum"
+        efforts = schema["str_values"]
+        assert "max" not in efforts and "none" not in efforts
