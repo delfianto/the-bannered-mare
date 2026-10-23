@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { onScopeDispose, ref, watch } from "vue";
 import type { components } from "@/api/schema";
 import { client, extractApiError, streamFetch } from "@/api/client";
 import { useCompletionSignal } from "@/composables/useCompletionSignal";
@@ -66,6 +66,12 @@ export function useChatMessages(
     abortController = null;
     isGenerating.value = false;
   };
+
+  let disposed = false;
+  onScopeDispose(() => {
+    disposed = true;
+    stop();
+  });
 
   // Announce every settled LLM call (success or error — both write audit rows)
   // so listeners like the drawer's Logs tab can refresh without a page reload.
@@ -201,7 +207,8 @@ export function useChatMessages(
       // returns quietly, regenerate restores the reply it optimistically removed.
       throw err;
     } finally {
-      isGenerating.value = false;
+      await reader.cancel().catch(() => {});
+      reader.releaseLock();
     }
 
     if (streamError) {
@@ -224,7 +231,8 @@ export function useChatMessages(
     const placeholderId = addAssistantPlaceholder();
     isGenerating.value = true;
     error.value = null;
-    abortController = new AbortController();
+    const controller = new AbortController();
+    abortController = controller;
 
     try {
       const response = await streamFetch(
@@ -233,7 +241,7 @@ export function useChatMessages(
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(null),
-          signal: abortController.signal,
+          signal: controller.signal,
         },
       );
 
@@ -248,14 +256,18 @@ export function useChatMessages(
         // Stopped mid-regen: readStream dropped the placeholder, so the reply we
         // optimistically removed would otherwise vanish. Refetch to bring it back
         // — but only if we're still on this chat (a chat switch reloads on its own).
-        if (getChatId() === chatId) await loadMessages();
+        if (!disposed && getChatId() === chatId && !abortController) await loadMessages();
         return;
       }
-      error.value = err instanceof Error ? err : new Error("Regeneration failed");
-      isGenerating.value = false;
+      if (abortController !== controller) return;
+      const failure = err instanceof Error ? err : new Error("Regeneration failed");
       await loadMessages();
+      if (abortController === controller) error.value = failure;
     } finally {
-      abortController = null;
+      if (abortController === controller) {
+        abortController = null;
+        isGenerating.value = false;
+      }
       notifyCompletion(chatId);
     }
   };
@@ -301,14 +313,15 @@ export function useChatMessages(
     const placeholderId = addAssistantPlaceholder();
     isGenerating.value = true;
     error.value = null;
-    abortController = new AbortController();
+    const controller = new AbortController();
+    abortController = controller;
 
     try {
       const response = await streamFetch(`/api/chats/${chatId}/messages?stream=true`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content }),
-        signal: abortController.signal,
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -320,13 +333,16 @@ export function useChatMessages(
       // Swap the optimistic user-message id for its persisted one.
       await reconcileSentUserMessage(chatId, tempUserMsg.id);
     } catch (err) {
-      if ((err as Error)?.name === "AbortError") return;
-      error.value = err instanceof Error ? err : new Error("Failed to send message");
-      isGenerating.value = false;
-      // Drop the empty placeholder so a failed send doesn't leave a blank bubble.
+      // Also covers cancellation before response headers (readStream never ran).
       messages.value = messages.value.filter((m) => m.id !== placeholderId || m.content);
+      if ((err as Error)?.name === "AbortError" || abortController !== controller) return;
+      error.value = err instanceof Error ? err : new Error("Failed to send message");
     } finally {
-      abortController = null;
+      // A stopped request can settle after a new send has already begun.
+      if (abortController === controller) {
+        abortController = null;
+        isGenerating.value = false;
+      }
       notifyCompletion(chatId);
     }
   };

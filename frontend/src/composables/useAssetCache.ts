@@ -9,6 +9,10 @@ interface RegistryEntry {
 
 const blobUrlRegistry = new Map<string, RegistryEntry>();
 const inFlightRequests = new Map<string, Promise<string>>();
+// A download may finish after every watcher has left. Keep pending consumers
+// distinct from registered users so a cancelled waiter cannot revoke a URL that
+// another waiter has not adopted yet.
+const pendingConsumers = new Map<string, number>();
 
 export function useAssetCache(urlSource: MaybeRefOrGetter<string | undefined | null>) {
   const cachedSrc = ref<string | undefined>(undefined);
@@ -105,6 +109,7 @@ export function useAssetCache(urlSource: MaybeRefOrGetter<string | undefined | n
       inFlightRequests.set(url, requestPromise);
     }
 
+    pendingConsumers.set(url, (pendingConsumers.get(url) ?? 0) + 1);
     try {
       const blobUrl = await requestPromise;
       if (isCancelled) return;
@@ -122,6 +127,18 @@ export function useAssetCache(urlSource: MaybeRefOrGetter<string | undefined | n
       console.warn("Asset cache failed:", e);
       error.value = e as Error;
       cachedSrc.value = url;
+    } finally {
+      const remaining = (pendingConsumers.get(url) ?? 1) - 1;
+      if (remaining > 0) {
+        pendingConsumers.set(url, remaining);
+      } else {
+        pendingConsumers.delete(url);
+        const entry = blobUrlRegistry.get(url);
+        if (entry && entry.refCount === 0) {
+          URL.revokeObjectURL(entry.blobUrl);
+          blobUrlRegistry.delete(url);
+        }
+      }
     }
   });
 

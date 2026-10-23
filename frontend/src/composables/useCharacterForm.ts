@@ -25,7 +25,16 @@ const NEW_ENTRY_DEFAULTS = {
 } as const satisfies Partial<components["schemas"]["LoreEntryCreate"]>;
 
 export function useCharacterForm(initial?: Partial<CharacterData>) {
-  const data = reactive<CharacterData>({ ...INITIAL_CHARACTER, ...initial });
+  const data = reactive<CharacterData>({
+    ...INITIAL_CHARACTER,
+    ...initial,
+    tags: [...(initial?.tags ?? [])],
+    exampleDialogues: (initial?.exampleDialogues ?? []).map((entry) => ({ ...entry })),
+    lorebook: (initial?.lorebook ?? []).map((entry) => ({
+      ...entry,
+      keywords: [...entry.keywords],
+    })),
+  });
   const id = ref<string | undefined>(initial?.id);
   const saving = ref(false);
   const deleting = ref(false);
@@ -46,7 +55,7 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
 
   function addDialogue() {
     data.exampleDialogues.push({
-      id: `dlg-${Date.now()}`,
+      id: `dlg-${crypto.randomUUID()}`,
       userMessage: "",
       characterReply: "",
     });
@@ -63,7 +72,7 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
 
   function addLorebook() {
     data.lorebook.push({
-      id: `lore-${Date.now()}`,
+      id: `lore-${crypto.randomUUID()}`,
       keywords: [],
       content: "",
       enabled: true,
@@ -231,9 +240,14 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
             character_id: result.id,
           },
         });
-        if (newBook.data) {
-          lorebookId = newBook.data.id;
+        if (newBook.error || !newBook.data) {
+          throw extractApiError(
+            newBook.error,
+            "Failed to create lorebook",
+            newBook.response.status,
+          );
         }
+        lorebookId = newBook.data.id;
       }
 
       if (lorebookId) {
@@ -249,9 +263,16 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
         const currentIds = new Set(data.lorebook.map((e) => e.id));
         for (const entry of existingEntries) {
           if (!currentIds.has(entry.id)) {
-            await client.DELETE("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
+            const removed = await client.DELETE("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
               params: { path: { lorebook_id: lorebookId, entry_id: entry.id } },
             });
+            if (removed.error) {
+              throw extractApiError(
+                removed.error,
+                "Failed to delete lore entry",
+                removed.response.status,
+              );
+            }
           }
         }
 
@@ -266,15 +287,29 @@ export function useCharacterForm(initial?: Partial<CharacterData>) {
           };
 
           if (isNew) {
-            await client.POST("/api/lorebooks/{lorebook_id}/entries", {
+            const created = await client.POST("/api/lorebooks/{lorebook_id}/entries", {
               params: { path: { lorebook_id: lorebookId } },
               body: { ...payload, ...NEW_ENTRY_DEFAULTS },
             });
+            if (created.error) {
+              throw extractApiError(
+                created.error,
+                "Failed to create lore entry",
+                created.response.status,
+              );
+            }
           } else {
-            await client.PUT("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
+            const updated = await client.PUT("/api/lorebooks/{lorebook_id}/entries/{entry_id}", {
               params: { path: { lorebook_id: lorebookId, entry_id: entry.id } },
               body: payload,
             });
+            if (updated.error) {
+              throw extractApiError(
+                updated.error,
+                "Failed to update lore entry",
+                updated.response.status,
+              );
+            }
           }
         }
       }

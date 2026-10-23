@@ -46,10 +46,19 @@ jobs:
       - name: Canonical Classes
         run: bun run lint:canonical
 
-      # Runs the suite with V8 coverage; the thresholds in vite.config.ts fail
-      # the job if coverage drops below the floor (ratchets up as tests land).
+      # Whole-app floors plus strict per-file gates for critical state/transport.
+      # Keep reports available when tests or coverage thresholds fail.
       - name: Test + Coverage
         run: bun run test:coverage
+
+      - name: Upload coverage reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Build
         run: bun run build
