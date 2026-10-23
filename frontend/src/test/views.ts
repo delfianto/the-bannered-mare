@@ -3,15 +3,43 @@ import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia } from "pinia";
 import { createMemoryHistory, createRouter, RouterView } from "vue-router";
 
-export async function mountView(component: Component, path: string, routePath = path) {
+export async function mountView(
+  component: Component,
+  path: string,
+  routePath = path,
+  name?: string,
+) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: routePath, component },
+      { path: routePath, name, component },
+      ...(name === "chat"
+        ? []
+        : [
+            {
+              path: "/chats/:chatId",
+              name: "chat",
+              component: { template: "<div>Chat destination</div>" },
+            },
+          ]),
+      ...(name === "chats"
+        ? []
+        : [
+            {
+              path: "/chats",
+              name: "chats",
+              component: { template: "<div>Chats destination</div>" },
+            },
+          ]),
       {
-        path: "/chats/:chatId",
-        name: "chat",
-        component: { template: "<div>Chat destination</div>" },
+        path: "/characters/create",
+        name: "character-create",
+        component: { template: "<div>Create destination</div>" },
+      },
+      {
+        path: "/characters/:id",
+        name: "character-detail",
+        component: { template: "<div>Character destination</div>" },
       },
       { path: "/:pathMatch(.*)*", component: { template: "<div>Destination</div>" } },
     ],

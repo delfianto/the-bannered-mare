@@ -31,7 +31,8 @@ Open the HTML report to find unexecuted branches before adding tests.
   teleports, dialog focus handling, recursive parameter editing, and sanitized prose.
 
 Vitest runs through `vite-plus/test`, sharing Vite's Vue transform and aliases.
-happy-dom supplies ordinary DOM behavior. The NarrativeText suite opts into jsdom
+happy-dom supplies ordinary DOM behavior. Document/popup navigation is disabled so
+unit tests cannot fetch actual pages; Vue Router navigation remains active. The NarrativeText suite opts into jsdom
 with `// @vitest-environment jsdom`: DOMPurify explicitly does not support happy-dom
 as a trustworthy sanitization environment. Keep the real sanitizer in these tests.
 
@@ -56,6 +57,10 @@ frontend's API expectations; it does not prove the backend implements them.
 `src/test/helpers.ts` supplies `mountComposable` and `deferred`. The first runs setup,
 watchers and lifecycle hooks in a mounted host. The second lets tests resolve
 requests in a chosen order; do not simulate races with arbitrary sleeps.
+
+`src/test/appApi.ts` supplies isolated, test-owned API collections and request records for
+routed workflows. Override individual endpoints with MSW to exercise failure/retry or
+streaming. Keep payload and query assertions alongside the resulting UI assertions.
 
 `src/test/views.ts` supplies a routed component host with a fresh Pinia and small
 helpers for visible buttons and teleported options. Wait for rendered state or a
@@ -85,8 +90,7 @@ Coverage includes all `.ts` and `.vue` product files, including unimported views
 Generated declarations, test helpers, mock fixtures, type-only files and the application
 entry point are excluded. Keep that denominator intact.
 
-Global floors are 52% lines, 51.5% statements, 44% functions and 41.5% branches. They prevent
-backsliding while the remaining view layer gets tested. Critical files have separate
+Global floors are **85% for lines, statements, functions and branches**. Critical files have separate
 minimums so adding UI tests cannot hide a regression in core behavior:
 
 | Files                                                                                  | Lines | Statements | Functions | Branches |
