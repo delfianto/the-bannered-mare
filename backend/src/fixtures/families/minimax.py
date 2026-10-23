@@ -88,4 +88,32 @@ MINIMAX_FAMILIES: list[ModelFamilySeedData] = [
             "models": ["minimax/minimax-m3"],
         },
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "MiniMax M3.1",
+        "family_identifier": "minimax/minimax-m3.1",
+        "description": "MiniMax M3.1. Hosted text generation with model limits verified against the "
+        "OpenRouter catalog (2026-10-23).",
+        "provider_types": ["openrouter", "opencode_go"],
+        "parameters": {
+            "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 524288},
+            "temperature": {"type": "float", "default": 1.0, "min_value": 0.01, "max_value": 1.0},
+            "top_p": {"type": "float", "default": 0.95, "min_value": 0.01, "max_value": 1.0},
+            "thinking": {
+                "type": "object",
+                "properties": {"type": {"type": "enum", "str_values": ["adaptive", "disabled"]}},
+            },
+        },
+        "unsupported_parameters": ["top_k", "frequency_penalty", "presence_penalty"],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "minimax",
+            "developer": "minimax",
+            "context_window": 1048576,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["minimax/minimax-m3.1-flash", "minimax-m3.1-flash"],
+        },
+    },
 ]

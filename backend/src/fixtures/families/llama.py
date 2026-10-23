@@ -63,8 +63,9 @@ LLAMA_FAMILIES: list[ModelFamilySeedData] = [
             "models": [
                 "sao10k/l3.3-euryale-70b",
                 "sao10k/l3.1-70b-hanami-x1",
-                "nousresearch/hermes-3-llama-3.1-70b",
                 "sao10k/l3-lunaris-8b",
+                "nousresearch/hermes-3-llama-3.1-70b",
+                "sao10k/l3.1-euryale-70b",
             ],
         },
     },

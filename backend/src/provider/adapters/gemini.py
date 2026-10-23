@@ -120,6 +120,9 @@ class GeminiAdapter(ProviderAdapter):
         if minimize_reasoning:
             if "thinking_budget" in parameters:
                 thinking_config = {"thinkingBudget": 0}
+            elif model.startswith(("gemini-3.8", "gemini-4")):
+                # These generations reject minimal; low is their lowest valid tier.
+                thinking_config = {"thinkingLevel": "low"}
             else:
                 thinking_config = {"thinkingLevel": "minimal"}
         if thinking_config:
@@ -221,4 +224,5 @@ class GeminiAdapter(ProviderAdapter):
         )
 
     def get_timeout(self, model: str) -> float:
-        return 120.0
+        # Argon reasoning requests can take several minutes, even without long decode.
+        return 900.0 if model.startswith("gemini-4") else 120.0

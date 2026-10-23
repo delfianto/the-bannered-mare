@@ -45,4 +45,31 @@ XAI_MODELS: list[ModelSeedData] = [
         },
         "enabled": False,
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "Grok 4.6",
+        "model_identifier": "grok-4.6",
+        "family_identifier": "xai/grok-4.6",
+        "provider_type": "xai",
+        "parameters": {
+            "max_completion_tokens": 8192,
+            "temperature": 0.9,
+            "top_p": 0.92,
+            "reasoning_effort": "low",
+        },
+        "enabled": False,
+    },
+    {
+        "name": "Grok 4.7",
+        "model_identifier": "grok-4.7",
+        "family_identifier": "xai/grok-4.7",
+        "provider_type": "xai",
+        "parameters": {
+            "max_completion_tokens": 8192,
+            "temperature": 0.9,
+            "top_p": 0.92,
+            "reasoning_effort": "low",
+        },
+        "enabled": False,
+    },
 ]

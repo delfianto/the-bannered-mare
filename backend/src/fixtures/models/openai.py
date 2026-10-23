@@ -156,4 +156,53 @@ OPENAI_MODELS: list[ModelSeedData] = [
         "parameters": {**_THINKING_PARAMS, "max_completion_tokens": 8192},
         "enabled": False,
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "GPT-6 Astra",
+        "model_identifier": "gpt-6-astra",
+        "family_identifier": "openai/gpt-6-reasoning",
+        "provider_type": "openai",
+        "parameters": {
+            "max_completion_tokens": 16384,
+            "reasoning_effort": "low",
+            "verbosity": "low",
+        },
+        "enabled": False,
+    },
+    {
+        "name": "GPT-6 Sol",
+        "model_identifier": "gpt-6-sol",
+        "family_identifier": "openai/gpt-6",
+        "provider_type": "openai",
+        "parameters": {
+            "max_completion_tokens": 16384,
+            "reasoning_effort": "low",
+            "verbosity": "low",
+        },
+        "enabled": False,
+    },
+    {
+        "name": "GPT-6.1 Sol",
+        "model_identifier": "gpt-6.1-sol",
+        "family_identifier": "openai/gpt-6-reasoning",
+        "provider_type": "openai",
+        "parameters": {
+            "max_completion_tokens": 16384,
+            "reasoning_effort": "low",
+            "verbosity": "low",
+        },
+        "enabled": False,
+    },
+    {
+        "name": "GPT-6 Luna",
+        "model_identifier": "gpt-6-luna",
+        "family_identifier": "openai/gpt-6",
+        "provider_type": "openai",
+        "parameters": {
+            "max_completion_tokens": 16384,
+            "reasoning_effort": "low",
+            "verbosity": "low",
+        },
+        "enabled": False,
+    },
 ]

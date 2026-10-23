@@ -91,4 +91,39 @@ DEEPSEEK_FAMILIES: list[ModelFamilySeedData] = [
             "models": ["deepseek/deepseek-r1"],
         },
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "DeepSeek V4.1",
+        "family_identifier": "deepseek/deepseek-v4.1",
+        "description": "DeepSeek V4.1. Hosted text generation with model limits verified against the "
+        "OpenRouter catalog (2026-10-23).",
+        "provider_types": ["openrouter", "opencode_go"],
+        "parameters": {
+            "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 943718},
+            "temperature": {"type": "float", "default": 1.0, "min_value": 0.0, "max_value": 2.0},
+            "top_p": {"type": "float", "default": 0.95, "min_value": 0.0, "max_value": 1.0},
+            "frequency_penalty": {
+                "type": "float",
+                "default": 0.0,
+                "min_value": -2.0,
+                "max_value": 2.0,
+            },
+            "presence_penalty": {
+                "type": "float",
+                "default": 0.0,
+                "min_value": -2.0,
+                "max_value": 2.0,
+            },
+        },
+        "unsupported_parameters": [],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "deepseek",
+            "context_window": 1048576,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["deepseek/deepseek-v4.1-flash", "deepseek-v4.1-flash"],
+        },
+    },
 ]
