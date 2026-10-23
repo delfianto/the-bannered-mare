@@ -100,6 +100,7 @@ export function useLorebooks() {
   };
 
   const createLorebook = async (payload: LorebookCreate): Promise<LorebookResponse | null> => {
+    error.value = null;
     try {
       const { data, error: apiError } = await client.POST("/api/lorebooks", {
         body: payload,
@@ -115,6 +116,7 @@ export function useLorebooks() {
       }
       return null;
     } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error("Error creating lorebook:", err);
       return null;
     }
@@ -124,6 +126,7 @@ export function useLorebooks() {
     id: string,
     payload: LorebookUpdate,
   ): Promise<LorebookResponse | null> => {
+    error.value = null;
     try {
       const { data, error: apiError } = await client.PUT("/api/lorebooks/{lorebook_id}", {
         params: { path: { lorebook_id: id } },
@@ -141,12 +144,14 @@ export function useLorebooks() {
       }
       return null;
     } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error("Error updating lorebook:", err);
       return null;
     }
   };
 
   const deleteLorebook = async (id: string): Promise<boolean> => {
+    error.value = null;
     try {
       const { error: apiError } = await client.DELETE("/api/lorebooks/{lorebook_id}", {
         params: { path: { lorebook_id: id } },
@@ -159,6 +164,7 @@ export function useLorebooks() {
       lorebooks.value = lorebooks.value.filter((l) => l.id !== id);
       return true;
     } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error("Error deleting lorebook:", err);
       return false;
     }
@@ -168,6 +174,7 @@ export function useLorebooks() {
     lorebookId: string,
     payload: LoreEntryCreate,
   ): Promise<LoreEntryResponse | null> => {
+    error.value = null;
     try {
       const { data, error: apiError } = await client.POST("/api/lorebooks/{lorebook_id}/entries", {
         params: { path: { lorebook_id: lorebookId } },
@@ -183,6 +190,7 @@ export function useLorebooks() {
       }
       return data ?? null;
     } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error("Error creating lore entry:", err);
       return null;
     }
@@ -193,6 +201,7 @@ export function useLorebooks() {
     entryId: string,
     payload: LoreEntryUpdate,
   ): Promise<LoreEntryResponse | null> => {
+    error.value = null;
     try {
       const { data, error: apiError } = await client.PUT(
         "/api/lorebooks/{lorebook_id}/entries/{entry_id}",
@@ -212,12 +221,14 @@ export function useLorebooks() {
       }
       return data ?? null;
     } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error("Error updating lore entry:", err);
       return null;
     }
   };
 
   const deleteEntry = async (lorebookId: string, entryId: string): Promise<boolean> => {
+    error.value = null;
     try {
       const { error: apiError } = await client.DELETE(
         "/api/lorebooks/{lorebook_id}/entries/{entry_id}",
@@ -237,6 +248,7 @@ export function useLorebooks() {
       }
       return true;
     } catch (err) {
+      error.value = err instanceof Error ? err : new Error("Unknown error");
       console.error("Error deleting lore entry:", err);
       return false;
     }

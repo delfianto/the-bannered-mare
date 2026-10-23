@@ -25,6 +25,8 @@ Open the HTML report to find unexecuted branches before adding tests.
   request races, retries, and persistence.
 - API integration tests exercise the real typed client through MSW. They assert
   request bodies/query parameters and the resulting state, including rejected writes.
+- Routed screen tests use a memory router, real Pinia/composables and test-owned MSW
+  responses to verify settings saves, model routes, setup completion, and lore editing.
 - Component tests mount real Vue components and exercise inputs, emitted values,
   teleports, dialog focus handling, recursive parameter editing, and sanitized prose.
 
@@ -34,8 +36,8 @@ with `// @vitest-environment jsdom`: DOMPurify explicitly does not support happy
 as a trustworthy sanitization environment. Keep the real sanitizer in these tests.
 
 These are unit/component tests, not browser end-to-end tests. CSS layout, actual
-browser focus/scroll behavior, upload/download interactions, and complete routed
-journeys still need a future Playwright suite. An MSW-backed test verifies the
+browser focus/scroll behavior, browser upload/download interactions, and complete
+journeys in a real browser still need a future Playwright suite. An MSW-backed test verifies the
 frontend's API expectations; it does not prove the backend implements them.
 
 ## Adding a regression
@@ -54,6 +56,11 @@ frontend's API expectations; it does not prove the backend implements them.
 `src/test/helpers.ts` supplies `mountComposable` and `deferred`. The first runs setup,
 watchers and lifecycle hooks in a mounted host. The second lets tests resolve
 requests in a chosen order; do not simulate races with arbitrary sleeps.
+
+`src/test/views.ts` supplies a routed component host with a fresh Pinia and small
+helpers for visible buttons and teleported options. Wait for rendered state or a
+completed request's feedback before the next action; an input's native checked state
+alone does not prove that its asynchronous save has finished.
 
 The global setup registers i18n and shared primitives, starts MSW, rejects unhandled
 requests, resets per-test handlers, and automatically unmounts wrappers. Create a
@@ -78,7 +85,7 @@ Coverage includes all `.ts` and `.vue` product files, including unimported views
 Generated declarations, test helpers, mock fixtures, type-only files and the application
 entry point are excluded. Keep that denominator intact.
 
-Global floors are 31.5% lines/statements, 26.5% functions and 23.5% branches. They prevent
+Global floors are 52% lines, 51.5% statements, 44% functions and 41.5% branches. They prevent
 backsliding while the remaining view layer gets tested. Critical files have separate
 minimums so adding UI tests cannot hide a regression in core behavior:
 
@@ -87,6 +94,11 @@ minimums so adding UI tests cannot hide a regression in core behavior:
 | API client                                                                             |   95% |        95% |       95% |      90% |
 | Each store                                                                             |   95% |        90% |       95% |      80% |
 | Asset cache, character form, chat messages/creation, entity/list CRUD, page pagination |   95% |        90% |       90% |      80% |
+
+Additional per-file gates cover the profile form (95% lines/90% branches), lorebook
+persistence (95%/70%), prompt-template persistence (95%/90%), and model settings
+(95%/80%). The setup wizard, lorebook screen, and provider/preset/template settings
+each require 85% lines, 80% statements, 60% functions and 55% branches.
 
 Raise floors when meaningful coverage grows. Do not exclude difficult product files,
 weaken assertions, or stub out the behavior being measured to meet a percentage.

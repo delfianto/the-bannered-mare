@@ -21,6 +21,7 @@ const {
   lorebooks,
   currentLorebook,
   loading,
+  error,
   fetchLorebooks,
   fetchLorebook,
   createLorebook,
@@ -105,12 +106,18 @@ async function submitLorebook() {
       if (res) {
         toast.success(t("lorebooks.toast.updated"));
         await fetchLorebook(editingLorebook.value.id);
+      } else {
+        toast.error(error.value?.message || t("common.error"));
+        return;
       }
     } else {
       const res = await createLorebook(payload);
       if (res) {
         toast.success(t("lorebooks.toast.created"));
         await selectLorebook(res.id);
+      } else {
+        toast.error(error.value?.message || t("common.error"));
+        return;
       }
     }
     showLorebookForm.value = false;
@@ -154,10 +161,18 @@ async function submitEntry(payload: LoreEntryCreate) {
     const lbId = currentLorebook.value.id;
     if (editingEntry.value) {
       const res = await updateEntry(lbId, editingEntry.value.id, payload);
-      if (res) toast.success(t("lorebooks.toast.entrySaved"));
+      if (!res) {
+        toast.error(error.value?.message || t("common.error"));
+        return;
+      }
+      toast.success(t("lorebooks.toast.entrySaved"));
     } else {
       const res = await createEntry(lbId, payload);
-      if (res) toast.success(t("lorebooks.toast.entryAdded"));
+      if (!res) {
+        toast.error(error.value?.message || t("common.error"));
+        return;
+      }
+      toast.success(t("lorebooks.toast.entryAdded"));
     }
     showEntryForm.value = false;
     editingEntry.value = null;

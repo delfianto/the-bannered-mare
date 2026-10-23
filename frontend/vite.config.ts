@@ -72,10 +72,42 @@ export default defineConfig(({ command }) => {
         // Whole-app floors include unmounted views; critical state/transport
         // modules also have per-file gates so UI coverage can't mask a regression.
         thresholds: {
-          lines: 31.5,
-          statements: 31.5,
-          functions: 26.5,
-          branches: 23.5,
+          lines: 52,
+          statements: 51.5,
+          functions: 44,
+          branches: 41.5,
+          "src/components/profiles/ProfileForm.vue": {
+            lines: 95,
+            statements: 95,
+            functions: 95,
+            branches: 90,
+          },
+          "src/composables/useLorebooks.ts": {
+            lines: 95,
+            statements: 95,
+            functions: 95,
+            branches: 70,
+          },
+          "src/composables/usePromptTemplate.ts": {
+            lines: 95,
+            statements: 95,
+            functions: 95,
+            branches: 90,
+          },
+          "src/views/settings/ModelView.vue": {
+            lines: 95,
+            statements: 90,
+            functions: 90,
+            branches: 80,
+          },
+          "src/views/{LorebooksView,SetupWizardView,settings/{ProviderView,PresetView,TemplateView}}.vue":
+            {
+              perFile: true,
+              lines: 85,
+              statements: 80,
+              functions: 60,
+              branches: 55,
+            },
           "src/api/client.ts": { lines: 95, statements: 95, functions: 95, branches: 90 },
           "src/stores/*.ts": {
             perFile: true,
