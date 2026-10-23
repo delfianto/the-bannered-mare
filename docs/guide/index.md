@@ -53,7 +53,7 @@ consume. Under the hood it is built from a focused, strictly typed stack:
 | Runtime | Python 3.14+ |
 | Framework | FastAPI (ASGI) |
 | Database | PostgreSQL + VectorChord (the `vchord` extension, on pgvector) |
-| ORM | SQLAlchemy 2.0 (async + sync) |
+| ORM | SQLAlchemy 2.1 (async + sync) |
 | Migrations | Alembic |
 | Validation | Pydantic V2 |
 | HTTP client | httpx (async streaming) |
@@ -69,7 +69,7 @@ API keys for whichever providers you plan to use.
 
 ```bash
 cd backend
-pip install -e ".[dev]"
+uv sync --locked --extra dev
 cp .env.example .env        # then edit DATABASE_URL and provider API keys
 ```
 
@@ -118,9 +118,9 @@ parses the server-sent event (SSE) stream that carries live completions. Its sta
 | Layer | Choice |
 |-------|--------|
 | Framework | Vue 3.5 — `<script setup lang="ts">` Composition API |
-| Toolchain | [Vite+](https://vite-plus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
+| Toolchain | [Vite+](https://viteplus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
 | Package manager | Bun |
-| Language | TypeScript 6 (strict) |
+| Language | TypeScript 7.0.2 via the pinned native compatibility bridge (strict) |
 | UI library | [DaisyUI 5](https://daisyui.com) — a Tailwind CSS plugin via `@tailwindcss/vite` |
 | Styling | Tailwind CSS v4 with custom CSS variables |
 | State | Pinia (global) + composables (feature-scoped) |
@@ -140,8 +140,8 @@ bun run dev --host          # dev server on http://localhost:5173, proxying /api
 ```
 
 The frontend's canonical quality gate is `bun run build` — a strict Vue type-check
-(`vue-tsc -b`) followed by the Rolldown production build. `vp check` (format, lint, and
-type-check in one pass) is the faster inner-loop check while you work.
+(`vue-tsc -b`) followed by the Rolldown production build. `bun run check` combines
+Vite+ formatting/linting with the Vue type checker while you work.
 
 ### Developing without a backend
 

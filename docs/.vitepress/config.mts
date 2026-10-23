@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitepress'
-import { apiSidebar } from './sidebar.api'
-import { architectureSidebar } from './sidebar.architecture'
-import { guideSidebar } from './sidebar.guide'
-import { providersSidebar } from './sidebar.providers'
-import { sillytavernSidebar } from './sidebar.sillytavern'
+import { apiSidebar } from './sidebar.api.ts'
+import { architectureSidebar } from './sidebar.architecture.ts'
+import { guideSidebar } from './sidebar.guide.ts'
+import { providersSidebar } from './sidebar.providers.ts'
+import { sillytavernSidebar } from './sidebar.sillytavern.ts'
 
 export default defineConfig({
   title: 'The Bannered Mare',
