@@ -61,7 +61,7 @@ function reload() {
               class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-primary/90"
               @click="reload"
             >
-              <AppIcon name="i-lucide-rotate-cw" class="size-4" />
+              <AppIcon name="i-lucide-refresh-cw" class="size-4" />
               {{ t("common.errorBoundary.reload") }}
             </button>
           </div>

@@ -72,11 +72,17 @@ async function onSubmit(payload: ProfileCreate) {
     if (editing.value) {
       const res = await updateProfile(editing.value.id, payload);
       if (res) toast.success(t("profiles.toast.updated"));
-      else toast.error(t("profiles.toast.updateFailed"));
+      else {
+        toast.error(t("profiles.toast.updateFailed"));
+        return;
+      }
     } else {
       const res = await createProfile(payload);
       if (res) toast.success(t("profiles.toast.created"));
-      else toast.error(t("profiles.toast.createFailed"));
+      else {
+        toast.error(t("profiles.toast.createFailed"));
+        return;
+      }
     }
     showForm.value = false;
     editing.value = null;

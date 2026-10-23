@@ -51,6 +51,13 @@ export default defineConfig(({ command }) => {
       // Preserve mock call history across the Vitest 5 migration.
       clearMocks: false,
       environment: "happy-dom",
+      environmentOptions: {
+        happyDOM: {
+          settings: {
+            navigation: { disableMainFrameNavigation: true, disableChildPageNavigation: true },
+          },
+        },
+      },
       globals: false,
       setupFiles: ["./src/test/setup-globals.ts", "./src/test/setup.ts"],
       include: ["src/**/*.{test,spec}.ts"],
@@ -72,10 +79,10 @@ export default defineConfig(({ command }) => {
         // Whole-app floors include unmounted views; critical state/transport
         // modules also have per-file gates so UI coverage can't mask a regression.
         thresholds: {
-          lines: 52,
-          statements: 51.5,
-          functions: 44,
-          branches: 41.5,
+          lines: 85,
+          statements: 85,
+          functions: 85,
+          branches: 85,
           "src/components/profiles/ProfileForm.vue": {
             lines: 95,
             statements: 95,

@@ -1,7 +1,7 @@
 // Global harness for component tests. Mirrors main.ts's app wiring so
 // `mount()` gets i18n + the three globally-registered primitives without each
 // test repeating the setup.
-import { config, enableAutoUnmount } from "@vue/test-utils";
+import { config, enableAutoUnmount, flushPromises } from "@vue/test-utils";
 import { afterAll, afterEach, beforeAll } from "vite-plus/test";
 import i18n from "@/i18n";
 import AppIcon from "@/components/shared/AppIcon.vue";
@@ -19,5 +19,9 @@ config.global.components = { AppIcon, SelectMenu, AppToggle };
 // `onUnhandledFrame: "error"` turns any endpoint the fixtures don't cover into
 // a loud failure instead of a silent network passthrough.
 beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
-afterEach(() => server.resetHandlers());
+afterEach(async () => {
+  // Let requests started by the last interaction settle before removing their handlers.
+  await flushPromises();
+  server.resetHandlers();
+});
 afterAll(() => server.close());

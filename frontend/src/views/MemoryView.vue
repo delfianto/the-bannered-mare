@@ -121,14 +121,14 @@ async function saveForm() {
       content: formContent.value,
       scope: formScope.value,
     };
-    await updateEntry(editingId.value, payload);
+    if (!(await updateEntry(editingId.value, payload))) return;
   } else {
     const payload: DataBankCreate = {
       name: formName.value,
       content: formContent.value,
       scope: formScope.value,
     };
-    await createEntry(payload);
+    if (!(await createEntry(payload))) return;
   }
 
   showForm.value = false;
