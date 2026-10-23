@@ -34,7 +34,7 @@ const PAGE_LIMIT = 10;
 const totalCount = allModelFamiliesMock.length;
 const totalPages = Math.ceil(totalCount / PAGE_LIMIT);
 
-// Generate pages dynamically (19 families = 2 pages: 10 + 9)
+// Generate pages from the current catalog.
 export const modelFamiliesPages: ModelFamilyPage[] = Array.from({ length: totalPages }, (_, i) => {
   const pageNum = i + 1;
   const start = i * PAGE_LIMIT;

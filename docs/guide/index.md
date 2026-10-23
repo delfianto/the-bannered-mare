@@ -147,7 +147,7 @@ Vite+ formatting/linting with the Vue type checker while you work.
 
 You don't actually need the backend running to work on the UI. The frontend ships an **MSW
 mock harness** that intercepts every API call in the browser and answers from fixtures —
-9 providers, 38 models across 24 families, 20 Elder Scrolls-themed characters, and 20
+9 providers, 65 models across 45 families, 20 Elder Scrolls-themed characters, and 20
 chats backed by YAML conversation scenarios. Turn it on with an environment flag:
 
 ```bash
