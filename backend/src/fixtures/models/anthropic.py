@@ -118,4 +118,37 @@ ANTHROPIC_MODELS: list[ModelSeedData] = [
         },
         "enabled": False,
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "Claude Fable 5.1",
+        "model_identifier": "claude-fable-5-1",
+        "family_identifier": "anthropic/claude-fable-5.1",
+        "provider_type": "anthropic",
+        "parameters": {"max_tokens": 16384, "effort": "low", "thinking": {"type": "adaptive"}},
+        "enabled": False,
+    },
+    {
+        "name": "Claude Opus 5.5",
+        "model_identifier": "claude-opus-5-5",
+        "family_identifier": "anthropic/claude-opus-5.5",
+        "provider_type": "anthropic",
+        "parameters": {"max_tokens": 16384, "effort": "low", "thinking": {"type": "adaptive"}},
+        "enabled": False,
+    },
+    {
+        "name": "Claude Sonnet 5.5",
+        "model_identifier": "claude-sonnet-5-5",
+        "family_identifier": "anthropic/claude-sonnet-5.5",
+        "provider_type": "anthropic",
+        "parameters": {"max_tokens": 16384, "effort": "low", "thinking": {"type": "adaptive"}},
+        "enabled": False,
+    },
+    {
+        "name": "Claude Haiku 5.5",
+        "model_identifier": "claude-haiku-5-5",
+        "family_identifier": "anthropic/claude-haiku-5.5",
+        "provider_type": "anthropic",
+        "parameters": {"max_tokens": 16384, "effort": "low", "thinking": {"type": "disabled"}},
+        "enabled": False,
+    },
 ]

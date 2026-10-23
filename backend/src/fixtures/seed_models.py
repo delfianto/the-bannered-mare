@@ -43,13 +43,7 @@ def seed_models(
         logger.info("model_seeding_disabled_globally")
         return
 
-    if model_repo.count() > 0:
-        logger.warning(
-            "model_seeding_skipped",
-            message="Model registry is not empty. Skipping seeding.",
-        )
-        return
-
+    # Catalog releases add missing models/routes without replacing user settings.
     logger.info("seeding_models_started")
 
     for provider_type, models in ALL_MODELS.items():

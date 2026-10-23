@@ -45,6 +45,19 @@ def normalize_slug(model_identifier: str) -> str:
 def resolve_family(db: Session, model_identifier: str) -> ModelFamily | None:
     """Best-effort family for a raw identifier via keyword rules; None if no rule matches."""
     lower_id = model_identifier.lower()
+    # Exact catalog identifiers take precedence over broad generation keywords.
+    # Native Claude uses hyphens where aggregators use dots.
+    normalized = normalize_slug(lower_id).replace(".", "-")
+    for family in db.query(ModelFamily).all():
+        identifiers = (family.extra_metadata or {}).get("models", [])
+        if not isinstance(identifiers, list):
+            continue
+        if any(
+            normalize_slug(identifier).replace(".", "-") == normalized
+            for identifier in identifiers
+            if isinstance(identifier, str)
+        ):
+            return family
     for keywords, name_pattern in _FAMILY_MATCH_RULES:
         if all(keyword in lower_id for keyword in keywords):
             family = db.query(ModelFamily).filter(ModelFamily.name.ilike(name_pattern)).first()

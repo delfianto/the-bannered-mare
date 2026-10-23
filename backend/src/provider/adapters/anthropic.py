@@ -158,8 +158,13 @@ class AnthropicAdapter(ProviderAdapter):
         # Auxiliary calls disable thinking outright — authoritative over both the
         # forwarded thinking mode and the adaptive-effort output_config above.
         if minimize_reasoning:
-            payload["thinking"] = {"type": "disabled"}
-            payload.pop("output_config", None)
+            if model.startswith("claude-sonnet-5-5"):
+                # Sonnet 5.5 rejects disabled; between_tools is its chat-only mode.
+                payload["thinking"] = {"type": "between_tools"}
+                payload["output_config"] = {"effort": "low"}
+            else:
+                payload["thinking"] = {"type": "disabled"}
+                payload.pop("output_config", None)
 
         return payload
 

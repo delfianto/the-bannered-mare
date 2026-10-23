@@ -45,7 +45,19 @@ class OpenRouterAdapter(OpenAIAdapter):
         parameters: dict[str, Any],
         minimize_reasoning: bool = False,
     ) -> dict[str, Any]:
-        payload = super().build_payload(messages, model, stream, parameters, minimize_reasoning)
+        # Registry parameters use the native provider's names. Translate the
+        # output budget and effort when the same model takes an OpenRouter route.
+        translated = dict(parameters)
+        if "max_output_tokens" in translated:
+            translated.setdefault("max_tokens", translated["max_output_tokens"])
+        if "effort" in translated:
+            translated.setdefault("reasoning_effort", translated["effort"])
+        if "thinking_level" in translated:
+            translated.setdefault("reasoning_effort", translated["thinking_level"])
+        thinking = translated.get("thinking")
+        if isinstance(thinking, dict) and thinking.get("type") == "disabled":
+            translated.pop("reasoning_effort", None)
+        payload = super().build_payload(messages, model, stream, translated, minimize_reasoning)
 
         if not model.startswith("anthropic/"):
             return payload

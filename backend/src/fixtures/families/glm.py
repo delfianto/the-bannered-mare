@@ -87,4 +87,66 @@ GLM_FAMILIES: list[ModelFamilySeedData] = [
             "models": ["z-ai/glm-5", "z-ai/glm-5.1", "z-ai/glm-5.2"],
         },
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "GLM 5.3",
+        "family_identifier": "zai/glm-5.3",
+        "description": "GLM 5.3. Hosted text generation with model limits verified against the OpenRouter "
+        "catalog (2026-10-23).",
+        "provider_types": ["openrouter", "opencode_go"],
+        "parameters": {
+            "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 943718},
+            "reasoning_effort": {
+                "type": "enum",
+                "default": "medium",
+                "str_values": ["low", "medium", "high"],
+            },
+            "temperature": {"type": "float", "default": 1.0, "min_value": 0.0, "max_value": 1.0},
+            "top_p": {"type": "float", "default": 0.95, "min_value": 0.01, "max_value": 1.0},
+            "top_k": {"type": "int", "default": 40, "min_value": 1, "max_value": 100},
+            "thinking": {
+                "type": "object",
+                "properties": {"type": {"type": "enum", "str_values": ["enabled", "disabled"]}},
+            },
+        },
+        "unsupported_parameters": [],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "glm",
+            "developer": "zhipu",
+            "context_window": 1048576,
+            "supports_vision": False,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["z-ai/glm-5.3", "glm-5.3"],
+        },
+    },
+    {
+        "name": "GLM 5.3 Flash",
+        "family_identifier": "zai/glm-5.3-flash",
+        "description": "GLM 5.3 Flash. Hosted text generation with model limits verified against the "
+        "OpenRouter catalog (2026-10-23).",
+        "provider_types": ["openrouter", "opencode_go"],
+        "parameters": {
+            "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 943718},
+            "temperature": {"type": "float", "default": 1.0, "min_value": 0.0, "max_value": 1.0},
+            "top_p": {"type": "float", "default": 0.95, "min_value": 0.01, "max_value": 1.0},
+            "top_k": {"type": "int", "default": 40, "min_value": 1, "max_value": 100},
+            "thinking": {
+                "type": "object",
+                "properties": {"type": {"type": "enum", "str_values": ["enabled", "disabled"]}},
+            },
+        },
+        "unsupported_parameters": [],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "glm",
+            "developer": "zhipu",
+            "context_window": 1048576,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["z-ai/glm-5.3-flash", "glm-5.3-flash"],
+        },
+    },
 ]

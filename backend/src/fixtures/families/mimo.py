@@ -62,4 +62,54 @@ MIMO_FAMILIES: list[ModelFamilySeedData] = [
             "models": ["xiaomi/mimo-v2.5", "xiaomi/mimo-v2.5-pro"],
         },
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "Xiaomi MiMo V2.6",
+        "family_identifier": "xiaomi/mimo-v2.6",
+        "description": "Xiaomi MiMo V2.6. Hosted text generation with model limits verified against the "
+        "OpenRouter catalog (2026-10-23).",
+        "provider_types": ["openrouter", "opencode_go"],
+        "parameters": {
+            "max_tokens": {"type": "int", "default": 4096, "min_value": 1, "max_value": 131072},
+            "temperature": {"type": "float", "default": 1.0, "min_value": 0.0, "max_value": 2.0},
+            "top_p": {"type": "float", "default": 0.95, "min_value": 0.0, "max_value": 1.0},
+            "top_k": {"type": "int", "default": 40, "min_value": 1, "max_value": 100},
+            "min_p": {"type": "float", "default": 0.0, "min_value": 0.0, "max_value": 1.0},
+            "frequency_penalty": {
+                "type": "float",
+                "default": 0.0,
+                "min_value": -2.0,
+                "max_value": 2.0,
+            },
+            "presence_penalty": {
+                "type": "float",
+                "default": 0.0,
+                "min_value": -2.0,
+                "max_value": 2.0,
+            },
+            "repetition_penalty": {
+                "type": "float",
+                "default": 1.0,
+                "min_value": 1.0,
+                "max_value": 2.0,
+            },
+        },
+        "unsupported_parameters": [],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "mimo",
+            "developer": "xiaomi",
+            "context_window": 1050000,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "supports_reasoning": True,
+            "models": [
+                "xiaomi/mimo-v2.6-pro",
+                "xiaomi/mimo-v2.6-flash",
+                "mimo-v2.6-pro",
+                "mimo-v2.6-flash",
+            ],
+        },
+    },
 ]

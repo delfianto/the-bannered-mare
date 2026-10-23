@@ -85,4 +85,39 @@ CLAUDE_SONNET_FAMILIES: list[ModelFamilySeedData] = [
             "models": ["claude-sonnet-5"],
         },
     },
+    # Catalog refresh: 2026-10-23; https://platform.claude.com/docs/en/build-with-claude/effort
+    {
+        "name": "Claude Sonnet 5.5",
+        "family_identifier": "anthropic/claude-sonnet-5.5",
+        "description": "Claude Sonnet 5.5. 1M context, 128K output. Adaptive thinking; sampling "
+        "parameters removed.",
+        "provider_types": ["anthropic", "openrouter"],
+        "parameters": {
+            "max_tokens": {"type": "int", "default": 8192, "min_value": 1, "max_value": 128000},
+            "effort": {
+                "type": "enum",
+                "default": "high",
+                "str_values": ["low", "medium", "high", "xhigh", "max"],
+            },
+            "stop_sequences": {"type": "list", "item_schema": {"type": "string"}},
+            "stream": {"type": "boolean", "default": True},
+            "system": {"type": "string"},
+            "thinking": {
+                "type": "object",
+                "properties": {
+                    "type": {"type": "enum", "str_values": ["adaptive", "between_tools"]}
+                },
+            },
+        },
+        "unsupported_parameters": ["temperature", "top_p", "top_k", "budget_tokens"],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "claude-sonnet",
+            "context_window": 1000000,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["claude-sonnet-5-5", "anthropic/claude-sonnet-5.5"],
+        },
+    },
 ]

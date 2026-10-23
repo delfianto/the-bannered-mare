@@ -90,7 +90,7 @@ KIMI_FAMILIES: list[ModelFamilySeedData] = [
             "supports_function_calling": True,
             "supports_prompt_caching": True,
             "note": "thinking ~temp 1.0, instant ~temp 0.6; max_tokens >= 16000 for full reasoning",
-            "models": ["moonshotai/kimi-k3"],
+            "models": ["moonshotai/kimi-k3", "kimi-k3"],
         },
     },
 ]

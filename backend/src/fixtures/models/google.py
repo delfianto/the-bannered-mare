@@ -107,4 +107,29 @@ GOOGLE_MODELS: list[ModelSeedData] = [
         "parameters": {**_GEMINI_3_PARAMS},
         "enabled": False,
     },
+    # Catalog refresh: 2026-10-23; https://openrouter.ai/api/v1/models
+    {
+        "name": "Gemini 3.5 Flash-Lite",
+        "model_identifier": "gemini-3.5-flash-lite",
+        "family_identifier": "google/gemini-3.5",
+        "provider_type": "google",
+        "parameters": {"max_output_tokens": 8192, "thinking_level": "low"},
+        "enabled": False,
+    },
+    {
+        "name": "Gemini 3.8 Flash",
+        "model_identifier": "gemini-3.8-flash",
+        "family_identifier": "google/gemini-3.8",
+        "provider_type": "google",
+        "parameters": {"max_output_tokens": 16384, "thinking_level": "low"},
+        "enabled": False,
+    },
+    {
+        "name": "Gemini 4 Argon",
+        "model_identifier": "gemini-4-argon",
+        "family_identifier": "google/gemini-4",
+        "provider_type": "google",
+        "parameters": {"max_output_tokens": 32768, "thinking_level": "low"},
+        "enabled": False,
+    },
 ]

@@ -154,7 +154,12 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "supports_vision": True,
             "supports_function_calling": True,
             "supports_prompt_caching": True,
-            "models": ["gemini-3.5-flash"],
+            "models": [
+                "gemini-3.5-flash",
+                "gemini-3.5-flash-lite",
+                "google/gemini-3.5-flash",
+                "google/gemini-3.5-flash-lite",
+            ],
         },
     },
     {
@@ -206,6 +211,177 @@ GEMINI_FAMILIES: list[ModelFamilySeedData] = [
             "supports_function_calling": True,
             "supports_prompt_caching": True,
             "models": ["gemini-3.6-flash", "gemini-3.6-flash-lite"],
+        },
+    },
+    # Catalog refresh: 2026-10-23; https://ai.google.dev/gemini-api/docs/models
+    {
+        "name": "Gemini 3.8",
+        "family_identifier": "google/gemini-3.8",
+        "description": "Gemini 3.8. 1M context; low/medium/high thinking only, no sampling parameters. "
+        "Standard synchronous output is capped at 65,536 tokens.",
+        "provider_types": ["google", "openrouter"],
+        "parameters": {
+            "max_output_tokens": {
+                "type": "int",
+                "default": 8192,
+                "min_value": 1,
+                "max_value": 65536,
+            },
+            "stop_sequences": {"type": "list", "item_schema": {"type": "string"}},
+            "safety_settings": {
+                "type": "list",
+                "default": [
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                ],
+                "item_schema": {
+                    "type": "object",
+                    "properties": {
+                        "category": {
+                            "type": "enum",
+                            "str_values": [
+                                "HARM_CATEGORY_HARASSMENT",
+                                "HARM_CATEGORY_HATE_SPEECH",
+                                "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                "HARM_CATEGORY_DANGEROUS_CONTENT",
+                                "HARM_CATEGORY_CIVIC_INTEGRITY",
+                            ],
+                        },
+                        "threshold": {
+                            "type": "enum",
+                            "default": "BLOCK_NONE",
+                            "str_values": [
+                                "OFF",
+                                "BLOCK_NONE",
+                                "BLOCK_ONLY_HIGH",
+                                "BLOCK_MEDIUM_AND_ABOVE",
+                                "BLOCK_LOW_AND_ABOVE",
+                            ],
+                        },
+                    },
+                },
+            },
+            "thinking_level": {
+                "type": "enum",
+                "default": "medium",
+                "str_values": ["low", "medium", "high"],
+            },
+            "media_resolution": {
+                "type": "enum",
+                "default": "MEDIA_RESOLUTION_MEDIUM",
+                "str_values": [
+                    "MEDIA_RESOLUTION_LOW",
+                    "MEDIA_RESOLUTION_MEDIUM",
+                    "MEDIA_RESOLUTION_HIGH",
+                    "MEDIA_RESOLUTION_ULTRA_HIGH",
+                ],
+            },
+        },
+        "unsupported_parameters": [
+            "temperature",
+            "top_p",
+            "top_k",
+            "frequency_penalty",
+            "presence_penalty",
+            "thinking_budget",
+        ],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "gemini",
+            "developer": "google",
+            "context_window": 1048576,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["gemini-3.8-flash", "google/gemini-3.8-flash"],
+        },
+    },
+    {
+        "name": "Gemini 4 Argon",
+        "family_identifier": "google/gemini-4",
+        "description": "Gemini 4 Argon. 1M context; low/medium/high thinking only, no sampling "
+        "parameters. Standard synchronous output is capped at 65,536 tokens.",
+        "provider_types": ["google", "openrouter"],
+        "parameters": {
+            "max_output_tokens": {
+                "type": "int",
+                "default": 8192,
+                "min_value": 1,
+                "max_value": 65536,
+            },
+            "stop_sequences": {"type": "list", "item_schema": {"type": "string"}},
+            "safety_settings": {
+                "type": "list",
+                "default": [
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                ],
+                "item_schema": {
+                    "type": "object",
+                    "properties": {
+                        "category": {
+                            "type": "enum",
+                            "str_values": [
+                                "HARM_CATEGORY_HARASSMENT",
+                                "HARM_CATEGORY_HATE_SPEECH",
+                                "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                "HARM_CATEGORY_DANGEROUS_CONTENT",
+                                "HARM_CATEGORY_CIVIC_INTEGRITY",
+                            ],
+                        },
+                        "threshold": {
+                            "type": "enum",
+                            "default": "BLOCK_NONE",
+                            "str_values": [
+                                "OFF",
+                                "BLOCK_NONE",
+                                "BLOCK_ONLY_HIGH",
+                                "BLOCK_MEDIUM_AND_ABOVE",
+                                "BLOCK_LOW_AND_ABOVE",
+                            ],
+                        },
+                    },
+                },
+            },
+            "thinking_level": {
+                "type": "enum",
+                "default": "medium",
+                "str_values": ["low", "medium", "high"],
+            },
+            "media_resolution": {
+                "type": "enum",
+                "default": "MEDIA_RESOLUTION_MEDIUM",
+                "str_values": [
+                    "MEDIA_RESOLUTION_LOW",
+                    "MEDIA_RESOLUTION_MEDIUM",
+                    "MEDIA_RESOLUTION_HIGH",
+                    "MEDIA_RESOLUTION_ULTRA_HIGH",
+                ],
+            },
+        },
+        "unsupported_parameters": [
+            "temperature",
+            "top_p",
+            "top_k",
+            "frequency_penalty",
+            "presence_penalty",
+            "thinking_budget",
+        ],
+        "extra_metadata": {
+            "reasoning_mode": "optional",
+            "lineage": "gemini",
+            "developer": "google",
+            "context_window": 1048576,
+            "supports_vision": True,
+            "supports_function_calling": True,
+            "supports_prompt_caching": True,
+            "models": ["gemini-4-argon", "google/gemini-4-argon"],
+            "note": "Unified input/output context; implicit caching only. Long decode "
+            "requires a separate background/continuation flow.",
         },
     },
 ]
