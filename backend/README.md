@@ -64,7 +64,7 @@ Features that are deliberately **not** implemented:
 | Runtime | Python 3.14+ |
 | Framework | FastAPI (ASGI) |
 | Database | PostgreSQL + VectorChord (vchordrq, built on pgvector) |
-| ORM | SQLAlchemy 2.0 (async + sync) |
+| ORM | SQLAlchemy 2.1 (async + sync) |
 | Migrations | Alembic |
 | Validation | Pydantic V2 |
 | HTTP Client | httpx (async streaming) |
@@ -79,10 +79,10 @@ Features that are deliberately **not** implemented:
 ## Quick Start
 
 ```bash
-pip install -e ".[dev]"
+uv sync --locked --extra dev
 cp .env.example .env        # Configure database URL and API keys
-alembic upgrade head
-uvicorn src.main:app --reload
+uv run alembic upgrade head
+uv run uvicorn src.main:app --reload
 ```
 
 ## Documentation

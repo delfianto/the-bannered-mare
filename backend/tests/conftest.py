@@ -5,10 +5,13 @@ import contextlib
 import os
 import tempfile
 from collections.abc import AsyncGenerator, Generator
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 # Disable the fire-and-forget audit writer in tests (its own session is not the test DB)
 os.environ.setdefault("LOGGING__AUDIT_ENABLED", "false")
+# Unit chat tests mock generation; local .env embedding servers must stay unused.
+os.environ.setdefault("RAG__ENABLED", "false")
 
 import pytest  # noqa: E402
 import pytest_asyncio
@@ -22,6 +25,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
+from src.core.config import settings
 from src.core.persistence import Base, get_async_db, get_db
 from src.main import app
 
@@ -188,7 +192,12 @@ def db(db_session: Session) -> Session:
 
 
 @pytest.fixture(scope="function")
-def client(db_session: Session, async_db_engine: AsyncEngine) -> Generator[TestClient]:
+def client(
+    db_session: Session,
+    async_db_engine: AsyncEngine,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> Generator[TestClient]:
     """Create a test client with both sync and async database sessions"""
 
     def override_get_db():
@@ -211,11 +220,17 @@ def client(db_session: Session, async_db_engine: AsyncEngine) -> Generator[TestC
             finally:
                 await session.close()
 
+    # Lifespan seeding opens a global session outside the request overrides.
+    # Seed behaviour is covered explicitly in tests/fixtures and the PG suite.
+    monkeypatch.setattr("src.fixtures.service.seed_database", lambda: None)
+    monkeypatch.setattr(settings, "storage_path", str(tmp_path))
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_async_db] = override_get_async_db
-    with TestClient(app) as test_client:
-        yield test_client
-    app.dependency_overrides.clear()
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.clear()
 
 
 # ---------------------------------------------------------------------------

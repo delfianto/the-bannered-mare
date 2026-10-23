@@ -3,7 +3,7 @@
 These tests make REAL HTTP calls to LLM provider APIs.
 They are skipped when the corresponding API key is not set in the environment.
 
-CI coverage (BE-L7): the backend-ci ``integration`` job runs only
+CI coverage (BE-L7): the Backend CI ``postgres`` job runs only
 ``pytest -m postgres`` — i.e. ``test_postgres_integration.py`` (the DB / pgvector
 path, exercised against a VectorChord container). The other files in this package
 (``test_providers``, ``test_provider_tuning``, ``test_reasoning_suppression``) are

@@ -1,36 +1,82 @@
-name: ci
+name: Backend CI
+
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: backend-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: backend
+
+env:
+  UV_PYTHON: "3.14"
+
 jobs:
-  ci:
+  check:
+    name: Lint, Types and Unit Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
+    env:
+      DATABASE_URL: postgresql://tbm_test:tbm_test@127.0.0.1:1/tbm_test
+      LOGGING__AUDIT_ENABLED: "false"
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v10
         with:
-          python-version: "3.14"
-      - name: install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff basedpyright
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-          if [ -f pyproject.toml ] && grep -q '\[build-system\]' pyproject.toml; then pip install -e . || true; fi
-          if [ -f pyproject.toml ] && ! grep -q '\[build-system\]' pyproject.toml; then python -c "import tomllib, subprocess, sys; d = tomllib.load(open('pyproject.toml', 'rb')).get('project', {}); deps = list(d.get('dependencies', [])) + [x for g in d.get('optional-dependencies', {}).values() for x in g]; subprocess.check_call([sys.executable, '-m', 'pip', 'install', *deps]) if deps else None"; fi
-      - name: lint (ruff)
-        run: ruff check .
-      - name: type-check (basedpyright)
-        run: |
-          basedpyright --outputjson > /tmp/basedpyright.json || true
-          python -c "import json,sys; d = json.load(open('/tmp/basedpyright.json')); s = d['summary']; print(f\"{s['errorCount']} error(s), {s['warningCount']} warning(s)\"); sys.exit(1 if s['errorCount'] else 0)"
-      - name: build
-        run: python -m compileall -q .
+          version: "0.13.5"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Install locked dependencies
+        run: uv sync --locked --extra dev
+      - name: Lint
+        run: uv run --locked ruff check .
+      - name: Check formatting
+        run: uv run --locked ruff format --check .
+      - name: Check types
+        run: uv run --locked basedpyright
+      - name: Unit tests
+        run: uv run --locked pytest -m "not integration and not postgres"
+
+  postgres:
+    name: PostgreSQL and VectorChord
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://tbm_test:tbm_test@127.0.0.1:5432/tbm_test
+      LOGGING__AUDIT_ENABLED: "false"
+    services:
+      postgres:
+        image: tensorchord/vchord-postgres:pg18-v1.1.1
+        env:
+          POSTGRES_USER: tbm_test
+          POSTGRES_PASSWORD: tbm_test
+          POSTGRES_DB: tbm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tbm_test -d tbm_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.13.5"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Install locked dependencies
+        run: uv sync --locked --extra dev
+      - name: Migrate disposable database
+        run: uv run --locked alembic upgrade head
+      - name: Check migration drift
+        run: uv run --locked alembic check
+      - name: PostgreSQL tests
+        run: uv run --locked pytest -m postgres
