@@ -305,6 +305,7 @@ async function handleEditMessage(messageId: string, content: string) {
   <div v-else class="flex h-full overflow-hidden">
     <!-- Session List (from API) -->
     <ChatSessionList
+      :class="activeSession ? 'hidden lg:flex' : ''"
       :sessions="chatSessions"
       :active-session-id="activeSessionId"
       :loading="sessionsLoading"
@@ -312,7 +313,27 @@ async function handleEditMessage(messageId: string, content: string) {
     />
 
     <!-- Main Chat Area -->
-    <div v-if="activeSession" class="flex flex-1 flex-col overflow-hidden bg-base-100/25">
+    <div v-if="activeSession" class="flex min-w-0 flex-1 flex-col overflow-hidden bg-base-100/25">
+      <div class="shrink-0 border-b p-2 lg:hidden">
+        <SelectMenu
+          :model-value="activeSessionId"
+          :items="
+            chatSessions.map((s) => ({
+              value: s.id,
+              label: `${s.character.name} — ${s.title || t('chat.untitled')}`,
+            }))
+          "
+          @update:model-value="selectSession"
+        >
+          <button
+            :aria-label="t('chat.activeTales')"
+            class="flex w-full items-center justify-between gap-2 rounded-lg border bg-base-200 px-3 py-2 text-sm text-foreground"
+          >
+            <span class="truncate">{{ activeSession.title || t("chat.untitled") }}</span>
+            <AppIcon name="i-lucide-chevron-down" class="size-4 shrink-0" />
+          </button>
+        </SelectMenu>
+      </div>
       <ChatHeader
         :character="activeSession.character"
         :session-title="activeSession.title || $t('chat.untitled')"

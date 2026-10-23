@@ -36,10 +36,11 @@ unit tests cannot fetch actual pages; Vue Router navigation remains active. The 
 with `// @vitest-environment jsdom`: DOMPurify explicitly does not support happy-dom
 as a trustworthy sanitization environment. Keep the real sanitizer in these tests.
 
-These are unit/component tests, not browser end-to-end tests. CSS layout, actual
-browser focus/scroll behavior, browser upload/download interactions, and complete
-journeys in a real browser still need a future Playwright suite. An MSW-backed test verifies the
-frontend's API expectations; it does not prove the backend implements them.
+The separate Playwright suite in `e2e/` tests the production bundle in desktop and
+mobile Chromium, including native uploads/downloads, keyboard focus, routed workflows,
+SSE replies, failed saves and conversation switching. See [e2e/README.md](e2e/README.md)
+for setup, debugging and the continuation roadmap. Neither suite proves that the
+backend implements the mocked API; full-stack smoke tests remain a separate task.
 
 ## Adding a regression
 

@@ -143,6 +143,11 @@ fe-mock:
 fe-prod:
     cd {{ frontend_dir }} && bun run build && bun run preview --port {{ fe_preview_port }}
 
+# Serve the built frontend on an isolated port for Playwright (build first).
+[group('frontend')]
+fe-e2e-serve:
+    cd {{ frontend_dir }} && bun run preview --host 127.0.0.1 --port 4187 --strictPort
+
 # Stop the frontend (dev + preview).
 [group('frontend')]
 fe-stop: (kill-port fe_port "frontend (dev)") (kill-port fe_preview_port "frontend (preview)")

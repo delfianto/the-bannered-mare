@@ -47,3 +47,8 @@ vite.config.js
 # environments pick them up); ignore only the per-machine local file
 .claude/settings.local.json
 .vitest/
+
+# Playwright artifacts
+playwright-report/
+test-results/
+blob-report/
