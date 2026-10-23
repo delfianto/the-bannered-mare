@@ -62,7 +62,7 @@
     "vue-tsc": "^3.3.13"
   },
   "overrides": {
-    "js-yaml": "^4.3.2",
+    "js-yaml": "^5.0.0",
     "vite": "npm:@voidzero-dev/vite-plus-core@1.4.0",
     "vitest": "5.0.5"
   },
