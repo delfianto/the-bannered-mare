@@ -1,4 +1,5 @@
 import { test as base, expect, type Request } from "@playwright/test";
+import { createStreamServer } from "./streamServer";
 import { characters } from "../src/mocks/data/characters";
 import { chats } from "../src/mocks/data/chats";
 import { profiles } from "../src/mocks/data/profiles";
@@ -15,7 +16,8 @@ const timestamp = "2026-10-23T00:00:00Z";
 const portrait = "/e2e-portrait.svg";
 const svg =
   '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="100"><rect width="80" height="100" fill="#C9922E"/></svg>';
-function createApi() {
+function createApi(streamServer: Awaited<ReturnType<typeof createStreamServer>>) {
+  const pendingStreams: ReturnType<typeof streamServer.reserve>[] = [];
   const db = structuredClone({
     characters: characters.slice(0, 2),
     chats: chats.slice(0, 2),
@@ -55,6 +57,12 @@ function createApi() {
     history,
     rejected,
     failGeneration: false,
+    pendingStreams,
+    holdNextStream: () => {
+      const stream = streamServer.reserve();
+      pendingStreams.push(stream);
+      return stream;
+    },
     nextId: () => `browser-${++sequence}`,
     rejectNext: (method: string, path: string) => rejected.add(`${method} ${path}`),
   };
@@ -89,7 +97,8 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
 export const test = base.extend<{ api: BrowserApi }>({
   api: [
     async ({ page, context, baseURL }, use) => {
-      const api = createApi();
+      const streamServer = await createStreamServer();
+      const api = createApi(streamServer);
       const unexpected: string[] = [];
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
@@ -137,6 +146,21 @@ export const test = base.extend<{ api: BrowserApi }>({
             "/api/bookmarks/messages": [],
           };
           if (path in collections) return list(collections[path]);
+          const family = api.db.families.find((f) => path === `/api/model-families/${f.id}`);
+          if (family) return json(family);
+          if (api.db.providers.some((p) => path === `/api/providers/${p.id}/models/available`))
+            return json({
+              models: [
+                {
+                  identifier: "local-fixture",
+                  display_name: "Local fixture model",
+                  state: "not-loaded",
+                  size_bytes: null,
+                  quantization: null,
+                },
+              ],
+              last_synced_at: null,
+            });
           const char = api.db.characters.find((c) => path === `/api/characters/${c.id}`);
           if (char) return json(char);
           const chatMessages = path.match(/^\/api\/chats\/([^/]+)\/messages$/);
@@ -161,9 +185,57 @@ export const test = base.extend<{ api: BrowserApi }>({
           return json(api.db.characters[charIndex]);
         }
         if (path === "/api/profiles/" && method === "POST") {
-          const profile = { ...api.db.profiles[0], ...body, id: api.nextId() };
+          const profile = {
+            ...structuredClone(profiles[0]),
+            ...body,
+            id: api.nextId(),
+            created_at: timestamp,
+            updated_at: timestamp,
+          };
           api.db.profiles.unshift(profile);
           return json(profile, 201);
+        }
+        if (path === "/api/personas/" && method === "POST") {
+          const persona = {
+            ...structuredClone(personas[0]),
+            description: null,
+            ...body,
+            id: api.nextId(),
+            is_default: body.is_default === "true" || body.is_default === true,
+            avatar: null,
+            avatar_thumbnail: null,
+          };
+          api.db.personas.unshift(persona);
+          return json(persona, 201);
+        }
+        if (path === "/api/providers" && method === "POST") {
+          const provider = {
+            ...structuredClone(providers[0]),
+            ...body,
+            id: api.nextId(),
+            env_var_name: body.api_key_env_var as string | null,
+            api_key_configured: false,
+          };
+          api.db.providers.unshift(provider);
+          return json(provider, 201);
+        }
+        if (path === "/api/models" && method === "POST") {
+          const id = api.nextId();
+          const routes = (
+            (body.routes as components["schemas"]["ModelCreate"]["routes"]) ?? []
+          ).map((r, i) => ({ ...api.db.models[0].routes[0], ...r, id: `${id}-route-${i}` }));
+          const model = {
+            ...api.db.models[0],
+            ...body,
+            id,
+            routes,
+            active_route_id: routes[0].id,
+            slug: id,
+            original_identifier: routes[0].model_identifier,
+            provider_enabled: true,
+          };
+          api.db.models.unshift(model);
+          return json(model, 201);
         }
         if (path === "/api/chats" && method === "POST") {
           const character = api.db.characters.find((c) => c.id === body.character_id)!;
@@ -211,6 +283,27 @@ export const test = base.extend<{ api: BrowserApi }>({
             active_index: 0,
             created_at: timestamp,
           };
+          const controlled = api.pendingStreams.shift();
+          if (controlled) {
+            reply.content = "";
+            const regenerating = url.searchParams.has("regenerate");
+            controlled.onEvent = (event) => {
+              if (event.type === "text") {
+                reply.content += event.content;
+                if (!regenerating && !history.includes(reply)) history.push(reply);
+              }
+              if (event.type === "start" && event.message_id) reply.id = event.message_id;
+            };
+            controlled.onClose = () => {
+              if (regenerating && controlled.completed && reply.content) {
+                if (history.at(-1)?.role === "assistant") history.pop();
+                history.push(reply);
+              }
+            };
+            return route.continue({ url: controlled.url });
+          }
+          if (url.searchParams.has("regenerate") && history.at(-1)?.role === "assistant")
+            history.pop();
           history.push(reply);
           return route.fulfill({
             contentType: "text/event-stream",
@@ -232,7 +325,11 @@ export const test = base.extend<{ api: BrowserApi }>({
         unexpected.push(`${method} ${path}`);
         return json({ detail: `Unhandled browser fixture: ${method} ${path}` }, 501);
       });
-      await use(api);
+      try {
+        await use(api);
+      } finally {
+        await streamServer.dispose();
+      }
       expect(unexpected, "Every API endpoint must have an explicit fixture").toEqual([]);
       expect(errors, "Uncaught browser errors").toEqual([]);
     },
