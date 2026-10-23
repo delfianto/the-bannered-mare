@@ -3,6 +3,7 @@
 from src.fixtures.models._types import ModelSeedData
 from src.fixtures.models.anthropic import ANTHROPIC_MODELS
 from src.fixtures.models.google import GOOGLE_MODELS
+from src.fixtures.models.meta import OPENROUTER_META_MODELS
 from src.fixtures.models.openai import OPENAI_MODELS
 from src.fixtures.models.opencode import OPENCODE_MODELS
 from src.fixtures.models.opencode_go import OPENCODE_GO_MODELS
@@ -20,7 +21,7 @@ ALL_MODELS: dict[str, list[ModelSeedData]] = {
     "anthropic": ANTHROPIC_MODELS,
     "google": GOOGLE_MODELS,
     "xai": XAI_MODELS,
-    "openrouter": OPENROUTER_MODELS + OPENROUTER_ALT_MODELS,
+    "openrouter": OPENROUTER_MODELS + OPENROUTER_ALT_MODELS + OPENROUTER_META_MODELS,
     "opencode": OPENCODE_MODELS,
     "opencode_go": OPENCODE_GO_MODELS,
 }
