@@ -83,6 +83,7 @@ export function useProvider() {
       if (provider.value) provider.value.last_synced_at = data.last_synced_at;
     } catch (e) {
       modelsError.value = e instanceof Error ? e : new Error("Unknown error");
+      throw modelsError.value;
     } finally {
       syncing.value = false;
     }

@@ -51,6 +51,10 @@ vp fmt .                     # Format with Oxfmt
 bun run typecheck            # Type-check only (vue-tsc --noEmit)
 bun run build                # FINAL GATE: vue-tsc -b && vp build
 
+# Tests (no backend or provider keys required)
+bun run test                 # Unit and component suites
+bun run test:coverage        # Coverage gates + HTML/LCOV reports
+
 # Schema
 bun run api:gen              # Regenerate src/api/schema.d.ts from the root openapi.json
 ```
@@ -58,6 +62,12 @@ bun run api:gen              # Regenerate src/api/schema.d.ts from the root open
 `bun run check` runs Vite+ formatting/linting and the explicit Vue type checker.
 
 `bun run build` is the authoritative quality gate — strict Vue type-check followed by the Rolldown production build.
+
+## Testing
+
+See [TESTING.md](TESTING.md) for the test layers, lifecycle/MSW helpers, coverage gates,
+and guidance for adding regressions. `bun run test:coverage` writes the browsable report
+at `coverage/index.html`; CI retains the report as the `frontend-coverage` artifact.
 
 ## Project Structure
 

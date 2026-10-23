@@ -67,9 +67,32 @@ export default defineConfig(({ command }) => {
           "src/main.ts",
           "src/types/**",
         ],
-        reporter: ["text-summary", "json-summary"],
-        // Keep the floor close to the measured baseline as coverage grows.
-        thresholds: { lines: 9.3, statements: 9.2, functions: 6.3, branches: 7.8 },
+        reporter: ["text-summary", "json-summary", "html", "lcov"],
+        reportOnFailure: true,
+        // Whole-app floors include unmounted views; critical state/transport
+        // modules also have per-file gates so UI coverage can't mask a regression.
+        thresholds: {
+          lines: 31.5,
+          statements: 31.5,
+          functions: 26.5,
+          branches: 23.5,
+          "src/api/client.ts": { lines: 95, statements: 95, functions: 95, branches: 90 },
+          "src/stores/*.ts": {
+            perFile: true,
+            lines: 95,
+            statements: 90,
+            functions: 95,
+            branches: 80,
+          },
+          "src/composables/use{AssetCache,CharacterForm,ChatMessages,CreateChat,EntityCrud,ListCrud,PaginatedList}.ts":
+            {
+              perFile: true,
+              lines: 95,
+              statements: 90,
+              functions: 90,
+              branches: 80,
+            },
+        },
       },
     },
   };

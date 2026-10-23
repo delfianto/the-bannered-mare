@@ -32,13 +32,17 @@ export function useProviderModelFilter(
   const isFiltered = (identifier: string): boolean => allowedModels.value.includes(identifier);
 
   const debouncedSearch = useDebounceFn(async (q: string) => {
+    if (q !== modelSearchQuery.value) return;
     if (!provider.value || !q.trim()) {
       api.clearSearch();
       return;
     }
     try {
-      await api.searchModels(provider.value.id, q.trim());
-      showSearchResults.value = true;
+      const providerId = provider.value.id;
+      await api.searchModels(providerId, q.trim());
+      if (q === modelSearchQuery.value && provider.value?.id === providerId) {
+        showSearchResults.value = true;
+      }
     } catch {
       // Search is advisory — a failure just leaves the dropdown empty.
     }

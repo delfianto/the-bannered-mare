@@ -32,18 +32,21 @@ export function useEntityCrud<TDetail, TCreate = never, TUpdate = never>(
   const deleting = ref(false);
   const error = ref<Error | null>(null);
 
+  let requestSeq = 0;
   async function fetchItem(id: string) {
+    const seq = ++requestSeq;
     loading.value = true;
     error.value = null;
     try {
       const { data, error: apiError, response } = await ops.fetchOne(id);
+      if (seq !== requestSeq) return;
       if (apiError || !data)
         throw extractApiError(apiError, `Failed to load ${ops.label}`, response?.status);
       item.value = data;
     } catch (e) {
-      error.value = e instanceof Error ? e : new Error("Unknown error");
+      if (seq === requestSeq) error.value = e instanceof Error ? e : new Error("Unknown error");
     } finally {
-      loading.value = false;
+      if (seq === requestSeq) loading.value = false;
     }
   }
 

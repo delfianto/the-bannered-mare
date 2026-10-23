@@ -153,6 +153,7 @@ onBeforeUnmount(() => {
         ref="menu"
         class="fixed z-80 overflow-hidden rounded-lg border bg-base-200 shadow-lg"
         :style="menuStyle"
+        @keydown.stop="onKeydown"
       >
         <div v-if="searchInput" class="border-b p-1.5">
           <!-- The search input is the focused control while open, so the combobox

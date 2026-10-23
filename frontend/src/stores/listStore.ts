@@ -58,20 +58,23 @@ export function defineListStore<
       error.value = e instanceof Error ? e : new Error("Unknown error");
     }
 
+    let requestSeq = 0;
     async function fetchList(): Promise<void> {
+      const seq = ++requestSeq;
       loading.value = true;
       error.value = null;
       try {
         const { data, error: apiError, response } = await ops.list();
+        if (seq !== requestSeq) return;
         if (apiError) throw extractApiError(apiError, `Failed to load ${plural}`, response?.status);
         if (data) {
           items.value = data.items;
           hasLoaded.value = true;
         }
       } catch (e) {
-        recordError(e);
+        if (seq === requestSeq) recordError(e);
       } finally {
-        loading.value = false;
+        if (seq === requestSeq) loading.value = false;
       }
     }
 
