@@ -30,16 +30,13 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.4.3"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Format Check
-        run: bun run fmt:check
-
-      - name: Lint
-        run: bun run lint
+      - name: Format, Lint and Vue Types
+        run: bun run check
 
       # Canonical Tailwind classes: eslint catches named scales (text-sm,
       # tracking-widest); the script catches dynamic spacing (h-15.5, w-100).
@@ -48,9 +45,6 @@ jobs:
 
       - name: Canonical Classes
         run: bun run lint:canonical
-
-      - name: Type Check
-        run: bun run typecheck
 
       # Runs the suite with V8 coverage; the thresholds in vite.config.ts fail
       # the job if coverage drops below the floor (ratchets up as tests land).

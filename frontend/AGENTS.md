@@ -109,7 +109,7 @@ src/
 - **i18n:** vue-i18n
 - **API Client:** openapi-fetch (typed against `src/api/schema.d.ts`)
 - **Mocking:** MSW (Mock Service Worker)
-- **Icons:** `lucide-vue-next` via the global `<AppIcon name="i-lucide-*" />` (registry: `src/components/shared/icons.ts`)
+- **Icons:** `@lucide/vue` via the global `<AppIcon name="i-lucide-*" />` (registry: `src/components/shared/icons.ts`)
 - **Lint / Format:** **Oxlint** (`vp lint`) is the JS/Vue linter and **Oxfmt** (`vp fmt`) the formatter — both from the Vite+ toolchain. Two small, non-overlapping Tailwind-canonicalization checks sit alongside them: **`bun run lint:tailwind`** (a minimal ESLint config — `eslint-plugin-tailwindcss` only, no vue/formatting rules, so it doesn't fight Oxfmt — enforcing `no-unnecessary-arbitrary-value` for _named_ scales like `text-[0.875rem]`→`text-sm`) and **`bun run lint:canonical`** (`scripts/canonical-classes.mjs`, for _dynamic spacing_ like `h-[62px]`→`h-15.5`). CI runs all three (see `.github/workflows/frontend-ci.yml`).
 
 ### 4.2 Layered Responsibilities
@@ -190,13 +190,15 @@ vp dev --host                # Dev server (port 5173)
 # Quality gates
 vp lint                      # Lint with Oxlint
 vp fmt .                     # Format with Oxfmt (vp fmt . --check to verify only)
-vp check                     # fmt + lint + type-check in one pass
+bun run check                # vp format/lint + Vue type-check
 bun run typecheck            # Type-check only (vue-tsc --noEmit)
 bun run build                # FINAL GATE: vue-tsc -b && vp build
 
 # Schema
 bun run api:gen              # Regenerate schema.d.ts from the root openapi.json
 ```
+
+`bun run check` combines `vp check` (format + lint) with `vue-tsc --noEmit`. Keep the Vue checker: the generic Oxlint/tsgolint path does not replace SFC template checks.
 
 `bun run build` (`vue-tsc -b && vp build`) is the authoritative check — strict Vue type-check followed by the production Rolldown build. A task is not done until it passes.
 
@@ -249,7 +251,7 @@ The UI layer is **DaisyUI 5** — CSS-only Tailwind component classes plus a han
 
 ```vue
 <AppIcon name="i-lucide-*" />
-<!-- ALL icons (lucide-vue-next) -->
+<!-- ALL icons (@lucide/vue) -->
 <SelectMenu v-model="v" :items="items" value-key="value"> <button>…</button> </SelectMenu>
 <!-- searchable teleported dropdown -->
 <AppToggle :model-value="on" @change="…" />
@@ -346,7 +348,7 @@ If the user asks for a step-by-step plan, output specifically using this format:
 
 ## Verification
 
-- [ ] Run `vp check` (format + lint + type)
+- [ ] Run `bun run check` (format + lint + Vue types)
 - [ ] Run `bun run build` (final gate — `vue-tsc -b && vp build`)
 
 ---

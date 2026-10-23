@@ -68,10 +68,8 @@ export default defineConfig(({ command }) => {
           "src/types/**",
         ],
         reporter: ["text-summary", "json-summary"],
-        // Floor ratchets up as coverage lands (Wave 2/3). Set just under the
-        // current baseline (lines 2.66 / stmts 2.59 / fns 1.4 / branches 1.69)
-        // so CI is honest and catches regressions without being red on day one.
-        thresholds: { lines: 2.5, statements: 2.5, functions: 1.3, branches: 1.6 },
+        // Keep the floor close to the measured baseline as coverage grows.
+        thresholds: { lines: 9.3, statements: 9.2, functions: 6.3, branches: 7.8 },
       },
     },
   };

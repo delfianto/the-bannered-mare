@@ -6,21 +6,21 @@ Talks to [the backend](../backend), a FastAPI service, via a typed `openapi-fetc
 
 ## Tech Stack
 
-| Layer           | Choice                                                                                      |
-| --------------- | ------------------------------------------------------------------------------------------- |
-| Framework       | Vue 3.5 — `<script setup lang="ts">` Composition API                                        |
-| Toolchain       | [Vite+](https://vite-plus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
-| Package Manager | Bun                                                                                         |
-| Language        | TypeScript 6 (strict)                                                                       |
-| UI Library      | [DaisyUI 5](https://daisyui.com) — a Tailwind CSS plugin via `@tailwindcss/vite`            |
-| Styling         | Tailwind CSS v4 + DaisyUI themes (`tbm-*`, switched via `data-theme`)                       |
-| State           | Pinia (global) + composables (feature-scoped)                                               |
-| Routing         | Vue Router 5                                                                                |
-| i18n            | vue-i18n                                                                                    |
-| API Client      | openapi-fetch (typed against auto-generated `src/api/schema.d.ts`)                          |
-| Mocking         | MSW (Mock Service Worker)                                                                   |
-| Icons           | `lucide-vue-next` via the global `<AppIcon name="i-lucide-*" />`                            |
-| Lint / Format   | Oxlint / Oxfmt via `vp lint` / `vp fmt`                                                     |
+| Layer           | Choice                                                                                     |
+| --------------- | ------------------------------------------------------------------------------------------ |
+| Framework       | Vue 3.5 — `<script setup lang="ts">` Composition API                                       |
+| Toolchain       | [Vite+](https://viteplus.dev) (`vp` CLI) — Rolldown bundler, Oxc transforms, Lightning CSS |
+| Package Manager | Bun                                                                                        |
+| Language        | TypeScript 7.0.2 native checker via the pinned compatibility bridge (strict)               |
+| UI Library      | [DaisyUI 5](https://daisyui.com) — a Tailwind CSS plugin via `@tailwindcss/vite`           |
+| Styling         | Tailwind CSS v4 + DaisyUI themes (`tbm-*`, switched via `data-theme`)                      |
+| State           | Pinia (global) + composables (feature-scoped)                                              |
+| Routing         | Vue Router 5                                                                               |
+| i18n            | vue-i18n                                                                                   |
+| API Client      | openapi-fetch (typed against auto-generated `src/api/schema.d.ts`)                         |
+| Mocking         | MSW (Mock Service Worker)                                                                  |
+| Icons           | `@lucide/vue` via the global `<AppIcon name="i-lucide-*" />`                               |
+| Lint / Format   | Oxlint / Oxfmt via `vp lint` / `vp fmt`                                                    |
 
 ## Getting Started
 
@@ -45,7 +45,7 @@ vp dev --host                # Dev server on port 5173
 vp install                   # Install deps (Bun under the hood)
 
 # Quality gates
-vp check                     # fmt + lint + type-check in one pass
+bun run check                # vp format/lint + Vue type-check
 vp lint                      # Lint with Oxlint
 vp fmt .                     # Format with Oxfmt
 bun run typecheck            # Type-check only (vue-tsc --noEmit)
@@ -54,6 +54,8 @@ bun run build                # FINAL GATE: vue-tsc -b && vp build
 # Schema
 bun run api:gen              # Regenerate src/api/schema.d.ts from the root openapi.json
 ```
+
+`bun run check` runs Vite+ formatting/linting and the explicit Vue type checker.
 
 `bun run build` is the authoritative quality gate — strict Vue type-check followed by the Rolldown production build.
 
@@ -112,4 +114,4 @@ MSW requires `localhost` or HTTPS. For remote access: `ssh -L 5173:localhost:517
 
 ## Claude Code Setup
 
-A shared `.claude/` config is checked into the repo (permissions, hooks, skills, MCP). Personal overrides go in `.claude/settings.local.json` (gitignored). See `CLAUDE.md` for the full AI developer guide.
+A shared `.claude/` config is checked into the repo (permissions, hooks, skills, MCP). Personal overrides go in `.claude/settings.local.json` (gitignored). See `AGENTS.md` for the full AI developer guide.
