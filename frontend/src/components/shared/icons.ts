@@ -1,4 +1,5 @@
 import type { Component } from "vue";
+import Github from "./GithubIcon.vue";
 import {
   Activity,
   AlertCircle,
@@ -39,7 +40,6 @@ import {
   Filter,
   Flame,
   FolderOpen,
-  Github,
   Globe,
   GripVertical,
   Hash,
@@ -97,7 +97,7 @@ import {
   UserCircle,
   X,
   Zap,
-} from "lucide-vue-next";
+} from "@lucide/vue";
 
 /**
  * Registry of every Lucide icon referenced in the app, keyed by its kebab-case
