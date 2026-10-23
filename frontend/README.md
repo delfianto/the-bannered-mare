@@ -103,7 +103,7 @@ Styling is **DaisyUI 5** on Tailwind v4. Six palettes — Amber Dawn, Emerald Gl
 
 ## Mock Mode
 
-MSW intercepts all API calls in the browser when `VITE_USE_MOCKS=true`. Fixtures in `src/mocks/data/` include 9 providers, 38 models across 24 families, 20 Elder Scrolls–themed characters, 20 chats with YAML conversation scenarios, and more.
+MSW intercepts all API calls in the browser when `VITE_USE_MOCKS=true`. Fixtures in `src/mocks/data/` include 9 providers, 65 models across 45 families, 20 Elder Scrolls–themed characters, 20 chats with YAML conversation scenarios, and more.
 
 ```bash
 VITE_USE_MOCKS=true vp dev --host                         # mock mode

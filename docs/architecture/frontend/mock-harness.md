@@ -85,7 +85,7 @@ Mock logic is encapsulated under
   filtering, and model load-state mutations.
 - **`data/`** — TypeScript modules with realistic test data mirroring the seed fixtures:
   - **9 providers** (OpenAI, Anthropic, Google AI, OpenRouter, xAI, Ollama, LM Studio, OpenCode Zen, OpenCode Go)
-  - **24 model families** and **38 models**
+  - **45 model families** and **65 models**
   - **20 characters** (with Unsplash avatar photos)
   - **20 chats** whose conversations are lazily loaded from YAML scenario scripts
   - **3 personas**, **3 presets**, **4 prompt templates**, **3 prompt fragments**, and **5 RAG data-bank entries**
