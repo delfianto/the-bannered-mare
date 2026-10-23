@@ -1,11 +1,11 @@
 # The Bannered Mare — AI Developer Instructions (Root)
 
-This is a monorepo with two independent halves. This file only covers what spans both — for anything specific to one side, read that side's own `AGENTS.md`/`CLAUDE.md` first.
+This is a monorepo with two independent halves. This file only covers what spans both — for anything specific to one side, read that side's own `AGENTS.md` first.
 
-- **`backend/`** — Python 3.14 / FastAPI / SQLAlchemy 2.0 / PostgreSQL + pgvector. Full instructions: [backend/AGENTS.md](backend/AGENTS.md).
-- **`frontend/`** — Vue 3.5 / TypeScript 6 / Tailwind v4 + DaisyUI 5 / Vite+. Full instructions: [frontend/AGENTS.md](frontend/AGENTS.md).
+- **`backend/`** — Python 3.14 / FastAPI / SQLAlchemy 2.1 / PostgreSQL + pgvector. Full instructions: [backend/AGENTS.md](backend/AGENTS.md).
+- **`frontend/`** — Vue 3.5 / TypeScript 7 native bridge / Tailwind v4 + DaisyUI 5 / Vite+. Full instructions: [frontend/AGENTS.md](frontend/AGENTS.md).
 
-A single `.claude/` config at the **repo root** holds the merged permissions and path-scoped hooks for both halves. **Launch Claude Code from the repo root** so it loads — Claude Code reads `.claude/settings.json` only from the launch directory, not from subdirectories (unlike `CLAUDE.md`, which is hierarchical), so a `backend/.claude` or `frontend/.claude` settings file would be inert. Each hook self-guards to files of its own half (`ruff` only touches `backend/*.py`, `vp fmt` only `frontend/*`). Each half still keeps its own `AGENTS.md`/`CLAUDE.md` instructions, and the frontend keeps its own `.claude/skills/`.
+A single `.claude/` config at the **repo root** holds the merged permissions and path-scoped hooks for both halves. **Launch Claude Code from the repo root** so it loads — Claude Code reads `.claude/settings.json` only from the launch directory, not from subdirectories (unlike `CLAUDE.md`, which is hierarchical), so a `backend/.claude` or `frontend/.claude` settings file would be inert. Each hook self-guards to files of its own half (`ruff` only touches `backend/*.py`, `vp fmt` only `frontend/*`). Each half still keeps its own `AGENTS.md` instructions, and the frontend keeps its own `.claude/skills/`.
 
 ## Cross-Cutting Rules
 
@@ -37,7 +37,7 @@ The root [`justfile`](justfile) is the canonical entrypoint for **running** ever
 Agent notes:
 
 - **`be-dev`/`be-prod`, `fe-dev`/`fe-mock`/`fe-prod`, and `docs-dev` are long-running (foreground) servers** — they block and never return. Launch them in the background (or a separate process) and use `just status` to confirm; use `just stop-all` to tear everything down. The `*-install` recipes run to completion normally.
-- **The justfile does _not_ include lint/type/test gates.** Those live in each half's own `AGENTS.md` (`ruff` / `basedpyright` / `pytest` for backend; `vp check` / `bun run build` for frontend) — run them there.
+- **The justfile does _not_ include lint/type/test gates.** Those live in each half's own `AGENTS.md` (`ruff` / `basedpyright` / `pytest` for backend; `bun run check` / `bun run build` for frontend) — run them there.
 - **`db-reset` and `db-restore` are destructive**, and all `db-*` recipes read `DATABASE_URL` from `backend/.env` (which may point at a remote host). Confirm the target before running.
 
 ## Repository Structure
