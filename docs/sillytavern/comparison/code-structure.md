@@ -496,5 +496,4 @@ designed with the benefit of hindsight.
 **Tool & Version Info**
 - SillyTavern: v1.17.0
 - The Bannered Mare: v0.2.5
-- Author: Claude Opus 4.6 (1M context)
 - Date: 2026-04-07

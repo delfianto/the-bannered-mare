@@ -16,7 +16,7 @@ and remains the work of its original creator (credited below). They are included
 import fixtures; all rights stay with their authors. A couple were themselves mirrored onto
 Character Tavern from other communities (noted in the table).
 
-**`daro_soraya.png` is an original creation for this project** — authored with Claude Opus to
+**`daro_soraya.png` is an original creation for this project** — created to
 test deep, lore-accurate roleplay in the *Elder Scrolls* universe (Daro-Soraya, a Khajiit
 spy/dancer).
 
@@ -24,7 +24,7 @@ spy/dancer).
 
 | File | Character | Creator | Spec | Source |
 |------|-----------|---------|------|--------|
-| `daro_soraya.png` | Daro-Soraya | this project | V2 | **Original** — Claude Opus, Elder Scrolls deep-RP test |
+| `daro_soraya.png` | Daro-Soraya | this project | V2 | **Original** — Elder Scrolls deep-RP test |
 | `bestfriend_roommate.png` | Bestfriend / roommate | izuki0009 | V3 | Character Tavern |
 | `emily.png` | Emily | zaurabh | V3 | Character Tavern |
 | `homeroom_teacher.png` | Your Young Homeroom Teacher | yernox | V3 | Character Tavern (transported from Janitor AI) |

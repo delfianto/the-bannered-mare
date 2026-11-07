@@ -8,7 +8,7 @@ implementation contract each `ProviderAdapter` must satisfy. Start with the
 specific provider.
 
 ::: warning Accuracy & provenance
-These pages were authored as implementation guidelines (with the assistance of Claude Opus 4.6)
+These pages were authored as implementation guidelines
 and represent each provider's API **as of its creation date** below. Providers frequently add,
 deprecate, and change models, parameters, and behavior. Always consult the official
 documentation before making implementation decisions.
