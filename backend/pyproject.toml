@@ -6,22 +6,22 @@ license = "AGPL-3.0-or-later"
 
 dependencies = [
     # Web framework
-    "fastapi==0.161.1",
+    "fastapi==0.162.2",
     "uvicorn[standard]==0.54.0",
     # Database
-    "sqlalchemy==2.1.6",
+    "sqlalchemy==2.1.8",
     # SQLAlchemy's async engine requires greenlet at runtime (not just for tests).
     "greenlet>=3.0.0",
-    "psycopg[binary]==3.3.6",
+    "psycopg[binary]==3.3.8",
     "alembic==1.20.1",
-    "alembic-postgresql-enum==1.11.0",
+    "alembic-postgresql-enum==1.11.1",
     "asyncpg==0.32.0",
     "pgvector==0.5.1",
     # Validation
-    "pydantic==2.14.1",
-    "pydantic-settings==2.16.1",
+    "pydantic==2.14.3",
+    "pydantic-settings==2.16.2",
     # File handling
-    "python-multipart==0.0.32",
+    "python-multipart==0.0.33",
     "aiofiles==25.1.0",
     # HTTP client for provider APIs
     "httpx==0.28.1",
@@ -45,8 +45,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     # Testing
-    "pytest==9.1.1",
-    "pytest-asyncio==1.4.0",
+    "pytest==9.2.0",
+    "pytest-asyncio==1.4.1.post1",
     "pytest-cov==7.1.0",
     "pytest-mock==3.17.0",
 
@@ -54,11 +54,11 @@ dev = [
     "aiosqlite==0.22.1",
 
     # Code quality
-    "ruff==0.17.2",
+    "ruff==0.17.4",
     "basedpyright==1.40.2",
 
     # Type stubs
-    "types-aiofiles==25.1.0.20260518",
+    "types-aiofiles==25.1.0.20261107",
 ]
 
 [tool.ruff]
