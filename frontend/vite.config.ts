@@ -1,9 +1,25 @@
 import Terminal from "vite-plugin-terminal";
-import ViteYaml from "@modyfi/vite-plugin-yaml";
 import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
-import { defineConfig } from "vite-plus";
+import { defineConfig, type Plugin } from "vite-plus";
+import { load as loadYaml } from "js-yaml";
 import { fileURLToPath, URL } from "node:url";
+
+function viteYaml(): Plugin {
+  return {
+    name: "vite:transform-yaml",
+    transform(code: string, id: string) {
+      if (/\.ya?ml$/.test(id)) {
+        const parsed = loadYaml(code, { filename: id });
+        return {
+          code: `const data = ${JSON.stringify(parsed)};\nexport default data;`,
+          map: { mappings: "" },
+        };
+      }
+      return null;
+    },
+  };
+}
 
 export default defineConfig(({ command }) => {
   const useMocks = process.env.VITE_USE_MOCKS === "true";
@@ -15,7 +31,7 @@ export default defineConfig(({ command }) => {
     plugins: [
       vue(),
       tailwindcss(),
-      ViteYaml(),
+      viteYaml(),
       command === "serve" &&
         Terminal({
           console: "terminal",
