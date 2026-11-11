@@ -55,16 +55,16 @@
     "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4.3.5",
     "typescript": "npm:typescript-native-bridge@6.0.3-bridge.19.tsgo.7.0.2",
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.5.0",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.6.0",
     "vite-plugin-terminal": "^1.4.0",
-    "vite-plus": "1.5.0",
+    "vite-plus": "1.6.0",
     "vitest": "5.1.0",
     "vue-eslint-parser": "^10.4.2",
     "vue-tsc": "^3.3.14"
   },
   "overrides": {
     "js-yaml": "^5.0.0",
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.5.0",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.6.0",
     "vitest": "5.1.0"
   },
   "packageManager": "bun@1.4.4",
